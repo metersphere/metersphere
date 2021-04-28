@@ -366,7 +366,7 @@ export default {
 
           this.$nextTick(function () {
             if (this.$refs.caseTable) {
-              setTimeout(this.$refs.caseTable.doLayout, 200);
+              this.$refs.caseTable.doLayout();
               this.$refs.caseTable.checkTableRowIsSelect();
             }
           })

@@ -118,7 +118,8 @@ export default {
       triggerFilters: [
         {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
         {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
-        {text: this.$t('commons.trigger_mode.api'), value: 'API'}
+        {text: this.$t('commons.trigger_mode.api'), value: 'API'},
+        {text: this.$t('commons.trigger_mode.case'), value: 'CASE'},
       ],
       buttons: [
         {

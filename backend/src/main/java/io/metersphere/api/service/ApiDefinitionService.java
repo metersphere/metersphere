@@ -30,10 +30,12 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -96,6 +98,8 @@ public class ApiDefinitionService {
     private EsbApiParamService esbApiParamService;
     @Resource
     ApiModuleMapper apiModuleMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -104,7 +108,7 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
@@ -112,7 +116,7 @@ public class ApiDefinitionService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
@@ -293,7 +297,8 @@ public class ApiDefinitionService {
             test.setTags(request.getTags());
         } else {
             test.setTags(null);
-        }        this.setModule(test);
+        }
+        this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
     }
@@ -361,7 +366,9 @@ public class ApiDefinitionService {
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
         apiDefinition.setUpdateTime(System.currentTimeMillis());
-        apiDefinition.setStatus(APITestStatus.Underway.name());
+        if (StringUtils.isEmpty(apiDefinition.getStatus())) {
+            apiDefinition.setStatus(APITestStatus.Underway.name());
+        }
         if (apiDefinition.getUserId() == null) {
             apiDefinition.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
@@ -415,6 +422,7 @@ public class ApiDefinitionService {
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
+                apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
@@ -534,6 +542,14 @@ public class ApiDefinitionService {
      * @return
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        int count = 100;
+        BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
+        if (StringUtils.isNotEmpty(dto.getConcurrency())) {
+            count = Integer.parseInt(dto.getConcurrency());
+        }
+        if (request.getTestElement() != null && request.getTestElement().getHashTree().size() == 1 && request.getTestElement().getHashTree().get(0).getHashTree().size() > count) {
+            MSException.throwException("并发数量过大，请重新选择！");
+        }
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
@@ -824,21 +840,21 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
-    public void calculateResult(List<ApiDefinitionResult> resList) {
+    public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());

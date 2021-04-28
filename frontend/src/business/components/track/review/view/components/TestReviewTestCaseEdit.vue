@@ -62,157 +62,45 @@
                 </el-header>
 
                 <div class="case_container">
-                  <el-row>
-                    <el-col :span="9" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
-                      <span class="cast_item">{{ testCase.priority }}</span>
-                    </el-col>
-                    <el-col :span="10" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
-                      <span class="cast_item">{{ testCase.nodePath }}</span>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :offset="1">
-                      <span class="cast_label">关联测试：</span>
-                      <span v-for="(item,index) in testCase.list" :key="index">
-                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{
-                            item.testName
-                          }}</el-button>
-                      </span>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
-                      <span class="cast_item">{{ testCase.prerequisite }}</span>
-                    </el-col>
-                  </el-row>
+                  <el-form>
 
-                  <!--                  <el-row>
-                                      <el-col class="test-detail" :span="20" :offset="1">
-                                        <el-tabs v-model="activeTab" type="border-card">
-                                          <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                                            <api-test-detail :is-read-only="true" v-if="testCase.type === 'api'"
-                                                             :id="testCase.testId" ref="apiTestDetail"/>
-                                            <performance-test-detail v-if="testCase.type === 'performance'"
-                                                                     :is-read-only="true"
-                                                                     :id="testCase.testId"
-                                                                     ref="performanceTestDetail"/>
-                                            <api-case-item :type="mark" :api="api" :api-case="apiCase" v-if="testCase.type==='testcase'"
-                                                           ref="apiCaseConfig"/>
-                                            <ms-edit-api-scenario :type="mark" v-if="testCase.type==='automation'" :currentScenario="currentScenario"
-                                                                  ref="autoScenarioConfig"></ms-edit-api-scenario>
+                    <el-row>
+                      <el-col :span="7">
+                        <el-form-item :label="$t('test_track.case.module')" prop="nodePath" :label-width="formLabelWidth">
+                          {{testCase.nodePath}}
+                        </el-form-item >
+                      </el-col>
+                      <el-col :span="7">
+                        <el-form-item :label="$t('test_track.plan.plan_project')" prop="projectName" :label-width="formLabelWidth">
+                          {{testCase.projectName}}
+                        </el-form-item >
+                      </el-col>
+                    </el-row>
 
-                                          </el-tab-pane>
-                                        </el-tabs>
-                                      </el-col>
-                                    </el-row>-->
+                    <el-form ref="customFieldForm"
+                             class="case-form">
+                      <el-row>
+                        <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                          <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                                        :label-width="formLabelWidth">
+                            <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                          </el-form-item>
+                        </el-col>
+                      </el-row>
+                    </el-form>
 
-                  <el-row>
-                    <el-col :span="20" :offset="1">
-                      <div>
-                        <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
-                      </div>
-                      <el-table
-                        :data="testCase.steptResults"
-                        class="tb-edit"
-                        size="mini"
-                        :border="true"
-                        :default-sort="{prop: 'num', order: 'ascending'}"
-                        highlight-current-row>
-                        <el-table-column :label="$t('test_track.case.number')" prop="num"
-                                         min-width="5%"/>
+                    <form-rich-text-item :label-width="formLabelWidth" :disabled="true" :title="$t('test_track.case.prerequisite')"
+                                         :data="testCase" prop="prerequisite"/>
+                    <step-change-item :label-width="formLabelWidth" :form="testCase"/>
+                    <form-rich-text-item :label-width="formLabelWidth" :disabled="true" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDescription"/>
+                    <form-rich-text-item  :label-width="formLabelWidth" :disabled="true" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="testCase" prop="expectedResult"/>
 
-                        <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
-                          <template v-slot:default="scope">
-                            <el-input
-                              size="mini"
-                              class="border-hidden"
-                              type="textarea"
-                              :autosize="{ minRows: 1, maxRows: 4}"
-                              :disabled="true"
-                              v-model="scope.row.desc"/>
-                          </template>
-                        </el-table-column>
-                        <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
-                          <template v-slot:default="scope">
-                            <el-input
-                              size="mini"
-                              class="border-hidden"
-                              type="textarea"
-                              :autosize="{ minRows: 1, maxRows: 4}"
-                              :disabled="true"
-                              v-model="scope.row.result"/>
-                          </template>
-                        </el-table-column>
-                        <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
-                          <template v-slot:default="scope">
-                            <el-input
-                              class="table-edit-input"
-                              size="mini"
-                              type="textarea"
-                              :autosize="{ minRows: 2, maxRows: 4}"
-                              :rows="2"
-                              :disabled="true"
-                              v-model="scope.row.actualResult"
-                              :placeholder="$t('commons.input_content')"
-                              clearable/>
-                          </template>
-                        </el-table-column>
-                        <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
-                          <template v-slot:default="scope">
-                            <el-select
-                              :disabled="true"
-                              v-model="scope.row.executeResult"
-                              @change="stepResultChange()"
-                              size="mini">
-                              <el-option :label="$t('test_track.plan_view.pass')" value="Pass"
-                                         style="color: #7ebf50;"/>
-                              <el-option :label="$t('test_track.plan_view.failure')" value="Failure"
-                                         style="color: #e57471;"/>
-                              <el-option :label="$t('test_track.plan_view.blocking')" value="Blocking"
-                                         style="color: #dda451;"/>
-                              <el-option :label="$t('test_track.plan_view.skip')" value="Skip"
-                                         style="color: #919399;"/>
-                            </el-select>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </el-col>
-                  </el-row>
+                    <test-case-step-item :label-width="formLabelWidth" :read-only="true" v-if="testCase.stepModel === 'STEP'" :form="testCase"/>
 
-                  <el-row>
-                    <el-col :span="15" :offset="1">
-                      <div>
-                        <span class="cast_label">{{ $t('commons.remark') }}：</span>
-                        <span v-if="testCase.remark == null || testCase.remark === ''"
-                              style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
-                      </div>
-                      <div>
-                        <el-input :rows="3"
-                                  type="textarea"
-                                  v-if="testCase.remark"
-                                  disabled
-                                  v-model="testCase.remark"/>
-                      </div>
-                    </el-col>
-                  </el-row>
+                    <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true"
+                                               :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
 
-                  <el-row>
-                    <el-col :span="20" :offset="1">
-                      <div>
-                        <span class="cast_label">{{ $t('test_track.case.attachment') }}:</span>
-                      </div>
-                      <div>
-                        <test-case-attachment :table-data="tableData"
-                                              :read-only="false"
-                                              :is-delete="false"
-                        />
-                      </div>
-                    </el-col>
-                  </el-row>
-
+                  </el-form>
                 </div>
 
               </el-scrollbar>
@@ -245,15 +133,27 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {getCurrentProjectID, getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
-import MsEditApiScenario from "@/business/components/api/automation/scenario/EditApiScenario"
+import MsEditApiScenario from "@/business/components/api/automation/scenario/EditApiScenario";
+import {buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
+import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
 
 export default {
   name: "TestReviewTestCaseEdit",
   components: {
+    TestCaseStepItem,
+    StepChangeItem,
+    CustomFiledComponent,
+    FormRichTextItem,
+    TestCaseEditOtherInfo,
     PerformanceTestResult,
     PerformanceTestDetail,
     ApiTestResult,
@@ -284,6 +184,10 @@ export default {
       mark: 'detail',
       api: {},
       apiCase: {},
+      testCaseTemplate: {},
+      hasTapdId: false,
+      hasZentaoId: false,
+      formLabelWidth: '100px'
     };
   },
   props: {
@@ -298,6 +202,14 @@ export default {
       default: false
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId;
+    },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    }
+  },
   methods: {
     openTest(item) {
       const type = item.testType;
@@ -306,7 +218,7 @@ export default {
         case "performance": {
           let performanceData = this.$router.resolve({
             path: '/performance/test/edit/' + id,
-          })
+          });
           window.open(performanceData.href, '_blank');
           break;
         }
@@ -379,19 +291,26 @@ export default {
         let item = {};
         let data = response.data;
         Object.assign(item, data);
-        item.steps = JSON.parse(item.steps);
-        item.steptResults = [];
-        for (let i = 0; i < item.steps.length; i++) {
-          item.steps[i].actualResult = '';
-          item.steps[i].executeResult = '';
-          item.steptResults.push(item.steps[i]);
+        item.results = JSON.parse(item.results);
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
+        } else {
+          item.issues = {};
         }
+        item.steps = JSON.parse(item.steps);
+        if (!item.stepModel) {
+          item.stepModel = 'STEP';
+        }
+        parseCustomField(item, this.testCaseTemplate, null, null, buildTestCaseOldFields(item));
         this.testCase = item;
-        console.log(this.testCase)
-        this.getRelatedTest();
+        if (!this.testCase.actualResult) {
+          // 如果没值,使用模板的默认值
+          this.testCase.actualResult = this.testCaseTemplate.actualResult;
+        }
+        // this.getRelatedTest();
         this.getComments(item);
         /*  this.initTest();*/
-        this.getFileMetaData(data);
+        //this.getFileMetaData(data);
       })
 
     },
@@ -411,9 +330,16 @@ export default {
     openTestCaseEdit(testCase) {
       this.showDialog = true;
       this.activeTab = 'detail';
-      listenGoBack(this.handleClose);
-      this.initData(testCase);
       this.getComments(testCase);
+      this.hasTapdId = false;
+      this.hasZentaoId = false;
+      listenGoBack(this.handleClose);
+      let initFuc = this.initData;
+      getTemplate('field/template/case/get/relate/', this)
+        .then((template) => {
+          this.testCaseTemplate = template;
+          initFuc(testCase);
+        });
     },
     /* initTest() {
        this.$nextTick(() => {
@@ -558,5 +484,10 @@ export default {
 
 .tb-edit >>> *[disabled] {
   opacity: 0.7;
+}
+
+.step-info {
+  padding-left: 40px;
+  padding-right: 15px;
 }
 </style>

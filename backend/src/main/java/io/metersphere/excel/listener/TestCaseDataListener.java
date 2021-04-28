@@ -184,6 +184,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         testCase.setProjectId(this.projectId);
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
+        testCase.setCustomNum(data.getCustomNum());
         String nodePath = data.getNodePath();
 
         if (!nodePath.startsWith("/")) {
@@ -198,9 +199,14 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         String modifiedTags = modifyTagPattern(data);
         testCase.setTags(modifiedTags);
 
-        String steps = getSteps(data);
-        testCase.setSteps(steps);
-
+        if (StringUtils.isNotBlank(data.getStepModel())
+                && StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
+            testCase.setStepDescription(data.getStepDesc());
+            testCase.setExpectedResult(data.getStepResult());
+        } else {
+            String steps = getSteps(data);
+            testCase.setSteps(steps);
+        }
         return testCase;
 }
 

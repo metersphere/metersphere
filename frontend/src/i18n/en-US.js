@@ -263,6 +263,15 @@ export default {
       host_is_null: 'Prometheus Host cannot be empty'
     }
   },
+  custom_field: {
+    case_status: 'Case Status',
+    case_maintainer: 'Maintainer',
+    case_priority: 'Case Priority',
+    issue_creator: 'Creator',
+    issue_processor: 'Processor',
+    issue_status: 'Status',
+    issue_severity: 'Severity'
+  },
   workspace: {
     create: 'Create Workspace',
     update: 'Update Workspace',
@@ -376,7 +385,8 @@ export default {
     file_manager: 'File Manager',
     no_data: 'No Data',
     select: 'Select',
-    repeatable: 'Interface definition URL repeatable'
+    repeatable: 'Interface definition URL repeatable',
+    upload_file_again: 'Upload again'
   },
   member: {
     create: 'Create',
@@ -443,6 +453,7 @@ export default {
     test_request_statistics: 'Test Request Statistics',
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
+    test_monitor_details: 'Test Monitor Details',
     test_details: 'Test Details',
     test_duration: 'Current Execution Time：{0} minutes {1} seconds',
     test_start_time: 'Start Execution Time',
@@ -616,6 +627,9 @@ export default {
       req_param: "Request params",
       rsp_param: "Response Params",
       delete_mock_expect: "Confirm to delete this expect info ?",
+      rule: {
+        input_code: "Please input HTTP Code"
+      }
     },
     definition: {
       api_title: "Api test",
@@ -1483,9 +1497,9 @@ export default {
       close_success: "Closed successfully",
       preview: "Preview",
       please_choose_current_owner: "Please choose current owner",
-      tapd_current_owner: "Tapd Current Owner：",
-      zentao_bug_build: "Zentao bug Impact version",
-      zentao_bug_assigned: "Zentao bug handler",
+      tapd_current_owner: "Tapd Current Owner",
+      zentao_bug_build: "Zentao Impact version",
+      zentao_bug_assigned: "Zentao handler",
     },
     report: {
       name: "Test Plan Report",

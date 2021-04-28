@@ -178,7 +178,7 @@ export default {
         '            请点击下面链接进入测试报告页面</p>\n' +
         '        <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>\n' +
         '        <p>新版接口测试报告路径</p>\n' +
-        '        <a href="${url}/#/api/automation">${url}/#/api/automation</a>\n' +
+        '        <a href="${url}/#/api/automation/report/view/">${url}/#/api/automation/report/view/${id}</a>\n' +
         '    </div>\n' +
         '\n' +
         '</div>\n' +
@@ -186,12 +186,12 @@ export default {
         '</html>',
       robotTitle:
         "测试【任务通知】:'${executor}所执行的 ${testName} ${type}测试运行${status}\n" +
-        "测试环境为:${executionEnvironment}," +
+        "测试环境为:${executionEnvironment}\n" +
         "执行时间：${executionTime}\n" +
         "请点击下面链接进入测试报告页面\n" +
         "${url}/#/${type}/report/view/${id}" +
         "新版接口测试报告路径\n" +
-        "${url}/#/api/automation",
+        "${url}/#/api/automation/report/view/${id}",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",

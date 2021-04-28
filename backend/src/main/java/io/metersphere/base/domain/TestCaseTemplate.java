@@ -27,5 +27,7 @@ public class TestCaseTemplate implements Serializable {
 
     private Long updateTime;
 
+    private String stepModel;
+
     private static final long serialVersionUID = 1L;
 }

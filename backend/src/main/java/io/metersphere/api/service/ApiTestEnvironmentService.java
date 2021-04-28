@@ -103,7 +103,9 @@ public class ApiTestEnvironmentService {
                     if (httpObj.containsKey("isMock") && httpObj.getBoolean("isMock")) {
                         if (httpObj.containsKey("conditions")) {
                             JSONArray conditions = httpObj.getJSONArray("conditions");
-                            needUpdate = false;
+                            if (conditions.isEmpty()) {
+                                needUpdate = true;
+                            }
                         }
                     }
                 }

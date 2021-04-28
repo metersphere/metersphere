@@ -99,12 +99,18 @@
         this.isActive = !this.isActive;
       },
       getName(name) {
-        if (name && name.indexOf("^@~@^") != -1) {
+        if (name && name.indexOf("^@~@^") !== -1) {
           let arr = name.split("^@~@^");
           if (arr[arr.length - 1].indexOf("UUID=")) {
             return arr[arr.length - 1].split("UUID=")[0];
           }
+          if (arr[arr.length - 1] && arr[arr.length - 1].startsWith("UUID=")) {
+            return "";
+          }
           return arr[arr.length - 1];
+        }
+        if (name && name.startsWith("UUID=")) {
+          return "";
         }
         return name;
       }

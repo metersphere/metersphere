@@ -17,7 +17,7 @@
 		<el-form-item>
 			<el-radio v-model='radioValue' :label="3">
         {{$t('schedule.cron.from')}}
-				<el-input-number v-model='average01' :min="1" :max="24" /> {{$t('schedule.cron.hours')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
+				<el-input-number v-model='average01' :min="0" :max="23" /> {{$t('schedule.cron.hours')}}{{$t('schedule.cron.start')}}，{{$t('schedule.cron.every')}}
 				<el-input-number v-model='average02' :min="1" :max="24" /> {{$t('schedule.cron.hours')}}{{$t('schedule.cron.execute_once')}}
 			</el-radio>
 		</el-form-item>

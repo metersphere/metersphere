@@ -13,7 +13,7 @@
           :apiCaseList="apiCaseList"
           :is-read-only="isReadOnly"
           :project-id="projectId"
-          :useEnvironment="useEnvironment"
+          :useEnvironment="environment"
           :is-case-edit="isCaseEdit"
           ref="header"
         />
@@ -41,7 +41,7 @@
 
     <!-- 执行组件 -->
     <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
@@ -113,7 +113,6 @@
           method: REQ_METHOD,
         },
         envMap: new Map,
-        useEnvironment: "",
       }
     },
     watch: {
@@ -211,7 +210,11 @@
         this.batchEdit(obj);
         this.$success(this.$t('organization.integration.successful_operation'));
       },
-
+      errorRefresh() {
+        this.batchLoadingIds = [];
+        this.singleLoading = false;
+        this.singleRunId = "";
+      },
       refresh() {
         this.getApiTest();
         this.$emit('refresh');
@@ -222,7 +225,7 @@
         });
       },
       getApiTest(addCase) {
-        this.useEnvironment = "";
+        this.environment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
@@ -251,9 +254,8 @@
               }
             });
             this.apiCaseList = data;
-            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
-              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
-              this.environment = this.useEnvironment;
+            if (this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.environment = this.apiCaseList[0].request.useEnvironment;
             }
             if (addCase && this.apiCaseList.length === 0 && !this.loaded) {
               this.addCase();
@@ -262,7 +264,6 @@
         }
       },
       getApiTestToRunTestCase(testCaseId) {
-        this.useEnvironment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
@@ -291,14 +292,12 @@
 
             })
             this.apiCaseList = data;
-            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
-              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
-              this.environment = this.useEnvironment;
+            if (this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.environment = this.apiCaseList[0].request.useEnvironment;
             }
             if (this.apiCaseList.length === 0 && !this.loaded) {
               this.addCase();
             }
-
             this.apiCaseList.forEach(apicase => {
               if (apicase.id === testCaseId) {
                 let data = apicase;

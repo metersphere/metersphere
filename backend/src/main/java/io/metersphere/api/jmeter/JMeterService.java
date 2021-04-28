@@ -9,10 +9,7 @@ import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.commons.utils.UrlTestUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
@@ -47,10 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class JMeterService {
@@ -129,7 +123,8 @@ public class JMeterService {
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
         if (config != null && config.getMode().equals("serial") && config.getReportType().equals("setReport")) {
-            arguments.addArgument(APIBackendListenerClient.TEST_REPORT_NAME, config.getReportName());
+            arguments.addArgument(APIBackendListenerClient.TEST_REPORT_ID, config.getReportId());
+
         }
         arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
         if (StringUtils.isNotBlank(runMode)) {
@@ -213,6 +208,42 @@ public class JMeterService {
         } catch (Exception e) {
         }
         return buffer;
+    }
+
+    private List<Object> getZipJar() {
+        List<Object> jarFiles = new LinkedList<>();
+        // jar 包
+        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
+        List<JarConfig> jars = jarConfigService.list();
+        List<File> files = new ArrayList<>();
+
+        jars.forEach(jarConfig -> {
+            String path = jarConfig.getPath();
+            File file = new File(path);
+            if (file.isDirectory() && !path.endsWith("/")) {
+                file = new File(path + "/");
+            }
+            files.add(file);
+        });
+
+        try {
+            File file = CompressUtils.zipFiles(UUID.randomUUID().toString() + ".zip", files);
+            FileSystemResource resource = new FileSystemResource(file);
+            byte[] fileByte = this.fileToByte(file);
+            if (fileByte != null) {
+                ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
+                    @Override
+                    public String getFilename() throws IllegalStateException {
+                        return resource.getFilename();
+                    }
+                };
+                jarFiles.add(byteArrayResource);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return jarFiles;
     }
 
     private List<Object> getJar() {
@@ -320,8 +351,13 @@ public class JMeterService {
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(postParameters, headers);
 
             String result = restTemplate.postForObject(uri, request, String.class);
-            if (result == null || !StringUtils.equals("SUCCESS",result)) {
-                MSException.throwException("执行失败："+ result);
+            // 删除零时压缩文件
+            /*if (CollectionUtils.isNotEmpty(jarFiles)) {
+                ByteArrayResource resource = (ByteArrayResource) jarFiles.get(0);
+                CompressUtils.deleteFile(resource.getFile().getPath());
+            }*/
+            if (result == null || !StringUtils.equals("SUCCESS", result)) {
+                MSException.throwException("执行失败：" + result);
             }
         } catch (Exception e) {
             e.printStackTrace();

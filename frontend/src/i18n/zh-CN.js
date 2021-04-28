@@ -383,7 +383,8 @@ export default {
     file_manager: '文件管理',
     no_data: '无数据',
     select: '选择项目',
-    repeatable: '接口定义URL可重复'
+    repeatable: '接口定义URL可重复',
+    upload_file_again: '重新上传'
   },
   member: {
     create: '添加成员',
@@ -450,6 +451,7 @@ export default {
     test_request_statistics: '请求统计',
     test_error_log: '错误记录',
     test_log_details: '日志详情',
+    test_monitor_details: '监控详情',
     test_details: '测试详情',
     test_duration: '当前执行时长：{0} 分钟 {1} 秒',
     test_start_time: '开始执行时间',
@@ -625,6 +627,9 @@ export default {
       req_param: "请求参数",
       rsp_param: "响应内容",
       delete_mock_expect: "确认删除这条预期吗？",
+      rule: {
+        input_code: "请输入 HTTP Code"
+      }
     },
     definition: {
       api_title: "接口列表",
@@ -1501,9 +1506,9 @@ export default {
       status_resolved: '已解决',
       status_closed: '已关闭',
       please_choose_current_owner: "请选择处理人",
-      tapd_current_owner: "Tapd bug 处理人：",
-      zentao_bug_build: "禅道 bug 影响版本",
-      zentao_bug_assigned: "禅道 bug 处理人",
+      tapd_current_owner: "Tapd 处理人",
+      zentao_bug_build: "禅道 影响版本",
+      zentao_bug_assigned: "禅道 处理人",
     },
     report: {
       name: "测试计划报告",

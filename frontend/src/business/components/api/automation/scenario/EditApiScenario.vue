@@ -877,15 +877,11 @@
           this.reload();
         }
       },
-      nodeExpand(data) {
-        if (data.resourceId) {
-          this.expandedNode.push(data.resourceId);
-        }
+      nodeExpand(data, node) {
+        node.expanded = true;
       },
-      nodeCollapse(data) {
-        if (data.resourceId) {
-          this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
-        }
+      nodeCollapse(data,node) {
+        node.expanded = false;
       },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
@@ -1042,6 +1038,13 @@
                     this.currentScenario.headers = obj.headers;
                   }
                   this.enableCookieShare = obj.enableCookieShare;
+                  if (obj.hashTree) {
+                    obj.hashTree.forEach(item => {
+                      if (!item.hashTree) {
+                        item.hashTree = [];
+                      }
+                    });
+                  }
                   this.scenarioDefinition = obj.hashTree;
                 }
               }

@@ -3,7 +3,7 @@
 
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData" @create="handleCreate"
-                       :create-tip="'创建缺陷'" :title="'缺陷模板'"/>
+                       :create-tip="'创建缺陷模版'" :title="'缺陷模板'"/>
     </template>
 
     <ms-table
@@ -13,6 +13,7 @@
       :total="total"
       :page-size.sync="pageSize"
       :operators="operators"
+      :screen-height="tableHeight"
       @handlePageChange="initTableData"
       @refresh="initTableData">
 
@@ -73,7 +74,7 @@
 <script>
 import {ISSUE_TEMPLATE_LIST} from "@/common/js/default-table-header";
 import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentWorkspaceId, getDefaultTableHeight} from "@/common/js/utils";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
@@ -102,9 +103,9 @@ export default {
       result: {},
       issuePlatformMap:{
         metersphere: 'Metersphere',
-        jira: 'JIRA',
+        Jira: 'JIRA',
         Tapd: 'Tapd',
-        zentao: '禅道',
+        Zentao: '禅道',
       },
       operators: [
         {
@@ -131,6 +132,9 @@ export default {
     },
     platformFilters() {
       return ISSUE_PLATFORM_OPTION;
+    },
+    tableHeight() {
+      return getDefaultTableHeight();
     }
   },
   methods: {

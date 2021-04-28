@@ -42,12 +42,8 @@ public class PerformanceTestController {
     @Resource
     private CheckPermissionService checkPermissionService;
 
-    @GetMapping("recent/{count}")
-    public List<LoadTestDTO> recentTestPlans(@PathVariable int count) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        QueryTestPlanRequest request = new QueryTestPlanRequest();
-        request.setWorkspaceId(currentWorkspaceId);
-        request.setUserId(SessionUtils.getUserId());
+    @PostMapping("recent/{count}")
+    public List<LoadTestDTO> recentTestPlans(@PathVariable int count, @RequestBody QueryTestPlanRequest request) {
         PageHelper.startPage(1, count, true);
         return performanceTestService.recentTestPlans(request);
     }
@@ -55,8 +51,6 @@ public class PerformanceTestController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return PageUtils.setPageInfo(page, performanceTestService.list(request));
     }
 

@@ -4,6 +4,7 @@
     :enable-selection="false"
     :operators="operators"
     :data="tableData"
+    :screen-height="null"
     @refresh="refreshTable"
     ref="table">
 
@@ -22,9 +23,12 @@
 
     <ms-table-column
       :label="'默认值'"
+      min-width="200"
       prop="type">
       <template v-slot="scope">
-        <custom-filed-component class="default-value-item" :data="scope.row" prop="defaultValue"/>
+        <el-scrollbar>
+          <custom-filed-component class="default-value-item" :data="scope.row" prop="defaultValue"/>
+        </el-scrollbar>
       </template>
     </ms-table-column>
 
@@ -32,6 +36,7 @@
 
     <ms-table-column
       :label="'是否必填'"
+      width="80"
       prop="type">
       <template v-slot="scope">
         <el-checkbox v-model="scope.row.required"/>
@@ -40,6 +45,7 @@
 
     <ms-table-column
     :label="'系统字段'"
+    width="80"
     prop="system">
       <template v-slot="scope">
         <span v-if="scope.row.system">
@@ -123,6 +129,9 @@ export default {
             item.fieldId = item.id;
             item.id = null;
             item.options = JSON.parse(item.options);
+            if (item.type === 'checkbox') {
+              item.defaultValue = [];
+            }
           });
           this.tableData.push(...data);
         });
@@ -132,7 +141,7 @@ export default {
 </script>
 
 <style scoped>
-.default-value-item >>> .custom-with {
-  width: 207px;
-}
+/*.default-value-item >>> .custom-with {*/
+/*  width: 207px;*/
+/*}*/
 </style>

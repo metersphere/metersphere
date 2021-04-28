@@ -63,8 +63,10 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
           <template v-slot:default="{row}">
-            <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" @exec="copy(row)"/>
-            <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
+            <ms-table-operator-button :disabled="httpConfig.isMock" :tip="$t('api_test.automation.copy')"
+                                      icon="el-icon-document-copy" @exec="copy(row)"/>
+            <ms-table-operator-button :disabled="httpConfig.isMock" :tip="$t('api_test.automation.remove')"
+                                      icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
           </template>
         </el-table-column>
       </el-table>
@@ -75,7 +77,7 @@
 <script>
   import {HttpConfig} from "../../model/EnvironmentModel";
   import MsApiKeyValue from "../ApiKeyValue";
-  import {REQUEST_HEADERS} from "../../../../../../common/js/constants";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
   import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
   import {getUUID} from "@/common/js/utils";
@@ -150,6 +152,12 @@
             return this.$t("api_test.definition.api_path");
         }
       },
+      clearHisData() {
+        this.httpConfig.socket = undefined;
+        this.httpConfig.protocol = undefined;
+        this.httpConfig.port = undefined;
+        this.httpConfig.domain = undefined;
+      },
       getDetails(row) {
         if (row && row.type === "MODULE") {
           if (row.details && row.details instanceof Array) {
@@ -203,12 +211,16 @@
         }
       },
       list() {
-        let url = "/api/module/list/" + this.projectId + "/HTTP";
-        this.result = this.$get(url, (response) => {
-          if (response.data !== undefined && response.data !== null) {
-            this.moduleOptions = response.data;
-          }
-        });
+        if (this.projectId) {
+          let url = "/api/module/list/" + this.projectId + "/HTTP";
+          this.result = this.$get(url, (response) => {
+            if (response.data !== undefined && response.data !== null) {
+              this.moduleOptions = response.data;
+            }
+          });
+        } else {    //创建环境时一开始没有传入projectId，就不请求数据了
+          this.moduleOptions = [];
+        }
       },
       setModule(id, data) {
         if (data && data.length > 0) {
@@ -250,8 +262,8 @@
         return index > 1;
       },
       add() {
-        if (this.condition.type ==="NONE" && this.checkNode()) {
-          this.$warning("启用条件为 '无' 的域名已经存在请更新！");
+        if (this.condition.type === "NONE" && this.checkNode()) {
+          this.$warning("启用条件为 '无' 的域名已经存在，请更新！");
           return;
         }
         this.validateSocket();
@@ -265,14 +277,12 @@
           obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
         }
         this.httpConfig.conditions.unshift(obj);
-        this.httpConfig.socket = null;
-        this.httpConfig.protocol = null;
-        this.httpConfig.port = null;
-        this.httpConfig.domain = null;
+        this.clearHisData();
       },
       remove(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
         this.httpConfig.conditions.splice(index, 1);
+        this.clearHisData();
       },
       copy(row) {
         if (row.type === "NONE") {

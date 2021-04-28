@@ -53,7 +53,7 @@
       :destroy-on-close="true"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="130px" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="auto" size="small" :rules="rule"
                ref="testResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>

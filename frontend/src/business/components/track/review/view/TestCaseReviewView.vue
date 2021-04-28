@@ -171,4 +171,12 @@ export default {
 
 <style scoped>
 
+/deep/ .ms-main-container {
+  height: calc(100vh - 80px - 53px);
+}
+
+/deep/ .ms-aside-container {
+  height: calc(100vh - 80px - 53px);
+  margin-top: 1px;
+}
 </style>

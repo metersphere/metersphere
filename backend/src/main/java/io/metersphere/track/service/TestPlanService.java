@@ -511,20 +511,23 @@ public class TestPlanService {
 
                         }
                         if(StringUtils.equals(l.getTestType(),TestCaseStatus.testcase.name())){
-                            TestPlanApiCase t=new TestPlanApiCase();
-                            ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
-                            ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
-                            t.setId(UUID.randomUUID().toString());
-                            t.setTestPlanId(request.getPlanId());
-                            t.setApiCaseId(l.getTestId());
-                            t.setEnvironmentId(apidefinition.getEnvironmentId());
-                            t.setCreateTime(System.currentTimeMillis());
-                            t.setUpdateTime(System.currentTimeMillis());
-                            TestPlanApiCaseExample example=new TestPlanApiCaseExample();
-                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
-                            if(testPlanApiCaseMapper.countByExample(example)<=0){
-                                testPlanApiCaseMapper.insert(t);
+                            TestPlanApiCase t = new TestPlanApiCase();
+                            ApiTestCaseWithBLOBs apitest = apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
+                            if (null != apitest) {
+                                ApiDefinitionWithBLOBs apidefinition = apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
+                                t.setId(UUID.randomUUID().toString());
+                                t.setTestPlanId(request.getPlanId());
+                                t.setApiCaseId(l.getTestId());
+                                t.setEnvironmentId(apidefinition.getEnvironmentId());
+                                t.setCreateTime(System.currentTimeMillis());
+                                t.setUpdateTime(System.currentTimeMillis());
+                                TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+                                example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
+                                if (testPlanApiCaseMapper.countByExample(example) <= 0) {
+                                    testPlanApiCaseMapper.insert(t);
+                                }
                             }
+
 
                         }
                         if(StringUtils.equals(l.getTestType(),TestCaseStatus.automation.name())){
@@ -935,9 +938,9 @@ public class TestPlanService {
                             planScenarioID + ":" + request.getTestPlanReportId(),
                             item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                             request.getExecuteType(), item.getProjectId(), request.getReportUserID(),null);
+                    apiScenarioReportMapper.insert(report);
                     group.setHashTree(scenarios);
                     testPlan.getHashTree().add(group);
-                    apiScenarioReportMapper.insert(report);
                     returnId = request.getId();
                 }
 
@@ -1057,7 +1060,6 @@ public class TestPlanService {
 
         //执行场景执行任务
         if (!planScenarioIdMap.isEmpty()) {
-            LogUtil.info("-------------- testplan schedule ---------- api case over -----------------");
             SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
             String senarionReportID = UUID.randomUUID().toString();
             scenarioRequest.setId(senarionReportID);
@@ -1077,7 +1079,6 @@ public class TestPlanService {
                 scenarioIsExcuting = true;
                 scenarioCaseIdArray= JSONArray.toJSONString(new ArrayList<>(planScenarioIdMap.keySet()));
             }
-            LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
         }
 
 

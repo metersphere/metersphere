@@ -386,7 +386,6 @@ public class PerformanceTestService {
         orderRequest.setType("desc");
         orders.add(orderRequest);
         request.setOrders(orders);
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestMapper.list(request);
     }
 
@@ -528,8 +527,8 @@ public class PerformanceTestService {
         if (!resourceIds.isEmpty()) {
             LoadTestExample example = new LoadTestExample();
             LoadTestExample.Criteria criteria = example.createCriteria();
-            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            if (StringUtils.isNotBlank(request.getProjectId())) {
+                criteria.andProjectIdEqualTo(request.getProjectId());
             }
             criteria.andIdIn(resourceIds);
             List<LoadTest> loadTests = loadTestMapper.selectByExample(example);

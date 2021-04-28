@@ -10,6 +10,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.JsonPathUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -163,25 +165,19 @@ public class MockConfigService {
         }
     }
 
-    public MockExpectConfigResponse findExpectConfig(List<MockExpectConfigResponse> mockExpectConfigList, Map<String, String> paramMap) {
+    public MockExpectConfigResponse findExpectConfig(List<MockExpectConfigResponse> mockExpectConfigList, JSONObject reqJsonObj) {
         MockExpectConfigResponse returnModel = null;
 
-        if (paramMap == null || paramMap.isEmpty()) {
-            return returnModel;
-        }
-        for (MockExpectConfigResponse model : mockExpectConfigList) {
-            try {
+        if (reqJsonObj == null || reqJsonObj.isEmpty()) {
+            for (MockExpectConfigResponse model : mockExpectConfigList) {
                 if (!model.isStatus()) {
                     continue;
                 }
                 JSONObject requestObj = model.getRequest();
                 boolean isJsonParam = requestObj.getBoolean("jsonParam");
-                Map<String, String> reqParamMap = new HashMap<>();
+                JSONObject mockExpectJson = new JSONObject();
                 if (isJsonParam) {
-                    JSONObject jsonParam = JSONObject.parseObject(requestObj.getString("jsonData"));
-                    for (String head : jsonParam.keySet()) {
-                        reqParamMap.put(head.trim(), String.valueOf(jsonParam.get(head)).trim());
-                    }
+                    mockExpectJson = JSONObject.parseObject(requestObj.getString("jsonData"));
                 } else {
                     JSONArray jsonArray = requestObj.getJSONArray("variables");
                     for (int i = 0; i < jsonArray.size(); i++) {
@@ -195,28 +191,46 @@ public class MockConfigService {
                             value = String.valueOf(object.get("value")).trim();
                         }
                         if (StringUtils.isNotEmpty(name)) {
-                            reqParamMap.put(name, value);
+                            mockExpectJson.put(name, value);
+                        }
+                    }
+                }
+                if (mockExpectJson.isEmpty()) {
+                    return model;
+                }
+
+            }
+        }
+        for (MockExpectConfigResponse model : mockExpectConfigList) {
+            try {
+                if (!model.isStatus()) {
+                    continue;
+                }
+                JSONObject requestObj = model.getRequest();
+                boolean isJsonParam = requestObj.getBoolean("jsonParam");
+                JSONObject mockExpectJson = new JSONObject();
+                if (isJsonParam) {
+                    mockExpectJson = JSONObject.parseObject(requestObj.getString("jsonData"));
+                } else {
+                    JSONArray jsonArray = requestObj.getJSONArray("variables");
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        String name = "";
+                        String value = "";
+                        if (object.containsKey("name")) {
+                            name = String.valueOf(object.get("name")).trim();
+                        }
+                        if (object.containsKey("value")) {
+                            value = String.valueOf(object.get("value")).trim();
+                        }
+                        if (StringUtils.isNotEmpty(name)) {
+                            mockExpectJson.put(name, value);
                         }
                     }
                 }
 
-                boolean notMatching = false;
-                for (Map.Entry<String, String> entry : paramMap.entrySet()) {
-                    String key = entry.getKey().trim();
-                    String value = entry.getValue();
-                    if (value != null) {
-                        value = value.trim();
-                    }
-
-                    if (reqParamMap.containsKey(key)) {
-                        if (!StringUtils.equals(value, reqParamMap.get(key))) {
-                            notMatching = true;
-                            break;
-                        }
-                    }
-
-                }
-                if (!notMatching) {
+                boolean mathing = JsonPathUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
+                if (mathing) {
                     returnModel = model;
                     break;
                 }
@@ -369,15 +383,10 @@ public class MockConfigService {
         mockExpectConfigMapper.deleteByPrimaryKey(id);
     }
 
-    public Map<String, String> getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api) {
-        Map<String, String> paramMap = this.getSendRestParamMapByIdAndUrl(api, urlParams);
-        return paramMap;
-    }
-
-    public Map<String, String> getPostParamMap(HttpServletRequest request) {
+    public JSONObject getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
+        JSONObject paramMap = this.getSendRestParamMapByIdAndUrl(api, urlParams);
         Enumeration<String> paramNameItor = request.getParameterNames();
-
-        Map<String, String> paramMap = new HashMap<>();
+        JSONObject object = new JSONObject();
         while (paramNameItor.hasMoreElements()) {
             String key = paramNameItor.nextElement();
             String value = request.getParameter(key);
@@ -386,9 +395,32 @@ public class MockConfigService {
         return paramMap;
     }
 
-    public Map<String, String> getSendRestParamMapByIdAndUrl(ApiDefinitionWithBLOBs api, String urlParams) {
+    public JSONObject getPostParamMap(HttpServletRequest request) {
+        if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
+            JSONObject object = null;
+            try {
+                String param = this.getRequestPostStr(request);
+                object = JSONObject.parseObject(param);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return object;
+        } else {
+            Enumeration<String> paramNameItor = request.getParameterNames();
+
+            JSONObject object = new JSONObject();
+            while (paramNameItor.hasMoreElements()) {
+                String key = paramNameItor.nextElement();
+                String value = request.getParameter(key);
+                object.put(key, value);
+            }
+            return object;
+        }
+    }
+
+    public JSONObject getSendRestParamMapByIdAndUrl(ApiDefinitionWithBLOBs api, String urlParams) {
 //        ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
-        Map<String, String> returnMap = new HashMap<>();
+        JSONObject returnJson = new JSONObject();
         if (api != null) {
             String path = api.getPath();
             String[] pathArr = path.split("/");
@@ -412,7 +444,7 @@ public class MockConfigService {
                                 if (object.containsKey("value")) {
                                     value = object.getString("value");
                                 }
-                                returnMap.put(name, value);
+                                returnJson.put(name, value);
                             }
                         }
                     }
@@ -421,7 +453,7 @@ public class MockConfigService {
                 e.printStackTrace();
             }
         }
-        return returnMap;
+        return returnJson;
     }
 
     public List<Map<String, String>> getApiParamsByApiDefinitionBLOBs(ApiDefinitionWithBLOBs apiModel) {
@@ -544,7 +576,7 @@ public class MockConfigService {
         String returnStr = "";
         String urlSuffix = this.getUrlSuffix(projectId, request);
         List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(projectId, method, urlSuffix, urlSuffix);
-        Map<String, String> paramMap = this.getPostParamMap(request);
+        JSONObject paramMap = this.getPostParamMap(request);
 
         List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
         MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
@@ -576,7 +608,8 @@ public class MockConfigService {
          */
         boolean isMatch = false;
         for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-            Map<String, String> paramMap = this.getGetParamMap(urlSuffix, api);
+            JSONObject paramMap = this.getGetParamMap(urlSuffix, api, request);
+
             MockConfigResponse mockConfigData = this.findByApiId(api.getId());
             if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
                 MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
@@ -591,5 +624,52 @@ public class MockConfigService {
             returnStr = this.updateHttpServletResponse(aualifiedApiList, response);
         }
         return returnStr;
+    }
+
+    /**
+     * 描述:获取 post 请求的 byte[] 数组
+     * <pre>
+     * 举例：
+     * </pre>
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public byte[] getRequestPostBytes(HttpServletRequest request) throws IOException {
+        int contentLength = request.getContentLength();
+        if (contentLength < 0) {
+            return null;
+        }
+        byte buffer[] = new byte[contentLength];
+        for (int i = 0; i < contentLength; ) {
+
+            int readlen = request.getInputStream().read(buffer, i,
+                    contentLength - i);
+            if (readlen == -1) {
+                break;
+            }
+            i += readlen;
+        }
+        return buffer;
+    }
+
+    /**
+     * 描述:获取 post 请求内容
+     * <pre>
+     * 举例：
+     * </pre>
+     *
+     * @param request
+     * @return
+     * @throws IOException
+     */
+    public String getRequestPostStr(HttpServletRequest request) throws IOException {
+        byte buffer[] = getRequestPostBytes(request);
+        String charEncoding = request.getCharacterEncoding();
+        if (charEncoding == null) {
+            charEncoding = "UTF-8";
+        }
+        return new String(buffer, charEncoding);
     }
 }

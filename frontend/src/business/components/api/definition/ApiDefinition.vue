@@ -161,6 +161,7 @@
   import {API_CASE_LIST, API_LIST} from "@/common/js/constants";
 
   import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
+
   export default {
     name: "ApiDefinition",
     computed: {
@@ -228,7 +229,8 @@
         }],
         activeDom: "left",
         syncTabs: [],
-        nodeTree: []
+        nodeTree: [],
+        currentModulePath: "",
       }
     },
     created() {
@@ -269,7 +271,21 @@
     },
 
     methods: {
-
+      getPath(id, arr) {
+        if (id === null) {
+          return null;
+        }
+        if(arr) {
+          arr.forEach(item => {
+            if (item.id === id) {
+              this.currentModulePath = item.path;
+            }
+            if (item.children && item.children.length > 0) {
+              this.getPath(id, item.children);
+            }
+          });
+        }
+      },
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
       },
@@ -313,12 +329,17 @@
           status: "Underway", method: "GET", userId: getCurrentUser().id,
           url: "", protocol: this.currentProtocol, environmentId: "", moduleId: 'default-module', modulePath: "/" + this.$t("commons.module_title")
         };
+        this.currentModulePath = "";
         if (this.nodeTree && this.nodeTree.length > 0) {
           api.moduleId = this.nodeTree[0].id;
-          api.modulePath = this.nodeTree[0].path;
+          this.getPath(this.nodeTree[0].id, this.moduleOptions);
+          api.modulePath = this.currentModulePath;
         }
+
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           api.moduleId = this.selectNodeIds[0];
+          this.getPath(this.selectNodeIds[0], this.moduleOptions);
+          api.modulePath = this.currentModulePath;
         }
         this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
       },
@@ -429,7 +450,8 @@
         this.setTabTitle(data);
       },
       mockConfig(data) {
-        this.handleMockTabsConfig(this.$t("commons.mock"), "MOCK", data);
+        let targetName = this.$t("commons.mock") + "-" + data.apiName;
+        this.handleMockTabsConfig(targetName, "MOCK", data);
       },
       saveApi(data) {
         this.setTabTitle(data);

@@ -1,7 +1,5 @@
 <template>
-  <div class="card-container">
-
-    <el-table
+  <el-table
       border
       :data="data"
       @sort-change="sort"
@@ -10,8 +8,7 @@
       @select="handleSelect"
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
-      row-key="id"
-      class="test-content adjust-table"
+      class="test-content adjust-table ms-table"
       :class="{'ms-select-all-fixed':showSelectAll}"
       :height="screenHeight"
       ref="table" @row-click="handleRowClick">
@@ -48,8 +45,6 @@
       </ms-table-column>
 
     </el-table>
-
-  </div>
 </template>
 
 <script>
@@ -68,10 +63,14 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "MsTable",
-  components: {MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover},
+  components: {
+    HeaderLabelOperate,
+    MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover
+  },
   data() {
     return {
       selectDataCounts: 0,
@@ -156,7 +155,6 @@ export default {
   watch: {
     selectNodeIds() {
       this.selectDataCounts = 0;
-      this.$refs.selectPopover.reload();
     },
   },
   computed: {
@@ -203,7 +201,7 @@ export default {
       }
     },
     doLayout() {
-      this.$refs.table.doLayout();
+      setTimeout(this.$refs.table.doLayout(), 200);
     },
     filter(filters) {
       _filter(filters, this.condition);

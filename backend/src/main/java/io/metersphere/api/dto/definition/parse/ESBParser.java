@@ -8,10 +8,13 @@ import io.metersphere.api.dto.definition.parse.esb.EsbExcelDataStruct;
 import io.metersphere.api.dto.definition.parse.esb.EsbSheetDataStruct;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.swagger.models.Model;
 import org.apache.commons.lang3.StringUtils;
@@ -599,6 +602,10 @@ public class ESBParser extends EsbAbstractParser {
                 savedNames.add(reqName);
             }
 
+            String esbSendRequest = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n${SERVICE}";
+            String reqDataStructStr = generateDataStrcut(headSheetData, interfaceData, true);
+            String respDataStrutStr = generateDataStrcut(headSheetData, interfaceData, false);
+
             String apiId = UUID.randomUUID().toString();
             ApiDefinitionWithBLOBs apiDefinition = new ApiDefinitionWithBLOBs();
             apiDefinition.setName(reqName);
@@ -607,7 +614,7 @@ public class ESBParser extends EsbAbstractParser {
             apiDefinition.setProjectId(this.projectId);
             apiDefinition.setModuleId(importRequest.getModuleId());
             apiDefinition.setModulePath(importRequest.getModulePath());
-            apiDefinition.setRequest(genTCPSampler());
+            apiDefinition.setRequest(genTCPSampler(esbSendRequest, reqDataStructStr));
             if (StringUtils.equalsIgnoreCase("schedule", importRequest.getType())) {
                 apiDefinition.setUserId(importRequest.getUserId());
             } else {
@@ -620,8 +627,6 @@ public class ESBParser extends EsbAbstractParser {
             EsbApiParamsWithBLOBs apiParams = new EsbApiParamsWithBLOBs();
             apiParams.setId(UUID.randomUUID().toString());
             apiParams.setResourceId(apiId);
-            String reqDataStructStr = generateDataStrcut(headSheetData, interfaceData, true);
-            String respDataStrutStr = generateDataStrcut(headSheetData, interfaceData, false);
 
             apiParams.setDataStruct(reqDataStructStr);
             apiParams.setResponseDataStruct(respDataStrutStr);
@@ -634,12 +639,38 @@ public class ESBParser extends EsbAbstractParser {
         return resultModel;
     }
 
-    private String genTCPSampler() {
+    private String genTCPSampler(String sendRequest, String esbDataStruct) {
+
         MsTCPSampler tcpSampler = new MsTCPSampler();
         MsJSR223PreProcessor preProcessor = new MsJSR223PreProcessor();
+
         tcpSampler.setTcpPreProcessor(preProcessor);
         tcpSampler.setProtocol("ESB");
         tcpSampler.setClassname("TCPClientImpl");
+        tcpSampler.setReUseConnection(false);
+        String script = "String report = ctx.getCurrentSampler().getRequestData();\n" +
+                "        if(report!=null){\n" +
+                "            //补足8位长度，前置补0\n" +
+                "            String reportlengthStr = String.format(\"%08d\",report.length());\n" +
+                "            report = reportlengthStr+report;\n" +
+                "            ctx.getCurrentSampler().setRequestData(report);\n" +
+                "        }";
+//        frontScriptList.add(script);
+        if (tcpSampler.getTcpPreProcessor() != null) {
+            tcpSampler.getTcpPreProcessor().setScriptLanguage("groovy");
+            tcpSampler.getTcpPreProcessor().setScript(script);
+        }
+
+
+        if (StringUtils.isNotEmpty(sendRequest)) {
+            tcpSampler.setRequest(sendRequest);
+        }
+
+        if (StringUtils.isNotEmpty(esbDataStruct)) {
+            EsbApiParamService esbApiParamService = CommonBeanFactory.getBean(EsbApiParamService.class);
+            List<KeyValue> keyValueList = esbApiParamService.genKeyValueListByDataStruct(tcpSampler, esbDataStruct);
+            tcpSampler.setParameters(keyValueList);
+        }
 
         return JSON.toJSONString(tcpSampler);
     }
@@ -701,7 +732,7 @@ public class ESBParser extends EsbAbstractParser {
 
         if (!bodyList.isEmpty()) {
             EsbDataStruct bodyStruct = new EsbDataStruct();
-            bodyStruct.initDefaultData("SYS_BODY", null, null, null);
+            bodyStruct.initDefaultData("BODY", null, null, null);
             dataStruct.getChildren().add(bodyStruct);
             Map<String, EsbDataStruct> childrenEsbDataStructMap = new HashMap<>();
             //用来判断节点有没有在array节点内
@@ -733,22 +764,6 @@ public class ESBParser extends EsbAbstractParser {
         list.add(dataStruct);
         return JSONArray.toJSONString(list);
     }
-
-//    private void parseParameters(HarRequest harRequest, MsHTTPSamplerProxy request) {
-//        List<HarQueryParm> queryStringList = harRequest.queryString;
-//        queryStringList.forEach(harQueryParm -> {
-//            parseQueryParameters(harQueryParm, request.getArguments());
-//        });
-//        List<HarHeader> harHeaderList = harRequest.headers;
-//        harHeaderList.forEach(harHeader -> {
-//            parseHeaderParameters(harHeader, request.getHeaders());
-//        });
-//        List<HarCookie> harCookieList = harRequest.cookies;
-//        harCookieList.forEach(harCookie -> {
-//            parseCookieParameters(harCookie, request.getHeaders());
-//        });
-//    }
-
 
     private String getDefaultStringValue(String val) {
         return StringUtils.isBlank(val) ? "" : val;

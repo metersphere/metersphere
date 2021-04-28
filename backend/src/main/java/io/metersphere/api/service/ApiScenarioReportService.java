@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
@@ -83,6 +84,11 @@ public class ApiScenarioReportService {
         return extApiScenarioReportMapper.list(request);
     }
 
+    public List<String> idList(QueryAPIReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extApiScenarioReportMapper.idList(request);
+    }
+
     private void checkNameExist(APIScenarioReportResult request) {
         ApiScenarioReportExample example = new ApiScenarioReportExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andExecuteTypeEqualTo(ExecuteType.Saved.name()).andIdNotEqualTo(request.getId());
@@ -117,13 +123,15 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport editReport(ScenarioResult test, long startTime) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(test.getName());
-        report.setId(report.getId());
-        report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-        report.setCreateTime(startTime);
-        report.setUpdateTime(startTime);
-        String status = test.getError() == 0 ? "Success" : "Error";
-        report.setStatus(status);
-        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        if (report != null) {
+            report.setId(report.getId());
+            report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+            report.setCreateTime(startTime);
+            report.setUpdateTime(startTime);
+            String status = test.getError() == 0 ? "Success" : "Error";
+            report.setStatus(status);
+            apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        }
         return report;
     }
 
@@ -169,7 +177,6 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(TestResult result, String runMode) {
-//        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
         List<ScenarioResult> scenarioResultList = result.getScenarios();
         ApiScenarioReport returnReport = null;
         StringBuilder scenarioIds = new StringBuilder();
@@ -184,6 +191,9 @@ public class ApiScenarioReportService {
                 startTime = scenarioResult.getRequestResults().get(0).getStartTime();
             }
             ApiScenarioReport report = editReport(scenarioResult, startTime);
+            report.setTriggerMode(ReportTriggerMode.CASE.name());
+            apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
@@ -338,11 +348,23 @@ public class ApiScenarioReportService {
 
     private void margeReport(TestResult result, StringBuilder scenarioIds, StringBuilder scenarioNames, String runMode, String projectId, String userId, List<String> reportIds) {
         // 合并生成一份报告
-        if (StringUtils.isNotEmpty(result.getReportName())) {
+        if (StringUtils.isNotEmpty(result.getSetReportId())) {
             // 清理其他报告保留一份合并后的报告
             this.deleteByIds(reportIds);
 
-            ApiScenarioReport report = createScenarioReport(scenarioIds.toString(), result.getReportName(), result.getError() > 0 ? "Error" : "Success", scenarioNames.toString().substring(0, scenarioNames.toString().length() - 1), runMode, projectId, userId);
+            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(result.getSetReportId());
+            report.setStatus(result.getError() > 0 ? "Error" : "Success");
+            if (StringUtils.isNotEmpty(userId)) {
+                report.setUserId(userId);
+            } else {
+                report.setUserId(SessionUtils.getUserId());
+            }
+            report.setTriggerMode(runMode);
+            report.setExecuteType(ExecuteType.Saved.name());
+            report.setProjectId(projectId);
+            report.setScenarioName(scenarioNames.toString().substring(0, scenarioNames.toString().length() - 1));
+            report.setScenarioId(scenarioIds.toString());
+            apiScenarioReportMapper.updateByPrimaryKey(report);
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             detail.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
             detail.setReportId(report.getId());
@@ -419,8 +441,27 @@ public class ApiScenarioReportService {
         return report.getId();
     }
 
+    public static List<String> getReportIds(String content) {
+        try {
+            return JSON.parseObject(content, List.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
     public void delete(DeleteAPIReportRequest request) {
         apiScenarioReportDetailMapper.deleteByPrimaryKey(request.getId());
+        // 补充逻辑，如果是集成报告则把零时报告全部删除
+        ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getId());
+        if (report != null && StringUtils.isNotEmpty(report.getScenarioId())) {
+            List<String> list = getReportIds(report.getScenarioId());
+            if (CollectionUtils.isNotEmpty(list)) {
+                APIReportBatchRequest reportRequest = new APIReportBatchRequest();
+                reportRequest.setIds(list);
+                this.deleteAPIReportBatch(reportRequest);
+            }
+        }
         apiScenarioReportMapper.deleteByPrimaryKey(request.getId());
     }
 
@@ -438,18 +479,26 @@ public class ApiScenarioReportService {
         apiScenarioReportMapper.deleteByExample(example);
     }
 
-    public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
+    public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
         List<String> ids = reportRequest.getIds();
         if (reportRequest.isSelectAllDate()) {
-            QueryAPIReportRequest selectRequest = new QueryAPIReportRequest();
-            selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-            selectRequest.setName(reportRequest.getName());
-            selectRequest.setProjectId(reportRequest.getProjectId());
-            List<APIScenarioReportResult> list = extApiScenarioReportMapper.list(selectRequest);
-            List<String> allIds = list.stream().map(APIScenarioReportResult::getId).collect(Collectors.toList());
-            ids = allIds.stream().filter(id -> !reportRequest.getUnSelectIds().contains(id)).collect(Collectors.toList());
+            ids = this.idList(reportRequest);
+            if (reportRequest.getUnSelectIds() != null) {
+                ids.removeAll(reportRequest.getUnSelectIds());
+            }
         }
-
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andIdIn(reportRequest.getIds());
+        List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(example);
+        // 取出可能是集成报告的ID 放入删除
+        reportList.forEach(item -> {
+            List<String> reportIds = getReportIds(item.getScenarioId());
+            if (CollectionUtils.isNotEmpty(reportIds)) {
+                reportRequest.getIds().addAll(reportIds);
+            }
+        });
+        List<String> myList = reportRequest.getIds().stream().distinct().collect(Collectors.toList());
+        reportRequest.setIds(myList);
         //为预防数量太多，调用删除方法时引起SQL过长的Bug，此处采取分批执行的方式。
         //每次处理的数据数量
         int handleCount = 7000;

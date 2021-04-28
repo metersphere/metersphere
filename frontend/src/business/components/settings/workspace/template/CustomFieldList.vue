@@ -13,6 +13,7 @@
       :total="total"
       :page-size.sync="pageSize"
       :operators="operators"
+      :screen-height="tableHeight"
       @handlePageChange="getCustomFields"
       @refresh="getCustomFields">
 
@@ -104,7 +105,7 @@
 
 <script>
 import MsTable from "@/business/components/common/components/table/MsTable";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentWorkspaceId, getDefaultTableHeight} from "@/common/js/utils";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
@@ -168,6 +169,9 @@ export default {
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
+    },
+    tableHeight() {
+      return getDefaultTableHeight();
     }
   },
   methods: {
