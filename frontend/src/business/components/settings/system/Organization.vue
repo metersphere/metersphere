@@ -58,7 +58,7 @@
     <!-- add organization form -->
     <el-dialog :close-on-click-modal="false" :title="$t('organization.create')" :visible.sync="dialogOrgAddVisible" width="30%" @closed="closeFunc"
                :destroy-on-close="true">
-      <el-form :model="form" label-position="right" label-width="auto" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="createOrganization">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -78,7 +78,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('organization.modify')" :visible.sync="dialogOrgUpdateVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
-      <el-form :model="form" label-position="right" label-width="auto" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateOrganizationForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -98,7 +98,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogOrgMemberAddVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="auto"
+      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
@@ -136,7 +136,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogOrgMemberUpdateVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
-      <el-form :model="memberForm" label-position="right" label-width="auto" size="small" ref="updateUserForm">
+      <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>

@@ -34,7 +34,7 @@
     <!--Modify personal details-->
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
                :destroy-on-close="true" @close="handleClose">
-      <el-form :model="form" label-position="right" label-width="auto" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -59,7 +59,7 @@
     <!--Change personal password-->
     <el-dialog :close-on-click-modal="false" :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%"
                :destroy-on-close="true" @close="handleClose" left>
-      <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="auto" class="demo-ruleForm">
+      <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
         <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
           <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
         </el-form-item>
