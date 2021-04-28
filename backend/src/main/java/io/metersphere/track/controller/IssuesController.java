@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -77,6 +78,11 @@ public class IssuesController {
     @PostMapping("/zentao/builds")
     public List<ZentaoBuild> getZentaoBuilds(@RequestBody IssuesRequest request) {
         return issuesService.getZentaoBuilds(request);
+    }
+
+    @PostMapping("/get/platform/issue")
+    public IssuesWithBLOBs getPlatformIssue(@RequestBody IssuesWithBLOBs issue) {
+        return issuesService.getPlatformIssue(issue);
     }
 
 

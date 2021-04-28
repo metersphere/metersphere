@@ -65,5 +65,6 @@ export const ISSUE_STATUS_MAP = {
   'new': '新建',
   'closed': '已关闭',
   'resolved': '已解决',
-  'active': '激活'
+  'active': '激活',
+  'delete': '已删除'
 }

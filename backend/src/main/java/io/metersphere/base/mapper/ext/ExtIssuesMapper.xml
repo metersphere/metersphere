@@ -12,7 +12,9 @@
     </select>
 
     <select id="getIssuesByProjectId" resultType="io.metersphere.base.domain.IssuesDao">
-        select issues.*
+        select issues.id, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
+               ifnull(issues.description, '') as description, issues.status, issues.platform, issues.custom_fields, issues.reporter,
+               issues.lastmodify
         from issues
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>

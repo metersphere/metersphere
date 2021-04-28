@@ -51,6 +51,13 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         this.url = object.getString("url");
     }
 
+    public ZentaoPlatform(String account, String password, String url) {
+        super(new IssuesRequest());
+        this.account = account;
+        this.password = password;
+        this.url = url;
+    }
+
     @Override
     String getProjectId(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
@@ -156,7 +163,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         return list;
     }
 
-    private IssuesDao getZentaoIssues(String bugId) {
+    public IssuesDao getZentaoIssues(String bugId) {
         String session = login();
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
@@ -204,7 +211,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String projectId = getProjectId(issuesRequest.getProjectId());
 
         if (StringUtils.isBlank(projectId)) {
-            MSException.throwException("add zentao bug fail, project zentao id is null");
+            MSException.throwException("未关联禅道项目ID.");
         }
 
         if (StringUtils.isBlank(session)) {

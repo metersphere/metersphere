@@ -121,7 +121,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         return demandList;
     }
 
-    private IssuesDao getTapdIssues(String projectId, String issuesId) {
+    public IssuesDao getTapdIssues(String projectId, String issuesId) {
         String url = "https://api.tapd.cn/bugs?workspace_id=" + projectId + "&id=" + issuesId;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
@@ -218,6 +218,9 @@ public class TapdPlatform extends AbstractIssuePlatform {
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
         String id = getProjectId(projectId);
+        if (StringUtils.isBlank(id)) {
+            MSException.throwException("未关联Tapd项目ID");
+        }
         String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + id;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
