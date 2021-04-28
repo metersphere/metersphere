@@ -12,6 +12,7 @@
                 :total="total" enableSelection
                 :batch-operators="buttons" :screenHeight="screenHeight"
                 operator-width="170px"
+                @refresh="initTable"
                 ref="caseTable"
       >
         <template v-for="(item, index) in tableLabel">

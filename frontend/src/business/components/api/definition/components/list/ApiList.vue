@@ -12,6 +12,7 @@
                 :total="total" enableSelection
                 :batch-operators="trashEnable ? trashButtons : buttons" :screenHeight="screenHeight"
                 :operators="tableOperatorButtons" operator-width="170px"
+                @refresh="initTable"
                 @openCustomHeader="customHeader"
                 ref="apiDefinitionTable"
       >

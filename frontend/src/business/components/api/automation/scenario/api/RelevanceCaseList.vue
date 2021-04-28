@@ -13,6 +13,7 @@
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
                 :screenHeight="screenHeight"
+                @refresh="initTable"
                 operator-width="170px"
                 ref="table"
       >
