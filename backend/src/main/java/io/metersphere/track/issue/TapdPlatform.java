@@ -14,6 +14,7 @@ import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -157,8 +158,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
             MSException.throwException("未关联Tapd 项目ID");
         }
 
-        List<String> PlatformUsers = issuesRequest.getTapdUsers();
-        String usersStr = String.join(";", PlatformUsers);
+        String usersStr = "";
+        List<String> platformUsers = issuesRequest.getTapdUsers();
+        if (CollectionUtils.isNotEmpty(platformUsers)) {
+            usersStr = String.join(";", platformUsers);
+        }
 
         String username = SessionUtils.getUser().getName();
 
