@@ -77,24 +77,24 @@ public class ApiTestEnvironmentService {
      * @param projectId
      * @return
      */
-    public synchronized ApiTestEnvironmentWithBLOBs getMockEnvironmentByProjectId(String projectId, String baseUrl) {
+    public synchronized ApiTestEnvironmentWithBLOBs getMockEnvironmentByProjectId(String projectId, String protocal, String baseUrl) {
         String apiName = MockConfigStaticData.MOCK_EVN_NAME;
         ApiTestEnvironmentWithBLOBs returnModel = null;
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(apiName);
         List<ApiTestEnvironmentWithBLOBs> list = this.selectByExampleWithBLOBs(example);
         if (list.isEmpty()) {
-            returnModel = this.genHttpApiTestEnvironmentByUrl(projectId, apiName, baseUrl);
+            returnModel = this.genHttpApiTestEnvironmentByUrl(projectId, protocal, apiName, baseUrl);
             this.add(returnModel);
         } else {
             returnModel = list.get(0);
-            returnModel = this.checkMockEvnIsRightful(returnModel, projectId, apiName, baseUrl);
+            returnModel = this.checkMockEvnIsRightful(returnModel, protocal, projectId, apiName, baseUrl);
         }
         return returnModel;
     }
 
-    private ApiTestEnvironmentWithBLOBs checkMockEvnIsRightful(ApiTestEnvironmentWithBLOBs returnModel, String projectId, String name, String url) {
-        boolean needUpdate = true;
+    private ApiTestEnvironmentWithBLOBs checkMockEvnIsRightful(ApiTestEnvironmentWithBLOBs returnModel, String protocal, String projectId, String name, String url) {
+        boolean needUpdate = false;
         if (returnModel.getConfig() != null) {
             try {
                 JSONObject configObj = JSONObject.parseObject(returnModel.getConfig());
@@ -115,27 +115,24 @@ public class ApiTestEnvironmentService {
         }
         if (needUpdate) {
             String id = returnModel.getId();
-            returnModel = this.genHttpApiTestEnvironmentByUrl(projectId, name, url);
+            returnModel = this.genHttpApiTestEnvironmentByUrl(projectId, protocal, name, url);
             returnModel.setId(id);
             apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(returnModel);
         }
         return returnModel;
     }
 
-    private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(String projectId, String name, String url) {
-        String protocol = "";
+    private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(String projectId, String protocal, String name, String url) {
         String socket = "";
         if (url.startsWith("http://")) {
-            protocol = "http";
             url = url.substring(7);
         } else if (url.startsWith("https://")) {
-            protocol = "https";
             url = url.substring(8);
         }
         socket = url;
 
         String portStr = "";
-        String ipStr = protocol;
+        String ipStr = url;
         if (url.contains(":") && !url.endsWith(":")) {
             String[] urlArr = url.split(":");
             int port = -1;
@@ -159,13 +156,6 @@ public class ApiTestEnvironmentService {
         commonConfigObj.put("hosts", new String[]{});
 
         JSONObject httpConfig = new JSONObject();
-//        httpConfig.put("socket", url);
-//        httpConfig.put("domain", ipStr);
-//        httpConfig.put("headers", variablesArr);
-//        httpConfig.put("protocol", protocol);
-//        if (StringUtils.isNotEmpty(portStr)) {
-//            httpConfig.put("port", portStr);
-//        }
         httpConfig.put("socket", null);
         httpConfig.put("isMock", true);
         httpConfig.put("domain", null);
@@ -181,7 +171,7 @@ public class ApiTestEnvironmentService {
         httpItem.put("id", UUID.randomUUID().toString());
         httpItem.put("type", "NONE");
         httpItem.put("socket", socket);
-        httpItem.put("protocol", protocol);
+        httpItem.put("protocol", protocal);
         JSONArray protocolVariablesArr = new JSONArray();
         Map<String, Object> protocolMap = new HashMap<>();
         protocolMap.put("enable", true);

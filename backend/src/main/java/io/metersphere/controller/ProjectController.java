@@ -75,7 +75,7 @@ public class ProjectController {
         if (requestUrl.contains("/project/add")) {
             baseUrl = requestUrl.split("/project/add")[0];
         }
-        apiTestEnvironmentService.getMockEnvironmentByProjectId(returnModel.getId(), baseUrl);
+        apiTestEnvironmentService.getMockEnvironmentByProjectId(returnModel.getId(), project.getProtocal(), baseUrl);
 
         return returnModel;
     }

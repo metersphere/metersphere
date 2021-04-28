@@ -276,14 +276,14 @@ public class ApiDefinitionController {
         esbImportService.templateExport(response);
     }
 
-    @GetMapping("/getMockEnvironment/{projectId}")
-    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, HttpServletRequest request) {
+    @GetMapping("/getMockEnvironment/{projectId}/{protocal}")
+    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, @PathVariable String protocal, HttpServletRequest request) {
         String requestUrl = request.getRequestURL().toString();
         String baseUrl = "";
         if (requestUrl.contains("/api/definition")) {
             baseUrl = requestUrl.split("/api/definition")[0];
         }
-        return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId, baseUrl);
+        return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId, protocal, baseUrl);
     }
 
 }

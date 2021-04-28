@@ -299,7 +299,12 @@ public class MockConfigService {
                         for (int i = 0; i < statusCodeArr.size(); i++) {
                             JSONObject obj = statusCodeArr.getJSONObject(i);
                             if (obj.containsKey("name") && obj.containsKey("value") && StringUtils.isNotEmpty(obj.getString("name"))) {
-                                response.setHeader(obj.getString("name"), obj.getString("value"));
+//                                response.setHeader(obj.getString("name"), obj.getString("value"));
+                                try {
+                                    int headInt = Integer.parseInt(obj.getString("name"));
+                                    response.setStatus(headInt);
+                                } catch (Exception e) {
+                                }
                             }
                         }
                     }

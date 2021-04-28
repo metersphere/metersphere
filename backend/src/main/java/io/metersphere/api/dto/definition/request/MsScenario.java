@@ -74,7 +74,6 @@ public class MsScenario extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        boolean isMockEvn = false;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -139,6 +138,14 @@ public class MsScenario extends MsTestElement {
                     }
                 });
                 config.setConfig(envConfig);
+            }
+        } else {
+            Map<String, EnvironmentConfig> map = config.getConfig();
+            for (EnvironmentConfig evnConfig :
+                    map.values()) {
+                if (evnConfig.getHttpConfig() != null) {
+                    this.setMockEnvironment(evnConfig.getHttpConfig().isMock());
+                }
             }
         }
         if (CollectionUtils.isNotEmpty(this.getVariables())) {

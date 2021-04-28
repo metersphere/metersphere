@@ -241,8 +241,11 @@ export default {
         if (valid) {
           let saveType = "add";
           if (this.form.id) {
-            saveType = "update"
+            saveType = "update";
           }
+          var protocol = document.location.protocol;
+          protocol = protocol.substring(0, protocol.indexOf(":"));
+          this.form.protocal = protocol;
           this.result = this.$post("/project/" + saveType, this.form, () => {
             this.createVisible = false;
             this.list();
