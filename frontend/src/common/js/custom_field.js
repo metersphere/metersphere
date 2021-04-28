@@ -16,9 +16,10 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
     hasOldData = true;
     data.customFields = {};
   }
-  if (!(data.customFields instanceof Object)) {
+  if (!(data.customFields instanceof Object) && !(data.customFields instanceof Array)) {
     data.customFields = JSON.parse(data.customFields);
   }
+
   // 设置页面显示的默认值
   template.customFields.forEach(item => {
     if (item.defaultValue) {
@@ -46,13 +47,26 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       }
     }
 
-    for (const key in data.customFields) {
-      if (item.name === key) {
-        if (data.customFields[key]) {
-          item.defaultValue = JSON.parse(data.customFields[key]);
+    // 将保存的值赋值给template
+    if (data.customFields instanceof Array) {
+      for (let i = 0; i < data.customFields.length; i++) {
+        let customField = data.customFields[i];
+        if (customField.id === item.id) {
+          item.defaultValue = customField.value;
+          break;
+        }
+      }
+    } else if (data.customFields instanceof Object) {
+      // 兼容旧的存储方式
+      for (const key in data.customFields) {
+        if (item.name === key) {
+          if (data.customFields[key]) {
+            item.defaultValue = JSON.parse(data.customFields[key]);
+          }
         }
       }
     }
+
     if (customFieldForm) {
       customFieldForm[item.name] = item.defaultValue;
     }
@@ -62,10 +76,27 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
 // 将template的属性值设置给customFields
 export function buildCustomFields(data, param, template) {
   if (template.customFields) {
+    if (!(data.customFields instanceof Array)) {
+      data.customFields = [];
+    }
     let customFields = data.customFields;
     template.customFields.forEach(item => {
-      if (item.defaultValue) {
-        customFields[item.name] = JSON.stringify(item.defaultValue);
+      let hasField = false;
+      for (const index in customFields) {
+        if (customFields[index].id === item.id) {
+          hasField = true;
+          customFields[index].name = item.name;
+          customFields[index].value = item.defaultValue;
+          break;
+        }
+      }
+      if (!hasField) {
+        let customField = {
+          id: item.id,
+          name: item.name,
+          value: item.defaultValue
+        };
+        customFields.push(customField);
       }
     });
     param.customFields = JSON.stringify(customFields);
@@ -93,8 +124,8 @@ export function getTemplate(baseUrl, vueObj) {
 // 兼容旧字段
 export function buildTestCaseOldFields(testCase) {
   let oldFields = new Map();
-  oldFields.set('i43sf4_testCaseStatus', testCase.status);
-  oldFields.set('i43sf4_testCaseMaintainer', testCase.maintainer);
-  oldFields.set('i43sf4_testCasePriority', testCase.priority);
+  oldFields.set('用例状态', testCase.status);
+  oldFields.set('责任人', testCase.maintainer);
+  oldFields.set('用例等级', testCase.priority);
   return oldFields;
 }

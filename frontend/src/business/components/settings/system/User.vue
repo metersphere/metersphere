@@ -70,7 +70,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('user.create')" :visible.sync="createVisible" width="35%"
                @closed="handleClose"
                :destroy-on-close="true">
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
+      <el-form :model="form" label-position="right" label-width="auto" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"/>
         </el-form-item>
@@ -202,7 +202,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('user.modify')" :visible.sync="updateVisible" width="35%"
                :destroy-on-close="true"
                @close="handleClose" v-loading="result.loading">
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">
+      <el-form :model="form" label-position="right" label-width="auto" size="small" :rules="rule" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
         </el-form-item>

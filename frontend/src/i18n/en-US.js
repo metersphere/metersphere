@@ -263,6 +263,15 @@ export default {
       host_is_null: 'Prometheus Host cannot be empty'
     }
   },
+  custom_field: {
+    case_status: 'Case Status',
+    case_maintainer: 'Maintainer',
+    case_priority: 'Case Priority',
+    issue_creator: 'Creator',
+    issue_processor: 'Processor',
+    issue_status: 'Status',
+    issue_severity: 'Severity'
+  },
   workspace: {
     create: 'Create Workspace',
     update: 'Update Workspace',

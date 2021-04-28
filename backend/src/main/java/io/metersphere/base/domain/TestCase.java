@@ -23,8 +23,6 @@ public class TestCase implements Serializable {
 
     private String method;
 
-    private String prerequisite;
-
     private Long createTime;
 
     private Long updateTime;
@@ -52,6 +50,6 @@ public class TestCase implements Serializable {
     private String customNum;
 
     private String stepModel;
-  
+
     private static final long serialVersionUID = 1L;
 }

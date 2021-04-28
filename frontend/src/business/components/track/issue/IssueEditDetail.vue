@@ -242,9 +242,11 @@ export default {
       let customFieldsStr = param.customFields;
       if (customFieldsStr) {
         let customFields = JSON.parse(customFieldsStr);
-        if (customFields['i43sf4_issueStatus']) {
-          param.status = JSON.parse(customFields['i43sf4_issueStatus']);
-        }
+        customFields.forEach(item => {
+          if (item.name === '状态') {
+            param.status = item.value;
+          }
+        });
       }
     },
   }
