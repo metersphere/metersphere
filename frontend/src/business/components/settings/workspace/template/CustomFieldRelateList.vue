@@ -4,7 +4,7 @@
     width="70%"
     :visible.sync="visible"
     @confirm="save"
-    :title="'添加字段'"
+    :title="$t('custom_field.add_field')"
     ref="msEditDialog">
 
       <template v-slot:header>
@@ -17,13 +17,14 @@
         :data="tableData"
         :condition="condition"
         :total="total"
+        :show-select-all="false"
         :page-size.sync="pageSize"
         @handlePageChange="initTableData"
         @refresh="initTableData"
         ref="table">
 
           <ms-table-column
-            :label="'名称'"
+            :label="$t('commons.name')"
             :fields="fields"
             prop="name">
             <template v-slot="scope">
@@ -37,7 +38,7 @@
           </ms-table-column>
 
           <ms-table-column
-            :label="'属性类型'"
+            :label="$t('custom_field.attribute_type')"
             :fields="fields"
             :filters="fieldFilters"
             prop="type">
@@ -47,28 +48,28 @@
           </ms-table-column>
 
           <ms-table-column
-          :label="'系统字段'"
+          :label="$t('custom_field.system_field')"
           :fields="fields"
           prop="system">
             <template v-slot="scope">
                 <span v-if="scope.row.system">
-                  是
+                  {{$t('commons.yes')}}
                 </span>
               <span v-else>
-                  否
-                </span>
+                {{$t('commons.no')}}
+              </span>
             </template>
           </ms-table-column>
 
           <ms-table-column
-            :label="'备注'"
+            :label="$t('commons.remark')"
             :fields="fields"
             prop="remark">
           </ms-table-column>
 
           <ms-table-column
             sortable
-            :label="'创建时间'"
+            :label="$t('commons.create_time')"
             :fields="fields"
             prop="createTime">
             <template v-slot="scope">
@@ -78,7 +79,7 @@
 
           <ms-table-column
             sortable
-            :label="'更新时间'"
+            :label="$t('commons.update_time')"
             :fields="fields"
             prop="updateTime">
             <template v-slot="scope">

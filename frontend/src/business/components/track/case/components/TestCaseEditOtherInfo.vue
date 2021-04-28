@@ -7,7 +7,7 @@
     </el-tab-pane>
     <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
       <el-col v-if="form.list" :span="7" :offset="1">
-        <span class="cast_label">关联测试：</span>
+        <span class="cast_label">{{ $t('test_track.case.relate_test') }}：</span>
         <span v-for="(item,index) in form.list" :key="index">
                         <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{
                             item.testName
@@ -16,7 +16,7 @@
       </el-col>
       <el-col v-else :span="7" style="margin-top: 10px;">
         <el-form-item :label="$t('test_track.case.relate_test')" :label-width="labelWidth">
-          <el-cascader :options="sysList" filterable placeholder="请选择要关联的测试" show-all-levels
+          <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')" show-all-levels
                        v-model="form.selected" :props="props"
                        class="ms-case" ref="cascade"></el-cascader>
         </el-form-item>
@@ -39,14 +39,14 @@
         </el-form-item>
       </el-col>
       <el-col :span="7">
-        <el-form-item label="需求ID/名称" :label-width="labelWidth" prop="demandName"
+        <el-form-item :label="$t('test_track.case.demand_name_id')" :label-width="labelWidth" prop="demandName"
                       v-if="form.demandId=='other'">
           <el-input :disabled="readOnly" v-model="form.demandName"></el-input>
         </el-form-item>
       </el-col>
     </el-tab-pane>
 
-    <el-tab-pane label="关联缺陷" name="bug">
+    <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
       <test-case-issue-relate
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>

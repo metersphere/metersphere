@@ -11,8 +11,8 @@
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'用例类型'" prop="type" :label-width="labelWidth">
-        <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="用例类型">
+      <el-form-item :label="$t('api_test.home_page.failed_case_list.table_coloum.case_type')" prop="type" :label-width="labelWidth">
+        <el-select :disabled="isSystem" filterable v-model="form.type" :placeholder="$t('api_test.home_page.failed_case_list.table_coloum.case_type')">
           <el-option
             v-for="item in caseTypeOption"
             :key="item.value"
@@ -24,7 +24,7 @@
     </template>
 
     <template v-slot:default>
-      <el-form-item :label="'用例名称'" prop="caseName" :label-width="labelWidth">
+      <el-form-item :label="$t('test_track.case.name')" prop="caseName" :label-width="labelWidth">
         <el-input v-model="form.caseName" autocomplete="off"></el-input>
       </el-form-item>
 
@@ -131,7 +131,8 @@ export default {
           expectedResult: '',
           actualResult: '',
           customFieldIds: [],
-          steps: []
+          steps: [],
+          stepModel: 'STEP',
         };
         this.url = 'field/template/case/add';
       }

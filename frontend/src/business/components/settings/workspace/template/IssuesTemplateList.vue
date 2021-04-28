@@ -3,7 +3,7 @@
 
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData" @create="handleCreate"
-                       :create-tip="'创建缺陷模版'" :title="'缺陷模板'"/>
+                       :create-tip="$t('custom_field.create_issue_template')" :title="$t('custom_field.issue_template')"/>
     </template>
 
     <ms-table
@@ -18,7 +18,7 @@
       @refresh="initTableData">
 
       <ms-table-column
-        :label="'名称'"
+        :label="$t('commons.name')"
         :fields="fields"
         prop="name">
         <template v-slot="scope">
@@ -28,7 +28,7 @@
       </ms-table-column>
 
       <ms-table-column
-        :label="'缺陷平台'"
+        :label="$t('custom_field.issue_platform')"
         :fields="fields"
         :filters="platformFilters"
         prop="platform">
@@ -38,14 +38,14 @@
       </ms-table-column>
 
       <ms-table-column
-        :label="'描述'"
+        :label="$t('commons.description')"
         :fields="fields"
         prop="description">
       </ms-table-column>
 
       <ms-table-column
         sortable
-        :label="'创建时间'"
+        :label="$t('commons.create_time')"
         :fields="fields"
         prop="createTime">
         <template v-slot="scope">
@@ -55,7 +55,7 @@
 
       <ms-table-column
         sortable
-        :label="'更新时间'"
+        :label="$t('commons.update_time')"
         :fields="fields"
         prop="updateTime">
         <template v-slot="scope">

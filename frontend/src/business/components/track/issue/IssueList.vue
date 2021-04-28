@@ -4,7 +4,7 @@
 
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="getIssues" @create="handleCreate"
-                         :create-tip="'创建缺陷'" :title="'缺陷列表'"  :tip="'根据标题搜索'" :have-search="false"/>
+                         :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"  :tip="$t('issue.search_name')" :have-search="false"/>
       </template>
 
       <ms-table

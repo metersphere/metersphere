@@ -3,22 +3,22 @@
     width="30%"
     :visible.sync="visible"
     @confirm="save"
-    :title="'创建字段'"
+    :title="$t('custom_field.create')"
     append-to-body
     ref="msEditDialog">
 
-    <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
-      <el-form-item :label="'字段名'" prop="name" :label-width="labelWidth">
+    <el-form :model="form" :rules="rules" label-position="right" label-width="auto" size="small" ref="form">
+      <el-form-item :label="$t('custom_field.field_name')" prop="name" :label-width="labelWidth">
         <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])" autocomplete="off"></el-input>
         <el-input v-else v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
 
-      <el-form-item :label="'字段备注'" prop="remark" :label-width="labelWidth">
+      <el-form-item :label="$t('custom_field.field_remark')" prop="remark" :label-width="labelWidth">
         <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.remark"></el-input>
       </el-form-item>
 
-      <el-form-item :label="'使用场景'" prop="type" :label-width="labelWidth">
-        <el-select :disabled="isSystem || isTemplateEdit" filterable v-model="form.scene" placeholder="使用场景">
+      <el-form-item :label="$t('custom_field.scene')" prop="type" :label-width="labelWidth">
+        <el-select :disabled="isSystem || isTemplateEdit" filterable v-model="form.scene" :placeholder="$t('custom_field.scene')">
           <el-option
             v-for="item in sceneOptions"
             :key="item.value"
@@ -28,8 +28,8 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item :label="'字段类型'" prop="type" :label-width="labelWidth">
-        <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="字段类型">
+      <el-form-item :label="$t('custom_field.field_type')" prop="type" :label-width="labelWidth">
+        <el-select :disabled="isSystem" filterable v-model="form.type" :placeholder="$t('custom_field.field_type')">
           <el-option
             v-for="item in fieldTypeOptions"
             :key="item.value"
@@ -41,9 +41,10 @@
 
       <el-form-item
         v-if="showOptions"
-        :label="'选项值'"
+        :label="$t('custom_field.field_option')"
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
+          :disable="form.name === '用例等级'"
           :data="form.options"/>
       </el-form-item>
 

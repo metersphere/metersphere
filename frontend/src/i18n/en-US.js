@@ -1,5 +1,8 @@
 export default {
   commons: {
+    yes: "yes",
+    no: "no",
+    default: "default",
     please_select_import_mode: 'Please select import mode',
     please_select_import_module: 'Please select import module',
     pass_rate: 'Pass rate',
@@ -13,6 +16,7 @@ export default {
     import_module: 'Import module',
     import_user: 'Import user',
     export: 'Export',
+    please_fill_content: 'Please fill content',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
@@ -270,7 +274,28 @@ export default {
     issue_creator: 'Creator',
     issue_processor: 'Processor',
     issue_status: 'Status',
-    issue_severity: 'Severity'
+    issue_severity: 'Severity',
+    create: 'Create Field',
+    name: 'Custom Field',
+    system_field: 'System Field',
+    scene: 'Use Scene',
+    attribute_type: 'Attribute Type',
+    field_name: 'Field Name',
+    field_remark: 'Field Remark',
+    field_type: 'Field Type',
+    field_option: 'Options',
+    add_field: 'Add Field',
+    api_field_name: 'API Field Name',
+    template_setting: 'Template Setting',
+    custom_field_setting: 'Custom Field Setting',
+    create_issue_template: 'Create Issue Template',
+    issue_template: 'Issue Template',
+    issue_platform: 'Issue Platform',
+    issue_content: 'Issue Content',
+    template_create: 'Template Create',
+    case_template: 'Test Case Template',
+    default_template: 'Default Template',
+    system_template: 'System Template',
   },
   workspace: {
     create: 'Create Workspace',
@@ -1126,7 +1151,8 @@ export default {
           case_type: {
             api: "Api case",
             scene: "Scenario case",
-            load: "Load case"
+            load: "Load case",
+            functional: "Functional case"
           }
         }
       },
@@ -1221,6 +1247,13 @@ export default {
     case: {
       list: "List",
       minder: "Minder",
+      step_info: "Step Info",
+      other_info: "Other Info",
+      step_describe: "Step Describe",
+      text_describe: "Text Describe",
+      text_describe_tip: "For simple test scenarios, there are no clear test steps",
+      change_type: "Change Type",
+      change_type_tip: "Applicable to every step of the test scenario, there are clear test steps, expected results",
       minder_create_tip: "failed, unable to create its parent module in minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
@@ -1263,6 +1296,9 @@ export default {
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
       relate_test: "Relate test",
+      relate_issue: "Relate Issue",
+      demand_name_id: "Demand ID/Name",
+      please_select_relate_test: "请选择要关联的测试",
       relate_test_not_find: 'The associated test does not exist, please check the test case',
       other_relate_test_not_find: 'Associated test name, please go to the third party platform to execute',
       batch_handle: 'Batch processing (select {0} item)',
@@ -1480,6 +1516,10 @@ export default {
     },
     issue: {
       issue: "Issue",
+      create_issue: "Create Issue",
+      add_issue: "Add Issue",
+      issue_list: "Issue List",
+      search_name: "Search for title",
       platform_tip: "Integrated defect management platform in the system setting-organization-service integration can automatically submit defects to the designated defect management platform",
       input_title: "Please enter title",
       id: "Issue ID",

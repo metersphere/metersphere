@@ -1,17 +1,17 @@
 <template>
-  <el-form-item :label="form.stepModel === 'STEP' ? '步骤描述' : '文本描述'" :label-width="labelWidth">
+  <el-form-item :label="form.stepModel === 'STEP' ? $t('test_track.case.step_describe') : $t('test_track.case.text_describe')" :label-width="labelWidth">
     <el-dropdown placement="bottom-start" @command="handleCommand">
                   <span class="el-dropdown-link">
-                    更改类型<i class="el-icon-arrow-down el-icon--right"/>
+                    {{ $t('test_track.case.change_type') }} <i class="el-icon-arrow-down el-icon--right"/>
                   </span>
       <el-dropdown-menu>
         <el-dropdown-item command="STEP">
-          <div>步骤描述</div>
-          <div>使用于简单的测试场景，没有明确的测试步骤</div>
+          <div>{{ $t('test_track.case.step_describe') }}</div>
+          <div>{{ $t('test_track.case.text_describe_tip') }}</div>
         </el-dropdown-item>
         <el-dropdown-item command="TEXT">
-          <div>文本描述</div>
-          <div>适用于需要每一个步骤进行测试的场景，有明确的测试步骤、预期结果</div>
+          <div>{{  $t('test_track.case.text_describe') }}</div>
+          <div>{{ $t('test_track.case.change_type_tip') }}</div>
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>

@@ -3,7 +3,7 @@
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="140px" ref="form">
 
-        <el-form-item :label="'标题'" prop="title">
+        <el-form-item :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
 
@@ -20,7 +20,7 @@
           </el-row>
         </el-form>
 
-        <form-rich-text-item :title="$t('缺陷内容')" :data="form" prop="description"/>
+        <form-rich-text-item :title="$t('custom_field.issue_content')" :data="form" prop="description"/>
 
         <el-row class="custom-field-row">
           <el-col :span="8" v-if="hasTapdId">
@@ -100,11 +100,11 @@ export default {
       customFieldRules: {},
       rules: {
         title: [
-          {required: true, message: this.$t('请填写标题'), trigger: 'blur'},
+          {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
           {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
         ],
         description: [
-          {required: true, message: this.$t('请填写内容'), trigger: 'blur'},
+          {required: true, message: this.$t('commons.please_fill_content'), trigger: 'blur'},
         ]
       },
       testCaseContainIds: new Set(),

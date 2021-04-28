@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button type="primary" @click="relateTestCase">关联用例</el-button>
+    <el-button type="primary" @click="relateTestCase">{{$t('test_track.review_view.relevance_case')}}</el-button>
 
     <ms-table
       v-loading="result.loading"

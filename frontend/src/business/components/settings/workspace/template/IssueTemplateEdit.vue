@@ -11,8 +11,8 @@
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'缺陷平台'" prop="platform" :label-width="labelWidth" >
-        <el-select :disabled="isSystem"  filterable v-model="form.platform" placeholder="用例类型">
+      <el-form-item :label="$t('custom_field.issue_platform')" prop="platform" :label-width="labelWidth" >
+        <el-select :disabled="isSystem"  filterable v-model="form.platform" :placeholder="$t('api_test.home_page.failed_case_list.table_coloum.case_type')">
           <el-option
             v-for="item in platformOption"
             :key="item.value"
@@ -24,11 +24,11 @@
     </template>
 
     <template v-slot:default>
-      <el-form-item :label="'标题'" prop="title" :label-width="labelWidth">
+      <el-form-item :label="$t('commons.title')" prop="title" :label-width="labelWidth">
         <el-input v-model="form.title" autocomplete="off"></el-input>
       </el-form-item>
 
-      <form-r-ich-text-item :label-width="labelWidth" :title="$t('缺陷内容')" :data="form" prop="content"/>
+      <form-r-ich-text-item :label-width="labelWidth" :title="$t('custom_field.issue_content')" :data="form" prop="content"/>
 
     </template>
 

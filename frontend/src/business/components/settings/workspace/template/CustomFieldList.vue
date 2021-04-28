@@ -3,7 +3,7 @@
 
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="getCustomFields" @create="handleCreate"
-                       :create-tip="'创建字段'" :title="'自定义字段'"/>
+                       :create-tip="$t('custom_field.create')" :title="$t('custom_field.name')"/>
     </template>
 
     <ms-table
@@ -18,7 +18,7 @@
       @refresh="getCustomFields">
 
         <ms-table-column
-          :label="'名称'"
+          :label="$t('commons.name')"
           :fields="fields"
           prop="name">
           <template v-slot="scope">
@@ -32,7 +32,7 @@
         </ms-table-column>
 
         <ms-table-column
-          :label="'使用场景'"
+          :label="$t('custom_field.scene')"
           :fields="fields"
           :filters="sceneFilters"
           prop="scene">
@@ -42,7 +42,7 @@
         </ms-table-column>
 
         <ms-table-column
-          :label="'属性类型'"
+          :label="$t('custom_field.attribute_type')"
           :fields="fields"
           :filters="fieldFilters"
           prop="type">
@@ -52,28 +52,28 @@
         </ms-table-column>
 
         <ms-table-column
-          :label="'系统字段'"
+          :label="$t('custom_field.system_field')"
           :fields="fields"
           prop="system">
           <template v-slot="scope">
             <span v-if="scope.row.system">
-              是
+              {{$t('commons.yes')}}
             </span>
             <span v-else>
-              否
+              {{$t('commons.no')}}
             </span>
           </template>
         </ms-table-column>
 
         <ms-table-column
-          :label="'备注'"
+          :label="$t('commons.remark')"
           :fields="fields"
           prop="remark">
         </ms-table-column>
 
         <ms-table-column
           sortable
-          :label="'创建时间'"
+          :label="$t('commons.create_time')"
           :fields="fields"
           prop="createTime">
           <template v-slot="scope">
@@ -83,7 +83,7 @@
 
         <ms-table-column
           sortable
-          :label="'更新时间'"
+          :label="$t('commons.update_time')"
           :fields="fields"
           prop="updateTime">
           <template v-slot="scope">

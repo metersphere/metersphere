@@ -1,11 +1,11 @@
 <template>
   <ms-table-column
     v-if="isShow"
-    :label="'API字段名'"
+    :label="$t('custom_field.api_field_name')"
     class="custom-with"
     prop="customData">
     <template v-slot="scope">
-      <el-input placeholder="请输入内容" v-model="scope.row.customData">
+      <el-input :placeholder="$t('commons.input_content')" v-model="scope.row.customData">
       </el-input>
     </template>
   </ms-table-column>
