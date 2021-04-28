@@ -284,4 +284,12 @@ public class WorkspaceService {
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         return projectMapper.selectByExample(projectExample);
     }
+
+    public String getOrganizationIdById(String resourceID) {
+        return extWorkspaceMapper.getOrganizationIdById(resourceID);
+    }
+
+    public List<WorkspaceDTO> findIdAndNameByOrganizationId(String organizationId) {
+        return extWorkspaceMapper.findIdAndNameByOrganizationId(organizationId);
+    }
 }

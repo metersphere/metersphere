@@ -127,7 +127,7 @@ public final class NewDriver {
         System.setProperty(JAVA_CLASS_PATH, initiaClasspath + classpath.toString());
         loader = AccessController.doPrivileged(
                 (PrivilegedAction<DynamicClassLoader>) () ->
-                        new DynamicClassLoader(jars.toArray(new URL[jars.size()]))
+                        new DynamicClassLoader(jars.toArray(new URL[jars.size()]), Thread.currentThread().getContextClassLoader())
         );
     }
 

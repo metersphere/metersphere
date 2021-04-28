@@ -30,14 +30,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Swagger swagger;
         String sourceStr = "";
-        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {  //  使用 url 导入 swagger
             swagger = new SwaggerParser().read(request.getSwaggerUrl());
         } else {
-            sourceStr = getApiTestStr(source);
+            sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
             swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
         }
 
-        if (swagger == null || swagger.getSwagger() == null) {
+        if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
             return swagger3Parser.parse(sourceStr, request);
         }
@@ -56,8 +56,16 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule parentNode = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+        ApiModule selectModule = null;
+        String selectModulePath = null;
+        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
+            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+            if (selectModule != null) {
+                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+            }
+        }
 
+        String basePath = swagger.getBasePath();
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
             Map<HttpMethod, Operation> operationMap = path.getOperationMap();
@@ -68,9 +76,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(),importRequest);
                 parseParameters(operation, request);
                 addBodyHeader(request);
+                if (StringUtils.isNotBlank(basePath)) {
+                    String pathStr = basePath + apiDefinition.getPath().replaceAll("//","/");
+                    apiDefinition.setPath(pathStr);
+                    request.setPath(pathStr);
+                }
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
-                buildModule(parentNode, apiDefinition, operation.getTags());
+                buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
                 results.add(apiDefinition);
             }
         }
@@ -137,9 +150,17 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private String getBodyType(Operation operation) {
         if (CollectionUtils.isEmpty(operation.getConsumes())) {
-            return Body.RAW;
+            return Body.JSON;
         }
         String contentType = operation.getConsumes().get(0);
+        return getBodyType(contentType);
+    }
+
+    private String getResponseBodyType(Operation operation) {
+        if (CollectionUtils.isEmpty(operation.getProduces())) {
+            return Body.JSON;
+        }
+        String contentType = operation.getProduces().get(0);
         return getBodyType(contentType);
     }
 
@@ -169,14 +190,17 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         msResponse.getBody().setKvs(new ArrayList<>());
         msResponse.setHeaders(new ArrayList<>());
         msResponse.setType(RequestType.HTTP);
-        msResponse.getBody().setType(getBodyType(operation));
+        msResponse.getBody().setType(getResponseBodyType(operation));
         // todo 状态码要调整？
         msResponse.setStatusCode(new ArrayList<>());
-        if (responses != null) {
+        if (responses != null && responses.size() > 0) {
             responses.forEach((responseCode, response) -> {
                 msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
+                String body = parseSchema(response.getResponseSchema());
+                if (StringUtils.isNotBlank(body)) {
+                    msResponse.getBody().setRaw(body);
+                }
                 parseResponseHeader(response, msResponse.getHeaders());
-                parseResponseBodyParameters(response, msResponse.getBody());
             });
         }
         return msResponse;
@@ -189,10 +213,6 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 msHeaders.add(new KeyValue(k, "", v.getDescription()));
             });
         }
-    }
-
-    private void parseResponseBodyParameters(Response response, Body body) {
-        body.setRaw(parseSchema(response.getResponseSchema()));
     }
 
     private void parseRequestBodyParameters(Parameter parameter, Body body) {
@@ -238,12 +258,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             return propertyList.toString();
         } else if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
-            if (StringUtils.equals("object", model.getType())) {
-                model.getProperties();
-                if (model != null) {
-                    JSONObject bodyParameters = getBodyParameters(model.getProperties(), new HashSet<>());
-                    return bodyParameters.toJSONString();
-                }
+            Map<String, Property> properties = model.getProperties();
+            if (model != null && properties != null) {
+                JSONObject bodyParameters = getBodyParameters(properties, new HashSet<>());
+                return bodyParameters.toJSONString();
             }
         }
         return "";

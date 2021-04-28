@@ -51,7 +51,7 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap"
-            parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
+            parameterType="io.metersphere.performance.request.QueryTestPlanRequest">
         SELECT load_test.*, project.name AS project_name, user.name AS user_name
         FROM load_test
                      LEFT JOIN project ON load_test.project_id = project.id
@@ -102,7 +102,12 @@
         <if test="request.orders != null and request.orders.size() > 0">
             ORDER BY
             <foreach collection="request.orders" separator="," item="order">
-                load_test.${order.name} ${order.type}
+                <if test="order.name == 'user_name'">
+                    user_name ${order.type}
+                </if>
+                <if test="order.name != 'user_name'">
+                    load_test.${order.name} ${order.type}
+                </if>
             </foreach>
         </if>
     </select>
@@ -130,5 +135,19 @@
     </select>
     <select id="getNextNum" resultType="io.metersphere.base.domain.LoadTest">
         select * from load_test lt where lt.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
+    </select>
+
+    <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
+        SELECT file_metadata.*
+        FROM file_metadata
+        WHERE file_metadata.type IN
+        <foreach collection="loadTypes" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        AND project_id = #{projectId,jdbcType=VARCHAR}
+        <if test="request.name!=null">
+            AND file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
+        </if>
+        order by update_time DESC
     </select>
 </mapper>

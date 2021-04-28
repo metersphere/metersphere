@@ -2,9 +2,10 @@ package io.metersphere.config;
 
 import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
+import io.metersphere.security.CsrfFilter;
 import io.metersphere.security.UserModularRealmAuthenticator;
 import io.metersphere.security.realm.LdapRealm;
-import io.metersphere.security.realm.ShiroDBRealm;
+import io.metersphere.security.realm.LocalRealm;
 import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
@@ -44,10 +45,14 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.setSuccessUrl("/");
 
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
+        shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
+
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
 
-        filterChainDefinitionMap.put("/**", "apikey, authc");
+        ShiroUtils.ignoreCsrfFilter(filterChainDefinitionMap);
+
+        filterChainDefinitionMap.put("/**", "apikey, csrf, authc");
         return shiroFilterFactoryBean;
     }
 
@@ -65,7 +70,7 @@ public class ShiroConfig implements EnvironmentAware {
     }
 
     /**
-     * securityManager 不用直接注入shiroDBRealm，可能会导致事务失效
+     * securityManager 不用直接注入 Realm，可能会导致事务失效
      * 解决方法见 handleContextRefresh
      * http://www.debugrun.com/a/NKS9EJQ.html
      */
@@ -80,8 +85,8 @@ public class ShiroConfig implements EnvironmentAware {
 
     @Bean
     @DependsOn("lifecycleBeanPostProcessor")
-    public ShiroDBRealm shiroDBRealm() {
-        return new ShiroDBRealm();
+    public LocalRealm localRealm() {
+        return new LocalRealm();
     }
 
     @Bean
@@ -130,10 +135,10 @@ public class ShiroConfig implements EnvironmentAware {
     public void handleContextRefresh(ContextRefreshedEvent event) {
         ApplicationContext context = event.getApplicationContext();
         List<Realm> realmList = new ArrayList<>();
-        ShiroDBRealm shiroDBRealm = context.getBean(ShiroDBRealm.class);
+        LocalRealm localRealm = context.getBean(LocalRealm.class);
         LdapRealm ldapRealm = context.getBean(LdapRealm.class);
         // 基本realm
-        realmList.add(shiroDBRealm);
+        realmList.add(localRealm);
         realmList.add(ldapRealm);
         context.getBean(DefaultWebSecurityManager.class).setRealms(realmList);
     }

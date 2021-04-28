@@ -7,7 +7,8 @@
                :visible.sync="dialogFormVisible"
                @close="close"
                v-loading="result.loading"
-               width="65%">
+               width="65%"
+               v-if="isStepTableAlive">
 
       <el-form :model="form" :rules="rules" ref="reviewForm">
 
@@ -19,6 +20,11 @@
               :label-width="formLabelWidth"
               prop="name">
               <el-input v-model="form.name"/>
+            </el-form-item>
+          </el-col>
+          <el-col :span="10" :offset="1">
+            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <ms-input-tag :currentScenario="form" ref="tag"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -80,6 +86,9 @@
           <el-button type="primary" @click="saveReview">
             {{ $t('test_track.confirm') }}
           </el-button>
+          <el-button type="primary" @click="reviewInfo">
+            {{ $t('test_track.planning_execution') }}
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -93,13 +102,15 @@
 
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
-import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "TestCaseReviewEdit",
-  components: {TestPlanStatusButton},
+  components: {MsInputTag, TestPlanStatusButton},
   data() {
     return {
+      isStepTableAlive: true,
       dialogFormVisible: false,
       result: {},
       form: {
@@ -113,11 +124,11 @@ export default {
       dbProjectIds: [],
       rules: {
         name: [
-          {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
+          {required: true, message: this.$t('test_track.review.input_review_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
         // projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
-        userIds: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
+        userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
         endTime: [{required: true, message: '请选择截止时间', trigger: 'blur'}]
@@ -127,7 +138,16 @@ export default {
       reviewerOptions: []
     };
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId;
+    }
+  },
   methods: {
+    reload() {
+      this.isStepTableAlive = false;
+      this.$nextTick(() => (this.isStepTableAlive = true));
+    },
     openCaseReviewEditDialog(caseReview) {
       this.resetForm();
       this.setReviewerOptions();
@@ -139,16 +159,55 @@ export default {
         Object.assign(tmp, caseReview);
         Object.assign(this.form, tmp);
         this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
+      } else {
+        this.form.tags = [];
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
+      this.reload();
     },
+    reviewInfo() {
+
+      this.$refs['reviewForm'].validate((valid) => {
+        if (valid) {
+          let param = {};
+          Object.assign(param, this.form);
+          param.name = param.name.trim();
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
+          if (param.name === '') {
+            this.$warning(this.$t('test_track.plan.input_plan_name'));
+            return;
+          }
+
+          if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
+            return false;
+          }
+          param.projectId = this.projectId;
+          if (this.projectId) {
+            this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
+              this.dialogFormVisible = false;
+              this.$router.push('/track/review/view/' + response.data);
+            });
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+
     saveReview() {
       this.$refs['reviewForm'].validate((valid) => {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
           if (param.name === '') {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
@@ -158,11 +217,14 @@ export default {
             return false;
           }
 
-          this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.dialogFormVisible = false;
-            this.$emit("refresh");
-          });
+          param.projectId = this.projectId;
+          if (this.projectId) {
+            this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
+              this.$success(this.$t('commons.save_success'));
+              this.dialogFormVisible = false;
+              this.$emit("refresh");
+            });
+          }
 
         } else {
           return false;

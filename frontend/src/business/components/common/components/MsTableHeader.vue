@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="ms-table-header">
     <el-row v-if="title" class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
         {{title}}
@@ -10,6 +10,8 @@
       <span class="operate-button">
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
+        <ms-table-button :is-tester-permission="true" icon="el-icon-download" v-if="showImport"
+                         :content="importTip" @click="importData"/>
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
@@ -20,7 +22,7 @@
       </span>
       <span>
         <slot name="searchBarBefore"></slot>
-        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip"/>
+        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip" v-if="haveSearch"/>
         <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
       </span>
     </el-row>
@@ -40,12 +42,16 @@
       title: {
         type: String,
         default() {
-          return this.$t('commons.name');
+          return null;
         }
       },
       showCreate: {
         type: Boolean,
         default: true
+      },
+      showImport: {
+        type: Boolean,
+        default: false
       },
       showRun: {
         type: Boolean,
@@ -58,6 +64,12 @@
         type: String,
         default() {
           return this.$t('commons.create');
+        }
+      },
+      importTip: {
+        type: String,
+        default() {
+          return this.$t('commons.import');
         }
       },
       runTip: {
@@ -74,6 +86,12 @@
         default() {
           return this.$t('commons.search_by_name');
         }
+      },
+      haveSearch: {
+        Boolean,
+        default() {
+          return true;
+        }
       }
     },
     methods: {
@@ -83,6 +101,9 @@
       },
       create() {
         this.$emit('create');
+      },
+      importData() {
+        this.$emit('import');
       },
       runTest() {
         this.$emit('runTest')

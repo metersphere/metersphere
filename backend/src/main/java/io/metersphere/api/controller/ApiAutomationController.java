@@ -2,8 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.JmxInfoDTO;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -11,10 +10,12 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.shiro.authz.annotation.Logical;
@@ -44,6 +45,27 @@ public class ApiAutomationController {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    @PostMapping("/list/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.listAll(request);
+    }
+
+    @PostMapping("/id/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<String> idAll(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.idAll(request);
+    }
+
+    @GetMapping("/list/{projectId}")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioDTO> list(@PathVariable String projectId) {
+        ApiScenarioRequest request = new ApiScenarioRequest();
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProjectId(projectId);
+        return apiAutomationService.list(request);
+    }
+
     @PostMapping(value = "/create")
     public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         return apiAutomationService.create(request, bodyFiles);
@@ -64,19 +86,44 @@ public class ApiAutomationController {
         apiAutomationService.deleteBatch(ids);
     }
 
+    @PostMapping("/deleteBatchByCondition")
+    public void deleteBatchByCondition(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.deleteBatchByCondition(request);
+    }
+
     @PostMapping("/removeToGc")
     public void removeToGc(@RequestBody List<String> ids) {
         apiAutomationService.removeToGc(ids);
     }
 
+    @PostMapping("/removeToGcByBatch")
+    public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.removeToGcByBatch(request);
+    }
+
     @PostMapping("/reduction")
-    public void reduction(@RequestBody List<SaveApiScenarioRequest> requests) {
-        apiAutomationService.reduction(requests);
+    public void reduction(@RequestBody List<String> ids) {
+        apiAutomationService.reduction(ids);
     }
 
     @GetMapping("/getApiScenario/{id}")
-    public ApiScenario getScenarioDefinition(@PathVariable String id) {
+    public ApiScenarioWithBLOBs getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getApiScenario(id);
+    }
+
+    @PostMapping("/getApiScenarioEnv")
+    public ScenarioEnv getScenarioDefinition(@RequestBody ApiScenarioEnvRequest request) {
+        return apiAutomationService.getApiScenarioEnv(request.getDefinition());
+    }
+
+    @GetMapping("/getApiScenarioProjectId/{id}")
+    public ScenarioEnv getApiScenarioProjectId(@PathVariable String id) {
+        return apiAutomationService.getApiScenarioProjectId(id);
+    }
+
+    @PostMapping("/getApiScenarioProjectIdByConditions")
+    public List<ScenarioIdProjectInfo> getApiScenarioProjectIdByConditions(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.getApiScenarioProjectIdByConditions(request);
     }
 
     @PostMapping("/getApiScenarios")
@@ -93,12 +140,24 @@ public class ApiAutomationController {
     @PostMapping(value = "/run")
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
+        return apiAutomationService.run(request);
+    }
+
+    @PostMapping(value = "/run/jenkins")
+    public String runByJenkins(@RequestBody RunScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.API.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
 
     @PostMapping(value = "/run/batch")
     public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
 
@@ -106,6 +165,12 @@ public class ApiAutomationController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
+    }
+
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.batchUpdateEnv(request);
     }
 
     @PostMapping("/getReference")
@@ -123,13 +188,18 @@ public class ApiAutomationController {
         apiAutomationService.relevance(request);
     }
 
+    @PostMapping("/relevance/review")
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
+        apiAutomationService.relevanceReview(request);
+    }
+
     @PostMapping(value = "/schedule/update")
     public void updateSchedule(@RequestBody Schedule request) {
         apiAutomationService.updateSchedule(request);
     }
 
     @PostMapping(value = "/schedule/create")
-    public void createSchedule(@RequestBody Schedule request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) {
         apiAutomationService.createSchedule(request);
     }
 

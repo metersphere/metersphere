@@ -2,10 +2,10 @@
   <el-row type="flex" class="head-bar">
 
     <el-col :span="12">
-      <div class="name-edit">
-        <el-input :placeholder="$t('test_track.plan_view.input_template_name')" v-model="template.name" @change="change"/>
-        <span v-if="template.name" class="title">{{template.name}}</span>
-        <span class="name-tip" v-if="!template.name">{{$t('test_track.plan_view.input_template_name')}}</span>
+      <div v-if="showEdit" class="name-edit">
+        <el-input :placeholder="$t('test_track.plan_view.input_template_name')" v-model="template[prop]"/>
+        <span v-if="template[prop]" class="title">{{template[prop]}}</span>
+        <span class="name-tip" v-else>{{$t('test_track.plan_view.input_template_name')}}</span>
       </div>
     </el-col>
     <el-col :span="12" class="head-right">
@@ -32,6 +32,18 @@
             return {}
           }
         },
+        prop: {
+          type: String,
+          default() {
+            return 'name';
+          }
+        },
+        showEdit: {
+          type: Boolean,
+          default() {
+            return true;
+          }
+        },
       },
       methods: {
         handleCancel() {
@@ -39,9 +51,6 @@
         },
         handleSave() {
           this.$emit('save');
-        },
-        change() {
-          this.$emit('update:template', this.templateName);
         }
       }
     }

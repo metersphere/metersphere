@@ -3,6 +3,7 @@ package io.metersphere.job.sechedule;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -58,6 +59,7 @@ public class ApiScenarioTestJob extends   MsScheduleJob {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setIds(this.scenarioIds);
         request.setReportUserID(this.userId);
+        request.setRunMode(ApiRunMode.SCHEDULE_SCENARIO.name());
 
         apiAutomationService.run(request);
     }

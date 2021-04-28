@@ -43,6 +43,8 @@
               <template v-slot:behind>
                 <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                                           type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                <ms-table-operator-button :is-tester-permission="true" :tip="$t('load_test.other_resource')" icon="el-icon-files"
+                                          type="success" @exec="openFiles(scope.row)"/>
               </template>
             </ms-table-operator>
           </template>
@@ -57,6 +59,16 @@
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
+
+
+        <el-form-item :label="$t('用例模板')" prop="caseTemplateId">
+          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
+        </el-form-item>
+        <el-form-item :label="$t('缺陷模板')" prop="issueTemplateId">
+          <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
+        </el-form-item>
+
+
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
@@ -71,6 +83,9 @@
         </el-form-item>
         <el-form-item :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
+        </el-form-item>
+        <el-form-item label="测试用例自定义ID" prop="customNum">
+          <el-switch v-model="form.customNum"></el-switch>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -88,6 +103,7 @@
 
     <ms-jar-config ref="jarConfig"/>
 
+    <ms-resource-files ref="resourceFiles"/>
   </div>
 </template>
 
@@ -109,10 +125,14 @@ import {PROJECT_ID} from "@/common/js/constants";
 import MsJarConfig from "../../api/test/components/jar/JarConfig";
 import MsTableButton from "../../common/components/MsTableButton";
 import {_sort} from "@/common/js/tableUtils";
+import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
+import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 
 export default {
   name: "MsProject",
   components: {
+    TemplateSelect,
+    MsResourceFiles,
     MsTableButton,
     MsJarConfig,
     TemplateComponent,
@@ -121,170 +141,189 @@ export default {
     MsDeleteConfirm,
     MsMainContainer,
     MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+  },
+  data() {
+    return {
+      createVisible: false,
+      result: {},
+      btnTips: this.$t('project.create'),
+      title: this.$t('project.create'),
+      condition: {},
+      items: [],
+      tapd: false,
+      jira: false,
+      zentao: false,
+      form: {},
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      rules: {
+        name: [
+          {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
+          {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+        ],
+        description: [
+          {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
+        ],
+        // caseTemplateId: [{required: true}],
+        // issueTemplateId: [{required: true}],
+      },
+    }
+  },
+  props: {
+    baseUrl: {
+      type: String
+    }
+  },
+  mounted() {
+    if (this.$route.path.split('/')[2] === 'project' &&
+      this.$route.path.split('/')[3] === 'create') {
+      this.create();
+      this.$router.replace('/setting/project/all');
+    }
+    this.list();
+  },
+  activated() {
+    this.list();
+  },
+  computed: {
+    currentUser: () => {
+      return getCurrentUser();
+    }
+  },
+  destroyed() {
+    this.createVisible = false;
+  },
+  methods: {
+    create() {
+      let workspaceId = this.currentUser.lastWorkspaceId;
+      this.getOptions();
+      if (!workspaceId) {
+        this.$warning(this.$t('project.please_choose_workspace'));
+        return false;
+      }
+      this.title = this.$t('project.create');
+      // listenGoBack(this.handleClose);
+      this.createVisible = true;
+      this.form = {};
     },
-    data() {
-      return {
-        createVisible: false,
-        result: {},
-        btnTips: this.$t('project.create'),
-        title: this.$t('project.create'),
-        condition: {},
-        items: [],
-        tapd: false,
-        jira: false,
-        zentao: false,
-        form: {},
-        currentPage: 1,
-        pageSize: 10,
-        total: 0,
-        rules: {
-          name: [
-            {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
-            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
-          ],
-          description: [
-            {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
-          ],
-        },
+    getOptions() {
+
+      if (this.$refs.issueTemplate) {
+        this.$refs.issueTemplate.getTemplateOptions();
+      }
+      if (this.$refs.caseTemplate) {
+        this.$refs.caseTemplate.getTemplateOptions();
       }
     },
-    props: {
-      baseUrl: {
-        type: String
-      }
+    edit(row) {
+      this.title = this.$t('project.edit');
+      this.getOptions();
+      this.createVisible = true;
+      listenGoBack(this.handleClose);
+      this.form = Object.assign({}, row);
+      this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
+        let data = response.data;
+        let platforms = data.map(d => d.platform);
+        if (platforms.indexOf("Tapd") !== -1) {
+          this.tapd = true;
+        }
+        if (platforms.indexOf("Jira") !== -1) {
+          this.jira = true;
+        }
+        if (platforms.indexOf("Zentao") !== -1) {
+          this.zentao = true;
+        }
+      });
     },
-    mounted() {
-      if (this.$route.path.split('/')[2] === 'project' &&
-        this.$route.path.split('/')[3] === 'create') {
-        this.create();
-        this.$router.replace('/setting/project/all');
-      }
-      this.list();
-    },
-    activated() {
-      this.list();
-    },
-    computed: {
-      currentUser: () => {
-        return getCurrentUser();
-      }
-    },
-    destroyed() {
-      this.createVisible = false;
-    },
-    methods: {
-      create() {
-        let workspaceId = this.currentUser.lastWorkspaceId;
-        if (!workspaceId) {
-          this.$warning(this.$t('project.please_choose_workspace'));
+    submit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let saveType = "add";
+          if (this.form.id) {
+            saveType = "update";
+          }
+          var protocol = document.location.protocol;
+          protocol = protocol.substring(0, protocol.indexOf(":"));
+          this.form.protocal = protocol;
+          this.result = this.$post("/project/" + saveType, this.form, () => {
+            this.createVisible = false;
+            this.list();
+            Message.success(this.$t('commons.save_success'));
+          });
+        } else {
           return false;
         }
-        this.title = this.$t('project.create');
-        // listenGoBack(this.handleClose);
-        this.createVisible = true;
-        this.form = {};
-      },
-      edit(row) {
-        this.title = this.$t('project.edit');
-        this.createVisible = true;
-        listenGoBack(this.handleClose);
-        this.form = Object.assign({}, row);
-        this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
-          let data = response.data;
-          let platforms = data.map(d => d.platform);
-          if (platforms.indexOf("Tapd") !== -1) {
-            this.tapd = true;
-          }
-          if (platforms.indexOf("Jira") !== -1) {
-            this.jira = true;
-          }
-          if (platforms.indexOf("Zentao") !== -1) {
-            this.zentao = true;
-          }
-        });
-      },
-      submit(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let saveType = "add";
-            if (this.form.id) {
-              saveType = "update"
-            }
-            this.result = this.$post("/project/" + saveType, this.form, () => {
-              this.createVisible = false;
-              this.list();
-              Message.success(this.$t('commons.save_success'));
-            });
-          } else {
-            return false;
-          }
-        });
-      },
-      openJarConfig() {
-        this.$refs.jarConfig.open();
-      },
-      handleDelete(project) {
-        this.$refs.deleteConfirm.open(project);
-      },
-      _handleDelete(project) {
-        this.$confirm(this.$t('project.delete_tip'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$get('/project/delete/' + project.id, () => {
-            if (project.id === getCurrentProjectID()) {
-              localStorage.removeItem(PROJECT_ID);
-              this.$post("/user/update/current", {id: getCurrentUser().id, lastProjectId: ''});
-            }
-            Message.success(this.$t('commons.delete_success'));
-            this.list();
-          });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancelled')
-          });
-        });
-      },
-      handleClose() {
-        removeGoBackListener(this.handleClose);
-        this.createVisible = false;
-        this.tapd = false;
-        this.jira = false;
-        this.zentao = false;
-      },
-      search() {
-        this.list();
-      },
-      list() {
-        let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, this.condition, (response) => {
-          let data = response.data;
-          this.items = data.listObject;
-          this.total = data.itemCount;
-        })
-      },
-      sort(column) {
-        _sort(column, this.condition);
-        this.list();
-      },
-      openEnvironmentConfig(project) {
-        this.$refs.environmentConfig.open(project.id);
-      },
+      });
     },
-    created() {
-      document.addEventListener('keydown', this.handleEvent)
+    openJarConfig() {
+      this.$refs.jarConfig.open();
     },
-    beforeDestroy() {
-      document.removeEventListener('keydown', this.handleEvent);
-    }
+    openFiles(project) {
+      this.$refs.resourceFiles.open(project);
+    },
+    handleDelete(project) {
+      this.$refs.deleteConfirm.open(project);
+    },
+    _handleDelete(project) {
+      this.$confirm(this.$t('project.delete_tip'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.$get('/project/delete/' + project.id, () => {
+          if (project.id === getCurrentProjectID()) {
+            localStorage.removeItem(PROJECT_ID);
+            this.$post("/user/update/current", {id: getCurrentUser().id, lastProjectId: ''});
+          }
+          Message.success(this.$t('commons.delete_success'));
+          this.list();
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: this.$t('commons.delete_cancelled')
+        });
+      });
+    },
+    handleClose() {
+      removeGoBackListener(this.handleClose);
+      this.createVisible = false;
+      this.tapd = false;
+      this.jira = false;
+      this.zentao = false;
+    },
+    search() {
+      this.list();
+    },
+    list() {
+      let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
+      this.result = this.$post(url, this.condition, (response) => {
+        let data = response.data;
+        this.items = data.listObject;
+        this.total = data.itemCount;
+      })
+    },
+    sort(column) {
+      _sort(column, this.condition);
+      this.list();
+    },
+    openEnvironmentConfig(project) {
+      this.$refs.environmentConfig.open(project.id);
+    },
+  },
+  created() {
+    document.addEventListener('keydown', this.handleEvent)
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.handleEvent);
   }
+}
 </script>
 
 <style scoped>
-  pre {
-    margin: 0 0;
-    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
-  }
+pre {
+  margin: 0 0;
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+}
 </style>

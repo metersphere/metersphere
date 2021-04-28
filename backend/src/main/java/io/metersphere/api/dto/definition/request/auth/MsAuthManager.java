@@ -1,19 +1,15 @@
 package io.metersphere.api.dto.definition.request.auth;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.protocol.http.control.Authorization;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -66,18 +62,36 @@ public class MsAuthManager extends MsTestElement {
         if (this.url != null) {
             auth.setURL(this.url);
         } else {
-            if (environment != null) {
-                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                ApiTestEnvironmentWithBLOBs environmentWithBLOBs = environmentService.get(environment);
-                EnvironmentConfig envConfig = JSONObject.parseObject(environmentWithBLOBs.getConfig(), EnvironmentConfig.class);
-                this.url = envConfig.getHttpConfig().getProtocol() + "://" + envConfig.getHttpConfig().getSocket();
+            if (config != null && config.isEffective(this.getProjectId())) {
+                if (config.isEffective(this.getProjectId())) {
+                    String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    auth.setURL(url);
+                }
             }
         }
-        auth.setDomain(this.domain);
         auth.setUser(this.username);
         auth.setPass(this.password);
         auth.setMechanism(AuthManager.Mechanism.DIGEST);
         authManager.addAuth(auth);
         tree.add(authManager);
+    }
+
+    public void setAuth(HashTree tree, MsAuthManager msAuthManager, HTTPSamplerProxy samplerProxy) {
+        try {
+            AuthManager authManager = new AuthManager();
+            authManager.setEnabled(true);
+            authManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "AuthManager");
+            authManager.setProperty(TestElement.TEST_CLASS, AuthManager.class.getName());
+            authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AuthPanel"));
+            Authorization auth = new Authorization();
+            auth.setURL(samplerProxy.getProtocol() + "://" + samplerProxy.getDomain());
+            auth.setUser(msAuthManager.getUsername());
+            auth.setPass(msAuthManager.getPassword());
+            auth.setMechanism(AuthManager.Mechanism.DIGEST);
+            authManager.addAuth(auth);
+            tree.add(authManager);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

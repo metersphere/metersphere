@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
@@ -10,20 +11,21 @@ import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.ApiTest;
-import io.metersphere.base.domain.Schedule;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.utils.CronUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -32,10 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
@@ -68,6 +67,8 @@ public class APITestController {
     private CheckPermissionService checkPermissionService;
     @Resource
     private HistoricalDataUpgradeService historicalDataUpgradeService;
+    @Resource
+    private ApiTestEnvironmentService environmentService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -104,7 +105,7 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/create")
-    public void createSchedule(@RequestBody Schedule request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) {
         apiTestService.createSchedule(request);
     }
 
@@ -250,9 +251,7 @@ public class APITestController {
 
     @GetMapping("/testSceneInfoCount/{projectId}")
     public ApiDataCountDTO testSceneInfoCount(@PathVariable String projectId) {
-
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
-
         long scenarioCountNumber = apiAutomationService.countScenarioByProjectID(projectId);
         apiCountResult.setAllApiDataCountNumber(scenarioCountNumber);
 
@@ -271,17 +270,34 @@ public class APITestController {
         //未执行、未通过、已通过
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
         apiCountResult.countRunResult(countResultByRunResult);
-
         long allCount = apiCountResult.getUnexecuteCount() + apiCountResult.getExecutionPassCount() + apiCountResult.getExecutionFailedCount();
-
+        DecimalFormat df = new DecimalFormat("0.0");
         if (allCount != 0) {
+            //通过率
             float coverageRageNumber = (float) apiCountResult.getExecutionPassCount() * 100 / allCount;
-            DecimalFormat df = new DecimalFormat("0.0");
             apiCountResult.setPassRage(df.format(coverageRageNumber) + "%");
         }
-
         return apiCountResult;
+    }
 
+    @GetMapping("/countInterfaceCoverage/{projectId}")
+    public String countInterfaceCoverage(@PathVariable String projectId) {
+        String returnStr = "100%";
+        /**
+         * 接口覆盖率
+         * 复制的接口定义/复制或引用的单接口用例/ 添加的自定义请求 url 路径与现有的接口定义一致的请求
+         */
+        List<ApiScenarioWithBLOBs> allScenarioInfoList = apiAutomationService.selectIdAndScenarioByProjectId(projectId);
+        List<ApiDefinition> allEffectiveApiIdList = apiDefinitionService.selectEffectiveIdByProjectId(projectId);
+        List<ApiTestCase> allEffectiveApiCaseList = apiTestCaseService.selectEffectiveTestCaseByProjectId(projectId);
+        try {
+            float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(allScenarioInfoList, allEffectiveApiIdList, allEffectiveApiCaseList);
+            DecimalFormat df = new DecimalFormat("0.0");
+            returnStr = df.format(intetfaceCoverageRageNumber) + "%";
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  returnStr;
     }
 
     @GetMapping("/scheduleTaskInfoCount/{projectId}")
@@ -342,10 +358,17 @@ public class APITestController {
         return returnList;
     }
 
-    @GetMapping("/runningTask/{projectID}")
-    public List<TaskInfoResult> runningTask(@PathVariable String projectID) {
-
-        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID);
+    @GetMapping("/runningTask/{projectID}/{callFrom}")
+    public List<TaskInfoResult> runningTask(@PathVariable String projectID, @PathVariable String callFrom) {
+        List<String> typeFilter = new ArrayList<>();
+        if (StringUtils.equals(callFrom, "api_test")) {   //  接口测试首页显示的运行中定时任务，只要这3种，不需要 性能测试、api_test(旧版)
+            typeFilter.add(ScheduleGroup.API_SCENARIO_TEST.name());
+            typeFilter.add(ScheduleGroup.SWAGGER_IMPORT.name());
+            typeFilter.add(ScheduleGroup.TEST_PLAN_TEST.name());
+        } else if (StringUtils.equals(callFrom, "track_home")) { //  测试跟踪首页只显示测试计划的定时任务
+            typeFilter.add(ScheduleGroup.TEST_PLAN_TEST.name());
+        }
+        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID, typeFilter);
         int dataIndex = 1;
         for (TaskInfoResult taskInfo :
                 resultList) {
@@ -372,17 +395,26 @@ public class APITestController {
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
     public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) throws Exception {
-        HashTree hashTree = runRequest.getTestElement().generateHashTree();
+
+        ParameterConfig config = new ParameterConfig();
+        config.setProjectId(runRequest.getProjectId());
+
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String, String> map = runRequest.getEnvironmentMap();
+        if (map != null && map.size() > 0) {
+            ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(runRequest.getProjectId()));
+            EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig.put(runRequest.getProjectId(), env);
+            config.setConfig(envConfig);
+        }
+        HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
 
         String testName = runRequest.getName();
 
         //将jmx处理封装为通用方法
-        jmxString = apiTestService.updateJmxString(jmxString,testName,false);
-
-        JmxInfoDTO dto = new JmxInfoDTO();
+        JmxInfoDTO dto = apiTestService.updateJmxString(jmxString, testName, false);
         dto.setName(runRequest.getName() + ".jmx");
-        dto.setXml(jmxString);
         return dto;
     }
 

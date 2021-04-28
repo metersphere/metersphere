@@ -446,11 +446,28 @@ export const TEST_PLAN_TRIGGER_MODE = {
   }
 };
 
+export const CASE_REVIEW_STATUS = {
+  key: "reviewStatus",
+  name: 'MsTableSearchSelect',
+  label: "test_track.review_view.execute_result",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: "test_track.review.prepare", value: "Prepare"},
+    {label: "test_track.review.pass", value: "Pass"},
+    {label: "test_track.review.un_pass", value: "UnPass"},
+  ],
+  props: {
+    multiple: true
+  }
+}
+
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
 
 export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
-export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR, EXECUTOR];
+export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME, TYPE, UPDATE_TIME, METHOD, CREATOR, EXECUTOR, CASE_REVIEW_STATUS];
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];
 

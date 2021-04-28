@@ -3,7 +3,7 @@
     <el-select :disabled="isReadOnly" v-model="environmentId" size="small" class="environment-select"
                :placeholder="$t('api_test.definition.request.run_env')" clearable>
       <el-option v-for="(environment, key) in environments" :key="key"
-                 :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                 :label="environment.name"
                  :value="environment.id"/>
       <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
         {{ $t('api_test.environment.environment_config') }}
@@ -35,7 +35,7 @@
           environmentId: ""
         }
       },
-      props:['projectId','isReadOnly'],
+      props:['projectId','isReadOnly','useEnvironment'],
       created() {
         this.getEnvironments();
       },
@@ -49,9 +49,9 @@
         environmentId() {
           this.environmentChange(this.environmentId);
         },
-        // planEnvironmentId() {
-        //   this.environmentId = this.planEnvironmentId;
-        // }
+        useEnvironment(){
+          this.getEnvironments();
+        }
       },
       methods: {
         getEnvironments() {
@@ -60,9 +60,9 @@
               this.environments = response.data;
               this.environments.forEach(environment => {
                 parseEnvironment(environment);
-                // if (this.planEnvironmentId && environment.id === this.planEnvironmentId) {
-                //   this.planEnvironmentId = environment.id;
-                // }
+                if (this.useEnvironment && this.useEnvironment === environment.id) {
+                  this.environmentId = this.useEnvironment;
+                }
               });
             });
           } else {
@@ -74,7 +74,7 @@
             this.$error(this.$t('api_test.select_project'));
             return;
           }
-          this.$refs.environmentConfig.open(this.projectId);
+          this.$refs.environmentConfig.open(this.projectId, this.environmentId);
         },
         environmentChange(value) {
           for (let i in this.environments) {

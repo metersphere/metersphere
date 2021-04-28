@@ -734,76 +734,6 @@ public class TestCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andPrerequisiteIsNull() {
-            addCriterion("prerequisite is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteIsNotNull() {
-            addCriterion("prerequisite is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteEqualTo(String value) {
-            addCriterion("prerequisite =", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteNotEqualTo(String value) {
-            addCriterion("prerequisite <>", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteGreaterThan(String value) {
-            addCriterion("prerequisite >", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteGreaterThanOrEqualTo(String value) {
-            addCriterion("prerequisite >=", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteLessThan(String value) {
-            addCriterion("prerequisite <", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteLessThanOrEqualTo(String value) {
-            addCriterion("prerequisite <=", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteLike(String value) {
-            addCriterion("prerequisite like", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteNotLike(String value) {
-            addCriterion("prerequisite not like", value, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteIn(List<String> values) {
-            addCriterion("prerequisite in", values, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteNotIn(List<String> values) {
-            addCriterion("prerequisite not in", values, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteBetween(String value1, String value2) {
-            addCriterion("prerequisite between", value1, value2, "prerequisite");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrerequisiteNotBetween(String value1, String value2) {
-            addCriterion("prerequisite not between", value1, value2, "prerequisite");
-            return (Criteria) this;
-        }
-
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;
@@ -1321,6 +1251,426 @@ public class TestCaseExample {
 
         public Criteria andTagsNotBetween(String value1, String value2) {
             addCriterion("tags not between", value1, value2, "tags");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdIsNull() {
+            addCriterion("demand_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdIsNotNull() {
+            addCriterion("demand_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdEqualTo(String value) {
+            addCriterion("demand_id =", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdNotEqualTo(String value) {
+            addCriterion("demand_id <>", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdGreaterThan(String value) {
+            addCriterion("demand_id >", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdGreaterThanOrEqualTo(String value) {
+            addCriterion("demand_id >=", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdLessThan(String value) {
+            addCriterion("demand_id <", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdLessThanOrEqualTo(String value) {
+            addCriterion("demand_id <=", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdLike(String value) {
+            addCriterion("demand_id like", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdNotLike(String value) {
+            addCriterion("demand_id not like", value, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdIn(List<String> values) {
+            addCriterion("demand_id in", values, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdNotIn(List<String> values) {
+            addCriterion("demand_id not in", values, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdBetween(String value1, String value2) {
+            addCriterion("demand_id between", value1, value2, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandIdNotBetween(String value1, String value2) {
+            addCriterion("demand_id not between", value1, value2, "demandId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameIsNull() {
+            addCriterion("demand_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameIsNotNull() {
+            addCriterion("demand_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameEqualTo(String value) {
+            addCriterion("demand_name =", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameNotEqualTo(String value) {
+            addCriterion("demand_name <>", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameGreaterThan(String value) {
+            addCriterion("demand_name >", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameGreaterThanOrEqualTo(String value) {
+            addCriterion("demand_name >=", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameLessThan(String value) {
+            addCriterion("demand_name <", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameLessThanOrEqualTo(String value) {
+            addCriterion("demand_name <=", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameLike(String value) {
+            addCriterion("demand_name like", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameNotLike(String value) {
+            addCriterion("demand_name not like", value, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameIn(List<String> values) {
+            addCriterion("demand_name in", values, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameNotIn(List<String> values) {
+            addCriterion("demand_name not in", values, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameBetween(String value1, String value2) {
+            addCriterion("demand_name between", value1, value2, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDemandNameNotBetween(String value1, String value2) {
+            addCriterion("demand_name not between", value1, value2, "demandName");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIsNull() {
+            addCriterion("follow_people is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIsNotNull() {
+            addCriterion("follow_people is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleEqualTo(String value) {
+            addCriterion("follow_people =", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotEqualTo(String value) {
+            addCriterion("follow_people <>", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThan(String value) {
+            addCriterion("follow_people >", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleGreaterThanOrEqualTo(String value) {
+            addCriterion("follow_people >=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThan(String value) {
+            addCriterion("follow_people <", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLessThanOrEqualTo(String value) {
+            addCriterion("follow_people <=", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleLike(String value) {
+            addCriterion("follow_people like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotLike(String value) {
+            addCriterion("follow_people not like", value, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleIn(List<String> values) {
+            addCriterion("follow_people in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotIn(List<String> values) {
+            addCriterion("follow_people not in", values, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleBetween(String value1, String value2) {
+            addCriterion("follow_people between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andFollowPeopleNotBetween(String value1, String value2) {
+            addCriterion("follow_people not between", value1, value2, "followPeople");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNull() {
+            addCriterion("`status` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIsNotNull() {
+            addCriterion("`status` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusEqualTo(String value) {
+            addCriterion("`status` =", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotEqualTo(String value) {
+            addCriterion("`status` <>", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThan(String value) {
+            addCriterion("`status` >", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("`status` >=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThan(String value) {
+            addCriterion("`status` <", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLessThanOrEqualTo(String value) {
+            addCriterion("`status` <=", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusLike(String value) {
+            addCriterion("`status` like", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotLike(String value) {
+            addCriterion("`status` not like", value, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusIn(List<String> values) {
+            addCriterion("`status` in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotIn(List<String> values) {
+            addCriterion("`status` not in", values, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusBetween(String value1, String value2) {
+            addCriterion("`status` between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andStatusNotBetween(String value1, String value2) {
+            addCriterion("`status` not between", value1, value2, "status");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumIsNull() {
+            addCriterion("custom_num is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumIsNotNull() {
+            addCriterion("custom_num is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumEqualTo(String value) {
+            addCriterion("custom_num =", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumNotEqualTo(String value) {
+            addCriterion("custom_num <>", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumGreaterThan(String value) {
+            addCriterion("custom_num >", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumGreaterThanOrEqualTo(String value) {
+            addCriterion("custom_num >=", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumLessThan(String value) {
+            addCriterion("custom_num <", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumLessThanOrEqualTo(String value) {
+            addCriterion("custom_num <=", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumLike(String value) {
+            addCriterion("custom_num like", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumNotLike(String value) {
+            addCriterion("custom_num not like", value, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumIn(List<String> values) {
+            addCriterion("custom_num in", values, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumNotIn(List<String> values) {
+            addCriterion("custom_num not in", values, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumBetween(String value1, String value2) {
+            addCriterion("custom_num between", value1, value2, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andCustomNumNotBetween(String value1, String value2) {
+            addCriterion("custom_num not between", value1, value2, "customNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelIsNull() {
+            addCriterion("step_model is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelIsNotNull() {
+            addCriterion("step_model is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelEqualTo(String value) {
+            addCriterion("step_model =", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotEqualTo(String value) {
+            addCriterion("step_model <>", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelGreaterThan(String value) {
+            addCriterion("step_model >", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelGreaterThanOrEqualTo(String value) {
+            addCriterion("step_model >=", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelLessThan(String value) {
+            addCriterion("step_model <", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelLessThanOrEqualTo(String value) {
+            addCriterion("step_model <=", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelLike(String value) {
+            addCriterion("step_model like", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotLike(String value) {
+            addCriterion("step_model not like", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelIn(List<String> values) {
+            addCriterion("step_model in", values, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotIn(List<String> values) {
+            addCriterion("step_model not in", values, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelBetween(String value1, String value2) {
+            addCriterion("step_model between", value1, value2, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotBetween(String value1, String value2) {
+            addCriterion("step_model not between", value1, value2, "stepModel");
             return (Criteria) this;
         }
     }

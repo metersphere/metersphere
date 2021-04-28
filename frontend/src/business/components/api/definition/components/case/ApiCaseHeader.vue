@@ -4,7 +4,9 @@
       <el-row>
         <el-col :span="api.protocol==='HTTP'? 3:5">
           <el-checkbox v-model="isSelectAll" class="select-all"/>
-          <span class="variable-combine"> {{api.name}}</span>
+          <el-tooltip :content="api.name">
+            <span class="ms-col-name"> {{api.name}}</span>
+          </el-tooltip>
         </el-col>
         <el-col :span="api.protocol==='HTTP'? 1:3">
           <el-tag size="mini" :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}" class="api-el-tag">
@@ -47,6 +49,7 @@
             <ms-environment-select
               :project-id="projectId"
               :is-read-only="isReadOnly"
+              :useEnvironment='useEnvironment'
               @setEnvironment="setEnvironment"/>
           </div>
         </el-col>
@@ -65,7 +68,6 @@
 <script>
 
   import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
-  import {parseEnvironment} from "../../../test/model/EnvironmentModel";
   import MsTag from "../../../../common/components/MsTag";
   import MsEnvironmentSelect from "./MsEnvironmentSelect";
   import {API_METHOD_COLOUR} from "../../model/JsonData";
@@ -76,8 +78,6 @@
     components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig, MsTableAdvSearchBar},
     data() {
       return {
-        environments: [],
-        environment: {},
         methodColorMap: new Map(API_METHOD_COLOUR),
         isSelectAll: false
       }
@@ -88,6 +88,7 @@
       priorities: Array,
       apiCaseList: Array,
       isReadOnly: Boolean,
+      useEnvironment: String,
       isCaseEdit: Boolean,
       condition: {
         type: Object,
@@ -97,50 +98,15 @@
       }
     },
     created() {
-      this.environment = undefined;
-      this.getEnvironments();
     },
     watch: {
-      environment() {
-        this.$emit('setEnvironment', this.environment);
-      },
       isSelectAll() {
         this.$emit('selectAll', this.isSelectAll);
-      }
+      },
     },
     methods: {
-      getEnvironments() {
-        if (this.projectId) {
-          this.$get('/api/environment/list/' + this.projectId, response => {
-            this.environments = response.data;
-            this.environments.forEach(environment => {
-              parseEnvironment(environment);
-            });
-          });
-        } else {
-          this.environment = undefined;
-        }
-      },
-      openEnvironmentConfig() {
-        if (!this.projectId) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
-        this.$refs.environmentConfig.open(this.projectId);
-      },
-      environmentChange(value) {
-        for (let i in this.environments) {
-          if (this.environments[i].id === value) {
-            this.environment = this.environments[i];
-            break;
-          }
-        }
-      },
-      environmentConfigClose() {
-        this.getEnvironments();
-      },
       setEnvironment(data) {
-        this.$emit('setEnvironment', data);
+        this.$emit('setEnvironment', data.id);
       },
       search() {
         if (this.priorities && this.condition.order) {
@@ -212,4 +178,14 @@
     margin-right: 10px;
   }
 
+  .ms-col-name {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 100px;
+  }
 </style>

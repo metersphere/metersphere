@@ -23,6 +23,7 @@
         <template v-slot:default="scope">
           <ms-tag v-if="scope.row.caseType == 'apiCase'" type="success" effect="plain" :content="$t('api_test.home_page.failed_case_list.table_value.case_type.api')"/>
           <ms-tag v-if="scope.row.caseType == 'scenario'" type="warning" effect="plain" :content="$t('api_test.home_page.failed_case_list.table_value.case_type.scene')"/>
+          <ms-tag v-if="scope.row.caseType == 'load'" type="danger" effect="plain" :content="$t('api_test.home_page.failed_case_list.table_value.case_type.load')"/>
         </template>
       </el-table-column>
       <el-table-column prop="testPlan"  :label="$t('api_test.home_page.failed_case_list.table_coloum.test_plan')">
@@ -40,7 +41,6 @@
 </template>
 
 <script>
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
@@ -57,13 +57,18 @@ export default {
       loading: false
     }
   },
-
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     search() {
-      let projectID = getCurrentProjectID();
-      this.result = this.$get("/api/faliureCaseAboutTestPlan/"+projectID+"/10", response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/faliureCaseAboutTestPlan/"+ this.projectId +"/10", response => {
+          this.tableData = response.data;
+        });
+      }
     },
     redirect(pageType,param){
       switch (pageType){

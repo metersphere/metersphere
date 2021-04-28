@@ -5,7 +5,24 @@
         <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
-      <el-table  border class="adjust-table" :data="tableData" style="width: 100%">
+      <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
+                @select-all="handleSelectAll"
+                @select="handleSelect"
+                ref="userTable">
+
+        <el-table-column type="selection" width="50"/>
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize>total?total:pageSize"
+                                        :total="total"
+                                        :select-data-counts="selectDataCounts"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
+        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
@@ -97,7 +114,7 @@
           @confirm="updateWorkspaceMember('updateUserForm')"/>
       </template>
     </el-dialog>
-
+    <user-cascader :lable="batchAddLable" :title="batchAddTitle" @confirm="cascaderConfirm" ref="cascaderDialog"></user-cascader>
   </div>
 </template>
 
@@ -108,11 +125,27 @@
   import MsRolesTag from "../../common/components/MsRolesTag";
   import MsTableOperator from "../../common/components/MsTableOperator";
   import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+  import {
+    getCurrentOrganizationId, getCurrentProjectID,
+    getCurrentUser,
+    listenGoBack,
+    removeGoBackListener
+  } from "../../../../common/js/utils";
+  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+  import {
+    _handleSelect,
+    _handleSelectAll,
+    getSelectDataCounts,
+    setUnSelectIds,
+    toggleAllSelection
+  } from "@/common/js/tableUtils";
+  import UserCascader from "@/business/components/settings/system/components/UserCascader";
+  import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter},
+    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
+      MsTableHeaderSelectPopover,UserCascader,ShowMoreBtn},
     data() {
       return {
         result: {},
@@ -135,6 +168,17 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
+        selectDataCounts: 0,
+        batchAddLable: this.$t('project.please_choose_workspace'),
+        batchAddTitle: this.$t('project.batch_choose_workspace'),
+        selectRows: new Set(),
+        referenced: false,
+        batchAddUserRoleOptions:[],
+        buttons: [
+          {
+            name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
+          }
+        ],
       }
     },
     activated: function () {
@@ -165,8 +209,33 @@
             })
           }
           this.total = data.itemCount;
+          this.$nextTick(function(){
+            this.checkTableRowIsSelect();
+          });
         })
+      },
+      checkTableRowIsSelect(){
+        //如果默认全选的话，则选中应该选中的行
+        if(this.condition.selectAll){
+          let unSelectIds = this.condition.unSelectIds;
+          this.tableData.forEach(row=>{
+            if(unSelectIds.indexOf(row.id)<0){
+              this.$refs.userTable.toggleRowSelection(row,true);
 
+              //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+              if (!this.selectRows.has(row)) {
+                this.$set(row, "showMore", true);
+                this.selectRows.add(row);
+              }
+            }else{
+              //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+              if (this.selectRows.has(row)) {
+                this.$set(row, "showMore", false);
+                this.selectRows.delete(row);
+              }
+            }
+          })
+        }
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -283,9 +352,62 @@
           return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
         };
       },
-      handleSelect(item) {
-        this.$set(this.form, "userId", item.id);
-      }
+      initRoleBatchProcessDataStruct(isShow){
+        let organizationId = getCurrentOrganizationId();
+        this.$get("/user/getWorkspaceUserRoleDataStruct/"+organizationId, response => {
+          this.batchAddUserRoleOptions = response.data;
+          if(isShow){
+            this.$refs.cascaderDialog.open('ADD_USER_ROLE',this.batchAddUserRoleOptions);
+          }
+        });
+      },
+      handleSelectAll(selection) {
+        _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
+        setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        this.$emit('selection', selection);
+      },
+      handleSelect(selection, row) {
+        _handleSelect(this, selection, row, this.selectRows);
+        setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        this.$emit('selection', selection);
+        this.$set(this.form, "userId", selection.id);
+      },
+      isSelectDataAll(data) {
+        this.condition.selectAll = data;
+        setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        toggleAllSelection(this.$refs.userTable, this.tableData, this.selectRows);
+      },
+      addUserRoleBatch(){
+        if(this.batchAddUserRoleOptions.length == 0){
+          this.initRoleBatchProcessDataStruct(true);
+        }else{
+          this.$refs.cascaderDialog.open('ADD_USER_ROLE',this.batchAddUserRoleOptions);
+        }
+      },
+      cascaderConfirm(batchProcessTypeParam,selectValueArr){
+        if(selectValueArr.length == 0){
+          this.$success(this.$t('commons.modify_success'));
+        }
+        let params = {};
+        params = this.buildBatchParam(params);
+        params.organizationId = getCurrentOrganizationId();
+        params.batchType = batchProcessTypeParam;
+        params.batchProcessValue = selectValueArr;
+        this.$post('/user/special/batchProcessUserInfo', params, () => {
+          this.$success(this.$t('commons.modify_success'));
+          this.initTableData();
+          this.$refs.cascaderDialog.close();
+        });
+      },
+      buildBatchParam(param) {
+        param.ids = Array.from(this.selectRows).map(row => row.id);
+        param.projectId = getCurrentProjectID();
+        param.condition = this.condition;
+        return param;
+      },
     }
   }
 </script>
@@ -314,4 +436,7 @@
     width: 100%;
   }
 
+  /deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
+    top: -5px;
+  }
 </style>

@@ -108,4 +108,22 @@
         </if>
         order by user_role.update_time desc) temp
     </select>
+
+    <select id="selectIdsByQuery" resultType="java.lang.String">
+        SELECT DISTINCT temp.id FROM (
+            SELECT `user`.*  FROM user_role
+            JOIN `user` ON user_role.user_id = `user`.id
+            WHERE user_role.source_id in
+            (
+                SELECT id FROM workspace w
+                WHERE w.organization_id = #{organizationId}
+                UNION
+                SELECT #{organizationId} AS id FROM dual
+            )
+            <if test="orgMember.name != null">
+                AND `user`.name like CONCAT('%', #{orgMember.name},'%')
+            </if>
+            order by user_role.update_time desc
+        ) temp
+    </select>
 </mapper>

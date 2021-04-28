@@ -3,12 +3,14 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
+    <el-row>
+      <el-checkbox v-model="isSelectAll" v-if="isShowEnable === true && items.length > 1"/>
+    </el-row>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
-
         </el-col>
         <span style="margin-left: 10px" v-else></span>
 
@@ -19,15 +21,31 @@
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change"
                     :placeholder="keyText" show-word-limit/>
-          <el-autocomplete :disabled="isReadOnly" :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
+          <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
                            show-word-limit/>
 
         </el-col>
 
         <el-col class="item">
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
+          <el-input v-if="!needMock" :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
                     :placeholder="valueText" show-word-limit/>
+          <div v-if="needMock">
+            <el-autocomplete
+              :disabled="isReadOnly"
+              @change="change"
+              :placeholder="valueText"
+              size="small"
+              style="width: 100%;"
+              v-model="item.value"
+              value-key="name"
+              :fetch-suggestions="funcSearch"
+              highlight-first-item
+              show-word-limit>
+              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
+            </el-autocomplete>
+            <ms-api-variable-advance ref="variableAdvance"/>
+          </div>
         </el-col>
         <el-col class="item kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -41,16 +59,18 @@
 <script>
   import {KeyValue} from "../model/ApiTestModel";
   import Vue from 'vue';
+  import MsApiVariableAdvance from "./ApiVariableAdvance";
+  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
 
   export default {
     name: "MsApiKeyValue",
+    components: {MsApiVariableAdvance},
     props: {
       keyPlaceholder: String,
       valuePlaceholder: String,
       isShowEnable: {
         type: Boolean,
-        default: false
       },
       description: String,
       items: Array,
@@ -59,11 +79,16 @@
         default: false
       },
       suggestions: Array,
+      needMock: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
         keyValues: [],
         loading: false,
+        isSelectAll: true
       }
     },
     computed: {
@@ -74,8 +99,30 @@
         return this.valuePlaceholder || this.$t("api_test.value");
       }
     },
-
+    watch: {
+      isSelectAll: function(to, from) {
+        if(from == false && to == true) {
+          this.selectAll();
+        } else if(from == true && to == false) {
+          this.invertSelect();
+        }
+      }
+    },
     methods: {
+      advanced() {
+        this.$refs.variableAdvance.open();
+      },
+      funcFilter(queryString) {
+        return (func) => {
+          return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+        };
+      },
+      funcSearch(queryString, cb) {
+        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
       moveBottom(index) {
         if (this.items.length < 2 || index === this.items.length - 2) {
           return;
@@ -137,6 +184,16 @@
         return (restaurant) => {
           return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
         };
+      },
+      selectAll() {
+        this.items.forEach(item => {
+          item.enable = true;
+        });
+      },
+      invertSelect() {
+        this.items.forEach(item => {
+          item.enable = false;
+        });
       },
     },
     created() {

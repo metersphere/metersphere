@@ -4,6 +4,7 @@
     @setProject="setProject"
     @save="saveCaseRelevance"
     :plan-id="planId"
+    :flag="true"
     ref="baseRelevance">
 
     <template v-slot:aside>
@@ -61,9 +62,8 @@
       </el-table-column>
     </el-table>
 
-    <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
-    <div style="text-align: center">共 {{total}} 条</div>
-
+    <div v-if="!lineStatus" style="text-align: center">{{ $t('test_track.review_view.last_page') }}</div>
+    <div style="text-align: center">共 {{ total }} 条</div>
   </test-case-relevance-base>
 
 </template>
@@ -159,11 +159,12 @@ export default {
         this.projectId = projectId;
       },
 
-      saveCaseRelevance() {
+      saveCaseRelevance(item) {
         let param = {};
         param.planId = this.planId;
         param.testCaseIds = [...this.selectIds];
         param.request = this.condition;
+        param.checked = item
         // 选择全选则全部加入到评审，无论是否加载完全部
         if (this.testCases.length === param.testCaseIds.length) {
           param.testCaseIds = ['all'];
@@ -196,7 +197,7 @@ export default {
         }
         if (this.projectId) {
           this.condition.projectId = this.projectId;
-          this.result = this.$post(this.buildPagePath('/test/case/name'), this.condition, response => {
+          this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             let tableData = data.listObject;
@@ -205,7 +206,7 @@ export default {
             });
             flag ? this.testCases = tableData : this.testCases = this.testCases.concat(tableData);
             // 去重处理
-            let hash = {}
+            let hash = {};
             this.testCases = this.testCases.reduce((item, next) => {
               if (!hash[next.id]) {
                 hash[next.id] = true

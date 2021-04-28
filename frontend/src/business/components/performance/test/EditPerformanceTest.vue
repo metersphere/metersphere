@@ -8,7 +8,7 @@
                       class="input-with-select"
                       maxlength="30" show-word-limit
             >
-              <template slot="prepend">测试名称</template>
+              <template slot="prepend">{{ $t('load_test.name') }}</template>
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
@@ -28,10 +28,12 @@
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
             <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
+                                      @tgTypeChange="tgTypeChange"
                                       @fileChange="fileChange"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
             <performance-pressure-config :is-read-only="isReadOnly" :test="test" :test-id="testId"
+                                         @fileChange="fileChange"
                                          ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
@@ -121,13 +123,25 @@ export default {
   },
   methods: {
     importAPITest() {
-      let apiTest = this.$store.state.api.test;
+      let apiTest = this.$store.state.test;
       if (apiTest && apiTest.name) {
         this.$set(this.test, "name", apiTest.name);
-        let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
-        let file = new File([blob], apiTest.jmx.name);
-        this.$refs.basicConfig.beforeUpload(file);
-        this.$refs.basicConfig.handleUpload({file: file});
+        if (apiTest.jmx.scenarioId) {
+          this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
+          this.$refs.basicConfig.handleUpload();
+        }
+        if (apiTest.jmx.caseId) {
+          this.$refs.basicConfig.importCase(apiTest.jmx);
+        }
+        if (JSON.stringify(apiTest.jmx.attachFiles) != "{}") {
+          let attachFiles = [];
+          for (let fileID in apiTest.jmx.attachFiles) {
+            attachFiles.push(fileID);
+          }
+          if (attachFiles.length > 0) {
+            this.$refs.basicConfig.selectAttachFileById(attachFiles);
+          }
+        }
         this.active = '1';
         this.$store.commit("clearTest");
       }
@@ -189,6 +203,8 @@ export default {
       }
       // 基本配置
       this.test.updatedFileList = this.$refs.basicConfig.updatedFileList();
+      this.test.fileSorts = this.$refs.basicConfig.fileSorts();
+      this.test.conversionFileIdList = this.$refs.basicConfig.conversionMetadataIdList();
       // 压力配置
       this.test.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
       this.test.testResourcePoolId = this.$refs.pressureConfig.resourcePool;
@@ -305,9 +321,14 @@ export default {
 
       this.$set(handler, "threadGroups", threadGroups);
 
-      threadGroups.forEach(tg => {
-        handler.calculateChart(tg);
-      })
+      this.$refs.basicConfig.threadGroups = threadGroups;
+      this.$refs.pressureConfig.threadGroups = threadGroups;
+
+      handler.calculateTotalChart();
+    },
+    tgTypeChange(threadGroup) {
+      let handler = this.$refs.pressureConfig;
+      handler.calculateTotalChart();
     }
   }
 }
@@ -317,7 +338,6 @@ export default {
 
 .testplan-config {
   margin-top: 15px;
-  text-align: center;
 }
 
 .el-select {

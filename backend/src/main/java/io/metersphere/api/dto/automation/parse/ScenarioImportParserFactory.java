@@ -12,6 +12,8 @@ public class ScenarioImportParserFactory {
             return new PostmanScenarioParser();
         } else if (StringUtils.equals(ApiImportPlatform.Jmeter.name(), platform)) {
             return new MsJmeterParser();
+        } else if (StringUtils.equals(ApiImportPlatform.Har.name(), platform)) {
+            return new HarScenarioParser();
         }
         return null;
     }

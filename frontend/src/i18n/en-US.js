@@ -1,16 +1,27 @@
 export default {
   commons: {
+    please_select_import_mode: 'Please select import mode',
+    please_select_import_module: 'Please select import module',
+    pass_rate: 'Pass rate',
+    execution_times: 'Execution times',
     cover: 'Cover',
+    module_title: 'Default module',
     not_cover: 'Not Cover',
+    import: 'Import',
+    import_success: 'Import success',
     import_mode: 'Import mode',
     import_module: 'Import module',
+    import_user: 'Import user',
+    export: 'Export',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
     comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
+    confirm_delete: 'Whether to delete',
     delete_cancelled: 'Delete cancelled',
+    option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
     organization: 'Organization',
     setting: 'Setting',
@@ -43,6 +54,7 @@ export default {
     create_time: 'Created Time',
     update_time: 'Updated Time',
     add: 'Add',
+    preview: 'Preview',
     member: 'Member',
     email: 'Email',
     phone: 'Phone',
@@ -110,6 +122,7 @@ export default {
     weeks_6: 'Sat',
     test_unit: 'tests',
     remove: 'Remove',
+    next_level: "Next level",
     remove_cancel: 'Remove Cancel',
     remove_success: 'Remove Success',
     tips: 'The authentication information has expired, please login again',
@@ -135,6 +148,9 @@ export default {
     check_project_tip: "Create or select the project first",
     auth_redirect_tip: 'Jump to the authentication source page for authentication',
     tag_tip: "Enter Enter to Add Label",
+    node_name_tip: "The name cannot contain'\\'",
+    more_operator: "More operator",
+    mock: "Mock settings",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -191,6 +207,22 @@ export default {
     module: {
       select_module: "Select module",
       default_module: "Default module",
+    },
+    report_statistics: {
+      title: "Report Statistics",
+      test_case_analysis: "Test case analysis",
+      test_case_activity: "Test case activity",
+      name: "Report",
+      excel: "Excel",
+      add_case: "Add case",
+      change_case: "Change case",
+      type: "Type",
+      options: "Options",
+      chart: "Chart",
+      line: "Line",
+      bar: "Bar",
+      desc: "Desc",
+      asc: "Asc",
     }
   },
   license: {
@@ -221,8 +253,24 @@ export default {
     base_config: 'Base Config',
     base: {
       url: 'Website URL',
-      url_tip: 'example：http://localhost:8081'
+      url_tip: 'example：http://localhost:8081',
+      url_is_null: 'The current site URL cannot be empty'
+    },
+    prometheus_config: 'Prometheus Host',
+    prometheus: {
+      host: 'Prometheus Host',
+      host_tip: 'example: http://ms-prometheus:9090',
+      host_is_null: 'Prometheus Host cannot be empty'
     }
+  },
+  custom_field: {
+    case_status: 'Case Status',
+    case_maintainer: 'Maintainer',
+    case_priority: 'Case Priority',
+    issue_creator: 'Creator',
+    issue_processor: 'Processor',
+    issue_status: 'Status',
+    issue_severity: 'Severity'
   },
   workspace: {
     create: 'Create Workspace',
@@ -234,6 +282,7 @@ export default {
     search_by_name: 'Search by name',
     organization_name: 'Organization Name',
     please_choose_organization: 'Please Choose Organization',
+    batch_choose_workspace: 'Please choose organizations',
     please_select_a_workspace_first: 'Please select a workspace first!',
     none: 'None Workspace',
     select: 'Select Workspace',
@@ -252,7 +301,7 @@ export default {
     none: 'None Organization',
     select: 'Select Organization',
     service_integration: 'Service integration',
-    defect_manage: 'Defect management platform',
+    defect_manage: 'Project management platform',
     message_settings: 'Message settings',
     message: {
       jenkins_task_notification: 'Jenkins task notification',
@@ -267,6 +316,7 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
+      lark: "Flying Book Robot",
       notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
@@ -274,7 +324,7 @@ export default {
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot',
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
       template: "Template"
     },
     integration: {
@@ -287,18 +337,20 @@ export default {
       account: 'Account',
       password: 'Password',
       jira_url: 'JIRA url',
-      jira_issuetype: 'JIRA issuetype',
+      jira_issuetype: 'JIRA issue type',
+      jira_storytype: 'JIRA story type',
       input_api_account: 'please enter account',
       input_api_password: 'Please enter password',
       input_jira_url: 'Please enter Jira address, for example: https://metersphere.atlassian.net/',
-      input_jira_issuetype: 'Please enter the question type',
+      input_jira_issuetype: 'Please enter the issue type',
+      input_jira_storytype: 'Please enter the story type',
       zentao_url: 'Zentao url',
       input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
       use_tip_zentao: 'The account password is a Zentao account with corresponding permissions, and the account needs to have super model calling interface permissions',
-      use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the Metersphere project',
+      use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the MeterSphere project',
       link_the_project_now: 'Link the project now',
       cancel_edit: 'Cancel edit',
       cancel_integration: 'Cancel integration',
@@ -317,6 +369,7 @@ export default {
     delete: 'Delete project',
     delete_confirm: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     delete_tip: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
+    file_delete_tip: 'Deleting this project file: {0}？',
     search_by_name: 'Search by name',
     search_by_name_jar: 'Search by name/jar',
     input_name: 'Please enter a workspace name',
@@ -329,7 +382,8 @@ export default {
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',
-    repeatable: 'Interface definition URL repeatable'
+    repeatable: 'Interface definition URL repeatable',
+    upload_file_again: 'Upload again'
   },
   member: {
     create: 'Create',
@@ -369,7 +423,11 @@ export default {
     delete_confirm: 'Are you sure you want to delete this User?',
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
     input_id_placeholder: 'Please enter ID (Chinese characters are not supported)',
-    source: 'Source'
+    source: 'Source',
+    button: {
+      add_workspace_batch: 'Batch add user to workspace',
+      add_user_role_batch: 'Batch add user role',
+    }
   },
   role: {
     please_choose_role: 'Please Choose Role',
@@ -392,6 +450,7 @@ export default {
     test_request_statistics: 'Test Request Statistics',
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
+    test_monitor_details: 'Test Monitor Details',
     test_details: 'Test Details',
     test_duration: 'Current Execution Time：{0} minutes {1} seconds',
     test_start_time: 'Start Execution Time',
@@ -403,6 +462,8 @@ export default {
     downloadJtl: 'Download JTL',
     test_execute_again: 'Test Execute Again',
     export: 'Export',
+    export_to_ms_format: 'Export to MeterSphere format',
+    export_to_swagger3_format: 'Export to Swagger3.0 format',
     compare: 'Compare',
     generation_error: 'Report generation error, unable to view, please check log details!',
     being_generated: 'Report is being generated...',
@@ -418,8 +479,15 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
+    response_time: 'Response Time(s)',
+    max_users: 'VUs'
   },
   load_test: {
+    concurrency_thread_group: 'Concurrent read group',
+    thread_group: 'ThreadGroup',
+    completed_test_report: 'Completed test report',
+    test: 'Test',
+    name: 'Test Name',
     same_project_test: 'Only tests within the same project can be run',
     run: 'One click operation',
     operating: 'Operating',
@@ -452,7 +520,8 @@ export default {
     delete_file: "The file already exists, please delete the file with the same name first!",
     thread_num: 'Concurrent users:',
     input_thread_num: 'Please enter the number of threads',
-    duration: 'Duration time (seconds):',
+    duration: 'Duration time',
+    granularity: 'Aggregation time (seconds)',
     input_duration: 'Please enter a duration',
     rps_limit: 'RPS Limit:',
     input_rps_limit: 'Please enter a limit',
@@ -481,6 +550,10 @@ export default {
     response_timeout: 'Timeout to response',
     custom_http_code: 'Custom HTTP response success status code',
     separated_by_commas: 'Separated by commas',
+    serialize_threadgroups: 'Whether the scene is executed sequentially',
+    autostop_threadgroups: 'Auto stop enable',
+    reaches_duration: 'Delay',
+    autostop_delay: 'seconds before stopping the test',
     create: 'Create Test',
     select_resource_pool: 'Please Select Resource Pool',
     resource_pool_is_null: 'Resource Pool is empty',
@@ -488,7 +561,23 @@ export default {
     user_name: 'Creator',
     special_characters_are_not_supported: 'Test name does not support special characters',
     pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!',
-    schedule_tip: 'The interval must not be less than the pressure measuring time'
+    schedule_tip: 'The interval must not be less than the pressure measuring time',
+    delete_threadgroup_confirm: 'Confirm delete scenario: ',
+    scenario_list: 'Scenario List',
+    scenario_name: 'Scenario Name',
+    upload_jmx: 'Upload JMX',
+    exist_jmx: 'Existed Files',
+    other_resource: 'Resource Files',
+    upload_file: 'Upload Files',
+    load_exist_file: 'Load Project Files',
+    load_exist_jmx: 'Load Project JMX',
+    threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
+    load_api_automation_jmx: 'Import API automation scenario',
+    project_file_exist: "The file already exists in the project, please import it directly",
+    project_file_update_type_error: 'Updated file types must be consistent',
+    report: {
+      diff: "Compare"
+    },
   },
   api_test: {
     creator: "Creator",
@@ -496,6 +585,9 @@ export default {
     run: "Run",
     running: "Running",
     reset: "Rest",
+    select_all: "Select all",
+    invert_select: "Invert select",
+    select_or_invert: "Select all/Invert select",
     input_name: "Please enter the test name",
     select_project: "Please select project",
     variable_name: "Variable name",
@@ -517,6 +609,24 @@ export default {
     batch_menus: {
       select_all_data: "Select all datas({0})",
       select_show_data: "Select show datas({0})",
+    },
+    mock: {
+      create_error: "Api info is not saved",
+      table: {
+        name: "Name",
+        tag: "Tag",
+        creator: "Creator",
+        status: "Status",
+        update_time: "Update time"
+      },
+      expect_detail: "Expect",
+      base_info: "Base info",
+      req_param: "Request params",
+      rsp_param: "Response Params",
+      delete_mock_expect: "Confirm to delete this expect info ?",
+      rule: {
+        input_code: "Please input HTTP Code"
+      }
     },
     definition: {
       api_title: "Api test",
@@ -548,6 +658,7 @@ export default {
         update_time_order_desc: "from back to front by update time",
         run_env: "Operating environment",
         select_case: "Search use cases",
+        select_api: "Search api",
         case: "Case",
         title: "Create api",
         path_info: "Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
@@ -559,7 +670,7 @@ export default {
         save_as_case: "Save as new use case",
         update_api: "Update interface",
         body_form_data: "form-data",
-        body_x_www_from_urlencoded: "x-www-from-urlencoded",
+        body_x_www_from_urlencoded: "x-www-form-urlencoded",
         body_raw: "raw",
         body_binary: "binary",
         body_json: "json",
@@ -574,10 +685,12 @@ export default {
         res_param: "Response content",
         batch_delete: "Batch deletion",
         delete_confirm: "Confirm deletion",
+        delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
         response_header: "Response header",
         response_body: "Response body",
+        response_template: "Response template",
         console: "Console",
         status_code: "Status code",
         query_info: "Follow the address bar? The following parameters, such as updateapi?id=112",
@@ -597,6 +710,17 @@ export default {
         other_config: "Other Config",
         message_template: "Message Template",
         tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
+        esb_table: {
+          name: "name",
+          type: "type",
+          length: "length",
+          required: "Required",
+          desc: "Description",
+          value: "Data",
+          not_required: "Not required",
+        },
+        esb_copy_confirm: "Copy this node data struct",
+        esb_title: "You can use ${name} or ${parent name.child name} to generate xml struct in report template",
       },
       document: {
         order: "Order",
@@ -605,7 +729,7 @@ export default {
         edit_time_Reverse_order: "From back to front by update time",
         request_method: "Request method",
         request_interface: "Request interface",
-        search_by_api_name : "Search by api name",
+        search_by_api_name: "Search by api name",
         request_info: "Request info",
         request_head: "Request head",
         request_param: "Param",
@@ -615,7 +739,7 @@ export default {
         response_head: "Response head",
         response_body: "Response body",
         response_code: "Response code",
-        table_coloum:{
+        table_coloum: {
           name: "name",
           value: "value",
           is_required: "Is it required",
@@ -630,6 +754,16 @@ export default {
       }
     },
     automation: {
+      open_expansion: "One-click expansion",
+      close_expansion: "One-click storage",
+      constant: "constant",
+      counter: "counter",
+      random: "random",
+      view_scene_variables: "View scene variables",
+      open_scene: "Open scene",
+      save_as_api: "Save as api",
+      delete_step: "Delete step",
+      reference_deleted_info: "Reference scene has been deleted",
       follow_people: "Follow people",
       create_tag: "Create tag",
       scenario_step: "Ccenario step",
@@ -681,14 +815,22 @@ export default {
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
       reference_deleted: 'Reference deleted',
+      loop_name: "Loop",
+      loop_content: "The default is on, when there is only one request in the loop, it can be turned on/off; when there is more than one request in the loop, it can only be turned on。",
+      loop_return_val: "Define variable name",
+      loop_input_val: "Variable prefix",
+      loop_message: "There is more than one request in the current cycle and cannot be closed",
     },
     environment: {
+      create: 'Create environment',
       name: "Environment Name",
       socket: "Socket",
+      condition_enable: "Activation conditions",
       globalVariable: "Global Variable",
       environment_list: "Environment List",
       environment_config: "Environment Config",
       config_environment: "Config Environment",
+      copy_environment: "copy environment",
       environment: "Environment",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
@@ -696,6 +838,7 @@ export default {
       http_config: "HTTP Config",
       database_config: "Database Config",
       tcp_config: "TCP Config",
+      import: "Import Environment",
     },
     scenario: {
       scenario: "Scenario",
@@ -742,7 +885,7 @@ export default {
       url_description: "etc: https://fit2cloud.com",
       path_description: "etc：/login",
       parameters: "Query parameters",
-      jmeter_func: "Jmeter Functions",
+      jmeter_func: "JMeter Functions",
       parameters_filter_example: "Example",
       parameters_filter_tips: "Only support MockJs function result preview",
       parameters_advance: "Advanced parameter settings",
@@ -823,7 +966,9 @@ export default {
         code_template_set_global_variable: "Set Global variable",
         code_template_get_response_header: "Get Response Header",
         code_template_get_response_code: "Get Response Code",
-        code_template_get_response_result: "Get Response Result"
+        code_template_get_response_result: "Get Response Result",
+        code_add_report_length: "Add report length to head",
+        code_hide_report_length: "Hide report length"
       },
       dubbo: {
         protocol: "protocol",
@@ -876,7 +1021,11 @@ export default {
       export_tip: "Export Tip",
       ms_tip: "Support for MeterSphere JSON format",
       ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
+      har_export_tip: "Export HAR files by browser dev-tool",
+      esb_export_tip: "Can not export esb files now",
       swagger_tip: "Swagger 2.0 and 3.0 json files are supported",
+      har_tip: "Only HAR files are supported",
+      esb_tip: "Only ESB xlsx files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
@@ -886,12 +1035,22 @@ export default {
       swagger_url_import: "Import using URL",
       timing_synchronization: "Timing synchronization",
       next_synchronization_time: "Next synchronization time",
-
+      ms_env_import_file_limit: "It supports JSON format files exported through metersphere",
+      file_exceed_limit: "The number of files exceeds the limit",
     },
     home_page: {
       unit_of_measurement: "",
       unit_of_count: "",
       unit_of_times: "times",
+      formula: {
+        completion: "finished api / all api * 100%",
+        coverage: "apis whitch have test case / all apis * 100%",
+        pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
+        success: "execute success count number / all execute count number * 100%",
+        interface_coverage: "api whitch in scenario's step / all api * 100%",
+        review: "reviewd cases / all cases * 100%",
+        testplan_coverage: "relevance function cases / all function cases * 100%",
+      },
       api_count_card: {
         title: "API count",
       },
@@ -920,6 +1079,7 @@ export default {
           coverage: "Coverage rate",
           pass: "Pass rate",
           success: "Success rate",
+          interface_coverage: "Interface coverage",
         },
       },
       api_details_card: {
@@ -966,6 +1126,7 @@ export default {
           case_type: {
             api: "Api case",
             scene: "Scenario case",
+            load: "Load case"
           }
         }
       },
@@ -983,6 +1144,7 @@ export default {
         },
         scenario_schedule: "Scenario",
         test_plan_schedule: "Test plan",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
         }
@@ -1036,9 +1198,14 @@ export default {
     date: "Date"
   },
   test_track: {
+    related_requirements: 'Related requirements',
+    please_related_requirements: 'Please select the requirements to associate',
+    please_select_the_test_to_associate: "Please select the test to associate",
+    person_responsible: "Person Responsible",
     test_track: "Track",
     confirm: "Confirm",
     cancel: "Cancel",
+    planning_execution: "Planning&Execution",
     project: "Project",
     save: "Save",
     return: "Return",
@@ -1052,6 +1219,9 @@ export default {
     cancel_relevance_success: "Unlinked successfully",
     switch_project: "Switch project",
     case: {
+      list: "List",
+      minder: "Minder",
+      minder_create_tip: "failed, unable to create its parent module in minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
@@ -1077,7 +1247,7 @@ export default {
       steps: "Steps",
       number: "Number",
       prerequisite: "Prerequisite",
-      step_desc: "Step describe",
+      step_desc: "Case step",
       expected_results: "Expected results",
       input_name: "Please enter name",
       input_module: "Please select module",
@@ -1086,6 +1256,7 @@ export default {
       input_type: "Please select type",
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
+      input_demand_name: "Please input demand id or name",
       delete_confirm: "Confirm delete test case",
       delete: "Delete case",
       save_create_continue: "Save and create continue",
@@ -1113,7 +1284,7 @@ export default {
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
       img_loading_fail: "Image failed to load",
       pdf_loading_fail: "PDF loading failed",
-      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx files can be uploaded",
+      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx, txt files can be uploaded",
       attachment: "Attachment",
       upload_time: "Upload Time",
       import: {
@@ -1163,6 +1334,7 @@ export default {
       input_plan_stage: "Please select stage",
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
+      plan_status_finished: "Finished",
       plan_status_completed: "Completed",
       plan_status_trash: "Trashed",
       planned_start_time: "Scheduled Start Time",
@@ -1260,6 +1432,7 @@ export default {
       executor: "Executor",
       execute_result: "Result",
       pass: "Pass",
+      not_pass: "UnPass",
       failure: "Failure",
       blocking: "Blocking",
       skip: "Skip",
@@ -1282,6 +1455,7 @@ export default {
       operate_step: "Operate step",
       edit_component: "Edit component",
       base_info: "Base info",
+      mock_info: "Mock info",
       test_result: "Test result",
       result_distribution: "Result distribution",
       custom_component: "Custom",
@@ -1320,9 +1494,9 @@ export default {
       close_success: "Closed successfully",
       preview: "Preview",
       please_choose_current_owner: "Please choose current owner",
-      tapd_current_owner: "Tapd Current Owner：",
-      zentao_bug_build: "Zentao bug Impact version",
-      zentao_bug_assigned: "Zentao bug handler",
+      tapd_current_owner: "Tapd Current Owner",
+      zentao_bug_build: "Zentao Impact version",
+      zentao_bug_assigned: "Zentao handler",
     },
     report: {
       name: "Test Plan Report",
@@ -1355,10 +1529,12 @@ export default {
     cannot_empty: 'Resource pool cannot be empty',
     fill_the_data: 'Please complete the data',
     delete_prompt: 'This operation will permanently delete the resource pool, continue?',
+    update_prompt: '{0}  The other tests are using this resource pool. Disabling the monitoring part that may affect the report. Do you want to continue?',
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
-    node_selector_invalid: 'nodeSelector must be JSON'
+    node_selector_invalid: 'nodeSelector must be JSON',
+    pod_thread_limit: 'Maximum number of threads per POD'
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',
@@ -1554,5 +1730,22 @@ export default {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
     title: 'Auth Source',
     auth_name_valid: 'Name does not support special characters',
+  },
+  module: {
+    title: 'Module Management'
+  },
+  table: {
+    header_display_field: 'Header display field',
+    fields_to_be_selected: 'Fields to be selected',
+    selected_fields: 'Selected fields'
+  },
+  run_mode: {
+    title: "Mode",
+    serial: "Serial",
+    parallel: "Parallel",
+    other_config: "Other config",
+    idd_report: "Report",
+    set_report: "Set report",
+    report_name: "Report name",
   }
 };

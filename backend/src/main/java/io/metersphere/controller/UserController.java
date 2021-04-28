@@ -15,9 +15,11 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
-import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserRoleDTO;
+import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
+import io.metersphere.dto.*;
+import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -25,9 +27,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RequestMapping("user")
 @RestController
@@ -39,6 +46,8 @@ public class UserController {
     private OrganizationService organizationService;
     @Resource
     private WorkspaceService workspaceService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
 
     @PostMapping("/special/add")
     @RequiresRoles(RoleConstants.ADMIN)
@@ -297,5 +306,65 @@ public class UserController {
     public List<User> searchUser(@PathVariable String condition) {
         return userService.searchUser(condition);
     }
+
+    @GetMapping("/export/template")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void testCaseTemplateExport(HttpServletResponse response) {
+        userService.userTemplateExport(response);
+    }
+
+    @PostMapping("/import/{userId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId) {
+        return userService.userImport(file, userId);
+    }
+
+    @PostMapping("/special/batchProcessUserInfo")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN,RoleConstants.TEST_MANAGER})
+    public String batchProcessUserInfo(@RequestBody UserBatchProcessRequest request) {
+        String returnString = "success";
+        userService.batchProcessUserInfo(request);
+        return returnString;
+    }
+
+    @GetMapping("/getWorkspaceDataStruct/{organizationId}")
+    public List<CascaderDTO> getWorkspaceDataStruct(@PathVariable String organizationId) {
+        List<OrganizationMemberDTO> organizationList = organizationService.findIdAndNameByOrganizationId(organizationId);
+        List<WorkspaceDTO> workspaceDTOList = workspaceService.findIdAndNameByOrganizationId(organizationId);
+        if(!workspaceDTOList.isEmpty()){
+            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
+            List<CascaderDTO> returnList = CascaderParse.parseWorkspaceDataStruct(organizationList,orgIdWorkspaceMap);
+            return returnList;
+        }else {
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/getUserRoleDataStruct/{organizationId}")
+    public List<CascaderDTO> getUserRoleDataStruct(@PathVariable String organizationId) {
+        List<OrganizationMemberDTO> organizationList = organizationService.findIdAndNameByOrganizationId(organizationId);
+        List<WorkspaceDTO> workspaceDTOList = workspaceService.findIdAndNameByOrganizationId(organizationId);
+        if(!workspaceDTOList.isEmpty()){
+            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
+            List<CascaderDTO> returnList = CascaderParse.parseUserRoleDataStruct(organizationList,orgIdWorkspaceMap,false);
+            return returnList;
+        }else {
+            return new ArrayList<>();
+        }
+    }
+
+    @GetMapping("/getWorkspaceUserRoleDataStruct/{organizationId}")
+    public List<CascaderDTO> getWorkspaceUserRoleDataStruct(@PathVariable String organizationId) {
+        List<OrganizationMemberDTO> organizationList = organizationService.findIdAndNameByOrganizationId(organizationId);
+        List<WorkspaceDTO> workspaceDTOList = workspaceService.findIdAndNameByOrganizationId(organizationId);
+        if(!workspaceDTOList.isEmpty()){
+            Map<String, List<WorkspaceDTO>> orgIdWorkspaceMap = workspaceDTOList.stream().collect(Collectors.groupingBy(WorkspaceDTO::getOrganizationId));
+            List<CascaderDTO> returnList = CascaderParse.parseUserRoleDataStruct(organizationList,orgIdWorkspaceMap,true);
+            return returnList;
+        }else {
+            return new ArrayList<>();
+        }
+    }
+
 
 }

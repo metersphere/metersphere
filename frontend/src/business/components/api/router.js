@@ -44,24 +44,25 @@ export default {
       component: () => import('@/business/components/api/report/ApiReportView'),
     },
     {
-      path: "definition",
+      path: "automation/report",
+      name: "ApiReportList",
+      component: () => import('@/business/components/api/automation/report/ApiReportList'),
+    },
+    {
+      path:"automation/report/view/:reportId",
+      name:"ApiReportView",
+      component: () => import('@/business/components/api/automation/report/ApiReportView'),
+
+    },
+    {
+      path: "definition/:redirectID?/:dataType?/:dataSelectRange?",
       name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
-      path: "definition/document/:documentId",
-      name: "ApiDefinitionDocument",
-      component: () => import('@/business/components/api/definition/components/document/ApiDocumentItem'),
-    },
-    {
-      path: "automation",
+      path: "automation/:redirectID?/:dataType?/:dataSelectRange?",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),
-    },
-    {
-      path: "automation/report",
-      name: "ApiReportList",
-      component: () => import('@/business/components/api/automation/report/ApiReportList'),
     },
     {
       path: 'monitor/view',

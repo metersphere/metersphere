@@ -21,6 +21,7 @@ import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
@@ -97,7 +98,7 @@ public class APITestService {
         checkQuota();
         request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
-        saveFile(test.getId(), file);
+        saveFile(test, file);
         return test;
     }
 
@@ -111,7 +112,7 @@ public class APITestService {
         request.setBodyUploadIds(null);
         ApiTest test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
-        saveFile(test.getId(), file);
+        saveFile(test, file);
     }
 
     private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
@@ -291,10 +292,10 @@ public class APITestService {
         return test;
     }
 
-    private void saveFile(String testId, MultipartFile file) {
-        final FileMetadata fileMetadata = fileService.saveFile(file);
+    private void saveFile(ApiTest apiTest, MultipartFile file) {
+        final FileMetadata fileMetadata = fileService.saveFile(file, apiTest.getProjectId());
         ApiTestFile apiTestFile = new ApiTestFile();
-        apiTestFile.setTestId(testId);
+        apiTestFile.setTestId(apiTest.getId());
         apiTestFile.setFileId(fileMetadata.getId());
         apiTestFileMapper.insert(apiTestFile);
     }
@@ -328,16 +329,18 @@ public class APITestService {
         addOrUpdateApiTestCronJob(request);
     }
 
-    public void createSchedule(Schedule request) {
+    public void createSchedule(ScheduleRequest request) {
         scheduleService.addSchedule(buildApiTestSchedule(request));
         addOrUpdateApiTestCronJob(request);
     }
 
-    private Schedule buildApiTestSchedule(Schedule request) {
+    private Schedule buildApiTestSchedule(ScheduleRequest request) {
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setJob(ApiTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.API_TEST.name());
         schedule.setType(ScheduleType.CRON.name());
+        schedule.setProjectId(request.getProjectId());
+        schedule.setName(request.getName());
         return schedule;
     }
 
@@ -472,10 +475,12 @@ public class APITestService {
      * @return
      * @author song tianyang
      */
-    public String updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
+    public JmxInfoDTO updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
         //注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
         String attribute_testName = "testname";
         String[] requestElementNameArr = new String[]{"HTTPSamplerProxy", "TCPSampler", "JDBCSampler", "DubboSample"};
+
+        List<String> attachmentFilePathList = new ArrayList<>();
 
         try {
             //将ThreadGroup的testname改为接口名称
@@ -511,6 +516,9 @@ public class APITestService {
                     for (Element configTestElement : hashTreeConfigTestElementList) {
                         this.updateDubboDefaultConfigGuiElement(configTestElement);
                     }
+
+                    //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
+                    attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
                 }
             }
             jmxString = root.asXML();
@@ -521,7 +529,75 @@ public class APITestService {
         if (!jmxString.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
             jmxString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + jmxString;
         }
-        return jmxString;
+
+        //处理附件
+        Map<String, String> attachmentFiles = new HashMap<>();
+
+        for (String filePath: attachmentFilePathList) {
+            File file  = new File(filePath);
+            if(file.exists() && file.isFile()){
+                try{
+                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file));
+                    attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx",jmxString,attachmentFiles);
+
+        return returnDTO;
+    }
+
+    private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
+        List<String> attachmentFilePathList = new ArrayList<>();
+        List<Element> parentElementList = parentHashTreeElement.elements();
+        for (Element parentElement: parentElementList) {
+            String qname = parentElement.getQName().getName();
+            if (StringUtils.equals(qname, "CSVDataSet")) {
+                try {
+                    List<Element> propElementList = parentElement.elements();
+                    for (Element propElement : propElementList) {
+                        if (StringUtils.equals("filename", propElement.attributeValue("name"))) {
+                            String filePath = propElement.getText();
+                            File file = new File(filePath);
+                            if (file.exists() && file.isFile()) {
+                                attachmentFilePathList.add(filePath);
+                                String fileName = file.getName();
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            } else if (StringUtils.equals(qname, "HTTPSamplerProxy")) {
+                List<Element> elementPropElementList = parentElement.elements("elementProp");
+                for (Element element : elementPropElementList) {
+                    if (StringUtils.equals(element.attributeValue("name"), "HTTPsampler.Files")) {
+                        String name = element.getName();
+                        List<Element> collectionPropList = element.elements("collectionProp");
+                        for (Element prop : collectionPropList) {
+                            List<Element> elementProps = prop.elements();
+                            for (Element elementProp : elementProps) {
+                                if (StringUtils.equals(elementProp.attributeValue("elementType"), "HTTPFileArg")) {
+                                    try {
+                                        String filePath = elementProp.attributeValue("name");
+                                        File file = new File(filePath);
+                                        if(file.exists() && file.isFile()){
+                                            attachmentFilePathList.add(filePath);
+                                            String fileName = file.getName();
+                                            elementProp.attribute("name").setText(fileName);
+                                        }
+                                    }catch (Exception e){
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return attachmentFilePathList;
     }
 
     private void updateDubboDefaultConfigGuiElement(Element configTestElement) {

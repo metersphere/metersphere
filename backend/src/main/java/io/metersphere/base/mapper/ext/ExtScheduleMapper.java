@@ -15,10 +15,12 @@ public interface ExtScheduleMapper {
 
     long countTaskByProjectIdAndCreateTimeRange(@Param("projectId")String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
 
-    List<TaskInfoResult> findRunningTaskInfoByProjectID(String workspaceID);
+    List<TaskInfoResult> findRunningTaskInfoByProjectID(@Param("projectId") String workspaceID, @Param("types") List<String> typeFilter);
 
     void insert(@Param("apiSwaggerUrlDTO") ApiSwaggerUrlDTO apiSwaggerUrlDTO);
 
     ApiSwaggerUrlDTO  select(String id);
+
+    int updateNameByResourceID(@Param("resourceId") String resourceId, @Param("name") String name);
 
 }

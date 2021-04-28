@@ -64,34 +64,34 @@
                       ref="caseList"/>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData"
-            @runRefresh="runRefresh" ref="runTest"/>
+    <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData" :env-map="envMap"
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
 
   </div>
 </template>
 
 <script>
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import {getUUID} from "@/common/js/utils";
-import MsApiCaseList from "../case/ApiCaseList";
-import MsContainer from "../../../../common/components/MsContainer";
-import MsRequestResultTail from "../response/RequestResultTail";
-import MsRun from "../Run";
-import {REQ_METHOD} from "../../model/JsonData";
-import EnvironmentSelect from "../environment/EnvironmentSelect";
-import MsJmxStep from "../step/JmxStep";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+  import {getUUID} from "@/common/js/utils";
+  import MsApiCaseList from "../case/ApiCaseList";
+  import MsContainer from "../../../../common/components/MsContainer";
+  import MsRequestResultTail from "../response/RequestResultTail";
+  import MsRun from "../Run";
+  import {REQ_METHOD} from "../../model/JsonData";
+  import EnvironmentSelect from "../environment/EnvironmentSelect";
+  import MsJmxStep from "../step/JmxStep";
 
-export default {
-  name: "RunTestHTTPPage",
-  components: {
-    EnvironmentSelect,
-    MsApiRequestForm,
-    MsApiCaseList,
-    MsContainer,
-    MsRequestResultTail,
-    MsRun,
-    MsJmxStep
-  },
+  export default {
+    name: "RunTestHTTPPage",
+    components: {
+      EnvironmentSelect,
+      MsApiRequestForm,
+      MsApiCaseList,
+      MsContainer,
+      MsRequestResultTail,
+      MsRun,
+      MsJmxStep
+    },
     data() {
       return {
         visible: false,
@@ -110,6 +110,7 @@ export default {
         },
         runData: [],
         reportId: "",
+        envMap: new Map
       }
     },
     props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
@@ -133,6 +134,7 @@ export default {
           if (valid) {
             this.loading = true;
             this.api.request.name = this.api.id;
+            this.api.request.url = undefined;
             this.api.request.useEnvironment = this.api.environmentId;
             this.api.protocol = this.currentProtocol;
             this.runData = [];
@@ -142,8 +144,14 @@ export default {
           }
         })
       },
+      errorRefresh(){
+        this.loading = false;
+      },
       runRefresh(data) {
-        this.responseData = data;
+        this.responseData = {type: 'HTTP', responseResult: {responseCode: ""}, subRequestResults: []};
+        if (data) {
+          this.responseData = data;
+        }
         this.loading = false;
       },
       saveAs() {
@@ -189,7 +197,8 @@ export default {
         let req = this.api.request;
         req.id = getUUID();
         data.request = JSON.stringify(req);
-        data.method = this.api.method;
+        data.method = req.method;
+        data.path = req.path;
         data.url = this.api.url;
         data.status = this.api.status;
         data.userId = this.api.userId;

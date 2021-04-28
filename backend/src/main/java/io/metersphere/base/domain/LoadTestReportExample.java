@@ -713,6 +713,216 @@ public class LoadTestReportExample {
             addCriterion("file_id not between", value1, value2, "fileId");
             return (Criteria) this;
         }
+
+        public Criteria andMaxUsersIsNull() {
+            addCriterion("max_users is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersIsNotNull() {
+            addCriterion("max_users is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersEqualTo(String value) {
+            addCriterion("max_users =", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersNotEqualTo(String value) {
+            addCriterion("max_users <>", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersGreaterThan(String value) {
+            addCriterion("max_users >", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersGreaterThanOrEqualTo(String value) {
+            addCriterion("max_users >=", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersLessThan(String value) {
+            addCriterion("max_users <", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersLessThanOrEqualTo(String value) {
+            addCriterion("max_users <=", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersLike(String value) {
+            addCriterion("max_users like", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersNotLike(String value) {
+            addCriterion("max_users not like", value, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersIn(List<String> values) {
+            addCriterion("max_users in", values, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersNotIn(List<String> values) {
+            addCriterion("max_users not in", values, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersBetween(String value1, String value2) {
+            addCriterion("max_users between", value1, value2, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andMaxUsersNotBetween(String value1, String value2) {
+            addCriterion("max_users not between", value1, value2, "maxUsers");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeIsNull() {
+            addCriterion("avg_response_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeIsNotNull() {
+            addCriterion("avg_response_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeEqualTo(String value) {
+            addCriterion("avg_response_time =", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeNotEqualTo(String value) {
+            addCriterion("avg_response_time <>", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeGreaterThan(String value) {
+            addCriterion("avg_response_time >", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeGreaterThanOrEqualTo(String value) {
+            addCriterion("avg_response_time >=", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeLessThan(String value) {
+            addCriterion("avg_response_time <", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeLessThanOrEqualTo(String value) {
+            addCriterion("avg_response_time <=", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeLike(String value) {
+            addCriterion("avg_response_time like", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeNotLike(String value) {
+            addCriterion("avg_response_time not like", value, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeIn(List<String> values) {
+            addCriterion("avg_response_time in", values, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeNotIn(List<String> values) {
+            addCriterion("avg_response_time not in", values, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeBetween(String value1, String value2) {
+            addCriterion("avg_response_time between", value1, value2, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvgResponseTimeNotBetween(String value1, String value2) {
+            addCriterion("avg_response_time not between", value1, value2, "avgResponseTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsIsNull() {
+            addCriterion("tps is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsIsNotNull() {
+            addCriterion("tps is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsEqualTo(String value) {
+            addCriterion("tps =", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsNotEqualTo(String value) {
+            addCriterion("tps <>", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsGreaterThan(String value) {
+            addCriterion("tps >", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsGreaterThanOrEqualTo(String value) {
+            addCriterion("tps >=", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsLessThan(String value) {
+            addCriterion("tps <", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsLessThanOrEqualTo(String value) {
+            addCriterion("tps <=", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsLike(String value) {
+            addCriterion("tps like", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsNotLike(String value) {
+            addCriterion("tps not like", value, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsIn(List<String> values) {
+            addCriterion("tps in", values, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsNotIn(List<String> values) {
+            addCriterion("tps not in", values, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsBetween(String value1, String value2) {
+            addCriterion("tps between", value1, value2, "tps");
+            return (Criteria) this;
+        }
+
+        public Criteria andTpsNotBetween(String value1, String value2) {
+            addCriterion("tps not between", value1, value2, "tps");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

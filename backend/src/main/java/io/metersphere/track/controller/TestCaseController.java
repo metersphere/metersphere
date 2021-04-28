@@ -14,12 +14,11 @@ import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
-import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
-import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -59,6 +58,12 @@ public class TestCaseController {
         return testCaseService.listTestCase(request);
     }
 
+    @PostMapping("/list/minder")
+    public List<TestCaseWithBLOBs> listDetail(@RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkProjectOwner(request.getProjectId());
+        return testCaseService.listTestCaseForMinder(request);
+    }
+
    /*jenkins项目下所有接口和性能测试用例*/
     @GetMapping("/list/method/{projectId}")
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
@@ -87,10 +92,16 @@ public class TestCaseController {
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
-    @PostMapping("/name/{goPage}/{pageSize}")
-    public Pager<List<TestCase>> getTestCaseNames(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+    @PostMapping("/relate/{goPage}/{pageSize}")
+    public Pager<List<TestCase>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page,testCaseService.getTestCaseNames(request));
+        return PageUtils.setPageInfo(page,testCaseService.getTestCaseRelateList(request));
+    }
+
+    @PostMapping("/relate/issue/{goPage}/{pageSize}")
+    public Pager<List<TestCaseDTO>> getTestCaseIssueRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page,testCaseService.getTestCaseIssueRelateList(request));
     }
 
     @PostMapping("/reviews/case/{goPage}/{pageSize}")
@@ -113,14 +124,20 @@ public class TestCaseController {
 
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
-        testCaseService.save(request, files);
+    public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+        return testCaseService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
-        testCaseService.edit(request, files);
+    public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+        return testCaseService.edit(request, files);
+    }
+
+    @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+        return testCaseService.editTestCase(request, files);
     }
 
     @PostMapping("/delete/{testCaseId}")
@@ -189,5 +206,17 @@ public class TestCaseController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
                 .body(bytes);
     }
+
+    @PostMapping("/save")
+    public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
+        return testCaseService.addTestCase(testCaseWithBLOBs);
+    }
+
+    @PostMapping("/minder/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
+        testCaseService.minderEdit(request);
+    }
+
 
 }

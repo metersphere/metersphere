@@ -2,7 +2,6 @@
 
   <div class="card-container">
     <el-card class="card-content" v-loading="httpForm.loading">
-
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px">
@@ -49,20 +48,7 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-                <el-select class="ms-http-select" size="small" v-model="httpForm.moduleId">
-                  <div v-if="moduleOptions.length>0">
-                    <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-                  </div>
-                  <div v-else>
-                    <el-option :key="0" :value="''">
-                      <div style="margin-left: 40px">
-                        <span style="font-size: 14px;color: #606266;font-weight: 48.93">{{ $t('api_test.definition.select_comp.no_data') }},
-                        </span>
-                        <el-link type="primary" @click="createModules">{{ $t('api_test.definition.select_comp.add_data') }}</el-link>
-                      </div>
-                    </el-option>
-                  </div>
-                </el-select>
+                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
 
@@ -92,10 +78,28 @@
           </el-row>
         </div>
 
+        <!-- MOCK信息 -->
+        <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
+        <div class="base-info">
+          <el-row>
+            <el-col :span="20">
+              Mock地址：
+              <el-link :href="getUrlPrefix" target="_blank" style="color: black"
+                       type="primary">{{ this.getUrlPrefix }}
+              </el-link>
+            </el-col>
+            <el-col :span="4">
+              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
+            </el-col>
+          </el-row>
+
+        </div>
+
         <!-- 请求参数 -->
         <div>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers" :isShowEnable="isShowEnable"/>
+          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers"
+                               :isShowEnable="isShowEnable"/>
         </div>
 
       </el-form>
@@ -109,25 +113,26 @@
 
 <script>
 
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import MsResponseText from "../response/ResponseText";
-import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
-import {KeyValue} from "../../model/ApiTestModel";
-import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
-import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+  import MsResponseText from "../response/ResponseText";
+  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+  import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
+  import {KeyValue} from "../../model/ApiTestModel";
+  import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+  import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+  import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
-export default {
-  name: "MsAddCompleteHttpApi",
-  components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag},
-  data() {
-    let validateURL = (rule, value, callback) => {
-      if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
-        callback(this.$t('api_test.definition.request.path_valid_info'));
-      }
-      callback();
-    };
-    return {
+  export default {
+    name: "MsAddCompleteHttpApi",
+    components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree},
+    data() {
+      let validateURL = (rule, value, callback) => {
+        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
+          callback(this.$t('api_test.definition.request.path_valid_info'));
+        }
+        callback();
+      };
+      return {
         rule: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -141,15 +146,21 @@ export default {
           moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
-        httpForm: {environmentId: "", tags: []},
-        isShowEnable: false,
+        httpForm: {environmentId: "", path: "", tags: []},
+        isShowEnable: true,
         maintainerOptions: [],
         currentModule: {},
         reqOptions: REQ_METHOD,
         options: API_STATUS,
+        mockEnvironment: {},
+        moduleObj: {
+          id: 'id',
+          label: 'name',
+        },
+        mockBaseUrl: "",
       }
     },
-    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array},
+    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
     watch: {
       syncTabs() {
         if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
@@ -172,6 +183,46 @@ export default {
         }
       }
     },
+    computed: {
+      getUrlPrefix() {
+        if (this.httpForm.path == null) {
+          return this.mockBaseUrl + "/mock/" + this.projectId;
+        } else {
+          let path = this.httpForm.path;
+          let prefix = "";
+          if (path.endsWith("/")) {
+            prefix = "/";
+          }
+          let protocol = this.httpForm.method;
+          if (protocol === 'GET' || protocol === 'DELETE') {
+            if (this.httpForm.request != null && this.httpForm.request.rest != null) {
+              let pathUrlArr = path.split("/");
+              let newPath = "";
+              pathUrlArr.forEach(item => {
+                if (item !== "") {
+                  let pathItem = item;
+                  if (item.indexOf("{") === 0 && item.indexOf("}") === (item.length - 1)) {
+                    let paramItem = item.substr(1, item.length - 2);
+                    for (let i = 0; i < this.httpForm.request.rest.length; i++) {
+                      let param = this.httpForm.request.rest[i];
+                      if (param.name === paramItem) {
+                        pathItem = param.value;
+                      }
+                    }
+                  }
+                  newPath += "/" + pathItem;
+                }
+              });
+              if (newPath !== "") {
+                path = newPath;
+              }
+            }
+          }
+
+          return this.mockBaseUrl + "/mock/" + this.projectId + path + prefix;
+        }
+      }
+    },
     methods: {
       runTest() {
         this.$refs['httpForm'].validate((valid) => {
@@ -181,7 +232,7 @@ export default {
           } else {
             return false;
           }
-        })
+        });
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -190,7 +241,6 @@ export default {
         });
       },
       setParameter() {
-        this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
         this.request.path = this.httpForm.path;
         this.request.method = this.httpForm.method;
         this.httpForm.request.useEnvironment = undefined;
@@ -210,15 +260,6 @@ export default {
       },
       createModules() {
         this.$emit("createRootModelInTree");
-      },
-      getPath(id) {
-        if (id === null) {
-          return null;
-        }
-        let path = this.moduleOptions.filter(function (item) {
-          return item.id === id ? item.path : "";
-        });
-        return path[0].path;
       },
       urlChange() {
         if (!this.httpForm.path || this.httpForm.path.indexOf('?') === -1) return;
@@ -248,6 +289,44 @@ export default {
           this.$error(this.$t('api_test.request.url_invalid'), 2000);
         }
       },
+      setModule(id, data) {
+        this.httpForm.moduleId = id;
+        this.httpForm.modulePath = data.path;
+      },
+      initMockEnvironment() {
+        var protocol = document.location.protocol;
+        protocol = protocol.substring(0, protocol.indexOf(":"));
+        let url = "/api/definition/getMockEnvironment/";
+        this.$get(url + this.projectId + "/" + protocol, response => {
+          this.mockEnvironment = response.data;
+          let httpConfig = JSON.parse(this.mockEnvironment.config);
+          if (httpConfig != null) {
+            httpConfig = httpConfig.httpConfig;
+            let httpType = httpConfig.defaultCondition;
+            let conditions = httpConfig.conditions;
+            conditions.forEach(condition => {
+              if (condition.type === httpType) {
+                this.mockBaseUrl = condition.protocol + "://" + condition.socket;
+              }
+            });
+          }
+        });
+      },
+      mockSetting() {
+        if (this.httpForm.id == null) {
+          this.$alert(this.$t('api_test.mock.create_error'));
+        } else {
+          let mockParam = {};
+          mockParam.projectId = this.projectId;
+          mockParam.apiId = this.httpForm.id;
+
+          this.$post('/mockConfig/genMockConfig', mockParam, response => {
+            let mockConfig = response.data;
+            mockConfig.apiName = this.httpForm.name;
+            this.$emit('mockConfig', mockConfig);
+          });
+        }
+      }
     },
 
     created() {
@@ -255,8 +334,9 @@ export default {
       if (!this.basisData.environmentId) {
         this.basisData.environmentId = "";
       }
-
       this.httpForm = JSON.parse(JSON.stringify(this.basisData));
+
+      this.initMockEnvironment();
     }
   }
 </script>

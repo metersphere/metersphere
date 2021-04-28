@@ -11,10 +11,12 @@ import java.util.Map;
 @Getter
 @Setter
 public class LoadCaseRequest extends TestPlanLoadCase {
+    private List<String> ids;
     private String projectId;
     private List<String> caseIds;
     private String name;
     private String status;
     private Map<String, List<String>> filters;
     private List<OrderRequest> orders;
+
 }

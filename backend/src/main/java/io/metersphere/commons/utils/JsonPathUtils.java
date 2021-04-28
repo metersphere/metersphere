@@ -1,6 +1,7 @@
 package io.metersphere.commons.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import org.apache.commons.lang3.StringUtils;
@@ -123,11 +124,80 @@ public class JsonPathUtils {
             tail = input.substring(m1.end());
             change_flag = true;
         }
-        if(change_flag) {
+        if (change_flag) {
             ret = newStr + tail;
         } else {
             ret = input;
         }
         return ret;
+    }
+
+    /**
+     * 检查一个JSON对象的数据是否被另一个对象匹配（包含）
+     *
+     * @param sourceObj 目标JSON
+     * @param matchObj  要进行匹配的JSON
+     * @return
+     */
+    public static boolean checkJsonObjCompliance(JSONObject sourceObj, JSONObject matchObj) {
+        if (sourceObj == null && matchObj == null) {
+            return true;
+        } else if (sourceObj != null && matchObj != null) {
+            boolean isMatch = false;
+            try {
+                Set<String> matchKeys = matchObj.keySet();
+                for (String key : matchKeys) {
+                    if (sourceObj.containsKey(key)) {
+                        Object sourceObjItem = sourceObj.get(key);
+                        Object matchObjItem = matchObj.get(key);
+                        isMatch = checkObjCompliance(sourceObjItem, matchObjItem);
+                    } else {
+                        return false;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return isMatch;
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean checkObjCompliance(Object sourceObjItem, Object matchObjItem) {
+        if (matchObjItem instanceof JSONObject) {
+            if (sourceObjItem instanceof JSONObject) {
+                return checkJsonObjCompliance((JSONObject) sourceObjItem, (JSONObject) matchObjItem);
+            } else {
+                return false;
+            }
+        } else if (matchObjItem instanceof JSONArray) {
+            if (sourceObjItem instanceof JSONArray) {
+                JSONArray sourceArr = (JSONArray) sourceObjItem;
+                JSONArray matchArr = (JSONArray) matchObjItem;
+                //同是arr 可能顺序存在不同。 所以需要循环匹配
+                if (matchArr.size() > sourceArr.size()) {
+                    return false;
+                } else {
+                    for (int i = 0; i < matchArr.size(); i++) {
+                        for (int j = i; j < sourceArr.size(); j++) {
+                            Object matchItemObj = matchArr.get(i);
+                            Object sourceItemObj = sourceArr.get(j);
+                            boolean check = checkObjCompliance(sourceObjItem, matchObjItem);
+                            if (!check) {
+                                return check;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            String sourceValues = String.valueOf(sourceObjItem);
+            String matchValues = String.valueOf(matchObjItem);
+            return StringUtils.equals(sourceValues, matchValues);
+        }
     }
 }

@@ -8,6 +8,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="size" jdbcType="BIGINT" property="size" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, type, create_time, update_time, size
+    id, `name`, `type`, create_time, update_time, `size`, project_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -101,12 +102,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
-    insert into file_metadata (id, name, type, 
-      create_time, update_time, size
-      )
+    insert into file_metadata (id, `name`, `type`, 
+      create_time, update_time, `size`, 
+      project_id)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{size,jdbcType=BIGINT}
-      )
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{size,jdbcType=BIGINT}, 
+      #{projectId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata
@@ -115,10 +116,10 @@
         id,
       </if>
       <if test="name != null">
-        name,
+        `name`,
       </if>
       <if test="type != null">
-        type,
+        `type`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -127,7 +128,10 @@
         update_time,
       </if>
       <if test="size != null">
-        size,
+        `size`,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -149,6 +153,9 @@
       <if test="size != null">
         #{size,jdbcType=BIGINT},
       </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultType="java.lang.Long">
@@ -164,10 +171,10 @@
         id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
-        type = #{record.type,jdbcType=VARCHAR},
+        `type` = #{record.type,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -176,7 +183,10 @@
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
       <if test="record.size != null">
-        size = #{record.size,jdbcType=BIGINT},
+        `size` = #{record.size,jdbcType=BIGINT},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -186,11 +196,12 @@
   <update id="updateByExample" parameterType="map">
     update file_metadata
     set id = #{record.id,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      type = #{record.type,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      size = #{record.size,jdbcType=BIGINT}
+      `size` = #{record.size,jdbcType=BIGINT},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -199,10 +210,10 @@
     update file_metadata
     <set>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
-        type = #{type,jdbcType=VARCHAR},
+        `type` = #{type,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -211,18 +222,22 @@
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
       <if test="size != null">
-        size = #{size,jdbcType=BIGINT},
+        `size` = #{size,jdbcType=BIGINT},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.FileMetadata">
     update file_metadata
-    set name = #{name,jdbcType=VARCHAR},
-      type = #{type,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      size = #{size,jdbcType=BIGINT}
+      `size` = #{size,jdbcType=BIGINT},
+      project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

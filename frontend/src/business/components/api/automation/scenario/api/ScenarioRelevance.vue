@@ -1,9 +1,11 @@
 <template>
   <test-case-relevance-base
+    :dialog-title="$t('api_test.automation.scenario_import')"
     @setProject="setProject"
     ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-scenario-module
+        style="margin-top: 5px;"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
@@ -14,6 +16,7 @@
 
     <ms-api-scenario-list
       :select-node-ids="selectNodeIds"
+      :select-project-id="projectId"
       :referenced="true"
       :trash-enable="false"
       @selection="setData"
@@ -27,12 +30,9 @@
 </template>
 
 <script>
-  import ScenarioRelevanceCaseList from "./RelevanceCaseList";
-  import MsApiModule from "../../../definition/components/module/ApiModule";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsAsideContainer from "../../../../common/components/MsAsideContainer";
   import MsMainContainer from "../../../../common/components/MsMainContainer";
-  import ScenarioRelevanceApiList from "./RelevanceApiList";
   import MsApiScenarioModule from "../ApiScenarioModule";
   import MsApiScenarioList from "../ApiScenarioList";
   import {getUUID} from "../../../../../../common/js/utils";
@@ -63,43 +63,130 @@
     watch: {
       projectId() {
         this.$refs.apiScenarioList.search(this.projectId);
+        this.$refs.nodeTree.list(this.projectId);
       }
     },
     methods: {
       reference() {
         let scenarios = [];
-        if (!this.currentScenario || this.currentScenario.length < 1) {
-          this.$emit('请选择场景');
-          return;
-        }
-        this.currentScenario.forEach(item => {
-          let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'REF', resourceId: getUUID(), projectId: item.projectId};
-          scenarios.push(obj);
-        });
-        this.$emit('save', scenarios);
-        this.$refs.baseRelevance.close();
-      },
-      copy() {
-        let scenarios = [];
-        if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
-          this.$warning('请选择场景');
-          return;
-        }
-        this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
-          if (response.data) {
-            response.data.forEach(item => {
-              let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-              if (scenarioDefinition && scenarioDefinition.hashTree) {
-                let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'Copy', resourceId: getUUID(), hashTree: scenarioDefinition.hashTree, projectId: item.projectId};
-                scenarios.push(obj);
-              }
+        let conditions = this.getConditions();
+        if (conditions.selectAll) {
+          let params = {};
+          params.ids = this.currentScenarioIds;
+          params.condition = conditions;
+          let url = "/api/automation/list/all/";
+          this.result = this.$post(url, params, (response) => {
+            this.currentScenario = response.data;
+            if (!this.currentScenario || this.currentScenario.length < 1) {
+              this.$emit('请选择场景');
+              return;
+            }
+            this.currentScenario.forEach(item => {
+              let obj = {
+                id: item.id,
+                name: item.name,
+                type: "scenario",
+                referenced: 'REF',
+                resourceId: getUUID(),
+                projectId: item.projectId
+              };
+              scenarios.push(obj);
             });
             this.$emit('save', scenarios);
             this.$refs.baseRelevance.close();
+          });
+        } else {
+          if (!this.currentScenario || this.currentScenario.length < 1) {
+            this.$emit('请选择场景');
+            return;
           }
-        })
+          this.currentScenario.forEach(item => {
+            let obj = {
+              id: item.id,
+              name: item.name,
+              type: "scenario",
+              referenced: 'REF',
+              resourceId: getUUID(),
+              projectId: item.projectId
+            };
+            scenarios.push(obj);
+          });
+          this.$emit('save', scenarios);
+          this.$refs.baseRelevance.close();
+        }
+      },
+      copy() {
+        let scenarios = [];
+        let conditions = this.getConditions();
+        if (conditions.selectAll) {
+          let url = "/api/automation/id/all/";
+          let params = {};
+          params.ids = this.currentScenarioIds;
+          params.condition = conditions;
+          this.result = this.$post(url, params, (response) => {
+            this.currentScenarioIds = response.data;
+            if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
+              this.$warning('请选择场景');
+              return;
+            }
+            this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
+              if (response.data) {
+                response.data.forEach(item => {
+                  let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+                  if (scenarioDefinition && scenarioDefinition.hashTree) {
+                    let obj = {
+                      id: item.id,
+                      name: item.name,
+                      type: "scenario",
+                      headers: scenarioDefinition.headers,
+                      variables: scenarioDefinition.variables,
+                      environmentMap: scenarioDefinition.environmentMap,
+                      referenced: 'Copy',
+                      resourceId: getUUID(),
+                      hashTree: scenarioDefinition.hashTree,
+                      projectId: item.projectId
+                    };
+                    scenarios.push(obj);
+                  }
+                });
+                this.$emit('save', scenarios);
+                this.$refs.baseRelevance.close();
+              }
+            });
+          });
+        } else {
+          if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
+            this.$warning('请选择场景');
+            return;
+          }
+          this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
+            if (response.data) {
+              response.data.forEach(item => {
+                let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+                if (scenarioDefinition && scenarioDefinition.hashTree) {
+                  let obj = {
+                    id: item.id,
+                    name: item.name,
+                    type: "scenario",
+                    headers: scenarioDefinition.headers,
+                    variables: scenarioDefinition.variables,
+                    environmentMap: scenarioDefinition.environmentMap,
+                    referenced: 'Copy',
+                    resourceId: getUUID(),
+                    hashTree: scenarioDefinition.hashTree,
+                    projectId: item.projectId
+                  };
+                  scenarios.push(obj);
+                }
+              });
+              this.$emit('save', scenarios);
+              this.$refs.baseRelevance.close();
+            }
+          });
+        }
       },
       close() {
+        this.$emit('close');
         this.refresh();
         this.$refs.relevanceDialog.close();
       },
@@ -127,6 +214,10 @@
       },
       setProject(projectId) {
         this.projectId = projectId;
+        this.selectNodeIds = [];
+      },
+      getConditions() {
+        return this.$refs.apiScenarioList.getConditions();
       },
     }
   }

@@ -1,5 +1,6 @@
 <template>
-  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible" :append-to-body='true'
+  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible"
+             :append-to-body='true'
              @close="close">
     <template>
       <div>
@@ -18,11 +19,9 @@
                     </el-button>
                   </el-col>
                   <el-col :span="6">
-                    <schedule-switch :schedule="schedule" @scheduleChange="scheduleChange"></schedule-switch>
+                    <schedule-switch :schedule="schedule" :corn-value="form.cronValue" @resultListChange="getExecuteTimeTemplate" @scheduleChange="scheduleChange"></schedule-switch>
                   </el-col>
                 </el-row>
-
-
 
               </el-form-item>
               <el-form-item>
@@ -66,7 +65,13 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 
 export default {
   name: "MsScheduleMaintain",
-  components: {CrontabResult, ScheduleSwitch,Crontab, MsScheduleNotification, "NoticeTemplate": noticeTemplate.default},
+  components: {
+    CrontabResult,
+    ScheduleSwitch,
+    Crontab,
+    MsScheduleNotification,
+    "NoticeTemplate": noticeTemplate.default
+  },
 
   props: {
     customValidate: {
@@ -111,7 +116,7 @@ export default {
       form: {
         cronValue: ""
       },
-      paramRow:{},
+      paramRow: {},
       activeName: 'first',
       rules: {
         cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
@@ -122,22 +127,32 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    scheduleChange(){
+    scheduleChange() {
       let flag = this.schedule.enable;
-      this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
-        let param = {};
-        param.taskID = this.schedule.id;
-        param.enable = flag;
+      let param = {};
+      param.taskID = this.schedule.id;
+      param.enable = flag;
+      let that = this;
+      if (flag == false) {
+        this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning',
+          beforeClose(action, instance, done) {
+            if (action == 'cancel') {  //  否则在 messageBox 点击取消后，switch 按钮仍然会被关闭
+              that.schedule.enable = param.enable = true;
+            }
+            done(); //  done 是关闭 messageBox 的行为
+          },
+        }).then(() => {
+          this.updateTask(param);
+        }).catch(() => {
+        });
+      } else {
         this.updateTask(param);
-      }).catch(() => {
-      });
-
+      }
     },
-    updateTask(param){
+    updateTask(param) {
       this.result = this.$post('/api/schedule/updateEnableByPrimyKey', param, response => {
         let paramTestId = "";
         if (this.paramRow.redirectFrom == 'testPlan') {
@@ -192,7 +207,7 @@ export default {
     findSchedule() {
       var scheduleResourceID = this.testId;
       var taskType = this.scheduleTaskType;
-      this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" +taskType, response => {
+      this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
         } else {
@@ -229,14 +244,14 @@ export default {
       param = this.schedule;
       param.resourceId = this.testId;
       let url = '/api/automation/schedule/create';
-      if(this.scheduleTaskType === "TEST_PLAN_TEST"){
+      if (this.scheduleTaskType === "TEST_PLAN_TEST") {
         param.scheduleFrom = "testPlan";
         //测试计划页面跳转的创建
         url = '/schedule/create';
         if (param.id) {
           url = '/schedule/update';
         }
-      }else {
+      } else {
         param.scheduleFrom = "scenario";
         if (param.id) {
           url = '/api/automation/schedule/update';
@@ -286,7 +301,9 @@ export default {
       let time2 = new Date(resultList[1]);
       return time2 - time1;
     },
-
+    getExecuteTimeTemplate(executeTileArr){
+      alert(executeTileArr);
+    },
   },
   computed: {
     isTesterPermission() {

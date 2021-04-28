@@ -18,4 +18,18 @@
         where organization_id = #{orgId}
     </select>
 
+    <select id="findIdAndNameByOrganizationId" resultType="io.metersphere.dto.WorkspaceDTO">
+        select id,name,organization_id AS organizationId from workspace
+        <where>
+            <if test="organizationId != 'All'">
+                AND organization_id = #{organizationId}
+            </if>
+        </where>
+    </select>
+
+    <select id="getOrganizationIdById" resultType="java.lang.String">
+        select organization_id from workspace
+        where id = #{orgId}
+    </select>
+
 </mapper>

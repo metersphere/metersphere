@@ -9,15 +9,20 @@
       <el-table-column prop="index"  :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80" show-overflow-tooltip/>
       <el-table-column prop="name"  :label="$t('commons.name')" width="200" >
         <template v-slot:default="{row}">
-          <el-link type="info" @click="redirect(row)">
+          <!-- 若为只读用户不可点击之后跳转-->
+          <span v-if="isReadOnly">
+            {{ row.name }}
+          </span>
+          <el-link v-else type="info" @click="redirect(row)">
             {{ row.name }}
           </el-link>
         </template>
       </el-table-column>
       <el-table-column prop="taskType"  :label="$t('api_test.home_page.running_task_list.table_coloum.task_type')" width="120" show-overflow-tooltip>
         <template v-slot:default="scope">
-          <ms-tag v-if="scope.row.taskType == 'scenario'" type="success" effect="plain" :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
-          <ms-tag v-if="scope.row.taskType == 'testPlan'" type="warning" effect="plain" :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
+          <ms-tag v-if="scope.row.taskGroup == 'API_SCENARIO_TEST'" type="success" effect="plain" :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
+          <ms-tag v-if="scope.row.taskGroup == 'TEST_PLAN_TEST'" type="warning" effect="plain" :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
+          <ms-tag v-if="scope.row.taskGroup == 'SWAGGER_IMPORT'" type="danger" effect="plain" :content="$t('api_test.home_page.running_task_list.swagger_schedule')"/>
         </template>
       </el-table-column>
       <el-table-column prop="rule"  :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120" show-overflow-tooltip/>
@@ -25,9 +30,10 @@
         <template v-slot:default="scope">
           <div>
             <el-switch
+              :disabled="isReadOnly"
               v-model="scope.row.taskStatus"
               class="captcha-img"
-              @click.native="closeTaskConfirm(scope.row)"
+              @change="closeTaskConfirm(scope.row)"
             ></el-switch>
           </div>
         </template>
@@ -51,14 +57,16 @@
 </template>
 
 <script>
-import {getCurrentProjectID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 export default {
   name: "MsRunningTaskList",
   components: {
     MsTag
   },
-
+  props: {
+    callFrom: String,
+  },
   data() {
     return {
       value: '100',
@@ -69,12 +77,22 @@ export default {
     }
   },
 
+  computed:{
+    isReadOnly(){
+      return !checkoutTestManagerOrTestUser();
+    },
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
+
   methods: {
     search() {
-      let projectID = getCurrentProjectID();
-      this.result = this.$get("/api/runningTask/"+projectID, response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/runningTask/"+ this.projectId +"/"+this.callFrom, response => {
+          this.tableData = response.data;
+        });
+      }
     },
 
     closeTaskConfirm(row){
@@ -97,9 +115,9 @@ export default {
       });
     },
     redirect(param){
-      if(param.taskType === 'testPlan'){
+      if(param.taskGroup === 'TEST_PLAN_TEST'){
         this.$emit('redirectPage','testPlanEdit','', param.scenarioId);
-      }else{
+      }else if(param.taskGroup === 'API_SCENARIO_TEST') {
         this.$emit('redirectPage','scenario','scenario', 'edit:'+param.scenarioId);
       }
     }

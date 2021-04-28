@@ -1,15 +1,5 @@
 <template>
     <div>
-      <el-row style="margin:0px 10px 10px">
-        <el-col>
-          <div class="document-url">
-            <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-                     target="componentReferenceDoc"
-                     type="primary">{{$t('commons.reference_documentation')}}
-            </el-link>
-          </div>
-        </el-col>
-      </el-row>
       <el-row>
         <el-col :span="20" class="script-content">
           <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
@@ -18,11 +8,16 @@
                         ref="codeEdit"/>
         </el-col>
         <el-col :span="4" class="script-index">
-          <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" @command="languageChange"/>
-          <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
+          <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages"
+                       @command="languageChange"/>
+          <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
           <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-            <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
+            <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
           </div>
+          <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                   target="componentReferenceDoc" style="margin-top: 10px"
+                   type="primary">{{ $t('commons.reference_documentation') }}
+          </el-link>
         </el-col>
       </el-row>
     </div>
@@ -51,6 +46,16 @@
               value: 'props.get("variable_name")',
             },
             {
+              title: this.$t('api_test.request.processor.code_add_report_length'),
+              value: 'String report = ctx.getCurrentSampler().getRequestData();\n' +
+                'if(report!=null){\n' +
+                '    //补足8位长度，前置补0\n' +
+                '    String reportlengthStr = String.format("%08d",report.length());\n' +
+                '    report = reportlengthStr+report;\n' +
+                '    ctx.getCurrentSampler().setRequestData(report);\n' +
+                '}',
+            },
+            {
               title: this.$t('api_test.request.processor.code_template_set_global_variable'),
               value: 'props.put("variable_name", "variable_value")',
             },
@@ -68,17 +73,32 @@
               title: this.$t('api_test.request.processor.code_template_get_response_result'),
               value: 'prev.getResponseDataAsString()',
               disabled: this.isPreProcessor
+            },
+            {
+              title: this.$t('api_test.request.processor.code_hide_report_length'),
+              value: '//Get response data\n' +
+                'String returnData = prev.getResponseDataAsString();\n' +
+                'if(returnData!=null&&returnData.length()>8){\n' +
+                '//remove 8 report length \n' +
+                '    String subStringData = returnData.substring(8,returnData.length());\n' +
+                '    if(subStringData.startsWith("<")){\n' +
+                '        returnData = subStringData;\n' +
+                '        prev.setResponseData(returnData);\n' +
+                '    }\n' +
+                '}',
+              disabled: this.isPreProcessor
             }
           ],
           isCodeEditAlive: true,
           languages: [
-            'beanshell', "python", "groovy", "javascript"
+            'beanshell', "python", "groovy", "nashornScript", "rhinoScript"
           ],
           codeEditModeMap: {
             beanshell: 'java',
             python: 'python',
             groovy: 'java',
-            javascript: 'javascript',
+            nashornScript: 'javascript',
+            rhinoScript: 'javascript',
           }
         }
       },
@@ -124,6 +144,7 @@
         },
         languageChange(language) {
           this.jsr223ProcessorData.scriptLanguage = language;
+          this.$emit("languageChange");
         },
       }
     }
@@ -136,6 +157,7 @@
 
   .script-content {
     height: calc(100vh - 570px);
+    min-height: 300px;
   }
 
   .script-index {

@@ -178,4 +178,8 @@ public class OrganizationService {
             MSException.throwException(Translator.get("organization_does_not_belong_to_user"));
         }
     }
+
+    public List<OrganizationMemberDTO> findIdAndNameByOrganizationId(String OrganizationID){
+        return  extOrganizationMapper.findIdAndNameByOrganizationId(OrganizationID);
+    }
 }

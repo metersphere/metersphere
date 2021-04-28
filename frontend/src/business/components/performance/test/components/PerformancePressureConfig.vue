@@ -4,7 +4,7 @@
       <el-col>
         <el-form :inline="true">
           <el-form-item :label="$t('load_test.select_resource_pool')">
-            <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini">
+            <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini" @change="resourcePoolChange">
               <el-option
                 v-for="item in resourcePools"
                 :key="item.id"
@@ -13,23 +13,60 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item :label="$t('load_test.serialize_threadgroups')">
+            <el-switch v-model="serializeThreadGroups"/>
+          </el-form-item>
+          <br>
+          <el-form-item :label="$t('load_test.autostop_threadgroups')">
+            <el-switch v-model="autoStop"/>
+          </el-form-item>
+          <el-form-item :label="$t('load_test.reaches_duration')">
+            <el-input-number
+              :disabled="isReadOnly || !autoStop"
+              v-model="autoStopDelay"
+              :min="1"
+              :max="9999"
+              size="mini"/>
+          </el-form-item>
+          <el-form-item :label="$t('load_test.autostop_delay')"/>
         </el-form>
-        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
     <el-row>
-      <el-collapse v-model="activeNames">
-        <el-collapse-item :title="threadGroup.attributes.testname" :name="index"
-                          v-for="(threadGroup, index) in threadGroups"
-                          :key="index">
-          <el-col :span="10">
+      <el-col :span="12">
+        <el-collapse v-model="activeNames" accordion>
+          <el-collapse-item :name="index"
+                            v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
+                            :key="index">
+            <template slot="title">
+              <el-row>
+                <el-col :span="14">
+                  <el-tooltip :content="threadGroup.attributes.testname" placement="top">
+                    <div style="padding-right:20px; font-size: 16px;" class="wordwrap">
+                      {{ threadGroup.attributes.testname }}
+                    </div>
+                  </el-tooltip>
+                </el-col>
+                <el-col :span="10">
+                  <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
+                    {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
+                    {{ $t('load_test.duration') }}: {{ threadGroup.duration }} {{ getUnitLabel(threadGroup) }}
+                  </el-tag>
+                  <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
+                    {{ $t('load_test.thread_num') }} {{ threadGroup.threadNumber }},
+                    {{ $t('load_test.iterate_num') }} {{ threadGroup.iterateNum }}
+                  </el-tag>
+                </el-col>
+              </el-row>
+            </template>
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
                   :disabled="isReadOnly"
                   v-model="threadGroup.threadNumber"
-                  @change="calculateChart(threadGroup)"
+                  @change="calculateTotalChart(threadGroup)"
                   :min="resourcePoolResourceLength"
+                  :max="maxThreadNumbers"
                   size="mini"/>
               </el-form-item>
               <br>
@@ -46,8 +83,16 @@
                     :disabled="isReadOnly"
                     v-model="threadGroup.duration"
                     :min="1"
-                    @change="calculateChart(threadGroup)"
+                    :max="9999"
+                    @change="calculateTotalChart(threadGroup)"
                     size="mini"/>
+                </el-form-item>
+                <el-form-item>
+                  <el-radio-group v-model="threadGroup.unit">
+                    <el-radio label="S">{{ $t('schedule.cron.seconds') }}</el-radio>
+                    <el-radio label="M">{{ $t('schedule.cron.minutes') }}</el-radio>
+                    <el-radio label="H">{{ $t('schedule.cron.hours') }}</el-radio>
+                  </el-radio-group>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
@@ -56,31 +101,47 @@
                   <el-input-number
                     :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
-                    @change="calculateChart(threadGroup)"
+                    @change="calculateTotalChart(threadGroup)"
                     :min="1"
-                    :max="500"
+                    :max="99999"
                     size="mini"/>
                 </el-form-item>
                 <br>
-                <el-form-item :label="$t('load_test.ramp_up_time_within')">
-                  <el-input-number
-                    :disabled="isReadOnly"
-                    :min="1"
-                    :max="threadGroup.duration"
-                    v-model="threadGroup.rampUpTime"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
-                  <el-input-number
-                    :disabled="isReadOnly"
-                    :min="1"
-                    :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
-                    v-model="threadGroup.step"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+                <div v-if="threadGroup.tgType === 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup'">
+                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                    <el-input-number
+                      :disabled="isReadOnly"
+                      :min="1"
+                      :max="threadGroup.duration"
+                      v-model="threadGroup.rampUpTime"
+                      @change="calculateTotalChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_minutes', [getUnitLabel(threadGroup)])">
+                    <el-input-number
+                      :disabled="isReadOnly"
+                      :min="1"
+                      :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                      v-model="threadGroup.step"
+                      @change="calculateTotalChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+                </div>
+
+                <div v-if="threadGroup.tgType === 'ThreadGroup'">
+                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                    <el-input-number
+                      :disabled="isReadOnly"
+                      :min="1"
+                      :max="threadGroup.duration"
+                      v-model="threadGroup.rampUpTime"
+                      @change="calculateTotalChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
+                </div>
+
               </div>
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">
@@ -88,8 +149,8 @@
                     :disabled="isReadOnly"
                     v-model="threadGroup.iterateNum"
                     :min="1"
-                    :max="10000"
-                    @change="calculateChart(threadGroup)"
+                    :max="9999999"
+                    @change="calculateTotalChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -100,7 +161,7 @@
                     :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
                     :min="1"
-                    :max="500"
+                    :max="99999"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -111,16 +172,16 @@
                     v-model="threadGroup.iterateRampUp"
                     size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+                <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
               </div>
             </el-form>
-          </el-col>
-          <el-col :span="14">
-            <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-            <ms-chart class="chart-container" :options="threadGroup.options" :autoresize="true"></ms-chart>
-          </el-col>
-        </el-collapse-item>
-      </el-collapse>
+          </el-collapse-item>
+        </el-collapse>
+      </el-col>
+      <el-col :span="12">
+        <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
+        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -128,18 +189,26 @@
 <script>
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
-import {findTestPlan, findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
+const HANDLER = "handler";
+const THREAD_GROUP_TYPE = "tgType";
+const SERIALIZE_THREAD_GROUPS = "serializeThreadGroups";
+const AUTO_STOP = "autoStop";
+const AUTO_STOP_DELAY = "autoStopDelay";
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const ITERATE_RAMP_UP = "iterateRampUpTime";
 const STEPS = "Steps";
 const DURATION = "duration";
+const UNIT = "unit";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 const HOLD = "Hold";
 const THREAD_TYPE = "threadType";
 const ITERATE_NUM = "iterateNum";
+const ENABLED = "enabled";
+const DELETED = "deleted";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
@@ -179,8 +248,11 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-      serializeThreadgroups: false,
-      resourcePoolResourceLength: 1
+      resourcePoolResourceLength: 1,
+      maxThreadNumbers: 5000,
+      serializeThreadGroups: false,
+      autoStop: false,
+      autoStopDelay: 30,
     }
   },
   mounted() {
@@ -213,6 +285,8 @@ export default {
         if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
           this.resourcePool = null;
         }
+
+        this.resourcePoolChange();
       })
     },
     getLoadConfig() {
@@ -221,90 +295,70 @@ export default {
           let data = JSON.parse(response.data);
           for (let i = 0; i < data.length; i++) {
             let d = data[i];
-            if (d instanceof Array) {
-              d.forEach(item => {
-                switch (item.key) {
-                  case TARGET_LEVEL:
-                    this.threadGroups[i].threadNumber = item.value;
-                    break;
-                  case RAMP_UP:
-                    this.threadGroups[i].rampUpTime = item.value;
-                    break;
-                  case ITERATE_RAMP_UP:
-                    this.threadGroups[i].iterateRampUp = item.value;
-                    break;
-                  case DURATION:
-                    if (item.unit) {
-                      this.threadGroups[i].duration = item.value;
-                    } else {
-                      this.threadGroups[i].duration = item.value * 60;
-                    }
-                    break;
-                  case STEPS:
-                    this.threadGroups[i].step = item.value;
-                    break;
-                  case RPS_LIMIT:
-                    this.threadGroups[i].rpsLimit = item.value;
-                    break;
-                  case RPS_LIMIT_ENABLE:
-                    this.threadGroups[i].rpsLimitEnable = item.value;
-                    break;
-                  case THREAD_TYPE:
-                    this.threadGroups[i].threadType = item.value;
-                    break;
-                  case ITERATE_NUM:
-                    this.threadGroups[i].iterateNum = item.value;
-                    break;
-                  default:
-                    break;
-                }
-                //
-                this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
-                this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
-                this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
-              })
-              this.calculateChart(this.threadGroups[i]);
-            } else {
-              switch (d.key) {
+            d.forEach(item => {
+              switch (item.key) {
                 case TARGET_LEVEL:
-                  this.threadGroups[0].threadNumber = d.value;
+                  this.threadGroups[i].threadNumber = item.value;
                   break;
                 case RAMP_UP:
-                  this.threadGroups[0].rampUpTime = d.value;
+                  this.threadGroups[i].rampUpTime = item.value;
                   break;
                 case ITERATE_RAMP_UP:
-                  this.threadGroups[0].iterateRampUp = d.value;
+                  this.threadGroups[i].iterateRampUp = item.value;
                   break;
                 case DURATION:
-                  if (d.unit) {
-                    this.threadGroups[0].duration = d.value;
-                  } else {
-                    this.threadGroups[0].duration = d.value * 60;
-                  }
+                  this.threadGroups[i].duration = item.value;
+                  break;
+                case UNIT:
+                  this.threadGroups[i].unit = item.value;
                   break;
                 case STEPS:
-                  this.threadGroups[0].step = d.value;
+                  this.threadGroups[i].step = item.value;
                   break;
                 case RPS_LIMIT:
-                  this.threadGroups[0].rpsLimit = d.value;
+                  this.threadGroups[i].rpsLimit = item.value;
                   break;
                 case RPS_LIMIT_ENABLE:
-                  this.threadGroups[0].rpsLimitEnable = d.value;
+                  this.threadGroups[i].rpsLimitEnable = item.value;
                   break;
                 case THREAD_TYPE:
-                  this.threadGroups[0].threadType = d.value;
+                  this.threadGroups[i].threadType = item.value;
                   break;
                 case ITERATE_NUM:
-                  this.threadGroups[0].iterateNum = d.value;
+                  this.threadGroups[i].iterateNum = item.value;
+                  break;
+                case ENABLED:
+                  this.threadGroups[i].enabled = item.value;
+                  break;
+                case DELETED:
+                  this.threadGroups[i].deleted = item.value;
+                  break;
+                case HANDLER:
+                  this.threadGroups[i].handler = item.value;
+                  break;
+                case THREAD_GROUP_TYPE:
+                  this.threadGroups[i].tgType = item.value;
+                  break;
+                case SERIALIZE_THREAD_GROUPS:
+                  this.serializeThreadGroups = item.value;// 所有的线程组值一样
+                  break;
+                case AUTO_STOP:
+                  this.autoStop = item.value;// 所有的线程组值一样
+                  break;
+                case AUTO_STOP_DELAY:
+                  this.autoStopDelay = item.value;// 所有的线程组值一样
                   break;
                 default:
                   break;
               }
-              this.$set(this.threadGroups[0], "threadType", this.threadGroups[0].threadType || 'DURATION');
-              this.$set(this.threadGroups[0], "iterateNum", this.threadGroups[0].iterateNum || 1);
-              this.$set(this.threadGroups[0], "iterateRampUp", this.threadGroups[0].iterateRampUp || 10);
-              this.calculateChart(this.threadGroups[0]);
-            }
+              //
+              this.$set(this.threadGroups[i], "unit", this.threadGroups[i].unit || 'S');
+              this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
+              this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
+              this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
+              this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
+              this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
+            })
           }
           this.calculateTotalChart();
         }
@@ -312,21 +366,34 @@ export default {
     },
     getJmxContent() {
       if (this.testId) {
+        let threadGroups = [];
         this.$get('/performance/get-jmx-content/' + this.testId, (response) => {
-          if (response.data) {
-            let testPlan = findTestPlan(response.data);
-            testPlan.elements.forEach(e => {
-              if (e.attributes.name === 'TestPlan.serialize_threadgroups') {
-                this.serializeThreadgroups = Boolean(e.elements[0].text);
-              }
-            });
-            this.threadGroups = findThreadGroup(response.data);
-            this.threadGroups.forEach(tg => {
+          response.data.forEach(d => {
+            threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+            threadGroups.forEach(tg => {
               tg.options = {};
             });
-            this.getLoadConfig();
-          }
+          });
+          this.threadGroups = threadGroups;
+          this.$emit('fileChange', threadGroups);
+          this.getLoadConfig();
         });
+      }
+    },
+    resourcePoolChange() {
+      let result = this.resourcePools.filter(p => p.id === this.resourcePool);
+      if (result.length === 1) {
+        let threadNumber = 0;
+        result[0].resources.forEach(resource => {
+          threadNumber += JSON.parse(resource.configuration).maxConcurrency;
+        })
+        this.$set(this, 'maxThreadNumbers', threadNumber);
+        this.threadGroups.forEach(tg => {
+          if (tg.threadNumber > threadNumber) {
+            this.$set(tg, "threadNumber", threadNumber);
+          }
+        })
+        this.calculateTotalChart();
       }
     },
     calculateTotalChart() {
@@ -336,6 +403,11 @@ export default {
       }
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
+      }
+      // 线程数不能小于资源池节点的数量
+      let resourcePool = this.resourcePools.filter(v => v.id === this.resourcePool)[0];
+      if (resourcePool) {
+        this.resourcePoolResourceLength = resourcePool.resources.length;
       }
       let color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
       handler.options = {
@@ -355,11 +427,13 @@ export default {
       };
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
+        if (handler.threadGroups[i].enabled === 'false' || handler.threadGroups[i].deleted === 'true') {
+          continue;
+        }
         let seriesData = {
           name: handler.threadGroups[i].attributes.testname,
           data: [],
           type: 'line',
-          step: 'start',
           smooth: false,
           symbolSize: 5,
           showSymbol: false,
@@ -400,25 +474,44 @@ export default {
         let threadInc2 = Math.ceil(tg.threadNumber / tg.step);
         let inc2count = tg.threadNumber - tg.step * threadInc1;
         for (let j = 0; j <= tg.duration; j++) {
-
-          if (j > timePeriod) {
-            timePeriod += timeInc;
-            if (inc2count > 0) {
-              threadPeriod = threadPeriod + threadInc2;
-              inc2count--;
-            } else {
-              threadPeriod = threadPeriod + threadInc1;
-            }
-            if (threadPeriod > tg.threadNumber) {
-              threadPeriod = tg.threadNumber;
-            }
-          }
           // x 轴
           let xAxis = handler.options.xAxis.data;
           if (xAxis.indexOf(j) < 0) {
             xAxis.push(j);
           }
-          seriesData.data.push(threadPeriod);
+          if (tg.tgType === 'ThreadGroup') {
+            seriesData.step = undefined;
+
+            if (j === 0) {
+              seriesData.data.push([0, 0]);
+            }
+            if (j >= tg.rampUpTime) {
+              xAxis.push(tg.duration);
+
+              seriesData.data.push([j, tg.threadNumber]);
+              seriesData.data.push([tg.duration, tg.threadNumber]);
+              break;
+            }
+          } else {
+            seriesData.step = 'start';
+            if (j > timePeriod) {
+              timePeriod += timeInc;
+              if (inc2count > 0) {
+                threadPeriod = threadPeriod + threadInc2;
+                inc2count--;
+              } else {
+                threadPeriod = threadPeriod + threadInc1;
+              }
+              if (threadPeriod > tg.threadNumber) {
+                threadPeriod = tg.threadNumber;
+                // 预热结束
+                xAxis.push(tg.duration);
+                seriesData.data.push([tg.duration, threadPeriod]);
+                break;
+              }
+            }
+            seriesData.data.push([j, threadPeriod]);
+          }
         }
         handler.options.series.push(seriesData);
       }
@@ -502,20 +595,40 @@ export default {
       for (let i = 0; i <= handler.duration; i++) {
         // x 轴
         handler.options.xAxis.data.push(i);
-        if (i > timePeriod) {
-          timePeriod += timeInc;
-          if (inc2count > 0) {
-            threadPeriod = threadPeriod + threadInc2;
-            inc2count--;
-          } else {
-            threadPeriod = threadPeriod + threadInc1;
+
+        if (handler.tgType === 'ThreadGroup') {
+          handler.options.series[0].step = undefined;
+
+          if (i === 0) {
+            handler.options.series[0].data.push([0, 0]);
           }
-          if (threadPeriod > handler.threadNumber) {
-            threadPeriod = handler.threadNumber;
+          if (i >= handler.rampUpTime) {
+            handler.options.xAxis.data.push(handler.duration);
+
+            handler.options.series[0].data.push([i, handler.threadNumber]);
+            handler.options.series[0].data.push([handler.duration, handler.threadNumber]);
+            break;
           }
-          handler.options.series[0].data.push(threadPeriod);
         } else {
-          handler.options.series[0].data.push(threadPeriod);
+          handler.options.series[0].step = 'start';
+          if (i > timePeriod) {
+            timePeriod += timeInc;
+            if (inc2count > 0) {
+              threadPeriod = threadPeriod + threadInc2;
+              inc2count--;
+            } else {
+              threadPeriod = threadPeriod + threadInc1;
+            }
+            if (threadPeriod > handler.threadNumber) {
+              threadPeriod = handler.threadNumber;
+              handler.options.xAxis.data.push(handler.duration);
+              handler.options.series[0].data.push([handler.duration, handler.threadNumber]);
+              break;
+            }
+            handler.options.series[0].data.push([i, threadPeriod]);
+          } else {
+            handler.options.series[0].data.push([i, threadPeriod]);
+          }
         }
       }
       this.calculateTotalChart();
@@ -545,23 +658,46 @@ export default {
 
       return true;
     },
+    getUnitLabel(tg) {
+      if (tg.unit === 'S') {
+        return this.$t('schedule.cron.seconds');
+      }
+      if (tg.unit === 'M') {
+        return this.$t('schedule.cron.minutes');
+      }
+      if (tg.unit === 'H') {
+        return this.$t('schedule.cron.hours');
+      }
+      return this.$t('schedule.cron.seconds');
+    },
     convertProperty() {
       /// todo：下面4个属性是jmeter ConcurrencyThreadGroup plugin的属性，这种硬编码不太好吧，在哪能转换这种属性？
       let result = [];
+
+      // 再组织数据
       for (let i = 0; i < this.threadGroups.length; i++) {
         result.push([
+          {key: HANDLER, value: this.threadGroups[i].handler},
           {key: TARGET_LEVEL, value: this.threadGroups[i].threadNumber},
           {key: RAMP_UP, value: this.threadGroups[i].rampUpTime},
           {key: STEPS, value: this.threadGroups[i].step},
-          {key: DURATION, value: this.threadGroups[i].duration, unit: 'S'},
+          {key: DURATION, value: this.threadGroups[i].duration, unit: this.threadGroups[i].unit},
+          {key: UNIT, value: this.threadGroups[i].unit},
           {key: RPS_LIMIT, value: this.threadGroups[i].rpsLimit},
           {key: RPS_LIMIT_ENABLE, value: this.threadGroups[i].rpsLimitEnable},
           {key: HOLD, value: this.threadGroups[i].duration - this.threadGroups[i].rampUpTime},
           {key: THREAD_TYPE, value: this.threadGroups[i].threadType},
           {key: ITERATE_NUM, value: this.threadGroups[i].iterateNum},
           {key: ITERATE_RAMP_UP, value: this.threadGroups[i].iterateRampUp},
+          {key: ENABLED, value: this.threadGroups[i].enabled},
+          {key: DELETED, value: this.threadGroups[i].deleted},
+          {key: THREAD_GROUP_TYPE, value: this.threadGroups[i].tgType},
+          {key: SERIALIZE_THREAD_GROUPS, value: this.serializeThreadGroups},
+          {key: AUTO_STOP, value: this.autoStop},
+          {key: AUTO_STOP_DELAY, value: this.autoStopDelay},
         ]);
       }
+
       return result;
     }
   }
@@ -584,22 +720,43 @@ export default {
   border-bottom: 1px solid #DCDFE6;
 }
 
+/deep/ .el-collapse-item__content {
+  padding-left: 10px;
+  padding-bottom: 5px;
+  border-left-width: 8px;
+  border-left-style: solid;
+  border-left-color: #F5F7FA;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
 .chart-container {
   width: 100%;
   height: 300px;
 }
 
+.el-form-item {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 .el-col .el-form {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
 .el-col {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
 .title {
   margin-left: 60px;
+}
+
+.wordwrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

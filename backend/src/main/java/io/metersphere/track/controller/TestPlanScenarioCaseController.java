@@ -3,11 +3,13 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import io.metersphere.track.dto.RelevanceScenarioRequest;
+import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -29,6 +31,11 @@ public class TestPlanScenarioCaseController {
         return PageUtils.setPageInfo(page, testPlanScenarioCaseService.list(request));
     }
 
+    @PostMapping("/selectAllTableRows")
+    public List<ApiScenarioDTO> selectAllTableRows(@RequestBody TestPlanScenarioCaseBatchRequest request) {
+        return testPlanScenarioCaseService.selectAllTableRows(request);
+    }
+
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -44,13 +51,27 @@ public class TestPlanScenarioCaseController {
 
     @PostMapping("/batch/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
+    public void deleteApiCaseBath(@RequestBody TestPlanScenarioCaseBatchRequest request) {
         testPlanScenarioCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping(value = "/run")
-    public String run(@RequestBody RunScenarioRequest request) {
+    public String run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         return testPlanScenarioCaseService.run(request);
+    }
+
+    @PostMapping(value = "/jenkins/run")
+    public String runByRun(@RequestBody RunTestPlanScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.API.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
+        return testPlanScenarioCaseService.run(request);
+    }
+
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
+        testPlanScenarioCaseService.batchUpdateEnv(request);
     }
 }

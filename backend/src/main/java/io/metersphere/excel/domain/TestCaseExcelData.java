@@ -9,6 +9,10 @@ import lombok.Setter;
 public class TestCaseExcelData {
 
     @ExcelIgnore
+    private Integer num;
+    @ExcelIgnore
+    private String customNum;
+    @ExcelIgnore
     private String name;
     @ExcelIgnore
     private String nodePath;
@@ -19,7 +23,9 @@ public class TestCaseExcelData {
     @ExcelIgnore
     private String priority;
     @ExcelIgnore
-    private String method;
+    private String tags;
+//    @ExcelIgnore
+//    private String method;
     @ExcelIgnore
     private String prerequisite;
     @ExcelIgnore
@@ -28,4 +34,6 @@ public class TestCaseExcelData {
     private String stepDesc;
     @ExcelIgnore
     private String stepResult;
+    @ExcelIgnore
+    private String stepModel;
 }

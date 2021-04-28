@@ -48,6 +48,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
@@ -74,6 +75,8 @@ import org.apache.jorphan.collections.HashTree;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
@@ -109,7 +112,15 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private List<ApiScenarioWithBLOBs> paseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
-        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
+        ApiScenarioModule selectModule = null;
+        String selectModulePath = null;
+        if (StringUtils.isNotBlank(request.getModuleId())) {
+            selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
+            if (selectModule != null) {
+                selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+            }
+        }
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
         scenarioWithBLOBs.setName(msScenario.getName());
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
@@ -117,7 +128,11 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         }
         if (module != null) {
             scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-            scenarioWithBLOBs.setModulePath("/" + module.getName());
+            if (StringUtils.isNotBlank(selectModulePath)) {
+                scenarioWithBLOBs.setModulePath(selectModulePath + "/" + module.getName());
+            } else {
+                scenarioWithBLOBs.setModulePath("/" + module.getName());
+            }
         }
         scenarioWithBLOBs.setId(UUID.randomUUID().toString());
         scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
@@ -131,12 +146,78 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         return (HashTree) field.get(scriptWrapper);
     }
 
+    public boolean isProtocolDefaultPort(HTTPSamplerProxy source) {
+        String portAsString = source.getPropertyAsString("HTTPSampler.port");
+        if (portAsString != null && !portAsString.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public String url(String protocol, String host, String port, String file) {
+        protocol = protocol.toLowerCase();
+        if (StringUtils.isNotEmpty(file) && !file.startsWith("/")) {
+            file += "/";
+        }
+        return protocol + "://" + host + ":" + port + file;
+    }
+
+    public String getUrl(HTTPSamplerProxy source) throws MalformedURLException {
+        String path = source.getPath();
+        // Request Defaults
+        if (StringUtils.isEmpty(source.getDomain())) {
+            return null;
+        }
+        if (!path.startsWith("http://") && !path.startsWith("https://")) {
+            String domain = source.getDomain();
+            String protocol = source.getProtocol();
+            String method = source.getMethod();
+            StringBuilder pathAndQuery = new StringBuilder(100);
+            if ("file".equalsIgnoreCase(protocol)) {
+                domain = null;
+            } else if (!path.startsWith("/")) {
+                pathAndQuery.append('/');
+            }
+
+            pathAndQuery.append(path);
+            if ("GET".equals(method) || "DELETE".equals(method) || "OPTIONS".equals(method)) {
+                String queryString = source.getQueryString(source.getContentEncoding());
+                if (queryString.length() > 0) {
+                    if (path.contains("?")) {
+                        pathAndQuery.append("&");
+                    } else {
+                        pathAndQuery.append("?");
+                    }
+
+                    pathAndQuery.append(queryString);
+                }
+            }
+            String portAsString = source.getPropertyAsString("HTTPSampler.port");
+            return this.isProtocolDefaultPort(source) ? new URL(protocol, domain, pathAndQuery.toString()).toExternalForm() : this.url(protocol, domain, portAsString, pathAndQuery.toString());
+        } else {
+            return new URL(path).toExternalForm();
+        }
+    }
+
     private void convertHttpSampler(MsHTTPSamplerProxy samplerProxy, Object key) {
         try {
             HTTPSamplerProxy source = (HTTPSamplerProxy) key;
             BeanUtils.copyBean(samplerProxy, source);
+            samplerProxy.setRest(new ArrayList<KeyValue>() {{
+                this.add(new KeyValue());
+            }});
+            samplerProxy.setArguments(new ArrayList<KeyValue>() {{
+                this.add(new KeyValue());
+            }});
+            // 初始化body
+            Body body = new Body();
+            body.init();
+            body.initKvs();
+            body.initBinary();
+            samplerProxy.setBody(body);
             if (source != null && source.getHTTPFiles().length > 0) {
-                samplerProxy.getBody().setBinary(new ArrayList<>());
+                samplerProxy.getBody().initBinary();
                 samplerProxy.getBody().setType(Body.FORM_DATA);
                 List<KeyValue> keyValues = new LinkedList<>();
                 for (HTTPFileArg arg : source.getHTTPFiles()) {
@@ -155,13 +236,17 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestType.HTTP);
-            samplerProxy.setPort(source.getPort() + "");
+            samplerProxy.setConnectTimeout(source.getConnectTimeout() + "");
+            samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
+            samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
+            samplerProxy.setDomain(source.getDomain());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
                     samplerProxy.getBody().setType(Body.RAW);
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
                         samplerProxy.getBody().setRaw(v);
                     });
+                    samplerProxy.getBody().initKvs();
                 } else {
                     List<KeyValue> keyValues = new LinkedList<>();
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
@@ -172,11 +257,13 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                         samplerProxy.setArguments(keyValues);
                     }
                 }
+                samplerProxy.getBody().initBinary();
             }
-            samplerProxy.setPath(source.getPath());
+            // samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
-            if (source.getUrl() != null) {
-                samplerProxy.setUrl(source.getUrl().toString());
+            if (this.getUrl(source) != null) {
+                samplerProxy.setUrl(this.getUrl(source));
+                samplerProxy.setPath(null);
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
@@ -280,7 +367,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         preCreate(hashTree);
         // 更新数据源
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
+        if (dataPools.getDataSources() != null) {
+            dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
+        }
         if (dataPools.getIsCreate()) {
             dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getEnvConfig()));
             String id = environmentService.add(dataPools.getTestEnvironmentWithBLOBs());
@@ -437,11 +526,20 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             extract.getXpath().add(xPath);
         } else if (key instanceof JSONPostProcessor) {
             JSONPostProcessor jsonPostProcessor = (JSONPostProcessor) key;
-            MsExtractJSONPath jsonPath = new MsExtractJSONPath();
-            jsonPath.setVariable(jsonPostProcessor.getRefNames());
-            jsonPath.setExpression(jsonPostProcessor.getJsonPathExpressions());
-            extract.setName(jsonPostProcessor.getName());
-            extract.getJson().add(jsonPath);
+            String[] names = StringUtils.isNotEmpty(jsonPostProcessor.getRefNames()) ? jsonPostProcessor.getRefNames().split(";") : null;
+            String[] values = StringUtils.isNotEmpty(jsonPostProcessor.getJsonPathExpressions()) ? jsonPostProcessor.getJsonPathExpressions().split(";") : null;
+            if (names != null) {
+                for (int i = 0; i < names.length; i++) {
+                    MsExtractJSONPath jsonPath = new MsExtractJSONPath();
+                    jsonPath.setVariable(names[i]);
+                    if (values != null && values.length > i) {
+                        jsonPath.setExpression(values[i]);
+                    }
+                    jsonPath.setMultipleMatching(jsonPostProcessor.getComputeConcatenation());
+                    extract.setName(jsonPostProcessor.getName());
+                    extract.getJson().add(jsonPath);
+                }
+            }
         }
     }
 
@@ -460,13 +558,13 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
                 assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
             }
-            if (assertion.isTestFieldRequestData()) {
+            if (assertion.isTestFieldResponseData()) {
                 assertionRegex.setSubject("Response Data");
             }
             if (assertion.isTestFieldResponseCode()) {
                 assertionRegex.setSubject("Response Code");
             }
-            if (assertion.isTestFieldRequestHeaders()) {
+            if (assertion.isTestFieldResponseHeaders()) {
                 assertionRegex.setSubject("Response Headers");
             }
             assertions.setName(assertion.getName());
@@ -477,6 +575,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             assertionJsonPath.setDescription(jsonPathAssertion.getName());
             assertionJsonPath.setExpression(jsonPathAssertion.getJsonPath());
             assertionJsonPath.setExpect(jsonPathAssertion.getExpectedValue());
+            assertionJsonPath.setOption(jsonPathAssertion.getPropertyAsString("ASS_OPTION"));
             assertions.setName(jsonPathAssertion.getName());
             assertions.getJsonPath().add(assertionJsonPath);
         } else if (key instanceof XPath2Assertion) {

@@ -22,4 +22,5 @@ public class ApiScenarioRequest extends BaseQueryRequest {
     private long createTime = 0;
     private String executeStatus;
     private boolean notInTestPlan;
+    private String reviewId;
 }

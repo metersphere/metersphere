@@ -39,8 +39,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Resource
     ExtApiModuleMapper extApiModuleMapper;
     @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
-    @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private TestPlanProjectService testPlanProjectService;
@@ -61,6 +59,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("默认模块");
+        long count = apiModuleMapper.countByExample(example);
+        if (count <= 0) {
+            ApiModule record = new ApiModule();
+            record.setId(UUID.randomUUID().toString());
+            record.setName("默认模块");
+            record.setProtocol(protocol);
+            record.setPos(1.0);
+            record.setLevel(1);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            record.setProjectId(projectId);
+            apiModuleMapper.insert(record);
+        }
         List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
         return getNodeTrees(apiModules);
     }
@@ -112,7 +126,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             apiModuleDTO.setName(name);
             apiModuleDTO.setLabel(name);
             apiModuleDTO.setChildren(nodeList);
-            list.add(apiModuleDTO);
+            if (!org.springframework.util.CollectionUtils.isEmpty(nodeList)) {
+                list.add(apiModuleDTO);
+            }
         });
         return list;
     }
@@ -224,12 +240,14 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 if (apiDefinition != null && StringUtils.isNotBlank(apiDefinition.getModulePath())) {
                     StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
                     List<String> pathLists = Arrays.asList(path.toString().split("/"));
-                    pathLists.set(request.getLevel(), request.getName());
-                    path.delete(0, path.length());
-                    for (int i = 1; i < pathLists.size(); i++) {
-                        path = path.append("/").append(pathLists.get(i));
+                    if (pathLists.size() > request.getLevel()) {
+                        pathLists.set(request.getLevel(), request.getName());
+                        path.delete(0, path.length());
+                        for (int i = 1; i < pathLists.size(); i++) {
+                            path = path.append("/").append(pathLists.get(i));
+                        }
+                        apiDefinition.setModulePath(path.toString());
                     }
-                    apiDefinition.setModulePath(path.toString());
                 }
             });
             batchUpdateApiDefinition(apiDefinitionResults);
@@ -259,6 +277,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Override
     public ApiModuleDTO getNode(String id) {
         ApiModule module = apiModuleMapper.selectByPrimaryKey(id);
+        if (module == null) {
+            return null;
+        }
         ApiModuleDTO dto = JSON.parseObject(JSON.toJSONString(module), ApiModuleDTO.class);
         return dto;
     }

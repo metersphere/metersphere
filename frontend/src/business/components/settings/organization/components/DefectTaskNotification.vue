@@ -9,9 +9,9 @@
         <el-popover
           placement="right-end"
           title="示例"
-          width="400"
-          trigger="click"
-          :content="title">
+          width="600"
+          trigger="click">
+          <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.mail_template_example') }}
           </el-button>
@@ -22,6 +22,7 @@
           width="400"
           trigger="click"
           :content="robotTitle">
+          <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.robot_template') }}
           </el-button>
@@ -132,6 +133,7 @@
 
 <script>
 import {hasLicense} from "@/common/js/utils";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 
 const TASK_TYPE = 'DEFECT_TASK';
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -140,6 +142,7 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 export default {
   name: "DefectTaskNotification",
   components: {
+    MsCodeEdit,
     "NoticeTemplate": noticeTemplate.default
   },
   props: {
@@ -149,6 +152,7 @@ export default {
   },
   data() {
     return {
+      modes: ['text', 'html'],
       title: "<!DOCTYPE html>\n" +
         "<html lang=\"en\">\n" +
         "<head>\n" +
@@ -178,7 +182,9 @@ export default {
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
         {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')}
+        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
+        {value: 'LARK', label: this.$t('organization.message.lark')}
+
       ],
     };
   },
@@ -222,14 +228,14 @@ export default {
 
       if (data.event && data.userIds.length > 0 && data.type) {
         // console.log(data.type)
-        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
+        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT' || data.type === 'LARK') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
           } else {
-            this.addTask(data)
+            this.addTask(data);
           }
         } else {
-          this.addTask(data)
+          this.addTask(data);
         }
       } else {
         this.$warning(this.$t('organization.message.message'));
@@ -271,10 +277,26 @@ export default {
 </script>
 
 <style scoped>
+
 .el-row {
   margin-bottom: 10px;
 }
+
 .el-button {
   margin-left: 10px;
+}
+
+/deep/ .el-select .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
+}
+
+/deep/ .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
 }
 </style>

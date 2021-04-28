@@ -2,15 +2,30 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.HttpConfig;
+import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,6 +43,7 @@ import org.apache.jorphan.collections.HashTree;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -85,27 +101,73 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 34)
     private List<KeyValue> arguments;
 
-//    @JSONField(ordinal = 35)
-//    private Object requestResult;
+    @JSONField(ordinal = 35)
+    private Object requestResult;
 
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
+    private void setRefElement() {
+        try {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            MsHTTPSamplerProxy proxy = null;
+            if (StringUtils.equals(this.getRefType(), "CASE")) {
+                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
+                if (bloBs != null) {
+                    this.setProjectId(bloBs.getProjectId());
+                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    });
+                    this.setName(bloBs.getName());
+                }
+            } else {
+                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+                if (apiDefinition != null) {
+                    this.setName(apiDefinition.getName());
+                    this.setProjectId(apiDefinition.getProjectId());
+                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    });
+                }
+            }
+            if (proxy != null) {
+                this.setHashTree(proxy.getHashTree());
+                this.setMethod(proxy.getMethod());
+                this.setBody(proxy.getBody());
+                this.setRest(proxy.getRest());
+                this.setArguments(proxy.getArguments());
+                this.setHeaders(proxy.getHeaders());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
+        }
+    }
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.getRefElement(this);
+            this.setRefElement();
+            hashTree = this.getHashTree();
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        String name = this.getParentName(this.getParent(), config);
+        if (StringUtils.isEmpty(this.getName())) {
+            sampler.setName("HTTPSamplerProxy");
+        }
+        String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
+        sampler.setProperty("MS-ID", this.getId());
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding("UTF-8");
         sampler.setConnectTimeout(this.getConnectTimeout() == null ? "6000" : this.getConnectTimeout());
@@ -113,41 +175,86 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
-        if (config != null && config.getConfig() != null) {
-            config.setConfig(config.getConfig());
-        } else {
-//            config.setConfig(getEnvironmentConfig(useEnvironment));
+        if (config.getConfig() == null) {
+            // 单独接口执行
+            this.setProjectId(config.getProjectId());
+            config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
-        // 添加环境中的公共变量
-        Arguments arguments = this.addArguments(config);
-        if (arguments != null) {
-            tree.add(arguments);
+        // 数据兼容处理
+        if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
+            // 1.8 之后 当前正常数据
+        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+            // 1.8 前后 混合数据
+            this.setProjectId(getParentProjectId());
+        } else {
+            // 1.8 之前 数据
+            if (config.getConfig() != null) {
+                if (config.getConfig().containsKey("historyProjectID")) {
+                    this.setProjectId("historyProjectID");
+                } else {
+                    // 测试计划执行
+                    Iterator<String> it = config.getConfig().keySet().iterator();
+                    if (it.hasNext()) {
+                        this.setProjectId(it.next());
+                    }
+                }
+            }
         }
         try {
-            if (config != null && config.getConfig() != null) {
-                String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+            if (config.isEffective(this.getProjectId())) {
+                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
+                if (httpConfig == null && !isURL(this.getUrl())) {
+                    MSException.throwException("未匹配到环境，请检查环境配置");
+                }
+                String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
-                boolean isUrl = false;
-                if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
+                boolean isUrl;
+                if (isUrl = (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl()))) {
                     url = this.getUrl();
-                    isUrl = true;
                 }
-                URL urlObject = new URL(url);
                 if (isUrl) {
+                    if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                        url.replaceAll(this.getPort(), "10990");
+                    }
+                    URL urlObject = new URL(url);
                     sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                    sampler.setPort(urlObject.getPort());
+
+                    if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                        sampler.setProperty("HTTPSampler.port", this.getPort());
+                    } else {
+                        sampler.setPort(urlObject.getPort());
+                    }
                     sampler.setProtocol(urlObject.getProtocol());
+                    sampler.setPath(urlObject.getPath());
                 } else {
-                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
-                    sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
-                    sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
-                }
-                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
-                    envPath += this.getPath();
+                    //1.9 增加对Mock环境的判断
+                    if (this.isMockEnvironment()) {
+                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                    } else {
+                        if (httpConfig.isMock()) {
+                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                        } else {
+                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                        }
+
+                    }
+                    URL urlObject = new URL(url);
+                    String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                    if (StringUtils.isNotBlank(this.getPath())) {
+                        envPath += this.getPath();
+                    }
+                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                        sampler.setDomain(httpConfig.getDomain());
+                        sampler.setProtocol(httpConfig.getProtocol());
+                    } else {
+                        sampler.setDomain("");
+                        sampler.setProtocol("");
+                    }
+                    sampler.setPort(httpConfig.getPort());
                     sampler.setPath(envPath);
                 }
+                String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
@@ -161,16 +268,24 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         String port = sampler.getPort() != 80 ? ":" + sampler.getPort() : "";
                         path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
-                    sampler.setPath(path);
+                    sampler.setProperty("HTTPSampler.path", path);
                 }
             } else {
                 String url = this.getUrl();
-                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                if (StringUtils.isNotEmpty(url) && !url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
+                }
+                if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    url.replaceAll(this.getPort(), "10990");
                 }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                sampler.setPort(urlObject.getPort());
+                if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    sampler.setProperty("HTTPSampler.port", this.getPort());
+
+                } else {
+                    sampler.setPort(urlObject.getPort());
+                }
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 sampler.setPath(envPath);
@@ -184,14 +299,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         } catch (Exception e) {
             LogUtil.error(e);
-        }
-        // REST参数
-        if (CollectionUtils.isNotEmpty(this.getRest())) {
-            sampler.setArguments(httpArguments(this.getRest()));
-        }
-        // 请求参数
-        if (CollectionUtils.isNotEmpty(this.getArguments())) {
-            sampler.setArguments(httpArguments(this.getArguments()));
+            MSException.throwException(e.getMessage());
         }
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
@@ -214,13 +322,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 通用请求Headers
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders())) {
             setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
         }
 
+        // 环境通用请求头
+        Arguments arguments = getConfigArguments(config);
+        if (arguments != null) {
+            httpSamplerTree.add(arguments);
+        }
         //判断是否要开启DNS
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
@@ -231,7 +344,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         if (this.authManager != null) {
-            this.authManager.toHashTree(tree, hashTree, config);
+            this.authManager.setAuth(tree, this.authManager, sampler);
         }
     }
 
@@ -245,6 +358,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         return false;
+    }
+
+    private String getParentProjectId() {
+        MsTestElement parent = this.getParent();
+        while (parent != null) {
+            if (StringUtils.isNotBlank(parent.getProjectId())) {
+                return parent.getProjectId();
+            }
+            parent = parent.getParent();
+        }
+        return "";
     }
 
     private String getRestParameters(String path) {
@@ -306,27 +430,129 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     public void setHeader(HashTree tree, List<KeyValue> headers) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
-        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "HeaderManager");
+        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+        //  header 也支持 mock 参数
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
+                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.calculate(keyValue.getValue())))
         );
-        tree.add(headerManager);
+        if (headerManager.getHeaders().size() > 0) {
+            tree.add(headerManager);
+        }
     }
 
-    public boolean isURL(String str) {
-        //转换为小写
-        try {
-            new URL(str);
-            return true;
-        } catch (Exception e) {
-            return false;
+    /**
+     * 按照环境规则匹配环境
+     *
+     * @param httpConfig
+     * @return
+     */
+    private HttpConfig getHttpConfig(HttpConfig httpConfig, HashTree tree) {
+        boolean isNext = true;
+        if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
+            for (HttpConfigCondition item : httpConfig.getConditions()) {
+                if (item.getType().equals(ConditionType.PATH.name())) {
+                    HttpConfig config = httpConfig.getPathCondition(this.getPath(), item);
+                    if (config != null) {
+                        isNext = false;
+                        httpConfig = config;
+                        break;
+                    }
+                } else if (item.getType().equals(ConditionType.MODULE.name())) {
+                    ApiDefinition apiDefinition;
+                    ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+                    ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                    if (StringUtils.isNotEmpty(this.getReferenced()) && this.getReferenced().equals("REF") && StringUtils.isNotEmpty(this.getRefType()) && this.getRefType().equals("CASE")) {
+                        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(this.getId());
+                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                    } else {
+                        apiDefinition = apiDefinitionService.get(this.getId());
+                        if (apiDefinition == null) {
+                            TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                            if (testPlanApiCase != null) {
+                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                if (caseWithBLOBs != null) {
+                                    apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                                }
+                            }
+                        }
+                    }
+                    if (apiDefinition != null) {
+                        HttpConfig config = httpConfig.getModuleCondition(apiDefinition.getModuleId(), item);
+                        if (config != null) {
+                            isNext = false;
+                            httpConfig = config;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (isNext) {
+                for (HttpConfigCondition item : httpConfig.getConditions()) {
+                    if (item.getType().equals(ConditionType.NONE.name())) {
+                        httpConfig = httpConfig.initHttpConfig(item);
+                        break;
+                    }
+                }
+            }
         }
+        // HTTP 环境中请求头
+        if (httpConfig != null) {
+            Arguments arguments = arguments(httpConfig.getHeaders());
+            if (arguments != null) {
+                tree.add(ParameterConfig.valueSupposeMock(arguments));
+            }
+        }
+        return httpConfig;
+    }
+
+    /**
+     * 环境通用变量，这里只适用用接口定义和用例，场景自动化会加到场景中
+     */
+    private Arguments getConfigArguments(ParameterConfig config) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        // 环境通用变量
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
+    }
+
+    private Arguments arguments(List<KeyValue> headers) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+
+        // HTTP放到请求中，按照域名匹配
+        if (CollectionUtils.isNotEmpty(headers)) {
+            headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
     }
-
 }
+

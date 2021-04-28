@@ -6,6 +6,8 @@
     @active="active"
     :data="assertions"
     :draggable="draggable"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.assertions_rule')">
@@ -16,6 +18,7 @@
           <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
                      :placeholder="$t('api_test.request.assertions.select_type')"
                      size="small">
+            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
             <el-option :label="'XPath'" :value="options.XPATH2"/>
@@ -24,6 +27,9 @@
           </el-select>
         </el-col>
         <el-col :span="20">
+          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
+                                 :callback="after"/>
+
           <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
                                   :callback="after"/>
           <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
@@ -52,36 +58,44 @@
 </template>
 
 <script>
-import MsApiAssertionText from "./ApiAssertionText";
-import MsApiAssertionRegex from "./ApiAssertionRegex";
-import MsApiAssertionDuration from "./ApiAssertionDuration";
-import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
-import MsApiAssertionsEdit from "./ApiAssertionsEdit";
-import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
-import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
-import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
-import {getUUID} from "@/common/js/utils";
-import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
-import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
-import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+  import MsApiAssertionText from "./ApiAssertionText";
+  import MsApiAssertionRegex from "./ApiAssertionRegex";
+  import MsApiAssertionDuration from "./ApiAssertionDuration";
+  import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
+  import MsApiAssertionsEdit from "./ApiAssertionsEdit";
+  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+  import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
+  import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
+  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
+  import {getUUID} from "@/common/js/utils";
+  import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
+  import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
+  import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
 
-export default {
-  name: "MsApiAssertions",
-  components: {
-    ApiBaseComponent,
-    MsApiJsonpathSuggest,
-    ApiJsonPathSuggestButton,
-    MsApiAssertionXPath2,
-    MsApiAssertionJsr223,
-    MsApiJsonpathSuggestList,
-    MsApiAssertionJsonPath,
-    MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
+  export default {
+    name: "MsApiAssertions",
+    components: {
+      ApiBaseComponent,
+      MsApiJsonpathSuggest,
+      ApiJsonPathSuggestButton,
+      MsApiAssertionXPath2,
+      MsApiAssertionJsr223,
+      MsApiJsonpathSuggestList,
+      MsApiAssertionJsonPath,
+      MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
     },
     props: {
       draggable: {
         type: Boolean,
         default: false,
+      },
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
       },
       assertions: {},
       node: {},
@@ -142,6 +156,11 @@ export default {
         jsonItem.expression = data.path;
         jsonItem.expect = data.value;
         jsonItem.setJSONPathDescription();
+        let expect = jsonItem.expect.replaceAll('\\', "\\\\").replaceAll('(', "\\(").replaceAll(')', "\\)")
+          .replaceAll('+', "\\+").replaceAll('.', "\\.").replaceAll('[', "\\[").replaceAll(']', "\\]")
+          .replaceAll('?', "\\?").replaceAll('/', "\\/").replaceAll('*', "\\*")
+          .replaceAll('^', "\\^").replaceAll('{', "\\{").replaceAll('}', "\\}").replaceAll('$', "\\$");
+        jsonItem.expect = expect;
         this.assertions.jsonPath.push(jsonItem);
       },
       clearJson() {

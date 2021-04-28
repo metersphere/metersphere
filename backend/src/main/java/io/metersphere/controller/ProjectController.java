@@ -2,6 +2,8 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -14,8 +16,10 @@ import io.metersphere.service.ProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -25,6 +29,8 @@ public class ProjectController {
     private ProjectService projectService;
     @Resource
     private CheckPermissionService checkPermissionService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @GetMapping("/listAll")
     public List<ProjectDTO> listAll() {
@@ -60,8 +66,18 @@ public class ProjectController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
-    public Project addProject(@RequestBody Project project) {
-        return projectService.addProject(project);
+    public Project addProject(@RequestBody Project project, HttpServletRequest request) {
+        Project returnModel = projectService.addProject(project);
+
+        //创建项目的时候默认增加Mock环境
+        String requestUrl = request.getRequestURL().toString();
+        String baseUrl = "";
+        if (requestUrl.contains("/project/add")) {
+            baseUrl = requestUrl.split("/project/add")[0];
+        }
+        apiTestEnvironmentService.getMockEnvironmentByProjectId(returnModel.getId(), project.getProtocal(), baseUrl);
+
+        return returnModel;
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
@@ -84,4 +100,18 @@ public class ProjectController {
         projectService.updateProject(Project);
     }
 
+    @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
+    public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
+        return projectService.uploadFiles(projectId, files);
+    }
+
+    @PostMapping(value = "/update/file/{fileId}", consumes = {"multipart/form-data"})
+    public FileMetadata updateFile(@PathVariable String fileId, @RequestPart(value = "file") MultipartFile file) {
+        return projectService.updateFile(fileId, file);
+    }
+
+    @GetMapping(value = "delete/file/{fileId}")
+    public void deleteFile(@PathVariable String fileId) {
+        projectService.deleteFile(fileId);
+    }
 }

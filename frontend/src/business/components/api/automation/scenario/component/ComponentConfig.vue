@@ -1,8 +1,11 @@
 <template>
   <div class="request-form">
-    <component :is="component" :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
-               :draggable="true" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
-               @remove="remove" @copyRow="copyRow" @refReload="refReload"/>
+    <keep-alive>
+      <component v-bind:is="component" :isMax="isMax" :show-btn="showBtn"
+                 :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
+                 :draggable="draggable" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
+                 @remove="remove" @copyRow="copyRow" @refReload="refReload" @openScenario="openScenario" :project-list="projectList" :env-map="envMap"/>
+    </keep-alive>
   </div>
 </template>
 
@@ -24,10 +27,24 @@
     props: {
       type: String,
       scenario: {},
+      draggable: {
+        type: Boolean,
+        default: true,
+      },
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       currentScenario: {},
       currentEnvironmentId: String,
       response: {},
       node: {},
+      projectList: Array,
+      envMap: Map
     },
     data() {
       return {
@@ -86,7 +103,7 @@
       getComponent(type) {
         if (type === ELEMENT_TYPE.JSR223PreProcessor) {
           this.title = this.$t('api_test.definition.request.pre_script');
-          this.titleColor = "#B8741A";
+          this.titleColor = "#b8741a";
           this.backgroundColor = "#F9F1EA";
           return "MsJsr233Processor";
         } else if (type === ELEMENT_TYPE.JSR223PostProcessor) {
@@ -109,11 +126,14 @@
         this.$emit('copyRow', row, node);
 
       },
+      openScenario(data) {
+        this.$emit('openScenario', data);
+      },
       suggestClick(node) {
         this.$emit('suggestClick', node);
       },
-      refReload() {
-        this.$emit('refReload');
+      refReload(data, node) {
+        this.$emit('refReload', data, node);
       }
     }
   }

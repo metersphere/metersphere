@@ -6,14 +6,13 @@ import com.alibaba.excel.event.AnalysisEventListener;
 import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.excel.annotation.NotRequired;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.i18n.Translator;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 
 public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
@@ -130,7 +129,10 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
                 for (String v : excelProperty.value()) {
                     value.append(v);
                 }
-                result.add(value.toString());
+                // 检查是否必有的头部信息
+                if (field.getAnnotation(NotRequired.class) == null) {
+                    result.add(value.toString());
+                }
             }
         }
         return result;
@@ -139,5 +141,4 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
     public List<ExcelErrData<T>> getErrList() {
         return errList;
     }
-
 }

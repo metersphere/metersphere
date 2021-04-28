@@ -26,6 +26,10 @@ public class MsIfController extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         final HashTree groupTree = tree.add(ifController());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -39,7 +43,10 @@ public class MsIfController extends MsTestElement {
     private IfController ifController() {
         IfController ifController = new IfController();
         ifController.setEnabled(this.isEnable());
-        ifController.setName(StringUtils.isEmpty(this.getName()) ? "IfController" : this.getName());
+        if (StringUtils.isEmpty(this.getName())) {
+            this.setName(getLabelName());
+        }
+        ifController.setName(this.getName());
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
         ifController.setCondition(this.getCondition());
@@ -57,20 +64,24 @@ public class MsIfController extends MsTestElement {
 
     public String getLabelName() {
         if (isValid()) {
-            String label = variable + " " + operator;
+            String label = "条件控制器：" + variable + " " + operator;
             if (StringUtils.isNotBlank(value)) {
                 label += " " + this.value;
             }
             return label;
         }
-        return "";
+        return "IfController";
     }
 
     public String getCondition() {
         String variable = "\"" + this.variable + "\"";
         String operator = this.operator;
-        String value = "\"" + this.value + "\"";
-
+        String value;
+        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
+            value = this.value;
+        } else {
+            value = "\"" + this.value + "\"";
+        }
         if (StringUtils.contains(operator, "~")) {
             value = "\".*" + this.value + ".*\"";
         }

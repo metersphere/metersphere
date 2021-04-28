@@ -1,11 +1,8 @@
 package io.metersphere.track.service;
 
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.TestPlan;
-import io.metersphere.base.domain.TestPlanTestCaseExample;
-import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
-import io.metersphere.base.domain.User;
-import io.metersphere.base.mapper.TestPlanTestCaseMapper;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
@@ -14,9 +11,12 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.service.UserService;
+import io.metersphere.track.dto.TestCaseTestDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseConditions;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +42,14 @@ public class TestPlanTestCaseService {
 
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
+    @Resource
+    private TestCaseTestMapper testCaseTestMapper;
+    @Resource
+    private LoadTestMapper loadTestMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -84,8 +92,15 @@ public class TestPlanTestCaseService {
     }
 
     public void editTestCaseBath(TestPlanCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            ids = extTestPlanTestCaseMapper.selectIds(request.getCondition());
+            if(request.getCondition().getUnSelectIds()!=null){
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andIdIn(request.getIds());
+        testPlanTestCaseExample.createCriteria().andIdIn(ids);
 
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         BeanUtils.copyBean(testPlanTestCase, request);
@@ -134,7 +149,40 @@ public class TestPlanTestCaseService {
     }
 
     public TestPlanCaseDTO get(String testplanTestCaseId) {
-        return extTestPlanTestCaseMapper.get(testplanTestCaseId);
+        TestPlanCaseDTO testPlanCaseDTO = extTestPlanTestCaseMapper.get(testplanTestCaseId);
+        List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testPlanCaseDTO.getCaseId());
+        testCaseTestDTOS.forEach(dto -> {
+            setTestName(dto);
+        });
+        testPlanCaseDTO.setList(testCaseTestDTOS);
+        return testPlanCaseDTO;
+    }
+
+    private void setTestName(TestCaseTestDTO dto) {
+        String type = dto.getTestType();
+        String id = dto.getTestId();
+        switch (type) {
+            case "performance":
+                LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
+                if (loadTest != null) {
+                    dto.setTestName(loadTest.getName());
+                }
+                break;
+            case "testcase":
+                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
+                if (apiTestCaseWithBLOBs != null) {
+                    dto.setTestName(apiTestCaseWithBLOBs.getName());
+                }
+                break;
+            case "automation":
+                ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
+                if (apiScenarioWithBLOBs != null) {
+                    dto.setTestName(apiScenarioWithBLOBs.getName());
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     public void deleteTestCaseBath(TestPlanCaseBatchRequest request) {
@@ -149,5 +197,29 @@ public class TestPlanTestCaseService {
 
     public int updateTestCaseStates(List<String> ids, String reportStatus) {
         return extTestPlanTestCaseMapper.updateTestCaseStates(ids, reportStatus);
+    }
+
+    public List<TestPlanCaseDTO> listForMinder(String planId) {
+        return extTestPlanTestCaseMapper.listForMinder(planId);
+    }
+
+    public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        testPlanTestCases.forEach(item -> {
+            item.setUpdateTime(System.currentTimeMillis());
+            testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
+        });
+    }
+
+    public List<String> idList(TestPlanFuncCaseBatchRequest request) {
+        List<String> returnIdList = new ArrayList<>();
+        TestPlanFuncCaseConditions conditions = request.getCondition();
+        if(conditions!= null && conditions.isSelectAll()){
+            conditions.setOrders(ServiceUtils.getDefaultOrder(conditions.getOrders()));
+            returnIdList = extTestPlanTestCaseMapper.selectIds(conditions);
+            if(conditions.getUnSelectIds()!=null){
+                returnIdList.removeAll(conditions.getUnSelectIds());
+            }
+        }
+        return returnIdList;
     }
 }

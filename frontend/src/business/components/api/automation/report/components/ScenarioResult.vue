@@ -1,24 +1,19 @@
 <template>
-  <div class="scenario-result" v-if="scenario && scenario.requestResults && scenario.requestResults.length>0">
-
-    <div @click="active">
-      <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="16">
-          <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
-          {{scenario.name}}
-        </el-col>
-      </el-row>
-    </div>
-    <el-collapse-transition>
-      <div v-show="isActive">
-        <div v-for="(request, index) in scenario.requestResults" :key="index">
-          <ms-request-result :key="index" :request="request" :indexNumber="index"
-                             v-on:requestResult="requestResult"
-                             :scenarioName="scenario.name"/>
+  <div class="scenario-result">
+    <div v-if="node.children && node.children.length >0 ">
+      <el-card class="ms-card">
+        <div class="el-step__icon is-text ms-api-col">
+          <div class="el-step__icon-inner"> {{ node.index }}</div>
         </div>
+        {{node.label}}
 
-      </div>
-    </el-collapse-transition>
+      </el-card>
+    </div>
+    <div v-else>
+      <ms-request-result :request="node.value" :indexNumber="node.index"
+                         v-on:requestResult="requestResult"
+                         :scenarioName="node.label"/>
+    </div>
   </div>
 </template>
 
@@ -27,11 +22,10 @@
 
   export default {
     name: "MsScenarioResult",
-
     components: {MsRequestResult},
-
     props: {
       scenario: Object,
+      node: Object,
     },
 
     data() {
@@ -69,6 +63,10 @@
     border-top: 1px solid #DCDFE6;
   }
 
+  .ms-card >>> .el-card__body {
+    padding: 10px;
+  }
+
   .scenario-result .info {
     height: 40px;
     cursor: pointer;
@@ -82,4 +80,25 @@
     transform: rotate(90deg);
   }
 
+  .ms-api-col {
+    background-color: #EFF0F0;
+    border-color: #EFF0F0;
+    margin-right: 10px;
+    font-size: 12px;
+    color: #64666A;
+  }
+
+  .ms-api-col-create {
+    background-color: #EBF2F2;
+    border-color: #008080;
+    margin-right: 10px;
+    font-size: 12px;
+    color: #008080;
+  }
+
+  /deep/ .el-step__icon {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
 </style>

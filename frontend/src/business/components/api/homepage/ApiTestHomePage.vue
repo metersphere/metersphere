@@ -3,7 +3,7 @@
     <el-header height="0">
       <div style="float: right">
         <div v-if="tipsType==='1'">
-          🤔️ 天凉了，保温杯买了吗？
+          {{ seasonTips }}
         </div>
         <div v-else-if="tipsType==='2'">
           😔 觉得MeterSphere不好用就来
@@ -34,7 +34,7 @@
           <ms-test-case-info-card @redirectPage="redirectPage" :test-case-count-data="testCaseCountData"/>
         </el-col>
         <el-col :span="6">
-          <ms-scene-info-card @redirectPage="redirectPage"  :scene-count-data="sceneCountData"/>
+          <ms-scene-info-card @redirectPage="redirectPage"  :scene-count-data="sceneCountData" :interface-coverage="interfaceCoverage"/>
         </el-col>
         <el-col :span="6">
           <ms-schedule-task-info-card :schedule-task-count-data="scheduleTaskCountData"/>
@@ -46,7 +46,7 @@
           <ms-failure-test-case-list @redirectPage="redirectPage"/>
         </el-col>
         <el-col :span="12">
-          <ms-running-task-list @redirectPage="redirectPage"/>
+          <ms-running-task-list :call-from="'api_test'" @redirectPage="redirectPage"/>
         </el-col>
       </el-row>
 
@@ -82,8 +82,10 @@ export default {
       sceneCountData: {},
       testCaseCountData: {},
       scheduleTaskCountData: {},
+      interfaceCoverage: "waitting...",
       tipsType: "1",
       result: {},
+      seasonTips: "😊 MeterSphere温馨提醒 —— 多喝热水哟！",
     }
   },
   activated() {
@@ -96,8 +98,15 @@ export default {
     checkTipsType() {
       var random = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
       this.tipsType = random + "";
-    },
 
+      let today = new Date();
+      let month = today.getMonth();
+      if (9 > month > 4) {
+        this.seasonTips = "🤔️ 天凉了，保温杯买了吗？";
+      } else {
+        this.seasonTips = "🤔️天热了，小风扇买了吗？";
+      }
+    },
     search() {
       let selectProjectId = getCurrentProjectID();
 
@@ -107,6 +116,10 @@ export default {
 
       this.$get("/api/testSceneInfoCount/" + selectProjectId, response => {
         this.sceneCountData = response.data;
+      });
+      this.interfaceCoverage = "waitting...";
+      this.$get("/api/countInterfaceCoverage/" + selectProjectId, response => {
+        this.interfaceCoverage = response.data;
       });
 
       this.$get("/api/testCaseInfoCount/" + selectProjectId, response => {

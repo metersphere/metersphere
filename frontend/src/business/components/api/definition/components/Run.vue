@@ -2,7 +2,7 @@
   <span></span>
 </template>
 <script>
-  import {getUUID, getBodyUploadFiles} from "@/common/js/utils";
+  import {getUUID, getBodyUploadFiles, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
   import ThreadGroup from "./jmeter/components/thread-group";
   import TestPlan from "./jmeter/components/test-plan";
 
@@ -14,7 +14,8 @@
       debug: Boolean,
       reportId: String,
       runData: Array,
-      type: String
+      type: String,
+      envMap: Map
     },
     data() {
       return {
@@ -57,14 +58,27 @@
         }
       },
       run() {
+        let projectId  = this.$store.state.projectId;
+        // 如果envMap不存在，是单接口调用
+        if (!this.envMap || this.envMap.size === 0) {
+          projectId = this.$store.state.projectId;
+        } else {
+          // 场景步骤下接口调用
+          if(this.runData.projectId){
+            projectId = this.runData.projectId;
+          }
+        }
+
         let testPlan = new TestPlan();
         let threadGroup = new ThreadGroup();
         threadGroup.hashTree = [];
         testPlan.hashTree = [threadGroup];
         this.runData.forEach(item => {
+          item.projectId = projectId;
           threadGroup.hashTree.push(item);
         })
-        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type};
+
+        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type,projectId: projectId, environmentMap: strMapToObj(this.envMap)};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         let url = "";
         if (this.debug) {
@@ -76,8 +90,9 @@
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           this.runId = response.data;
           this.getResult();
-        }, erro => {
-          this.$emit('runRefresh', {});
+          this.$emit('autoCheckStatus');  //   执行结束后，自动更新计划状态
+        }, error => {
+           this.$emit('errorRefresh', {});
         });
       }
     }

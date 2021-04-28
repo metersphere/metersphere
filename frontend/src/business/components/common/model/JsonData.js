@@ -5,8 +5,6 @@ export const Track_Test_Case = [
   {id: 'num', label: i18n.t('commons.id')},
   {id: 'name', label: i18n.t('commons.name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
-  {id: 'type', label: i18n.t('test_track.case.type')},
-  {id: 'method', label: i18n.t('test_track.case.method')},
   {id: 'reviewStatus', label: i18n.t('test_track.case.status')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
@@ -21,6 +19,7 @@ export const Test_Case_Review = [
   {id: 'status', label: i18n.t('test_track.review.review_status')},
   {id: 'createTime', label: i18n.t('commons.create_time')},
   {id: 'endTime', label: i18n.t('test_track.review.end_time')},
+  {id: 'tags', label: '标签'},
 ]
 //测试计划-测试用例
 export const Test_Plan_List = [
@@ -34,6 +33,9 @@ export const Test_Plan_List = [
   {id: 'plannedEndTime', label: i18n.t('test_track.plan.planned_end_time')},
   {id: 'actualStartTime', label: i18n.t('test_track.plan.actual_start_time')},
   {id: 'actualEndTime', label: i18n.t('test_track.plan.actual_end_time')},
+  {id:'tags',label:i18n.t('commons.tag')},
+  {id:'executionTimes',label:i18n.t('commons.execution_times')},
+  {id:'passRate',label:i18n.t('commons.pass_rate')}
 ]
 //接口定义-api列表
 export const Api_List = [
@@ -53,7 +55,8 @@ export const Api_Case_List = [
   {id: 'num', label: "ID"},
   {id: 'name', label: i18n.t('test_track.case.name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
-  {id: 'path', label: i18n.t('api_test.definition.api_path')},
+  {id: 'path', label: 'API'+i18n.t('api_test.definition.api_path')},
+  {id: 'casePath', label: i18n.t('api_test.definition.request.case')+i18n.t('api_test.definition.api_path')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'createUser', label: "创建人"},
   {id: 'updateTime', label: i18n.t('api_test.definition.api_last_time')},
@@ -61,12 +64,17 @@ export const Api_Case_List = [
 //接口自动化-场景列表
 export const Api_Scenario_List = [
   {id: 'num', label: "ID"},
-  {id: 'name', label: i18n.t('test_track.case.name')},
-  {id: 'priority', label: i18n.t('test_track.case.priority')},
-  {id: 'path', label: i18n.t('api_test.definition.api_path')},
+  {id: 'name', label: i18n.t('api_report.scenario_name')},
+  {id: 'level', label: i18n.t('api_test.automation.case_level')},
+  {id: 'status', label: i18n.t('test_track.plan.plan_status')},
   {id: 'tags', label: i18n.t('commons.tag')},
-  {id: 'createUser', label: '创建人'},
+  {id: 'userId', label: i18n.t('api_test.automation.creator')},
   {id: 'updateTime', label: i18n.t('api_test.definition.api_last_time')},
+  {id: 'stepTotal', label: i18n.t('api_test.automation.step')},
+  {id: 'lastResult', label: i18n.t('api_test.automation.last_result')},
+  {id: 'passRate', label: i18n.t('api_test.automation.passing_rate')},
+
+
 ]
 //测试评审-测试用例
 export const Test_Case_Review_Case_List = [
@@ -74,7 +82,6 @@ export const Test_Case_Review_Case_List = [
   {id: 'name', label: i18n.t('commons.name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
   {id: 'type', label: i18n.t('test_track.case.type')},
-  {id: 'method', label: i18n.t('test_track.case.method')},
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
   {id: 'projectName', label: i18n.t('test_track.review.review_project')},
   {id: 'reviewerName', label: i18n.t('test_track.review.reviewer')},
@@ -95,11 +102,12 @@ export const Test_Plan_Function_Test_Case = [
   {id: 'executorName', label: i18n.t('test_track.plan_view.executor')},
   {id: 'status', label: i18n.t('test_track.plan_view.execute_result')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
+  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')}
 ]
 //测试计划-api用例
 export const Test_Plan_Api_Case = [
   {id: 'num', label: i18n.t('commons.id')},
-  {id: 'name', label: i18n.t('commons.name')},
+  {id: 'name', label: i18n.t('api_test.definition.api_name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
   {id: 'path', label: i18n.t('api_test.definition.api_path')},
   {id: 'createUser', label: '创建人'},
@@ -116,12 +124,12 @@ export const Test_Plan_Load_Case = [
   {id: 'createTime', label: i18n.t('commons.create_time')},
   {id: 'status', label: i18n.t('commons.status')},
   {id: 'caseStatus', label: i18n.t('test_track.plan.load_case.execution_status')},
-  {id: 'loadReportId', label: i18n.t('test_track.plan.load_case.view_report')},
+  {id: 'loadReportId', label: i18n.t('test_track.plan.load_case.report')},
 ]
 //测试计划-场景用例
 export const Test_Plan_Scenario_Case = [
   {id: 'num', label: i18n.t('commons.id')},
-  {id: 'name', label: i18n.t('commons.name')},
+  {id: 'name', label: i18n.t('api_test.automation.scenario_name')},
   {id: 'level', label: i18n.t('api_test.automation.case_level')},
   {id: 'tagNames', label: i18n.t('api_test.automation.tag')},
   {id: 'userId', label: i18n.t('api_test.automation.creator')},

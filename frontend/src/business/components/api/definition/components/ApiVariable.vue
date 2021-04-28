@@ -3,11 +3,13 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-
+    <el-row>
+      <el-checkbox v-model="isSelectAll" v-if="parameters.length > 1"/>
+    </el-row>
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
         </el-col>
         <span style="margin-left: 10px" v-else></span>
@@ -37,7 +39,7 @@
           </el-select>
         </el-col>
 
-        <el-col class="item" v-if="item.type !== 'file'">
+        <el-col class="item" v-if="isActive && item.type !== 'file'">
           <el-autocomplete
             :disabled="isReadOnly"
             size="small"
@@ -62,7 +64,7 @@
 
         </el-col>
 
-        <el-col v-if="item.type === 'file'" class="item">
+        <el-col v-if="isActive && item.type === 'file'" class="item">
           <ms-api-body-file-upload :parameter="item"/>
         </el-col>
 
@@ -123,7 +125,18 @@
       return {
         currentItem: null,
         requireds: REQUIRED,
+        isSelectAll: true,
+        isActive: true
       }
+    },
+    watch: {
+      isSelectAll: function(to, from) {
+        if(from == false && to == true) {
+          this.selectAll();
+        } else if(from == true && to == false) {
+          this.invertSelect();
+        }
+      },
     },
     computed: {
       keyText() {
@@ -183,7 +196,7 @@
         // TODO 检查key重复
       },
       isDisable: function (index) {
-        return this.parameters.length - 1 === index;
+        return this.parameters.length - 1 == index;
       },
       querySearch(queryString, cb) {
         let suggestions = this.suggestions;
@@ -219,7 +232,24 @@
         } else {
           item.contentType = 'text/plain';
         }
+        this.reload();
       },
+      selectAll() {
+        this.parameters.forEach(item => {
+          item.enable = true;
+        });
+      },
+      invertSelect() {
+        this.parameters.forEach(item => {
+          item.enable = false;
+        });
+      },
+      reload() {
+        this.isActive = false;
+        this.$nextTick(() => {
+          this.isActive = true;
+        });
+      }
     },
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {

@@ -12,23 +12,28 @@
           v-if="isPlanModel"/>
       </template>
 
-      <el-table v-loading="result.loading"
+      <el-table v-loading="result.loading" ref="table"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
                 @select="handleSelect" :height="screenHeight">
-        <el-table-column type="selection"/>
+        <el-table-column width="50" type="selection"/>
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize > total ? total : pageSize"
+                                        :total="total"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.id == 'num'" prop="num" sortable="custom" label="ID" show-overflow-tooltip
+          <el-table-column v-if="item.id == 'num'" prop="num" sortable="custom" label="ID"  min-width="80" show-overflow-tooltip
                            :key="index"/>
-          <el-table-column v-if="item.id == 'name'" prop="name" sortable="custom"
+          <el-table-column v-if="item.id == 'name'" prop="name" sortable="custom"  min-width="120"
                            :label="$t('api_test.definition.api_name')" show-overflow-tooltip :key="index"/>
 
           <el-table-column
@@ -39,6 +44,7 @@
             column-key="priority"
             :label="$t('test_track.case.priority')"
             show-overflow-tooltip
+            min-width="120"
             :key="index">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
@@ -47,6 +53,7 @@
 
           <el-table-column
             v-if="item.id == 'path'"
+            min-width="100"
             prop="path"
             :label="$t('api_test.definition.api_path')"
             show-overflow-tooltip
@@ -57,6 +64,7 @@
             prop="createUser"
             column-key="user_id"
             sortable="custom"
+            min-width="100"
             :filters="userFilters"
             :label="'创建人'"
             show-overflow-tooltip
@@ -65,7 +73,7 @@
           <el-table-column
             v-if="item.id == 'custom'"
             sortable="custom"
-            width="160"
+            min-width="160"
             :label="$t('api_test.definition.api_last_time')"
             prop="updateTime"
             :key="index">
@@ -77,14 +85,15 @@
           <el-table-column
             v-if="item.id == 'tags'"
             prop="tags"
+            min-width="100"
             :label="$t('commons.tag')"
             :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
-          <el-table-column v-if="item.id == 'execResult'" :label="'执行状态'" min-width="130" align="center" :key="index">
+          <el-table-column v-if="item.id == 'execResult'" :label="'执行状态'" min-width="150" align="center" :key="index">
             <template v-slot:default="scope">
               <div v-loading="rowLoading === scope.row.id">
                 <el-link type="danger"
@@ -104,7 +113,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+        <el-table-column fixed="right"  min-width="100" v-if="!isReadOnly" :label="$t('commons.operating')" >
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -127,8 +136,13 @@
 
       <!-- 执行组件 -->
       <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" ref="runTest"/>
+              @runRefresh="runRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
 
+      <!-- 批量编辑 -->
+      <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
+                  :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
+
+      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     </el-card>
   </div>
 
@@ -145,9 +159,9 @@ import ApiCaseList from "../../../../../api/definition/components/case/ApiCaseLi
 import MsContainer from "../../../../../common/components/MsContainer";
 import MsBottomContainer from "../../../../../api/definition/components/BottomContainer";
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
-import MsBatchEdit from "../../../../../api/definition/components/basis/BatchEdit";
+import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
@@ -156,16 +170,31 @@ import MsRun from "../../../../../api/definition/components/Run";
 import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import TestPlan from "../../../../../api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "../../../../../api/definition/components/jmeter/components/thread-group";
-import {TEST_CASE_LIST, TEST_PLAN_API_CASE, WORKSPACE_ID} from "@/common/js/constants";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {TEST_PLAN_API_CASE, WORKSPACE_ID} from "@/common/js/constants";
+import {
+  _filter,
+  _handleSelectAll,
+  _sort,
+  getLabel,
+  _handleSelect,
+  initCondition,
+  setUnSelectIds,
+  getSelectDataCounts,
+  toggleAllSelection,
+  buildBatchParam,
+  checkTableRowIsSelect
+} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-import {Test_Plan_Api_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {Test_Plan_Api_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import MsPlanRunMode from "../../../common/PlanRunMode";
 
 
 export default {
   name: "TestPlanApiCaseList",
   components: {
+    BatchEdit,
     HeaderLabelOperate,
     HeaderCustom,
     TestPlanApiCaseResult,
@@ -182,13 +211,14 @@ export default {
     MsContainer,
     MsBottomContainer,
     ShowMoreBtn,
-    MsBatchEdit
+    MsTableHeaderSelectPopover,
+    MsPlanRunMode
   },
   data() {
     return {
       type: TEST_PLAN_API_CASE,
       headerItems: Test_Plan_Api_Case,
-      tableLabel: Test_Plan_Api_Case,
+      tableLabel: [],
       condition: {},
       selectCase: {},
       result: {},
@@ -198,10 +228,11 @@ export default {
       selectRows: new Set(),
       buttons: [
         {name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch},
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute}
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute},
+        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit}
       ],
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
+        {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -212,20 +243,24 @@ export default {
       valueArr: {
         priority: CASE_PRIORITY,
         userId: [],
+        projectEnv: []
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
       tableData: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
+      selectDataCounts: 0,
+      screenHeight: 'calc(100vh - 330px)',//屏幕高度
       // environmentId: undefined,
       currentCaseProjectId: "",
       runData: [],
       reportId: "",
       response: {},
       rowLoading: "",
-      userFilters: []
+      userFilters: [],
+      projectIds: [],
+      projectList: []
     }
   },
   props: {
@@ -254,11 +289,13 @@ export default {
       }
     },
     planId: String,
+    reviewId: String,
     clickType: String
   },
   created: function () {
     this.getMaintainerOptions();
     this.initTable();
+
   },
   activated() {
     this.status = 'default'
@@ -271,6 +308,9 @@ export default {
       this.initTable();
     },
     planId() {
+      this.initTable();
+    },
+    reviewId() {
       this.initTable();
     }
   },
@@ -305,13 +345,10 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
-      getLabel(this, TEST_PLAN_API_CASE);
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
-
-      this.condition.planId = this.planId;
-
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
@@ -323,34 +360,50 @@ export default {
         }
         this.status = 'all';
       }
-      this.result = this.$post('/test/plan/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
-        this.total = response.data.itemCount;
-        this.tableData = response.data.listObject;
-        this.tableData.forEach(item => {
-          if (item.tags && item.tags.length > 0) {
-            item.tags = JSON.parse(item.tags);
+      if (this.reviewId) {
+        this.condition.reviewId = this.reviewId;
+        this.result = this.$post('/test/case/review/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
+          this.selectRows.clear();
+          if (this.$refs.table) {
+            setTimeout(this.$refs.table.doLayout, 200);
           }
-        })
-      });
+          this.$nextTick(() => {
+            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.table,this.selectRows);
+          })
+        });
+      }
+      if (this.planId) {
+        this.condition.planId = this.planId;
+        this.result = this.$post('/test/plan/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
+          this.selectRows.clear();
+          if (this.$refs.table) {
+            setTimeout(this.$refs.table.doLayout, 200);
+          }
+          this.$nextTick(() => {
+            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.table,this.selectRows);
+          })
+        });
+      }
+      getLabel(this, TEST_PLAN_API_CASE);
     },
     handleSelect(selection, row) {
-      row.hashTree = [];
-      if (this.selectRows.has(row)) {
-        this.$set(row, "showMore", false);
-        this.selectRows.delete(row);
-      } else {
-        this.$set(row, "showMore", true);
-        this.selectRows.add(row);
-      }
-      let arr = Array.from(this.selectRows);
-      // 选中1个以上的用例时显示更多操作
-      if (this.selectRows.size === 1) {
-        this.$set(arr[0], "showMore", false);
-      } else if (this.selectRows.size === 2) {
-        arr.forEach(row => {
-          this.$set(row, "showMore", true);
-        })
-      }
+      _handleSelect(this, selection, row, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     showExecResult(row) {
       this.$emit('showExecResult', row);
@@ -368,23 +421,9 @@ export default {
       this.initTable();
     },
     handleSelectAll(selection) {
-      if (selection.length > 0) {
-        if (selection.length === 1) {
-          selection.hashTree = [];
-          this.selectRows.add(selection[0]);
-        } else {
-          this.tableData.forEach(item => {
-            item.hashTree = [];
-            this.$set(item, "showMore", true);
-            this.selectRows.add(item);
-          });
-        }
-      } else {
-        this.selectRows.clear();
-        this.tableData.forEach(row => {
-          this.$set(row, "showMore", false);
-        })
-      }
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     search() {
       this.initTable();
@@ -404,40 +443,45 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let param = {};
+            let param = buildBatchParam(this);
             param.ids = Array.from(this.selectRows).map(row => row.id);
-            param.planId = this.planId;
-            this.$post('/test/plan/api/case/batch/delete', param, () => {
-              this.selectRows.clear();
-              this.initTable();
-              this.$emit('refresh');
-              this.$success(this.$t('test_track.cancel_relevance_success'));
-            });
+            if (this.reviewId) {
+              param.testCaseReviewId = this.reviewId
+              this.$post('/test/case/review/api/case/batch/delete', param, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$emit('refresh');
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
+            if (this.planId) {
+              param.planId = this.planId;
+              this.$post('/test/plan/api/case/batch/delete', param, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$emit('refresh');
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
+            }
           }
+        });
+      },
+      getResult(data) {
+        if (RESULT_MAP.get(data)) {
+          return RESULT_MAP.get(data);
+        } else {
+          return RESULT_MAP.get("default");
         }
-      });
-    },
-    getResult(data) {
-      if (RESULT_MAP.get(data)) {
-        return RESULT_MAP.get(data);
-      } else {
-        return RESULT_MAP.get("default");
-      }
-    },
-    runRefresh(data) {
-      this.rowLoading = "";
-      this.$success(this.$t('schedule.event_success'));
-      this.initTable();
-    },
+      },
+      runRefresh(data) {
+        this.rowLoading = "";
+        this.$success(this.$t('schedule.event_success'));
+        this.initTable();
+      },
     singleRun(row) {
-      if (!row.environmentId) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
-        return;
-      }
       this.runData = [];
-
       this.rowLoading = row.id;
-
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
@@ -449,57 +493,157 @@ export default {
         this.reportId = getUUID().substring(0, 8);
       });
     },
-    batchEdit(form) {
-      let arr = Array.from(this.selectRows);
-      let ids = arr.map(row => row.id);
-      let param = {};
-      param[form.type] = form.value;
-      param.ids = ids;
-      this.$post('/api/testcase/batch/edit', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.initTable();
+    handleBatchEdit() {
+      this.$refs.batchEdit.open(this.selectRows.size);
+      this.$refs.batchEdit.setSelectRows(this.selectRows);
+    },
+    getData() {
+      return new Promise((resolve) => {
+        let index = 1;
+        this.runData = [];
+        if (this.condition != null && this.condition.selectAll) {
+          let selectAllRowParams = buildBatchParam(this);
+          selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+          this.$post('/test/plan/api/case/selectAllTableRows', selectAllRowParams, response => {
+            let dataRows = response.data;
+            // 按照列表顺序排序
+            this.orderBySelectRows(dataRows);
+            dataRows.forEach(row => {
+              this.$get('/api/testcase/get/' + row.caseId, (response) => {
+                let apiCase = response.data;
+                let request = JSON.parse(apiCase.request);
+                request.name = row.id;
+                request.id = row.id;
+                request.useEnvironment = row.environmentId;
+                this.runData.unshift(request);
+                if (dataRows.length === index) {
+                  resolve();
+                }
+                index++;
+              });
+            });
+          });
+        } else {
+          // 按照列表顺序排序
+          this.orderBySelectRows(this.selectRows);
+          this.selectRows.forEach(row => {
+            this.$get('/api/testcase/get/' + row.caseId, (response) => {
+              let apiCase = response.data;
+              let request = JSON.parse(apiCase.request);
+              request.name = row.id;
+              request.id = row.id;
+              request.useEnvironment = row.environmentId;
+              this.runData.unshift(request);
+              if (this.selectRows.length === index) {
+                resolve();
+              }
+              index++;
+            });
+          });
+        }
       });
+    },
+    batchEdit(form) {
+      let param = {};
+      // 批量修改环境
+      if (form.type === 'projectEnv') {
+        let selectAllRowParams = buildBatchParam(this);
+        selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/api/case/selectAllTableRows', selectAllRowParams, response => {
+          let dataRows = response.data;
+          let map = new Map();
+          param.projectEnvMap = strMapToObj(form.projectEnvMap);
+          dataRows.forEach(row => {
+            map[row.id] = row.projectId;
+          });
+          param.selectRows = map;
+          this.$post('/test/plan/api/case/batch/update/env', param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.initTable();
+          });
+        });
+      } else {
+        // 批量修改其它
+      }
+    },
+    orderBySelectRows(rows){
+      let selectIds = Array.from(rows).map(row => row.id);
+      let array = [];
+      for(let i in this.tableData){
+        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+          array.push(this.tableData[i]);
+        }
+      }
+      this.selectRows = array;
     },
     handleBatchExecute() {
-      this.selectRows.forEach(row => {
-        this.$get('/api/testcase/get/' + row.caseId, (response) => {
-          let apiCase = response.data;
-          let request = JSON.parse(apiCase.request);
-          request.name = row.id;
-          request.id = row.id;
-          request.useEnvironment = row.environmentId;
-          let runData = [];
-          runData.push(request);
-          this.batchRun(runData, getUUID().substring(0, 8));
-        });
+      this.getData().then(() => {
+        if (this.runData && this.runData.length > 0) {
+          this.$refs.runMode.open();
+        }
       });
-      this.$message('任务执行中，请稍后刷新查看结果');
+    },
+    handleRunBatch(config) {
+      let testPlan = new TestPlan();
+      let projectId = this.$store.state.projectId;
+      if (config.mode === 'serial') {
+        testPlan.serializeThreadgroups = true;
+        testPlan.hashTree = [];
+        this.runData.forEach(item => {
+          let threadGroup = new ThreadGroup();
+          threadGroup.onSampleError = config.onSampleError;
+          threadGroup.hashTree = [];
+          threadGroup.hashTree.push(item);
+          testPlan.hashTree.push(threadGroup);
+        });
+        let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
+        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
+        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
+      } else {
+        testPlan.serializeThreadgroups = false;
+        let threadGroup = new ThreadGroup();
+        threadGroup.hashTree = [];
+        testPlan.hashTree = [threadGroup];
+        this.runData.forEach(item => {
+          threadGroup.hashTree.push(item);
+        });
+        let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
+        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
+        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
+      }
       this.search();
     },
-    batchRun(runData, reportId) {
-      let testPlan = new TestPlan();
-      let threadGroup = new ThreadGroup();
-      threadGroup.hashTree = [];
-      testPlan.hashTree = [threadGroup];
-      runData.forEach(item => {
-        threadGroup.hashTree.push(item);
-      });
-      let reqObj = {id: reportId, testElement: testPlan, type: 'API_PLAN', reportId: "run"};
-      let bodyFiles = getBodyUploadFiles(reqObj, runData);
-      this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+    autoCheckStatus() { //  检查执行结果，自动更新计划状态
+      if (!this.planId) {
+        return;
+      }
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
       });
     },
     handleDelete(apiCase) {
-      this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
-        this.$success(this.$t('test_track.cancel_relevance_success'));
-        this.$emit('refresh');
-        this.initTable();
-      });
+      if (this.planId) {
+        this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+          this.$emit('refresh');
+          this.initTable();
+        });
+      }
+      if (this.reviewId) {
+        this.$get('/test/case/review/api/case/delete/' + apiCase.id, () => {
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+          this.$emit('refresh');
+          this.initTable();
+        });
+      }
       return;
     },
     getProjectId() {
       if (!this.isRelevanceModel) {
-        return getCurrentProjectID();
+        return this.$store.state.projectId;
       } else {
         return this.currentCaseProjectId;
       }
@@ -515,6 +659,17 @@ export default {
           this.$refs.apiCaseResult.open();
         }
       });
+    },
+    isSelectDataAll(data) {
+      this.condition.selectAll = data;
+      //设置勾选
+      toggleAllSelection(this.$refs.table, this.tableData, this.selectRows);
+      //显示隐藏菜单
+      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+      //设置未选择ID(更新)
+      this.condition.unSelectIds = [];
+      //更新统计信息
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
   },
 }
@@ -542,4 +697,7 @@ export default {
   margin-right: 20px;
 }
 
+/deep/ .el-table__fixed-body-wrapper {
+  top: 59px !important;
+}
 </style>

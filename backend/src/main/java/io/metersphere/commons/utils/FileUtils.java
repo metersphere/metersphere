@@ -10,7 +10,7 @@ import java.io.*;
 import java.util.List;
 
 public class FileUtils {
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    public static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public static void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
         if (CollectionUtils.isNotEmpty(bodyUploadIds) && CollectionUtils.isNotEmpty(bodyFiles)) {

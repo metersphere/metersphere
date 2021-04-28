@@ -59,6 +59,8 @@ public class ReportService {
     private FileService fileService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     public List<ReportDTO> getRecentReportList(ReportRequest request) {
         List<OrderRequest> orders = new ArrayList<>();
@@ -67,13 +69,11 @@ public class ReportService {
         orderRequest.setType("desc");
         orders.add(orderRequest);
         request.setOrders(orders);
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestReportMapper.getReportList(request);
     }
 
     public List<ReportDTO> getReportList(ReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestReportMapper.getReportList(request);
     }
 
@@ -314,5 +314,19 @@ public class ReportService {
                 MSException.throwException(e);
             }
         }
+    }
+
+    public String getPoolTypeByReportId(String reportId) {
+        LoadTestReportWithBLOBs report = getReport(reportId);
+        String testId = report.getTestId();
+        LoadTestWithBLOBs test = loadTestMapper.selectByPrimaryKey(testId);
+        if (test != null) {
+            String poolId = test.getTestResourcePoolId();
+            TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
+            if (testResourcePool != null) {
+                return testResourcePool.getType();
+            }
+        }
+        return "";
     }
 }

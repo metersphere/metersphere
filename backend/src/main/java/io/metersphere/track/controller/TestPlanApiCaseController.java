@@ -8,7 +8,6 @@ import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -31,11 +30,15 @@ public class TestPlanApiCaseController {
         return PageUtils.setPageInfo(page, testPlanApiCaseService.list(request));
     }
 
+    @PostMapping("/selectAllTableRows")
+    public List<TestPlanApiCaseDTO> selectAllTableRows(@RequestBody TestPlanApiCaseBatchRequest request) {
+        return testPlanApiCaseService.selectAllTableRows(request);
+    }
+
+
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestCaseDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
-        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        return PageUtils.setPageInfo(page, testPlanApiCaseService.relevanceList(request));
+        return testPlanApiCaseService.relevanceList(goPage, pageSize, request);
     }
 
     @GetMapping("/delete/{id}")
@@ -48,6 +51,12 @@ public class TestPlanApiCaseController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.deleteApiCaseBath(request);
+    }
+
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody TestPlanApiCaseBatchRequest request) {
+        testPlanApiCaseService.batchUpdateEnv(request);
     }
 
 }

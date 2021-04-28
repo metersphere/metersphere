@@ -12,7 +12,9 @@ import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint("/performance/report/{reportId}")
 @Component
@@ -20,6 +22,7 @@ public class ReportWebSocket {
 
     private static ReportService reportService;
     private static PerformanceTestService performanceTestService;
+    private static ConcurrentHashMap<Session, Timer> refreshTasks = new ConcurrentHashMap<>();
 
     @Resource
     public void setReportService(ReportService reportService) {
@@ -35,11 +38,11 @@ public class ReportWebSocket {
      * 开启连接的操作
      */
     @OnOpen
-    public void onOpen(@PathParam("reportId") String reportId, Session session) throws IOException {
-        //开启一个线程对数据库中的数据进行轮询
-        ReportThread reportThread = new ReportThread(session, reportId);
-        Thread thread = new Thread(reportThread);
-        thread.start();
+    public void onOpen(@PathParam("reportId") String reportId, Session session) {
+        Timer timer = new Timer(true);
+        ReportTask task = new ReportTask(session, reportId);
+        timer.schedule(task, 0, 10 * 1000);
+        refreshTasks.putIfAbsent(session, timer);
     }
 
     /**
@@ -47,14 +50,33 @@ public class ReportWebSocket {
      */
     @OnClose
     public void onClose(Session session) {
-
+        Timer timer = refreshTasks.get(session);
+        if (timer != null) {
+            timer.cancel();
+            refreshTasks.remove(session);
+        }
     }
 
     /**
      * 给服务器发送消息告知数据库发生变化
      */
     @OnMessage
-    public void onMessage(Session session, String message) {
+    public void onMessage(@PathParam("reportId") String reportId, Session session, String message) {
+        int refreshTime = 10;
+        try {
+            refreshTime = Integer.parseInt(message);
+        } catch (Exception e) {
+        }
+        try {
+            Timer timer = refreshTasks.get(session);
+            timer.cancel();
+
+            Timer newTimer = new Timer(true);
+            newTimer.schedule(new ReportTask(session, reportId), 0, refreshTime * 1000L);
+            refreshTasks.put(session, newTimer);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 
     /**
@@ -66,48 +88,35 @@ public class ReportWebSocket {
         error.printStackTrace();
     }
 
-    public static class ReportThread implements Runnable {
-        private boolean stopMe = true;
-        private final String reportId;
-        private final Session session;
-        private int refresh;
+    public static class ReportTask extends TimerTask {
+        private Session session;
+        private String reportId;
 
-        public ReportThread(Session session, String reportId) {
+        ReportTask(Session session, String reportId) {
             this.session = session;
             this.reportId = reportId;
-            this.refresh = 0;
         }
 
-        public void stopMe() {
-            stopMe = false;
-        }
-
+        @Override
         public void run() {
-            while (stopMe) {
-                try {
-                    LoadTestReportWithBLOBs report = reportService.getReport(reportId);
-                    if (report == null || StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name())) {
-                        this.stopMe();
-                        session.close();
-                        break;
-                    }
-                    if (StringUtils.equals(report.getStatus(), PerformanceTestStatus.Error.name())) {
-                        this.stopMe();
-                        session.getBasicRemote().sendText("Error: " + report.getDescription());
-                        performanceTestService.stopErrorTest(reportId);
-                        session.close();
-                        break;
-                    }
-                    if (!session.isOpen()) {
-                        return;
-                    }
-                    if (StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Reporting.name())) {
-                        session.getBasicRemote().sendText("refresh-" + this.refresh++);
-                    }
-                    Thread.sleep(20 * 1000L);
-                } catch (Exception e) {
-                    LogUtil.error(e.getMessage(), e);
+            try {
+                LoadTestReportWithBLOBs report = reportService.getReport(reportId);
+                if (report == null || StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name())) {
+                    session.close();
                 }
+                if (StringUtils.equals(report.getStatus(), PerformanceTestStatus.Error.name())) {
+                    session.getBasicRemote().sendText("Error: " + report.getDescription());
+                    performanceTestService.stopErrorTest(reportId);
+                    session.close();
+                }
+                if (!session.isOpen()) {
+                    return;
+                }
+                if (StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Reporting.name())) {
+                    session.getBasicRemote().sendText("refresh-" + Math.random());
+                }
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
             }
         }
     }

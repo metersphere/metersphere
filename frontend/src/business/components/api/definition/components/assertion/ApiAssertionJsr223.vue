@@ -18,6 +18,7 @@
         {{ assertion.desc }}
       </div>
       <div class="assertion-item btn circle">
+        <i class="el-icon-view el-button el-button--primary el-button--mini is-circle" circle @click="showPage"/>
         <el-button :disabled="isReadOnly" type="success" size="mini" icon="el-icon-edit" circle @click="detail"/>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"/>
       </div>
@@ -27,24 +28,24 @@
       <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <div class="assertion-item input">
           <el-input size="small" v-model="assertion.variable"
-                    :placeholder="$t('api_test.request.assertions.variable_name')" @change="quickScript"/>
+                    :placeholder="$t('api_test.request.assertions.variable_name')" @change="quickScript" :disabled="disabled"/>
         </div>
 
         <div class="assertion-item select">
           <el-select v-model="assertion.operator" :placeholder="$t('commons.please_select')" size="small"
-                     @change="changeOperator">
+                     @change="changeOperator" :disabled="disabled">
             <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
           </el-select>
         </div>
         <div class="assertion-item input">
           <el-input size="small" v-model="assertion.value" :placeholder="$t('api_test.value')"
-                    @change="quickScript" v-if="!hasEmptyOperator"/>
+                    @change="quickScript" v-if="!hasEmptyOperator" :disabled="disabled"/>
         </div>
       </el-row>
       <el-input size="small" v-model="assertion.desc" :placeholder="$t('api_test.request.assertions.script_name')"
-                class="quick-script-block"/>
-      <ms-jsr233-processor ref="jsr233" :is-read-only="isReadOnly" :jsr223-processor="assertion" :templates="templates"
-                           :height="300"/>
+                class="quick-script-block" :disabled="disabled"/>
+      <ms-jsr233-processor ref="jsr233" :is-read-only="disabled" :jsr223-processor="assertion" :templates="templates"
+                           :height="300" @languageChange="quickScript"/>
       <template v-slot:footer v-if="!edit">
         <ms-dialog-footer
           @cancel="close"
@@ -84,6 +85,7 @@
     data() {
       return {
         visible: false,
+        disabled: false,
         operators: {
           EQ: {
             label: "commons.adv_search.operators.equals",
@@ -145,7 +147,7 @@
         }
         this.quickScript();
       },
-      quickScript() {
+      beanShellOrGroovyScript() {
         if (this.assertion.variable && this.assertion.operator) {
           let variable = this.assertion.variable;
           let operator = this.assertion.operator;
@@ -184,7 +186,7 @@
               script += "result = value != void && value.length() > 0;\n";
               break;
           }
-          let msg = "assertion [" + desc + "]: false;"
+          let msg = (operator != "is empty" && operator != "is not empty") ? "assertion [" + desc + "]: false;" : "value " + operator
           script += "if (!result){\n" +
             "\tmsg = \"" + msg + "\";\n" +
             "\tAssertionResult.setFailureMessage(msg);\n" +
@@ -197,7 +199,74 @@
         }
 
       },
+      pythonScript() {
+        if (this.assertion.variable && this.assertion.operator) {
+          let variable = this.assertion.variable;
+          let operator = this.assertion.operator;
+          let value = this.assertion.value || "";
+          let desc = "${" + variable + "} " + operator + " '" + value + "'";
+          let msg = "";
+          let script = "value = vars.get(\"" + variable + "\");\n"
+          switch (this.assertion.operator) {
+            case "==":
+              script += "if value != \"" + value + "\" :\n";
+              break;
+            case "!=":
+              script += "if value == \"" + value + "\" :\n";
+              break;
+            case "contains":
+              script += "if value.find(\"" + value + "\") != -1:\n";
+              msg = "value " + operator + " " + value + ": false;";
+              break;
+            case "not contains":
+              script += "if value.find(\"" + value + "\") == -1:\n";
+              msg = "value " + operator + " " + ": false;";
+              break;
+            case ">":
+              desc = "${" + variable + "} " + operator + " " + value;
+              script += "if value is None or int(value) < " + value + ":\n";
+              msg = "value " + operator + " " + value + ": false;";
+              break;
+            case "<":
+              desc = "${" + variable + "} " + operator + " " + value;
+              script += "if value is None or int(value) > " + value + ":\n";
+              msg = "value " + operator + " " + value + ": false;";
+              break;
+            case "is empty":
+              desc = "${" + variable + "} " + operator
+              script += "if value is not None:\n";
+              msg = "value " + operator + ": false;";
+              break;
+            case "is not empty":
+              desc = "${" + variable + "} " + operator
+              script += "if value is None:\n";
+              msg = "value " + operator + ": false;";
+              break;
+          }
+          script +=
+            "\tmsg = \" " + msg + "\";" +
+            "\tAssertionResult.setFailureMessage(msg);" +
+            "\tAssertionResult.setFailure(true);";
+
+          this.assertion.desc = desc;
+          this.assertion.script = script;
+          this.$refs.jsr233.reload();
+        }
+
+      },
+      quickScript() {
+        if (this.assertion.scriptLanguage == 'beanshell' || this.assertion.scriptLanguage == 'groovy' || this.assertion.scriptLanguage == 'javascript') {
+          this.beanShellOrGroovyScript();
+        } else {
+          this.pythonScript();
+        }
+      },
       detail() {
+        this.disabled = false;
+        this.visible = true;
+      },
+      showPage() {
+        this.disabled = true;
         this.visible = true;
       },
       close() {

@@ -25,16 +25,16 @@
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
+              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain size="mini"
+                         @click="compareReports()">
+                {{ $t('report.compare') }}
+              </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
-
-              <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
-              <!--{{$t('report.compare')}}-->
-              <!--</el-button>-->
             </el-row>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <span class="ms-report-time-desc">
               {{ $t('report.test_duration', [this.minutes, this.seconds]) }}
             </span>
@@ -44,6 +44,22 @@
             <span class="ms-report-time-desc">
               {{ $t('report.test_end_time') }}：{{ endTime }}
             </span>
+          </el-col>
+          <el-col :span="2">
+            <el-select v-model="refreshTime"
+                       size="mini"
+                       @change="refresh"
+                       style="width: 100%;">
+              <template slot="prefix">
+                <i class="el-icon-refresh" style="cursor: pointer;padding-top: 8px;" @click="refresh"></i>
+              </template>
+              <el-option
+                v-for="item in refreshTimes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </el-col>
         </el-row>
 
@@ -65,6 +81,9 @@
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
             </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_monitor_details')" v-if="poolType === 'NODE'">
+              <monitor-card :report="report"/>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -83,6 +102,7 @@
         </div>
       </el-dialog>
     </ms-main-container>
+    <same-test-reports ref="compareReports"/>
   </ms-container>
 </template>
 
@@ -99,11 +119,15 @@ import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
+import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
+import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
+    MonitorCard,
+    SameTestReports,
     MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
@@ -134,8 +158,20 @@ export default {
       websocket: null,
       dialogFormVisible: false,
       reportExportVisible: false,
-      testPlan: {testResourcePoolId: null}
-    }
+      testPlan: {testResourcePoolId: null},
+      refreshTime: localStorage.getItem("reportRefreshTime") || "10",
+      refreshTimes: [
+        {value: '1', label: '1s'},
+        {value: '3', label: '3s'},
+        {value: '5', label: '5s'},
+        {value: '10', label: '10s'},
+        {value: '20', label: '20s'},
+        {value: '30', label: '30s'},
+        {value: '60', label: '1m'},
+        {value: '300', label: '5m'}
+      ],
+      poolType: ""
+    };
   },
   methods: {
     initBreadcrumb(callback) {
@@ -153,7 +189,7 @@ export default {
           } else {
             this.$error(this.$t('report.not_exist'));
           }
-        })
+        });
       }
     },
     initReportTimeInfo() {
@@ -231,13 +267,12 @@ export default {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});
-          // 注册 socket
-          this.initWebSocket();
-        })
+        });
       }).catch(() => {
       });
     },
     onOpen() {
+      this.refresh();
       // window.console.log("socket opening.");
     },
     onError(e) {
@@ -301,10 +336,10 @@ export default {
           aTag.download = this.reportId + ".zip";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
+          navigator.msSaveBlob(blob, this.filename);
         }
       }).catch(e => {
         let text = e.response.data.text();
@@ -312,6 +347,47 @@ export default {
           Message.error({message: JSON.parse(data).message || e.message, showClose: true});
         });
       });
+    },
+    compareReports() {
+      this.$refs.compareReports.open(this.report);
+    },
+    getReport(reportId) {
+      this.result = this.$get("/performance/report/" + reportId, res => {
+        let data = res.data;
+        if (data) {
+          this.status = data.status;
+          this.$set(this.report, "id", data.id);
+          this.$set(this.report, "status", data.status);
+          this.$set(this.report, "testId", data.testId);
+          this.$set(this.report, "name", data.name);
+          this.$set(this.report, "createTime", data.createTime);
+          this.$set(this.report, "loadConfiguration", data.loadConfiguration);
+          this.checkReportStatus(data.status);
+          if (this.status === "Completed" || this.status === "Running") {
+            this.initReportTimeInfo();
+          }
+          this.initBreadcrumb();
+          this.initWebSocket();
+        } else {
+          this.$error(this.$t('report.not_exist'));
+        }
+      });
+    },
+    refresh() {
+      if (this.status === 'Running' || this.status === 'Starting') {
+        if (this.websocket && this.websocket.readyState === 1) {
+          this.websocket.send(this.refreshTime);
+        }
+      }
+      localStorage.setItem("reportRefreshTime", this.refreshTime);
+    },
+    getPoolType(reportId) {
+      this.$get("/performance/report/pool/type/" + reportId, result => {
+        let data = result.data;
+        if (data) {
+          this.poolType = data;
+        }
+      })
     }
   },
   created() {
@@ -320,25 +396,8 @@ export default {
       this.isReadOnly = true;
     }
     this.reportId = this.$route.path.split('/')[4];
-    this.result = this.$get("/performance/report/" + this.reportId, res => {
-      let data = res.data;
-      if (data) {
-        this.status = data.status;
-        this.$set(this.report, "id", this.reportId);
-        this.$set(this.report, "status", data.status);
-        this.$set(this.report, "testId", data.testId);
-        this.$set(this.report, "loadConfiguration", data.loadConfiguration);
-        this.checkReportStatus(data.status);
-        if (this.status === "Completed" || this.status === "Running") {
-          this.initReportTimeInfo();
-        }
-        this.initBreadcrumb();
-        this.initWebSocket();
-      } else {
-        this.$error(this.$t('report.not_exist'))
-      }
-    });
-
+    this.getReport(this.reportId);
+    this.getPoolType(this.reportId);
   },
   watch: {
     '$route'(to) {
@@ -347,25 +406,18 @@ export default {
         if (!checkoutTestManagerOrTestUser()) {
           this.isReadOnly = true;
         }
-        let reportId = to.path.split('/')[4];
-        this.reportId = reportId;
+        this.reportId = to.path.split('/')[4];
+        this.getReport(this.reportId);
         this.initBreadcrumb((response) => {
-          let data = response.data;
-
-          this.$set(this.report, "id", reportId);
-          this.$set(this.report, "status", data.status);
-
-          this.checkReportStatus(data.status);
           this.initReportTimeInfo();
         });
-        this.initWebSocket();
       } else {
         // console.log("close socket.");
-        this.websocket.close() //离开路由之后断开websocket连接
+        this.websocket.close(); //离开路由之后断开websocket连接
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

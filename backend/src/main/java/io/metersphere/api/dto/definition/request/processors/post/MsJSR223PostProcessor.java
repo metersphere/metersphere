@@ -29,6 +29,10 @@ public class MsJSR223PostProcessor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         JSR223PostProcessor processor = new JSR223PostProcessor();
         processor.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(this.getName())) {
@@ -38,8 +42,14 @@ public class MsJSR223PostProcessor extends MsTestElement {
         }
         processor.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        processor.setProperty("cacheKey", "true");
+        /*processor.setProperty("cacheKey", "true");*/
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
+            processor.setProperty("scriptLanguage", "nashorn");
+        }
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("rhinoScript")) {
+            processor.setProperty("scriptLanguage", "javascript");
+        }
         processor.setProperty("script", this.getScript());
 
         final HashTree jsr223PostTree = tree.add(processor);

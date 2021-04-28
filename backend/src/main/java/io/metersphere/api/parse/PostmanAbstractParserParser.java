@@ -67,7 +67,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
             if (StringUtils.isNotBlank(scriptStr)) {
                 MsJSR223PreProcessor jsr223PreProcessor = new MsJSR223PreProcessor();
                 jsr223PreProcessor.setName("JSR223PreProcessor");
-                jsr223PreProcessor.setScriptLanguage("javascript");
+                jsr223PreProcessor.setScriptLanguage("nashornScript");
                 jsr223PreProcessor.setScript(scriptStr.toString());
                 LinkedList<MsTestElement> hashTree = new LinkedList<>();
                 hashTree.add(jsr223PreProcessor);

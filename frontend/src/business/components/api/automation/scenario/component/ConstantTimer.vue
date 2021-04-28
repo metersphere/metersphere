@@ -3,14 +3,15 @@
     @copy="copyRow"
     @remove="remove"
     :data="timer"
-    :draggable="true"
+    :draggable="draggable"
     :show-collapse="false"
+    :is-max="isMax"
     color="#67C23A"
     background-color="#F2F9EE"
     :title="$t('api_test.automation.wait_controller')">
 
     <template v-slot:headerLeft>
-      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000" ref="nameInput"/>
+      <el-input-number class="time-input" size="mini" v-model="timer.delay" :min="0" :step="1000" ref="nameInput"/>
       ms
     </template>
 
@@ -26,6 +27,14 @@
     props: {
       timer: {},
       node: {},
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       draggable: {
         type: Boolean,
         default: false,

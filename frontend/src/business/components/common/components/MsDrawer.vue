@@ -5,11 +5,13 @@
 
     <ms-right2-left-drag-bar v-if="direction == 'right'"/>
 
+    <ms-right2-left-drag-bar v-if="direction == 'default'"/>
+
+
     <div class="ms-drawer-header">
       <slot name="header"></slot>
       <i v-if="isShowClose" class="el-icon-close" @click="close"/>
-      <font-awesome-icon v-if="!isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
-      <font-awesome-icon v-if="isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
+      <ms-full-screen-button v-if="showFullScreen" :is-full-screen.sync="isFullScreen"/>
     </div>
     <div class="ms-drawer-body">
       <slot></slot>
@@ -23,9 +25,10 @@
     import MsRight2LeftDragBar from "./dragbar/MsRight2LeftDragBar";
     import MsLeft2RightDragBar from "./dragbar/MsLeft2RightDragBar";
     import MsBottom2TopDragBar from "./dragbar/MsBottom2TopDragBar";
+    import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
     export default {
       name: "MsDrawer",
-      components: {MsBottom2TopDragBar, MsLeft2RightDragBar, MsRight2LeftDragBar},
+      components: {MsFullScreenButton, MsBottom2TopDragBar, MsLeft2RightDragBar, MsRight2LeftDragBar},
       data() {
         return {
           x: 0,
@@ -74,8 +77,18 @@
       mounted() {
         this.init();
       },
+      watch: {
+        isFullScreen() {
+          if (this.isFullScreen) {
+            this.fullScreen()
+          } else {
+            this.unFullScreen();
+          }
+        }
+      },
       methods: {
         init() {
+          window.addEventListener("resize", this.listenScreenChange,false);
           //  todo 其他方向待优化
           switch (this.direction) {
             case 'left':
@@ -110,6 +123,14 @@
               this.directionStyle = 'bottom-style';
               this.dragBarDirection = 'vertical';
               break;
+            default:
+              this.w = this.getWidthPercentage(this.size);
+              this.h = this.getHeightPercentage(100);
+              this.x = document.body.clientWidth - this.w;
+              this.y = 0;
+              this.directionStyle = 'right-style';
+              this.dragBarDirection = 'horizontal';
+              break;
           }
         },
         getWidthPercentage(per) {
@@ -123,15 +144,34 @@
           this.originalH = this.h;
           this.w = document.body.clientWidth;
           this.h = document.body.clientHeight;
-          this.isFullScreen = true;
         },
         unFullScreen() {
           this.w = this.originalW;
           this.h = this.originalH;
-          this.isFullScreen = false;
         },
         close() {
-          this.$emit('close')
+          this.$emit('close');
+          window.removeEventListener("resize", this.listenScreenChange);
+        },
+        listenScreenChange() {
+          switch (this.direction) {
+            case 'left':
+              this.h = document.documentElement.clientHeight;
+              break;
+            case 'right':
+              this.h = document.documentElement.clientHeight;
+              break;
+            case 'top':
+              this.w = document.documentElement.clientWidth;
+              break;
+            case 'bottom':
+              this.w = document.documentElement.clientWidth;
+              break;
+            default:
+              this.h = document.documentElement.clientHeight;
+              this.w = document.documentElement.clientWidth;
+              break;
+          }
         }
       }
     }
@@ -206,18 +246,10 @@
     color: red;
   }
 
-  .alt-ico {
+  /deep/ .alt-ico {
     position: absolute;
-    font-size: 15px;
     right: 40px;
     top: 15px;
-    color: #8c939d;
   }
-
-  .alt-ico:hover {
-    color: black;
-    font-size: 18px;
-  }
-
 
 </style>

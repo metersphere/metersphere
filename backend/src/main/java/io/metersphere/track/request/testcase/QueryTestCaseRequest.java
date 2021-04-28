@@ -19,7 +19,18 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
 
     private String planId;
 
+    private String issuesId;
+
     private String userId;
 
     private String reviewId;
+
+    private boolean isSelectThisWeedData = false;
+    private boolean isSelectThisWeedRelevanceData = false;
+
+    private String caseCoverage;
+
+    private long createTime = 0;
+    private long relevanceCreateTime = 0;
+    private List<String> testCaseContainIds;
 }
