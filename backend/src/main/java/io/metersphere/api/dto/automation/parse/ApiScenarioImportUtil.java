@@ -51,6 +51,9 @@ public class ApiScenarioImportUtil {
 
     public static void createModule(ApiScenarioModule module) {
         ApiScenarioModuleService apiModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
+        if (module.getName().length() > 64) {
+            module.setName(module.getName().substring(0, 64));
+        }
         List<ApiScenarioModule> apiModules = apiModuleService.selectSameModule(module);
         if (CollectionUtils.isEmpty(apiModules)) {
             apiModuleService.addNode(module);
