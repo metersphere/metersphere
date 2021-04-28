@@ -430,8 +430,8 @@ export default {
   },
   methods: {
     customHeader() {
-      const list = deepClone(this.tableLabel);
-      this.$refs.headerCustom.open(list);
+      //const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(this.tableLabel);
     },
 
     initTableData() {
