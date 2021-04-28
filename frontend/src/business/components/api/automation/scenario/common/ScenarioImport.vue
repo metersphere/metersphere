@@ -272,7 +272,7 @@
 <style scoped>
 
   .api-import >>> .el-dialog {
-    min-width: 700px;
+    min-width: 830px;
   }
 
   .format-tip {
