@@ -14,6 +14,7 @@
                 :total="total" enableSelection
                 :screenHeight="screenHeight"
                 operator-width="170px"
+                @refresh="initTable"
                 ref="apitable">
         <template v-for="(item, index) in tableLabel">
           <ms-table-column
