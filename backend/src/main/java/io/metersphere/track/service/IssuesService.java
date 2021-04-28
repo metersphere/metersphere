@@ -1,13 +1,18 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssueTemplateMapper;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
@@ -16,9 +21,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.issue.AbstractIssuePlatform;
-import io.metersphere.track.issue.IssueFactory;
-import io.metersphere.track.issue.ZentaoPlatform;
+import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -26,6 +29,7 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +55,10 @@ public class IssuesService {
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
     private IssueTemplateMapper issueTemplateMapper;
+    @Resource
+    private ExtIssuesMapper extIssuesMapper;
+    @Resource
+    private WorkspaceMapper workspaceMapper;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -274,17 +282,17 @@ public class IssuesService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
 
 
-        List<IssuesDao> list = new ArrayList<>();
-        String projectId = request.getProjectId();
-        Project project = projectService.getProjectById(projectId);
-        List<String> platforms = getPlatforms(project);
-        platforms.add(IssuesManagePlatform.Local.toString());
-        List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, request);
-        platformList.forEach(platform -> {
-            List<IssuesDao> issue = platform.getIssue(request);
-            list.addAll(issue);
-        });
-//        List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
+//        List<IssuesDao> list = new ArrayList<>();
+//        String projectId = request.getProjectId();
+//        Project project = projectService.getProjectById(projectId);
+//        List<String> platforms = getPlatforms(project);
+//        platforms.add(IssuesManagePlatform.Local.toString());
+//        List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, request);
+//        platformList.forEach(platform -> {
+//            List<IssuesDao> issue = platform.getIssue(request);
+//            list.addAll(issue);
+//        });
+        List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
 //        Map<String, List<IssuesDao>> issueMap = getIssueMap(issues);
 //        Map<String, AbstractIssuePlatform> platformMap = getPlatformMap(request);
 //        issueMap.forEach((platformName, data) -> {
@@ -293,8 +301,8 @@ public class IssuesService {
 //                platform.filter(data);
 //            }
 //        });
-//        return issues;
-        return list;
+        return issues;
+//        return list;
     }
 
     public Map<String, List<IssuesDao>> getIssueMap(List<IssuesDao> issues) {
@@ -320,5 +328,60 @@ public class IssuesService {
         List<String> platforms = getPlatforms(project);
         platforms.add(IssuesManagePlatform.Local.toString());
         return IssueFactory.createPlatformsForMap(platforms, request);
+    }
+
+    public IssuesWithBLOBs getPlatformIssue(IssuesWithBLOBs issue) {
+        String platform = issue.getPlatform();
+        if (StringUtils.isNotBlank(issue.getProjectId())) {
+            Project project = projectService.getProjectById(issue.getProjectId());
+            Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
+            String orgId = workspace.getOrganizationId();
+            try {
+                if (StringUtils.equals(platform, IssuesManagePlatform.Tapd.name())) {
+                    TapdPlatform tapdPlatform = new TapdPlatform(new IssuesRequest());
+                    String tapdId = projectService.getProjectById(issue.getProjectId()).getTapdId();
+                    IssuesDao tapdIssues = tapdPlatform.getTapdIssues(tapdId, issue.getId());
+                    issue.setTitle(tapdIssues.getTitle());
+                    issue.setDescription(tapdIssues.getDescription());
+                    issue.setStatus(tapdIssues.getStatus());
+                } else if (StringUtils.equals(platform, IssuesManagePlatform.Jira.name())) {
+                    JiraPlatform jiraPlatform = new JiraPlatform(new IssuesRequest());
+                    String config = getConfig(orgId, IssuesManagePlatform.Jira.toString());
+                    JSONObject object = JSON.parseObject(config);
+                    HttpHeaders headers = jiraPlatform.getAuthHeader(object);
+                    String url = object.getString("url");
+                    IssuesDao jiraIssues = jiraPlatform.getJiraIssues(headers, url, issue.getId());
+                    issue.setTitle(jiraIssues.getTitle());
+                    issue.setDescription(jiraIssues.getDescription());
+                    issue.setStatus(jiraIssues.getStatus());
+                } else if (StringUtils.equals(platform, IssuesManagePlatform.Zentao.name())) {
+                    String config = getConfig(orgId, IssuesManagePlatform.Zentao.toString());
+                    JSONObject object = JSON.parseObject(config);
+                    String account = object.getString("account");
+                    String password = object.getString("password");
+                    String url = object.getString("url");
+                    ZentaoPlatform zentaoPlatform = new ZentaoPlatform(account, password, url);
+                    IssuesDao zentaoIssues = zentaoPlatform.getZentaoIssues(issue.getId());
+                    issue.setTitle(zentaoIssues.getTitle());
+                    issue.setDescription(zentaoIssues.getDescription());
+                    issue.setStatus(zentaoIssues.getStatus());
+                }
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+            }
+        }
+        return issue;
+    }
+
+    private String getConfig(String orgId, String platform) {
+        IntegrationRequest request = new IntegrationRequest();
+        if (StringUtils.isBlank(orgId)) {
+            MSException.throwException("organization id is null");
+        }
+        request.setOrgId(orgId);
+        request.setPlatform(platform);
+
+        ServiceIntegration integration = integrationService.get(request);
+        return integration.getConfiguration();
     }
 }

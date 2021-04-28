@@ -288,7 +288,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return project.getJiraKey();
     }
 
-    private IssuesDao getJiraIssues(HttpHeaders headers, String url, String issuesId) {
+    public IssuesDao getJiraIssues(HttpHeaders headers, String url, String issuesId) {
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
         RestTemplate restTemplate = new RestTemplate();
         //post
