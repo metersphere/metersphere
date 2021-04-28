@@ -1813,5 +1813,18 @@ export default {
     set_report: "集合报告",
     report_name: "报告名称",
     run_with_resource_pool: "资源池运行",
+  },
+  operating_log: {
+    title: "操作日志",
+    time: "操作时间",
+    user: "操作人",
+    type: "操作类型",
+    object: "操作对象",
+    name: "标题",
+    info: "查看详情",
+    change_field: "变更字段",
+    before_change: "变更前",
+    after_change: "变更后",
+    share: "分享",
   }
 };

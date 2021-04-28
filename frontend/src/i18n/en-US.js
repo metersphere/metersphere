@@ -1805,5 +1805,18 @@ export default {
     set_report: "Set report",
     report_name: "Report name",
     run_with_resource_pool: "Run Within Resource pool",
+  },
+  operating_log: {
+    title: "Operating log",
+    time: "Operating time",
+    user: "Operating user",
+    type: "Operating type",
+    object: "Operating object",
+    name: "Operating title",
+    info: "Detail",
+    change_field: "Change field",
+    before_change: "Before change",
+    after_change: "After change",
+    share: "Share",
   }
 };
