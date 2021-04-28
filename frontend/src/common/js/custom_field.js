@@ -10,7 +10,7 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
  * @param oldFields 用于兼容旧版本数据
  */
 export function parseCustomField(data, template, customFieldForm, rules, oldFields) {
-  let hasOldData = false
+  let hasOldData = false;
   if (!data.customFields) {
     // 旧数据
     hasOldData = true;
@@ -22,8 +22,10 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
 
   // 设置页面显示的默认值
   template.customFields.forEach(item => {
-    if (item.defaultValue) {
+
+    if (item.defaultValue && !item.hasParse) {
       item.defaultValue = JSON.parse(item.defaultValue);
+      item.hasParse = true; // 多次调用不执行这部分
     }
 
     // 添加自定义字段必填校验
