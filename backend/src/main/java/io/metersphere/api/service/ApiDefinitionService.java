@@ -225,11 +225,15 @@ public class ApiDefinitionService {
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
+            ApiDefinitionExample.Criteria criteria = example.createCriteria();
+            criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            if (apiDefinitionMapper.countByExample(example) > 0 && (project == null || project.getRepeatable() == null || !project.getRepeatable())) {
+            if (project != null && project.getRepeatable() != null && project.getRepeatable()) {
+                criteria.andNameEqualTo(request.getName());
+            }
+            if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {
