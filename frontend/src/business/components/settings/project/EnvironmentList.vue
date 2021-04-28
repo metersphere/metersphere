@@ -290,11 +290,13 @@
         }
         //拷贝一份选中的数据，不然下面删除id和projectId的时候会影响原数据
         const envs = JSON.parse(JSON.stringify(this.selectRows));
-        envs.map(env => {  //不导出id和projectId和启用条件
+        envs.map(env => {  //不导出id和projectId和模块启用条件
           if (env.config){  //旧环境可能没有config数据
             let tempConfig = JSON.parse(env.config);
-            if (tempConfig.httpConfig.conditions) {
-              delete tempConfig.httpConfig.conditions;  //删除”启用条件“，因为导入导出环境对应的项目不同，模块也就不同，
+            if (tempConfig.httpConfig.conditions && tempConfig.httpConfig.conditions.length > 0) {
+              tempConfig.httpConfig.conditions = tempConfig.httpConfig.conditions.filter(condition => {   //删除”模块启用条件“，因为导入导出环境对应的项目不同，模块也就不同，
+                return condition.type !== 'MODULE';
+              });
               env.config = JSON.stringify(tempConfig);
             }
           }
@@ -302,8 +304,8 @@
           delete env.projectId;
         })
         downloadFile('MS_' + envs.length + '_Environments.json', JSON.stringify(envs));
-
       },
+
       handleProjectChange() {   //项目选择下拉框选择其他项目后清空“启用条件”,因为项目变了模块也就变了。
         this.currentEnvironment.config.httpConfig.conditions = [];
       },
