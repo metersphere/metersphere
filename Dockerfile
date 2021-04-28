@@ -6,11 +6,11 @@ ARG MS_VERSION=dev
 
 RUN mkdir -p /opt/apps && mkdir -p /opt/jmeter/lib/junit
 
-COPY backend/target/backend-1.8.jar /opt/apps
+COPY backend/target/backend-1.9.jar /opt/apps
 
 COPY backend/target/classes/jmeter/ /opt/jmeter/
 
-ENV JAVA_APP_JAR=/opt/apps/backend-1.8.jar
+ENV JAVA_APP_JAR=/opt/apps/backend-1.9.jar
 
 ENV AB_OFF=true
 

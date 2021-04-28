@@ -1,5 +1,6 @@
 <template>
-  <el-table
+  <div>
+    <el-table
       border
       :data="data"
       @sort-change="sort"
@@ -31,9 +32,9 @@
 
       <slot></slot>
 
-      <ms-table-column
+      <el-table-column
         v-if="operators && operators.length > 0"
-        :width="operatorWidth"
+        :min-width="operatorWidth"
         fixed="right"
         :label="$t('commons.operating')">
         <template slot="header">
@@ -42,9 +43,9 @@
         <template v-slot:default="scope">
           <ms-table-operators :buttons="operators" :row="scope.row" :index="scope.$index"/>
         </template>
-      </ms-table-column>
-
+      </el-table-column>
     </el-table>
+  </div>
 </template>
 
 <script>
@@ -64,12 +65,13 @@ import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 
 export default {
   name: "MsTable",
   components: {
     HeaderLabelOperate,
-    MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover
+    MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover, HeaderCustom
   },
   data() {
     return {
@@ -164,7 +166,7 @@ export default {
   },
   methods: {
     openCustomHeader() {
-      this.$refs.headerCustom.open(this.tableLabel);
+      this.$emit("openCustomHeader");
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.data, this.selectRows);

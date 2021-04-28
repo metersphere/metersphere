@@ -26,7 +26,7 @@
     </el-card>
 
     <el-dialog :close-on-click-modal="false" :title="$t('workspace.create')" :visible.sync="dialogWsAddVisible" width="30%" @close="close">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="auto" size="small">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
@@ -86,7 +86,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="auto"
+      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
                size="small">
         <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'change'}">
           <el-autocomplete
@@ -129,7 +129,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible" width="30%"
                :destroy-on-close="true"
                @close="closeFunc">
-      <el-form :model="memberForm" label-position="right" label-width="auto" size="small" ref="updateUserForm">
+      <el-form :model="memberForm" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="memberForm.id" autocomplete="off" :disabled="true"/>
         </el-form-item>

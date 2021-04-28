@@ -89,6 +89,11 @@ export default {
       let results = queryString ? suggestions.filter(this.createFilter(queryString)) : suggestions;
       cb(results);
     },
+    createFilter(queryString) {
+      return (restaurant) => {
+        return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
   },
 
   created() {

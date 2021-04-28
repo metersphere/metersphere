@@ -25,19 +25,20 @@
                  :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
     <el-table
-      ref="table"
-      class="test-content adjust-table ms-select-all-fixed"
-      border
-      @select-all="handleSelectAll"
-      @filter-change="filter"
-      @sort-change="sort"
-      @select="handleSelectionChange"
-      :height="screenHeight"
-      row-key="id"
-      @row-click="showDetail"
-      style="margin-top: 5px"
-      @header-dragend="headerDragend"
-      :data="tableData">
+        :key="updata"
+        ref="table"
+        class="test-content adjust-table ms-select-all-fixed"
+        border
+        @select-all="handleSelectAll"
+        @filter-change="filter"
+        @sort-change="sort"
+        @select="handleSelectionChange"
+        :height="screenHeight"
+        row-key="id"
+        @row-click="showDetail"
+        style="margin-top: 5px"
+        @header-dragend="headerDragend"
+        :data="tableData">
 
       <el-table-column width="50" type="selection"/>
       <ms-table-header-select-popover v-show="total>0"
@@ -323,6 +324,7 @@ export default {
   },
   data() {
     return {
+      updata: false,
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
       screenHeight: 'calc(100vh - 330px)',
@@ -413,6 +415,12 @@ export default {
     },
     selectNodeIds() {
       this.search();
+    },
+    tableLabel: {
+      handler(newVal) {
+        this.updata = !this.updata;
+      },
+      deep: true
     }
   },
   mounted() {

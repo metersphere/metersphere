@@ -32,4 +32,6 @@ public class Project implements Serializable {
     private Boolean customNum;
 
     private static final long serialVersionUID = 1L;
+
+    private String protocal;
 }

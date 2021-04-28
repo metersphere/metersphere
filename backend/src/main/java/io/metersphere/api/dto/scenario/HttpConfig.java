@@ -20,6 +20,7 @@ public class HttpConfig {
 
     public HttpConfig initHttpConfig(HttpConfigCondition configCondition) {
         HttpConfig config = new HttpConfig();
+        config.isMock = this.isMock;
         BeanUtils.copyBean(config, configCondition);
         return config;
     }

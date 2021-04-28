@@ -12,6 +12,7 @@
                 :total="total" enableSelection
                 :batch-operators="trashEnable ? trashButtons : buttons" :screenHeight="screenHeight"
                 :operators="tableOperatorButtons" operator-width="170px"
+                @openCustomHeader="customHeader"
                 ref="apiDefinitionTable"
       >
         <template v-for="(item, index) in tableLabel">
@@ -82,7 +83,7 @@
             column-key="user_id"
             :label="$t('api_test.definition.api_principal')"
             show-overflow-tooltip
-            width="100px"
+            width="145px"
             :key="index"/>
 
           <ms-table-column
@@ -108,7 +109,7 @@
 
           <ms-table-column
             v-if="item.id == 'updateTime'"
-            width="160"
+            width="200"
             :label="$t('api_test.definition.api_last_time')"
             sortable="custom"
             prop="updateTime"
@@ -121,7 +122,7 @@
           <ms-table-column
             v-if="item.id == 'caseTotal'"
             prop="caseTotal"
-            width="80px"
+            width="140px"
             :label="$t('api_test.definition.api_case_number')"
             show-overflow-tooltip
             :key="index"/>
@@ -129,23 +130,22 @@
           <ms-table-column
             v-if="item.id == 'caseStatus'"
             prop="caseStatus"
-            width="80px"
+            width="130px"
             :label="$t('api_test.definition.api_case_status')"
             show-overflow-tooltip
             :key="index"/>
 
           <ms-table-column
             v-if="item.id == 'casePassingRate'"
-            width="100px"
+            width="150px"
             prop="casePassingRate"
             :label="$t('api_test.definition.api_case_passing_rate')"
             show-overflow-tooltip
             :key="index"/>
         </template>
-
-
       </ms-table>
-
+      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
+                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </div>

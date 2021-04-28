@@ -84,6 +84,8 @@ public class JSONSchemaGenerator {
                 JsonObject propertyObj = propertiesObj.get(propertyKey).getAsJsonObject();
                 analyzeProperty(rootObj, propertyKey, propertyObj);
             }
+        } else if (object.has("type") && object.get("type").getAsString().equals("array")) {
+            analyzeProperty(rootObj, "MS-OBJECT", object);
         } else if (object.has("type") && !object.get("type").getAsString().equals("object")) {
             analyzeProperty(rootObj, object.getAsString(), object);
         }
@@ -298,6 +300,9 @@ public class JSONSchemaGenerator {
                 generator(jsonSchema, root);
                 // 格式化返回
                 Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+                if (root.get("MS-OBJECT") != null) {
+                    return gson.toJson(root.get("MS-OBJECT"));
+                }
                 return gson.toJson(root);
             } else {
                 return report.getExceptionThreshold().toString();

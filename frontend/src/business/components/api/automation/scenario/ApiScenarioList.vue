@@ -44,14 +44,14 @@
                            sortable="custom"
                            :label="$t('api_test.automation.scenario_name')"
                            show-overflow-tooltip
-                           min-width="120px"
+                           min-width="150px"
                            :key="index"
           />
           <el-table-column v-if="item.id == 'level'" prop="level"
                            sortable="custom"
                            column-key="level"
                            :filters="levelFilters"
-                           min-width="120px"
+                           min-width="130px"
                            :label="$t('api_test.automation.case_level')"
                            show-overflow-tooltip :key="index">
             <template v-slot:default="scope">
@@ -95,7 +95,7 @@
                            :label="$t('api_test.automation.last_result')"
                            :filters="resultFilters"
 
-                           sortable="custom" column-key="last_result" min-width="120px" :key="index">
+                           sortable="custom" column-key="last_result" min-width="130px" :key="index">
             <template v-slot:default="{row}">
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
                 {{ $t('api_test.automation.success') }}

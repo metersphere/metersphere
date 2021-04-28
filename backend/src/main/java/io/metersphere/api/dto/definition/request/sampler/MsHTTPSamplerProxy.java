@@ -232,7 +232,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     if (this.isMockEnvironment()) {
                         url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
                     } else {
-                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                        if (httpConfig.isMock()) {
+                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                        } else {
+                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                        }
+
                     }
                     URL urlObject = new URL(url);
                     String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();

@@ -45,7 +45,7 @@
                                  :request="request"
                                  :showScript="false"/>
         <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-                                 :request="request" :is-scenario="true" :environment="environment"
+                                 :request="request" :is-scenario="false" :environment="environment"
                                  :showScript="false"/>
         <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
                                    :request="request"

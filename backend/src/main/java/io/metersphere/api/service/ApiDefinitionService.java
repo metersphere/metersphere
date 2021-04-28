@@ -997,7 +997,15 @@ public class ApiDefinitionService {
                 List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
 
                 List<String> apiIdList = new ArrayList<>();
+                boolean urlSuffixEndEmpty = false;
+                if (urlSuffix.endsWith("/")) {
+                    urlSuffixEndEmpty = true;
+                    urlSuffix = urlSuffix + "testMock";
+                }
                 String[] urlParams = urlSuffix.split("/");
+                if (urlSuffixEndEmpty) {
+                    urlParams[urlParams.length - 1] = "";
+                }
                 for (ApiDefinition api : apiList) {
                     String path = api.getPath();
                     if (path.startsWith("/")) {
@@ -1007,7 +1015,7 @@ public class ApiDefinitionService {
                         String[] pathArr = path.split("/");
                         if (pathArr.length == urlParams.length) {
                             boolean isFetch = true;
-                            for (int i = 0; i < pathArr.length; i++) {
+                            for (int i = 0; i < urlParams.length; i++) {
                                 String pathItem = pathArr[i];
                                 if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
                                     if (!StringUtils.equals(pathArr[i], urlParams[i])) {
