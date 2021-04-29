@@ -278,6 +278,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     url.replaceAll(this.getPort(), "10990");
                 }
+                if (url == null) {
+                    MSException.throwException("请填写请求地址");
+                }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
@@ -298,7 +301,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
         } catch (Exception e) {
-            LogUtil.error(e);
+            LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
         }
         // 请求体
