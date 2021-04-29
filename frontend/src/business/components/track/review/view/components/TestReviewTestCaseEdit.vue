@@ -78,6 +78,7 @@
                     </el-row>
 
                     <el-form ref="customFieldForm"
+                             v-if="isCustomFiledActive"
                              class="case-form">
                       <el-row>
                         <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
@@ -187,7 +188,8 @@ export default {
       testCaseTemplate: {},
       hasTapdId: false,
       hasZentaoId: false,
-      formLabelWidth: '100px'
+      formLabelWidth: '100px',
+      isCustomFiledActive: false
     };
   },
   props: {
@@ -302,6 +304,7 @@ export default {
           item.stepModel = 'STEP';
         }
         parseCustomField(item, this.testCaseTemplate, null, null, buildTestCaseOldFields(item));
+        this.isCustomFiledActive = true;
         this.testCase = item;
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
