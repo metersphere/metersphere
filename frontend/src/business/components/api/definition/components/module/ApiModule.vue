@@ -17,6 +17,7 @@
 
       <template v-slot:header>
         <api-module-header
+          :show-operator="showOperator"
           :condition="condition"
           :current-module="currentModule"
           :is-read-only="isReadOnly"
@@ -71,6 +72,7 @@
           return false
         }
       },
+      showOperator: Boolean,
       planId: String,
       relevanceProjectId: String,
       reviewId: String

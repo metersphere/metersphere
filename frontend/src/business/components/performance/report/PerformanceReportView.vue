@@ -81,6 +81,9 @@
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
             </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_monitor_details')" v-if="poolType === 'NODE'">
+              <monitor-card :report="report"/>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -117,11 +120,13 @@ import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
+import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
+    MonitorCard,
     SameTestReports,
     MsPerformanceReportExport,
     MsReportErrorLog,
@@ -154,7 +159,7 @@ export default {
       dialogFormVisible: false,
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
-      refreshTime: '20',
+      refreshTime: localStorage.getItem("reportRefreshTime") || "10",
       refreshTimes: [
         {value: '1', label: '1s'},
         {value: '3', label: '3s'},
@@ -164,7 +169,8 @@ export default {
         {value: '30', label: '30s'},
         {value: '60', label: '1m'},
         {value: '300', label: '5m'}
-      ]
+      ],
+      poolType: ""
     };
   },
   methods: {
@@ -261,13 +267,12 @@ export default {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});
-          // 注册 socket
-          this.initWebSocket();
         });
       }).catch(() => {
       });
     },
     onOpen() {
+      this.refresh();
       // window.console.log("socket opening.");
     },
     onError(e) {
@@ -369,9 +374,20 @@ export default {
       });
     },
     refresh() {
-      if (this.status === 'Running') {
-        this.websocket.send(this.refreshTime);
+      if (this.status === 'Running' || this.status === 'Starting') {
+        if (this.websocket && this.websocket.readyState === 1) {
+          this.websocket.send(this.refreshTime);
+        }
       }
+      localStorage.setItem("reportRefreshTime", this.refreshTime);
+    },
+    getPoolType(reportId) {
+      this.$get("/performance/report/pool/type/" + reportId, result => {
+        let data = result.data;
+        if (data) {
+          this.poolType = data;
+        }
+      })
     }
   },
   created() {
@@ -381,6 +397,7 @@ export default {
     }
     this.reportId = this.$route.path.split('/')[4];
     this.getReport(this.reportId);
+    this.getPoolType(this.reportId);
   },
   watch: {
     '$route'(to) {
@@ -392,11 +409,8 @@ export default {
         this.reportId = to.path.split('/')[4];
         this.getReport(this.reportId);
         this.initBreadcrumb((response) => {
-          let data = response.data;
-          this.checkReportStatus(data.status);
           this.initReportTimeInfo();
         });
-        this.initWebSocket();
       } else {
         // console.log("close socket.");
         this.websocket.close(); //离开路由之后断开websocket连接

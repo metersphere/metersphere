@@ -12,6 +12,9 @@
     <result column="jira_key" jdbcType="VARCHAR" property="jiraKey" />
     <result column="zentao_id" jdbcType="VARCHAR" property="zentaoId" />
     <result column="repeatable" jdbcType="BIT" property="repeatable" />
+    <result column="case_template_id" jdbcType="VARCHAR" property="caseTemplateId" />
+    <result column="issue_template_id" jdbcType="VARCHAR" property="issueTemplateId" />
+    <result column="custom_num" jdbcType="BIT" property="customNum" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
-    zentao_id, `repeatable`
+    zentao_id, `repeatable`, case_template_id, issue_template_id, custom_num
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -109,11 +112,13 @@
     insert into project (id, workspace_id, `name`, 
       description, create_time, update_time, 
       tapd_id, jira_key, zentao_id, 
-      `repeatable`)
+      `repeatable`, case_template_id, issue_template_id, 
+      custom_num)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
-      #{repeatable,jdbcType=BIT})
+      #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, #{issueTemplateId,jdbcType=VARCHAR}, 
+      #{customNum,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -148,6 +153,15 @@
       <if test="repeatable != null">
         `repeatable`,
       </if>
+      <if test="caseTemplateId != null">
+        case_template_id,
+      </if>
+      <if test="issueTemplateId != null">
+        issue_template_id,
+      </if>
+      <if test="customNum != null">
+        custom_num,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -179,6 +193,15 @@
       </if>
       <if test="repeatable != null">
         #{repeatable,jdbcType=BIT},
+      </if>
+      <if test="caseTemplateId != null">
+        #{caseTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="issueTemplateId != null">
+        #{issueTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="customNum != null">
+        #{customNum,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -221,6 +244,15 @@
       <if test="record.repeatable != null">
         `repeatable` = #{record.repeatable,jdbcType=BIT},
       </if>
+      <if test="record.caseTemplateId != null">
+        case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.issueTemplateId != null">
+        issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customNum != null">
+        custom_num = #{record.customNum,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +269,10 @@
       tapd_id = #{record.tapdId,jdbcType=VARCHAR},
       jira_key = #{record.jiraKey,jdbcType=VARCHAR},
       zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
-      `repeatable` = #{record.repeatable,jdbcType=BIT}
+      `repeatable` = #{record.repeatable,jdbcType=BIT},
+      case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
+      issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
+      custom_num = #{record.customNum,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +307,15 @@
       <if test="repeatable != null">
         `repeatable` = #{repeatable,jdbcType=BIT},
       </if>
+      <if test="caseTemplateId != null">
+        case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="issueTemplateId != null">
+        issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="customNum != null">
+        custom_num = #{customNum,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -285,7 +329,10 @@
       tapd_id = #{tapdId,jdbcType=VARCHAR},
       jira_key = #{jiraKey,jdbcType=VARCHAR},
       zentao_id = #{zentaoId,jdbcType=VARCHAR},
-      `repeatable` = #{repeatable,jdbcType=BIT}
+      `repeatable` = #{repeatable,jdbcType=BIT},
+      case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
+      issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
+      custom_num = #{customNum,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

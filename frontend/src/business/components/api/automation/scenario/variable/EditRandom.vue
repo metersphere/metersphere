@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="editData" label-position="right" label-width="80px" size="small" ref="form5">
+  <el-form :model="editData" label-position="right" label-width="80px" size="small" ref="form5" :rules="rules">
     <el-form-item :label="$t('api_test.variable_name')" prop="name">
       <el-input v-model="editData.name" :placeholder="$t('api_test.variable_name')"></el-input>
     </el-form-item>
@@ -31,6 +31,15 @@
     components: {},
     props: {
       editData: {},
+    },
+    data() {
+      return {
+        rules: {
+          name: [
+            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          ],
+        },
+      }
     },
   }
 </script>

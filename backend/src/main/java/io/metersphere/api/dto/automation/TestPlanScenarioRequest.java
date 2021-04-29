@@ -26,4 +26,14 @@ public class TestPlanScenarioRequest {
     private Map<String, Object> combine;
     private List<String> ids;
     private String reviewId;
+
+    /**
+     * 是否选中所有数据
+     */
+    private boolean selectAll;
+
+    /**
+     * 全选之后取消选中的id
+     */
+    private List<String> unSelectIds;
 }

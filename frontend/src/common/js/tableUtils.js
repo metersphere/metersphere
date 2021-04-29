@@ -45,12 +45,19 @@ export function setUnSelectIds(tableData, condition, selectRows) {
   let thisUnSelectIds = allIDs.filter(function (val) {
     return ids.indexOf(val) === -1;
   });
-  let needPushIds = thisUnSelectIds.filter(function (val) {
-    return condition.unSelectIds.indexOf(val) === -1;
-  });
-  needPushIds.forEach(id => {
-    condition.unSelectIds.push(id);
-  });
+  if (condition.unSelectIds) {
+    //首先将选择的ID从unSelectIds中排除
+    condition.unSelectIds = condition.unSelectIds.filter(function (val) {
+      return ids.indexOf(val) === -1;
+    });
+    //去掉unselectIds中存在的ID
+    let needPushIds = thisUnSelectIds.filter(function (val) {
+      return condition.unSelectIds.indexOf(val) === -1;
+    });
+    needPushIds.forEach(id => {
+      condition.unSelectIds.push(id);
+    });
+  }
 }
 
 export function getSelectDataCounts(condition, total, selectRows) {
@@ -169,4 +176,19 @@ export function buildBatchParam(vueObj) {
   return param;
 }
 
+// 深拷贝
+export function deepClone(source) {
+  if (!source && typeof source !== 'object') {
+    throw new Error('error arguments', 'deepClone');
+  }
+  const targetObj = source.constructor === Array ? [] : {};
+  Object.keys(source).forEach(keys => {
+    if (source[keys] && typeof source[keys] === 'object') {
+      targetObj[keys] = deepClone(source[keys]);
+    } else {
+      targetObj[keys] = source[keys];
+    }
+  });
+  return targetObj;
+}
 

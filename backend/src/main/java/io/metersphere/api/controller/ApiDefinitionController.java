@@ -12,9 +12,11 @@ import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.api.service.EsbImportService;
 import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.util.Date;
@@ -53,6 +56,8 @@ public class ApiDefinitionController {
     private EsbApiParamService esbApiParamService;
     @Resource
     private EsbImportService esbImportService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -79,6 +84,12 @@ public class ApiDefinitionController {
     public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.list(request);
     }
+
+    @PostMapping("/list/batch")
+    public List<ApiDefinitionResult> listBatch(@RequestBody ApiBatchRequest request) {
+        return apiDefinitionService.listBatch(request);
+    }
+
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
@@ -171,7 +182,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
-        return apiDefinitionService.apiTestImport(file, request);//95821329-9eaa-4d2a-aa24-e6f912994716"
+        return apiDefinitionService.apiTestImport(file, request);
     }
 
     @PostMapping(value = "/export/{type}")
@@ -264,4 +275,15 @@ public class ApiDefinitionController {
     public void testCaseTemplateExport(HttpServletResponse response) {
         esbImportService.templateExport(response);
     }
+
+    @GetMapping("/getMockEnvironment/{projectId}/{protocal}")
+    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, @PathVariable String protocal, HttpServletRequest request) {
+        String requestUrl = request.getRequestURL().toString();
+        String baseUrl = "";
+        if (requestUrl.contains("/api/definition")) {
+            baseUrl = requestUrl.split("/api/definition")[0];
+        }
+        return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId, protocal, baseUrl);
+    }
+
 }

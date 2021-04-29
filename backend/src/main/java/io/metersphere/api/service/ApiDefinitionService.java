@@ -30,10 +30,12 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -96,6 +98,8 @@ public class ApiDefinitionService {
     private EsbApiParamService esbApiParamService;
     @Resource
     ApiModuleMapper apiModuleMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -104,9 +108,18 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
+
+    public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
+        calculateResult(resList, request.getProjectId());
+        return resList;
+    }
+
 
     /**
      * 初始化部分参数
@@ -194,7 +207,11 @@ public class ApiDefinitionService {
     }
 
     public void reduction(ApiBatchRequest request) {
-        extApiDefinitionMapper.reduction(request.getIds());
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        if (request.getIds() != null || !request.getIds().isEmpty()) {
+            extApiDefinitionMapper.reduction(request.getIds());
+        }
     }
 
     public void deleteBodyFiles(String apiId) {
@@ -208,11 +225,15 @@ public class ApiDefinitionService {
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
+            ApiDefinitionExample.Criteria criteria = example.createCriteria();
+            criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            if (apiDefinitionMapper.countByExample(example) > 0 && (project == null || project.getRepeatable() == null || !project.getRepeatable())) {
+            if (project != null && project.getRepeatable() != null && project.getRepeatable()) {
+                criteria.andNameEqualTo(request.getName());
+            }
+            if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {
@@ -276,7 +297,11 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
-        test.setTags(request.getTags());
+        if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
+            test.setTags(request.getTags());
+        } else {
+            test.setTags(null);
+        }
         this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
@@ -320,7 +345,11 @@ public class ApiDefinitionService {
             test.setUserId(request.getUserId());
         }
         test.setDescription(request.getDescription());
-        test.setTags(request.getTags());
+        if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
+            test.setTags(request.getTags());
+        } else {
+            test.setTags(null);
+        }
         apiDefinitionMapper.insert(test);
         return test;
     }
@@ -341,7 +370,9 @@ public class ApiDefinitionService {
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
         apiDefinition.setUpdateTime(System.currentTimeMillis());
-        apiDefinition.setStatus(APITestStatus.Underway.name());
+        if (StringUtils.isEmpty(apiDefinition.getStatus())) {
+            apiDefinition.setStatus(APITestStatus.Underway.name());
+        }
         if (apiDefinition.getUserId() == null) {
             apiDefinition.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
@@ -395,6 +426,7 @@ public class ApiDefinitionService {
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
+                apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
@@ -514,6 +546,14 @@ public class ApiDefinitionService {
      * @return
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        int count = 100;
+        BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
+        if (StringUtils.isNotEmpty(dto.getConcurrency())) {
+            count = Integer.parseInt(dto.getConcurrency());
+        }
+        if (request.getTestElement() != null && request.getTestElement().getHashTree().size() == 1 && request.getTestElement().getHashTree().get(0).getHashTree().size() > count) {
+            MSException.throwException("并发数量过大，请重新选择！");
+        }
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
@@ -530,13 +570,13 @@ public class ApiDefinitionService {
         }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        //jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null);
         return request.getId();
     }
 
@@ -804,21 +844,21 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
-    public void calculateResult(List<ApiDefinitionResult> resList) {
+    public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
@@ -936,5 +976,80 @@ public class ApiDefinitionService {
 
     public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId) {
         return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
+    }
+
+//    public List<ApiDefinition> selectByProjectIdAndMethodAndUrl(String projectId, String method,String url) {
+//        ApiDefinitionExample example = new ApiDefinitionExample();
+//        ApiDefinitionExample.Criteria criteria = example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId);
+//        if(StringUtils.isNotEmpty(url)){
+//            criteria.andPathEqualTo(url);
+//        }
+//        return  apiDefinitionMapper.selectByExample(example);
+//    }
+
+    public List<ApiDefinitionWithBLOBs> preparedUrl(String projectId, String method, String url, String urlSuffix) {
+
+        if (StringUtils.isEmpty(urlSuffix)) {
+            return new ArrayList<>();
+        } else {
+            if (StringUtils.equalsAnyIgnoreCase(method, "GET", "DELETE")) {
+                ApiDefinitionExample example = new ApiDefinitionExample();
+                ApiDefinitionExample.Criteria criteria = example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId);
+                if (StringUtils.isNotEmpty(url)) {
+                    criteria.andPathEqualTo(url);
+                }
+                List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(example);
+
+                List<String> apiIdList = new ArrayList<>();
+                boolean urlSuffixEndEmpty = false;
+                if (urlSuffix.endsWith("/")) {
+                    urlSuffixEndEmpty = true;
+                    urlSuffix = urlSuffix + "testMock";
+                }
+                String[] urlParams = urlSuffix.split("/");
+                if (urlSuffixEndEmpty) {
+                    urlParams[urlParams.length - 1] = "";
+                }
+                for (ApiDefinition api : apiList) {
+                    String path = api.getPath();
+                    if (path.startsWith("/")) {
+                        path = path.substring(1);
+                    }
+                    if (StringUtils.isNotEmpty(path)) {
+                        String[] pathArr = path.split("/");
+                        if (pathArr.length == urlParams.length) {
+                            boolean isFetch = true;
+                            for (int i = 0; i < urlParams.length; i++) {
+                                String pathItem = pathArr[i];
+                                if (!(pathItem.startsWith("{") && pathItem.endsWith("}"))) {
+                                    if (!StringUtils.equals(pathArr[i], urlParams[i])) {
+                                        isFetch = false;
+                                        break;
+                                    }
+                                }
+
+                            }
+                            if (isFetch) {
+                                apiIdList.add(api.getId());
+                            }
+                        }
+                    }
+                }
+                if (apiIdList.isEmpty()) {
+                    return new ArrayList<>();
+                } else {
+                    example.clear();
+                    example.createCriteria().andIdIn(apiIdList);
+                    return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+                }
+            } else {
+                if (!url.startsWith("/")) {
+                    url = "/" + url;
+                }
+                ApiDefinitionExample example = new ApiDefinitionExample();
+                ApiDefinitionExample.Criteria criteria = example.createCriteria().andMethodEqualTo(method).andProjectIdEqualTo(projectId).andPathEqualTo(url);
+                return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+            }
+        }
     }
 }

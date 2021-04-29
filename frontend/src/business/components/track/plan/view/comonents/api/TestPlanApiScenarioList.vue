@@ -17,7 +17,7 @@
                                         :total="total"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
-        <el-table-column width="20" :resizable="false" align="center">
+        <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -101,7 +101,7 @@
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
-
+    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
   </div>
 </template>
 
@@ -110,7 +110,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -135,6 +135,7 @@ import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import {Test_Plan_Scenario_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
+import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 
 export default {
@@ -153,6 +154,7 @@ export default {
     MsScenarioExtendButtons,
     MsTestPlanList,
     BatchEdit,
+    MsPlanRunMode,
     MsTableHeaderSelectPopover
   },
   props: {
@@ -255,7 +257,8 @@ export default {
             setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
+            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
           })
         });
       }
@@ -276,7 +279,8 @@ export default {
             setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
+            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
           })
         });
       }
@@ -292,49 +296,47 @@ export default {
       })
     },
     handleBatchExecute() {
-      // 与同事对接此处功能时得知前段入口取消，if (this.reviewId) {} 函数不会执行。 暂时先注释掉。 By.Song Tianyang
-      // if (this.reviewId) {
-      //   this.selectRows.forEach(row => {
-      //     let param = this.buildExecuteParam(row);
-      //     this.$post("/test/case/review/scenario/case/run", param, response => {
-      //     });
-      //   });
-      // }
-
-      if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              if (this.planId) {
-                this.selectRows.forEach(row => {
-                  let param = this.buildExecuteParam(row);
-                  this.$post("/test/plan/scenario/case/run", param, response => {
-                  });
-                });
-              }
-              this.$message('任务执行中，请稍后刷新查看结果');
-              this.search();
-            }
-          }
-        });
-      }else {
-        if (this.planId) {
-          this.selectRows.forEach(row => {
-            let param = this.buildExecuteParam(row);
-            this.$post("/test/plan/scenario/case/run", param, response => {
-            });
-          });
+      this.$refs.runMode.open();
+    },
+    orderBySelectRows(rows){
+      let selectIds = Array.from(rows).map(row => row.id);
+      let array = [];
+      for(let i in this.tableData){
+        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+          array.push(this.tableData[i]);
         }
-        this.$message('任务执行中，请稍后刷新查看结果');
-        this.search();
       }
-
+      this.selectRows = array;
+    },
+    handleRunBatch(config){
+      this.orderBySelectRows(this.selectRows);
+      if (this.reviewId) {
+        let param = {config : config,planCaseIds:[]};
+        this.selectRows.forEach(row => {
+          this.buildExecuteParam(param,row);
+        });
+        this.$post("/test/case/review/scenario/case/run", param, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
+      }
+      if (this.planId) {
+        let selectParam = buildBatchParam(this);
+        let param = {config: config, planCaseIds: []};
+        this.selectRows.forEach(row => {
+          this.buildExecuteParam(param, row);
+        });
+        param.condition = selectParam.condition;
+        this.$post("/test/plan/scenario/case/run", param, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
+      }
+      this.search();
     },
     execute(row) {
       this.infoDb = false;
-      let param = this.buildExecuteParam(row);
-      console.log(param)
+      let param ={planCaseIds: []};
+      this.reportId = "";
+      this.buildExecuteParam(param,row);
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -348,14 +350,11 @@ export default {
         });
       }
     },
-    buildExecuteParam(row) {
-      let param = {};
+    buildExecuteParam(param,row) {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
-      console.log(row.id)
       param.projectId = row.projectId;
-      param.planCaseIds = [];
       param.planCaseIds.push(row.id);
       return param;
     },
@@ -424,42 +423,30 @@ export default {
       });
     },
     handleBatchEdit() {
-      this.$refs.batchEdit.open(this.selectRows.size);
-      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
+      if (this.condition != null && this.condition.selectAll) {
+        let selectAllRowParams = buildBatchParam(this);
+        selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/scenario/case/selectAllTableRows', selectAllRowParams, response => {
+          let dataRows = response.data;
+          this.$refs.batchEdit.open(dataRows.size);
+          this.$refs.batchEdit.setScenarioSelectRows(dataRows, "planScenario");
+        });
+      } else {
+        this.$refs.batchEdit.open(this.selectRows.size);
+        this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
+      }
     },
     batchEdit(form) {
       let param = {};
       param.mapping = strMapToObj(form.map);
       param.envMap = strMapToObj(form.projectEnvMap);
 
-      if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              if (this.planId) {
-                this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
-                  this.$success(this.$t('commons.save_success'));
-                  this.search();
-                })
-              }
-            }
-          }
+      if (this.planId) {
+        this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
         });
-      }else {
-        if (this.planId) {
-          this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.search();
-          })
-        }
       }
-      // if (this.reviewId) {
-      //   this.$post('/test/case/review/scenario/case/batch/update/env', param, () => {
-      //     this.$success(this.$t('commons.save_success'));
-      //     this.search();
-      //   })
-      // }
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
@@ -480,7 +467,11 @@ export default {
 /deep/ .el-drawer__header {
   margin-bottom: 0px;
 }
-/deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+
+.ms-select-all-fixed >>> th:nth-child(2) .el-icon-arrow-down {
+  top: -3px;
 }
+/*/deep/ .el-table__fixed-body-wrapper {*/
+/*  top: 59px !important;*/
+/*}*/
 </style>

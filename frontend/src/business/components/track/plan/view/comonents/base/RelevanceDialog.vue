@@ -2,7 +2,7 @@
   <el-dialog :title="title"
              :visible.sync="dialogVisible"
              @close="close"
-             width="60%" v-loading="result.loading"
+             width="75%" v-loading="result.loading"
              :close-on-click-modal="false"
              top="50px" append-to-body>
 

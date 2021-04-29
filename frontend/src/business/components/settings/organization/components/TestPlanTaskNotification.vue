@@ -237,14 +237,14 @@ export default {
 
       if (data.event && data.userIds.length > 0 && data.type) {
         // console.log(data.type)
-        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
+        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT' || data.type === 'LARK') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
           } else {
-            this.addTask(data)
+            this.addTask(data);
           }
         } else {
-          this.addTask(data)
+          this.addTask(data);
         }
       } else {
         this.$warning(this.$t('organization.message.message'));
@@ -315,5 +315,19 @@ export default {
 
 .el-button {
   margin-left: 10px;
+}
+
+/deep/ .el-select .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
+}
+
+/deep/ .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
 }
 </style>

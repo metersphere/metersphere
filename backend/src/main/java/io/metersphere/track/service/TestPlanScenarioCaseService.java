@@ -1,10 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -77,6 +74,9 @@ public class TestPlanScenarioCaseService {
         List<String> ids = request.getIds();
         if(request.getCondition()!=null && request.getCondition().isSelectAll()){
             ids = this.selectIds(request.getCondition());
+            if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
         }
 
         if (CollectionUtils.isEmpty(ids)) {
@@ -91,21 +91,36 @@ public class TestPlanScenarioCaseService {
         testPlanApiScenarioMapper.deleteByExample(example);
     }
 
-    public String run(RunScenarioRequest request) {
-        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-        example.createCriteria().andIdIn(request.getPlanCaseIds());
-        List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
-
-        List<String> scenarioIds = new ArrayList<>();
-        Map<String,String> scenarioIdApiScarionMap = new HashMap<>();
-        for (TestPlanApiScenario apiScenario:
-                testPlanApiScenarioList) {
-            scenarioIds.add(apiScenario.getApiScenarioId());
-            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(),apiScenario.getId());
+    public String run(RunTestPlanScenarioRequest testPlanScenarioRequest) {
+        StringBuilder idStr = new StringBuilder();
+        List<String> planCaseIdList = testPlanScenarioRequest.getPlanCaseIds();
+        if (testPlanScenarioRequest.getCondition() != null && testPlanScenarioRequest.getCondition().isSelectAll()) {
+            planCaseIdList = this.selectIds(testPlanScenarioRequest.getCondition());
+            if (testPlanScenarioRequest.getCondition().getUnSelectIds() != null) {
+                planCaseIdList.removeAll(testPlanScenarioRequest.getCondition().getUnSelectIds());
+            }
         }
+        testPlanScenarioRequest.setPlanCaseIds(planCaseIdList);
+        planCaseIdList.forEach(item -> {
+            idStr.append("\"").append(item).append("\"").append(",");
+        });
+        List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + org.apache.commons.lang3.StringUtils.join(testPlanScenarioRequest.getPlanCaseIds(), ",") + "\"");
+        List<String> scenarioIds = new ArrayList<>();
+        Map<String, String> scenarioIdApiScarionMap = new HashMap<>();
+        for (TestPlanApiScenario apiScenario : testPlanApiScenarioList) {
+            scenarioIds.add(apiScenario.getApiScenarioId());
+            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(), apiScenario.getId());
+        }
+
+        RunScenarioRequest request = new RunScenarioRequest();
         request.setIds(scenarioIds);
+        request.setReportId(testPlanScenarioRequest.getId());
         request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
+        request.setId(testPlanScenarioRequest.getId());
+        request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
+        request.setConfig(testPlanScenarioRequest.getConfig());
         return apiAutomationService.run(request);
     }
 
@@ -167,5 +182,21 @@ public class TestPlanScenarioCaseService {
         });
 
 
+    }
+
+    public List<ApiScenarioDTO> selectAllTableRows(TestPlanScenarioCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ids = this.selectIds(request.getCondition());
+            if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        TestPlanScenarioRequest tableRequest = new TestPlanScenarioRequest();
+        tableRequest.setIds(ids);
+        return extTestPlanScenarioCaseMapper.list(tableRequest);
     }
 }

@@ -64,12 +64,27 @@
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
+        <if test="${condition}.reviewStatus != null">
+            and test_case.review_status
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.reviewStatus"/>
+            </include>
+        </if>
     </sql>
+    <update id="updateTestCaseCustomNumByProjectId">
+        update test_case set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
+    </update>
 
     <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
         as test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
+        and T2.case_id is null
+        <include refid="notInQueryWhereCondition"></include>
+        ORDER BY test_case.update_time DESC
+    </select>
+
+    <sql id="notInQueryWhereCondition">
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -78,11 +93,15 @@
                     <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
-            and T2.case_id is null
+            <if test="request.testCaseContainIds != null and request.testCaseContainIds.size() > 0">
+                and test_case.id not in
+                <foreach collection="request.testCaseContainIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
             <if test="request.name != null">
                 and test_case.name like CONCAT('%', #{request.name},'%')
             </if>
-
             <if test="request.projectId != null">
                 AND test_case.project_id = #{request.projectId}
             </if>
@@ -94,37 +113,14 @@
             </if>
             <include refid="filters"/>
         </where>
-        ORDER BY test_case.update_time DESC
-    </select>
+    </sql>
 
     <select id="getTestCaseByNotInPlan" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
         as test_case
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                    <property name="objectKey" value="request.combine.tags"/>
-                </include>
-            </if>
-            and T2.case_id is null
-            <if test="request.name != null">
-                and test_case.name like CONCAT('%', #{request.name},'%')
-            </if>
-
-            <if test="request.projectId != null">
-                AND test_case.project_id = #{request.projectId}
-            </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                AND test_case.node_id IN
-                <foreach collection="request.nodeIds" open="(" close=")" separator="," item="nodeId">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <include refid="filters"/>
-        </where>
+        and T2.case_id is null
+        <include refid="notInQueryWhereCondition"></include>
         ORDER BY test_case.update_time DESC
     </select>
 
@@ -304,7 +300,8 @@
             <if test="request.name != null">
                 and (test_case.name like CONCAT('%', #{request.name},'%')
                 or test_case.num like CONCAT('%', #{request.name},'%')
-                or test_case.tags like CONCAT('%', #{request.name},'%'))
+                or test_case.tags like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.relevanceCreateTime >0">
                 and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.createTime})
@@ -422,5 +419,21 @@
         from test_case
         <include refid="queryWhereCondition"/>
     </select>
-
+    <select id="getTestCaseByNotInIssue" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        from test_case
+        <include refid="notInQueryWhereCondition"></include>
+    </select>
+    <select id="getTestCaseByIds" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        from test_case
+        <where>
+            test_case.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
 </mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseTemplateMapper">
+
+    <select id="list" resultType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseTemplateMapper.Base_Column_List"/>,
+        <include refid="io.metersphere.base.mapper.TestCaseTemplateMapper.Blob_Column_List"/>
+        from test_case_template tcft
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.name != null">
+                and tcft.name LIKE CONCAT('%', #{request.name}, '%')
+            </if>
+
+            <if test="request.workspaceId != null">
+                and (
+                    tcft.workspace_id = #{request.workspaceId}
+                    or (
+                        tcft.global = 1 and
+                        not exists (
+                            select id
+                            from test_case_template tcft_child
+                            where tcft_child.name = tcft.name and tcft_child.global != 1 and tcft_child.workspace_id = #{request.workspaceId}
+                        )
+                    )
+                )
+            </if>
+
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'type'">
+                                AND tcft.type IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
+
+</mapper>

@@ -194,13 +194,11 @@
         fileList: []
       }
     },
-    activated() {
-      this.selectedPlatform = this.platforms[0];
-    },
     created() {
       this.platforms.push(this.postmanPlanform);
       this.platforms.push(this.swaggerPlanform);
       this.platforms.push(this.harPlanform);
+      this.selectedPlatform = this.platforms[0];
     },
     watch: {
       selectedPlatformValue() {

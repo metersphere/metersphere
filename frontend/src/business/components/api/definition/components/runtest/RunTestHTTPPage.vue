@@ -65,7 +65,7 @@
 
     <!-- 执行组件 -->
     <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData" :env-map="envMap"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
 
   </div>
 </template>
@@ -144,8 +144,14 @@
           }
         })
       },
+      errorRefresh(){
+        this.loading = false;
+      },
       runRefresh(data) {
-        this.responseData = data;
+        this.responseData = {type: 'HTTP', responseResult: {responseCode: ""}, subRequestResults: []};
+        if (data) {
+          this.responseData = data;
+        }
         this.loading = false;
       },
       saveAs() {

@@ -2,10 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.ApiScenarioEnvRequest;
-import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.JmxInfoDTO;
-import io.metersphere.api.dto.ScenarioEnv;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -48,6 +45,18 @@ public class ApiAutomationController {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    @PostMapping("/list/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.listAll(request);
+    }
+
+    @PostMapping("/id/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<String> idAll(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.idAll(request);
+    }
+
     @GetMapping("/list/{projectId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<ApiScenarioDTO> list(@PathVariable String projectId) {
@@ -66,6 +75,7 @@ public class ApiAutomationController {
     public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiAutomationService.update(request, bodyFiles);
     }
+
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         apiAutomationService.delete(id);
@@ -111,6 +121,11 @@ public class ApiAutomationController {
         return apiAutomationService.getApiScenarioProjectId(id);
     }
 
+    @PostMapping("/getApiScenarioProjectIdByConditions")
+    public List<ScenarioIdProjectInfo> getApiScenarioProjectIdByConditions(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.getApiScenarioProjectIdByConditions(request);
+    }
+
     @PostMapping("/getApiScenarios")
     public List<ApiScenarioWithBLOBs> getApiScenarios(@RequestBody List<String> ids) {
         return apiAutomationService.getApiScenarios(ids);
@@ -139,7 +154,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/run/batch")
-    public String runBatcah(@RequestBody RunScenarioRequest request) {
+    public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.SCENARIO.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
@@ -174,7 +189,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/relevance/review")
-    public  void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiAutomationService.relevanceReview(request);
     }
 

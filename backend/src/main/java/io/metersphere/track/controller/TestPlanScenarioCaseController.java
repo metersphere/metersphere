@@ -31,6 +31,11 @@ public class TestPlanScenarioCaseController {
         return PageUtils.setPageInfo(page, testPlanScenarioCaseService.list(request));
     }
 
+    @PostMapping("/selectAllTableRows")
+    public List<ApiScenarioDTO> selectAllTableRows(@RequestBody TestPlanScenarioCaseBatchRequest request) {
+        return testPlanScenarioCaseService.selectAllTableRows(request);
+    }
+
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -51,13 +56,13 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping(value = "/run")
-    public String run(@RequestBody RunScenarioRequest request) {
+    public String run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         return testPlanScenarioCaseService.run(request);
     }
 
     @PostMapping(value = "/jenkins/run")
-    public String runByRun(@RequestBody RunScenarioRequest request) {
+    public String runByRun(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());

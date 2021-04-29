@@ -337,13 +337,15 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getAllNodeByPlanId(QueryNodeRequest request) {
         String planId = request.getTestPlanId();
-        String projectId = request.getProjectId();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan == null) {
             return Collections.emptyList();
         }
+        return getAllNodeByProjectId(request);
+    }
 
-        return getNodeTreeByProjectId(projectId);
+    public List<TestCaseNodeDTO> getAllNodeByProjectId(QueryNodeRequest request) {
+        return getNodeTreeByProjectId(request.getProjectId());
     }
 
     public List<TestCaseNodeDTO> getAllNodeByReviewId(QueryNodeRequest request) {

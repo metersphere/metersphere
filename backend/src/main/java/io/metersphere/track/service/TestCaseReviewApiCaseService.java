@@ -7,8 +7,6 @@ import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.TestCaseReviewApiCase;
 import io.metersphere.base.domain.TestCaseReviewApiCaseExample;
-import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.domain.TestPlanApiCaseExample;
 import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewApiCaseMapper;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -91,11 +89,11 @@ public class TestCaseReviewApiCaseService {
             });
         }
     }
-    public void setExecResult(String id, String status) {
+    public void setExecResult(String id, String status,Long time) {
         TestCaseReviewApiCase apiCase = new TestCaseReviewApiCase();
         apiCase.setId(id);
         apiCase.setStatus(status);
-        apiCase.setUpdateTime(System.currentTimeMillis());
+        apiCase.setUpdateTime(time);
         testCaseReviewApiCaseMapper.updateByPrimaryKeySelective(apiCase);
     }
     public void updateByPrimaryKeySelective(TestCaseReviewApiCase apiCase) {

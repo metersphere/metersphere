@@ -1,10 +1,11 @@
 package io.metersphere.api.jmeter;
 
+
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiScenarioReport;
-import io.metersphere.base.domain.ApiTestReport;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -13,6 +14,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -27,6 +29,7 @@ import org.springframework.http.HttpMethod;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -35,6 +38,8 @@ import java.util.*;
 public class APIBackendListenerClient extends AbstractBackendListenerClient implements Serializable {
 
     public final static String TEST_ID = "ms.test.id";
+
+    public final static String TEST_REPORT_ID = "ms.test.report.name";
 
     private final static String THREAD_SPLIT = " ";
 
@@ -56,12 +61,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private ApiTestCaseService apiTestCaseService;
 
+    private ApiAutomationService apiAutomationService;
+
+    private TestPlanApiCaseService testPlanApiCaseService;
+
     public String runMode = ApiRunMode.RUN.name();
 
     // 测试ID
     private String testId;
 
     private String debugReportId;
+    // 只有合并报告是这个有值
+    private String setReportId;
 
     //获得控制台内容
     private PrintStream oldPrintStream = System.out;
@@ -110,7 +121,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (apiTestCaseService == null) {
             LogUtil.error("apiTestCaseService is required");
         }
-
+        apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+        if (apiAutomationService == null) {
+            LogUtil.error("apiAutomationService is required");
+        }
+        testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+        if (testPlanApiCaseService == null) {
+            LogUtil.error("testPlanApiCaseService is required");
+        }
         super.setupTest(context);
     }
 
@@ -125,6 +143,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
         testResult.setTotal(queue.size());
+        testResult.setSetReportId(this.setReportId);
 
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
@@ -169,6 +188,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;
+        ApiTestReportVariable reportTask = null;
         String reportUrl = null;
         // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
@@ -183,17 +203,65 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
+            ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
+            //环境
+            String name = apiAutomationService.get(debugReportId).getName();
+            //时间
+            Long time = apiTestCaseWithBLOBs.getCreateTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String executionTime = null;
+            String time_ = String.valueOf(time);
+            if (!time_.equals("null")) {
+                executionTime = sdf.format(new Date(Long.parseLong(time_)));
+            }
 
+            //执行人
+            String userName = apiAutomationService.getUser(apiTestCaseWithBLOBs.getCreateUserId()).getName();
+
+            //报告内容
+            reportTask = new ApiTestReportVariable();
+            reportTask.setStatus(apiResult.getStatus());
+            reportTask.setId(apiResult.getId());
+            reportTask.setTriggerMode("API");
+            reportTask.setName(apiTestCaseWithBLOBs.getName());
+            reportTask.setExecutor(userName);
+            reportTask.setExecutionTime(executionTime);
+            reportTask.setExecutionEnvironment(name);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
-            ApiDefinitionExecResult result = new ApiDefinitionExecResult();
-            result = apiDefinitionService.getResultByJenkins(debugReportId, ApiRunMode.API_PLAN.name());
-            report = new ApiTestReport();
-            report.setStatus(result.getStatus());
-            report.setId(result.getId());
-            report.setTriggerMode(ApiRunMode.API.name());
-            report.setName(apiDefinitionService.getApiCaseInfo(testId).getName());
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
+            ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
+            //环境
+            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getInfo(testResult.getTestId(), debugReportId);
+            String name = apiAutomationService.get(testPlanApiCase.getEnvironmentId()).getName();
+            //时间
+            Long time = apiTestCaseWithBLOBs.getCreateTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String executionTime = null;
+            String time_ = String.valueOf(time);
+            if (!time_.equals("null")) {
+                executionTime = sdf.format(new Date(Long.parseLong(time_)));
+            }
+
+            //执行人
+            String userName = apiAutomationService.getUser(apiTestCaseWithBLOBs.getCreateUserId()).getName();
+
+            //报告内容
+            reportTask = new ApiTestReportVariable();
+            if (null != apiResult) {
+                reportTask.setStatus(apiResult.getStatus());
+                reportTask.setId(apiResult.getId());
+            } else {
+                reportTask.setStatus(testPlanApiCase.getStatus());
+                reportTask.setId(testPlanApiCase.getId());
+            }
+            reportTask.setTriggerMode("API");
+            reportTask.setName(apiTestCaseWithBLOBs.getName());
+            reportTask.setExecutor(userName);
+            reportTask.setExecutionTime(executionTime);
+            reportTask.setExecutionEnvironment(name);
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 
@@ -209,22 +277,45 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),ApiRunMode.SCHEDULE_SCENARIO.name())) {
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
+            //环境
+            ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
+            String executionEnvironment = apiScenario.getScenarioDefinition();
+            JSONObject json = JSONObject.parseObject(executionEnvironment);
+            String name = "";
+            if (json.getString("environmentMap").length() > 2) {
+                JSONObject environment = JSONObject.parseObject(json.getString("environmentMap"));
+                String environmentId = environment.get(apiScenario.getProjectId()).toString();
+                name = apiAutomationService.get(environmentId).getName();
+            }
 
-            report = new ApiTestReport();
-            report.setStatus(scenarioReport.getStatus());
-            report.setId(scenarioReport.getId());
-            report.setTriggerMode(scenarioReport.getTriggerMode());
-            report.setName(scenarioReport.getName());
 
+            //时间
+            Long time = scenarioReport.getUpdateTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String executionTime = null;
+            String time_ = String.valueOf(time);
+            if (!time_.equals("null")) {
+                executionTime = sdf.format(new Date(Long.parseLong(time_)));
+            }
+            //执行人
+            String userName = apiAutomationService.getUser(apiScenario.getUserId()).getName();
+            //报告内容
+            reportTask = new ApiTestReportVariable();
+            reportTask.setStatus(scenarioReport.getStatus());
+            reportTask.setId(scenarioReport.getId());
+            reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+            reportTask.setName(scenarioReport.getName());
+            reportTask.setExecutor(userName);
+            reportTask.setExecutionTime(executionTime);
+            reportTask.setExecutionEnvironment(name);
             SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
             assert systemParameterService != null;
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
-
             testResult.setTestId(scenarioReport.getScenarioId());
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
@@ -247,13 +338,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
             }
         }
-        if (report != null && StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())||StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            sendTask(report, reportUrl, testResult);
+        if (reportTask != null) {
+            if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
+                sendTask(reportTask, reportUrl, testResult);
+            }
         }
 
     }
 
-    private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
+    private static void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {
         if (report == null) {
             return;
         }
@@ -270,13 +363,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String subject = "";
         String event = "";
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测）路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            successContext = "接口测试 API任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            failedContext = "接口测试 API任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            successContext = "接口测试定时任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            failedContext = "接口测试定时任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {
@@ -297,6 +390,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("status", report.getStatus());
+        paramMap.put("executor", report.getExecutor());
+        paramMap.put("executionTime", report.getExecutionTime());
+        paramMap.put("executionEnvironment", report.getExecutionEnvironment());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
@@ -394,6 +490,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private void setParam(BackendListenerContext context) {
         this.testId = context.getParameter(TEST_ID);
+        this.setReportId = context.getParameter(TEST_REPORT_ID);
         this.runMode = context.getParameter("runMode");
         this.debugReportId = context.getParameter("debugReportId");
         if (StringUtils.isBlank(this.runMode)) {

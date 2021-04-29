@@ -17,7 +17,9 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
 
-    List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
+    //List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
+
+    List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
     int removeToGc(@Param("ids") List<String> ids);
 
@@ -35,9 +37,13 @@ public interface ExtApiDefinitionMapper {
 
     ApiDefinition getNextNum(@Param("projectId") String projectId);
 
-    List<ApiDefinitionResult> listRelevance(@Param("request")ApiDefinitionRequest request);
-    List<ApiDefinitionResult>  listRelevanceReview(@Param("request")ApiDefinitionRequest request);
+    List<ApiDefinitionResult> listRelevance(@Param("request") ApiDefinitionRequest request);
+
+    List<ApiDefinitionResult> listRelevanceReview(@Param("request") ApiDefinitionRequest request);
+
     List<String> selectIds(@Param("request") BaseQueryRequest query);
 
     List<ApiDefinition> selectEffectiveIdByProjectId(String projectId);
+
+    List<ApiDefinitionResult> listByIds(@Param("ids") List<String> ids);
 }

@@ -1,30 +1,31 @@
 <template>
   <div class="card-container">
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
-                         :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
+    <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+                     :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
 
-          <!-- 不显示 “全部用例” 标题,使标题为空 -->
-          <template v-slot:title>
-            <span></span>
-          </template>
+      <!-- 不显示 “全部用例” 标题,使标题为空 -->
+      <template v-slot:title>
+        <span></span>
+      </template>
 
-          <template v-slot:button>
-            <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom"
-                             :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
-            <ms-table-button :is-tester-permission="true" v-if="showMyTestCase" icon="el-icon-files"
-                             :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
-                             :content="$t('test_track.plan_view.relevance_test_case')"
-                             @click="$emit('openTestCaseRelevanceDialog')"/>
-          </template>
-        </ms-table-header>
+      <template v-slot:button>
+        <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom"
+                         :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
+        <ms-table-button :is-tester-permission="true" v-if="showMyTestCase" icon="el-icon-files"
+                         :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
+        <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
+                         :content="$t('test_track.plan_view.relevance_test_case')"
+                         @click="$emit('openTestCaseRelevanceDialog')"/>
+      </template>
+    </ms-table-header>
 
-      <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
-                     @refresh="initTableData"/>
-      <status-edit ref="statusEdit" :plan-id="planId"
-                   :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
+    <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
+                   @refresh="initTableData"/>
+    <status-edit ref="statusEdit" :plan-id="planId"
+                 :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
-      <el-table
+    <el-table
+        :key="updata"
         ref="table"
         class="test-content adjust-table ms-select-all-fixed"
         border
@@ -35,169 +36,156 @@
         :height="screenHeight"
         row-key="id"
         @row-click="showDetail"
+        style="margin-top: 5px"
         @header-dragend="headerDragend"
         :data="tableData">
 
+      <el-table-column width="50" type="selection"/>
+      <ms-table-header-select-popover v-show="total>0"
+                                      :page-size="pageSize > total ? total : pageSize"
+                                      :total="total"
+                                      @selectPageAll="isSelectDataAll(false)"
+                                      @selectAll="isSelectDataAll(true)"/>
+      <el-table-column width="30" :resizable="false" align="center">
+        <template v-slot:default="scope">
+          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+        </template>
+      </el-table-column>
+      <template v-for="(item, index) in tableLabel">
         <el-table-column
-          type="selection"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize > total ? total : pageSize"
-                                        :total="total"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-        <el-table-column width="30" :resizable="false" align="center">
+          v-if="item.id == 'num'"
+          prop="customNum"
+          sortable="custom"
+          :label="$t('commons.id')"
+          min-width="120px"
+          show-overflow-tooltip
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.id=='name'"
+          prop="name"
+          :label="$t('commons.name')"
+          min-width="120px"
+          :key="index"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
+          v-if="item.id=='priority'"
+          prop="priority"
+          :filters="priorityFilters"
+          column-key="priority"
+          min-width="100px"
+          :key="index"
+          :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+            <priority-table-item :value="scope.row.priority" ref="priority"/>
           </template>
         </el-table-column>
-        <template v-for="(item, index) in tableLabel">
-          <el-table-column
-            v-if="item.id == 'num'"
-            prop="num"
-            sortable="custom"
-            :label="$t('commons.id')"
-            min-width="120px"
-            show-overflow-tooltip
-            :key="index">
-          </el-table-column>
-          <el-table-column
-            v-if="item.id=='name'"
-            prop="name"
-            :label="$t('commons.name')"
-            min-width="120px"
-            :key="index"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            v-if="item.id=='priority'"
-            prop="priority"
-            :filters="priorityFilters"
-            column-key="priority"
-            min-width="100px"
-            :key="index"
-            :label="$t('test_track.case.priority')">
-            <template v-slot:default="scope">
-              <priority-table-item :value="scope.row.priority" ref="priority"/>
-            </template>
-          </el-table-column>
 
-          <el-table-column
-            v-if="item.id=='type'"
-            prop="type"
-            :filters="typeFilters"
-            column-key="type"
-            :label="$t('test_track.case.type')"
-            min-width="80px"
-            :key="index"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <type-table-item :value="scope.row.type"/>
-            </template>
-          </el-table-column>
+        <el-table-column
+          v-if="item.id=='type'"
+          prop="type"
+          :filters="typeFilters"
+          column-key="type"
+          :label="$t('test_track.case.type')"
+          min-width="80px"
+          :key="index"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <type-table-item :value="scope.row.type"/>
+          </template>
+        </el-table-column>
 
-          <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" min-width="120px"
-                           :key="index"
-          >
-            <template v-slot:default="scope">
-                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 0px; margin-right: 2px"/>
-            </template>
-          </el-table-column>
+        <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" min-width="120px"
+                         :key="index"
+        >
+          <template v-slot:default="scope">
+            <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain"
+                    :content="tag" style="margin-left: 0px; margin-right: 2px"/>
+          </template>
+        </el-table-column>
 
-          <el-table-column
-            v-if="item.id=='method'"
-            prop="method"
-            :filters="methodFilters"
-            column-key="method"
-            :label="$t('test_track.case.method')"
-            min-width="100px"
-            :key="index"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <method-table-item :value="scope.row.method"/>
-            </template>
-          </el-table-column>
+        <el-table-column
+          v-if="item.id=='nodePath'"
+          prop="nodePath"
+          :label="$t('test_track.case.module')"
+          min-width="120px"
+          :key="index"
+          show-overflow-tooltip>
+        </el-table-column>
 
-          <el-table-column
-            v-if="item.id=='nodePath'"
-            prop="nodePath"
-            :label="$t('test_track.case.module')"
-            min-width="120px"
-            :key="index"
-            show-overflow-tooltip>
-          </el-table-column>
+        <el-table-column
+          v-if="item.id=='projectName'"
+          prop="projectName"
+          :label="$t('test_track.plan.plan_project')"
+          min-width="120px"
+          :key="index"
+          show-overflow-tooltip>
+        </el-table-column>
 
-          <el-table-column
-            v-if="item.id=='projectName'"
-            prop="projectName"
-            :label="$t('test_track.plan.plan_project')"
-            min-width="120px"
-            :key="index"
-            show-overflow-tooltip>
-          </el-table-column>
-
-          <el-table-column
-            v-if="item.id=='issuesContent'"
-            :label="$t('test_track.issue.issue')"
-            min-width="80px"
-            show-overflow-tooltip
-            :key="index">
-            <template v-slot:default="scope">
-              <el-popover
-                placement="right"
-                width="400"
-                trigger="hover">
-                <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
-                  <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
-                  <el-table-column prop="description" :label="$t('test_track.issue.description')">
-                    <template v-slot:default="scope">
-                      <el-popover
-                        placement="left"
-                        width="400"
-                        trigger="hover"
-                      >
-                        <ckeditor :editor="editor" disabled :config="editorConfig"
-                                  v-model="scope.row.description"/>
-                        <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                      </el-popover>
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
-                </el-table>
-                <el-button slot="reference" type="text">{{ scope.row.issuesSize }}</el-button>
-              </el-popover>
-            </template>
-          </el-table-column>
+        <el-table-column
+          v-if="item.id=='issuesContent'"
+          :label="$t('test_track.issue.issue')"
+          min-width="80px"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <el-popover
+              placement="right"
+              width="400"
+              trigger="hover">
+              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
+                <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
+                <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                  <template v-slot:default="scope">
+                    <el-popover
+                      placement="left"
+                      width="400"
+                      trigger="hover"
+                    >
+                      <ckeditor :editor="editor" disabled :config="editorConfig"
+                                v-model="scope.row.description"/>
+                      <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
+                    </el-popover>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
+              </el-table>
+              <el-button slot="reference" type="text">{{ scope.row.issuesSize }}</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
 
 
-          <el-table-column
-            v-if="item.id == 'executorName'"
-            prop="executorName"
-            :filters="executorFilters"
-            min-width="100px"
-            :key="index"
-            column-key="executor"
-            :label="$t('test_track.plan_view.executor')">
-          </el-table-column>
-          <!-- 责任人(创建该用例时所关联的责任人) -->
-          <el-table-column
-            v-if="item.id == 'maintainer'"
-            prop="maintainer"
-            :filters="maintainerFilters"
-            min-width="100px"
-            :key="index"
-            column-key="maintainer"
-            :label="$t('api_test.definition.request.responsible')">
-          </el-table-column>
+        <el-table-column
+          v-if="item.id == 'executorName'"
+          prop="executorName"
+          :filters="executorFilters"
+          min-width="100px"
+          :key="index"
+          column-key="executor"
+          :label="$t('test_track.plan_view.executor')">
+        </el-table-column>
+        <!-- 责任人(创建该用例时所关联的责任人) -->
+        <el-table-column
+          v-if="item.id == 'maintainer'"
+          prop="maintainer"
+          :filters="maintainerFilters"
+          min-width="100px"
+          :key="index"
+          column-key="maintainer"
+          :label="$t('api_test.definition.request.responsible')">
+        </el-table-column>
 
-          <el-table-column
-            v-if="item.id == 'status'"
-            prop="status"
-            :filters="statusFilters"
-            column-key="status"
-            min-width="100px"
-            :key="index"
-            :label="$t('test_track.plan_view.execute_result')">
-            <template v-slot:default="scope">
+        <el-table-column
+          v-if="item.id == 'status'"
+          prop="status"
+          :filters="statusFilters"
+          column-key="status"
+          min-width="100px"
+          :key="index"
+          :label="$t('test_track.plan_view.execute_result')">
+          <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
               <el-dropdown class="test-case-status" @command="statusChange">
                 <span class="el-dropdown-link">
@@ -221,51 +209,51 @@
                 </el-dropdown-menu>
               </el-dropdown>
             </span>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            v-if="item.id == 'updateTime'"
-
-            sortable
-            prop="updateTime"
-            :label="$t('commons.update_time')"
-            min-width="120px"
-            :key="index"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-        </template>
-        <el-table-column
-          fixed="right"
-          min-width="100"
-          :label="$t('commons.operating')">
-          <template slot="header">
-            <header-label-operate @exec="customHeader"/>
-          </template>
-          <template v-slot:default="scope">
-            <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
-                                      @exec="handleEdit(scope.row)"/>
-            <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
-                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
-      </el-table>
-      <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
-                     :type=type></header-custom>
-      <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
 
-      <functional-test-case-edit
-        ref="testPlanTestCaseEdit"
-        :search-param.sync="condition"
-        @refresh="initTableData"
-        :is-read-only="isReadOnly"
-        @refreshTable="search"/>
+        <el-table-column
+          v-if="item.id == 'updateTime'"
 
-<!--    </el-card>-->
+          sortable
+          prop="updateTime"
+          :label="$t('commons.update_time')"
+          min-width="120px"
+          :key="index"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+      </template>
+      <el-table-column
+        fixed="right"
+        min-width="100"
+        :label="$t('commons.operating')">
+        <template slot="header">
+          <header-label-operate @exec="customHeader"/>
+        </template>
+        <template v-slot:default="scope">
+          <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
+                                    @exec="handleEdit(scope.row)"/>
+          <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
+                                    icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+        </template>
+      </el-table-column>
+    </el-table>
+    <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
+                   :type=type></header-custom>
+    <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                         :total="total"/>
+
+    <functional-test-case-edit
+      ref="testPlanTestCaseEdit"
+      :search-param.sync="condition"
+      @refresh="initTableData"
+      :is-read-only="isReadOnly"
+      @refreshTable="search"/>
+
+    <!--    </el-card>-->
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
@@ -284,12 +272,11 @@ import NodeBreadcrumb from '../../../../common/NodeBreadcrumb';
 import {
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
-  TEST_CASE_LIST,
   TEST_PLAN_FUNCTION_TEST_CASE,
   TokenKey,
   WORKSPACE_ID
 } from "@/common/js/constants";
-import {checkoutTestManagerOrTestUser, getCurrentUser, hasRoles} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
@@ -308,6 +295,7 @@ import {
   _handleSelectAll,
   _sort,
   buildBatchParam,
+  deepClone,
   getLabel,
   getSelectDataCounts,
   initCondition,
@@ -332,13 +320,14 @@ export default {
     StatusTableItem,
     PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
     MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
-    BatchEdit, MsTag,MsTableHeaderSelectPopover
+    BatchEdit, MsTag, MsTableHeaderSelectPopover
   },
   data() {
     return {
+      updata: false,
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
-      screenHeight: document.documentElement.clientHeight-365,
+      screenHeight: 'calc(100vh - 330px)',
       tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
@@ -409,7 +398,7 @@ export default {
       },
       selectDataCounts: 0,
       selectDataRange: "all"
-    }
+    };
   },
   props: {
     planId: {
@@ -426,6 +415,12 @@ export default {
     },
     selectNodeIds() {
       this.search();
+    },
+    tableLabel: {
+      handler(newVal) {
+        this.updata = !this.updata;
+      },
+      deep: true
     }
   },
   mounted() {
@@ -443,7 +438,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
 
     initTableData() {
@@ -486,7 +482,7 @@ export default {
                   description: '获取缺陷失败',
                   platform: '获取缺陷失败'
                 }]);
-              })
+              });
             }
           }
           this.selectRows.clear();
@@ -496,7 +492,7 @@ export default {
 
           this.$nextTick(() => {
             this.checkTableRowIsSelect();
-          })
+          });
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
@@ -566,13 +562,13 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             if (this.selectRows.size > 0) {
-              if(this.condition.selectAll){
+              if (this.condition.selectAll) {
                 let param = buildBatchParam(this);
                 this.$post('/test/plan/case/idList/all', param, res => {
                   let ids = res.data;
                   this._handleBatchDelete(ids);
-                })
-              }else {
+                });
+              } else {
                 let ids = Array.from(this.selectRows).map(row => row.id);
                 this._handleBatchDelete(ids);
               }
@@ -588,7 +584,7 @@ export default {
                 let data = res.data;
                 let ids = data.map(d => d.id);
                 this._handleBatchDelete(ids);
-              })
+              });
             }
           }
         }
@@ -701,7 +697,7 @@ export default {
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.valueArr.executor = response.data;
         this.executorFilters = response.data.map(u => {
-          return {text: u.name, value: u.id}
+          return {text: u.name, value: u.id};
         });
         this.maintainerFilters = response.data.map(u => {
           return {text: u.id + '(' + u.name + ')', value: u.id};
@@ -728,7 +724,7 @@ export default {
               this.selectRows.delete(row);
             }
           }
-        })
+        });
       }
     },
     isSelectDataAll(data) {
@@ -743,13 +739,10 @@ export default {
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
   }
-}
+};
 </script>
 
 <style scoped>
-.ms-table-header {
-  margin: 20px;
-}
 
 .search {
   margin-left: 10px;

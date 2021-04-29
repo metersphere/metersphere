@@ -78,6 +78,9 @@ export default {
 				this.$emit('update', 'week', '*');
 				this.$emit('update', 'year', '*');
 			} else {
+        if (this.radioValue !== 2) {
+          this.$emit('update', 'day', '?', 'week');
+        }
 				if (this.cron.mouth === '*') {
 					this.$emit('update', 'mouth', '1', 'week');
 				}

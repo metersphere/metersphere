@@ -1,6 +1,6 @@
 <template>
-  <el-dialog :title="$t('api_test.automation.step_total')" :close-on-click-modal="false"
-             :visible.sync="visible" class="visible-dialog" width="60%"
+  <el-dialog :title="$t('api_test.automation.scenario_total')" :close-on-click-modal="false"
+             :visible.sync="visible" class="visible-dialog" width="80%"
              @close="close" v-loading="loading" append-to-body>
     <fieldset :disabled="disabled" class="ms-fieldset">
       <el-collapse-transition>
@@ -42,13 +42,15 @@
               <el-row>
                 <el-col :span="12">
                   <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
-                    <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select"
+                    <el-table ref="table" border :data="variables" class="adjust-table" :row-class-name="tableRowClassName"
+                              @select-all="select"
                               @select="select"
-                              v-loading="loading" @row-click="edit" height="400px" :row-class-name="tableRowClassName">
+                              @row-click="edit"
+                              v-loading="loading" height="400px">
                       <el-table-column type="selection" width="38"/>
-                      <el-table-column prop="num" label="ID" sortable/>
+                      <el-table-column prop="num" label="ID" sortable width="60"/>
                       <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
-                      <el-table-column prop="type" :label="$t('test_track.case.type')">
+                      <el-table-column prop="type" :label="$t('test_track.case.type')" width="70">
                         <template v-slot:default="scope">
                           <span>{{ types.get(scope.row.type) }}</span>
                         </template>
@@ -192,6 +194,9 @@
         this.addParameters(this.editData);
       },
       edit(row) {
+        this.$refs.table.clearSelection();
+        this.$refs.table.toggleRowSelection(row);
+        this.selection = [row.id];
         this.editData = row;
       },
       tableRowClassName(row) {
@@ -257,6 +262,7 @@
           this.variables.splice(index, 1);
         })
         this.selection = [];
+        this.editData = {type: "CONSTANT"};
       },
       filter() {
         let datas = [];

@@ -222,7 +222,7 @@
 							//获取当前日期是属于星期几
 							let thisWeek = this.formatDate(new Date(YY + '-' + MM + '-' + DD + ' 00:00:00'), 'week');
 							//校验当前星期是否在星期池（dayRuleSup）中
-							if (Array.indexOf(this.dayRuleSup, thisWeek) < 0) {
+							if (this.dayRuleSup.indexOf(thisWeek) < 0) {
 								// 如果到达最大值时
 								if (Di == DDate.length - 1) {
 									resetDay();

@@ -11,6 +11,8 @@ public class TestCaseExcelData {
     @ExcelIgnore
     private Integer num;
     @ExcelIgnore
+    private String customNum;
+    @ExcelIgnore
     private String name;
     @ExcelIgnore
     private String nodePath;
@@ -32,4 +34,6 @@ public class TestCaseExcelData {
     private String stepDesc;
     @ExcelIgnore
     private String stepResult;
+    @ExcelIgnore
+    private String stepModel;
 }

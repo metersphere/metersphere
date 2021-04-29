@@ -36,8 +36,17 @@
       <template v-for="(item, index) in tableLabel">
 
         <el-table-column
-          v-if="item.id == 'num'"
+          v-if="item.id === 'num' && !customNum"
           prop="num"
+          sortable="custom"
+          :label="$t('commons.id')"
+          :key="index"
+          width="80"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
+          v-if="item.id === 'num' && customNum"
+          prop="customNum"
           sortable="custom"
           :label="$t('commons.id')"
           :key="index"
@@ -238,9 +247,9 @@ export default {
         {text: this.$t('commons.api'), value: 'api'}
       ],
       reviewStatusFilters: [
-        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
-        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+        {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.review.pass'), value: 'Pass'},
+        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
       ],
       statusFilters: [
         {text: '未开始', value: 'Prepare'},
@@ -293,6 +302,10 @@ export default {
     trashEnable: {
       type: Boolean,
       default: false,
+    },
+    customNum: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

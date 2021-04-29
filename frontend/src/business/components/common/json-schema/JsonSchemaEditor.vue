@@ -81,6 +81,7 @@
       jsonData(data) {
         let obj = {"root": data}
         this.schema = obj;
+        this.body.jsonSchema = this.schema.root
       }
     }
   }

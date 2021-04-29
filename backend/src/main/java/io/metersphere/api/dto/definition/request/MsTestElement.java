@@ -5,9 +5,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
@@ -24,11 +21,10 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
@@ -50,6 +46,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -108,6 +105,8 @@ public abstract class MsTestElement {
     private boolean customizeReq;
     @JSONField(ordinal = 12)
     private String projectId;
+    @JSONField(ordinal = 13)
+    private boolean isMockEnvironment;
 
     private MsTestElement parent;
 
@@ -153,24 +152,6 @@ public abstract class MsTestElement {
         return jmeterTestPlanHashTree;
     }
 
-    public void getRefElement(MsTestElement element) {
-        try {
-            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
-            if (apiDefinition != null) {
-                element.setProjectId(apiDefinition.getProjectId());
-                element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
-                });
-                hashTree.add(element);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LogUtil.error(ex.getMessage());
-        }
-    }
-
     public Arguments addArguments(ParameterConfig config) {
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
@@ -193,11 +174,16 @@ public abstract class MsTestElement {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
+            if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                isMockEnvironment = true;
+            }
             // 单独接口执行
             Map<String, EnvironmentConfig> map = new HashMap<>();
             map.put(this.getProjectId(), JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             return map;
         }
+
+
         return null;
     }
 
@@ -220,6 +206,7 @@ public abstract class MsTestElement {
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setRecycle(true);
+                    //csvDataSet.setProperty("shareMode","shareMode.group");
                     csvDataSet.setProperty("recycle", true);
                     csvDataSet.setProperty("delimiter", item.getDelimiter());
                     csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
@@ -300,6 +287,22 @@ public abstract class MsTestElement {
             return fullPath + "<->" + parent.getName();
         }
         return "";
+    }
+
+    public boolean isURL(String str) {
+        try {
+            if (StringUtils.isEmpty(str)) {
+                return false;
+            }
+            new URL(str);
+            return true;
+        } catch (Exception e) {
+            // 支持包含变量的url
+            if (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$")) {
+                return true;
+            }
+            return false;
+        }
     }
 }
 

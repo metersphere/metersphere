@@ -2,15 +2,30 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.HttpConfig;
+import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -92,6 +107,44 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
+    private void setRefElement() {
+        try {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            MsHTTPSamplerProxy proxy = null;
+            if (StringUtils.equals(this.getRefType(), "CASE")) {
+                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
+                if (bloBs != null) {
+                    this.setProjectId(bloBs.getProjectId());
+                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    });
+                    this.setName(bloBs.getName());
+                }
+            } else {
+                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+                if (apiDefinition != null) {
+                    this.setName(apiDefinition.getName());
+                    this.setProjectId(apiDefinition.getProjectId());
+                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    });
+                }
+            }
+            if (proxy != null) {
+                this.setHashTree(proxy.getHashTree());
+                this.setMethod(proxy.getMethod());
+                this.setBody(proxy.getBody());
+                this.setRest(proxy.getRest());
+                this.setArguments(proxy.getArguments());
+                this.setHeaders(proxy.getHeaders());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
+        }
+    }
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         // 非导出操作，且不是启用状态则跳过执行
@@ -99,7 +152,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.getRefElement(this);
+            this.setRefElement();
+            hashTree = this.getHashTree();
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(this.isEnable());
@@ -128,7 +182,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 数据兼容处理
-        if(config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())){
+        if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
             // 1.8 之后 当前正常数据
         } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
             // 1.8 前后 混合数据
@@ -147,20 +201,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
         }
-
-        // 添加环境中的公共变量
-        Arguments arguments = this.addArguments(config);
-        if (arguments != null) {
-            tree.add(ParameterConfig.valueSupposeMock(arguments));
-        }
         try {
             if (config.isEffective(this.getProjectId())) {
-                String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
+                if (httpConfig == null && !isURL(this.getUrl())) {
+                    MSException.throwException("未匹配到环境，请检查环境配置");
+                }
+                String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
-                boolean isUrl = false;
-                if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
+                boolean isUrl;
+                if (isUrl = (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl()))) {
                     url = this.getUrl();
-                    isUrl = true;
                 }
                 if (isUrl) {
                     if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
@@ -177,15 +228,30 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProtocol(urlObject.getProtocol());
                     sampler.setPath(urlObject.getPath());
                 } else {
-                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
-                    url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    //1.9 增加对Mock环境的判断
+                    if (this.isMockEnvironment()) {
+                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                    } else {
+                        if (httpConfig.isMock()) {
+                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                        } else {
+                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                        }
+
+                    }
                     URL urlObject = new URL(url);
                     String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                     if (StringUtils.isNotBlank(this.getPath())) {
                         envPath += this.getPath();
                     }
-                    sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
-                    sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
+                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                        sampler.setDomain(httpConfig.getDomain());
+                        sampler.setProtocol(httpConfig.getProtocol());
+                    } else {
+                        sampler.setDomain("");
+                        sampler.setProtocol("");
+                    }
+                    sampler.setPort(httpConfig.getPort());
                     sampler.setPath(envPath);
                 }
                 String envPath = sampler.getPath();
@@ -202,7 +268,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         String port = sampler.getPort() != 80 ? ":" + sampler.getPort() : "";
                         path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
-                    sampler.setPath(path);
+                    sampler.setProperty("HTTPSampler.path", path);
                 }
             } else {
                 String url = this.getUrl();
@@ -233,14 +299,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         } catch (Exception e) {
             LogUtil.error(e);
-        }
-        // REST参数
-        if (CollectionUtils.isNotEmpty(this.getRest())) {
-            sampler.setArguments(httpArguments(this.getRest()));
-        }
-        // 请求参数
-        if (CollectionUtils.isNotEmpty(this.getArguments())) {
-            sampler.setArguments(httpArguments(this.getArguments()));
+            MSException.throwException(e.getMessage());
         }
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
@@ -268,6 +327,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
         }
 
+        // 环境通用请求头
+        Arguments arguments = getConfigArguments(config);
+        if (arguments != null) {
+            httpSamplerTree.add(arguments);
+        }
         //判断是否要开启DNS
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
@@ -298,7 +362,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private String getParentProjectId() {
         MsTestElement parent = this.getParent();
-        while(parent != null) {
+        while (parent != null) {
             if (StringUtils.isNotBlank(parent.getProjectId())) {
                 return parent.getProjectId();
             }
@@ -378,17 +442,113 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
     }
 
-    public boolean isURL(String str) {
-        try {
-            new URL(str);
-            return true;
-        } catch (Exception e) {
-            // 支持包含变量的url
-            if (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$")) {
-                return true;
+    /**
+     * 按照环境规则匹配环境
+     *
+     * @param httpConfig
+     * @return
+     */
+    private HttpConfig getHttpConfig(HttpConfig httpConfig, HashTree tree) {
+        boolean isNext = true;
+        if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
+            for (HttpConfigCondition item : httpConfig.getConditions()) {
+                if (item.getType().equals(ConditionType.PATH.name())) {
+                    HttpConfig config = httpConfig.getPathCondition(this.getPath(), item);
+                    if (config != null) {
+                        isNext = false;
+                        httpConfig = config;
+                        break;
+                    }
+                } else if (item.getType().equals(ConditionType.MODULE.name())) {
+                    ApiDefinition apiDefinition;
+                    ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+                    ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                    if (StringUtils.isNotEmpty(this.getReferenced()) && this.getReferenced().equals("REF") && StringUtils.isNotEmpty(this.getRefType()) && this.getRefType().equals("CASE")) {
+                        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(this.getId());
+                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                    } else {
+                        apiDefinition = apiDefinitionService.get(this.getId());
+                        if (apiDefinition == null) {
+                            TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                            if (testPlanApiCase != null) {
+                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                if (caseWithBLOBs != null) {
+                                    apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                                }
+                            }
+                        }
+                    }
+                    if (apiDefinition != null) {
+                        HttpConfig config = httpConfig.getModuleCondition(apiDefinition.getModuleId(), item);
+                        if (config != null) {
+                            isNext = false;
+                            httpConfig = config;
+                            break;
+                        }
+                    }
+                }
             }
-            return false;
+            if (isNext) {
+                for (HttpConfigCondition item : httpConfig.getConditions()) {
+                    if (item.getType().equals(ConditionType.NONE.name())) {
+                        httpConfig = httpConfig.initHttpConfig(item);
+                        break;
+                    }
+                }
+            }
         }
+        // HTTP 环境中请求头
+        if (httpConfig != null) {
+            Arguments arguments = arguments(httpConfig.getHeaders());
+            if (arguments != null) {
+                tree.add(ParameterConfig.valueSupposeMock(arguments));
+            }
+        }
+        return httpConfig;
+    }
+
+    /**
+     * 环境通用变量，这里只适用用接口定义和用例，场景自动化会加到场景中
+     */
+    private Arguments getConfigArguments(ParameterConfig config) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        // 环境通用变量
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
+    }
+
+    private Arguments arguments(List<KeyValue> headers) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+
+        // HTTP放到请求中，按照域名匹配
+        if (CollectionUtils.isNotEmpty(headers)) {
+            headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
     private boolean isRest() {

@@ -11,6 +11,7 @@ import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.RunBatchTestPlanRequest;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +42,11 @@ public class TestPlanLoadCaseController {
         return PageUtils.setPageInfo(page, testPlanLoadCaseService.list(request));
     }
 
+    @PostMapping("/selectAllTableRows")
+    public List<TestPlanLoadCaseDTO> selectAllTableRows(@RequestBody LoadCaseReportBatchRequest request) {
+        return testPlanLoadCaseService.selectAllTableRows(request);
+    }
+
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         testPlanLoadCaseService.delete(id);
@@ -49,6 +55,11 @@ public class TestPlanLoadCaseController {
     @PostMapping("/run")
     public String run(@RequestBody RunTestPlanRequest request) {
         return testPlanLoadCaseService.run(request);
+    }
+
+    @PostMapping("/run/batch")
+    public void runBatch(@RequestBody RunBatchTestPlanRequest request) {
+        testPlanLoadCaseService.runBatch(request);
     }
 
     @PostMapping("/report/exist")
@@ -64,5 +75,10 @@ public class TestPlanLoadCaseController {
     @PostMapping("/update")
     public void update(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.update(testPlanLoadCase);
+    }
+
+    @PostMapping("/update/api")
+    public void updateByApi(@RequestBody TestPlanLoadCase testPlanLoadCase) {
+        testPlanLoadCaseService.updateByApi(testPlanLoadCase);
     }
 }

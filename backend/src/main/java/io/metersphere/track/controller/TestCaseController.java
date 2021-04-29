@@ -92,10 +92,16 @@ public class TestCaseController {
         return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
-    @PostMapping("/name/{goPage}/{pageSize}")
-    public Pager<List<TestCase>> getTestCaseNames(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+    @PostMapping("/relate/{goPage}/{pageSize}")
+    public Pager<List<TestCase>> getTestCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page,testCaseService.getTestCaseNames(request));
+        return PageUtils.setPageInfo(page,testCaseService.getTestCaseRelateList(request));
+    }
+
+    @PostMapping("/relate/issue/{goPage}/{pageSize}")
+    public Pager<List<TestCaseDTO>> getTestCaseIssueRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page,testCaseService.getTestCaseIssueRelateList(request));
     }
 
     @PostMapping("/reviews/case/{goPage}/{pageSize}")

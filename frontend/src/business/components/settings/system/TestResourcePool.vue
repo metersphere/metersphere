@@ -48,12 +48,12 @@
     <el-dialog
       :close-on-click-modal="false"
       :title="form.id ? $t('test_resource_pool.update_resource_pool') : $t('test_resource_pool.create_resource_pool')"
-      :visible.sync="dialogVisible" width="70%"
+      :visible.sync="dialogVisible" width="80%"
       @closed="closeFunc"
       :destroy-on-close="true"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="130px" size="small" :rules="rule"
                ref="testResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -64,10 +64,10 @@
         <el-form-item :label="$t('commons.image')" prop="image">
           <el-input v-model="form.image"/>
         </el-form-item>
-        <el-form-item label="Jmeter HEAP" prop="HEAP">
+        <el-form-item label="JMeter HEAP" prop="HEAP">
           <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
         </el-form-item>
-        <el-form-item label="Jmeter GC_ALGO" prop="GC_ALGO">
+        <el-form-item label="JMeter GC_ALGO" prop="GC_ALGO">
           <el-input v-model="form.gcAlgo" placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
         </el-form-item>
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
@@ -127,15 +127,19 @@
           </div>
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
-              <el-col :span="8">
+              <el-col :span="6">
                 <el-form-item label="IP" :rules="requiredRules">
                   <el-input v-model="item.ip" autocomplete="off"/>
                 </el-form-item>
               </el-col>
-              <el-col :span="6">
-                <el-form-item label="Port" style="padding-left: 20px"
-                              :rules="requiredRules">
+              <el-col :span="4">
+                <el-form-item label="Port" label-width="60px" :rules="requiredRules">
                   <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
+                </el-form-item>
+              </el-col>
+              <el-col :span="4">
+                <el-form-item label="Monitor" label-width="100px" :rules="requiredRules">
+                  <el-input-number v-model="item.monitorPort" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
@@ -217,8 +221,12 @@ export default {
         type: [
           {required: true, message: this.$t('test_resource_pool.select_pool_type'), trigger: 'blur'}
         ]
+      },
+      updatePool: {
+        testName: '',
+        haveTestUsePool: false
       }
-    }
+    };
   },
   activated() {
     this.initTableData();
@@ -230,7 +238,7 @@ export default {
         let data = response.data;
         this.items = data.listObject;
         this.total = data.itemCount;
-      })
+      });
     },
     changeResourceType(type) {
       this.infoList = [];
@@ -238,6 +246,7 @@ export default {
       if (type === 'NODE') {
         info.ip = '';
         info.port = '8082';
+        info.monitorPort = '9100';
       }
       if (type === 'K8S') {
         info.masterUrl = '';
@@ -250,18 +259,18 @@ export default {
     },
 
     addResourceInfo() {
-      this.infoList.push({})
+      this.infoList.push({});
     },
     removeResourceInfo(index) {
       if (this.infoList.length > 1) {
-        this.infoList.splice(index, 1)
+        this.infoList.splice(index, 1);
       } else {
-        this.$warning(this.$t('test_resource_pool.cannot_remove_all_node'))
+        this.$warning(this.$t('test_resource_pool.cannot_remove_all_node'));
       }
     },
     validateResourceInfo() {
       if (this.infoList.length <= 0) {
-        return {validate: false, msg: this.$t('test_resource_pool.cannot_empty')}
+        return {validate: false, msg: this.$t('test_resource_pool.cannot_empty')};
       }
       let resourcePoolType = this.form.type;
       let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
@@ -278,7 +287,7 @@ export default {
         }
 
         if (!info.maxConcurrency) {
-          resultValidate.validate = false
+          resultValidate.validate = false;
           return false;
         }
         if (resourcePoolType === 'K8S' && info.nodeSelector) {
@@ -313,9 +322,10 @@ export default {
       if (this.form.resources) {
         this.form.resources.forEach(function (resource) {
           let configuration = JSON.parse(resource.configuration);
-          configuration.id = resource.id
+          configuration.id = resource.id;
+          configuration.monitorPort = configuration.monitorPort || '9100';
           resources.push(configuration);
-        })
+        });
       }
       this.infoList = resources;
     },
@@ -355,7 +365,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
     },
     convertSubmitResources() {
       let resources = [];
@@ -402,6 +412,40 @@ export default {
     changeSwitch(row) {
       this.result.loading = true;
       this.$info(this.$t('test_resource_pool.check_in'), 1000);
+      if (row.status === 'VALID') {
+        this.updatePoolStatus(row);
+        return false;
+      }
+      // 禁用时检查是否有正在使用该资源池的性能测试
+      if (row.status === 'INVALID') {
+        this.checkHaveTestUsePool(row).then(() => {
+          if (this.updatePool && this.updatePool.haveTestUsePool) {
+            this.$confirm(this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), this.$t('commons.prompt'), {
+              confirmButtonText: this.$t('commons.confirm'),
+              cancelButtonText: this.$t('commons.cancel'),
+              type: 'warning'
+            }).then(() => {
+              this.updatePoolStatus(row);
+            }).catch(() => {
+              row.status = 'VALID';
+              this.result.loading = false;
+              this.$info(this.$t('commons.cancel'));
+            });
+          } else {
+            this.updatePoolStatus(row);
+          }
+        })
+      }
+    },
+    checkHaveTestUsePool(row) {
+      return new Promise((resolve) => {
+        this.$get('/testresourcepool/check/use/' + row.id, result => {
+          this.updatePool = result.data;
+          resolve();
+        })
+      });
+    },
+    updatePoolStatus(row) {
       this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
         .then(() => {
           this.$success(this.$t('test_resource_pool.status_change_success'));
@@ -410,7 +454,7 @@ export default {
         this.$error(this.$t('test_resource_pool.status_change_failed'));
         row.status = 'INVALID';
         this.result.loading = false;
-      })
+      });
     },
     isJsonString(str) {
       try {
@@ -423,7 +467,7 @@ export default {
       return false;
     }
   }
-}
+};
 </script>
 
 <style scoped>

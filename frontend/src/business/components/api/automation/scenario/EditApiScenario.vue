@@ -120,13 +120,13 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                   <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">
-                    <el-button :disabled="scenarioDefinition.length < 1" size="mini"  icon ="el-icon-refresh" v-prevent-re-click @click="getApiScenario"></el-button>
+                    <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh" v-prevent-re-click @click="getApiScenario"></el-button>
                   </el-tooltip>
                   <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
                 </el-col>
@@ -134,13 +134,19 @@
             </div>
             <!-- 场景步骤内容 -->
             <div>
+              <el-button class="el-icon-files ms-open-btn ms-open-btn-left" size="mini" v-prevent-re-click @click="openExpansion">
+                {{$t('api_test.automation.open_expansion')}}
+              </el-button>
+              <el-button class=" el-icon-notebook-1 ms-open-btn" size="mini" @click="closeExpansion">
+                {{$t('api_test.automation.close_expansion')}}
+              </el-button>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
@@ -203,10 +209,11 @@
       <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
 
       <!--步骤最大化-->
-      <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
+      <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds.sync="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
+                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare"
+                           ref="maximizeHeader"/>
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
@@ -232,7 +239,7 @@
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
   import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
-  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
   import MsApiReportDetail from "../report/ApiReportDetail";
@@ -325,7 +332,11 @@
         projectList: [],
         debugResult: new Map,
         drawer: false,
-        isFullUrl: true
+        isFullUrl: true,
+        expandedStatus: false,
+        envResult: {
+          loading: false
+        }
       }
     },
     created() {
@@ -597,6 +608,7 @@
       recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
+          arr[i].active = this.expandedStatus;
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
@@ -623,6 +635,7 @@
         for (let i in this.scenarioDefinition) {
           // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
+          this.scenarioDefinition[i].active = this.expandedStatus;
           // 设置循环控制
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {
@@ -658,7 +671,6 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -681,7 +693,6 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       setApiParameter(item, refType, referenced) {
         let request = {};
@@ -723,7 +734,6 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -750,7 +760,6 @@
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
-              // this.initProjectIds();
             }
           }
         });
@@ -778,9 +787,6 @@
         this.$nextTick(() => {
           this.loading = false
         });
-        // let definition = JSON.parse(JSON.stringify(this.currentScenario));
-        // definition.hashTree = this.scenarioDefinition;
-        // this.getEnv(JSON.stringify(definition));
       },
       runDebug() {
         /*触发执行操作*/
@@ -871,15 +877,11 @@
           this.reload();
         }
       },
-      nodeExpand(data) {
-        if (data.resourceId) {
-          this.expandedNode.push(data.resourceId);
-        }
+      nodeExpand(data, node) {
+        node.expanded = true;
       },
-      nodeCollapse(data) {
-        if (data.resourceId) {
-          this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
-        }
+      nodeCollapse(data,node) {
+        node.expanded = false;
       },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
@@ -1036,6 +1038,13 @@
                     this.currentScenario.headers = obj.headers;
                   }
                   this.enableCookieShare = obj.enableCookieShare;
+                  if (obj.hashTree) {
+                    obj.hashTree.forEach(item => {
+                      if (!item.hashTree) {
+                        item.hashTree = [];
+                      }
+                    });
+                  }
                   this.scenarioDefinition = obj.hashTree;
                 }
               }
@@ -1045,8 +1054,6 @@
             }
             this.loading = false;
             this.sort();
-            // this.initProjectIds();
-            // this.getEnvironments();
           })
         }
       },
@@ -1115,18 +1122,7 @@
         })
       },
       refReload() {
-        // this.initProjectIds();
         this.reload();
-      },
-      initProjectIds() {
-        // // 加载环境配置
-        // this.$nextTick(() => {
-        //   this.projectIds.clear();
-        //   this.scenarioDefinition.forEach(data => {
-        //     let arr = jsonPath.query(data, "$..projectId");
-        //     arr.forEach(a => this.projectIds.add(a));
-        //   })
-        // })
       },
       detailRefresh(result) {
         // 把执行结果分发给各个请求
@@ -1146,9 +1142,49 @@
       showPopover() {
         let definition = JSON.parse(JSON.stringify(this.currentScenario));
         definition.hashTree = this.scenarioDefinition;
+        this.envResult.loading = true;
         this.getEnv(JSON.stringify(definition)).then(() => {
           this.$refs.envPopover.openEnvSelect();
+          this.envResult.loading = false;
         })
+      },
+      shrinkTreeNode() {
+        //改变每个节点的状态
+        for (let i in this.scenarioDefinition) {
+          if (this.scenarioDefinition[i]) {
+            if (this.expandedStatus) {
+              this.expandedNode.push(this.scenarioDefinition[i].resourceId);
+            }
+            this.scenarioDefinition[i].active = this.expandedStatus;
+            if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
+              this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
+            }
+          }
+        }
+      },
+      changeNodeStatus(nodes) {
+        for (let i in nodes) {
+          if (nodes[i]) {
+            if (this.expandedStatus) {
+              this.expandedNode.push(nodes[i].resourceId);
+            }
+            nodes[i].active = this.expandedStatus;
+            if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
+              this.changeNodeStatus(nodes[i].hashTree);
+            }
+          }
+        }
+      },
+      openExpansion() {
+        this.expandedNode = [];
+        this.expandedStatus = true;
+        this.shrinkTreeNode();
+      },
+      closeExpansion() {
+        this.expandedStatus = false;
+        this.expandedNode = [];
+        this.shrinkTreeNode();
+        this.reload();
       }
     }
   }
@@ -1308,5 +1344,16 @@
     vertical-align: middle;
     white-space: nowrap;
     width: 200px;
+  }
+
+  .ms-open-btn {
+    margin: 5px 5px 0px;
+    font-size: 10px;
+    background-color: #F2F9EE;
+    color: #67C23A;
+  }
+
+  .ms-open-btn-left {
+    margin-left: 30px;
   }
 </style>

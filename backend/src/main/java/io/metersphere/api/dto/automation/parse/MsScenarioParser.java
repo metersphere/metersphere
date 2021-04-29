@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.automation.parse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
@@ -63,6 +64,15 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         List<ApiScenarioWithBLOBs> data = apiDefinitionImport.getData();
         if (CollectionUtils.isNotEmpty(data)) {
             data.forEach(item -> {
+                String scenarioDefinitionStr = item.getScenarioDefinition();
+                if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
+                    JSONObject scenarioDefinition = JSONObject.parseObject(scenarioDefinitionStr);
+                    if (scenarioDefinition != null) {
+                        JSONArray hashTree = scenarioDefinition.getJSONArray("hashTree");
+                        setCopy(hashTree);
+                        item.setScenarioDefinition(JSONObject.toJSONString(scenarioDefinition));
+                    }
+                }
                 if (StringUtils.isBlank(item.getModulePath())) {
                     item.setApiScenarioModuleId(null);
                 }
@@ -72,6 +82,19 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
             });
         }
         return apiDefinitionImport;
+    }
+
+    private void setCopy(JSONArray hashTree) {
+        // 将引用转成复制
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (int i = 0; i < hashTree.size(); i++) {
+                JSONObject object = (JSONObject) hashTree.get(i);
+                object.put("referenced", "Copy");
+                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                    setCopy(object.getJSONArray("hashTree"));
+                }
+            }
+        }
     }
 
     protected void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiScenarioWithBLOBs apiScenarioWithBLOBs) {

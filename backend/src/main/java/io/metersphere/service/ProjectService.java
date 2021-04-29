@@ -89,6 +89,15 @@ public class ProjectService {
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
+    public List<Project> getProjectByIds(List<String> ids) {
+        if (!CollectionUtils.isEmpty(ids)) {
+            ProjectExample example = new ProjectExample();
+            example.createCriteria().andIdIn(ids);
+            return projectMapper.selectByExample(example);
+        }
+        return new ArrayList<>();
+    }
+
     public void deleteProject(String projectId) {
         // delete test
         LoadTestExample loadTestExample = new LoadTestExample();
@@ -136,6 +145,9 @@ public class ProjectService {
         project.setCreateTime(null);
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExist(project);
+        if (project.getCustomNum()) {
+            testCaseService.updateTestCaseCustomNumByProjectId(project.getId());
+        }
         projectMapper.updateByPrimaryKeySelective(project);
     }
 
@@ -169,6 +181,20 @@ public class ProjectService {
 
     public Project getProjectById(String id) {
         return projectMapper.selectByPrimaryKey(id);
+    }
+
+    public List<Project> getByCaseTemplateId(String templateId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andCaseTemplateIdEqualTo(templateId);
+        return projectMapper.selectByExample(example);
+    }
+
+    public List<Project> getByIssueTemplateId(String templateId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andIssueTemplateIdEqualTo(templateId);
+        return projectMapper.selectByExample(example);
     }
 
     public List<FileMetadata> uploadFiles(String projectId, List<MultipartFile> files) {

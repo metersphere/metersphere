@@ -23,6 +23,7 @@ import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
@@ -35,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +71,10 @@ public class TestCaseService {
 
     @Resource
     ProjectMapper projectMapper;
+
+    @Lazy
+    @Resource
+    ProjectService projectService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -109,6 +115,7 @@ public class TestCaseService {
         testCase.setId(UUID.randomUUID().toString());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
+        checkTestCustomNum(testCase);
         testCase.setNum(getNextNum(testCase.getProjectId()));
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
@@ -116,6 +123,36 @@ public class TestCaseService {
         this.setNode(testCase);
         testCaseMapper.insert(testCase);
         return testCase;
+    }
+
+    private void checkTestCustomNum(TestCaseWithBLOBs testCase) {
+        if (StringUtils.isNotBlank(testCase.getCustomNum())) {
+            String projectId = testCase.getProjectId();
+            Project project = projectService.getProjectById(projectId);
+            if (project != null) {
+                Boolean customNum = project.getCustomNum();
+                // 未开启自定义ID
+                if (!customNum) {
+                    testCase.setCustomNum(null);
+                } else {
+                    checkCustomNumExist(testCase);
+                }
+            } else {
+                MSException.throwException("add test case fail, project is not find.");
+            }
+        }
+    }
+
+    private void checkCustomNumExist(TestCaseWithBLOBs testCase) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria()
+                .andCustomNumEqualTo(testCase.getCustomNum())
+                .andProjectIdEqualTo(testCase.getProjectId())
+                .andIdNotEqualTo(testCase.getId());
+        List<TestCase> list = testCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            MSException.throwException(Translator.get("custom_num_is_exist"));
+        }
     }
 
     public List<TestCase> getTestCaseByNodeId(List<String> nodeIds) {
@@ -129,6 +166,7 @@ public class TestCaseService {
     }
 
     public int editTestCase(TestCaseWithBLOBs testCase) {
+        checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
         return testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
@@ -170,10 +208,6 @@ public class TestCaseService {
                 criteria.andTestIdEqualTo(testCase.getTestId());
             }
 
-            if (StringUtils.isNotBlank(testCase.getPrerequisite())) {
-                criteria.andPrerequisiteEqualTo(testCase.getPrerequisite());
-            }
-
             if (StringUtils.isNotBlank(testCase.getId())) {
                 criteria.andIdNotEqualTo(testCase.getId());
             }
@@ -184,10 +218,12 @@ public class TestCaseService {
             if (!CollectionUtils.isEmpty(caseList)) {
                 String caseRemark = testCase.getRemark();
                 String caseSteps = testCase.getSteps();
+                String casePrerequisite = testCase.getPrerequisite();
                 for (TestCaseWithBLOBs tc : caseList) {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
-                    if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark)) {
+                    String prerequisite = tc.getPrerequisite();
+                    if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
                          //MSException.throwException(Translator.get("test_case_already_exists"));
                         return tc;
                     }
@@ -278,14 +314,39 @@ public class TestCaseService {
      * @param request
      * @return
      */
-    public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
+    public List<TestCase> getTestCaseRelateList(QueryTestCaseRequest request) {
         List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
         OrderRequest order = new OrderRequest();
         order.setName("sort");
         order.setType("desc");
         orderList.add(order);
         request.setOrders(orderList);
+        return getTestCaseByNotInPlan(request);
+    }
+
+    public List<TestCase> getTestCaseByNotInPlan(QueryTestCaseRequest request) {
         return extTestCaseMapper.getTestCaseByNotInPlan(request);
+    }
+
+    public List<TestCaseDTO> getTestCaseByNotInIssue(QueryTestCaseRequest request) {
+        List<TestCaseDTO> list = extTestCaseMapper.getTestCaseByNotInIssue(request);
+        addProjectName(list);
+        return list;
+    }
+
+    public void addProjectName(List<TestCaseDTO> list) {
+        List<String> projectIds = list.stream()
+                .map(TestCase::getProjectId)
+                .collect(Collectors.toList());
+        List<Project> projects = projectService.getProjectByIds(projectIds);
+        Map<String, String> projectMap = projects.stream()
+                .collect(Collectors.toMap(Project::getId, Project::getName));
+        list.forEach(item -> {
+            String projectName = projectMap.get(item.getProjectId());
+            if (StringUtils.isNotBlank(projectName)) {
+                item.setProjectName(projectName);
+            }
+        });
     }
 
     public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
@@ -408,6 +469,7 @@ public class TestCaseService {
     public void saveImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         if (!testCases.isEmpty()) {
             AtomicInteger sort = new AtomicInteger();
@@ -419,7 +481,11 @@ public class TestCaseService {
                 testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
-                testcase.setNum(num.decrementAndGet());
+                int number = num.decrementAndGet();
+                testcase.setNum(number);
+                if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
+                    testcase.setCustomNum(String.valueOf(number));
+                }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                     mapper.insert(testcase);
             });
@@ -601,38 +667,50 @@ public class TestCaseService {
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
             data.setType(t.getType());
+            data.setCustomNum(t.getCustomNum());
+            if (StringUtils.isBlank(t.getStepModel())) {
+                data.setStepModel(TestCaseConstants.StepModel.STEP.name());
+            } else {
+                data.setStepModel(t.getStepModel());
+            }
 //            data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
             data.setTags(t.getTags());
             if (StringUtils.equals(t.getMethod(), "manual") || StringUtils.isBlank(t.getMethod())) {
-                String steps = t.getSteps();
-                String setp = "";
-                setp = steps;
-                JSONArray jsonArray = null;
 
-                //解决旧版本保存用例导出报错
-                try {
-                    jsonArray = JSON.parseArray(setp);
-                } catch (Exception e) {
-                    if (steps.contains("null") && !steps.contains("\"null\"")) {
-                        setp = steps.replace("null", "\"\"");
+                if (StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
+                    data.setStepDesc(t.getStepDescription());
+                    data.setStepResult(t.getExpectedResult());
+                } else {
+                    String steps = t.getSteps();
+                    String setp = "";
+                    setp = steps;
+                    JSONArray jsonArray = null;
+
+                    //解决旧版本保存用例导出报错
+                    try {
                         jsonArray = JSON.parseArray(setp);
+                    } catch (Exception e) {
+                        if (steps.contains("null") && !steps.contains("\"null\"")) {
+                            setp = steps.replace("null", "\"\"");
+                            jsonArray = JSON.parseArray(setp);
+                        }
                     }
-                }
 
-                if (CollectionUtils.isNotEmpty(jsonArray)) {
-                    for (int j = 0; j < jsonArray.size(); j++) {
-                        int num = j + 1;
-                        step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
-                        result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
+                    if (CollectionUtils.isNotEmpty(jsonArray)) {
+                        for (int j = 0; j < jsonArray.size(); j++) {
+                            int num = j + 1;
+                            step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
+                            result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
 
+                        }
                     }
-                }
 
-                data.setStepDesc(step.toString());
-                data.setStepResult(result.toString());
-                step.setLength(0);
-                result.setLength(0);
+                    data.setStepDesc(step.toString());
+                    data.setStepResult(result.toString());
+                    step.setLength(0);
+                    result.setLength(0);
+                }
                 data.setRemark(t.getRemark());
 
             } else if ("auto".equals(t.getMethod()) && "api".equals(t.getType())) {
@@ -924,5 +1002,26 @@ public class TestCaseService {
 
     public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
         return extTestCaseMapper.listForMinder(request);
+    }
+
+    public List<TestCaseDTO> getTestCaseByIds(List<String> testCaseIds) {
+        if (CollectionUtils.isNotEmpty(testCaseIds)) {
+            return extTestCaseMapper.getTestCaseByIds(testCaseIds);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<TestCaseDTO> getTestCaseIssueRelateList(QueryTestCaseRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return getTestCaseByNotInIssue(request);
+    }
+
+    /**
+     * 更新项目下用例的CustomNum值
+     * @param projectId 项目ID
+     */
+    public void updateTestCaseCustomNumByProjectId(String projectId) {
+        extTestCaseMapper.updateTestCaseCustomNumByProjectId(projectId);
     }
 }

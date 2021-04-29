@@ -15,7 +15,6 @@
                    @refresh="initTableData"/>
     <status-edit ref="statusEdit" :plan-id="reviewId"
                  :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
-
     <el-table
       v-loading="result.loading"
       class="test-content adjust-table ms-select-all-fixed"
@@ -47,7 +46,7 @@
       <template v-for="(item, index) in tableLabel">
         <el-table-column
           v-if="item.id == 'num'"
-          prop="num"
+          prop="customNum"
           sortable="custom"
           min-width="100"
           :label="$t('commons.id')"
@@ -240,7 +239,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_CASE_LIST,
       headerItems: Test_Case_Review_Case_List,
-      screenHeight: document.documentElement.clientHeight - 278,
+      screenHeight: 'calc(100vh - 330px)',
       tableLabel: [],
       result: {},
       condition: {},
@@ -269,9 +268,9 @@ export default {
         {text: this.$t('commons.api'), value: 'api'}
       ],
       statusFilters: [
-        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
-        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+        {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.review.pass'), value: 'Pass'},
+        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
       ],
       showMore: false,
       buttons: [
@@ -287,9 +286,9 @@ export default {
       ],
       valueArr: {
         status: [
-          {name: this.$t('test_track.case.status_prepare'), id: 'Prepare'},
-          {name: this.$t('test_track.case.status_pass'), id: 'Pass'},
-          {name: this.$t('test_track.case.status_un_pass'), id: 'UnPass'},
+          {name: this.$t('test_track.review.prepare'), id: 'Prepare'},
+          {name: this.$t('test_track.review.pass'), id: 'Pass'},
+          {name: this.$t('test_track.review.un_pass'), id: 'UnPass'},
         ]
       },
     }

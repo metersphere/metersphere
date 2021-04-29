@@ -25,7 +25,7 @@
 
 <script>
     import {parseEnvironment} from "../../model/EnvironmentModel";
-    import ApiEnvironmentConfig from "../../../definition/components/environment/ApiEnvironmentConfig";
+    import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 
     export default {
       name: "EnvironmentSelect",
@@ -79,8 +79,7 @@
                 return environment.name;
               }
             }
-            return environment.name + (environment.config.httpConfig.socket ?
-              (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '');
+            return environment.name;
           }
           return "";
         },

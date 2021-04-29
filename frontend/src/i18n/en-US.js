@@ -1,5 +1,8 @@
 export default {
   commons: {
+    yes: "yes",
+    no: "no",
+    default: "default",
     please_select_import_mode: 'Please select import mode',
     please_select_import_module: 'Please select import module',
     pass_rate: 'Pass rate',
@@ -12,12 +15,15 @@ export default {
     import_mode: 'Import mode',
     import_module: 'Import module',
     import_user: 'Import user',
+    export: 'Export',
+    please_fill_content: 'Please fill content',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
     comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
+    confirm_delete: 'Whether to delete',
     delete_cancelled: 'Delete cancelled',
     option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
@@ -148,6 +154,7 @@ export default {
     tag_tip: "Enter Enter to Add Label",
     node_name_tip: "The name cannot contain'\\'",
     more_operator: "More operator",
+    mock: "Mock settings",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -206,7 +213,7 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
-      title: "Report statistics",
+      title: "Report Statistics",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
       name: "Report",
@@ -252,7 +259,43 @@ export default {
       url: 'Website URL',
       url_tip: 'example：http://localhost:8081',
       url_is_null: 'The current site URL cannot be empty'
+    },
+    prometheus_config: 'Prometheus Host',
+    prometheus: {
+      host: 'Prometheus Host',
+      host_tip: 'example: http://ms-prometheus:9090',
+      host_is_null: 'Prometheus Host cannot be empty'
     }
+  },
+  custom_field: {
+    case_status: 'Case Status',
+    case_maintainer: 'Maintainer',
+    case_priority: 'Case Priority',
+    issue_creator: 'Creator',
+    issue_processor: 'Processor',
+    issue_status: 'Status',
+    issue_severity: 'Severity',
+    create: 'Create Field',
+    name: 'Custom Field',
+    system_field: 'System Field',
+    scene: 'Use Scene',
+    attribute_type: 'Attribute Type',
+    field_name: 'Field Name',
+    field_remark: 'Field Remark',
+    field_type: 'Field Type',
+    field_option: 'Options',
+    add_field: 'Add Field',
+    api_field_name: 'API Field Name',
+    template_setting: 'Template Setting',
+    custom_field_setting: 'Custom Field Setting',
+    create_issue_template: 'Create Issue Template',
+    issue_template: 'Issue Template',
+    issue_platform: 'Issue Platform',
+    issue_content: 'Issue Content',
+    template_create: 'Template Create',
+    case_template: 'Test Case Template',
+    default_template: 'Default Template',
+    system_template: 'System Template',
   },
   workspace: {
     create: 'Create Workspace',
@@ -306,7 +349,7 @@ export default {
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot',
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
       template: "Template"
     },
     integration: {
@@ -364,7 +407,8 @@ export default {
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',
-    repeatable: 'Interface definition URL repeatable'
+    repeatable: 'Interface definition URL repeatable',
+    upload_file_again: 'Upload again'
   },
   member: {
     create: 'Create',
@@ -431,6 +475,7 @@ export default {
     test_request_statistics: 'Test Request Statistics',
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
+    test_monitor_details: 'Test Monitor Details',
     test_details: 'Test Details',
     test_duration: 'Current Execution Time：{0} minutes {1} seconds',
     test_start_time: 'Start Execution Time',
@@ -459,8 +504,13 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
+    response_time: 'Response Time(s)',
+    max_users: 'VUs'
   },
   load_test: {
+    concurrency_thread_group: 'Concurrent read group',
+    thread_group: 'ThreadGroup',
+    completed_test_report: 'Completed test report',
     test: 'Test',
     name: 'Test Name',
     same_project_test: 'Only tests within the same project can be run',
@@ -584,6 +634,24 @@ export default {
     batch_menus: {
       select_all_data: "Select all datas({0})",
       select_show_data: "Select show datas({0})",
+    },
+    mock: {
+      create_error: "Api info is not saved",
+      table: {
+        name: "Name",
+        tag: "Tag",
+        creator: "Creator",
+        status: "Status",
+        update_time: "Update time"
+      },
+      expect_detail: "Expect",
+      base_info: "Base info",
+      req_param: "Request params",
+      rsp_param: "Response Params",
+      delete_mock_expect: "Confirm to delete this expect info ?",
+      rule: {
+        input_code: "Please input HTTP Code"
+      }
     },
     definition: {
       api_title: "Api test",
@@ -711,6 +779,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "One-click expansion",
+      close_expansion: "One-click storage",
       constant: "constant",
       counter: "counter",
       random: "random",
@@ -770,14 +840,22 @@ export default {
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
       reference_deleted: 'Reference deleted',
+      loop_name: "Loop",
+      loop_content: "The default is on, when there is only one request in the loop, it can be turned on/off; when there is more than one request in the loop, it can only be turned on。",
+      loop_return_val: "Define variable name",
+      loop_input_val: "Variable prefix",
+      loop_message: "There is more than one request in the current cycle and cannot be closed",
     },
     environment: {
+      create: 'Create environment',
       name: "Environment Name",
       socket: "Socket",
+      condition_enable: "Activation conditions",
       globalVariable: "Global Variable",
       environment_list: "Environment List",
       environment_config: "Environment Config",
       config_environment: "Config Environment",
+      copy_environment: "copy environment",
       environment: "Environment",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
@@ -785,6 +863,7 @@ export default {
       http_config: "HTTP Config",
       database_config: "Database Config",
       tcp_config: "TCP Config",
+      import: "Import Environment",
     },
     scenario: {
       scenario: "Scenario",
@@ -981,13 +1060,14 @@ export default {
       swagger_url_import: "Import using URL",
       timing_synchronization: "Timing synchronization",
       next_synchronization_time: "Next synchronization time",
-
+      ms_env_import_file_limit: "It supports JSON format files exported through metersphere",
+      file_exceed_limit: "The number of files exceeds the limit",
     },
     home_page: {
       unit_of_measurement: "",
       unit_of_count: "",
       unit_of_times: "times",
-      formula:{
+      formula: {
         completion: "finished api / all api * 100%",
         coverage: "apis whitch have test case / all apis * 100%",
         pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
@@ -1071,7 +1151,8 @@ export default {
           case_type: {
             api: "Api case",
             scene: "Scenario case",
-            load: "Load case"
+            load: "Load case",
+            functional: "Functional case"
           }
         }
       },
@@ -1143,6 +1224,10 @@ export default {
     date: "Date"
   },
   test_track: {
+    related_requirements: 'Related requirements',
+    please_related_requirements: 'Please select the requirements to associate',
+    please_select_the_test_to_associate: "Please select the test to associate",
+    person_responsible: "Person Responsible",
     test_track: "Track",
     confirm: "Confirm",
     cancel: "Cancel",
@@ -1162,6 +1247,13 @@ export default {
     case: {
       list: "List",
       minder: "Minder",
+      step_info: "Step Info",
+      other_info: "Other Info",
+      step_describe: "Step Describe",
+      step_describe_tip: "Applicable to every step of the test scenario, there are clear test steps, expected results",
+      text_describe: "Text Describe",
+      text_describe_tip: "For simple test scenarios, there are no clear test steps",
+      change_type: "Change Type",
       minder_create_tip: "failed, unable to create its parent module in minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
@@ -1188,7 +1280,7 @@ export default {
       steps: "Steps",
       number: "Number",
       prerequisite: "Prerequisite",
-      step_desc: "Step describe",
+      step_desc: "Case step",
       expected_results: "Expected results",
       input_name: "Please enter name",
       input_module: "Please select module",
@@ -1204,6 +1296,9 @@ export default {
       please_create_project: "No project available, please create the project first",
       create_module_first: "Please create module first",
       relate_test: "Relate test",
+      relate_issue: "Relate Issue",
+      demand_name_id: "Demand ID/Name",
+      please_select_relate_test: "请选择要关联的测试",
       relate_test_not_find: 'The associated test does not exist, please check the test case',
       other_relate_test_not_find: 'Associated test name, please go to the third party platform to execute',
       batch_handle: 'Batch processing (select {0} item)',
@@ -1225,7 +1320,7 @@ export default {
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
       img_loading_fail: "Image failed to load",
       pdf_loading_fail: "PDF loading failed",
-      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx files can be uploaded",
+      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx, txt files can be uploaded",
       attachment: "Attachment",
       upload_time: "Upload Time",
       import: {
@@ -1396,6 +1491,7 @@ export default {
       operate_step: "Operate step",
       edit_component: "Edit component",
       base_info: "Base info",
+      mock_info: "Mock info",
       test_result: "Test result",
       result_distribution: "Result distribution",
       custom_component: "Custom",
@@ -1420,6 +1516,10 @@ export default {
     },
     issue: {
       issue: "Issue",
+      create_issue: "Create Issue",
+      add_issue: "Add Issue",
+      issue_list: "Issue List",
+      search_name: "Search for title",
       platform_tip: "Integrated defect management platform in the system setting-organization-service integration can automatically submit defects to the designated defect management platform",
       input_title: "Please enter title",
       id: "Issue ID",
@@ -1434,9 +1534,9 @@ export default {
       close_success: "Closed successfully",
       preview: "Preview",
       please_choose_current_owner: "Please choose current owner",
-      tapd_current_owner: "Tapd Current Owner：",
-      zentao_bug_build: "Zentao bug Impact version",
-      zentao_bug_assigned: "Zentao bug handler",
+      tapd_current_owner: "Tapd Current Owner",
+      zentao_bug_build: "Zentao Impact version",
+      zentao_bug_assigned: "Zentao handler",
     },
     report: {
       name: "Test Plan Report",
@@ -1469,6 +1569,7 @@ export default {
     cannot_empty: 'Resource pool cannot be empty',
     fill_the_data: 'Please complete the data',
     delete_prompt: 'This operation will permanently delete the resource pool, continue?',
+    update_prompt: '{0}  The other tests are using this resource pool. Disabling the monitoring part that may affect the report. Do you want to continue?',
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
@@ -1670,9 +1771,21 @@ export default {
     title: 'Auth Source',
     auth_name_valid: 'Name does not support special characters',
   },
+  module: {
+    title: 'Module Management'
+  },
   table: {
     header_display_field: 'Header display field',
     fields_to_be_selected: 'Fields to be selected',
     selected_fields: 'Selected fields'
+  },
+  run_mode: {
+    title: "Mode",
+    serial: "Serial",
+    parallel: "Parallel",
+    other_config: "Other config",
+    idd_report: "Report",
+    set_report: "Set report",
+    report_name: "Report name",
   }
 };

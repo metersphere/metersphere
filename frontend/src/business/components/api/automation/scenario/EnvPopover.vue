@@ -6,7 +6,7 @@
     :disabled="isReadOnly"
     @show="showPopover"
     trigger="click">
-    <env-select :project-ids="projectIds" :env-map="envMap" @close="visible = false"
+    <env-select :project-ids="projectIds" :env-map="envMap" @close="visible = false" :result="result"
                 ref="envSelect" @setProjectEnvMap="setProjectEnvMap" :project-list="projectList"/>
     <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px;">
       {{ $t('api_test.definition.request.run_env') }}
@@ -29,6 +29,12 @@ export default {
       type: Boolean,
       default() {
         return false;
+      }
+    },
+    result: {
+      type: Object,
+      default() {
+        return {loading: false}
       }
     }
   },

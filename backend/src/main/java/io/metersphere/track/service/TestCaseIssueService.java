@@ -4,6 +4,9 @@ import io.metersphere.base.domain.TestCaseIssues;
 import io.metersphere.base.domain.TestCaseIssuesExample;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.issues.IssuesRelevanceRequest;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -18,6 +21,9 @@ public class TestCaseIssueService {
 
     @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
+    @Lazy
+    @Resource
+    private TestCaseService testCaseService;
     @Resource
     private IssuesMapper issuesMapper;
 
@@ -32,5 +38,24 @@ public class TestCaseIssueService {
             });
         }
         testCaseIssuesMapper.deleteByExample(example);
+    }
+
+    public List<TestCaseDTO> list(IssuesRelevanceRequest request) {
+        List<String> testCaseIds = getTestCaseIdsByIssuesId(request.getIssuesId());
+        List<TestCaseDTO> list = testCaseService.getTestCaseByIds(testCaseIds);
+        testCaseService.addProjectName(list);
+        return list;
+    }
+
+    public List<TestCaseIssues> getTestCaseIssuesByIssuesId(String issuesId) {
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria().andIssuesIdEqualTo(issuesId);
+        return testCaseIssuesMapper.selectByExample(example);
+    }
+
+    public List<String> getTestCaseIdsByIssuesId(String issuesId) {
+       return getTestCaseIssuesByIssuesId(issuesId).stream()
+               .map(TestCaseIssues::getTestCaseId)
+               .collect(Collectors.toList());
     }
 }

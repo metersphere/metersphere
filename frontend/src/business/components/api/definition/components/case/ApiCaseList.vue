@@ -13,7 +13,7 @@
           :apiCaseList="apiCaseList"
           :is-read-only="isReadOnly"
           :project-id="projectId"
-          :useEnvironment="useEnvironment"
+          :useEnvironment="environment"
           :is-case-edit="isCaseEdit"
           ref="header"
         />
@@ -41,7 +41,7 @@
 
     <!-- 执行组件 -->
     <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
@@ -113,7 +113,6 @@
           method: REQ_METHOD,
         },
         envMap: new Map,
-        useEnvironment: "",
       }
     },
     watch: {
@@ -176,7 +175,7 @@
               apiCase.tags = JSON.parse(apiCase.tags);
               this.$set(apiCase, 'selected', false);
             }
-            if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+            if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
               apiCase.request = JSON.parse(apiCase.request);
             }
             if (!apiCase.request.hashTree) {
@@ -192,7 +191,7 @@
         this.apiCaseList = [];
         this.visible = false;
       },
-      refreshModule(){
+      refreshModule() {
         this.$emit('refreshModule');
       },
       runRefresh() {
@@ -211,7 +210,11 @@
         this.batchEdit(obj);
         this.$success(this.$t('organization.integration.successful_operation'));
       },
-
+      errorRefresh() {
+        this.batchLoadingIds = [];
+        this.singleLoading = false;
+        this.singleRunId = "";
+      },
       refresh() {
         this.getApiTest();
         this.$emit('refresh');
@@ -222,16 +225,13 @@
         });
       },
       getApiTest(addCase) {
-        this.useEnvironment = "";
+        this.environment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
             this.condition.id = this.testCaseId;
           }
-          if (this.api) {
-            this.condition.apiDefinitionId = this.api.id;
-          }
-
+          this.condition.apiDefinitionId = this.api.id;
           this.result = this.$post("/api/testcase/list", this.condition, response => {
             let data = [];
             if (response.data) {
@@ -242,27 +242,28 @@
                 apiCase.tags = JSON.parse(apiCase.tags);
                 this.$set(apiCase, 'selected', false);
               }
-              if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+              if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
                 apiCase.request = JSON.parse(apiCase.request);
               }
               if (!apiCase.request.hashTree) {
                 apiCase.request.hashTree = [];
               }
-
+              const index = this.runData.findIndex(d => d.name === apiCase.id);
+              if (index !== -1) {
+                apiCase.active = true;
+              }
             });
             this.apiCaseList = data;
-            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
-              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
-              this.environment = this.useEnvironment;
+            if (this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.environment = this.apiCaseList[0].request.useEnvironment;
             }
-            if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
+            if (addCase && this.apiCaseList.length === 0 && !this.loaded) {
               this.addCase();
             }
           });
         }
       },
       getApiTestToRunTestCase(testCaseId) {
-        this.useEnvironment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
@@ -282,7 +283,7 @@
                 apiCase.tags = JSON.parse(apiCase.tags);
                 this.$set(apiCase, 'selected', false);
               }
-              if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+              if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
                 apiCase.request = JSON.parse(apiCase.request);
               }
               if (!apiCase.request.hashTree) {
@@ -291,14 +292,12 @@
 
             })
             this.apiCaseList = data;
-            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
-              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
-              this.environment = this.useEnvironment;
+            if (this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.environment = this.apiCaseList[0].request.useEnvironment;
             }
             if (this.apiCaseList.length === 0 && !this.loaded) {
               this.addCase();
             }
-
             this.apiCaseList.forEach(apicase => {
               if (apicase.id === testCaseId) {
                 let data = apicase;
@@ -310,7 +309,7 @@
         }
       },
       addCase() {
-        if (this.api.request) {
+        if (this.api && this.api.request) {
           // 初始化对象
           let request = {};
           if (this.api.request instanceof Object) {
@@ -321,7 +320,7 @@
           if (!request.hashTree) {
             request.hashTree = [];
           }
-          if (request.backScript != null) {
+          if (request.backScript) {
             request.hashTree.push(request.backScript);
           }
           let uuid = getUUID();
@@ -343,7 +342,7 @@
       },
 
       singleRun(row) {
-        if (this.currentApi.protocol != "DUBBO" && this.currentApi.protocol != "dubbo://" && !this.environment) {
+        if (this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
@@ -361,12 +360,12 @@
       },
 
       batchRun() {
-        if (this.currentApi.protocol != "DUBBO" && this.currentApi.protocol != "dubbo://" && !this.environment) {
+        if (this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
         this.envMap = new Map();
-        this.envMap.set(this.$store.state.projectId,this.environment);
+        this.envMap.set(this.$store.state.projectId, this.environment);
         this.runData = [];
         this.batchLoadingIds = [];
         this.selectdCases = [];
@@ -398,18 +397,18 @@
             }
           })
         }
-        if (this.selectdCases.length == 0) {
+        if (this.selectdCases.length === 0) {
           this.$warning("请选择用例！");
           return;
         }
         // //根据不同的接口，注入不同的参数
-        if (this.currentApi.protocol == 'HTTP') {
+        if (this.currentApi.protocol === 'HTTP') {
           this.valueArr.method = REQ_METHOD;
-        } else if (this.currentApi.protocol == 'TCP') {
+        } else if (this.currentApi.protocol === 'TCP') {
           this.valueArr.method = TCP_METHOD;
-        } else if (this.currentApi.protocol == 'SQL') {
+        } else if (this.currentApi.protocol === 'SQL') {
           this.valueArr.method = SQL_METHOD;
-        } else if (this.currentApi.protocol == 'DUBBO') {
+        } else if (this.currentApi.protocol === 'DUBBO') {
           this.valueArr.method = DUBBO_METHOD;
         }
 

@@ -2,13 +2,22 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,7 +33,9 @@ import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -58,8 +69,6 @@ public class MsTCPSampler extends MsTestElement {
     private String password = "";
     @JSONField(ordinal = 33)
     private String request;
-    //    @JSONField(ordinal = 34)
-//    private Object requestResult;
     @JSONField(ordinal = 35)
     private List<KeyValue> parameters;
     @JSONField(ordinal = 36)
@@ -84,14 +93,14 @@ public class MsTCPSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.getRefElement(this);
+            this.setRefElement();
         }
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
-        if(config.getConfig()!=null){
+        if (config.getConfig() != null) {
             parseEnvironment(config.getConfig().get(this.projectId));
         }
 
@@ -112,6 +121,43 @@ public class MsTCPSampler extends MsTestElement {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
+        }
+    }
+
+    private void setRefElement() {
+        try {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            MsTCPSampler proxy = null;
+            if (StringUtils.equals(this.getRefType(), "CASE")) {
+                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
+                if (bloBs != null) {
+                    this.setName(bloBs.getName());
+                    this.setProjectId(bloBs.getProjectId());
+                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsTCPSampler>() {
+                    });
+                }
+            } else {
+                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+                if (apiDefinition != null) {
+                    this.setName(apiDefinition.getName());
+                    this.setProjectId(apiDefinition.getProjectId());
+                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTCPSampler>() {
+                    });
+                }
+            }
+            if (proxy != null) {
+                this.setHashTree(proxy.getHashTree());
+                this.setClassname(proxy.getClassname());
+                this.setServer(proxy.getServer());
+                this.setPort(proxy.getPort());
+                this.setRequest(proxy.getRequest());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
         }
     }
 

@@ -100,8 +100,64 @@
 
     <select id="list" resultMap="BaseResultMap">
         SELECT r.name AS test_name,
-        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,s.name as scenario_name,
+        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,IfNULL(s.name,r.scenario_name) as scenario_name,
         project.name AS project_name, user.name AS user_name
+        FROM api_scenario_report r
+        LEFT JOIN api_scenario s on r.scenario_id = s.id
+        LEFT JOIN project ON project.id = r.project_id
+        LEFT JOIN user ON user.id = r.user_id
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+
+            <if test="request.name != null">
+                and r.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.userId != null">
+                AND r.user_id = #{request.userId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.projectId != null">
+                AND project.id = #{request.projectId}
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and r.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and r.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            AND r.execute_type = 'Saved'
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                r.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="idList" resultType="java.lang.String">
+        SELECT r.id
         FROM api_scenario_report r
         LEFT JOIN api_scenario s on r.scenario_id = s.id
         LEFT JOIN project ON project.id = r.project_id
@@ -196,20 +252,21 @@
         GROUP BY groupField;
     </select>
     <select id="selectLastReportByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
-        SELECT report.* FROM api_scenario_report  report
+        SELECT report.* FROM api_scenario_report report
         INNER JOIN (
         SELECT a.id,a.createTime,a.scenario_id FROM
-            (
-                SELECT id AS id,create_time AS createTime, scenario_id AS scenario_id FROM api_scenario_report
-                WHERE scenario_id in
-                    <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
+        (
+        SELECT id AS id,create_time AS createTime, scenario_id AS scenario_id FROM api_scenario_report
+        WHERE execute_type = 'Saved' AND scenario_id in
+        <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
                         #{value}
                     </foreach>
-                UNION
-                SELECT report.id AS id,report.create_time AS createTime,planScenario.api_scenario_id AS scenario_id FROM api_scenario_report report
-                INNER JOIN test_plan_api_scenario planScenario ON report.scenario_id = planScenario.id
-                WHERE planScenario.api_scenario_id in
-                    <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
+        UNION
+        SELECT report.id AS id,report.create_time AS createTime,planScenario.api_scenario_id AS scenario_id FROM
+        api_scenario_report report
+        INNER JOIN test_plan_api_scenario planScenario ON report.scenario_id = planScenario.id
+        WHERE report.execute_type = 'Saved' AND planScenario.api_scenario_id in
+        <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
                         #{value}
                     </foreach>
                 ORDER BY createTime DESC

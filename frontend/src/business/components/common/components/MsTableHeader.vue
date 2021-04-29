@@ -22,7 +22,7 @@
       </span>
       <span>
         <slot name="searchBarBefore"></slot>
-        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip"/>
+        <ms-table-search-bar :condition.sync="condition" @change="search" class="search-bar" :tip="tip" v-if="haveSearch"/>
         <ms-table-adv-search-bar :condition.sync="condition" @search="search" v-if="isCombine"/>
       </span>
     </el-row>
@@ -42,7 +42,7 @@
       title: {
         type: String,
         default() {
-          return this.$t('commons.name');
+          return null;
         }
       },
       showCreate: {
@@ -85,6 +85,12 @@
         String,
         default() {
           return this.$t('commons.search_by_name');
+        }
+      },
+      haveSearch: {
+        Boolean,
+        default() {
+          return true;
         }
       }
     },

@@ -8,6 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
+        :show-operator="true"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         :type="'edit'"
@@ -36,6 +37,7 @@
             @refresh="refresh"
             @refreshAll="refreshAll"
             @setCondition="setCondition"
+            :custom-num="custom_num"
             ref="testCaseList">
           </test-case-list>
           <test-case-minder
@@ -62,6 +64,7 @@
               :select-node="selectNode"
               :select-condition="condition"
               :type="type"
+              :custom-num="custom_num"
               @addTab="addTab"
               ref="testCaseEdit">
             </test-case-edit>
@@ -127,9 +130,11 @@ export default {
       loading: false,
       type:'',
       activeDom: 'left',
+      custom_num: false
     }
   },
   mounted() {
+    this.getProject();
     this.init(this.$route);
   },
   watch: {
@@ -371,6 +376,14 @@ export default {
     },
     setCondition(data) {
       this.condition = data;
+    },
+    getProject() {
+      this.$get("/project/get/" + this.projectId, result => {
+        let data = result.data;
+        if (data) {
+          this.custom_num = data.customNum;
+        }
+      })
     }
   }
 }

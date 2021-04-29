@@ -86,7 +86,10 @@ public class HarParser extends HarAbstractParser {
             }
 
             try {
-                url = URLDecoder.decode(url,"UTF-8");
+                url = URLDecoder.decode(url, "UTF-8");
+                if (url.contains("?")) {
+                    url = url.split("\\?")[0];
+                }
             }catch (Exception e){
             }
 

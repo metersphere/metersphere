@@ -8,6 +8,8 @@
       :progress-enable="false"
       :tags="tags"
       :height="height"
+      :tag-edit-check="tagEditCheck"
+      :priority-disable-check="priorityDisableCheck"
       :distinct-tags="distinctTags"
       @afterMount="$emit('afterMount')"
       @save="save"
@@ -55,7 +57,10 @@ export default {
     },
     selectNode: {
       type: Object,
-    }
+    },
+    tagDisableCheck: Function,
+    tagEditCheck: Function,
+    priorityDisableCheck: Function
   },
   data() {
     return {
