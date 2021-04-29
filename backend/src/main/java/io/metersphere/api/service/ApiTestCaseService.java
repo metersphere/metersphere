@@ -163,15 +163,16 @@ public class ApiTestCaseService {
     public ApiTestCaseWithBLOBs get(String id) {
 //        ApiTestCaseWithBLOBs returnBlobs = apiTestCaseMapper.selectByPrimaryKey(id);
         ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
-        if(model != null ){
-            if(StringUtils.equalsIgnoreCase(model.getApiMethod(),"esb")){
+        if (model != null) {
+            if (StringUtils.equalsIgnoreCase(model.getApiMethod(), "esb")) {
                 esbApiParamService.handleApiEsbParams(model);
             }
         }
         return model;
     }
-    public ApiTestCaseInfo getResult(String id){
-       return extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
+
+    public ApiTestCaseInfo getResult(String id) {
+        return extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
     }
 
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
@@ -278,7 +279,11 @@ public class ApiTestCaseService {
         test.setPriority(request.getPriority());
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
-        test.setTags(request.getTags());
+        if (StringUtils.equals("[]", request.getTags())) {
+            test.setTags(null);
+        } else {
+            test.setTags(request.getTags());
+        }
         apiTestCaseMapper.updateByPrimaryKeySelective(test);
         return test;
     }
@@ -304,7 +309,11 @@ public class ApiTestCaseService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
-        test.setTags(request.getTags());
+        if (StringUtils.equals("[]", request.getTags())) {
+            test.setTags(null);
+        } else {
+            test.setTags(request.getTags());
+        }
         apiTestCaseMapper.insert(test);
         return test;
     }
@@ -476,7 +485,7 @@ public class ApiTestCaseService {
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
         List<ApiTestCaseInfo> list = extApiTestCaseMapper.getRequest(request);
         for (ApiTestCaseInfo model : list) {
-            if(StringUtils.equalsIgnoreCase(model.getApiMethod(),"esb")){
+            if (StringUtils.equalsIgnoreCase(model.getApiMethod(), "esb")) {
                 esbApiParamService.handleApiEsbParams(model);
             }
         }
