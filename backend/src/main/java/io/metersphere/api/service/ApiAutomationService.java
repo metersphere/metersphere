@@ -61,7 +61,6 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiAutomationService {
@@ -785,7 +784,7 @@ public class ApiAutomationService {
             batchMapper.insert(report);
 
             // 调用执行方法
-            // jMeterService.runDefinition(report.getId(), hashTree, request.getReportId(), request.getRunMode());
+             //jMeterService.runDefinition(report.getId(), hashTree, request.getReportId(), request.getRunMode());
             map.put(report.getId(), hashTree);
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
@@ -794,6 +793,7 @@ public class ApiAutomationService {
         // 开始执行
         ExecutorService executorService = Executors.newFixedThreadPool(map.size());
         for (String key : map.keySet()) {
+            // jMeterService.runDefinition(key, map.get(key), request.getReportId(), request.getRunMode());
             executorService.submit(new ParallelExecTask(jMeterService, key, map.get(key), request));
         }
 
@@ -1079,7 +1079,6 @@ public class ApiAutomationService {
         } catch (Exception e) {
             MSException.throwException(e.getMessage());
         }
-        System.out.println(request.getTestElement().getJmx(hashTree));
 
         // 调用执行方法
         APIScenarioReportResult report = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
