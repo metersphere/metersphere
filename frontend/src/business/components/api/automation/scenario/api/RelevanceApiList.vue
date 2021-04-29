@@ -67,7 +67,7 @@
             show-overflow-tooltip
             width="120px"
             :key="index">
-            <template v-slot:default="scope" class="request-method">
+            <template v-slot:default="scope">
               <el-tag size="mini"
                       :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
                       class="api-el-tag">
@@ -144,68 +144,7 @@
             show-overflow-tooltip
             :key="index"/>
         </template>
-
-
       </ms-table>
-      <!--      <el-table v-loading="result.loading"-->
-      <!--                border-->
-      <!--                :data="tableData" row-key="id" class="test-content adjust-table"-->
-      <!--                @select-all="handleSelectAll"-->
-      <!--                @select="handleSelect" ref="table">-->
-      <!--        <el-table-column reserve-selection type="selection"/>-->
-
-      <!--        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="status"-->
-      <!--          column-key="api_status"-->
-      <!--          :label="$t('api_test.definition.api_status')"-->
-      <!--          show-overflow-tooltip>-->
-      <!--          <template v-slot:default="scope">-->
-      <!--            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>-->
-      <!--            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>-->
-      <!--            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>-->
-      <!--            <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" :content="$t('test_track.plan.plan_status_trash')"/>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="method"-->
-      <!--          :label="$t('api_test.definition.api_type')"-->
-      <!--          show-overflow-tooltip>-->
-      <!--          <template v-slot:default="scope" class="request-method">-->
-      <!--            <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">-->
-      <!--              {{ scope.row.method }}-->
-      <!--            </el-tag>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="path"-->
-      <!--          :label="$t('api_test.definition.api_path')"-->
-      <!--          show-overflow-tooltip/>-->
-
-      <!--        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">-->
-      <!--          <template v-slot:default="scope">-->
-      <!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="caseTotal"-->
-      <!--          :label="$t('api_test.definition.api_case_number')"-->
-      <!--          show-overflow-tooltip/>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="caseStatus"-->
-      <!--          :label="$t('api_test.definition.api_case_status')"-->
-      <!--          show-overflow-tooltip/>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="casePassingRate"-->
-      <!--          :label="$t('api_test.definition.api_case_passing_rate')"-->
-      <!--          show-overflow-tooltip/>-->
-      <!--      </el-table>-->
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container>
@@ -216,290 +155,290 @@
 
 <script>
 
-import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
-import MsTableOperator from "../../../../common/components/MsTableOperator";
-import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-import MsTablePagination from "../../../../common/pagination/TablePagination";
-import MsTag from "../../../../common/components/MsTag";
-import MsBottomContainer from "../../../definition/components/BottomContainer";
-import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
-import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
-import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonData";
-import {getCurrentProjectID} from "@/common/js/utils";
-import ApiListContainer from "../../../definition/components/list/ApiListContainer";
-import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
-import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
-import TableSelectCountBar from "./TableSelectCountBar";
-import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
-import {API_LIST, WORKSPACE_ID} from "@/common/js/constants";
+  import MsTable from "@/business/components/common/components/table/MsTable";
+  import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+  import MsTableOperator from "../../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+  import MsTablePagination from "../../../../common/pagination/TablePagination";
+  import MsTag from "../../../../common/components/MsTag";
+  import MsBottomContainer from "../../../definition/components/BottomContainer";
+  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+  import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
+  import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonData";
+  import {getCurrentProjectID} from "@/common/js/utils";
+  import ApiListContainer from "../../../definition/components/list/ApiListContainer";
+  import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
+  import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
+  import TableSelectCountBar from "./TableSelectCountBar";
+  import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
+  import {API_LIST, WORKSPACE_ID} from "@/common/js/constants";
 
-export default {
-  name: "RelevanceApiList",
-  components: {
-    TableSelectCountBar,
-    MsEnvironmentSelect,
-    PriorityTableItem,
-    ApiListContainer,
-    MsTableOperatorButton,
-    MsTableOperator,
-    MsTablePagination,
-    MsTag,
-    MsBottomContainer,
-    ShowMoreBtn,
-    MsBatchEdit,
-    MsTable,
-    MsTableColumn
-  },
-  data() {
-    return {
-      condition: {},
-      selectCase: {},
-      tableLabel: [],
-      result: {},
-      moduleId: "",
-      deletePath: "/test/case/delete",
-      screenHeight: document.documentElement.clientHeight - 500,//屏幕高度,
-      typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-      ],
-      priorityFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
-      ],
-      valueArr: {
-        priority: CASE_PRIORITY,
+  export default {
+    name: "RelevanceApiList",
+    components: {
+      TableSelectCountBar,
+      MsEnvironmentSelect,
+      PriorityTableItem,
+      ApiListContainer,
+      MsTableOperatorButton,
+      MsTableOperator,
+      MsTablePagination,
+      MsTag,
+      MsBottomContainer,
+      ShowMoreBtn,
+      MsBatchEdit,
+      MsTable,
+      MsTableColumn
+    },
+    data() {
+      return {
+        condition: {},
+        selectCase: {},
+        tableLabel: [],
+        result: {},
+        moduleId: "",
+        deletePath: "/test/case/delete",
+        screenHeight: document.documentElement.clientHeight - 500,//屏幕高度,
+        typeArr: [
+          {id: 'priority', name: this.$t('test_track.case.priority')},
+        ],
+        priorityFilters: [
+          {text: 'P0', value: 'P0'},
+          {text: 'P1', value: 'P1'},
+          {text: 'P2', value: 'P2'},
+          {text: 'P3', value: 'P3'}
+        ],
+        valueArr: {
+          priority: CASE_PRIORITY,
+        },
+        methodColorMap: new Map(API_METHOD_COLOUR),
+        tableData: [],
+        currentPage: 1,
+        pageSize: 10,
+        total: 0,
+        environmentId: "",
+        methodFilters: [
+          {text: 'GET', value: 'GET'},
+          {text: 'POST', value: 'POST'},
+          {text: 'PUT', value: 'PUT'},
+          {text: 'PATCH', value: 'PATCH'},
+          {text: 'DELETE', value: 'DELETE'},
+          {text: 'OPTIONS', value: 'OPTIONS'},
+          {text: 'HEAD', value: 'HEAD'},
+          {text: 'CONNECT', value: 'CONNECT'},
+          {text: 'DUBBO', value: 'DUBBO'},
+          {text: 'dubbo://', value: 'dubbo://'},
+          {text: 'SQL', value: 'SQL'},
+          {text: 'TCP', value: 'TCP'},
+        ],
+        userFilters: [],
+      }
+    },
+    props: {
+      currentProtocol: String,
+      selectNodeIds: Array,
+      visible: {
+        type: Boolean,
+        default: false,
       },
-      methodColorMap: new Map(API_METHOD_COLOUR),
-      tableData: [],
-      currentPage: 1,
-      pageSize: 10,
-      total: 0,
-      environmentId: "",
-      methodFilters: [
-        {text: 'GET', value: 'GET'},
-        {text: 'POST', value: 'POST'},
-        {text: 'PUT', value: 'PUT'},
-        {text: 'PATCH', value: 'PATCH'},
-        {text: 'DELETE', value: 'DELETE'},
-        {text: 'OPTIONS', value: 'OPTIONS'},
-        {text: 'HEAD', value: 'HEAD'},
-        {text: 'CONNECT', value: 'CONNECT'},
-        {text: 'DUBBO', value: 'DUBBO'},
-        {text: 'dubbo://', value: 'dubbo://'},
-        {text: 'SQL', value: 'SQL'},
-        {text: 'TCP', value: 'TCP'},
-      ],
-      userFilters: [],
-    }
-  },
-  props: {
-    currentProtocol: String,
-    selectNodeIds: Array,
-    visible: {
-      type: Boolean,
-      default: false,
+      isApiListEnable: {
+        type: Boolean,
+        default: false,
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
+      isCaseRelevance: {
+        type: Boolean,
+        default: false,
+      },
+      projectId: String,
+      planId: String,
+      isTestPlan: Boolean
     },
-    isApiListEnable: {
-      type: Boolean,
-      default: false,
-    },
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    },
-    isCaseRelevance: {
-      type: Boolean,
-      default: false,
-    },
-    projectId: String,
-    planId: String,
-    isTestPlan: Boolean
-  },
-  created: function () {
-    if (this.$refs.apitable) {
-      this.$refs.apitable.clearSelectRows();
-    }
-    this.initTable();
-    this.getMaintainerOptions();
-  },
-  watch: {
-    selectNodeIds() {
-      this.initTable();
-    },
-    currentProtocol() {
-      this.initTable();
-    },
-    projectId() {
-      this.initTable();
-    }
-  },
-  computed: {
-    selectRows() {
-      if (this.$refs.apitable) {
-        return this.$refs.apitable.getSelectRows();
-      } else {
-        return new Set();
-      }
-    }
-  },
-  methods: {
-    isApiListEnableChange(data) {
-      this.$emit('isApiListEnableChange', data);
-    },
-    initTable(projectId) {
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-      this.condition.moduleIds = this.selectNodeIds;
-      if (this.trashEnable) {
-        this.condition.filters = {status: ["Trash"]};
-        this.condition.moduleIds = [];
-      }
-      if (projectId != null && typeof projectId === 'string') {
-        this.condition.projectId = projectId;
-      } else if (this.projectId != null) {
-        this.condition.projectId = this.projectId;
-      }
-
-      if (this.currentProtocol != null) {
-        this.condition.protocol = this.currentProtocol;
-      }else{
-        this.condition.protocol = "HTTP";
-      }
-
-      let url = '/api/definition/list/';
-      if (this.isTestPlan) {
-        url = '/api/definition/list/relevance/';
-        this.condition.planId = this.planId;
-      }
-      this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
-        this.total = response.data.itemCount;
-        this.tableData = response.data.listObject;
-        this.genProtocalFilter(this.condition.protocol);
-        this.$nextTick(function () {
-          if (this.$refs.apitable) {
-            this.$refs.apitable.doLayout();
-            this.$refs.apitable.checkTableRowIsSelect();
-          }
-        });
-      });
-      //添加自定义列的查询
-      getLabel(this, API_LIST);
-    },
-
-    showExecResult(row) {
-      this.visible = false;
-      this.$emit('showExecResult', row);
-    },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.initTable();
-    },
-    sort(column) {
-      // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      this.initTable();
-    },
-    buildPagePath(path) {
-      return path + "/" + this.currentPage + "/" + this.pageSize;
-    },
-    getColor(method) {
-      return this.methodColorMap.get(method);
-    },
-    setEnvironment(data) {
-      this.environmentId = data.id;
-    },
-    clearSelection() {
+    created: function () {
       if (this.$refs.apitable) {
         this.$refs.apitable.clearSelectRows();
-        this.$refs.apitable.clearSelection();
+      }
+      this.initTable();
+      this.getMaintainerOptions();
+    },
+    watch: {
+      selectNodeIds() {
+        this.initTable();
+      },
+      currentProtocol() {
+        this.initTable();
+      },
+      projectId() {
+        this.initTable();
       }
     },
-    genProtocalFilter(protocalType) {
-      if (protocalType === "HTTP") {
-        this.methodFilters = [
-          {text: 'GET', value: 'GET'},
-          {text: 'POST', value: 'POST'},
-          {text: 'PUT', value: 'PUT'},
-          {text: 'PATCH', value: 'PATCH'},
-          {text: 'DELETE', value: 'DELETE'},
-          {text: 'OPTIONS', value: 'OPTIONS'},
-          {text: 'HEAD', value: 'HEAD'},
-          {text: 'CONNECT', value: 'CONNECT'},
-        ];
-      } else if (protocalType === "TCP") {
-        this.methodFilters = [
-          {text: 'TCP', value: 'TCP'},
-        ];
-      } else if (protocalType === "SQL") {
-        this.methodFilters = [
-          {text: 'SQL', value: 'SQL'},
-        ];
-      } else if (protocalType === "DUBBO") {
-        this.methodFilters = [
-          {text: 'DUBBO', value: 'DUBBO'},
-          {text: 'dubbo://', value: 'dubbo://'},
-        ];
-      } else {
-        this.methodFilters = [
-          {text: 'GET', value: 'GET'},
-          {text: 'POST', value: 'POST'},
-          {text: 'PUT', value: 'PUT'},
-          {text: 'PATCH', value: 'PATCH'},
-          {text: 'DELETE', value: 'DELETE'},
-          {text: 'OPTIONS', value: 'OPTIONS'},
-          {text: 'HEAD', value: 'HEAD'},
-          {text: 'CONNECT', value: 'CONNECT'},
-          {text: 'DUBBO', value: 'DUBBO'},
-          {text: 'dubbo://', value: 'dubbo://'},
-          {text: 'SQL', value: 'SQL'},
-          {text: 'TCP', value: 'TCP'},
-        ];
+    computed: {
+      selectRows() {
+        if (this.$refs.apitable) {
+          return this.$refs.apitable.getSelectRows();
+        } else {
+          return new Set();
+        }
       }
     },
-    getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-        this.valueArr.userId = response.data;
-        this.userFilters = response.data.map(u => {
-          return {text: u.name, value: u.id};
+    methods: {
+      isApiListEnableChange(data) {
+        this.$emit('isApiListEnableChange', data);
+      },
+      initTable(projectId) {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+        this.condition.moduleIds = this.selectNodeIds;
+        if (this.trashEnable) {
+          this.condition.filters = {status: ["Trash"]};
+          this.condition.moduleIds = [];
+        }
+        if (projectId != null && typeof projectId === 'string') {
+          this.condition.projectId = projectId;
+        } else if (this.projectId != null) {
+          this.condition.projectId = this.projectId;
+        }
+
+        if (this.currentProtocol != null) {
+          this.condition.protocol = this.currentProtocol;
+        } else {
+          this.condition.protocol = "HTTP";
+        }
+
+        let url = '/api/definition/list/';
+        if (this.isTestPlan) {
+          url = '/api/definition/list/relevance/';
+          this.condition.planId = this.planId;
+        }
+        this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.genProtocalFilter(this.condition.protocol);
+          this.$nextTick(function () {
+            if (this.$refs.apitable) {
+              this.$refs.apitable.doLayout();
+              this.$refs.apitable.checkTableRowIsSelect();
+            }
+          });
         });
-      });
+        //添加自定义列的查询
+        getLabel(this, API_LIST);
+      },
+
+      showExecResult(row) {
+        this.visible = false;
+        this.$emit('showExecResult', row);
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTable();
+      },
+      sort(column) {
+        // 每次只对一个字段排序
+        if (this.condition.orders) {
+          this.condition.orders = [];
+        }
+        _sort(column, this.condition);
+        this.initTable();
+      },
+      buildPagePath(path) {
+        return path + "/" + this.currentPage + "/" + this.pageSize;
+      },
+      getColor(flag, method) {
+        return this.methodColorMap.get(method);
+      },
+      setEnvironment(data) {
+        this.environmentId = data.id;
+      },
+      clearSelection() {
+        if (this.$refs.apitable) {
+          this.$refs.apitable.clearSelectRows();
+          this.$refs.apitable.clearSelection();
+        }
+      },
+      genProtocalFilter(protocalType) {
+        if (protocalType === "HTTP") {
+          this.methodFilters = [
+            {text: 'GET', value: 'GET'},
+            {text: 'POST', value: 'POST'},
+            {text: 'PUT', value: 'PUT'},
+            {text: 'PATCH', value: 'PATCH'},
+            {text: 'DELETE', value: 'DELETE'},
+            {text: 'OPTIONS', value: 'OPTIONS'},
+            {text: 'HEAD', value: 'HEAD'},
+            {text: 'CONNECT', value: 'CONNECT'},
+          ];
+        } else if (protocalType === "TCP") {
+          this.methodFilters = [
+            {text: 'TCP', value: 'TCP'},
+          ];
+        } else if (protocalType === "SQL") {
+          this.methodFilters = [
+            {text: 'SQL', value: 'SQL'},
+          ];
+        } else if (protocalType === "DUBBO") {
+          this.methodFilters = [
+            {text: 'DUBBO', value: 'DUBBO'},
+            {text: 'dubbo://', value: 'dubbo://'},
+          ];
+        } else {
+          this.methodFilters = [
+            {text: 'GET', value: 'GET'},
+            {text: 'POST', value: 'POST'},
+            {text: 'PUT', value: 'PUT'},
+            {text: 'PATCH', value: 'PATCH'},
+            {text: 'DELETE', value: 'DELETE'},
+            {text: 'OPTIONS', value: 'OPTIONS'},
+            {text: 'HEAD', value: 'HEAD'},
+            {text: 'CONNECT', value: 'CONNECT'},
+            {text: 'DUBBO', value: 'DUBBO'},
+            {text: 'dubbo://', value: 'dubbo://'},
+            {text: 'SQL', value: 'SQL'},
+            {text: 'TCP', value: 'TCP'},
+          ];
+        }
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.valueArr.userId = response.data;
+          this.userFilters = response.data.map(u => {
+            return {text: u.name, value: u.id};
+          });
+        });
+      },
+      getConditions() {
+        let sampleSelectRows = this.$refs.apitable.getSelectRows();
+        let param = buildBatchParam(this);
+        param.ids = Array.from(sampleSelectRows).map(row => row.id);
+        return param;
+      }
     },
-    getConditions() {
-      let sampleSelectRows = this.$refs.apitable.getSelectRows();
-      let param = buildBatchParam(this);
-      param.ids = Array.from(sampleSelectRows).map(row => row.id);
-      return param;
-    }
-  },
-}
+  }
 </script>
 
 <style scoped>
-.operate-button > div {
-  display: inline-block;
-  margin-left: 10px;
-}
+  .operate-button > div {
+    display: inline-block;
+    margin-left: 10px;
+  }
 
-.request-method {
-  padding: 0 5px;
-  color: #1E90FF;
-}
+  .request-method {
+    padding: 0 5px;
+    color: #1E90FF;
+  }
 
-.api-el-tag {
-  color: white;
-}
+  .api-el-tag {
+    color: white;
+  }
 
-.search-input {
-  float: right;
-  width: 30%;
-  margin-bottom: 20px;
-  margin-right: 20px;
-}
+  .search-input {
+    float: right;
+    width: 30%;
+    margin-bottom: 20px;
+    margin-right: 20px;
+  }
 
 </style>
