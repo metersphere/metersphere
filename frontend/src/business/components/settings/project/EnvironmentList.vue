@@ -258,10 +258,18 @@
       },
       deleteEnv(environment) {
         if (environment.id) {
-          this.result = this.$get('/api/environment/delete/' + environment.id, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.list();
-          });
+          this.$confirm(this.$t('commons.confirm_delete') + environment.name,  {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            type: "warning"
+          }).then(() => {
+            this.result = this.$get('/api/environment/delete/' + environment.id, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.list();
+            });
+          }).catch(() => {
+            this.$info(this.$t('commons.delete_cancelled'));
+          })
         }
       },
       getNoRepeatName(name) {
