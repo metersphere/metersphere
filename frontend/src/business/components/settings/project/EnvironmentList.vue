@@ -1,6 +1,6 @@
 <template>
-  <div v-loading="result.loading">
-    <el-card class="table-card">
+  <div>
+    <el-card class="table-card" v-loading="result.loading">
       <!-- 表头 -->
       <template v-slot:header>
         <ms-table-header :title="$t('api_test.environment.environment_list')" :create-tip="btnTips"
@@ -14,10 +14,10 @@
         </ms-table-header>
       </template>
       <!-- 环境列表内容 -->
-      <el-table border :data="environments"
+      <el-table border :data="environments" @filter-change="filter"
                 @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table">
         <el-table-column type="selection"></el-table-column>
-        <el-table-column :label="$t('commons.project')" width="250" show-overflow-tooltip>
+        <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId" show-overflow-tooltip>
           <template v-slot="scope">
             <span>{{idNameMap.get(scope.row.projectId)}}</span>
           </template>
@@ -140,6 +140,7 @@
         pageSize: 10,
         total: 0,
         projectIds: [],   //当前工作空间所拥有的所有项目id
+        projectFilters: [],
       }
     },
     created() {
@@ -208,6 +209,10 @@
             this.projectList.forEach(project => {
               this.idNameMap.set(project.id, project.name);
               this.projectIds.push(project.id);
+              this.projectFilters.push({
+                text: project.name,
+                value: project.id,
+              })
             });
             this.getEnvironments();
           })
@@ -215,9 +220,13 @@
           this.getEnvironments()
         }
       },
-      getEnvironments(){
+      getEnvironments(projectIds){
         this.environments = [];
-        this.condition.projectIds = this.projectIds;
+        if (projectIds && projectIds.length > 0) {
+          this.condition.projectIds = projectIds;
+        } else {
+          this.condition.projectIds = this.projectIds;
+        }
         let url = '/api/environment/list/' + this.currentPage + '/' + this.pageSize;
         this.result = this.$post(url, this.condition, response => {
           this.environments = response.data.listObject;
@@ -279,6 +288,11 @@
           }
         }
         return name;
+      },
+
+      //筛选指定项目下的环境
+      filter(filters) {
+        this.getEnvironments(filters.projectId)
       },
 
       //对话框取消按钮
