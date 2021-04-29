@@ -30,8 +30,6 @@
 
       <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
-      <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
-
       <step-change-item :form="form"/>
       <test-case-step-item :label-width="labelWidth" v-if="form.stepModel === 'STEP'" :form="form"/>
       <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
