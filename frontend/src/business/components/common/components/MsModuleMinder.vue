@@ -11,7 +11,9 @@
       :tag-edit-check="tagEditCheck"
       :priority-disable-check="priorityDisableCheck"
       :distinct-tags="distinctTags"
+      :default-mold="minderModel"
       @afterMount="$emit('afterMount')"
+      @moldChange="handleMoldChange"
       @save="save"
     />
   </div>
@@ -25,6 +27,7 @@ export default {
   name: "MsModuleMinder",
   components: {MsFullScreenButton},
   props: {
+    minderKey: String,
     treeNodes: {
       type: Array,
       default() {
@@ -98,7 +101,23 @@ export default {
       })
     }
   },
+  computed: {
+    minderModel() {
+      if (this.minderKey) {
+        let model = localStorage.getItem(this.minderKey + 'minderModel');
+        if (model) {
+          return Number.parseInt(model);
+        }
+      }
+      return 3;
+    }
+  },
   methods: {
+    handleMoldChange(index) {
+      if (this.minderKey) {
+        localStorage.setItem(this.minderKey + 'minderModel', index);
+      }
+    },
     save(data) {
       this.$emit('save', data)
     },

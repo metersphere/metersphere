@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    minder-key="testCase"
     :select-node="selectNode"
     :distinct-tags="tags"
     :tag-edit-check="tagEditCheck()"
