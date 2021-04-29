@@ -498,6 +498,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     swaggerParam.setDescription((String) param.get("description"));
                     swaggerParam.setName((String) param.get("name"));
                     swaggerParam.setRequired((boolean) param.get("required"));
+                    //  请求头 value 没有导出
+//                    JSONObject schema = new JSONObject();
+//                    swaggerParam.setSchema(schema);
+//                    if(type.equals("headers")) {
+//                        schema.put("type", "string");
+//                        schema.put("example", param.getString("value"));
+//                        swaggerParam.setSchema(schema);
+//                    }
                     paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam)));
                 }
             }
@@ -519,6 +527,55 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         schema.put("type", "object");
         JSONObject properties = buildSchema(requestBody);
         schema.put("properties", properties);
+        return schema;
+    }
+
+    //  请求体是 array 类型的情况
+/* 例子："schema":{
+        "type":"array",
+            "items":{
+            "type":"object",
+            "properties":{
+                "ids":{
+                    "type":"string"
+                }
+            }
+        }
+    }   */
+    private JSONObject buildRequestBodyJsonInfo(JSONArray requestBody) {
+        if(requestBody == null)
+            return null;
+        JSONObject schema = new JSONObject();
+        schema.put("type", "array");
+        JSONObject items = new JSONObject();
+
+        if(requestBody.size() > 0) {
+            Object example = requestBody.get(0);
+            if(example instanceof JSONObject) {
+                items.put("type", "object");
+                items.put("properties", buildSchema((JSONObject) example));
+            } else if(example instanceof java.lang.String) {
+                items.put("type", "string");
+            } else if(example instanceof java.lang.Integer) {
+                items.put("type", "integer");
+                items.put("format", "int64");
+            } else if(example instanceof java.lang.Boolean) {
+                items.put("type", "boolean");
+            } else if(example instanceof java.math.BigDecimal) {
+                items.put("type", "double");
+            }
+            else {    //  JSONOArray
+                items.put("type", "array");
+                JSONObject item = new JSONObject();
+                if(((JSONArray) example).size() > 0) {
+                    if(((JSONArray) example).get(0) instanceof JSONObject) {
+                        item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) example).get(0));
+                    }
+                }
+                items.put("items", item);
+            }
+        }
+        schema.put("items", items);
         return schema;
     }
 
@@ -650,37 +707,41 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             put("Form Data", org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE);
             put("WWW_FORM", org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE);
         }};
-        JSONObject bodyInfo = new JSONObject();
+        Object bodyInfo = new Object();
         JSONObject body = respOrReq.getJSONObject("body");
 
-        try {
-            if(body != null) { //  将请求体转换成相应的格式导出
-                String bodyType = body.getString("type");
-                if(bodyType == null) {
+        if(body != null) { //  将请求体转换成相应的格式导出
+            String bodyType = body.getString("type");
+            if(bodyType == null) {
 
-                }else if(bodyType.equals("JSON")) {
-                    bodyInfo = buildRequestBodyJsonInfo(body.getJSONObject("raw"));
-                } else if(bodyType.equals("XML")) {
-                    String xmlText = body.getString("raw");
-                    JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
-                    bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
-                } else if(bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
-                    JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
-                    bodyInfo = buildformDataSchema(formData);
+            }else if(bodyType.equals("JSON")) {
+                try{    //  若请求体是一个 object
+                    bodyInfo = buildRequestBodyJsonInfo(body.getJSONArray("raw"));
+                } catch (Exception e) {
+                    try {   //  若请求体是一个 array
+                        bodyInfo = buildRequestBodyJsonInfo(body.getJSONObject("raw"));
+                    } catch (Exception e1) {    //  若请求体 json 不合法，则忽略错误，原样字符串导出/导入
+                        bodyInfo = new JSONObject();
+                        ((JSONObject) bodyInfo).put("type", "string");
+                        ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+                    }
                 }
+            } else if(bodyType.equals("XML")) {
+                String xmlText = body.getString("raw");
+                JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
+                bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
+            } else if(bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
+                JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
+                bodyInfo = buildformDataSchema(formData);
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
         }
 
         String type = respOrReq.getJSONObject("body").getString("type");
         JSONObject content = new JSONObject();
-        JSONObject schema = bodyInfo;   //  请求体部分
+        Object schema = bodyInfo;   //  请求体部分
         JSONObject typeName = new JSONObject();
         if (schema != null) {
-            schema.put("type", null);
-            schema.put("format", null);
-            typeName.put("schema", schema);
+            typeName.put("schema", schema);//schema.getJSONObject("properties").size() == 0? "" :
         }
         if (type != null && StringUtils.isNotBlank(type)) {
             content.put(typeMap.get(type), typeName);
