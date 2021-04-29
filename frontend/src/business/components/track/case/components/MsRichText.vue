@@ -30,7 +30,7 @@
       return {
         editor: ClassicEditor,
         editorConfig: {
-          toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ,'insertTable', 'imageUpload', '|','undo', 'redo'],
+          toolbar: [ 'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote' ,'insertTable', '|','undo', 'redo'],
           // ckfinder: {
           //   uploadUrl: `/image/uploadCkEditor?imgPath=${JSON.stringify(this.imagePath)}`
           // },

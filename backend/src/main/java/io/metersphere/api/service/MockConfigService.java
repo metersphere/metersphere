@@ -14,13 +14,14 @@ import io.metersphere.commons.utils.JsonPathUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
+import org.json.XML;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -410,10 +411,39 @@ public class MockConfigService {
                 e.printStackTrace();
             }
             return object;
-        } else {
-            Enumeration<String> paramNameItor = request.getParameterNames();
+        } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
+            String xmlString = this.readXml(request);
+            System.out.println(xmlString);
 
+            org.json.JSONObject xmlJSONObj = XML.toJSONObject(xmlString);
+            String jsonStr = xmlJSONObj.toString();
+            JSONObject object = null;
+            try {
+                object = JSONObject.parseObject(jsonStr);
+            } catch (Exception e) {
+            }
+            return object;
+        } else if (StringUtils.equalsIgnoreCase("application/x-www-form-urlencoded", request.getContentType())) {
             JSONObject object = new JSONObject();
+            Enumeration<String> paramNameItor = request.getParameterNames();
+            while (paramNameItor.hasMoreElements()) {
+                String key = paramNameItor.nextElement();
+                String value = request.getParameter(key);
+                object.put(key, value);
+            }
+            return object;
+        } else {
+            JSONObject object = new JSONObject();
+            String bodyParam = this.readBody(request);
+            if (!StringUtils.isEmpty(bodyParam)) {
+                try {
+                    object = JSONObject.parseObject(bodyParam);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            Enumeration<String> paramNameItor = request.getParameterNames();
             while (paramNameItor.hasMoreElements()) {
                 String key = paramNameItor.nextElement();
                 String value = request.getParameter(key);
@@ -423,40 +453,103 @@ public class MockConfigService {
         }
     }
 
+    private String readXml(HttpServletRequest request) {
+        {
+            String inputLine = null;
+            // 接收到的数据
+            StringBuffer recieveData = new StringBuffer();
+            BufferedReader in = null;
+            try {
+                in = new BufferedReader(new InputStreamReader(
+                        request.getInputStream(), "UTF-8"));
+                while ((inputLine = in.readLine()) != null) {
+                    recieveData.append(inputLine);
+                }
+            } catch (IOException e) {
+            } finally {
+                try {
+                    if (null != in) {
+                        in.close();
+                    }
+                } catch (IOException e) {
+                }
+            }
+
+            return recieveData.toString();
+        }
+    }
+
+    private String readBody(HttpServletRequest request) {
+        String result = "";
+        try {
+            InputStream inputStream = request.getInputStream();
+            ByteArrayOutputStream outSteam = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = inputStream.read(buffer)) != -1) {
+                outSteam.write(buffer, 0, len);
+            }
+            outSteam.close();
+            inputStream.close();
+            result = new String(outSteam.toByteArray(), "UTF-8");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
     public JSONObject getSendRestParamMapByIdAndUrl(ApiDefinitionWithBLOBs api, String urlParams) {
 //        ApiDefinitionWithBLOBs api = apiDefinitionMapper.selectByPrimaryKey(apiId);
         JSONObject returnJson = new JSONObject();
         if (api != null) {
             String path = api.getPath();
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
             String[] pathArr = path.split("/");
-            List<String> sendParams = new ArrayList<>();
-            for (String param : pathArr) {
+            String[] sendParamArr = urlParams.split("/");
+
+            //获取 url的<参数名-参数值>，通过匹配api的接口设置和实际发送的url
+            for (int i = 0; i < pathArr.length; i++) {
+                String param = pathArr[i];
                 if (param.startsWith("{") && param.endsWith("}")) {
                     param = param.substring(1, param.length() - 1);
-                    sendParams.add(param);
-                }
-            }
-            try {
-                JSONObject requestJson = JSONObject.parseObject(api.getRequest());
-                if (requestJson.containsKey("rest")) {
-                    JSONArray jsonArray = requestJson.getJSONArray("rest");
-                    for (int i = 0; i < jsonArray.size(); i++) {
-                        JSONObject object = jsonArray.getJSONObject(i);
-                        if (object.containsKey("name") && object.containsKey("enable") && object.getBoolean("enable")) {
-                            String name = object.getString("name");
-                            if (sendParams.contains(name)) {
-                                String value = "";
-                                if (object.containsKey("value")) {
-                                    value = object.getString("value");
-                                }
-                                returnJson.put(name, value);
-                            }
-                        }
+                    String value = "";
+                    if (sendParamArr.length > i) {
+                        value = sendParamArr[i];
                     }
+                    returnJson.put(param, value);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+
+//            List<String> sendParams = new ArrayList<>();
+//            for (String param : pathArr) {
+//                if (param.startsWith("{") && param.endsWith("}")) {
+//                    param = param.substring(1, param.length() - 1);
+//                    sendParams.add(param);
+//                }
+//            }
+//            try {
+//                JSONObject requestJson = JSONObject.parseObject(api.getRequest());
+//                if (requestJson.containsKey("rest")) {
+//                    JSONArray jsonArray = requestJson.getJSONArray("rest");
+//                    for (int i = 0; i < jsonArray.size(); i++) {
+//                        JSONObject object = jsonArray.getJSONObject(i);
+//                        if (object.containsKey("name") && object.containsKey("enable") && object.getBoolean("enable")) {
+//                            String name = object.getString("name");
+//                            if (sendParams.contains(name)) {
+//                                String value = "";
+//                                if (object.containsKey("value")) {
+//                                    value = object.getString("value");
+//                                }
+//                                returnJson.put(name, value);
+//                            }
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
         }
         return returnJson;
     }
@@ -577,7 +670,8 @@ public class MockConfigService {
         return this.assemblyMockConfingResponse(configList);
     }
 
-    public String checkReturnWithMockExpectByBodyParam(String method, String projectId, HttpServletRequest request, HttpServletResponse response) {
+    public String checkReturnWithMockExpectByBodyParam(String method, String projectId, HttpServletRequest
+            request, HttpServletResponse response) {
         String returnStr = "";
         String urlSuffix = this.getUrlSuffix(projectId, request);
         List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(projectId, method, urlSuffix, urlSuffix);
@@ -599,7 +693,8 @@ public class MockConfigService {
         return returnStr;
     }
 
-    public String checkReturnWithMockExpectByUrlParam(String get, String projectId, HttpServletRequest request, HttpServletResponse response) {
+    public String checkReturnWithMockExpectByUrlParam(String get, String projectId, HttpServletRequest
+            request, HttpServletResponse response) {
         String returnStr = "";
         String urlSuffix = this.getUrlSuffix(projectId, request);
         List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(projectId, "GET", null, urlSuffix);
