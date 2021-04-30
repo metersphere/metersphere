@@ -24,8 +24,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
   template.customFields.forEach(item => {
 
     if (item.defaultValue && !item.hasParse) {
-      item.defaultValue = JSON.parse(item.defaultValue);
-      item.hasParse = true; // 多次调用不执行这部分
+      setDefaultValue(item, JSON.parse(item.defaultValue));
     }
 
     // 添加自定义字段必填校验
@@ -43,7 +42,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       for (const key of oldFields.keys()) {
         if (item.name === key) {
           if (oldFields.get(key)) {
-            item.defaultValue = oldFields.get(key);
+            setDefaultValue(item, oldFields.get(key));
           }
         }
       }
@@ -54,7 +53,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       for (let i = 0; i < data.customFields.length; i++) {
         let customField = data.customFields[i];
         if (customField.id === item.id) {
-          item.defaultValue = customField.value;
+          setDefaultValue(item, customField.value);
           break;
         }
       }
@@ -63,7 +62,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       for (const key in data.customFields) {
         if (item.name === key) {
           if (data.customFields[key]) {
-            item.defaultValue = JSON.parse(data.customFields[key]);
+            setDefaultValue(item, JSON.parse(data.customFields[key]));
           }
         }
       }
@@ -73,6 +72,11 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       customFieldForm[item.name] = item.defaultValue;
     }
   });
+}
+
+function setDefaultValue(item, value) {
+  item.defaultValue = value;
+  item.hasParse = true; // 多次调用不执行这部分
 }
 
 // 将template的属性值设置给customFields
