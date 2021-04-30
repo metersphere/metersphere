@@ -1,6 +1,11 @@
 import i18n from '../../i18n/i18n'
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 
+function setDefaultValue(item, value) {
+  item.defaultValue = value;
+  item.hasParse = true; // 多次调用不执行这部分
+}
+
 /**
  * 设置默认值，添加自定义校验
  * @param data 原表单值
@@ -72,11 +77,6 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       customFieldForm[item.name] = item.defaultValue;
     }
   });
-}
-
-function setDefaultValue(item, value) {
-  item.defaultValue = value;
-  item.hasParse = true; // 多次调用不执行这部分
 }
 
 // 将template的属性值设置给customFields
