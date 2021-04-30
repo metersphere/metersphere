@@ -32,7 +32,16 @@
 
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id != 'root' && data.name !='默认模块'"
+            v-if="data.id !== 'root' && data.name !=='默认模块'"
+            class="item"
+            effect="dark"
+            :open-delay="200"
+            :content="$t('test_track.module.rename')"
+            placement="top">
+            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
+          </el-tooltip>
+          <el-tooltip
+            v-if="data.name ==='默认模块' && data.level !==1"
             class="item"
             effect="dark"
             :open-delay="200"
@@ -48,8 +57,18 @@
             placement="top">
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
+
           <el-tooltip
-            v-if="data.id != 'root' && data.name !='默认模块'"
+            v-if="data.name ==='默认模块' && data.level !==1"
+            class="item" effect="dark"
+            :open-delay="200"
+            :content="$t('commons.delete')"
+            placement="top">
+            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
+          </el-tooltip>
+
+          <el-tooltip
+            v-if="data.id !== 'root' && data.name !=='默认模块'"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
