@@ -43,11 +43,11 @@
 
 
             <el-form-item :label="$t('api_test.request.sql.result_variable')" prop="resultVariable">
-              <el-input v-model="request.resultVariable" maxlength="300" show-word-limit size="small"/>
+              <el-input v-model="request.resultVariable" maxlength="500" show-word-limit size="small"/>
             </el-form-item>
 
             <el-form-item :label="$t('api_test.request.sql.variable_names')" prop="variableNames">
-              <el-input v-model="request.variableNames" maxlength="300" show-word-limit size="small"/>
+              <el-input v-model="request.variableNames" maxlength="500" show-word-limit size="small"/>
             </el-form-item>
 
             <el-tabs v-model="activeName">
