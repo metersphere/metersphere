@@ -172,7 +172,7 @@
   import TableSelectCountBar from "./TableSelectCountBar";
   import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
   import {API_LIST, WORKSPACE_ID} from "@/common/js/constants";
-
+  import {STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
   export default {
     name: "RelevanceApiList",
     components: {
@@ -289,7 +289,7 @@
         this.$emit('isApiListEnableChange', data);
       },
       initTable(projectId) {
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+        this.condition.filters = {status: STATUS_FILTER};
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = {status: ["Trash"]};

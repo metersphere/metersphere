@@ -201,7 +201,7 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
-
+import {STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
 
 export default {
   name: "ApiList",
@@ -355,7 +355,7 @@ export default {
       this.condition.filters = {status: ["Trash"]};
     } else {
       this.tableOperatorButtons = this.tableUsualOperatorButtons;
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      this.condition.filters = {status: STATUS_FILTER};
     }
     this.initTable();
     this.getMaintainerOptions();
@@ -378,7 +378,7 @@ export default {
         this.condition.moduleIds = [];
       } else {
         this.tableOperatorButtons = this.tableUsualOperatorButtons;
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+        this.condition.filters = {status: STATUS_FILTER};
       }
       initCondition(this.condition, false);
       this.initTable();

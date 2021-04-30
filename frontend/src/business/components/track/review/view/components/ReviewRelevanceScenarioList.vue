@@ -58,6 +58,7 @@ import {_handleSelect, _handleSelectAll} from "@/common/js/tableUtils";
 import MsTag from "@/business/components/common/components/MsTag";
 import EnvPopover from "@/business/components/track/common/EnvPopover";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import {STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
 
 export default {
   name: "ReviewRelevanceScenarioList",
@@ -111,7 +112,7 @@ export default {
       this.selectRows = new Set();
       this.loading = true;
 
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      this.condition.filters = {status: STATUS_FILTER};
 
       this.condition.moduleIds = this.selectNodeIds;
 

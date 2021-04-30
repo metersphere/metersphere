@@ -30,6 +30,8 @@
                     :content="$t('test_track.plan.plan_status_completed')"/>
             <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain"
                     :content="$t('test_track.plan.plan_status_trash')"/>
+            <ms-tag v-else type="warning" effect="plain"
+                    :content="scope.row.status"/>
           </template>
         </el-table-column>
 
@@ -85,9 +87,8 @@ import ApiListContainer from "@/business/components/api/definition/components/li
 import MsEnvironmentSelect from "@/business/components/api/definition/components/case/MsEnvironmentSelect";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
-import {API_METHOD_COLOUR, CASE_PRIORITY} from "@/business/components/api/definition/model/JsonData";
+import {API_METHOD_COLOUR, CASE_PRIORITY,STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
 import {_filter, _handleSelect, _handleSelectAll, _sort} from "@/common/js/tableUtils";
-
 export default {
   name: "ReviewRelevanceApiList",
   components: {TableSelectCountBar, MsTablePagination, MsEnvironmentSelect, ApiListContainer, MsTag},
@@ -163,7 +164,7 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable(projectId) {
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      this.condition.filters = {status: STATUS_FILTER};
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};

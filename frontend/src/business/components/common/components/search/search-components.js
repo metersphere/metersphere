@@ -2,6 +2,7 @@ import MsTableSearchInput from "./MsTableSearchInput";
 import MsTableSearchDateTimePicker from "./MsTableSearchDateTimePicker";
 import MsTableSearchDatePicker from "./MsTableSearchDatePicker";
 import MsTableSearchSelect from "./MsTableSearchSelect";
+import {STATUS_FILTER_ALL} from "@/business/components/api/definition/model/JsonData";
 
 export default {
   MsTableSearchInput, MsTableSearchDatePicker, MsTableSearchDateTimePicker, MsTableSearchSelect
@@ -130,11 +131,7 @@ export const API_STATUS = {
   operator: {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
-  options: [
-    {value: 'Prepare', label: '未开始'},
-    {value: 'Underway', label: '进行中'},
-    {value: 'Completed', label: '已完成'}
-  ],
+  options: STATUS_FILTER_ALL,
   props: { // 尾部控件的props，一般为element ui控件的props
     multiple: true
   }
