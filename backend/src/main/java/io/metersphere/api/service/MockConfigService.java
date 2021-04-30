@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
+import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
 import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
 import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
 import io.metersphere.base.domain.*;
@@ -324,7 +325,18 @@ public class MockConfigService {
                                 }
                                 if (isJsonSchema) {
                                     if (bodyObj.containsKey("jsonSchema") && bodyObj.getJSONObject("jsonSchema").containsKey("properties")) {
-                                        returnStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
+                                        String bodyRetunStr = bodyObj.getJSONObject("jsonSchema").getJSONObject("properties").toJSONString();
+                                        JSONObject bodyReturnObj = JSONObject.parseObject(bodyRetunStr);
+                                        Set<String> keySet = bodyReturnObj.keySet();
+                                        JSONObject returnObj = new JSONObject();
+                                        for (String key : keySet) {
+                                            try {
+                                                JsonSchemaReturnObj obj = bodyReturnObj.getObject(key, JsonSchemaReturnObj.class);
+                                                returnObj.put(key, obj.getMockValue());
+                                            } catch (Exception e) {
+                                            }
+                                        }
+                                        returnStr = returnObj.toJSONString();
                                     }
                                 } else {
                                     if (bodyObj.containsKey("raw")) {
