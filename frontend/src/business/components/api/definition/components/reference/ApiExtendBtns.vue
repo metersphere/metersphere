@@ -13,14 +13,13 @@
 
 <script>
   import MsReferenceView from "./ReferenceView";
-  import MsTestPlanList from "../../../automation/scenario/testplan/TestPlanList";
   import {getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
   import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
   import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
 
   export default {
     name: "MsApiExtendBtns",
-    components: {MsReferenceView, MsTestPlanList},
+    components: {MsReferenceView},
     props: {
       row: Object,
       isCaseEdit: Boolean,
