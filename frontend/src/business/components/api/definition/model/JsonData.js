@@ -91,7 +91,6 @@ export const API_STATUS = [
   {id: 'Underway', label: '进行中', name: '进行中'},
   {id: 'Completed', label: '已完成', name: '已完成'},
   {id: 'UnCheck', label: '待审核', name: '待审核'},
-  {id: 'Checked', label: '审定', name: '审定'},
 ];
 
 export const STATUS_FILTER_ALL = API_STATUS.flatMap(function (c) {
