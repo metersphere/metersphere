@@ -47,6 +47,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
 
 export default {
   name: "ExistScenarios",
@@ -100,7 +101,7 @@ export default {
     getProjectScenarios() {
       let condition = {
         projectId: getCurrentProjectID(),
-        filters: {status: ["Prepare", "Underway", "Completed"]}
+        filters: {status: STATUS_FILTER}
       }
       this.projectLoadingResult = this.$post('/api/automation/list/' + this.currentPage + "/" + this.pageSize, condition, res => {
         let data = res.data;

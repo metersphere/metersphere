@@ -41,10 +41,9 @@
           </template>
         </el-table-column>
         <el-table-column  prop="status" :label="$t('commons.status')"
-                         sortable="custom"
-                         column-key="status"
                           :filters="statusFilters"
-                         show-overflow-tooltip width="120" :key="index">
+                          :filter-method="filterTag"
+                         show-overflow-tooltip width="120">
           <template v-slot:default="scope">
             <plan-status-table-item :value="scope.row.status"/>
           </template>
@@ -80,7 +79,7 @@
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
   import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
-
+  import {STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
   export default {
     name: "RelevanceScenarioList",
     components: {
@@ -102,7 +101,9 @@
         statusFilters: [
           {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
           {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-          {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
+          {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
+          {text: "待审核", value: 'Uncheck'},
+          {text: "审定", value: 'Checked'}
         ],
         result: {},
         condition: {},
@@ -134,6 +135,9 @@
       this.getWsProjects();
     },
     methods: {
+      filterTag(value, row) {
+        return row.status === value;
+      },
       search() {
         this.projectEnvMap.clear();
         this.projectIds.clear();
@@ -143,7 +147,7 @@
         this.selectRows = new Set();
         this.loading = true;
 
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+        this.condition.filters = {status: STATUS_FILTER};
 
         this.condition.moduleIds = this.selectNodeIds;
 

@@ -87,10 +87,21 @@ export const REVIEW_STATUS = [
   {id: 'UnPass', label: '未通过'}
 ];
 export const API_STATUS = [
-  {id: 'Prepare', label: '未开始'},
-  {id: 'Underway', label: '进行中'},
-  {id: 'Completed', label: '已完成'}
+  {id: 'Prepare', label: '未开始', name: '未开始'},
+  {id: 'Underway', label: '进行中', name: '进行中'},
+  {id: 'Completed', label: '已完成', name: '已完成'},
+  {id: 'UnCheck', label: '待审核', name: '待审核'},
+  {id: 'Checked', label: '审定', name: '审定'},
 ];
+
+export const STATUS_FILTER_ALL = API_STATUS.flatMap(function (c) {
+  return {text: c.label, value: c.id};
+});
+
+export const STATUS_FILTER = API_STATUS.flatMap(function (c) {
+    return c.id;
+});
+
 export const TEST = [
   {id: 'performance', name: '性能测试', module: 'performance'},
   {id: 'testcase', name: '接口用例', module: 'api'},
