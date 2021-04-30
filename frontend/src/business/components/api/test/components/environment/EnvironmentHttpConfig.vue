@@ -4,7 +4,7 @@
     <div class="ms-border">
       <el-form-item prop="socket">
         <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
-        <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small" :disabled="httpConfig.isMock">
+        <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
           <template slot="prepend">
             <el-select v-model="condition.protocol" class="request-protocol-select" size="small">
               <el-option label="http://" value="http"/>
@@ -69,9 +69,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
           <template v-slot:default="{row}">
-            <ms-table-operator-button :disabled="httpConfig.isMock" :tip="$t('api_test.automation.copy')"
+            <ms-table-operator-button :tip="$t('api_test.automation.copy')"
                                       icon="el-icon-document-copy" @exec="copy(row)"/>
-            <ms-table-operator-button :disabled="httpConfig.isMock" :tip="$t('api_test.automation.remove')"
+            <ms-table-operator-button :tip="$t('api_test.automation.remove')"
                                       icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
           </template>
         </el-table-column>
