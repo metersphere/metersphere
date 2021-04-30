@@ -258,6 +258,7 @@ public class HistoricalDataUpgradeService {
                 if (StringUtils.isEmpty(preProcessor.getName())) {
                     preProcessor.setName("JSR223PreProcessor");
                 }
+                preProcessor.setScriptLanguage(request.getJsr223PreProcessor().getLanguage());
                 preProcessor.setType("JSR223PreProcessor");
                 preProcessor.setIndex(index + "");
                 preProcessor.setHashTree(new LinkedList<>());
@@ -271,6 +272,7 @@ public class HistoricalDataUpgradeService {
                 if (StringUtils.isEmpty(preProcessor.getName())) {
                     preProcessor.setName("JSR223PostProcessor");
                 }
+                preProcessor.setScriptLanguage(request.getJsr223PostProcessor().getLanguage());
                 preProcessor.setType("JSR223PostProcessor");
                 preProcessor.setIndex(index + "");
                 preProcessor.setHashTree(new LinkedList<>());

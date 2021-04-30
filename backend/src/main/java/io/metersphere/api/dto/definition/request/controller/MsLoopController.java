@@ -66,6 +66,8 @@ public class MsLoopController extends MsTestElement {
         // 不打开执行成功后轮询功能，则成功后就停止循环
         if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null && !countController.isProceed()) {
             ResultAction resultAction = new ResultAction();
+            resultAction.setProperty(TestElement.TEST_CLASS, ResultAction.class.getName());
+            resultAction.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ResultActionGui"));
             resultAction.setName("ResultAction");
             resultAction.setProperty("OnError.action", "1000");
             groupTree.add(resultAction);
