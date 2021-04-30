@@ -114,7 +114,6 @@ import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import {
   _handleSelect,
@@ -152,7 +151,6 @@ export default {
     MsTag,
     MsApiReportDetail,
     MsScenarioExtendButtons,
-    MsTestPlanList,
     BatchEdit,
     MsPlanRunMode,
     MsTableHeaderSelectPopover

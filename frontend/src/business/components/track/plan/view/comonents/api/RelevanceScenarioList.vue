@@ -74,7 +74,6 @@
   import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
   import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
-  import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
@@ -87,7 +86,7 @@
       EnvPopover,
       TestPlanScenarioListHeader,
       PlanStatusTableItem,
-      MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},
+      MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail},
     props: {
       referenced: {
         type: Boolean,
