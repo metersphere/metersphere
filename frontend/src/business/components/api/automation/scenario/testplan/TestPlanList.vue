@@ -237,25 +237,18 @@ export default {
       setScenarioSelectRows(rows) {
         this.projectIds.clear();
         this.map.clear();
-        if (this.scenarioCondition != null) {
-          let params = {};
-          params.condition = this.scenarioCondition;
-          this.$post('/api/automation/getApiScenarioProjectIdByConditions', params, res => {
-            let data = res.data;
-            data.forEach(scenario => {
-              scenario.projectIds.forEach(d => this.projectIds.add(d));
-              this.map.set(scenario.id, scenario.projectIds);
-            });
+        let rowsCopy = rows;
+        // 从场景列表中进来时所有用例都属于一个项目；只取第一个场景来获取projectIds
+        // 每个都获取的话，添加100个用例需要获取100次
+        let row = rows.values().next().value;
+        this.result = this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
+          let data = res.data;
+          data.projectIds.forEach(d => this.projectIds.add(d));
+          rowsCopy.forEach(it => {
+              this.map.set(it.id, data.projectIds);
           });
-        } else {
-          rows.forEach(row => {
-            this.result = this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
-              let data = res.data;
-              data.projectIds.forEach(d => this.projectIds.add(d));
-              this.map.set(row.id, data.projectIds);
-            });
-          });
-        }
+        })
+
       },
       initTableData() {
         if (this.planId) {
