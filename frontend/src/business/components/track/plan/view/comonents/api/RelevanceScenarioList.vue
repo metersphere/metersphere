@@ -79,7 +79,8 @@
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
   import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
-  import {STATUS_FILTER} from "@/business/components/api/definition/model/JsonData";
+  import {STATUS_FILTER,STATUS_FILTER_ALL} from "@/business/components/api/definition/model/JsonData";
+
   export default {
     name: "RelevanceScenarioList",
     components: {
@@ -98,13 +99,7 @@
     },
     data() {
       return {
-        statusFilters: [
-          {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-          {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-          {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
-          {text: "待审核", value: 'Uncheck'},
-          {text: "审定", value: 'Checked'}
-        ],
+        statusFilters: STATUS_FILTER_ALL,
         result: {},
         condition: {},
         currentScenario: {},
