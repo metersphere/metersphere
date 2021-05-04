@@ -138,7 +138,7 @@ export default {
     init() {
       this.extendTreeNodes = [];
       let all = 0;
-      this.treeNodes.forEach((v, i) =>{
+      this.treeNodes.forEach((v, i) => {
         if (v.hasOwnProperty("count")){
           all += v.count;
         }
