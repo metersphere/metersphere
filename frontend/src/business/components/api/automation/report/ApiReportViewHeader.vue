@@ -2,14 +2,17 @@
   <header class="report-header">
     <el-row>
       <el-col>
-        <span v-if="!debug"><el-input size="mini" style="width: 200px" v-model="report.name"/> </span>
+        <span v-if="!debug" class="time"> {{ getReportName() }}</span>
+        <span v-if="!debug" class="time" style="color: orangered">  -  </span>
         <span class="time"> {{ report.createTime | timestampFormatDate }}</span>
 
-        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
+        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini"
+                   @click="handleExport(report.name)" style="margin-right: 10px">
           {{$t('test_track.plan_view.export_report')}}
         </el-button>
 
-        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleSave(report.name)" style="margin-right: 10px">
+        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini"
+                   @click="handleSave(report.name)" style="margin-right: 10px">
           {{$t('commons.save')}}
         </el-button>
 
@@ -43,6 +46,13 @@
       }
     },
     methods: {
+      getReportName() {
+        if (this.debug) {
+          return '';
+        } else {
+          return this.report.name;
+        }
+      },
       handleExport(name) {
         this.$emit('reportExport', name);
       },

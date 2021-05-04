@@ -7,13 +7,13 @@
             {{request.method}}
           </div>
         </el-col>
-        <el-col :span="8">
+        <el-col :span="14">
           <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
             <div class="url">{{request.url}}</div>
           </el-tooltip>
         </el-col>
         <el-col :span="8">
-          <div class="url"> {{$t('api_report.start_time')}}：{{request.startTime | timestampFormatDate(true) }}
+          <div class="url" style="text-align: end"> {{$t('api_report.start_time')}}：{{request.startTime | timestampFormatDate(true) }}
           </div>
         </el-col>
       </el-row>
