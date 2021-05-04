@@ -25,7 +25,7 @@
                   </el-input>
                 </div>
 
-                <div style="float: right" >
+                <div style="float: right">
                   <el-button size="small" type="primary" class="add-button" icon="el-icon-plus"
                              @click="handleClick('CONSTANT')">{{ $t('api_test.automation.constant') }}
                   </el-button>
@@ -60,7 +60,8 @@
               <el-row>
                 <el-col :span="12">
                   <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
-                    <el-table ref="table" border :data="variables" class="adjust-table" :row-class-name="tableRowClassName"
+                    <el-table ref="table" border :data="variables" class="adjust-table"
+                              :row-class-name="tableRowClassName"
                               @select-all="select"
                               @select="select"
                               @row-click="edit"
@@ -78,7 +79,7 @@
                     </el-table>
                   </div>
                 </el-col>
-                <el-col :span="12" >
+                <el-col :span="12">
                   <ms-edit-constant v-if="editData.type=='CONSTANT'" ref="parameters" :editData.sync="editData"/>
                   <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
                   <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
@@ -175,14 +176,14 @@
       }
     },
     methods: {
-      getStyle(t){
-        if (t === 'LIST'){
+      getStyle(t) {
+        if (t === 'LIST') {
           return "color:red";
-        } else if (t === 'CSV'){
+        } else if (t === 'CSV') {
           return "color:#E6A23C";
-        } else if (t === 'COUNTER'){
+        } else if (t === 'COUNTER') {
           return "color:#02A7F0";
-        } else if (t === 'RANDOM'){
+        } else if (t === 'RANDOM') {
           return "color:#67C23A";
         }
       },
@@ -313,19 +314,19 @@
       filter() {
         let datas = [];
         this.variables.forEach(item => {
-          if (this.searchType && this.searchType != "" && this.selectVariable && this.selectVariable != "") {
+          if (this.searchType && this.searchType !== "" && this.selectVariable && this.selectVariable !== "") {
             if ((item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) || (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1)) {
               item.hidden = true;
             } else {
               item.hidden = undefined;
             }
-          } else if (this.selectVariable && this.selectVariable != "") {
+          } else if (this.selectVariable && this.selectVariable !== "") {
             if (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1) {
               item.hidden = true;
             } else {
               item.hidden = undefined;
             }
-          } else if (this.searchType && this.searchType != "") {
+          } else if (this.searchType && this.searchType !== "") {
             if (item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) {
               item.hidden = true;
             } else {
@@ -382,7 +383,7 @@
     padding: 4px 20px 4px 10px;
   }
 
-  .el-table td, .el-table th{
+  .el-table td, .el-table th {
     padding: 6px 0px !important;
   }
 </style>
