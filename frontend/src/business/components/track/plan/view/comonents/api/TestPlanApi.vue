@@ -135,7 +135,7 @@
           this.moduleOptions = {};
         },
         redirectCharType(){
-          if(this.redirectCharType==='api'){
+          if(this.redirectCharType === 'api'){
             this.model = 'api';
           }else{
             this.model = 'scenario';
