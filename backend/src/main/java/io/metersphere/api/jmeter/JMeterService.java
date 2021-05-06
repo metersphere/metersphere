@@ -8,6 +8,7 @@ import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
@@ -122,7 +123,7 @@ public class JMeterService {
         BackendListener backendListener = new BackendListener();
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
-        if (config != null && config.getMode().equals("serial") && config.getReportType().equals("setReport")) {
+        if (config != null && config.getMode().equals(RunModeConstants.SERIAL.toString()) && config.getReportType().equals(RunModeConstants.SET_REPORT.toString())) {
             arguments.addArgument(APIBackendListenerClient.TEST_REPORT_ID, config.getReportId());
 
         }

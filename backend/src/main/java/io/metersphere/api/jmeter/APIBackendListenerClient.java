@@ -420,6 +420,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
+        requestResult.setScenario(result.getScenario());
         if (result instanceof HTTPSampleResult) {
             HTTPSampleResult res = (HTTPSampleResult) result;
             requestResult.setCookies(res.getCookies());
