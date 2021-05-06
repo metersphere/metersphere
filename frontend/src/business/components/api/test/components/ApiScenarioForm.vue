@@ -9,7 +9,7 @@
       <el-select :disabled="isReadOnly" v-model="scenario.environmentId" class="environment-select"
                  @change="environmentChange" clearable>
         <el-option v-for="(environment, index) in environments" :key="index"
-                   :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                   :label="environment.name"
                    :value="environment.id"/>
         <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
           {{ $t('api_test.environment.environment_config') }}
