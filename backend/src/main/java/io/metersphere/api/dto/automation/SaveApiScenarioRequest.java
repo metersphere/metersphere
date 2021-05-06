@@ -54,4 +54,6 @@ public class SaveApiScenarioRequest {
 
     private List<String> unSelectIds;
 
+    private String customNum;
+
 }

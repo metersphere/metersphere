@@ -30,6 +30,7 @@
             @openScenario="editScenario"
             @edit="editScenario"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
+            :custom-num="customNum"
             ref="apiScenarioList"/>
         </el-tab-pane>
 
@@ -41,7 +42,7 @@
           closable>
           <div class="ms-api-scenario-div">
             <ms-edit-api-scenario @refresh="refresh" @openScenario="editScenario" @closePage="closePage" :currentScenario="item.currentScenario"
-                                  :moduleOptions="moduleOptions" ref="autoScenarioConfig"/>
+                                  :custom-num="customNum" :moduleOptions="moduleOptions" ref="autoScenarioConfig"/>
           </div>
         </el-tab-pane>
 
@@ -116,7 +117,11 @@
         selectNodeIds: [],
         nodeTree: [],
         currentModulePath: "",
+        customNum: false
       }
+    },
+    mounted() {
+      this.getProject();
     },
     watch: {
       redirectID() {
@@ -335,6 +340,14 @@
       },
       enableTrash(data) {
         this.trashEnable = data;
+      },
+      getProject() {
+        this.$get("/project/get/" + this.projectId, result => {
+          let data = result.data;
+          if (data) {
+            this.customNum = data.scenarioCustomNum;
+          }
+        })
       }
     }
   }
