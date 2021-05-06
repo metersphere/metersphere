@@ -280,7 +280,7 @@ public class ApiTestCaseService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
         if (StringUtils.equals("[]", request.getTags())) {
-            test.setTags(null);
+            test.setTags("");
         } else {
             test.setTags(request.getTags());
         }
@@ -310,7 +310,7 @@ public class ApiTestCaseService {
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
         if (StringUtils.equals("[]", request.getTags())) {
-            test.setTags(null);
+            test.setTags("");
         } else {
             test.setTags(request.getTags());
         }

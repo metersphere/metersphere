@@ -3,6 +3,7 @@
  */
 package io.metersphere.api.service.task;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.commons.exception.MSException;
@@ -11,13 +12,13 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.util.concurrent.Callable;
 
-public class ParallelExecTask<T> implements Callable<T> {
+public class ParallelScenarioExecTask<T> implements Callable<T> {
     private RunScenarioRequest request;
     private JMeterService jMeterService;
     private HashTree hashTree;
     private String id;
 
-    public ParallelExecTask(JMeterService jMeterService, String id, HashTree hashTree, RunScenarioRequest request) {
+    public ParallelScenarioExecTask(JMeterService jMeterService, String id, HashTree hashTree, RunScenarioRequest request) {
         this.jMeterService = jMeterService;
         this.request = request;
         this.hashTree = hashTree;
@@ -27,7 +28,7 @@ public class ParallelExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            jMeterService.runDefinition(id, hashTree, request.getReportId(), request.getRunMode());
+            jMeterService.runSerial(JSON.toJSONString(id), hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
             return null;
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
