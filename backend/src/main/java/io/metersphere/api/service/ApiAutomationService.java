@@ -43,6 +43,7 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -112,6 +113,8 @@ public class ApiAutomationService {
     private SystemParameterService systemParameterService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -225,7 +228,7 @@ public class ApiAutomationService {
     public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
-
+        checkScenarioNum(request);
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
 
         scenario.setCreateTime(System.currentTimeMillis());
@@ -241,6 +244,34 @@ public class ApiAutomationService {
         return scenario;
     }
 
+    private void checkScenarioNum(SaveApiScenarioRequest request) {
+        if (StringUtils.isNotBlank(request.getCustomNum())) {
+            String projectId = request.getProjectId();
+            Project project = projectMapper.selectByPrimaryKey(projectId);
+            if (project != null) {
+                Boolean customNum = project.getCustomNum();
+                // 未开启自定义ID
+                if (!customNum) {
+                    request.setCustomNum(null);
+                } else {
+                    checkCustomNumExist(request);
+                }
+            } else {
+                MSException.throwException("add scenario fail, project is not find.");
+            }
+        }
+    }
+
+    private void checkCustomNumExist(SaveApiScenarioRequest request) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andCustomNumEqualTo(request.getCustomNum())
+                .andIdNotEqualTo(request.getId());
+        List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            MSException.throwException("自定义ID已存在！");
+        }
+    }
+
     private int getNextNum(String projectId) {
         ApiScenario apiScenario = extApiScenarioMapper.getNextNum(projectId);
         if (apiScenario == null) {
@@ -252,6 +283,7 @@ public class ApiAutomationService {
 
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
+        checkScenarioNum(request);
         List<String> bodyUploadIds = request.getBodyUploadIds();
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
@@ -268,6 +300,7 @@ public class ApiAutomationService {
         scenario.setId(request.getId());
         scenario.setName(request.getName());
         scenario.setProjectId(request.getProjectId());
+        scenario.setCustomNum(request.getCustomNum());
         if (StringUtils.equals(request.getTags(), "[]")) {
             scenario.setTags("");
         } else {
@@ -1430,8 +1463,10 @@ public class ApiAutomationService {
         ApiScenarioMapper batchMapper = sqlSession.getMapper(ApiScenarioMapper.class);
         List<ApiScenarioWithBLOBs> data = apiImport.getData();
         int num = 0;
+        Project project = new Project();
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
+            project = projectMapper.selectByPrimaryKey(data.get(0).getProjectId());
         }
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
@@ -1439,6 +1474,9 @@ public class ApiAutomationService {
                 item.setName(item.getName().substring(0, 255));
             }
             item.setNum(num++);
+            if (BooleanUtils.isTrue(project.getScenarioCustomNum())) {
+                item.setCustomNum(String.valueOf(num));
+            }
             importCreate(item, batchMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
@@ -1714,5 +1752,9 @@ public class ApiAutomationService {
             }
         }
         return returnList;
+    }
+
+    public void updateCustomNumByProjectId(String id) {
+        extApiScenarioMapper.updateCustomNumByProjectId(id);
     }
 }

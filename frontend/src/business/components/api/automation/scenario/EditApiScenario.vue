@@ -85,6 +85,11 @@
                           :rows="2" size="small"/>
               </el-form-item>
             </el-col>
+            <el-col :span="7" v-if="customNum">
+              <el-form-item label="ID" prop="customNum">
+                <el-input v-model="currentScenario.customNum" size="small"></el-input>
+              </el-form-item>
+            </el-col>
           </el-row>
 
         </el-form>
@@ -262,7 +267,11 @@
     props: {
       moduleOptions: Array,
       currentScenario: {},
-      type: String
+      type: String,
+      customNum: {
+        type: Boolean,
+        default: false
+      }
     },
     components: {
       MsVariableList,
@@ -299,6 +308,10 @@
           apiScenarioModuleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
           principal: [{required: true, message: this.$t('api_test.definition.request.responsible'), trigger: 'change'}],
+          customNum: [
+            {required: true, message: "ID必填", trigger: 'blur'},
+            {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+          ],
         },
         environments: [],
         currentEnvironmentId: "",
@@ -995,7 +1008,9 @@
       getApiScenario() {
         this.loading = true;
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
-          this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+          if (this.currentScenario.tags) {
+            this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+          }
         }
         if (!this.currentScenario.variables) {
           this.currentScenario.variables = [];

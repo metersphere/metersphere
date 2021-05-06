@@ -973,6 +973,66 @@ public class ProjectExample {
             addCriterion("custom_num not between", value1, value2, "customNum");
             return (Criteria) this;
         }
+
+        public Criteria andScenarioCustomNumIsNull() {
+            addCriterion("scenario_custom_num is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumIsNotNull() {
+            addCriterion("scenario_custom_num is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumEqualTo(Boolean value) {
+            addCriterion("scenario_custom_num =", value, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumNotEqualTo(Boolean value) {
+            addCriterion("scenario_custom_num <>", value, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumGreaterThan(Boolean value) {
+            addCriterion("scenario_custom_num >", value, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("scenario_custom_num >=", value, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumLessThan(Boolean value) {
+            addCriterion("scenario_custom_num <", value, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumLessThanOrEqualTo(Boolean value) {
+            addCriterion("scenario_custom_num <=", value, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumIn(List<Boolean> values) {
+            addCriterion("scenario_custom_num in", values, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumNotIn(List<Boolean> values) {
+            addCriterion("scenario_custom_num not in", values, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumBetween(Boolean value1, Boolean value2) {
+            addCriterion("scenario_custom_num between", value1, value2, "scenarioCustomNum");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioCustomNumNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("scenario_custom_num not between", value1, value2, "scenarioCustomNum");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
