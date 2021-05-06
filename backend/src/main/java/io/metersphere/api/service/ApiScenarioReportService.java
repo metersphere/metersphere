@@ -1,6 +1,9 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
@@ -19,10 +22,7 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -231,7 +231,7 @@ public class ApiScenarioReportService {
             returnReport = report;
             reportIds.add(report.getId());
         }
-        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
+        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
         return returnReport;
     }
 
@@ -307,7 +307,7 @@ public class ApiScenarioReportService {
             reportIds.add(report.getId());
         }
         // 合并报告
-        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
+        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
@@ -374,6 +374,52 @@ public class ApiScenarioReportService {
         }
     }
 
+    public void margeReport(String reportId, List<String> reportIds) {
+        // 合并生成一份报告
+        if (CollectionUtils.isNotEmpty(reportIds)) {
+            TestResult testResult = new TestResult();
+            testResult.setTestId(UUID.randomUUID().toString());
+            ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
+            example.createCriteria().andReportIdIn(reportIds);
+            List<ApiScenarioReportDetail> details = apiScenarioReportDetailMapper.selectByExampleWithBLOBs(example);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            for (ApiScenarioReportDetail detail : details) {
+                try {
+                    String content = new String(detail.getContent(), StandardCharsets.UTF_8);
+                    TestResult scenarioResult = mapper.readValue(content, new TypeReference<TestResult>() {
+                    });
+                    testResult.getScenarios().addAll(scenarioResult.getScenarios());
+                    testResult.setTotal(testResult.getTotal() + scenarioResult.getTotal());
+                    testResult.setError(testResult.getError() + scenarioResult.getError());
+                    testResult.setPassAssertions(testResult.getPassAssertions() + scenarioResult.getPassAssertions());
+                    testResult.setSuccess(testResult.getSuccess() + scenarioResult.getSuccess());
+                    testResult.setTotalAssertions(scenarioResult.getTotalAssertions() + testResult.getTotalAssertions());
+                } catch (Exception e) {
+                    LogUtil.error(e.getMessage());
+                }
+            }
+
+            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(reportId);
+            if (report != null) {
+                report.setExecuteType(ExecuteType.Saved.name());
+                report.setStatus(testResult.getError() > 0 ? "Error" : "Success");
+                apiScenarioReportMapper.updateByPrimaryKey(report);
+
+                ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
+                detail.setContent(JSON.toJSONString(testResult).getBytes(StandardCharsets.UTF_8));
+                detail.setReportId(report.getId());
+                detail.setProjectId(report.getProjectId());
+                apiScenarioReportDetailMapper.insert(detail);
+            }
+            // 清理其他报告保留一份合并后的报告
+            this.deleteByIds(reportIds);
+
+        }
+    }
+
+
     public ApiScenarioReport updateScenario(TestResult result, String runMode) {
         ApiScenarioReport lastReport = null;
         StringBuilder scenarioIds = new StringBuilder();
@@ -420,7 +466,7 @@ public class ApiScenarioReportService {
             reportIds.add(report.getId());
         }
         // 合并生成一份报告
-        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
+        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
         return lastReport;
     }
 

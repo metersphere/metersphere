@@ -300,7 +300,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
-            test.setTags(null);
+            test.setTags("");
         }
         this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
@@ -348,7 +348,7 @@ public class ApiDefinitionService {
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
-            test.setTags(null);
+            test.setTags("");
         }
         apiDefinitionMapper.insert(test);
         return test;
