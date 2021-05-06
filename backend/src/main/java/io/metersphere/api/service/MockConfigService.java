@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JsonPathUtils;
+import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
@@ -332,7 +333,16 @@ public class MockConfigService {
                                         for (String key : keySet) {
                                             try {
                                                 JsonSchemaReturnObj obj = bodyReturnObj.getObject(key, JsonSchemaReturnObj.class);
-                                                returnObj.put(key, obj.getMockValue());
+                                                String values = obj.getMockValue();
+                                                if (StringUtils.isEmpty(values)) {
+                                                    values = "";
+                                                } else {
+                                                    try {
+                                                        values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                                                    } catch (Exception e) {
+                                                    }
+                                                }
+                                                returnObj.put(key, values);
                                             } catch (Exception e) {
                                             }
                                         }
@@ -356,7 +366,16 @@ public class MockConfigService {
                                     for (int i = 0; i < kvsArr.size(); i++) {
                                         JSONObject kv = kvsArr.getJSONObject(i);
                                         if (kv.containsKey("name")) {
-                                            paramMap.put(kv.getString("name"), kv.getString("value"));
+                                            String values = kv.getString("value");
+                                            if (StringUtils.isEmpty(values)) {
+                                                values = "";
+                                            } else {
+                                                try {
+                                                    values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                                                } catch (Exception e) {
+                                                }
+                                            }
+                                            paramMap.put(kv.getString("name"), values);
                                         }
                                     }
                                 }
@@ -370,14 +389,24 @@ public class MockConfigService {
                                         if (kv.containsKey("description") && kv.containsKey("files")) {
                                             String name = kv.getString("description");
                                             JSONArray fileArr = kv.getJSONArray("files");
-                                            String value = "";
+                                            String allValue = "";
                                             for (int j = 0; j < fileArr.size(); j++) {
                                                 JSONObject fileObj = fileArr.getJSONObject(j);
                                                 if (fileObj.containsKey("name")) {
-                                                    value += fileObj.getString("name") + " ;";
+                                                    String values = fileObj.getString("name");
+                                                    if (StringUtils.isEmpty(values)) {
+                                                        values = "";
+                                                    } else {
+                                                        try {
+                                                            values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                                                        } catch (Exception e) {
+                                                        }
+                                                    }
+
+                                                    allValue += values + " ;";
                                                 }
                                             }
-                                            paramMap.put(name, value);
+                                            paramMap.put(name, allValue);
                                         }
                                     }
                                 }
