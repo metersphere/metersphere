@@ -29,7 +29,7 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.id == 'num'" prop="num" label="ID"
+          <el-table-column v-if="item.id == 'num' && !customNum" prop="num" label="ID"
                            sortable="custom"
                            min-width="120px"
                            show-overflow-tooltip :key="index">
@@ -37,6 +37,17 @@
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
               <el-tooltip v-else content="编辑">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.id == 'num' && customNum" prop="customNum" label="ID"
+                           sortable="custom"
+                           min-width="120px"
+                           show-overflow-tooltip :key="index">
+            <template slot-scope="scope">
+              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.customNum }} </span>
+              <el-tooltip v-else content="编辑">
+                <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -247,6 +258,10 @@
       isReadOnly: {
         type: Boolean,
         default: false,
+      },
+      customNum: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -709,6 +724,7 @@
         let rowParam = JSON.parse(JSON.stringify(row));
         rowParam.copy = true;
         rowParam.name = 'copy_' + rowParam.name;
+        rowParam.customNum = '';
         this.$emit('edit', rowParam);
       },
       showReport(row) {
