@@ -196,10 +196,12 @@ export default {
       let url = null;
       if(this.scenario.environment && this.scenario.environment.config.httpConfig
         && this.scenario.environment.config.httpConfig.conditions && this.scenario.environment.config.httpConfig.conditions.length > 0){
-        for(let i in this.scenario.environment.config.httpConfig.conditions){
-          let item = this.scenario.environment.config.httpConfig.conditions[i];
-          if(item.type ==='NONE'){
-            url =  item.protocol + '://' + item.socket + (this.request.path ? this.request.path : '');
+        for(let i in this.scenario.environment.config.httpConfig.conditions) {
+          if (this.scenario.environment.config.httpConfig.conditions[i]) {
+            let item = this.scenario.environment.config.httpConfig.conditions[i];
+            if (item.type === 'NONE') {
+              url = item.protocol + '://' + item.socket + (this.request.path ? this.request.path : '');
+            }
           }
         }
       }
