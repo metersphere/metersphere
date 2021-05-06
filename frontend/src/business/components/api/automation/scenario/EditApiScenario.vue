@@ -994,7 +994,7 @@
       },
       getApiScenario() {
         this.loading = true;
-        if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
+        if (this.currentScenario.tags != undefined && this.currentScenario.tags &&  !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
         }
         if (!this.currentScenario.variables) {
