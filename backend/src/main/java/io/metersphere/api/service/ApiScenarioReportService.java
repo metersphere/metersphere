@@ -396,6 +396,9 @@ public class ApiScenarioReportService {
                     testResult.setPassAssertions(testResult.getPassAssertions() + scenarioResult.getPassAssertions());
                     testResult.setSuccess(testResult.getSuccess() + scenarioResult.getSuccess());
                     testResult.setTotalAssertions(scenarioResult.getTotalAssertions() + testResult.getTotalAssertions());
+                    testResult.setScenarioTotal(testResult.getScenarioTotal() + scenarioResult.getScenarioTotal());
+                    testResult.setScenarioSuccess(testResult.getScenarioSuccess() + scenarioResult.getScenarioSuccess());
+                    testResult.setScenarioError(testResult.getScenarioError() + scenarioResult.getScenarioError());
                 } catch (Exception e) {
                     LogUtil.error(e.getMessage());
                 }

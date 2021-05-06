@@ -3,11 +3,15 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiDefinitionExecResultExample;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -61,8 +65,8 @@ public class ApiDefinitionExecResultService {
                         saveResult.setCreateTime(item.getStartTime());
                         saveResult.setUserId(result.getUserId());
                         saveResult.setName(item.getName());
-                        if (item.getName().indexOf("<->") != -1) {
-                            saveResult.setName(item.getName().substring(0, item.getName().indexOf("<->")));
+                        if (item.getName().indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
+                            saveResult.setName(item.getName().substring(0, item.getName().indexOf(DelimiterConstants.SEPARATOR.toString())));
                         }
                         saveResult.setResourceId(item.getName());
                         saveResult.setContent(JSON.toJSONString(item));
