@@ -597,7 +597,7 @@ public class ApiAutomationService {
         }
         report.setUpdateTime(System.currentTimeMillis());
         report.setCreateTime(System.currentTimeMillis());
-        if (config != null && config.getMode().equals("serial")) {
+        if (config != null && config.getMode().equals(RunModeConstants.SERIAL.toString())) {
             report.setCreateTime(System.currentTimeMillis() + 2000);
             report.setUpdateTime(System.currentTimeMillis() + 2000);
         }
@@ -751,8 +751,8 @@ public class ApiAutomationService {
         // 环境检查
         this.checkEnv(request, apiScenarios);
 
-        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
-            if (StringUtils.isNotEmpty(request.getConfig().getReportName())) {
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            if (StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
                 request.setExecuteType(ExecuteType.Completed.name());
             }
         }
@@ -806,7 +806,7 @@ public class ApiAutomationService {
 
         // 生成集成报告
         String serialReportId = null;
-        if (request.getConfig() != null && request.getConfig().getMode().equals("serial") && StringUtils.equals(request.getConfig().getReportType(), "setReport") && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString()) && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             request.getConfig().setReportId(UUID.randomUUID().toString());
             APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(scenarioIds), scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(), ReportTriggerMode.MANUAL.name(),
                     ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
@@ -823,7 +823,7 @@ public class ApiAutomationService {
     private void run(Map<APIScenarioReportResult, HashTree> map, RunScenarioRequest request, String serialReportId) {
         // 开始选择执行模式
         ExecutorService executorService = Executors.newFixedThreadPool(map.size());
-        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             // 开始串行执行
             Thread thread = new Thread(new Runnable() {
                 @Override
@@ -1057,7 +1057,7 @@ public class ApiAutomationService {
 
     public String run(RunScenarioRequest request) {
         if (request.getConfig() != null) {
-            if (request.getConfig().getMode().equals("parallel")) {
+            if (request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
                 // 校验并发数量
                 int count = 50;
                 BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();

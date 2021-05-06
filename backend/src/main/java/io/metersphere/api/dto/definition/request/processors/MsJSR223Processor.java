@@ -1,9 +1,11 @@
 package io.metersphere.api.dto.definition.request.processors;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.commons.constants.DelimiterConstants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -13,6 +15,7 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -42,9 +45,12 @@ public class MsJSR223Processor extends MsTestElement {
         }
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            processor.setName(this.getName() + "<->" + name);
+            processor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         processor.setProperty("MS-ID", this.getId());
+        List<String> id_names = new LinkedList<>();
+        this.getScenarioSet(this, id_names);
+        processor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));

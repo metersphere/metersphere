@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -20,6 +21,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.ConditionType;
+import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -42,10 +44,7 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -163,11 +162,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            sampler.setName(this.getName() + "<->" + name);
+            sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
+        List<String> id_names = new LinkedList<>();
+        this.getScenarioSet(this, id_names);
+        sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
+
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding("UTF-8");
         sampler.setConnectTimeout(this.getConnectTimeout() == null ? "6000" : this.getConnectTimeout());
