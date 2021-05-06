@@ -379,7 +379,20 @@ export class HttpRequest extends Request {
             info: 'api_test.request.please_configure_environment_in_scenario'
           }
         }
-        if (!environment.config.httpConfig.socket) {
+        let url = null;
+        if (environment && this.environment.config.httpConfig
+          && environment.config.httpConfig.conditions && environment.config.httpConfig.conditions.length > 0) {
+          environment.config.httpConfig.conditions.forEach(item => {
+            if (item.type === 'NONE') {
+              url = item.protocol + '://' + item.socket;
+            }
+          })
+        }
+        if (url === null) {
+          url = (environment && environment.config.httpConfig.socket) ?
+            environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket : null;
+        }
+        if (url === null) {
           return {
             isValid: false,
             info: 'api_test.request.please_configure_socket_in_environment'
@@ -1031,12 +1044,29 @@ class JMXHttpRequest {
         this.protocol = url.protocol.split(":")[0];
         this.path = this.getPostQueryParameters(request, decodeURIComponent(url.pathname));
       } else {
-        this.domain = environment.config.httpConfig.domain;
-        this.port = environment.config.httpConfig.port;
-        this.protocol = environment.config.httpConfig.protocol;
-        let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket);
-        let envPath = url.pathname === '/' ? '' : url.pathname;
-        this.path = this.getPostQueryParameters(request, decodeURIComponent(envPath + (request.path ? request.path : '')));
+        let isNewEnv = false;
+        if (environment && environment.config.httpConfig
+          && environment.config.httpConfig.conditions && environment.config.httpConfig.conditions.length > 0) {
+          environment.config.httpConfig.conditions.forEach(item => {
+            if (item.type === 'NONE') {
+              isNewEnv = true;
+              this.domain = item.domain;
+              this.port = item.port;
+              this.protocol = item.protocol;
+              let url = new URL(item.protocol + "://" + item.socket);
+              let envPath = url.pathname === '/' ? '' : url.pathname;
+              this.path = this.getPostQueryParameters(request, decodeURIComponent(envPath + (request.path ? request.path : '')));
+            }
+          })
+        }
+        if (!isNewEnv) {
+          this.domain = environment.config.httpConfig.domain;
+          this.port = environment.config.httpConfig.port;
+          this.protocol = environment.config.httpConfig.protocol;
+          let url = new URL(environment.config.httpConfig.protocol + "://" + environment.config.httpConfig.socket);
+          let envPath = url.pathname === '/' ? '' : url.pathname;
+          this.path = this.getPostQueryParameters(request, decodeURIComponent(envPath + (request.path ? request.path : '')));
+        }
       }
       this.connectTimeout = request.connectTimeout;
       this.responseTimeout = request.responseTimeout;
