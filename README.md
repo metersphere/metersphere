@@ -316,12 +316,6 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 -   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
 -   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
 
-## 加入 MeterSphere 团队
-
-我们正在招聘 MeterSphere 技术布道师，一起打造开源明星项目，请发简历到 metersphere@fit2cloud.com
-
-点击查看 [岗位详情](https://www.zhipin.com/job_detail/b151c4b3d594688733Ny3dy1GFI~.html)
-
 ## 微信群
 
 ![wechat-group](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png)
