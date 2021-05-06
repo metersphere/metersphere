@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.OrderRequest;
@@ -129,7 +130,7 @@ public class TestPlanLoadCaseService {
     }
 
     public void runBatch(RunBatchTestPlanRequest request) {
-        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
             try {
                 serialRun(request);
             } catch (Exception e) {

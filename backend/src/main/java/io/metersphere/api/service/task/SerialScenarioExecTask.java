@@ -45,6 +45,11 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                     break;
                 }
             }
+            // 执行失败了，恢复报告状态
+            if (index == 200 && report != null && report.getStatus().equals(APITestStatus.Running.name())) {
+                report.setStatus(APITestStatus.Error.name());
+                apiScenarioReportMapper.updateByPrimaryKey(report);
+            }
             return (T) report;
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
