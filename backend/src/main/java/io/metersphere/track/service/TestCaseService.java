@@ -1001,6 +1001,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extTestCaseMapper.listForMinder(request);
     }
 
