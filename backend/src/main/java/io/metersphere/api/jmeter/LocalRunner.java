@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.jmeter.engine.JMeterEngine;
 import org.apache.jmeter.engine.JMeterEngineException;
 import org.apache.jmeter.engine.StandardJMeterEngine;
@@ -18,6 +19,7 @@ public class LocalRunner {
         try {
             engine.runTest();
         } catch (JMeterEngineException e) {
+            LogUtil.error("JMeterEngineException:", e);
             engine.stopTest(true);
         }
     }

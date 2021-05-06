@@ -18,11 +18,8 @@
 
 package org.apache.jmeter.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Serializable;
+import java.io.*;
+import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,10 +47,9 @@ import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jorphan.util.JOrphanUtils;
-import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 
 /**
  * Base class for JSR223 Test elements
@@ -173,9 +169,7 @@ public abstract class JSR223TestElement extends ScriptingTestElement
      */
     protected Object processFileOrScript(ScriptEngine scriptEngine, final Bindings pBindings)
             throws IOException, ScriptException {
-
-        this.loadGroovyJar(scriptEngine);
-
+        loadGroovyJar(scriptEngine);
         Bindings bindings = pBindings;
         if (bindings == null) {
             bindings = scriptEngine.createBindings();
@@ -260,6 +254,7 @@ public abstract class JSR223TestElement extends ScriptingTestElement
         }
     }
 
+
     /**
      * groovy 使用的是自己的类加载器，
      * 这里再执行脚本前，使用 groovy的加载器加载jar包，
@@ -270,6 +265,17 @@ public abstract class JSR223TestElement extends ScriptingTestElement
     public static void loadGroovyJar(ScriptEngine scriptEngine) {
         if (scriptEngine instanceof GroovyScriptEngineImpl) {
             GroovyScriptEngineImpl groovyScriptEngine = (GroovyScriptEngineImpl) scriptEngine;
+            File dir = new File("/opt/metersphere/data/jar/");
+            File[] ls = dir.listFiles(pathname -> pathname.getName().endsWith(".jar") && pathname.isFile());
+            if (ls != null) {
+                for(File f:ls){
+                    try {
+                        groovyScriptEngine.getClassLoader().addURL(f.toURI().toURL());
+                    } catch (MalformedURLException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
 
             JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
             List<JarConfig> jars = jarConfigService.list();
@@ -290,7 +296,6 @@ public abstract class JSR223TestElement extends ScriptingTestElement
 
         }
     }
-
     /**
      * @return boolean true if element is not compilable or if compilation succeeds
      * @throws IOException if script is missing
