@@ -166,7 +166,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } else {
                 scenarioResult = scenarios.get(scenarioId);
             }
-
             if (result.isSuccessful()) {
                 scenarioResult.addSuccess();
                 testResult.addSuccess();

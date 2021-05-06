@@ -154,9 +154,7 @@
       </div>
     </el-card>
 
-    <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')">
-    </batch-edit>
-
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
   </div>
@@ -593,12 +591,27 @@
         this.$refs.runMode.open();
 
       },
+      orderBySelectRows(rows) {
+        let selectIds = Array.from(rows).map(row => row.id);
+        let array = [];
+        for (let i in this.tableData) {
+          if (selectIds.indexOf(this.tableData[i].id) !== -1) {
+            array.push(this.tableData[i].id);
+          }
+        }
+        return array;
+      },
+
       handleRunBatch(config) {
         this.infoDb = false;
         let url = "/api/automation/run/batch";
         let run = {config: config};
         run.id = getUUID();
-        this.buildBatchParam(run);
+        //按照列表排序
+        let ids = this.orderBySelectRows(this.selectRows);
+        run.ids = ids;
+        run.projectId = this.projectId;
+        run.condition = this.condition;
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = false;
