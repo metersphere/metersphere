@@ -249,7 +249,7 @@ public class ApiAutomationService {
             String projectId = request.getProjectId();
             Project project = projectMapper.selectByPrimaryKey(projectId);
             if (project != null) {
-                Boolean customNum = project.getCustomNum();
+                Boolean customNum = project.getScenarioCustomNum();
                 // 未开启自定义ID
                 if (!customNum) {
                     request.setCustomNum(null);
