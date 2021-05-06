@@ -126,22 +126,13 @@
     name: "MsAddCompleteHttpApi",
     components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree},
     data() {
-      let validateURL = (rule, value, callback) => {
-        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
-          callback(this.$t('api_test.definition.request.path_valid_info'));
-        }
-        callback();
-      };
       return {
         rule: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
             {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
           ],
-          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}, {
-            validator: validateURL,
-            trigger: 'blur'
-          }],
+          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],

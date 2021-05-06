@@ -72,12 +72,6 @@
       },
     },
     data() {
-      let validateURL = (rule, value, callback) => {
-        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
-          callback(this.$t('api_test.definition.request.path_valid_info'));
-        }
-        callback();
-      };
       return {
         httpForm: {environmentId: ""},
         httpVisible: false,
@@ -88,7 +82,7 @@
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
             {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
           ],
-          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}, {validator: validateURL, trigger: 'blur'}],
+          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         },
         value: REQ_METHOD[0].id,
