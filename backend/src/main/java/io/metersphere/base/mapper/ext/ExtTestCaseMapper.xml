@@ -418,6 +418,7 @@
         id, `name`, node_id, node_path, `type`, `method`, maintainer, priority, prerequisite, remark, steps
         from test_case
         <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getTestCaseByNotInIssue" resultType="io.metersphere.track.dto.TestCaseDTO">
         select

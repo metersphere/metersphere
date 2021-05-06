@@ -43,6 +43,7 @@
           <test-case-minder
             :tree-nodes="treeNodes"
             :project-id="projectId"
+            :condition="condition"
             v-if="activeDom === 'right'"
             ref="minder"/>
           </ms-tab-button>

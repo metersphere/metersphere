@@ -41,7 +41,7 @@ name: "TestCaseMinder",
       }
     },
     condition: Object,
-    projectId: String
+    projectId: String,
   },
   computed: {
     selectNodeIds() {
@@ -76,11 +76,11 @@ name: "TestCaseMinder",
   methods: {
     getTestCases() {
       if (this.projectId) {
-        let param = {
-          projectId: this.projectId,
-          nodeIds: this.selectNodeIds
-        }
-        this.result = this.$post('/test/case/list/minder', param,response => {
+        // let param = {
+        //   projectId: this.projectId,
+        //   nodeIds: this.selectNodeIds
+        // }
+        this.result = this.$post('/test/case/list/minder', this.condition,response => {
           this.testCase = response.data;
           this.dataMap = getTestCaseDataMap(this.testCase);
         });

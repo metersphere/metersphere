@@ -396,6 +396,7 @@ export default {
       }
       if (this.projectId) {
         this.condition.projectId = this.projectId;
+        this.$emit('setCondition', this.condition);
         this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
