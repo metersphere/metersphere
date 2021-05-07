@@ -53,6 +53,23 @@ export function parseCase(item, dataMap, isDisable, setParamCallback) {
   return nodeItem;
 }
 
+function _parseChildren(children, k, v, isDisable) {
+  if (k) {
+    let node = {
+      data: {
+        text: k,
+        resource: v ? [v] : []
+      },
+      children: []
+    }
+    if (isDisable) {
+      node.data.disable = true;
+    }
+    children.push(node);
+    return node;
+  }
+}
+
 function parseChildren(nodeItem, item, isDisable) {
   nodeItem.children = [];
   let children = [];
@@ -77,23 +94,6 @@ function parseChildren(nodeItem, item, isDisable) {
   }
   _parseChildren(children, item.remark, i18n.t('commons.remark'), isDisable);
   nodeItem.children = children;
-}
-
-function _parseChildren(children, k, v, isDisable) {
-  if (k) {
-    let node = {
-      data: {
-        text: k,
-        resource: v ? [v] : []
-      },
-      children: []
-    }
-    if (isDisable) {
-      node.data.disable = true;
-    }
-    children.push(node);
-    return node;
-  }
 }
 
 export function listenNodeSelected(callback) {
