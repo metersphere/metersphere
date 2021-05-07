@@ -201,7 +201,7 @@ public class XmindCaseParser {
                 item.setParent(parent);
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
-                String nodePath = parent.getPath() + "/" + item.getTitle();
+                String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
                 item.setPath(nodePath);
                 item.setParent(parent);
                 if (item.getChildren() != null && CollectionUtils.isNotEmpty(item.getChildren().getAttached())) {
@@ -286,7 +286,7 @@ public class XmindCaseParser {
         // 用例名称
         String name = title.replace(tcArrs[0] + "：", "").replace(tcArrs[0] + ":", "");
         testCase.setName(name);
-        testCase.setNodePath(nodePath);
+        testCase.setNodePath(nodePath.trim());
 
         // 用例等级和用例性质处理
         if (tcArrs[0].indexOf("-") != -1) {

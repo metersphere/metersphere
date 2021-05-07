@@ -3,11 +3,9 @@ package io.metersphere.service;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
+import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiTestFileMapper;
-import io.metersphere.base.mapper.LoadTestFileMapper;
-import io.metersphere.base.mapper.LoadTestMapper;
-import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -21,6 +19,7 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +58,8 @@ public class ProjectService {
     private LoadTestFileMapper loadTestFileMapper;
     @Resource
     private ApiTestFileMapper apiTestFileMapper;
+    @Resource
+    private ApiAutomationService apiAutomationService;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -145,8 +146,11 @@ public class ProjectService {
         project.setCreateTime(null);
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExist(project);
-        if (project.getCustomNum()) {
+        if (BooleanUtils.isTrue(project.getCustomNum())) {
             testCaseService.updateTestCaseCustomNumByProjectId(project.getId());
+        }
+        if (BooleanUtils.isTrue(project.getScenarioCustomNum())) {
+            apiAutomationService.updateCustomNumByProjectId(project.getId());
         }
         projectMapper.updateByPrimaryKeySelective(project);
     }

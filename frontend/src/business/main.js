@@ -23,6 +23,11 @@ import JsonSchemaEditor from './components/common/json-schema/schema/index';
 import JSONPathPicker from 'vue-jsonpath-picker';
 import VueClipboard from 'vue-clipboard2'
 import vueMinderEditor from 'vue-minder-editor-plus'
+
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+Vue.use(mavonEditor)
+
 Vue.use(vueMinderEditor)
 
 Vue.use(JsonSchemaEditor);

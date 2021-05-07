@@ -193,11 +193,15 @@ export default {
 
         this.tableData.forEach(report => {
           if (report.status === 'Completed' && !report.maxUsers) {
-            this.result = this.$get('/performance/report/content/testoverview/' + report.id, response => {
-              this.$set(report, 'maxUsers', response.data.maxUsers);
-              this.$set(report, 'avgResponseTime', response.data.avgResponseTime);
-              this.$set(report, 'tps', response.data.avgTransactions);
-            });
+            this.result = this.$get('/performance/report/content/testoverview/' + report.id)
+              .then(response => {
+                let data = response.data.data;
+                this.$set(report, 'maxUsers', data.maxUsers);
+                this.$set(report, 'avgResponseTime', data.avgResponseTime);
+                this.$set(report, 'tps', data.avgTransactions);
+              })
+              .catch(() => {
+              });
           }
         });
       });

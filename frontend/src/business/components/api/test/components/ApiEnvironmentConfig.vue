@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.environment.environment_config')"
-             :visible.sync="visible" class="environment-dialog" width="60%"
+             :visible.sync="visible" class="environment-dialog" width="80%"
              @close="close" append-to-body destroy-on-close ref="environmentConfig">
     <el-container v-loading="result.loading">
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"

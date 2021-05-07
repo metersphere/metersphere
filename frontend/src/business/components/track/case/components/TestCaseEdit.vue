@@ -79,8 +79,6 @@
 
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
 
-          <ms-form-divider :title="$t('test_track.case.other_info')"/>
-
           <test-case-edit-other-info :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!='add'">
@@ -217,8 +215,8 @@ export default {
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
         method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
-        prerequisite: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}],
-        remark: [{max: 1000, message: this.$t('test_track.length_less_than') + '1000', trigger: 'blur'}]
+        // prerequisite: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}],
+        // remark: [{max: 1000, message: this.$t('test_track.length_less_than') + '1000', trigger: 'blur'}]
       },
       customFieldRules: {},
       customFieldForm: {},

@@ -133,7 +133,7 @@
 
     </sql>
     <select id="list" resultMap="BaseResultMap">
-        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
+        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num, api_scenario.custom_num,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
@@ -159,7 +159,8 @@
             <if test="request.name != null">
                 and (api_scenario.name like CONCAT('%', #{request.name},'%')
                 or api_scenario.tags like CONCAT('%', #{request.name},'%')
-                or api_scenario.num like CONCAT('%', #{request.name},'%'))
+                or api_scenario.num like CONCAT('%', #{request.name},'%')
+                or api_scenario.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
@@ -303,6 +304,9 @@
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
+    </update>
+    <update id="updateCustomNumByProjectId">
+        update api_scenario set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
     </update>
 
     <select id="countByProjectID" resultType="java.lang.Long">

@@ -11,11 +11,13 @@ export function getTestCaseDataMap(testCase, isDisable, setParamCallback) {
 }
 
 export function parseCase(item, dataMap, isDisable, setParamCallback) {
+
   if (item.steps) {
     item.steps = JSON.parse(item.steps);
   } else {
     item.steps = [];
   }
+
   // if (item.tags && item.tags.length > 0) {
   //   item.tags = JSON.parse(item.tags);
   // }
@@ -28,7 +30,8 @@ export function parseCase(item, dataMap, isDisable, setParamCallback) {
       resource: [i18n.t('api_test.definition.request.case')],
       type: item.type,
       method: item.method,
-      maintainer: item.maintainer
+      maintainer: item.maintainer,
+      stepModel: item.stepModel
     }
   }
   if (setParamCallback) {
@@ -50,24 +53,6 @@ export function parseCase(item, dataMap, isDisable, setParamCallback) {
   return nodeItem;
 }
 
-function parseChildren(nodeItem, item, isDisable) {
-  nodeItem.children = [];
-  let children = [];
-  _parseChildren(children, item.prerequisite, i18n.t('test_track.case.prerequisite'), isDisable);
-  if (item.steps) {
-    item.steps.forEach((step) => {
-      let descNode = _parseChildren(children, step.desc, undefined, isDisable);
-      if (descNode) {
-        descNode.data.num = step.num;
-        descNode.children = [];
-        _parseChildren(descNode.children, step.result, undefined, isDisable);
-      }
-    });
-  }
-  _parseChildren(children, item.remark, i18n.t('commons.remark'), isDisable);
-  nodeItem.children = children;
-}
-
 function _parseChildren(children, k, v, isDisable) {
   if (k) {
     let node = {
@@ -83,6 +68,32 @@ function _parseChildren(children, k, v, isDisable) {
     children.push(node);
     return node;
   }
+}
+
+function parseChildren(nodeItem, item, isDisable) {
+  nodeItem.children = [];
+  let children = [];
+  _parseChildren(children, item.prerequisite, i18n.t('test_track.case.prerequisite'), isDisable);
+  if (item.stepModel === 'TEXT') {
+   let descNode =  _parseChildren(children, item.stepDescription, null, isDisable);
+    if (descNode) {
+      descNode.children = [];
+      _parseChildren(descNode.children, item.expectedResult, null, isDisable);
+    }
+  } else {
+    if (item.steps) {
+      item.steps.forEach((step) => {
+        let descNode = _parseChildren(children, step.desc, undefined, isDisable);
+        if (descNode) {
+          descNode.data.num = step.num;
+          descNode.children = [];
+          _parseChildren(descNode.children, step.result, undefined, isDisable);
+        }
+      });
+    }
+  }
+  _parseChildren(children, item.remark, i18n.t('commons.remark'), isDisable);
+  nodeItem.children = children;
 }
 
 export function listenNodeSelected(callback) {

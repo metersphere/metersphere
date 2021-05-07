@@ -42,5 +42,9 @@ public interface ExtApiScenarioMapper {
 
     List<String> selectIdsByQuery(@Param("request") ApiScenarioRequest request);
 
+
     List<ApiDataCountResult> countModuleByProjectId(String projectId);
+
+    void updateCustomNumByProjectId(@Param("projectId") String projectId);
+  
 }
