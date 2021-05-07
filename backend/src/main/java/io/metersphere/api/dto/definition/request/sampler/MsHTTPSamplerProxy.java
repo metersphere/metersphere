@@ -505,11 +505,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         // HTTP 环境中请求头
-        if (httpConfig != null) {
-            Arguments arguments = arguments(httpConfig.getHeaders());
-            if (arguments != null) {
-                tree.add(ParameterConfig.valueSupposeMock(arguments));
-            }
+        if (httpConfig != null && CollectionUtils.isNotEmpty(httpConfig.getHeaders())) {
+            setHeader(tree, httpConfig.getHeaders());
         }
         return httpConfig;
     }
@@ -531,25 +528,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             );
             // 清空变量，防止重复添加
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
-        }
-        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
-            return arguments;
-        }
-        return null;
-    }
-
-    private Arguments arguments(List<KeyValue> headers) {
-        Arguments arguments = new Arguments();
-        arguments.setEnabled(true);
-        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
-        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-
-        // HTTP放到请求中，按照域名匹配
-        if (CollectionUtils.isNotEmpty(headers)) {
-            headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
         }
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
             return arguments;
