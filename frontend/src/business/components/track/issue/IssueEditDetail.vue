@@ -203,6 +203,7 @@ export default {
         } else {
           //copy
           this.url = 'issues/add';
+          this.form.title = data.title + '_copy';
         }
       } else {
         this.form = {
