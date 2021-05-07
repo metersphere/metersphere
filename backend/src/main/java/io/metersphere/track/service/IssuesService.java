@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -293,6 +294,16 @@ public class IssuesService {
 //            list.addAll(issue);
 //        });
         List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
+        List<String> ids = issues.stream()
+                .map(IssuesDao::getCreator)
+                .collect(Collectors.toList());
+        Map<String, User> userMap = ServiceUtils.getUserMap(ids);
+        issues.forEach(item -> {
+            User createUser = userMap.get(item.getCreator());
+            if (createUser != null) {
+                item.setCreatorName(createUser.getName());
+            }
+        });
 //        Map<String, List<IssuesDao>> issueMap = getIssueMap(issues);
 //        Map<String, AbstractIssuePlatform> platformMap = getPlatformMap(request);
 //        issueMap.forEach((platformName, data) -> {
