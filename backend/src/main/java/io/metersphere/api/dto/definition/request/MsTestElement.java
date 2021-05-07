@@ -188,7 +188,7 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config) {
+    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -206,8 +206,7 @@ public abstract class MsTestElement {
                         csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
                     }
                     csvDataSet.setIgnoreFirstLine(false);
-                    // csvDataSet.setProperty("quotedData",true);
-                    csvDataSet.setProperty("shareMode", "shareMode.group");
+                    csvDataSet.setProperty("shareMode", shareMode);
                     csvDataSet.setProperty("recycle", true);
                     csvDataSet.setProperty("delimiter", item.getDelimiter());
                     csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());

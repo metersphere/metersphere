@@ -156,7 +156,7 @@ public class MsScenario extends MsTestElement {
         if (arguments != null) {
             tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
-        this.addCsvDataSet(tree, variables,config);
+        this.addCsvDataSet(tree, variables, config, "shareMode.group");
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
