@@ -147,12 +147,6 @@ public abstract class MsTestElement {
         return jmeterTestPlanHashTree;
     }
 
-    public HashTree generateHashTree() {
-        HashTree jmeterTestPlanHashTree = new ListedHashTree();
-        this.toHashTree(jmeterTestPlanHashTree, this.hashTree, new ParameterConfig());
-        return jmeterTestPlanHashTree;
-    }
-
     public Arguments addArguments(ParameterConfig config) {
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
