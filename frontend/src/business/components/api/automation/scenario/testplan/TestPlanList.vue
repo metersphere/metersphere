@@ -144,7 +144,7 @@ import MsTableOperatorButton from "../../../../common/components/MsTableOperator
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../../../track/common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../../../track/common/tableItems/plan/PlanStageTableItem";
-import {checkoutTestManagerOrTestUser, strMapToObj} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import TestReportTemplateList from "../../../../track/plan/view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
@@ -239,6 +239,10 @@ export default {
         this.map.clear();
         if (this.scenarioCondition != null) {
           let params = {};
+          params.ids = [];
+          rows.forEach(row => {
+            params.ids.push(row.id);
+          });
           params.condition = this.scenarioCondition;
           this.$post('/api/automation/getApiScenarioProjectIdByConditions', params, res => {
             let data = res.data;
