@@ -229,7 +229,7 @@ export default {
     },
     statusChange(status) {
       this.testCase.status = status;
-      this.saveCase();
+      this.saveCase(true);
     },
     getOption(param) {
       let formData = new FormData();
