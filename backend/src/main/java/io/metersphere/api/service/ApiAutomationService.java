@@ -112,6 +112,8 @@ public class ApiAutomationService {
     private SystemParameterService systemParameterService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -977,6 +979,10 @@ public class ApiAutomationService {
                     Set<String> projectIds = apiScenarioEnv.getProjectIds();
                     if (CollectionUtils.isNotEmpty(envMap.keySet())) {
                         for (String id : projectIds) {
+                            Project project = projectMapper.selectByPrimaryKey(id);
+                            if (project == null) {
+                                id = apiScenarioWithBLOBs.getProjectId();
+                            }
                             String s = envMap.get(id);
                             if (StringUtils.isBlank(s)) {
                                 isEnv = false;
