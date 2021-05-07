@@ -16,6 +16,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import lombok.Data;
@@ -122,7 +123,7 @@ public class MsScenario extends MsTestElement {
                 this.environmentMap = new HashMap<>(16);
                 if (StringUtils.isNotBlank(environmentId)) {
                     // 兼容1.8之前 没有environmentMap但有environmentId的数据
-                    this.environmentMap.put("historyProjectID", environmentId);
+                    this.environmentMap.put(RunModeConstants.HIS_PRO_ID.toString(), environmentId);
                 }
             }
             if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
