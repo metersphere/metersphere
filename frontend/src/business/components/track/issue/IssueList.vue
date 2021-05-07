@@ -41,6 +41,11 @@
           prop="platform">
         </ms-table-column>
 
+        <ms-table-column
+          :label="$t('custom_field.issue_creator')"
+          prop="creatorName">
+        </ms-table-column>
+
         <issue-description-table-item/>
 
       </ms-table>
