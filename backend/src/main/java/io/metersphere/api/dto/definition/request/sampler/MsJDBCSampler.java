@@ -20,6 +20,7 @@ import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -91,8 +92,8 @@ public class MsJDBCSampler extends MsTestElement {
         } else {
             // 1.8 之前 数据
             if (config.getConfig() != null) {
-                if (config.getConfig().containsKey("historyProjectID")) {
-                    this.setProjectId("historyProjectID");
+                if (config.getConfig().containsKey(RunModeConstants.HIS_PRO_ID.toString())) {
+                    this.setProjectId(RunModeConstants.HIS_PRO_ID.toString());
                 } else {
                     // 测试计划执行
                     Iterator<String> it = config.getConfig().keySet().iterator();
