@@ -156,6 +156,11 @@ name: "TestCaseMinder",
               step.result = result;
             }
             steps.push(step);
+
+            if (data.stepModel === 'TEXT') {
+              testCase.stepDescription = step.desc;
+              testCase.expectedResult = step.result;
+            }
           }
           if (childData.changed) isChange = true;
         })

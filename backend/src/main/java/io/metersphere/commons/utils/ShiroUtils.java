@@ -60,6 +60,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
         filterChainDefinitionMap.put("/test/case/file/preview/**", "apikey, authc"); // 预览测试用例附件 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
+        filterChainDefinitionMap.put("/resource/md/get/**", "apikey, authc");
     }
 
     public static Cookie getSessionIdCookie(){
