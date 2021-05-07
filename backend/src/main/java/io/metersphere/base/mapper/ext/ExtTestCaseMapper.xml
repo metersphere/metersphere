@@ -415,7 +415,8 @@
 
     <select id="listForMinder" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
         select
-        id, `name`, node_id, node_path, `type`, `method`, maintainer, priority, prerequisite, remark, steps
+        <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>,
+        <include refid="io.metersphere.base.mapper.TestCaseMapper.Blob_Column_List"/>
         from test_case
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
