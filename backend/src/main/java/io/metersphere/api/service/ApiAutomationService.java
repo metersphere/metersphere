@@ -878,6 +878,7 @@ public class ApiAutomationService {
     private HashTree generateHashTree(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, List<String> reportIds) {
         HashTree jmeterHashTree = new ListedHashTree();
         MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setSerializeThreadgroups(true);
         testPlan.setHashTree(new LinkedList<>());
         try {
             boolean isFirst = true;
