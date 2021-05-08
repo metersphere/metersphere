@@ -6,8 +6,8 @@
       <el-col>
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px">
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
-          <el-button type="primary" size="small" @click="runTest">{{ $t('commons.test') }}</el-button>
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-tester>{{ $t('commons.save') }}</el-button>
+          <el-button type="primary" size="small" @click="runTest" v-tester>{{ $t('commons.test') }}</el-button>
         </div>
       </el-col>
     </el-row>
