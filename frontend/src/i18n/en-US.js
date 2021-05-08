@@ -155,6 +155,7 @@ export default {
     node_name_tip: "The name cannot contain'\\'",
     more_operator: "More operator",
     mock: "Mock settings",
+    all_module_title: "All module",
     table: {
       select_tip: "Item {0} data is selected"
     },

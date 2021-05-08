@@ -156,6 +156,7 @@ export default {
     node_name_tip: "名称不能包含'\\'",
     more_operator: "更多操作",
     mock: "Mock 设置",
+    all_module_title: "全部模块",
     table: {
       select_tip: "已选中 {0} 条数据"
     },

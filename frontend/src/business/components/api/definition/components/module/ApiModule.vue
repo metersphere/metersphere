@@ -7,6 +7,7 @@
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
+      :allLabel="$t('commons.all_module_title')"
       @add="add"
       @edit="edit"
       @drag="drag"
