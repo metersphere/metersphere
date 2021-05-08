@@ -23,11 +23,12 @@ export class Environment extends BaseConfig {
 export class Config extends BaseConfig {
   constructor(options = {}) {
     super();
+
     this.commonConfig = undefined;
     this.httpConfig = undefined;
     this.databaseConfigs = [];
     this.tcpConfig = undefined;
-
+    this.sslConfig = {};
     this.set(options);
     this.sets({databaseConfigs: DatabaseConfig}, options);
   }
@@ -37,6 +38,7 @@ export class Config extends BaseConfig {
     this.httpConfig = new HttpConfig(options.httpConfig);
     options.databaseConfigs = options.databaseConfigs || [];
     options.tcpConfig = new TCPConfig(options.tcpConfig);
+    options.sslConfig = new SSLConfig(options.sslConfig);
     return options;
   }
 }
@@ -76,6 +78,21 @@ export class HttpConfig extends BaseConfig {
 
   initOptions(options = {}) {
     options.headers = options.headers || [new KeyValue()];
+    return options;
+  }
+}
+
+export class SSLConfig extends BaseConfig {
+  constructor(options = {}) {
+    super();
+    this.entrys = [];
+    this.files = [];
+    this.set(options);
+    this.sets({files: KeyValue}, options);
+    this.sets({entrys: KeyValue}, options);
+  }
+
+  initOptions(options = {}) {
     return options;
   }
 }
