@@ -31,7 +31,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/automation")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class ApiAutomationController {
 
     @Resource
