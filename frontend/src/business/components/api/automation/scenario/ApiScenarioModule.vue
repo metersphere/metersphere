@@ -6,6 +6,7 @@
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"
+      :allLabel="$t('commons.all_module_title')"
       :type="isReadOnly ? 'view' : 'edit'"
       @add="add"
       @edit="edit"
