@@ -14,8 +14,11 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.ssl.KeyStoreFile;
+import io.metersphere.api.dto.ssl.MsKeyStore;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.CommandService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
@@ -26,6 +29,7 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.track.service.TestPlanApiCaseService;
@@ -34,6 +38,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.config.KeystoreConfig;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -109,6 +114,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @JSONField(ordinal = 37)
     private Boolean isRefEnvironment;
+
+    @JSONField(ordinal = 38)
+    private String alias;
 
     private void setRefElement() {
         try {
@@ -342,14 +350,63 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
         }
+
+        if (this.authManager != null) {
+            this.authManager.setAuth(tree, this.authManager, sampler);
+        }
+
+        // 加载SSL认证
+        if (config != null && config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getSslConfig() != null) {
+            if (CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getSslConfig().getFiles())) {
+                MsKeyStore msKeyStore = config.getKeyStoreMap().get(this.getProjectId());
+                CommandService commandService = CommonBeanFactory.getBean(CommandService.class);
+                if (msKeyStore == null) {
+                    msKeyStore = new MsKeyStore();
+                    if (config.getConfig().get(this.getProjectId()).getSslConfig().getFiles().size() == 1) {
+                        // 加载认证文件
+                        KeyStoreFile file = config.getConfig().get(this.getProjectId()).getSslConfig().getFiles().get(0);
+                        msKeyStore.setPath(FileUtils.BODY_FILE_DIR + "/ssl/" + file.getId() + "_" + file.getName());
+                        msKeyStore.setPassword(file.getPassword());
+                    } else {
+                        // 合并多个认证文件
+                        msKeyStore.setPath(FileUtils.BODY_FILE_DIR + "/ssl/tmp." + this.getId() + ".jks");
+                        msKeyStore.setPassword("ms123...");
+                        commandService.mergeKeyStore(msKeyStore.getPath(), config.getConfig().get(this.getProjectId()).getSslConfig());
+                    }
+                }
+                if (StringUtils.isEmpty(this.alias)) {
+                    this.alias = config.getConfig().get(this.getProjectId()).getSslConfig().getDefaultAlias();
+                }
+
+                if (StringUtils.isNotEmpty(this.alias)) {
+                    String aliasVar = UUID.randomUUID().toString();
+                    this.addArguments(httpSamplerTree, aliasVar, this.alias.trim());
+                    // 校验 keystore
+                    commandService.checkKeyStore(msKeyStore.getPassword(), msKeyStore.getPath());
+
+                    KeystoreConfig keystoreConfig = new KeystoreConfig();
+                    keystoreConfig.setEnabled(true);
+                    keystoreConfig.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "-KeyStore" : "KeyStore");
+                    keystoreConfig.setProperty(TestElement.TEST_CLASS, KeystoreConfig.class.getName());
+                    keystoreConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    keystoreConfig.setProperty("clientCertAliasVarName", aliasVar);
+                    keystoreConfig.setProperty("endIndex", -1);
+                    keystoreConfig.setProperty("preload", true);
+                    keystoreConfig.setProperty("startIndex", 0);
+                    keystoreConfig.setProperty("MS-KEYSTORE-FILE-PATH", msKeyStore.getPath());
+                    keystoreConfig.setProperty("MS-KEYSTORE-FILE-PASSWORD", msKeyStore.getPassword());
+                    httpSamplerTree.add(keystoreConfig);
+
+                    config.getKeyStoreMap().put(this.getProjectId(), new MsKeyStore(msKeyStore.getPath(), msKeyStore.getPassword()));
+                }
+            }
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
-        if (this.authManager != null) {
-            this.authManager.setAuth(tree, this.authManager, sampler);
-        }
+
     }
 
     // 兼容旧数据
@@ -580,6 +637,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             return arguments;
         }
         return null;
+    }
+
+    private void addArguments(HashTree tree, String key, String value) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "-KeyStoreAlias" : "KeyStoreAlias");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        arguments.addArgument(key, value, "=");
+        tree.add(arguments);
     }
 
     private boolean isRest() {
