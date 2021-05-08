@@ -1,7 +1,7 @@
 <template>
     <el-input class="ms-search-bar" :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
       <template v-if="showOperator" v-slot:append>
-        <el-dropdown>
+        <el-dropdown v-tester>
           <el-button type="primary">
             <span class="tip-font">{{ $t('commons.more_operator') }}</span>
             <i class="el-icon-arrow-down el-icon--right"/>
