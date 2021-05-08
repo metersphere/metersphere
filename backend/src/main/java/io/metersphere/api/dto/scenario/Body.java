@@ -81,13 +81,15 @@ public class Body {
 
     private void parseJonBodyMock() {
         try {
-            if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
-                    && "JSON-SCHEMA".equals(this.format)) {
-                this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
-            } else if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {    //  json 文本也支持 mock 参数
-                JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
-                jsonMockParse(jsonObject);
-                this.raw = JSONObject.toJSONString(jsonObject);
+            if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
+                if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
+                        && "JSON-SCHEMA".equals(this.format)) {
+                    this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
+                } else {    //  json 文本也支持 mock 参数
+                    JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
+                    jsonMockParse(jsonObject);
+                    this.raw = JSONObject.toJSONString(jsonObject);
+                }
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
