@@ -2,10 +2,12 @@ package io.metersphere.api.dto.definition.request;
 
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.ssl.MsKeyStore;
 import io.metersphere.commons.utils.ScriptEngineUtils;
 import lombok.Data;
 import org.apache.jmeter.config.Arguments;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +17,10 @@ public class ParameterConfig {
      * 环境配置
      */
     private Map<String, EnvironmentConfig> config;
+    /**
+     * 缓存同一批请求的认证信息
+     */
+    private Map<String, MsKeyStore> keyStoreMap = new HashMap<>();
     /**
      * 公共场景参数
      */
