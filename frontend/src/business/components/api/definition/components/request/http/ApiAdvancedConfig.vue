@@ -16,6 +16,14 @@
     </el-row>
     <el-row style="margin: 20px">
       <span style="margin-right: 10px">
+           认证别名:
+      </span>
+      <span style="margin-right: 10px">
+        <el-input size="small" style="width: 350px" v-model="request.alias"/>
+      </span>
+    </el-row>
+    <el-row style="margin: 20px">
+      <span style="margin-right: 10px">
       <el-checkbox class="follow-redirects-item" v-model="request.followRedirects">{{$t('api_test.request.follow_redirects')}}</el-checkbox>
       </span>
     </el-row>

@@ -160,6 +160,15 @@ export default {
     table: {
       select_tip: "已選中 {0} 條數據"
     },
+    ssl: {
+      config: "證書配置",
+      files: "證書文件",
+      entry: "證書條目",
+      original_as_name: "原有別名",
+      new_as_name: "新别名",
+      source: "來源",
+      default: "是否默認"
+    },
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
