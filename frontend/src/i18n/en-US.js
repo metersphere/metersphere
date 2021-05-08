@@ -159,6 +159,15 @@ export default {
     table: {
       select_tip: "Item {0} data is selected"
     },
+    ssl: {
+      config: "Config",
+      files: "Files",
+      entry: "Entry",
+      original_as_name: "Original as name",
+      new_as_name: "New name",
+      source: "Source",
+      default: "Default"
+    },
     date: {
       select_date: 'Select date',
       start_date: 'Start date',

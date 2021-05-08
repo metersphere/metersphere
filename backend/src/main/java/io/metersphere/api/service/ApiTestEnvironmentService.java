@@ -2,16 +2,19 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.ApiTestEnvironmentDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -37,7 +40,7 @@ public class ApiTestEnvironmentService {
         ApiTestEnvironmentExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdIn(environmentRequest.getProjectIds());
         if (StringUtils.isNotBlank(environmentRequest.getName())) {
-            environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(),'%'));    //使搜索文本变成数据库中的正则表达式
+            environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(), '%'));    //使搜索文本变成数据库中的正则表达式
             criteria.andNameLike(environmentRequest.getName());
         }
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
@@ -68,6 +71,19 @@ public class ApiTestEnvironmentService {
         return apiTestEnvironmentWithBLOBs.getId();
     }
 
+    public String add(ApiTestEnvironmentDTO request, List<MultipartFile> sslFiles) {
+        request.setId(UUID.randomUUID().toString());
+        checkEnvironmentExist(request);
+        FileUtils.createFiles(request.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
+        apiTestEnvironmentMapper.insert(request);
+        return request.getId();
+    }
+
+    public void update(ApiTestEnvironmentDTO apiTestEnvironment,List<MultipartFile> sslFiles) {
+        checkEnvironmentExist(apiTestEnvironment);
+        FileUtils.createFiles(apiTestEnvironment.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
+        apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(apiTestEnvironment);
+    }
     private void checkEnvironmentExist(ApiTestEnvironmentWithBLOBs environment) {
         if (environment.getName() != null) {
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();

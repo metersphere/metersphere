@@ -755,6 +755,7 @@ export class KeyValue extends BaseConfig {
     this.files = undefined;
     this.enable = undefined;
     this.uuid = undefined;
+    this.time = undefined;
     this.contentType = undefined;
     this.set(options);
   }
