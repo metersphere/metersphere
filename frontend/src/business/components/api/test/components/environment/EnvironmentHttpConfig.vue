@@ -15,7 +15,7 @@
       </el-form-item>
       <el-form-item prop="enable">
         <span class="ms-env-span">{{$t('api_test.environment.condition_enable')}}</span>
-        <el-radio-group v-model="condition.type" @change="typeChange" :disabled="condition.id!==undefined && condition.id!==''">
+        <el-radio-group v-model="condition.type" @change="typeChange">
           <el-radio label="NONE">{{ $t('api_test.definition.document.data_set.none') }}</el-radio>
           <el-radio label="MODULE">{{$t('test_track.module.module')}}</el-radio>
           <el-radio label="PATH">{{$t('api_test.definition.api_path')}}</el-radio>
@@ -123,6 +123,7 @@
         loading: false,
         pathDetails: new KeyValue({name: "", value: "contains"}),
         condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]},
+        beforeCondition: {}
       };
     },
     watch: {
@@ -201,8 +202,14 @@
             });
           }
         }
+        this.beforeCondition = JSON.parse(JSON.stringify(this.condition));
       },
       typeChange() {
+        if (this.condition.type === "NONE" && this.condition.id  &&  this.checkNode(this.condition.id)) {
+          this.condition.type = this.beforeCondition.type;
+          this.$warning("启用条件为 '无' 的域名已经存在！");
+          return;
+        }
         switch (this.condition.type) {
           case "NONE":
             this.condition.details = [];
@@ -263,11 +270,13 @@
           this.loading = false
         });
       },
-      checkNode() {
+      checkNode(id) {
         let index = 1;
         this.httpConfig.conditions.forEach(item => {
           if (item.type === "NONE") {
-            index++;
+            if(!id || id !== item.id) {
+              index++;
+            }
           }
         })
         return index > 1;
