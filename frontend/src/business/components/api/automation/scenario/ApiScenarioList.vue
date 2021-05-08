@@ -34,8 +34,8 @@
                            min-width="120px"
                            show-overflow-tooltip :key="index">
             <template slot-scope="scope">
-              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
+              <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
+              <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -45,8 +45,8 @@
                            min-width="120px"
                            show-overflow-tooltip :key="index">
             <template slot-scope="scope">
-              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.customNum }} </span>
-              <el-tooltip v-else content="编辑">
+              <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.customNum }} </span>-->
+              <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
             </template>
