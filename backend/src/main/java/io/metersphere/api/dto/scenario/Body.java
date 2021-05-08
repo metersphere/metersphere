@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.scenario.request.BodyFile;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
@@ -80,14 +81,10 @@ public class Body {
 
     private void parseJonBodyMock() {
         try {
-//            if (StringUtils.isNotBlank(this.format) && "JSON-SCHEMA".equals(this.format) ) {
-//                if(this.getJsonSchema() != null) {
-//                    JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(this.getJsonSchema()));
-//                    jsonMockParse(jsonObject);
-//                    this.setJsonSchema(jsonObject);
-//                }
-//            } else
-            if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {    //  json 文本也支持 mock 参数
+            if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
+                    && "JSON-SCHEMA".equals(this.format)) {
+                this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
+            } else if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {    //  json 文本也支持 mock 参数
                 JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
                 jsonMockParse(jsonObject);
                 this.raw = JSONObject.toJSONString(jsonObject);
