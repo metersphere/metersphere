@@ -414,6 +414,7 @@ export default {
       this.refreshTableAndPlan();
     },
     selectNodeIds() {
+      this.condition.selectAll = false;
       this.search();
     },
     tableLabel: {
