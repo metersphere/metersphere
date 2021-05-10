@@ -69,6 +69,7 @@ export const Api_Scenario_List = [
   {id: 'status', label: i18n.t('test_track.plan.plan_status')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'userId', label: i18n.t('api_test.automation.creator')},
+  {id: 'principal', label: i18n.t('api_test.definition.api_principal')},
   {id: 'updateTime', label: i18n.t('api_test.definition.api_last_time')},
   {id: 'stepTotal', label: i18n.t('api_test.automation.step')},
   {id: 'lastResult', label: i18n.t('api_test.automation.last_result')},
