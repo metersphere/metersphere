@@ -302,6 +302,7 @@ export default {
   },
   watch: {
     selectNodeIds() {
+      this.condition.selectAll = false;
       this.initTable();
     },
     currentProtocol() {
