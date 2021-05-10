@@ -436,16 +436,6 @@ export default {
 
 <style scoped>
 
-.border-hidden >>> .el-textarea__inner {
-  border-style: hidden;
-  background-color: white;
-  color: #060505;
-}
-
-.border-hidden >>> *[disabled] {
-  opacity: 0.7;
-}
-
 .cast_label {
   color: dimgray;
 }
