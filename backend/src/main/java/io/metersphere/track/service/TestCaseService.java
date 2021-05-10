@@ -19,6 +19,8 @@ import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.domain.TestCaseExcelDataFactory;
+import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
+import io.metersphere.excel.listener.TestCaseDataIgnoreErrorListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
@@ -97,7 +99,8 @@ public class TestCaseService {
     TestCaseFileMapper testCaseFileMapper;
     @Resource
     TestCaseTestMapper testCaseTestMapper;
-    private void setNode(TestCaseWithBLOBs testCase){
+
+    private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
             example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("默认模块");
@@ -224,7 +227,7 @@ public class TestCaseService {
                     String remark = tc.getRemark();
                     String prerequisite = tc.getPrerequisite();
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
-                         //MSException.throwException(Translator.get("test_case_already_exists"));
+                        //MSException.throwException(Translator.get("test_case_already_exists"));
                         return tc;
                     }
                 }
@@ -487,7 +490,7 @@ public class TestCaseService {
                     testcase.setCustomNum(String.valueOf(number));
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                    mapper.insert(testcase);
+                mapper.insert(testcase);
             });
         }
         sqlSession.flushStatements();
@@ -516,6 +519,7 @@ public class TestCaseService {
     /**
      * 把Excel中带ID的数据更新到数据库
      * feat(测试跟踪):通过Excel导入导出时有ID字段，可通过Excel导入来更新用例。 (#1727)
+     *
      * @param testCases
      * @param projectId
      */
@@ -555,8 +559,9 @@ public class TestCaseService {
     public void testCaseTemplateExport(HttpServletResponse response) {
         try {
             EasyExcelExporter easyExcelExporter = new EasyExcelExporter(new TestCaseExcelDataFactory().getExcelDataByLocal());
-            easyExcelExporter.export(response, generateExportTemplate(),
-                    Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler();
+            easyExcelExporter.exportByCustomWriteHandler(response, generateExportTemplate(),
+                    Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"), handler);
         } catch (Exception e) {
             MSException.throwException(e);
         }
@@ -619,16 +624,15 @@ public class TestCaseService {
         }
 
         list.add(new TestCaseExcelData());
-        TestCaseExcelData explain = new TestCaseExcelData();
-        explain.setName(Translator.get("do_not_modify_header_order") + "," + Translator.get("num_needed_modify_testcase") + "," + Translator.get("num_needless_create_testcase"));
-        explain.setNodePath(Translator.get("module_created_automatically"));
-        explain.setType(Translator.get("options") + "（functional、performance、api）");
-        explain.setTags(Translator.get("tag_tip_pattern"));
-//        explain.setMethod(Translator.get("options") + "（manual、auto）");
-        explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
-        explain.setMaintainer(Translator.get("please_input_workspace_member"));
-
-        list.add(explain);
+//        TestCaseExcelData explain = new TestCaseExcelData();
+//        explain.setName(Translator.get("do_not_modify_header_order") + "," + Translator.get("num_needed_modify_testcase") + "," + Translator.get("num_needless_create_testcase"));
+//        explain.setNodePath(Translator.get("module_created_automatically"));
+//        explain.setType(Translator.get("options") + "（functional、performance、api）");
+//        explain.setTags(Translator.get("tag_tip_pattern"));
+////        explain.setMethod(Translator.get("options") + "（manual、auto）");
+//        explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
+//        explain.setMaintainer(Translator.get("please_input_workspace_member"));
+//        list.add(explain);
         return list;
     }
 
@@ -1020,9 +1024,95 @@ public class TestCaseService {
 
     /**
      * 更新项目下用例的CustomNum值
+     *
      * @param projectId 项目ID
      */
     public void updateTestCaseCustomNumByProjectId(String projectId) {
         extTestCaseMapper.updateTestCaseCustomNumByProjectId(projectId);
+    }
+
+    public ExcelResponse testCaseImportIgnoreError(MultipartFile multipartFile, String projectId, String userId) {
+
+        ExcelResponse excelResponse = new ExcelResponse();
+        boolean isUpdated = false;  //判断是否更新了用例
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
+        queryTestCaseRequest.setProjectId(projectId);
+        List<TestCase> testCases = extTestCaseMapper.getTestCaseNames(queryTestCaseRequest);
+        Set<String> testCaseNames = testCases.stream()
+                .map(TestCase::getName)
+                .collect(Collectors.toSet());
+        List<ExcelErrData<TestCaseExcelData>> errList = null;
+        if (multipartFile == null) {
+            MSException.throwException(Translator.get("upload_fail"));
+        }
+        if (multipartFile.getOriginalFilename().endsWith(".xmind")) {
+            try {
+                XmindCaseParser xmindParser = new XmindCaseParser(this, userId, projectId, testCaseNames);
+                errList = xmindParser.parse(multipartFile);
+                if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
+                        && CollectionUtils.isEmpty(xmindParser.getTestCase())
+                        && CollectionUtils.isEmpty(xmindParser.getUpdateTestCase())) {
+                    if (errList == null) {
+                        errList = new ArrayList<>();
+                    }
+                    ExcelErrData excelErrData = new ExcelErrData(null, 1, Translator.get("upload_fail") + "：" + Translator.get("upload_content_is_null"));
+                    errList.add(excelErrData);
+                    excelResponse.setErrList(errList);
+                }
+                List<TestCaseWithBLOBs> continueCaseList = xmindParser.getContinueValidatedCase();
+                if (CollectionUtils.isNotEmpty(continueCaseList) || CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
+                    if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
+                        continueCaseList.removeAll(xmindParser.getUpdateTestCase());
+                        this.updateImportData(xmindParser.getUpdateTestCase(), projectId);
+                    }
+                    List<String> nodePathList = xmindParser.getValidatedNodePath();
+                    if (CollectionUtils.isNotEmpty(nodePathList)) {
+                        testCaseNodeService.createNodes(nodePathList, projectId);
+                    }
+                    if (CollectionUtils.isNotEmpty(continueCaseList)) {
+                        Collections.reverse(continueCaseList);
+                        this.saveImportData(continueCaseList, projectId);
+                    }
+                }
+                xmindParser.clear();
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
+            }
+        } else {
+            UserRoleExample userRoleExample = new UserRoleExample();
+            userRoleExample.createCriteria()
+                    .andRoleIdIn(Arrays.asList(RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER))
+                    .andSourceIdEqualTo(currentWorkspaceId);
+
+            Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
+
+            try {
+                //根据本地语言环境选择用哪种数据对象进行存放读取的数据
+                Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
+
+                TestCaseDataIgnoreErrorListener easyExcelListener = new TestCaseDataIgnoreErrorListener(clazz, projectId, testCaseNames, userIds);
+
+                //读取excel数据
+                EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+
+                errList = easyExcelListener.getErrList();
+                isUpdated = easyExcelListener.isUpdated();
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+                MSException.throwException(e.getMessage());
+            }
+        }
+        //如果包含错误信息就导出错误信息
+        if (!errList.isEmpty()) {
+            excelResponse.setSuccess(false);
+            excelResponse.setErrList(errList);
+            excelResponse.setIsUpdated(isUpdated);
+        } else {
+            excelResponse.setSuccess(true);
+        }
+
+        return excelResponse;
     }
 }

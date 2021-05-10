@@ -1342,6 +1342,8 @@ export default {
         xmind_title: "Xmind",
         import_desc: "Import instructions",
         import_file: "upload files",
+        ignore_error: "Ignore errors ",
+        continue_upload: "Upload continue",
       },
       export: {
         export: "Export cases"
