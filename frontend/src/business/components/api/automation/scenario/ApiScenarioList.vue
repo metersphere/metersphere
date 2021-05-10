@@ -81,14 +81,22 @@
           <el-table-column v-if="item.id == 'tags'" prop="tags" min-width="120px"
                            :label="$t('api_test.automation.tag')" :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" :show-tooltip="true"
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                      :content="itemName" :show-tooltip="true"
                       tooltip style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
+          <el-table-column v-if="item.id == 'principal'" prop="principal" min-width="120px"
+                           :label="$t('api_test.definition.api_principal')"
+                           :filters="userFilters"
+                           column-key="principal"
+                           sortable="custom"
+                           show-overflow-tooltip
+                           :key="index"/>
           <el-table-column v-if="item.id == 'userId'" prop="userId" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
-                           column-key="user_id"
+                           column-key="userId"
                            sortable="custom"
                            show-overflow-tooltip
                            :key="index"/>
