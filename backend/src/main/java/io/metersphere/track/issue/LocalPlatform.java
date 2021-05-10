@@ -54,6 +54,7 @@ public class LocalPlatform extends AbstractIssuePlatform {
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
         issues.setPlatform(IssuesManagePlatform.Local.toString());;
+        issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issuesMapper.insert(issues);
 
         issuesRequest.setId(id);
