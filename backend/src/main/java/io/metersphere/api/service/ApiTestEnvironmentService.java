@@ -12,15 +12,13 @@ import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -36,11 +34,14 @@ public class ApiTestEnvironmentService {
     }
 
     public List<ApiTestEnvironmentWithBLOBs> listByConditions(EnvironmentRequest environmentRequest) {
+        if (CollectionUtils.isEmpty(environmentRequest.getProjectIds())) {
+            return new ArrayList<>();
+        }
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         ApiTestEnvironmentExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdIn(environmentRequest.getProjectIds());
         if (StringUtils.isNotBlank(environmentRequest.getName())) {
-            environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(),'%'));    //使搜索文本变成数据库中的正则表达式
+            environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(), '%'));    //使搜索文本变成数据库中的正则表达式
             criteria.andNameLike(environmentRequest.getName());
         }
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
