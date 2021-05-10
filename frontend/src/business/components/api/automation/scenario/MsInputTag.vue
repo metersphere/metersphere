@@ -18,7 +18,7 @@
       {{tag && tag.length>10? tag.substring(0,10)+"...":tag}}
     </el-tag>
     <input
-      v-if="!readOnly"
+      :disabled="readOnly"
       class="tag-input el-input"
       v-model="newTag"
       :placeholder="$t('commons.tag_tip')"
