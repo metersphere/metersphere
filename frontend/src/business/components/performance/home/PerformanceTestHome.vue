@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container v-loading="result.loading">
-      <el-row :gutter="20">
+      <el-row :gutter="10">
         <el-col :span="12">
           <ms-performance-test-recent-list/>
         </el-col>
@@ -9,7 +9,7 @@
           <ms-performance-report-recent-list/>
         </el-col>
       </el-row>
-      <el-row :gutter="20">
+      <el-row :gutter="10">
         <el-col :span="12">
           <ms-test-heatmap :values="values"/>
         </el-col>
