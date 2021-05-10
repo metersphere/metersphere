@@ -217,3 +217,7 @@ textarea {
   width: 30px;
 }
 /* 表格全选样式 --> */
+
+*[disabled] {
+  opacity: 1 !important;
+}
