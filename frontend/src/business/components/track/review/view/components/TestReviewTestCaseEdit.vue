@@ -485,10 +485,6 @@ export default {
   color: #060505;
 }
 
-.tb-edit >>> *[disabled] {
-  opacity: 0.7;
-}
-
 .step-info {
   padding-left: 40px;
   padding-right: 15px;
