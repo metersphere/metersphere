@@ -154,6 +154,13 @@ public class TestCaseController {
         return testCaseService.testCaseImport(file, projectId, userId);
     }
 
+    @PostMapping("/importIgnoreError/{projectId}/{userId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId) {
+        checkPermissionService.checkProjectOwner(projectId);
+        return testCaseService.testCaseImportIgnoreError(file, projectId, userId);
+    }
+
     @GetMapping("/export/template")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void testCaseTemplateExport(HttpServletResponse response) {

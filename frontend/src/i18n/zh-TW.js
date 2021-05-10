@@ -1347,6 +1347,8 @@ export default {
         xmind_title: "思維導圖",
         import_desc: "導入說明",
         import_file: "上傳文件",
+        ignore_error: "忽略錯誤",
+        continue_upload: "繼續上傳",
       },
       export: {
         export: "導出用例"
