@@ -18,6 +18,7 @@
         <el-form-item :label="$t('test_track.case.relate_test')" :label-width="labelWidth">
           <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')" show-all-levels
                        v-model="form.selected" :props="props"
+                       :disabled="readOnly"
                        class="ms-case" ref="cascade"></el-cascader>
         </el-form-item>
       </el-col>
@@ -48,6 +49,7 @@
 
     <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
       <test-case-issue-relate
+        :read-only="readOnly"
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
 
@@ -63,8 +65,9 @@
             :on-exceed="handleExceed"
             multiple
             :limit="8"
+            :disabled="readOnly"
             :file-list="fileList">
-            <el-button icon="el-icon-plus" size="mini"></el-button>
+            <el-button icon="el-icon-plus" :disabled="readOnly" size="mini"></el-button>
             <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
           </el-upload>
         </el-col>

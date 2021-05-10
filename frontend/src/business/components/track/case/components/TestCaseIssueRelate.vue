@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button class="add-btn" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
+    <el-button class="add-btn" :disabled="readOnly" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
     <el-tooltip class="item" effect="dark"
                 :content="$t('test_track.issue.platform_tip')"
                 placement="right">
@@ -79,7 +79,7 @@ export default {
       result: {},
     }
   },
-  props: ['caseId'],
+  props: ['caseId', 'readOnly'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;

@@ -42,7 +42,7 @@
 
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-                <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
+                <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
               </el-form-item>
             </el-col>
           </el-row>
@@ -54,7 +54,7 @@
               <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
                 <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                               :label-width="formLabelWidth">
-                  <custom-filed-component @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
+                  <custom-filed-component :disabled="readOnly" @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -71,15 +71,15 @@
 
           <ms-form-divider :title="$t('test_track.case.step_info')"/>
 
-          <form-rich-text-item :label-width="formLabelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
           <step-change-item :label-width="formLabelWidth" :form="form"/>
-          <form-rich-text-item :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-          <form-rich-text-item :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+          <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
 
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
 
-          <test-case-edit-other-info :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
+          <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -117,7 +117,14 @@
 <script>
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
-import {getCurrentUser, getNodePath, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  checkoutTestManagerOrTestUser,
+  getCurrentUser,
+  getNodePath,
+  handleCtrlSEvent,
+  listenGoBack,
+  removeGoBackListener
+} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
@@ -269,6 +276,9 @@ export default {
     }
   },
   mounted() {
+    if (!checkoutTestManagerOrTestUser()) {
+      this.readOnly = true;
+    }
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
       this.open(this.currentTestCaseInfo)
