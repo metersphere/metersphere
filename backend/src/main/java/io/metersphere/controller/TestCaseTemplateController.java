@@ -32,6 +32,7 @@ public class TestCaseTemplateController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public Pager<List<TestCaseTemplateWithBLOBs>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody BaseQueryRequest request) {
         Page<List<TestCaseTemplateWithBLOBs>> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseTemplateService.list(request));
@@ -48,11 +49,13 @@ public class TestCaseTemplateController {
     }
 
     @GetMapping("/option/{workspaceId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<TestCaseTemplate> list(@PathVariable String workspaceId) {
         return testCaseTemplateService.getOption(workspaceId);
     }
 
     @GetMapping("/get/relate/{projectId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public TestCaseTemplateDao getTemplate(@PathVariable String projectId) {
         return testCaseTemplateService.getTemplate(projectId);
     }
