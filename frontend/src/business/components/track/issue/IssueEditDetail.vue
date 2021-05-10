@@ -158,9 +158,6 @@ export default {
     open(data) {
       let initAddFuc = this.initEdit;
       this.getMemberOptions();
-      if (!data.creator) {
-        data.creator = getCurrentUserId();
-      }
       getTemplate('field/template/issue/get/relate/', this)
         .then((template) => {
           this.issueTemplate = template;
@@ -211,6 +208,9 @@ export default {
           description: this.issueTemplate.content
         }
         this.url = 'issues/add';
+      }
+      if (!this.form.creator) {
+        this.form.creator = getCurrentUserId();
       }
       parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules, null);
       this.$nextTick(() => {
