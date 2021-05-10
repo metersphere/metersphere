@@ -49,6 +49,7 @@ export const Api_List = [
   {id: 'caseTotal', label: i18n.t('api_test.definition.api_case_number')},
   {id: 'caseStatus', label: i18n.t('api_test.definition.api_case_status')},
   {id: 'casePassingRate', label: i18n.t('api_test.definition.api_case_passing_rate')},
+  {id: 'status', label: i18n.t('api_test.definition.api_status')}
 ]
 //接口定义-case列表
 export const Api_Case_List = [
