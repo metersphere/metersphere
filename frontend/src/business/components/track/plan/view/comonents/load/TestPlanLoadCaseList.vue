@@ -231,6 +231,7 @@ export default {
   },
   watch: {
     selectProjectId() {
+      this.condition.selectAll = false;
       this.initTable();
     },
     planId() {
