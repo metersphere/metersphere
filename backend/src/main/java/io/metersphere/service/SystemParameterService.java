@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.SystemHeaderMapper;
 import io.metersphere.base.mapper.SystemParameterMapper;
@@ -42,6 +43,8 @@ public class SystemParameterService {
     private ExtSystemParameterMapper extSystemParameterMapper;
     @Resource
     private SystemHeaderMapper systemHeaderMapper;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     public String searchEmail() {
         return extSystemParameterMapper.email();
@@ -237,6 +240,7 @@ public class SystemParameterService {
 
     public void saveBaseInfo(List<SystemParameter> parameters) {
         SystemParameterExample example = new SystemParameterExample();
+
         parameters.forEach(param -> {
             // 去掉路径最后的 /
             param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
@@ -247,6 +251,10 @@ public class SystemParameterService {
                 systemParameterMapper.insert(param);
             }
             example.clear();
+
+            if (StringUtils.equals(param.getParamKey(), "base.url")) {
+                apiTestEnvironmentService.checkMockEvnInfoByBaseUrl(param.getParamValue());
+            }
         });
     }
 

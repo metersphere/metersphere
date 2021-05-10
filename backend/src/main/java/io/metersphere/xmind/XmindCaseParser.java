@@ -59,6 +59,10 @@ public class XmindCaseParser {
      */
     private List<String> nodePaths;
 
+    private List<TestCaseWithBLOBs> continueValidatedCase;
+
+    private List<String> errorPath;
+
     public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames) {
         this.testCaseService = testCaseService;
         this.maintainer = userId;
@@ -69,11 +73,14 @@ public class XmindCaseParser {
         compartDatas = new ArrayList<>();
         process = new DetailUtil();
         nodePaths = new ArrayList<>();
+        continueValidatedCase = new ArrayList<>();
+        errorPath = new ArrayList<>();
     }
 
     private static final String TC_REGEX = "(?:tc:|tc：|tc)";
     private static final String PC_REGEX = "(?:pc:|pc：|pc)";
     private static final String RC_REGEX = "(?:rc:|rc：|rc)";
+    private static final String ID_REGEX = "(?:id:|id：|id)";
     private static final String TAG_REGEX = "(?:tag:|tag：|tag)";
 
     public void clear() {
@@ -126,6 +133,7 @@ public class XmindCaseParser {
      * 验证用例的合规性
      */
     private boolean validate(TestCaseWithBLOBs data) {
+        boolean validatePass = true;
         String nodePath = data.getNodePath();
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -137,27 +145,41 @@ public class XmindCaseParser {
 
 
         if (data.getName().length() > 200) {
+            validatePass = false;
             process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "200", nodePath + data.getName());
         }
 
         if (!StringUtils.isEmpty(nodePath)) {
             String[] nodes = nodePath.split("/");
             if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                validatePass = false;
                 process.add(Translator.get("test_case_node_level_tip") +
                         TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"), nodePath);
+                if (!errorPath.contains(nodePath)) {
+                    errorPath.add(nodePath);
+                }
             }
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    validatePass = false;
                     process.add(Translator.get("test_case") + Translator.get("module_not_null"), nodePath + data.getName());
+                    if (!errorPath.contains(nodePath)) {
+                        errorPath.add(nodePath);
+                    }
                     break;
                 } else if (nodes[i].trim().length() > 100) {
+                    validatePass = false;
                     process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "100 ", nodes[i].trim());
+                    if (!errorPath.contains(nodePath)) {
+                        errorPath.add(nodePath);
+                    }
                     break;
                 }
             }
         }
 
         if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+            validatePass = false;
             process.add(Translator.get("functional_method_tip"), nodePath + data.getName());
         }
 
@@ -176,9 +198,11 @@ public class XmindCaseParser {
 
         // 用例等级和用例性质处理
         if (!priorityList.contains(data.getPriority())) {
+            validatePass = false;
             process.add(Translator.get("test_case_priority") + Translator.get("incorrect_format"), nodePath + data.getName());
         }
         if (data.getType() == null) {
+            validatePass = false;
             process.add(Translator.get("test_case_type") + Translator.get("incorrect_format"), nodePath + data.getName());
         }
 
@@ -186,9 +210,13 @@ public class XmindCaseParser {
         TestCaseExcelData compartData = new TestCaseExcelData();
         BeanUtils.copyBean(compartData, data);
         if (compartDatas.contains(compartData)) {
+            validatePass = false;
             process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + compartData.getName());
         }
         compartDatas.add(compartData);
+        if (validatePass) {
+            this.continueValidatedCase.add(data);
+        }
         return true;
     }
 
@@ -305,6 +333,7 @@ public class XmindCaseParser {
         List<Attached> steps = new LinkedList<>();
         StringBuilder rc = new StringBuilder();
         List<String> tags = new LinkedList<>();
+        StringBuilder customId = new StringBuilder();
         if (attacheds != null && !attacheds.isEmpty()) {
             attacheds.forEach(item -> {
                 if (isAvailable(item.getTitle(), PC_REGEX)) {
@@ -314,12 +343,15 @@ public class XmindCaseParser {
                     rc.append("\n");
                 } else if (isAvailable(item.getTitle(), TAG_REGEX)) {
                     tags.add(replace(item.getTitle(), TAG_REGEX));
+                } else if (isAvailable(item.getTitle(), ID_REGEX)) {
+                    customId.append(replace(item.getTitle(), ID_REGEX));
                 } else {
                     steps.add(item);
                 }
             });
         }
         testCase.setRemark(rc.toString());
+        testCase.setCustomNum(customId.toString());
         testCase.setTags(JSON.toJSONString(tags));
         testCase.setSteps(this.getSteps(steps));
         // 校验合规性
@@ -364,8 +396,23 @@ public class XmindCaseParser {
             //检查目录合规性
             this.validate();
         } catch (Exception ex) {
+            ex.printStackTrace();
             return process.parse(ex.getMessage());
         }
         return process.parse();
+    }
+
+    public List<TestCaseWithBLOBs> getContinueValidatedCase() {
+        return this.continueValidatedCase;
+    }
+
+    public List<String> getValidatedNodePath() {
+        List<String> returnPathList = new ArrayList<>(nodePaths);
+        if (CollectionUtils.isNotEmpty(returnPathList)) {
+            if (CollectionUtils.isNotEmpty(errorPath)) {
+                returnPathList.removeAll(errorPath);
+            }
+        }
+        return returnPathList;
     }
 }
