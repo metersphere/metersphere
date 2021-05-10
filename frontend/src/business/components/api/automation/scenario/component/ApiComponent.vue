@@ -245,8 +245,10 @@
           this.request.url = url;
         } catch (e) {
           if (url && (!url.startsWith("http://") || !url.startsWith("https://"))) {
-            this.request.path = url;
-            this.request.url = undefined;
+            if (!this.isCustomizeReq) {
+              this.request.path = url;
+              this.request.url = undefined;
+            }
           }
         }
       },
@@ -307,7 +309,7 @@
         this.reload();
       },
       run() {
-        if (this.isApiImport) {
+        if (this.isApiImport || this.request.isRefEnvironment) {
           if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
             if (!this.envMap || this.envMap.size === 0) {
               this.$warning("请在环境配置中为该步骤所属项目选择运行环境！");
