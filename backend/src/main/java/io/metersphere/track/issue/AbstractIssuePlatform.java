@@ -35,6 +35,7 @@ import javax.net.ssl.SSLContext;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractIssuePlatform implements IssuesPlatform {
@@ -171,7 +172,17 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setCreator(issuesRequest.getCreator());
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
+        issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issuesMapper.insert(issues);
+    }
+
+    protected int getNextNum(String projectId) {
+        Issues issue = extIssuesMapper.getNextNum(projectId);
+        if (issue == null) {
+            return 100001;
+        } else {
+            return Optional.of(issue.getNum() + 1).orElse(100001);
+        }
     }
 
     protected List<CustomFieldItemDTO> getCustomFields(String customFieldsStr) {
