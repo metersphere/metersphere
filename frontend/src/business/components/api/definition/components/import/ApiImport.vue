@@ -201,6 +201,11 @@
       this.selectedPlatform = this.platforms[0];
     },
     watch: {
+      moduleOptions() {
+        if (this.moduleOptions.length > 0) {
+          this.formData.moduleId = this.moduleOptions[0].id;
+        }
+      },
       selectedPlatformValue() {
         for (let i in this.platforms) {
           if (this.platforms[i].value === this.selectedPlatformValue) {
