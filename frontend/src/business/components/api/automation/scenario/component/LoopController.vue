@@ -12,7 +12,7 @@
 
       <template v-slot:message>
         <span v-if="requestResult && requestResult.scenarios && requestResult.scenarios.length > 0 " style="color: #8c939d;margin-right: 10px">
-          {{$t('api_test.automation.loop_name')}}{{requestResult.scenarios.length}}次 成功{{success}}次 失败{{error}}次
+          <!--{{$t('api_test.automation.loop_name')}}{{requestResult.scenarios.length}}次 成功{{success}}次 失败{{error}}次-->
         </span>
       </template>
 
@@ -280,6 +280,7 @@
             if (item.type === "HTTPSamplerProxy" || item.type === "DubboSampler" || item.type === "JDBCSampler" || item.type === "TCPSampler") {
               item.result = this.requestResult;
               item.activeName = this.activeName;
+              item.active = true;
               item.requestResult = undefined;
             }
             if (item.hashTree && item.hashTree.length > 0) {
@@ -318,11 +319,12 @@
                   this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios !== null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
                   // 把请求结果分给各个请求
                   this.setResult(this.controller.hashTree);
-                  this.$emit("refReload");
+                  this.$emit("refReload",this.node);
                 } catch (e) {
                   throw e;
                 }
                 this.loading = false;
+                this.node.expanded = true;
                 this.reload();
               } else {
                 setTimeout(this.getReport, 2000);
