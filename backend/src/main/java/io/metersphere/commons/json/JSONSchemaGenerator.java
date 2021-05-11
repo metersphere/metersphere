@@ -143,7 +143,7 @@ public class JSONSchemaGenerator {
                     // TODO 6.3.3 in json-schema-validation
                 }
 
-            } else if (propertyObjType.equals("integer") || propertyObjType.equals("number")) {
+            } else if (propertyObjType.equals("integer")) {
                 // 先设置空值
                 concept.put(propertyName, 0);
                 if (object.has("default")) {
@@ -183,6 +183,25 @@ public class JSONSchemaGenerator {
                 }
                 // Section 6.2.5 in json-schema-validation. Resolved as OCL
 
+            } else if (propertyObjType.equals("number")) {
+                // 先设置空值
+                concept.put(propertyName, 0);
+                if (object.has("default")) {
+                    concept.put(propertyName, object.get("default"));
+                }
+                if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                    try {
+                        Number value = object.get("mock").getAsJsonObject().get("mock").getAsNumber();
+                        if (value.toString().indexOf(".") == -1) {
+                            concept.put(propertyName, value.intValue());
+                        } else {
+                            concept.put(propertyName, value.floatValue());
+                        }
+                    } catch (Exception e) {
+                        String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        concept.put(propertyName, value);
+                    }
+                }
             } else if (propertyObjType.equals("boolean")) {
                 // 先设置空值
                 concept.put(propertyName, false);

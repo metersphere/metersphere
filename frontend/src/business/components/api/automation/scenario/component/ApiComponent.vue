@@ -58,7 +58,7 @@
           <el-tabs v-model="request.activeName" closable class="ms-tabs">
             <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
               <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-                <api-response-component v-if="result.name===request.name" :result="result"/>
+                <api-response-component v-if="result.id===request.id" :result="result"/>
               </div>
             </el-tab-pane>
           </el-tabs>
@@ -168,7 +168,7 @@
     watch: {
       envMap() {
         this.getEnvironments();
-      }
+      },
     },
     computed: {
       displayColor() {
