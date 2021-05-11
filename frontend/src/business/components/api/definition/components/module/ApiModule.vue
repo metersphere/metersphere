@@ -119,7 +119,7 @@
     },
     methods: {
       initProtocol() {
-        this.$get('/api/module//getUserDefaultApiType/', response => {
+        this.$get('/api/module/getUserDefaultApiType/', response => {
           this.condition.protocol = response.data;
           this.$emit('protocolChange', this.condition.protocol);
           this.list();
