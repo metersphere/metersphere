@@ -264,6 +264,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             path = "/" + path;
                         }
                         String port = sampler.getPort() != 80 ? ":" + sampler.getPort() : "";
+                        if (StringUtils.equals("https", sampler.getProtocol()) && sampler.getPort() == 443) {
+                            // 解决https delete请求时，path路径带443端口，请求头的host会变成域名加443
+                            port = "";
+                        }
                         path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
                     sampler.setProperty("HTTPSampler.path", path);
