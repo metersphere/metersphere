@@ -5,16 +5,10 @@
 
 package org.apache.jmeter.assertions;
 
+import com.google.gson.Gson;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Predicate;
-
-import java.io.Serializable;
-import java.text.DecimalFormat;
-import java.util.Map;
-import java.util.function.Supplier;
-
 import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
@@ -23,6 +17,10 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.apache.oro.text.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.Serializable;
+import java.text.DecimalFormat;
+import java.util.Map;
 
 public class JSONPathAssertion extends AbstractTestElement implements Serializable, Assertion, ThreadListener {
     private static final Logger log = LoggerFactory.getLogger(JSONPathAssertion.class);
@@ -212,7 +210,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         if (subj == null) {
             str = "null";
         } else if (subj instanceof Map) {
-            str = (new JSONObject((Map) subj)).toJSONString();
+            str = new Gson().toJson(subj);
         } else if (!(subj instanceof Double) && !(subj instanceof Float)) {
             str = subj.toString();
         } else {
