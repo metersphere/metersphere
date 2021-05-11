@@ -150,8 +150,13 @@ public class JSONSchemaGenerator {
                     concept.put(propertyName, object.get("default"));
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
-                    concept.put(propertyName, value);
+                    try {
+                        int value = object.get("mock").getAsJsonObject().get("mock").getAsInt();
+                        concept.put(propertyName, value);
+                    } catch (Exception e) {
+                        String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        concept.put(propertyName, value);
+                    }
                 }
                 if (object.has("multipleOf")) {
 
