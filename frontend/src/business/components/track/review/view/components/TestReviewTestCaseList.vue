@@ -68,7 +68,8 @@
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
-          min-width="100"
+          sortable="custom"
+          min-width="120px"
           :label="$t('test_track.case.priority')"
           :key="index">
           <template v-slot:default="scope">

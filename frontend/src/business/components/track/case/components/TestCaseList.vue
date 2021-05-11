@@ -41,7 +41,7 @@
           sortable="custom"
           :label="$t('commons.id')"
           :key="index"
-          width="80"
+          min-width="80"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
@@ -50,7 +50,7 @@
           sortable="custom"
           :label="$t('commons.id')"
           :key="index"
-          width="80"
+          min-width="80"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
@@ -59,7 +59,7 @@
           :label="$t('commons.name')"
           show-overflow-tooltip
           :key="index"
-          width="120"
+          min-width="120"
         >
         </el-table-column>
         <el-table-column
@@ -67,10 +67,10 @@
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
-          min-width="100px"
+          sortable="custom"
+          min-width="120px"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip
-          width="100"
           :key="index">
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.priority"/>
@@ -117,7 +117,7 @@
           </template>
         </el-table-column>
       </template>
-      <el-table-column fixed="right" min-width="150">
+      <el-table-column fixed="right" min-width="120">
         <template slot="header">
           <header-label-operate @exec="customHeader"/>
         </template>
