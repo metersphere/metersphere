@@ -5,6 +5,8 @@ import io.metersphere.api.dto.definition.DragModuleRequest;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.utils.ApiDefinitionDefaultApiTypeUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.service.CheckPermissionService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -26,13 +28,27 @@ public class ApiModuleController {
     @GetMapping("/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId,@PathVariable String protocol) {
         checkPermissionService.checkProjectOwner(projectId);
-        return apiModuleService.getNodeTreeByProjectId(projectId,protocol);
+        String userId = SessionUtils.getUserId();
+        ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
+        return apiModuleService.getNodeTreeByProjectId(projectId, protocol);
     }
 
     @GetMapping("/getModuleByName/{projectId}/{protocol}")
-    public ApiModule getModuleByName(@PathVariable String projectId,@PathVariable String protocol) {
+    public ApiModule getModuleByName(@PathVariable String projectId, @PathVariable String protocol) {
         checkPermissionService.checkProjectOwner(projectId);
-        return apiModuleService.getModuleByName(projectId,protocol);
+        return apiModuleService.getModuleByName(projectId, protocol);
+    }
+
+    @GetMapping("/getUserDefaultApiType")
+    public String getUserDefaultApiType() {
+        String returnStr = ApiDefinitionDefaultApiTypeUtil.HTTP;
+        try {
+            String userId = SessionUtils.getUserId();
+            returnStr = ApiDefinitionDefaultApiTypeUtil.getUserSelectedApiType(userId);
+        } catch (Exception e) {
+
+        }
+        return returnStr;
     }
 
     @GetMapping("/list/plan/{planId}/{protocol}")
