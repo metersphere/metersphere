@@ -1,7 +1,7 @@
 <template>
   <div>
-    <el-tabs type="border-card">
-      <el-tab-pane :label="$t('schedule.cron.seconds')" v-if="shouldHide('second')">
+    <el-tabs type="border-card" v-model="activeName">
+      <el-tab-pane name="second" :label="$t('schedule.cron.seconds')" v-if="shouldHide('second')">
         <crontab-second
           @update="updateContabValue"
           :check="checkNumber"
@@ -9,7 +9,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('schedule.cron.minutes')"  v-if="shouldHide('min')">
+      <el-tab-pane name="min" :label="$t('schedule.cron.minutes')"  v-if="shouldHide('min')">
         <crontab-min
           @update="updateContabValue"
           :check="checkNumber"
@@ -18,7 +18,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('schedule.cron.hours')" v-if="shouldHide('hour')">
+      <el-tab-pane name="hour" :label="$t('schedule.cron.hours')" v-if="shouldHide('hour')">
         <crontab-hour
           @update="updateContabValue"
           :check="checkNumber"
@@ -27,7 +27,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('schedule.cron.day')" v-if="shouldHide('day')">
+      <el-tab-pane name="day" :label="$t('schedule.cron.day')" v-if="shouldHide('day')">
         <crontab-day
           @update="updateContabValue"
           :check="checkNumber"
@@ -36,7 +36,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('schedule.cron.month')" v-if="shouldHide('mouth')">
+      <el-tab-pane name="mouth" :label="$t('schedule.cron.month')" v-if="shouldHide('mouth')">
         <crontab-mouth
           @update="updateContabValue"
           :check="checkNumber"
@@ -45,7 +45,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('schedule.cron.weeks')" v-if="shouldHide('week')">
+      <el-tab-pane name="week" :label="$t('schedule.cron.weeks')" v-if="shouldHide('week')">
         <crontab-week
           @update="updateContabValue"
           :check="checkNumber"
@@ -54,7 +54,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane :label="$t('schedule.cron.years')" v-if="shouldHide('year')">
+      <el-tab-pane name="year" :label="$t('schedule.cron.years')" v-if="shouldHide('year')">
         <crontab-year @update="updateContabValue"
                       :check="checkNumber"
                       :cron="contabValueObj"
@@ -142,6 +142,7 @@
           week: "?",
           year: "",
         },
+        activeName: 'hour'
       };
     },
     props: ["expression", "hideComponent"],
@@ -319,9 +320,9 @@
         // 还原选择项
         // ("准备还原");
         this.contabValueObj = {
-          second: "*",
-          min: "*",
-          hour: "*",
+          second: "0",
+          min: "0",
+          hour: "0/1",
           day: "*",
           mouth: "*",
           week: "?",
@@ -369,6 +370,7 @@
     },
     mounted: function() {
       this.resolveExp();
+      this.activeName = 'hour';
     },
   };
 </script>
