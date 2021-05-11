@@ -306,7 +306,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     kv.setType("file");
                 }
             }
-            body.getKvs().add(kv);
+            if (body != null) {
+                body.getKvs().add(kv);
+            }
         }
     }
 
