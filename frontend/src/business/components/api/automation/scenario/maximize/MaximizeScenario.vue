@@ -487,8 +487,10 @@
       },
       suggestClick(node) {
         this.response = {};
-        if (node.parent && node.parent.data.requestResult) {
+        if (node && node.parent && node.parent.data.requestResult) {
           this.response = node.parent.data.requestResult;
+        } else if (this.selectedNode) {
+          this.response = this.selectedNode.data.requestResult;
         }
       },
       showAll() {
