@@ -1013,6 +1013,7 @@ public class ApiAutomationService {
                     isEnv = false;
                 } else {
                     Set<String> projectIds = apiScenarioEnv.getProjectIds();
+                    projectIds.remove(null);
                     if (CollectionUtils.isNotEmpty(envMap.keySet())) {
                         for (String id : projectIds) {
                             Project project = projectMapper.selectByPrimaryKey(id);
