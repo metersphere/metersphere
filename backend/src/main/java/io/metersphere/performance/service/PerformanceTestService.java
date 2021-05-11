@@ -222,16 +222,17 @@ public class PerformanceTestService {
     public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
         checkQuota(request, false);
         //
-        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(request.getId());
+        String testId = request.getId();
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
         if (loadTest == null) {
-            MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
+            MSException.throwException(Translator.get("edit_load_test_not_found") + testId);
         }
         if (StringUtils.containsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
             MSException.throwException(Translator.get("cannot_edit_load_test_running"));
         }
         // 新选择了一个文件，删除原来的文件
         List<FileMetadata> updatedFiles = request.getUpdatedFileList();
-        List<FileMetadata> originFiles = getFileMetadataByTestId(request.getId());
+        List<FileMetadata> originFiles = getFileMetadataByTestId(testId);
         List<String> updatedFileIds = updatedFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
         List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
 
@@ -240,13 +241,15 @@ public class PerformanceTestService {
         // 删除已经不相关的文件
         if (!CollectionUtils.isEmpty(deleteFileIds)) {
             LoadTestFileExample example3 = new LoadTestFileExample();
-            example3.createCriteria().andFileIdIn(deleteFileIds);
+            example3.createCriteria()
+                    .andFileIdIn(deleteFileIds)
+                    .andTestIdEqualTo(testId);
             loadTestFileMapper.deleteByExample(example3);
         }
 
         // 导入项目里其他的文件
         List<String> addFileIds = ListUtils.subtract(updatedFileIds, originFileIds);
-        this.importFiles(addFileIds, request.getId(), request.getFileSorts());
+        this.importFiles(addFileIds, testId, request.getFileSorts());
 
         // 处理新上传的文件
         this.saveUploadFiles(files, loadTest, request.getFileSorts());
@@ -260,7 +263,7 @@ public class PerformanceTestService {
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
-        return request.getId();
+        return testId;
     }
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息
