@@ -3,7 +3,7 @@
     <div v-if="request.protocol === 'HTTP'">
       <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url || isCustomizeReq" v-model="request.url"
                 style="width: 85%;margin-top: 10px" size="small" @blur="urlChange">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">ssss
+        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
       </el-input>
