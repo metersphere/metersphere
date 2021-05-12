@@ -81,7 +81,8 @@
             <div>{{ $t('load_test.connect_timeout') }}</div>
           </el-form-item>
           <el-form-item>
-            <el-input-number :disabled="readOnly" size="mini" v-model="timeout" :min="10"
+            <el-input-number :disabled="readOnly" size="mini" v-model="timeout"
+                             :min="0"
                              :max="100000"></el-input-number>
           </el-form-item>
           <el-form-item>
@@ -95,7 +96,8 @@
             <div>{{ $t('load_test.response_timeout') }}</div>
           </el-form-item>
           <el-form-item>
-            <el-input-number :disabled="readOnly" size="mini" v-model="responseTimeout"></el-input-number>
+            <el-input-number :disabled="readOnly" size="mini" :min="0"
+                             v-model="responseTimeout"></el-input-number>
           </el-form-item>
           <el-form-item>
             ms
@@ -141,7 +143,8 @@
           </el-form-item>
           <el-form-item>
             <el-select v-model="granularity" :placeholder="$t('commons.please_select')" size="mini" clearable>
-              <el-option v-for="op in granularityData" :key="op.granularity" :label="op.granularity" :value="op.granularity"></el-option>
+              <el-option v-for="op in granularityData" :key="op.granularity" :label="op.granularity"
+                         :value="op.granularity"></el-option>
             </el-select>
           </el-form-item>
         </el-form>
@@ -163,26 +166,26 @@
           prop="name"
           label="名称">
         </el-table-column>
-<!--        <el-table-column-->
-<!--          align="center"-->
-<!--          prop="environmentName"-->
-<!--          label="所属环境">-->
-<!--        </el-table-column>-->
-<!--        <el-table-column-->
-<!--          align="center"-->
-<!--          prop="authStatus"-->
-<!--          label="认证状态">-->
-<!--        </el-table-column>-->
-<!--        <el-table-column-->
-<!--          align="center"-->
-<!--          prop="monitorStatus"-->
-<!--          label="监控状态">-->
-          <el-table-column
+        <!--        <el-table-column-->
+        <!--          align="center"-->
+        <!--          prop="environmentName"-->
+        <!--          label="所属环境">-->
+        <!--        </el-table-column>-->
+        <!--        <el-table-column-->
+        <!--          align="center"-->
+        <!--          prop="authStatus"-->
+        <!--          label="认证状态">-->
+        <!--        </el-table-column>-->
+        <!--        <el-table-column-->
+        <!--          align="center"-->
+        <!--          prop="monitorStatus"-->
+        <!--          label="监控状态">-->
+        <el-table-column
           align="center"
           prop="ip"
           label="IP">
-          </el-table-column>
-          <el-table-column
+        </el-table-column>
+        <el-table-column
           align="center"
           prop="port"
           label="Port">
@@ -218,8 +221,8 @@ export default {
   components: {EditMonitor, MsTableOperatorButton},
   data() {
     return {
-      timeout: 60000,
-      responseTimeout: 60000,
+      timeout: undefined,
+      responseTimeout: undefined,
       statusCode: [],
       domains: [],
       params: [],
@@ -237,7 +240,7 @@ export default {
         {start: 60001, end: 180000, granularity: 1800},
         {start: 180001, end: 360000, granularity: 3600},
       ]
-    }
+    };
   },
   props: {
     readOnly: {
@@ -263,7 +266,7 @@ export default {
       this.$get('/performance/get-advanced-config/' + this.testId, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
-          this.timeout = data.timeout || 10;
+          this.timeout = data.timeout;
           this.responseTimeout = data.responseTimeout;
           this.statusCode = data.statusCode || [];
           this.statusCodeStr = this.statusCode.join(',');
@@ -293,7 +296,7 @@ export default {
       }
     },
     edit(row) {
-      row.edit = !row.edit
+      row.edit = !row.edit;
     },
     del(row, dataName, index) {
       this[dataName].splice(index, 1);
@@ -374,7 +377,7 @@ export default {
 
     },
   }
-}
+};
 </script>
 
 <style scoped>
