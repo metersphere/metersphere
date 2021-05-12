@@ -468,7 +468,8 @@ export default {
           name: name,
           type: 'line',
           data: d,
-          smooth: true
+          smooth: true,
+          sampling: 'lttb'
         };
         let seriesArrayNames = seriesArray.map(m => m.name);
         if (seriesArrayNames.includes(name)) {
