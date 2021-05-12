@@ -889,10 +889,14 @@
         }
       },
       nodeExpand(data, node) {
-        node.expanded = true;
+        if (data && data.resourceId && this.expandedNode.indexOf(data.resourceId) === -1) {
+          this.expandedNode.push(data.resourceId);
+        }
       },
       nodeCollapse(data, node) {
-        node.expanded = false;
+        if (data && data.resourceId) {
+          this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
+        }
       },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
@@ -1166,7 +1170,7 @@
         //改变每个节点的状态
         for (let i in this.scenarioDefinition) {
           if (this.scenarioDefinition[i]) {
-            if (this.expandedStatus) {
+            if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
               this.expandedNode.push(this.scenarioDefinition[i].resourceId);
             }
             this.scenarioDefinition[i].active = this.expandedStatus;
