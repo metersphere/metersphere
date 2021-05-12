@@ -11,7 +11,7 @@
       :tag-edit-check="tagEditCheck"
       :priority-disable-check="priorityDisableCheck"
       :distinct-tags="distinctTags"
-      :default-mold="minderModel"
+      :default-mold="defaultMode"
       @afterMount="$emit('afterMount')"
       @moldChange="handleMoldChange"
       @save="save"
@@ -83,11 +83,21 @@ export default {
       },
       isActive: true,
       isFullScreen: false,
-      height: ''
+      height: '',
+      defaultMode: 3
     }
   },
   created() {
     this.height = document.body.clientHeight - 340;
+  },
+  mounted() {
+    this.defaultMode = 3;
+    if (this.minderKey) {
+      let model = localStorage.getItem(this.minderKey + 'minderModel');
+      if (model) {
+        this.defaultMode = Number.parseInt(model);
+      }
+    }
   },
   watch: {
     dataMap() {
@@ -101,22 +111,12 @@ export default {
       })
     }
   },
-  computed: {
-    minderModel() {
-      if (this.minderKey) {
-        let model = localStorage.getItem(this.minderKey + 'minderModel');
-        if (model) {
-          return Number.parseInt(model);
-        }
-      }
-      return 3;
-    }
-  },
   methods: {
     handleMoldChange(index) {
       if (this.minderKey) {
         localStorage.setItem(this.minderKey + 'minderModel', index);
       }
+      this.defaultMode = index;
     },
     save(data) {
       this.$emit('save', data)
