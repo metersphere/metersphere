@@ -72,6 +72,7 @@
         projectList: [],
         projectIds: new Set(),
         selectRows: new Set(),
+        allDataRows:new Set(),
         projectEnvMap: new Map(),
         map: new Map(),
         isScenario: '',
@@ -121,6 +122,9 @@
         this.selectRows = rows;
         this.isScenario = sign;
       },
+      setAllDataRows(rows){
+        this.allDataRows = rows;
+      },
       handleClose() {
         this.form = {};
         this.options = [];
@@ -131,14 +135,25 @@
         if (val === 'projectEnv' && this.isScenario !== '') {
           this.projectIds.clear();
           this.map.clear();
-          this.selectRows.forEach(row => {
-            let id = this.isScenario === 'scenario' ? row.id : row.caseId;
-            this.result = this.$get('/api/automation/getApiScenarioProjectId/' + id, res => {
-              let data = res.data;
-              data.projectIds.forEach(d => this.projectIds.add(d));
-              this.map.set(row.id, data.projectIds);
+          if(this.allDataRows != null && this.allDataRows.length > 0){
+            this.allDataRows.forEach(row => {
+              let id = this.isScenario === 'scenario' ? row.id : row.caseId;
+              this.result = this.$get('/api/automation/getApiScenarioProjectId/' + id, res => {
+                let data = res.data;
+                data.projectIds.forEach(d => this.projectIds.add(d));
+                this.map.set(row.id, data.projectIds);
+              })
             })
-          })
+          }else{
+            this.selectRows.forEach(row => {
+              let id = this.isScenario === 'scenario' ? row.id : row.caseId;
+              this.result = this.$get('/api/automation/getApiScenarioProjectId/' + id, res => {
+                let data = res.data;
+                data.projectIds.forEach(d => this.projectIds.add(d));
+                this.map.set(row.id, data.projectIds);
+              })
+            })
+          }
         }
         this.filterable = val === "maintainer" || val === "executor";
         this.options = this.valueArr[val];
