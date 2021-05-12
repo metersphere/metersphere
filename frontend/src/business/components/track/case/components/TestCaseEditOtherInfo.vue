@@ -49,7 +49,7 @@
 
     <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
       <test-case-issue-relate
-        :read-only="readOnly"
+        :read-only="readOnly && !(isTestPlan && isTesterPermission)"
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
 
@@ -91,7 +91,7 @@ import MsRichText from "@/business/components/track/case/components/MsRichText";
 import {TEST} from "@/business/components/api/definition/model/JsonData";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
-import {enableModules} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, enableModules} from "@/common/js/utils";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 
 export default {
@@ -113,6 +113,14 @@ export default {
         //lazyLoad:this.lazyLoad
       },
     };
+  },
+  computed: {
+    isTesterPermission() {
+      if (!checkoutTestManagerOrTestUser()) {
+        return false;
+      }
+      return true;
+    }
   },
   watch: {
     tabActiveName() {
