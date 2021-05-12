@@ -61,6 +61,7 @@
               let data = JSON.parse(response.data.content);
               this.response = data;
               this.$set(this.apiItem, 'responseData', data);
+              this.isActive = true;
             }
           });
         }
