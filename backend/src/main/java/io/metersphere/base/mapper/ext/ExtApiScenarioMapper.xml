@@ -257,6 +257,13 @@
         </foreach>
     </select>
 
+    <select id="listWithIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        select id from api_scenario where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
     <select id="selectByIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         select * from api_scenario where id in (${ids}) ORDER BY FIND_IN_SET(id,${oderId})
     </select>

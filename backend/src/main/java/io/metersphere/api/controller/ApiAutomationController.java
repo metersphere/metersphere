@@ -51,6 +51,14 @@ public class ApiAutomationController {
         return apiAutomationService.listAll(request);
     }
 
+    @PostMapping("/listWithIds/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioWithBLOBs> listWithIds(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.listWithIds(request);
+    }
+
+
+
     @PostMapping("/id/all")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<String> idAll(@RequestBody ApiScenarioBatchRequest request) {
