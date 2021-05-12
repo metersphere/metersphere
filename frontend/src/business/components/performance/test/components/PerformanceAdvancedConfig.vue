@@ -82,8 +82,7 @@
           </el-form-item>
           <el-form-item>
             <el-input-number :disabled="readOnly" size="mini" v-model="timeout"
-                             :min="0"
-                             :max="100000"></el-input-number>
+                             :min="0"></el-input-number>
           </el-form-item>
           <el-form-item>
             ms
