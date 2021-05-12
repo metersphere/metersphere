@@ -79,8 +79,8 @@
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
         as test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
+        <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
-        <include refid="notInQueryWhereCondition"></include>
         ORDER BY test_case.update_time DESC
     </select>
 
@@ -119,8 +119,8 @@
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
         as test_case
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
-        and T2.case_id is null
         <include refid="notInQueryWhereCondition"></include>
+        and T2.case_id is null
         ORDER BY test_case.update_time DESC
     </select>
 
