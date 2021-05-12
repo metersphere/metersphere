@@ -520,8 +520,20 @@
         this.planVisible = true;
       },
       handleBatchEdit() {
-        this.$refs.batchEdit.open(this.selectDataCounts);
         this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "scenario");
+        if(this.condition.selectAll){
+          this.condition.ids = [];
+          let param = {};
+          this.buildBatchParam(param);
+          this.$post('/api/automation/listWithIds/all/', param, response => {
+            let dataRows = response.data;
+            this.$refs.batchEdit.open(dataRows.size);
+            this.$refs.batchEdit.setAllDataRows(dataRows);
+            this.$refs.batchEdit.open(this.selectDataCounts);
+          });
+        }else {
+          this.$refs.batchEdit.open(this.selectDataCounts);
+        }
       },
       handleBatchMove() {
         this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);

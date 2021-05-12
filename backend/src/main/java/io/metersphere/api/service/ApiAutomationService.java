@@ -1767,4 +1767,11 @@ public class ApiAutomationService {
     public void updateCustomNumByProjectId(String id) {
         extApiScenarioMapper.updateCustomNumByProjectId(id);
     }
+
+    public List<ApiScenarioWithBLOBs> listWithIds(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.listWithIds(request.getIds());
+        return list;
+    }
 }
