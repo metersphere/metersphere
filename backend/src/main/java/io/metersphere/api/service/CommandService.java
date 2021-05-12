@@ -6,6 +6,7 @@ import io.metersphere.api.dto.ssl.KeyStoreEntry;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.exec.SystemCommand;
@@ -27,24 +28,24 @@ public class CommandService {
             if (StringUtils.isNotEmpty(password)) {
                 password = JSON.parseObject(password, String.class);
             }
-            String keytoolArgs[] = {"keytool", "-rfc", "-list", "-keystore", path, "-storepass", password};
-            Process p = new ProcessBuilder(keytoolArgs).start();
+            String[] args = {"keytool", "-rfc", "-list", "-keystore", path, "-storepass", password};
+            Process p = new ProcessBuilder(args).start();
             List<KeyStoreEntry> dtoList = new LinkedList<>();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line = null;
                 KeyStoreEntry dto = null;
                 while ((line = br.readLine()) != null) {
                     if (line.contains("keystore password was incorrect")) {
-                        MSException.throwException("认证密码错误，请重新输入密码");
+                        MSException.throwException(Translator.get("ssl_password_error"));
                     }
-                    if (line.startsWith("别名")) {
+                    if (line.startsWith("别名") || line.startsWith("Alias name")) {
                         if (dto != null) {
                             dtoList.add(dto);
                         }
                         dto = new KeyStoreEntry();
                         dto.setOriginalAsName(line.split(":")[1]);
                     }
-                    if (line.startsWith("条目类型")) {
+                    if (line.startsWith("条目类型") || line.startsWith("Entry type")) {
                         dto.setType(line.split(":")[1]);
                     }
                 }
@@ -89,7 +90,6 @@ public class CommandService {
         } catch (Exception e) {
             MSException.throwException(e.getMessage());
         }
-
     }
 
     public void mergeKeyStore(String newKeyStore, KeyStoreConfig sslConfig) {
@@ -158,48 +158,18 @@ public class CommandService {
         }
     }
 
-    public void keypasswd(File file, String storepass, String alias, String keypass) {
-        // 统一密码
-        try {
-            List<String> arguments = new ArrayList();
-            arguments.add("keytool");
-            arguments.add("-genkeypair");
-            arguments.add("-keypasswd");
-            arguments.add("-keystore");
-            arguments.add(file.getName());
-            arguments.add("-storepass");
-            arguments.add(storepass);
-            arguments.add("-alias");
-            arguments.add(alias.trim());
-
-            arguments.add("-keypass");
-            arguments.add(keypass);
-            arguments.add("-new");
-            arguments.add("ms123...");
-            SystemCommand nativeCommand = new SystemCommand(file.getParentFile(), (Map) null);
-            int exitVal = nativeCommand.run(arguments);
-            if (exitVal > 0) {
-                MSException.throwException("别名：【" + alias + " 】密码修改失败");
-            }
-        } catch (Exception e) {
-            MSException.throwException(e.getMessage());
-        }
-
-    }
-
     public boolean checkKeyStore(String password, String path) {
         try {
             String keytoolArgs[] = {"keytool", "-rfc", "-list", "-keystore", path, "-storepass", password};
             Process p = new ProcessBuilder(keytoolArgs).start();
             try (BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line = null;
-                KeyStoreEntry dto = null;
                 while ((line = br.readLine()) != null) {
                     if (line.contains("keystore password was incorrect")) {
-                        MSException.throwException("认证密码错误，请重新输入密码");
+                        MSException.throwException(Translator.get("ssl_password_error"));
                     }
                     if (line.contains("Exception")) {
-                        MSException.throwException("认证文件加载失败，请检查认证文件");
+                        MSException.throwException(Translator.get("ssl_file_error"));
                     }
                 }
             }

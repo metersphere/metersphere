@@ -51,7 +51,12 @@ public class FileUtils {
     }
 
     public static String createFile(MultipartFile bodyFile) {
-        File file = new File("/opt/metersphere/data/body/tmp" + UUID.randomUUID().toString() + "_" + bodyFile.getOriginalFilename());
+        String dir = "/opt/metersphere/data/body/tmp/";
+        File fileDir = new File(dir);
+        if (!fileDir.exists()) {
+            fileDir.mkdirs();
+        }
+        File file = new File(dir + UUID.randomUUID().toString() + "_" + bodyFile.getOriginalFilename());
         try (InputStream in = bodyFile.getInputStream(); OutputStream out = new FileOutputStream(file)) {
             file.createNewFile();
             FileUtil.copyStream(in, out);
