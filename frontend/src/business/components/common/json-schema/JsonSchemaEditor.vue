@@ -21,6 +21,7 @@
 <script>
   import {schemaToJson} from './common';
   import MsImportJson from './import/ImportJson';
+
   const Convert = require('./convert/convert.js');
   const MsConvert = new Convert();
 
@@ -39,6 +40,14 @@
         this.schema = {"root": this.body.jsonSchema};
       }
       this.body.jsonSchema = this.schema.root;
+    },
+    watch: {
+      schema: {
+        handler(newValue, oldValue) {
+          this.body.jsonSchema = this.schema.root;
+        },
+        deep: true
+      }
     },
     data() {
       return {
