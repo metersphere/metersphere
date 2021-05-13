@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("jmeter")
@@ -25,10 +26,11 @@ public class JmeterFileController {
 
     @GetMapping("download")
     public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("resourceId") String resourceId,
-                                                      @RequestParam("ratio") double ratio,
+                                                      @RequestParam("ratio") String ratio,
                                                       @RequestParam("reportId") String reportId, @RequestParam("resourceIndex") int resourceIndex) {
         long startTime = System.currentTimeMillis();
-        byte[] bytes = jmeterFileService.downloadZip(testId, resourceId, ratio, startTime, reportId, resourceIndex);
+        double[] ratios = Arrays.stream(ratio.split(",")).mapToDouble(Double::parseDouble).toArray();
+        byte[] bytes = jmeterFileService.downloadZip(testId, ratios, startTime, reportId, resourceIndex);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testId + ".zip\"")

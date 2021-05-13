@@ -26,12 +26,10 @@ public class JmeterFileService {
     @Resource
     private LoadTestMapper loadTestMapper;
 
-    public byte[] downloadZip(String testId, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
+    public byte[] downloadZip(String testId, double[] ratios, long startTime, String reportId, int resourceIndex) {
         try {
             LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
-            // deep copy
-            LoadTestWithBLOBs subTest = SerializationUtils.clone(loadTest);
-            EngineContext context = EngineFactory.createContext(subTest, resourceId, ratio, startTime, reportId, resourceIndex);
+            EngineContext context = EngineFactory.createContext(loadTest, ratios, startTime, reportId, resourceIndex);
             return zipFilesToByteArray(context);
         } catch (MSException e) {
             LogUtil.error(e.getMessage(), e);
