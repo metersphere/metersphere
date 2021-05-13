@@ -115,7 +115,7 @@
                    style="margin-left:10px;font-size: 14px; cursor: pointer"/>
               </template>
               <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
-                              @getComments="getComments"/>
+                              @getComments="getComments" ref="reviewComment"/>
             </el-card>
           </el-col>
         </div>
@@ -256,18 +256,40 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.status = status;
-      this.$post('/test/review/case/edit', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.updateTestCases(param);
-        this.setReviewStatus(this.testCase.reviewId);
-        // 修改当前用例的评审状态
-        this.testCase.reviewStatus = status;
-        // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = status;
-        if (this.index < this.testCases.length - 1) {
-          this.handleNext();
+      //reviewComment
+      if (status == 'UnPass') {
+        if (this.comments.length > 0) {
+          this.$post('/test/review/case/edit', param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.updateTestCases(param);
+            this.setReviewStatus(this.testCase.reviewId);
+            // 修改当前用例的评审状态
+            this.testCase.reviewStatus = status;
+            // 修改当前用例在整个用例列表的状态
+            this.testCases[this.index].reviewStatus = status;
+            if (this.index < this.testCases.length - 1) {
+              this.handleNext();
+            }
+          });
+        } else {
+          this.$refs.reviewComment.inputLight();
+          this.$warning(this.$t('test_track.comment.description_is_null'));
         }
-      });
+      } else {
+        this.$post('/test/review/case/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.updateTestCases(param);
+          this.setReviewStatus(this.testCase.reviewId);
+          // 修改当前用例的评审状态
+          this.testCase.reviewStatus = status;
+          // 修改当前用例在整个用例列表的状态
+          this.testCases[this.index].reviewStatus = status;
+          if (this.index < this.testCases.length - 1) {
+            this.handleNext();
+          }
+        });
+      }
+
     },
     updateTestCases(param) {
       for (let i = 0; i < this.testCases.length; i++) {

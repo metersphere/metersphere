@@ -15,15 +15,16 @@
     </div>
     <div>
       <el-input
-        type="textarea"
-        :placeholder="$t('test_track.comment.send_comment')"
-        v-model="textarea"
-        maxlength="180"
-        show-word-limt
-        resize="none"
-        :autosize="{ minRows: 4, maxRows: 4}"
-        @keyup.ctrl.enter.native="sendComment"
-        :disabled="isReadOnly"
+          ref="test"
+          type="textarea"
+          :placeholder="$t('test_track.comment.send_comment')"
+          v-model.trim="textarea"
+          maxlength="180"
+          show-word-limt
+          resize="none"
+          :autosize="{ minRows: 4, maxRows: 4}"
+          @keyup.ctrl.enter.native="sendComment"
+          :disabled="isReadOnly"
       >
       </el-input>
       <el-button type="primary" size="mini" class="send-btn" @click="sendComment" :disabled="isReadOnly">
@@ -70,6 +71,9 @@ export default {
         this.refresh();
         this.textarea = '';
       });
+    },
+    inputLight() {
+      this.$refs.test.focus();
     },
     refresh() {
       this.$emit('getComments');
