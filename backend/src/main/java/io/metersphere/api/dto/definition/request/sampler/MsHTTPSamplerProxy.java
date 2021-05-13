@@ -197,10 +197,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         compatible(config);
-
+        HttpConfig httpConfig = null;
         try {
             if (config.isEffective(this.getProjectId())) {
-                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
+                httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
                 if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
@@ -333,13 +333,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.headers)) {
             setHeader(httpSamplerTree, this.headers);
         }
-
-        // 通用请求Headers
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders())) {
+        // 新版本符合条件 HTTP 请求头
+        if (httpConfig != null && CollectionUtils.isNotEmpty(httpConfig.getHeaders())) {
             if (!this.isCustomizeReq() || this.isRefEnvironment) {
                 // 如果不是自定义请求,或者引用环境则添加环境请求头
-                setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
+                setHeader(httpSamplerTree, httpConfig.getHeaders());
             }
         }
 
@@ -352,7 +350,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
-            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
+            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()), httpConfig);
         }
 
         if (this.authManager != null) {
@@ -559,7 +557,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
      * @param httpConfig
      * @return
      */
-    private HttpConfig getHttpConfig(HttpConfig httpConfig, HashTree tree) {
+    private HttpConfig getHttpConfig(HttpConfig httpConfig) {
         boolean isNext = true;
         if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
             for (HttpConfigCondition item : httpConfig.getConditions()) {
@@ -607,13 +605,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         break;
                     }
                 }
-            }
-        }
-        // HTTP 环境中请求头
-        if (httpConfig != null && CollectionUtils.isNotEmpty(httpConfig.getHeaders())) {
-            if (!this.isCustomizeReq() || this.isRefEnvironment) {
-                // 如果不是自定义请求,或者引用环境则添加环境请求头
-                setHeader(tree, httpConfig.getHeaders());
             }
         }
         return httpConfig;
