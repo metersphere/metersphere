@@ -101,9 +101,11 @@ export default {
       runTest(data) {
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
-        this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
+        this.$fileUpload(this.reqUrl, null, bodyFiles, data, response => {
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/definition/update";
+          let newData = response.data;
+          data.request = JSON.parse(newData.request);
           this.$emit('runTest', data);
         });
       },
