@@ -173,7 +173,7 @@ public class ApiDefinitionService {
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
-    public void update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public ApiDefinitionWithBLOBs update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         if (request.getRequest() != null) {
             deleteFileByTestId(request.getRequest().getId());
         }
@@ -182,8 +182,9 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
-        updateTest(request);
+        ApiDefinitionWithBLOBs returnModel = updateTest(request);
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+        return returnModel;
     }
 
     public void delete(String apiId) {
@@ -274,7 +275,7 @@ public class ApiDefinitionService {
 
     }
 
-    private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
+    private ApiDefinitionWithBLOBs updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
@@ -546,6 +547,8 @@ public class ApiDefinitionService {
      * @return
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        //检查是否是ESB请求：ESB请求需要根据数据结构更换参数
+        request = esbApiParamService.checkIsEsbRequest(request);
         int count = 100;
         BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
         if (StringUtils.isNotEmpty(dto.getConcurrency())) {
