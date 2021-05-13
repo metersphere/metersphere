@@ -215,7 +215,7 @@
         selectDataRange: 'all',
         showCasePage: true,
         apiDefaultTab: 'default',
-        currentProtocol: null,
+        currentProtocol: 'HTTP',
         currentModule: null,
         selectNodeIds: [],
         currentApi: {},
@@ -260,7 +260,7 @@
         });
       },
       '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
-        if (to.path.indexOf('/api/definition') == -1) {
+        if (to.path.indexOf('/api/definition') === -1) {
           if (this.$refs && this.$refs.apiConfig) {
             this.$refs.apiConfig.forEach(item => {
               item.removeListener();
@@ -299,7 +299,7 @@
           }); //  删除所有tab的 ctrl + s 监听
           let tabs = this.apiTabs;
           let index = tabs.findIndex(item => item.name === tab.name); //  找到当前选中tab的index
-          if (index != -1 && this.$refs.apiConfig[index - 1]) {
+          if (index !== -1 && this.$refs.apiConfig[index - 1]) {
             this.$refs.apiConfig[index - 1].addListener(); //  为选中tab添加 ctrl + s 监听（index-1的原因是要除去第一个固有tab）
           }
         }
