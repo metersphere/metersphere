@@ -265,6 +265,7 @@
       },
       enableTrash() {
         this.condition.trashEnable = true;
+        this.$emit('enableTrash', this.condition.trashEnable);
       }
     }
   }

@@ -339,6 +339,7 @@
         this.$route.params.dataSelectRange = 'all';
       },
       enableTrash(data) {
+        this.activeName = "default";
         this.trashEnable = data;
       },
       getProject() {
