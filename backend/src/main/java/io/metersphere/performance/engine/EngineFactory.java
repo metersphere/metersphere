@@ -88,7 +88,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, long startTime, String reportId, int resourceIndex) {
         final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
@@ -124,7 +124,16 @@ public class EngineFactory {
                         if (values instanceof List) {
                             Object value = b.get("value");
                             if ("TargetLevel".equals(key)) {
-                                value = Math.round(((Integer) b.get("value")) * ratio);
+                                Integer targetLevel = ((Integer) b.get("value"));
+                                if (resourceIndex + 1 == ratios.length) {
+                                    double beforeLast = 0; // 前几个线程数
+                                    for (int k = 0; k < ratios.length - 1; k++) {
+                                        beforeLast += Math.round(targetLevel * ratios[k]);
+                                    }
+                                    value = Math.round(targetLevel - beforeLast);
+                                } else {
+                                    value = Math.round(targetLevel * ratios[resourceIndex]);
+                                }
                             }
                             ((List<Object>) values).add(value);
                             engineContext.addProperty(key, values);
