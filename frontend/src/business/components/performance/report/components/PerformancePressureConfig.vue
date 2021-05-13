@@ -31,11 +31,11 @@
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
-                  :disabled="true"
-                  :placeholder="$t('load_test.input_thread_num')"
-                  v-model="threadGroup.threadNumber"
-                  :min="1"
-                  size="mini"/>
+                    :disabled="true"
+                    :placeholder="$t('load_test.input_thread_num')"
+                    v-model="threadGroup.threadNumber"
+                    :min="1"
+                    size="mini"/>
               </el-form-item>
               <br>
               <el-form-item>
@@ -48,11 +48,11 @@
               <div v-if="threadGroup.threadType === 'DURATION'">
                 <el-form-item :label="$t('load_test.duration')">
                   <el-input-number
-                    :disabled="true"
-                    v-model="threadGroup.duration"
-                    :min="1"
-                    @change="calculateTotalChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      v-model="threadGroup.duration"
+                      :min="1"
+                      @change="calculateTotalChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <el-form-item>
                   <el-radio-group v-model="threadGroup.unit" :disabled="true">
@@ -66,31 +66,31 @@
                   <el-switch v-model="threadGroup.rpsLimitEnable" :disabled="true" @change="calculateTotalChart()"/>
                   &nbsp;
                   <el-input-number
-                    :disabled="true"
-                    v-model="threadGroup.rpsLimit"
-                    @change="calculateTotalChart(threadGroup)"
-                    :min="1"
-                    size="mini"/>
+                      :disabled="true"
+                      v-model="threadGroup.rpsLimit"
+                      @change="calculateTotalChart(threadGroup)"
+                      :min="1"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <div v-if="threadGroup.tgType === 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup'">
                   <el-form-item :label="$t('load_test.ramp_up_time_within')">
                     <el-input-number
-                      :disabled="true"
-                      :min="1"
-                      :max="threadGroup.duration"
-                      v-model="threadGroup.rampUpTime"
-                      @change="calculateTotalChart(threadGroup)"
-                      size="mini"/>
+                        :disabled="true"
+                        :min="1"
+                        :max="threadGroup.duration"
+                        v-model="threadGroup.rampUpTime"
+                        @change="calculateTotalChart(threadGroup)"
+                        size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_minutes', [getUnitLabel(threadGroup)])">
                     <el-input-number
-                      :disabled="true"
-                      :min="1"
-                      :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
-                      v-model="threadGroup.step"
-                      @change="calculateTotalChart(threadGroup)"
-                      size="mini"/>
+                        :disabled="true"
+                        :min="1"
+                        :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                        v-model="threadGroup.step"
+                        @change="calculateTotalChart(threadGroup)"
+                        size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
                 </div>
@@ -98,10 +98,10 @@
                 <div v-if="threadGroup.tgType === 'ThreadGroup'">
                   <el-form-item :label="$t('load_test.ramp_up_time_within')">
                     <el-input-number
-                      :disabled="true"
-                      :min="1"
-                      v-model="threadGroup.rampUpTime"
-                      size="mini"/>
+                        :disabled="true"
+                        :min="1"
+                        v-model="threadGroup.rampUpTime"
+                        size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
                 </div>
@@ -110,31 +110,31 @@
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">
                   <el-input-number
-                    :disabled="true"
-                    v-model="threadGroup.iterateNum"
-                    :min="1"
-                    @change="calculateTotalChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      v-model="threadGroup.iterateNum"
+                      :min="1"
+                      @change="calculateTotalChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" :disabled="true" @change="calculateTotalChart()"/>
                   &nbsp;
                   <el-input-number
-                    :disabled="true || !threadGroup.rpsLimitEnable"
-                    v-model="threadGroup.rpsLimit"
-                    @change="calculateTotalChart(threadGroup)"
-                    :min="1"
-                    size="mini"/>
+                      :disabled="true || !threadGroup.rpsLimitEnable"
+                      v-model="threadGroup.rpsLimit"
+                      @change="calculateTotalChart(threadGroup)"
+                      :min="1"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.ramp_up_time_within')">
                   <el-input-number
-                    :disabled="true"
-                    :min="1"
-                    v-model="threadGroup.iterateRampUp"
-                    @change="calculateTotalChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      :min="1"
+                      v-model="threadGroup.iterateRampUp"
+                      @change="calculateTotalChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
               </div>
@@ -171,12 +171,12 @@ const DELETED = "deleted";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
-    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
-}
+      + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
+};
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
-    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
-}
+      + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+};
 
 export default {
   name: "MsPerformancePressureConfig",
@@ -196,7 +196,7 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-    }
+    };
   },
   activated() {
     this.getJmxContent();
@@ -278,7 +278,7 @@ export default {
             });
           }
         } else {
-          this.$error(this.$t('report.not_exist'))
+          this.$error(this.$t('report.not_exist'));
         }
       });
     },
@@ -288,15 +288,29 @@ export default {
         return;
       }
       let threadGroups = [];
-      this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
-        response.data.forEach(d => {
-          threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-          threadGroups.forEach(tg => {
-            tg.options = {};
-          });
+      this.result = this.$get('/performance/report/get-jmx-content/' + this.report.id, (response) => {
+        let d = response.data;
+        threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+        threadGroups.forEach(tg => {
+          tg.options = {};
         });
         this.threadGroups = threadGroups;
         this.getLoadConfig();
+
+        // 兼容数据
+        if (!threadGroups || threadGroups.length === 0) {
+          this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
+            response.data.forEach(d => {
+              threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+              threadGroups.forEach(tg => {
+                tg.options = {};
+              });
+              this.threadGroups = threadGroups;
+              this.getLoadConfig();
+            });
+          });
+        }
+
       });
     },
     calculateTotalChart() {
@@ -549,7 +563,7 @@ export default {
       deep: true
     },
   }
-}
+};
 </script>
 
 
@@ -586,6 +600,7 @@ export default {
 .title {
   margin-left: 60px;
 }
+
 .wordwrap {
   overflow: hidden;
   text-overflow: ellipsis;

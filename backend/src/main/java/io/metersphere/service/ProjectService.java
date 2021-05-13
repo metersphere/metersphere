@@ -15,6 +15,7 @@ import io.metersphere.dto.ProjectDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.request.DeleteTestPlanRequest;
 import io.metersphere.performance.request.QueryProjectFileRequest;
+import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
@@ -45,6 +46,8 @@ public class ProjectService {
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
+    private LoadTestReportMapper loadTestReportMapper;
+    @Resource
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
@@ -60,6 +63,8 @@ public class ProjectService {
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private PerformanceReportService performanceReportService;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -100,7 +105,19 @@ public class ProjectService {
     }
 
     public void deleteProject(String projectId) {
-        // delete test
+        // 删除项目下 性能测试 相关
+        deleteLoadTestResourcesByProjectId(projectId);
+
+        // 删除项目下 测试跟踪 相关
+        deleteTrackResourceByProjectId(projectId);
+
+        // 删除项目下 接口测试 相关
+        deleteAPIResourceByProjectId(projectId);
+        // delete project
+        projectMapper.deleteByPrimaryKey(projectId);
+    }
+
+    private void deleteLoadTestResourcesByProjectId(String projectId) {
         LoadTestExample loadTestExample = new LoadTestExample();
         loadTestExample.createCriteria().andProjectIdEqualTo(projectId);
         List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
@@ -110,15 +127,15 @@ public class ProjectService {
             deleteTestPlanRequest.setId(loadTestId);
             deleteTestPlanRequest.setForceDelete(true);
             performanceTestService.delete(deleteTestPlanRequest);
+            LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
+            loadTestReportExample.createCriteria().andTestIdEqualTo(loadTestId);
+            List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
+            if (!loadTestReports.isEmpty()) {
+                List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
+                // delete load_test_report
+                reportIdList.forEach(reportId -> performanceReportService.deleteReport(reportId));
+            }
         });
-
-        // 删除项目下 测试跟踪 相关
-        deleteTrackResourceByProjectId(projectId);
-
-        // 删除项目下 接口测试 相关
-        deleteAPIResourceByProjectId(projectId);
-        // delete project
-        projectMapper.deleteByPrimaryKey(projectId);
     }
 
     private void deleteTrackResourceByProjectId(String projectId) {
@@ -217,7 +234,7 @@ public class ProjectService {
         return result;
     }
 
-    public FileMetadata updateFile( String fileId, MultipartFile file) {
+    public FileMetadata updateFile(String fileId, MultipartFile file) {
         QueryProjectFileRequest request = new QueryProjectFileRequest();
         request.setName(file.getOriginalFilename());
         FileMetadata fileMetadata = fileService.getFileMetadataById(fileId);

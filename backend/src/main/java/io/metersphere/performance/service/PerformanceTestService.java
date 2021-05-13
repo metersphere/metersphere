@@ -70,7 +70,7 @@ public class PerformanceTestService {
     @Resource
     private LoadTestReportResultMapper loadTestReportResultMapper;
     @Resource
-    private ReportService reportService;
+    private PerformanceReportService performanceReportService;
     @Resource
     private KafkaProperties kafkaProperties;
     @Resource
@@ -93,20 +93,19 @@ public class PerformanceTestService {
         if (!request.isForceDelete()) {
             testCaseService.checkIsRelateTest(testId);
         }
-
+        // 删除时保存jmx内容
+        List<FileMetadata> fileMetadataList = getFileMetadataByTestId(testId);
+        List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
+        byte[] bytes = EngineFactory.mergeJmx(jmxFiles);
         LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
         loadTestReportExample.createCriteria().andTestIdEqualTo(testId);
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
-
-        if (!loadTestReports.isEmpty()) {
-            List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
-
-            // delete load_test_report
-            reportIdList.forEach(reportId -> {
-                reportService.deleteReport(reportId);
-            });
-        }
-
+        loadTestReports.forEach(loadTestReport -> {
+            LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
+            record.setId(loadTestReport.getId());
+            record.setJmxContent(new String(bytes, StandardCharsets.UTF_8));
+            extLoadTestReportMapper.updateJmxContentIfAbsent(record);
+        });
         //delete schedule
         scheduleService.deleteByResourceId(testId);
 
@@ -350,6 +349,8 @@ public class PerformanceTestService {
             // 启动正常插入 report
             testReport.setLoadConfiguration(loadTest.getLoadConfiguration());
             testReport.setStatus(PerformanceTestStatus.Starting.name());
+            testReport.setProjectId(loadTest.getProjectId());
+            testReport.setTestName(loadTest.getName());
             loadTestReportMapper.insertSelective(testReport);
 
             LoadTestReportDetail reportDetail = new LoadTestReportDetail();
@@ -491,20 +492,20 @@ public class PerformanceTestService {
 
     public void stopTest(String reportId, boolean forceStop) {
         if (forceStop) {
-            reportService.deleteReport(reportId);
+            performanceReportService.deleteReport(reportId);
         } else {
             stopEngine(reportId);
             // 发送测试停止消息
             loadTestProducer.sendMessage(reportId);
             // 停止测试之后设置报告的状态
-            reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
+            performanceReportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
         }
     }
 
     public void stopErrorTest(String reportId) {
         stopEngine(reportId);
         // 停止测试之后设置报告的状态
-        reportService.updateStatus(reportId, PerformanceTestStatus.Error.name());
+        performanceReportService.updateStatus(reportId, PerformanceTestStatus.Error.name());
     }
 
     private void stopEngine(String reportId) {
@@ -514,7 +515,7 @@ public class PerformanceTestService {
         if (engine == null) {
             MSException.throwException(String.format("Stop report fail. create engine fail，report ID：%s", reportId));
         }
-        reportService.stopEngine(loadTest, engine);
+        performanceReportService.stopEngine(loadTest, engine);
     }
 
     public List<ScheduleDao> listSchedule(QueryScheduleRequest request) {
