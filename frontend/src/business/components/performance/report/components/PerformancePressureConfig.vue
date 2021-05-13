@@ -172,11 +172,11 @@ const DELETED = "deleted";
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
     + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
-}
+};
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
     + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
-}
+};
 
 export default {
   name: "MsPerformancePressureConfig",
@@ -196,7 +196,7 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-    }
+    };
   },
   activated() {
     this.getJmxContent();
@@ -278,7 +278,7 @@ export default {
             });
           }
         } else {
-          this.$error(this.$t('report.not_exist'))
+          this.$error(this.$t('report.not_exist'));
         }
       });
     },
@@ -288,15 +288,29 @@ export default {
         return;
       }
       let threadGroups = [];
-      this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
-        response.data.forEach(d => {
-          threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-          threadGroups.forEach(tg => {
-            tg.options = {};
-          });
+      this.result = this.$get('/performance/report/get-jmx-content/' + this.report.id, (response) => {
+        let d = response.data;
+        threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+        threadGroups.forEach(tg => {
+          tg.options = {};
         });
         this.threadGroups = threadGroups;
         this.getLoadConfig();
+
+        // 兼容数据
+        if (!threadGroups || threadGroups.length === 0) {
+          this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
+            response.data.forEach(d => {
+              threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+              threadGroups.forEach(tg => {
+                tg.options = {};
+              });
+              this.threadGroups = threadGroups;
+              this.getLoadConfig();
+            });
+          });
+        }
+
       });
     },
     calculateTotalChart() {
@@ -551,7 +565,7 @@ export default {
       deep: true
     },
   }
-}
+};
 </script>
 
 
@@ -588,6 +602,7 @@ export default {
 .title {
   margin-left: 60px;
 }
+
 .wordwrap {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -11,14 +11,15 @@ import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.controller.request.DeleteReportRequest;
+import io.metersphere.performance.controller.request.RenameReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
+import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.FileService;
@@ -39,7 +40,7 @@ import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ReportService {
+public class PerformanceReportService {
 
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
@@ -328,5 +329,20 @@ public class ReportService {
             }
         }
         return "";
+    }
+
+    public LoadTestExportJmx getJmxContent(String reportId) {
+        LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(reportId);
+        if (loadTestReportWithBLOBs == null) {
+            return null;
+        }
+        return new LoadTestExportJmx(loadTestReportWithBLOBs.getTestName(), loadTestReportWithBLOBs.getJmxContent());
+    }
+
+    public void renameReport(RenameReportRequest request) {
+        LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
+        record.setId(request.getId());
+        record.setName(request.getName());
+        loadTestReportMapper.updateByPrimaryKeySelective(record);
     }
 }
