@@ -29,5 +29,9 @@ public class LoadTestReport implements Serializable {
 
     private String tps;
 
+    private String projectId;
+
+    private String testName;
+
     private static final long serialVersionUID = 1L;
 }

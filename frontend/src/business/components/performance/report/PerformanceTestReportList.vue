@@ -15,43 +15,48 @@
                   @filter-change="filter"
         >
           <el-table-column
-            type="selection"/>
+              type="selection"/>
           <el-table-column width="40" :resizable="false" align="center">
             <template v-slot:default="scope">
               <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
             </template>
           </el-table-column>
           <el-table-column
-            prop="name"
-            :label="$t('commons.name')"
-            show-overflow-tooltip>
+              prop="testName"
+              :label="$t('report.test_name')"
+              show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+              prop="name"
+              :label="$t('commons.name')"
+              show-overflow-tooltip>
             <template v-slot:default="scope">
-              <span @click="handleEdit(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
+              <span @click="handleView(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
             </template>
           </el-table-column>
           <el-table-column
-            prop="userName"
-            :label="$t('report.user_name')"
-            show-overflow-tooltip>
+              prop="userName"
+              :label="$t('report.user_name')"
+              show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            prop="maxUsers"
-            :label="$t('report.max_users')">
+              prop="maxUsers"
+              :label="$t('report.max_users')">
           </el-table-column>
           <el-table-column
-            width="150"
-            prop="avgResponseTime"
-            :label="$t('report.response_time')">
+              width="150"
+              prop="avgResponseTime"
+              :label="$t('report.response_time')">
           </el-table-column>
           <el-table-column
-            prop="tps"
-            label="TPS">
+              prop="tps"
+              label="TPS">
           </el-table-column>
           <el-table-column
-            width="200"
-            prop="createTime"
-            sortable
-            :label="$t('commons.create_time')">
+              width="200"
+              prop="createTime"
+              sortable
+              :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
@@ -64,20 +69,22 @@
             </template>
           </el-table-column>
           <el-table-column
-            prop="status"
-            column-key="status"
-            :filters="statusFilters"
-            :label="$t('commons.status')">
+              prop="status"
+              column-key="status"
+              :filters="statusFilters"
+              :label="$t('commons.status')">
             <template v-slot:default="{row}">
               <ms-performance-report-status :row="row"/>
             </template>
           </el-table-column>
           <el-table-column
-            width="150"
-            :label="$t('commons.operating')">
+              width="180"
+              :label="$t('commons.operating')">
             <template v-slot:default="scope">
+              <ms-table-operator-button :tip="$t('test_track.module.rename')" icon="el-icon-edit"
+                                        @exec="handleRename(scope.row)" type="success"/>
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
-                                        @exec="handleEdit(scope.row)" type="primary"/>
+                                        @exec="handleView(scope.row)" type="primary"/>
               <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-s-operation"
                                         @exec="handleDiff(scope.row)" type="warning"/>
               <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
@@ -194,14 +201,14 @@ export default {
         this.tableData.forEach(report => {
           if (report.status === 'Completed' && !report.maxUsers) {
             this.result = this.$get('/performance/report/content/testoverview/' + report.id)
-              .then(response => {
-                let data = response.data.data;
-                this.$set(report, 'maxUsers', data.maxUsers);
-                this.$set(report, 'avgResponseTime', data.avgResponseTime);
-                this.$set(report, 'tps', data.avgTransactions);
-              })
-              .catch(() => {
-              });
+                .then(response => {
+                  let data = response.data.data;
+                  this.$set(report, 'maxUsers', data.maxUsers);
+                  this.$set(report, 'avgResponseTime', data.avgResponseTime);
+                  this.$set(report, 'tps', data.avgTransactions);
+                })
+                .catch(() => {
+                });
           }
         });
       });
@@ -215,7 +222,20 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    handleEdit(report) {
+    handleRename(report) {
+      this.$prompt(this.$t('commons.input_name'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        inputValue: report.name,
+      }).then(({value}) => {
+        this.$post('/performance/report/rename', {id: report.id, name: value}, response => {
+          this.initTableData();
+        });
+      }).catch(() => {
+
+      });
+    },
+    handleView(report) {
       this.$router.push({
         path: '/performance/report/view/' + report.id
       });

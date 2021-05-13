@@ -48,7 +48,7 @@ public class MetricQueryService {
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
-    private ReportService reportService;
+    private PerformanceReportService performanceReportService;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
@@ -197,7 +197,7 @@ public class MetricQueryService {
             getRequest(instance, list);
         });
 
-        ReportTimeInfo reportTimeInfo = reportService.getReportTimeInfo(reportId);
+        ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
         MetricRequest metricRequest = new MetricRequest();
         metricRequest.setMetricDataQueries(list);
         try {

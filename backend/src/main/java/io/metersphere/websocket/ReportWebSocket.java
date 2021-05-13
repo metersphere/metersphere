@@ -4,7 +4,7 @@ import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.performance.service.ReportService;
+import io.metersphere.performance.service.PerformanceReportService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -20,13 +20,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class ReportWebSocket {
 
-    private static ReportService reportService;
+    private static PerformanceReportService performanceReportService;
     private static PerformanceTestService performanceTestService;
     private static ConcurrentHashMap<Session, Timer> refreshTasks = new ConcurrentHashMap<>();
 
     @Resource
-    public void setReportService(ReportService reportService) {
-        ReportWebSocket.reportService = reportService;
+    public void setReportService(PerformanceReportService performanceReportService) {
+        ReportWebSocket.performanceReportService = performanceReportService;
     }
 
     @Resource
@@ -100,7 +100,7 @@ public class ReportWebSocket {
         @Override
         public void run() {
             try {
-                LoadTestReportWithBLOBs report = reportService.getReport(reportId);
+                LoadTestReportWithBLOBs report = performanceReportService.getReport(reportId);
                 if (report == null || StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Completed.name())) {
                     session.close();
                 }
