@@ -68,3 +68,11 @@ export const ISSUE_STATUS_MAP = {
   'active': '激活',
   'delete': '已删除'
 }
+
+export const USER_GROUP_SCOPE = {
+  // todo i18n
+  'system': '系统',
+  'organization': '组织',
+  'workspace': '工作空间',
+  'project': '项目'
+}

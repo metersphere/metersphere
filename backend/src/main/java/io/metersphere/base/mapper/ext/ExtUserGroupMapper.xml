@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtUserGroupMapper">
+
+
+    <select id="getUserGroup" resultType="io.metersphere.dto.UserGroupDTO">
+        select ug.user_id, ug.group_id, ug.source_id, g.`name`, g.type
+        from user_group ug join `group` g on ug.group_id = g.id
+        where ug.user_id = #{userId}
+    </select>
+</mapper>
