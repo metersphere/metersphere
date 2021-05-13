@@ -14,10 +14,13 @@
     <result column="max_users" jdbcType="VARCHAR" property="maxUsers" />
     <result column="avg_response_time" jdbcType="VARCHAR" property="avgResponseTime" />
     <result column="tps" jdbcType="VARCHAR" property="tps" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="test_name" jdbcType="VARCHAR" property="testName" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
+    <result column="jmx_content" jdbcType="LONGVARCHAR" property="jmxContent" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -79,10 +82,10 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, file_id, 
-    max_users, avg_response_time, tps
+    max_users, avg_response_time, tps, project_id, test_name
   </sql>
   <sql id="Blob_Column_List">
-    description, load_configuration
+    description, load_configuration, jmx_content
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="ResultMapWithBLOBs">
     select
@@ -137,12 +140,14 @@
       create_time, update_time, `status`, 
       user_id, trigger_mode, file_id, 
       max_users, avg_response_time, tps, 
-      description, load_configuration)
+      project_id, test_name, description, 
+      load_configuration, jmx_content)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
       #{maxUsers,jdbcType=VARCHAR}, #{avgResponseTime,jdbcType=VARCHAR}, #{tps,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR})
+      #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{jmxContent,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     insert into load_test_report
@@ -183,11 +188,20 @@
       <if test="tps != null">
         tps,
       </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="testName != null">
+        test_name,
+      </if>
       <if test="description != null">
         description,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
+      </if>
+      <if test="jmxContent != null">
+        jmx_content,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -227,11 +241,20 @@
       <if test="tps != null">
         #{tps,jdbcType=VARCHAR},
       </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="testName != null">
+        #{testName,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="jmxContent != null">
+        #{jmxContent,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -280,11 +303,20 @@
       <if test="record.tps != null">
         tps = #{record.tps,jdbcType=VARCHAR},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.testName != null">
+        test_name = #{record.testName,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.jmxContent != null">
+        jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -305,8 +337,11 @@
       max_users = #{record.maxUsers,jdbcType=VARCHAR},
       avg_response_time = #{record.avgResponseTime,jdbcType=VARCHAR},
       tps = #{record.tps,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      test_name = #{record.testName,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
-      load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR}
+      load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
+      jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -324,7 +359,9 @@
       file_id = #{record.fileId,jdbcType=VARCHAR},
       max_users = #{record.maxUsers,jdbcType=VARCHAR},
       avg_response_time = #{record.avgResponseTime,jdbcType=VARCHAR},
-      tps = #{record.tps,jdbcType=VARCHAR}
+      tps = #{record.tps,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      test_name = #{record.testName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -365,11 +402,20 @@
       <if test="tps != null">
         tps = #{tps,jdbcType=VARCHAR},
       </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="testName != null">
+        test_name = #{testName,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="loadConfiguration != null">
         load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="jmxContent != null">
+        jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -387,8 +433,11 @@
       max_users = #{maxUsers,jdbcType=VARCHAR},
       avg_response_time = #{avgResponseTime,jdbcType=VARCHAR},
       tps = #{tps,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      test_name = #{testName,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
-      load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR}
+      load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
+      jmx_content = #{jmxContent,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReport">
@@ -403,7 +452,9 @@
       file_id = #{fileId,jdbcType=VARCHAR},
       max_users = #{maxUsers,jdbcType=VARCHAR},
       avg_response_time = #{avgResponseTime,jdbcType=VARCHAR},
-      tps = #{tps,jdbcType=VARCHAR}
+      tps = #{tps,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      test_name = #{testName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
