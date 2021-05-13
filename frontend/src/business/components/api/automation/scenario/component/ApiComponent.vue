@@ -214,15 +214,18 @@
       },
       isCustomizeReq() {
         if (this.request.referenced == undefined || this.request.referenced === 'Created') {
-          return true
+          return true;
         }
         return false;
       },
       isDeletedOrRef() {
         if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced === 'REF') {
-          return true
+          return true;
         }
         return false;
+      },
+      projectId() {
+        return this.$store.state.projectId;
       },
     },
     methods: {
@@ -351,8 +354,11 @@
         })
       },
       getProjectName(id) {
-        const project = this.projectList.find(p => p.id === id);
-        return project ? project.name : "";
+        if (this.projectId !== id) {
+          const project = this.projectList.find(p => p.id === id);
+          return project ? project.name : "";
+        }
+
       }
     }
   }

@@ -98,10 +98,13 @@
     computed: {
       isDeletedOrRef() {
         if (this.scenario.referenced != undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF') {
-          return true
+          return true;
         }
         return false;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId;
+      },
     },
     methods: {
       remove() {
@@ -155,8 +158,11 @@
         }
       },
       getProjectName(id) {
-        const project = this.projectList.find(p => p.id === id);
-        return project ? project.name : "";
+        if (this.projectId !== id) {
+          const project = this.projectList.find(p => p.id === id);
+          return project ? project.name : "";
+        }
+
       }
     }
   }
