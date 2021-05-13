@@ -13,5 +13,7 @@ public class LoadTestReportWithBLOBs extends LoadTestReport implements Serializa
 
     private String loadConfiguration;
 
+    private String jmxContent;
+
     private static final long serialVersionUID = 1L;
 }
