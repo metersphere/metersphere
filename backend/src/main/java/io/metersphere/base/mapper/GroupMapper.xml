@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.base.mapper.UserGroupMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.UserGroup">
+<mapper namespace="io.metersphere.base.mapper.GroupMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.Group">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="user_id" jdbcType="VARCHAR" property="userId" />
-    <result column="group_id" jdbcType="VARCHAR" property="groupId" />
-    <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="system" jdbcType="BIT" property="system" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="scope_id" jdbcType="VARCHAR" property="scopeId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,15 +71,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, user_id, group_id, source_id, create_time, update_time
+    id, `name`, description, `system`, `type`, create_time, update_time, creator, scope_id
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.UserGroupExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.GroupExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from user_group
+    from `group`
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -87,41 +90,46 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from user_group
+    from `group`
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from user_group
+    delete from `group`
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.UserGroupExample">
-    delete from user_group
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.GroupExample">
+    delete from `group`
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.UserGroup">
-    insert into user_group (id, user_id, group_id, 
-      source_id, create_time, update_time
+  <insert id="insert" parameterType="io.metersphere.base.domain.Group">
+    insert into `group` (id, `name`, description, 
+      `system`, `type`, create_time, 
+      update_time, creator, scope_id
       )
-    values (#{id,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR}, 
-      #{sourceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
+      #{system,jdbcType=BIT}, #{type,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, #{scopeId,jdbcType=VARCHAR}
       )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.UserGroup">
-    insert into user_group
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.Group">
+    insert into `group`
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
-      <if test="userId != null">
-        user_id,
+      <if test="name != null">
+        `name`,
       </if>
-      <if test="groupId != null">
-        group_id,
+      <if test="description != null">
+        description,
       </if>
-      <if test="sourceId != null">
-        source_id,
+      <if test="system != null">
+        `system`,
+      </if>
+      <if test="type != null">
+        `type`,
       </if>
       <if test="createTime != null">
         create_time,
@@ -129,19 +137,28 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="scopeId != null">
+        scope_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="userId != null">
-        #{userId,jdbcType=VARCHAR},
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
       </if>
-      <if test="groupId != null">
-        #{groupId,jdbcType=VARCHAR},
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
-      <if test="sourceId != null">
-        #{sourceId,jdbcType=VARCHAR},
+      <if test="system != null">
+        #{system,jdbcType=BIT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -149,28 +166,37 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="scopeId != null">
+        #{scopeId,jdbcType=VARCHAR},
+      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.base.domain.UserGroupExample" resultType="java.lang.Long">
-    select count(*) from user_group
+  <select id="countByExample" parameterType="io.metersphere.base.domain.GroupExample" resultType="java.lang.Long">
+    select count(*) from `group`
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update user_group
+    update `group`
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.userId != null">
-        user_id = #{record.userId,jdbcType=VARCHAR},
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.groupId != null">
-        group_id = #{record.groupId,jdbcType=VARCHAR},
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
       </if>
-      <if test="record.sourceId != null">
-        source_id = #{record.sourceId,jdbcType=VARCHAR},
+      <if test="record.system != null">
+        `system` = #{record.system,jdbcType=BIT},
+      </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -178,34 +204,46 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.creator != null">
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scopeId != null">
+        scope_id = #{record.scopeId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update user_group
+    update `group`
     set id = #{record.id,jdbcType=VARCHAR},
-      user_id = #{record.userId,jdbcType=VARCHAR},
-      group_id = #{record.groupId,jdbcType=VARCHAR},
-      source_id = #{record.sourceId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      `system` = #{record.system,jdbcType=BIT},
+      `type` = #{record.type,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      scope_id = #{record.scopeId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.UserGroup">
-    update user_group
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.Group">
+    update `group`
     <set>
-      <if test="userId != null">
-        user_id = #{userId,jdbcType=VARCHAR},
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="groupId != null">
-        group_id = #{groupId,jdbcType=VARCHAR},
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
       </if>
-      <if test="sourceId != null">
-        source_id = #{sourceId,jdbcType=VARCHAR},
+      <if test="system != null">
+        `system` = #{system,jdbcType=BIT},
+      </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -213,16 +251,25 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="scopeId != null">
+        scope_id = #{scopeId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.UserGroup">
-    update user_group
-    set user_id = #{userId,jdbcType=VARCHAR},
-      group_id = #{groupId,jdbcType=VARCHAR},
-      source_id = #{sourceId,jdbcType=VARCHAR},
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.Group">
+    update `group`
+    set `name` = #{name,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      `system` = #{system,jdbcType=BIT},
+      `type` = #{type,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      creator = #{creator,jdbcType=VARCHAR},
+      scope_id = #{scopeId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
