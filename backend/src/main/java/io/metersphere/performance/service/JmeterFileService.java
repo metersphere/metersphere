@@ -29,10 +29,10 @@ public class JmeterFileService {
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
 
-    public byte[] downloadZip(String testId, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
+    public byte[] downloadZip(String testId, double[] ratios, long startTime, String reportId, int resourceIndex) {
         try {
             LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
-            EngineContext context = EngineFactory.createContext(loadTest, resourceId, ratio, startTime, reportId, resourceIndex);
+            EngineContext context = EngineFactory.createContext(loadTest, ratios, startTime, reportId, resourceIndex);
             return zipFilesToByteArray(context);
         } catch (MSException e) {
             LogUtil.error(e.getMessage(), e);
