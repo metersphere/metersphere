@@ -18,6 +18,11 @@ export default {
       meta: {system: true, title: 'commons.organization'}
     },
     {
+      path: 'usergroup',
+      component: () => import('@/business/components/settings/system/UserGroup'),
+      meta: {system: true, title: '用户组与权限'}
+    },
+    {
       path: 'workspace/template/field',
       component: () => import('@/business/components/settings/workspace/template/CustomFieldList'),
       meta: {workspaceTemplate: true, title: 'custom_field.name'},
