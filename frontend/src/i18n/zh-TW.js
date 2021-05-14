@@ -1670,6 +1670,7 @@ export default {
     running_task: '運行中的任務',
     next_execution_time: "下次執行時間",
     edit_timer_task: "編輯定時任務",
+    task_config: "任務配置",
     please_input_cron_expression: "請輸入 Cron 表達式",
     generate_expression: "生成表達式",
     cron_expression_format_error: "Cron 表達式格式錯誤",
@@ -1811,5 +1812,6 @@ export default {
     idd_report: "獨立報告",
     set_report: "集合報告",
     report_name: "報告名稱",
+    run_with_resource_pool: "資源池運行",
   }
 };

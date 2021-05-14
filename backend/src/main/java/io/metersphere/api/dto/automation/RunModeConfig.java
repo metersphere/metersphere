@@ -9,4 +9,5 @@ public class RunModeConfig {
     private String reportName;
     private String reportId;
     private boolean onSampleError;
+    private String resourcePoolId;
 }
