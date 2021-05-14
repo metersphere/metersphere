@@ -46,6 +46,26 @@
               value: 'props.get("variable_name")',
             },
             {
+              title: this.$t('api_test.request.processor.code_template_set_global_variable'),
+              value: 'props.put("variable_name", "variable_value")',
+            },
+            {
+              title: this.$t('api_test.request.processor.param_environment_get_global_variable'),
+              value: 'io.metersphere.api.jmeter.RunningParam.getParam(${__metersphere_evn_id},"key")',
+            },
+            {
+              title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
+              value: 'io.metersphere.api.jmeter.RunningParam.setParam(${__metersphere_evn_id},"key","value")',
+            },
+            {
+              title: this.$t('api_test.request.processor.param_environment_delete_global_variable'),
+              value: 'io.metersphere.api.jmeter.RunningParam.deleteParam(${__metersphere_evn_id},"key")',
+            },
+            {
+              title: this.$t('api_test.request.processor.param_environment_show_global_variable'),
+              value: 'io.metersphere.api.jmeter.RunningParam.showParams(${__metersphere_evn_id})',
+            },
+            {
               title: this.$t('api_test.request.processor.code_add_report_length'),
               value: 'String report = ctx.getCurrentSampler().getRequestData();\n' +
                 'if(report!=null){\n' +
@@ -54,10 +74,6 @@
                 '    report = reportlengthStr+report;\n' +
                 '    ctx.getCurrentSampler().setRequestData(report);\n' +
                 '}',
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_set_global_variable'),
-              value: 'props.put("variable_name", "variable_value")',
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_header'),

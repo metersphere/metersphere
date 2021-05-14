@@ -1003,7 +1003,11 @@ export default {
         code_template_get_response_code: "Get Response Code",
         code_template_get_response_result: "Get Response Result",
         code_add_report_length: "Add report length to head",
-        code_hide_report_length: "Hide report length"
+        code_hide_report_length: "Hide report length",
+        param_environment_get_global_variable: "Get run environment param",
+        param_environment_set_global_variable: "Set run environment param",
+        param_environment_delete_global_variable: "Delete run environment param",
+        param_environment_show_global_variable: "Show all environment params",
       },
       dubbo: {
         protocol: "protocol",
