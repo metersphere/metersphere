@@ -224,10 +224,10 @@ textarea {
 
 .el-input.is-disabled .el-input__inner {
   background-color: #FBFBFB !important;
-  color: #606266 !important;;
+  color: #606266 !important;
 }
 
 .el-textarea.is-disabled .el-textarea__inner {
   background-color: #FBFBFB !important;
-  color: #606266 !important;;
+  color: #606266 !important;
 }
