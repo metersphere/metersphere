@@ -145,6 +145,7 @@
       if (!this.request.projectId) {
         this.request.projectId = getCurrentProjectID();
       }
+      this.request.customizeReq = this.isCustomizeReq;
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
