@@ -101,7 +101,7 @@
         if (param.id) {
           url = '/api/environment/update';
         }
-        this.result = this.$post(url, param, response => {
+        this.result = this.$fileUpload(url, null, [], param, response => {
           if (!param.id) {
             environment.id = response.data;
           }

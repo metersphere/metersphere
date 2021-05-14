@@ -93,7 +93,7 @@ export default {
                 JSON.parse(fileString).map(env => {
                   //projectId为空字符串要转换为null，空字符串会被认为有projectId
                   env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
-                  this.$post('/api/environment/add', env, response => {
+                  this.$fileUpload('/api/environment/add', null,[],  env, response => {
                     this.$emit('refresh');
                     this.$success(this.$t('commons.save_success'));
                   })
