@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <el-card class="table-card" v-loading="loading">
+  <div class="card-container">
+    <el-card class="card-content" v-loading="loading">
       <template v-slot:header>
         <test-plan-scenario-list-header
           :condition="condition"
@@ -8,10 +8,11 @@
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="test-content adjust-table ms-select-all-fixed" @select-all="handleSelectAll"
+      <el-table ref="scenarioTable" border :data="tableData" class="test-content adjust-table ms-select-all-fixed"
+                @select-all="handleSelectAll"
                 :height="screenHeight"
                 @select="handleSelect">
-        <el-table-column type="selection"/>
+        <el-table-column width="50" type="selection"/>
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize > total ? total : pageSize"
                                         :total="total"
@@ -171,7 +172,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      screenHeight: document.documentElement.clientHeight - 348,//屏幕高度
+      screenHeight: 'calc(100vh - 330px)',//屏幕高度
       tableLabel: [],
       loading: false,
       condition: {},
@@ -180,7 +181,7 @@ export default {
       selectAll: false,
       tableData: [],
       currentPage: 1,
-      selectDataCounts:0,
+      selectDataCounts: 0,
       pageSize: 10,
       total: 0,
       reportId: "",
@@ -297,7 +298,7 @@ export default {
       })
     },
     handleBatchExecute() {
-      this.$refs.runMode.open();
+      this.$refs.runMode.open('API');
     },
     orderBySelectRows(rows){
       let selectIds = Array.from(rows).map(row => row.id);

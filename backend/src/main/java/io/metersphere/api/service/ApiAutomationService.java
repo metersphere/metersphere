@@ -1088,8 +1088,11 @@ public class ApiAutomationService {
         List<String> reportIds = new LinkedList<>();
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-            jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
-            // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
+            if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+                jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
+            } else {
+                jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
+            }
 
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
@@ -1110,8 +1113,10 @@ public class ApiAutomationService {
                 if (request.getIds().size() > count) {
                     MSException.throwException("并发数量过大，请重新选择！");
                 }
+                return this.modeRun(request);
+            } else {
+                return this.excute(request);
             }
-            return this.modeRun(request);
         } else {
             return this.excute(request);
         }

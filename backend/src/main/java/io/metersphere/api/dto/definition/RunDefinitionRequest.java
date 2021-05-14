@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.response.Response;
 import lombok.Getter;
@@ -33,6 +34,8 @@ public class RunDefinitionRequest {
     private String executeType;
 
     private Response response;
+
+    private RunModeConfig config;
 
     private List<String> bodyUploadIds;
 

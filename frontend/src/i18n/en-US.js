@@ -1658,6 +1658,7 @@ export default {
     not_set: "Not Set",
     next_execution_time: "Next Execution Time",
     edit_timer_task: "Edit Timer Task",
+    task_config: "Task Config",
     test_name: 'Test Name',
     running_rule: 'Rule',
     job_status: 'Status',
@@ -1803,5 +1804,6 @@ export default {
     idd_report: "Report",
     set_report: "Set report",
     report_name: "Report name",
+    run_with_resource_pool: "Run Within Resource pool",
   }
 };

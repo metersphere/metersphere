@@ -33,10 +33,10 @@ public class ResourcePoolCalculation {
         return restTemplate.getForObject(uri, JvmInfoDTO.class);
     }
 
-    public TestResource getPool() {
+    public TestResource getPool(String resourcePoolId) {
         // 获取可以执行的资源池
         TestResourcePoolExample example = new TestResourcePoolExample();
-        example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andNameEqualTo("赵勇资源池");
+        example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andIdEqualTo(resourcePoolId);
         List<TestResourcePool> pools = testResourcePoolMapper.selectByExample(example);
         // 按照NODE节点的可用内存空间大小排序
         JvmInfoDTO jvmInfoDTO = null;
