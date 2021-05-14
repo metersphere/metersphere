@@ -1005,7 +1005,11 @@ export default {
         code_template_get_response_code: "獲取響應碼",
         code_template_get_response_result: "獲取響應結果",
         code_add_report_length: "報文頭添加長度",
-        code_hide_report_length: "隱藏報文長度"
+        code_hide_report_length: "隱藏報文長度",
+        param_environment_get_global_variable: "獲取環境參數",
+        param_environment_set_global_variable: "設置環境參數",
+        param_environment_delete_global_variable: "刪除環境參數",
+        param_environment_show_global_variable: "獲取所有環境參數",
       },
       dubbo: {
         protocol: "協議",
