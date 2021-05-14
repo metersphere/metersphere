@@ -16,6 +16,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="config" jdbcType="VARCHAR" property="config" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -77,7 +78,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `key`, `type`, `value`, `group`, job, `enable`, resource_id, user_id, workspace_id, 
-    create_time, update_time, project_id, `name`
+    create_time, update_time, project_id, `name`, config
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ScheduleExample" resultMap="BaseResultMap">
     select
@@ -114,12 +115,14 @@
       `value`, `group`, job, 
       `enable`, resource_id, user_id, 
       workspace_id, create_time, update_time, 
-      project_id, `name`)
+      project_id, `name`, config
+      )
     values (#{id,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{value,jdbcType=VARCHAR}, #{group,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, 
       #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
       #{workspaceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR})
+      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Schedule">
     insert into schedule
@@ -166,6 +169,9 @@
       <if test="name != null">
         `name`,
       </if>
+      <if test="config != null">
+        config,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -209,6 +215,9 @@
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="config != null">
+        #{config,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -263,6 +272,9 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
+      <if test="record.config != null">
+        config = #{record.config,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -283,7 +295,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR}
+      `name` = #{record.name,jdbcType=VARCHAR},
+      config = #{record.config,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -330,6 +343,9 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
+      <if test="config != null">
+        config = #{config,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -347,7 +363,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      `name` = #{name,jdbcType=VARCHAR}
+      `name` = #{name,jdbcType=VARCHAR},
+      config = #{config,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

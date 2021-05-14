@@ -1,12 +1,18 @@
 <template>
-  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible"
-             :append-to-body='true'
-             @close="close">
+  <el-dialog
+    v-loading="result.loading"
+    :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible"
+    :append-to-body='true'
+    @close="close">
     <template>
       <div>
         <el-tabs v-model="activeName">
-          <el-tab-pane :label="$t('schedule.edit_timer_task')" name="first">
-            <el-form :model="form" :rules="rules" ref="from">
+          <el-tab-pane :label="$t('schedule.task_config')" name="first">
+            <div class="el-step__icon is-text" style="margin-right: 10px;">
+              <div class="el-step__icon-inner">1</div>
+            </div>
+            <span>{{ $t('schedule.edit_timer_task') }}</span>
+            <el-form :model="form" :rules="rules" ref="from" style="padding-top: 10px;margin-left: 20px;">
               <el-form-item
                 prop="cronValue">
                 <el-row>
@@ -33,6 +39,44 @@
               </el-form-item>
               <crontab-result :ex="form.cronValue" ref="crontabResult"/>
             </el-form>
+
+            <div class="el-step__icon is-text" style="margin-right: 10px;">
+              <div class="el-step__icon-inner">2</div>
+            </div>
+            <span>{{ $t('load_test.runtime_config') }}</span>
+            <div style="padding-top: 10px;">
+              <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
+              <el-radio-group v-model="runConfig.mode">
+                <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
+                <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
+              </el-radio-group>
+            </div>
+            <div class="ms-mode-div" v-if="runConfig.mode === 'serial'">
+              <el-row>
+                <el-col :span="3">
+                  <span class="ms-mode-span">{{ $t("run_mode.other_config") }}:</span>
+                </el-col>
+                <el-col :span="18">
+                  <div>
+                    <el-checkbox v-model="runConfig.onSampleError">失败停止</el-checkbox>
+                  </div>
+                  <div v-if="scheduleTaskType === 'TEST_PLAN_TEST'" style="padding-top: 10px">
+                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+                      {{ $t('run_mode.run_with_resource_pool') }}
+                    </el-checkbox>
+                    <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
+                               size="mini">
+                      <el-option
+                        v-for="item in resourcePools"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id">
+                      </el-option>
+                    </el-select>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
               <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
@@ -54,7 +98,7 @@ import {checkoutTestManagerOrTestUser, getCurrentUser, listenGoBack, removeGoBac
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
-import MsScheduleNotification from "./ScheduleNotification";
+import MsScheduleNotification from "@/business/components/api/automation/schedule/ScheduleNotification";
 import ScheduleSwitch from "@/business/components/api/automation/schedule/ScheduleSwitch";
 
 function defaultCustomValidate() {
@@ -66,7 +110,7 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 
 
 export default {
-  name: "MsScheduleMaintain",
+  name: "MsTestPlanScheduleMaintain",
   components: {
     CrontabResult,
     ScheduleSwitch,
@@ -106,6 +150,7 @@ export default {
       }
     };
     return {
+      result: {},
       scheduleReceiverOptions: [],
       operation: true,
       dialogVisible: false,
@@ -122,8 +167,16 @@ export default {
       activeName: 'first',
       rules: {
         cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
-      }
-    }
+      },
+      resourcePools: [],
+      runConfig: {
+        mode: "serial",
+        reportType: "iddReport",
+        onSampleError: false,
+        runWithinResourcePool: false,
+        resourcePoolId: null,
+      },
+    };
   },
   methods: {
     currentUser: () => {
@@ -135,13 +188,13 @@ export default {
       param.taskID = this.schedule.id;
       param.enable = flag;
       let that = this;
-      if (flag == false) {
+      if (flag === false) {
         this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning',
           beforeClose(action, instance, done) {
-            if (action == 'cancel') {  //  否则在 messageBox 点击取消后，switch 按钮仍然会被关闭
+            if (action === 'cancel') {  //  否则在 messageBox 点击取消后，switch 按钮仍然会被关闭
               that.schedule.enable = param.enable = true;
             }
             done(); //  done 是关闭 messageBox 的行为
@@ -157,7 +210,7 @@ export default {
     updateTask(param) {
       this.result = this.$post('/api/schedule/updateEnableByPrimyKey', param, response => {
         let paramTestId = "";
-        if (this.paramRow.redirectFrom == 'testPlan') {
+        if (this.paramRow.redirectFrom === 'testPlan') {
           paramTestId = this.paramRow.id;
           this.scheduleTaskType = "TEST_PLAN_TEST";
         } else {
@@ -191,7 +244,7 @@ export default {
       //测试计划页面跳转来的
       let paramTestId = "";
       this.paramRow = row;
-      if (row.redirectFrom == 'testPlan') {
+      if (row.redirectFrom === 'testPlan') {
         paramTestId = row.id;
         this.scheduleTaskType = "TEST_PLAN_TEST";
       } else {
@@ -205,6 +258,7 @@ export default {
       this.form.cronValue = this.schedule.value;
       listenGoBack(this.close);
       this.activeName = 'first';
+      this.getResourcePools();
     },
     findSchedule() {
       var scheduleResourceID = this.testId;
@@ -212,6 +266,7 @@ export default {
       this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
+          this.runConfig = JSON.parse(response.data.config);
         } else {
           this.schedule = {};
         }
@@ -245,6 +300,7 @@ export default {
       let param = {};
       param = this.schedule;
       param.resourceId = this.testId;
+      param.config = JSON.stringify(this.runConfig);
       let url = '/api/automation/schedule/create';
       if (this.scheduleTaskType === "TEST_PLAN_TEST") {
         param.scheduleFrom = "testPlan";
@@ -276,7 +332,7 @@ export default {
       let param = this.buildParam();
       this.result = this.$post("notice/save", param, () => {
         this.$success(this.$t('commons.save_success'));
-      })
+      });
     },
     close() {
       this.dialogVisible = false;
@@ -306,13 +362,18 @@ export default {
     getExecuteTimeTemplate(executeTileArr) {
       alert(executeTileArr);
     },
+    getResourcePools() {
+      this.result = this.$get('/testresourcepool/list/quota/valid', response => {
+        this.resourcePools = response.data;
+      });
+    },
   },
   computed: {
     isTesterPermission() {
       return checkoutTestManagerOrTestUser();
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -326,4 +387,12 @@ export default {
   margin-bottom: 10px;
 }
 
+.ms-mode-span {
+  margin-right: 10px;
+  margin-left: 20px;
+}
+
+.ms-mode-div {
+  margin-top: 10px;
+}
 </style>

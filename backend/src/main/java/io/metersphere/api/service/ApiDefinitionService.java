@@ -578,8 +578,11 @@ public class ApiDefinitionService {
             runMode = ApiRunMode.API_PLAN.name();
         }
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
-        //jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null);
+        if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+            jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, request.getConfig());
+        } else {
+            jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        }
         return request.getId();
     }
 
