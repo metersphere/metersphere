@@ -19,7 +19,7 @@ export default {
     },
     {
       path: 'usergroup',
-      component: () => import('@/business/components/settings/system/UserGroup'),
+      component: () => import('@/business/components/settings/system/group/UserGroup'),
       meta: {system: true, title: '用户组与权限'}
     },
     {
