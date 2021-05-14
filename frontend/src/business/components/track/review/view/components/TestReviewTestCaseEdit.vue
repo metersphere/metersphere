@@ -278,9 +278,7 @@ export default {
             this.$success(this.$t('commons.save_success'));
             this.updateTestCases(param);
             this.setReviewStatus(this.testCase.reviewId);
-            // 修改当前用例的评审状态
             this.testCase.reviewStatus = status;
-            // 修改当前用例在整个用例列表的状态
             this.testCases[this.index].reviewStatus = status;
             if (this.index < this.testCases.length - 1) {
               this.handleNext();
