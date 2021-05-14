@@ -234,31 +234,33 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         LogUtil.error(e.getMessage(), e);
                     }
                 } else {
-                    //1.9 增加对Mock环境的判断
-                    if (this.isMockEnvironment()) {
-                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
-                    } else {
-                        if (httpConfig.isMock()) {
+                    if (!isCustomizeReq()) {
+                        //1.9 增加对Mock环境的判断
+                        if (this.isMockEnvironment()) {
                             url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
                         } else {
-                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-                        }
+                            if (httpConfig.isMock()) {
+                                url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                            } else {
+                                url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                            }
 
+                        }
+                        URL urlObject = new URL(url);
+                        String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                        if (StringUtils.isNotBlank(this.getPath())) {
+                            envPath += this.getPath();
+                        }
+                        if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                            sampler.setDomain(httpConfig.getDomain());
+                            sampler.setProtocol(httpConfig.getProtocol());
+                        } else {
+                            sampler.setDomain("");
+                            sampler.setProtocol("");
+                        }
+                        sampler.setPort(httpConfig.getPort());
+                        sampler.setPath(envPath);
                     }
-                    URL urlObject = new URL(url);
-                    String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                    if (StringUtils.isNotBlank(this.getPath())) {
-                        envPath += this.getPath();
-                    }
-                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
-                        sampler.setDomain(httpConfig.getDomain());
-                        sampler.setProtocol(httpConfig.getProtocol());
-                    } else {
-                        sampler.setDomain("");
-                        sampler.setProtocol("");
-                    }
-                    sampler.setPort(httpConfig.getPort());
-                    sampler.setPath(envPath);
                 }
                 String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
@@ -267,7 +269,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     String path = getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8"));
-                    if (HTTPConstants.DELETE.equals(this.getMethod())) {
+                    if (HTTPConstants.DELETE.equals(this.getMethod()) && !path.startsWith("${")) {
                         if (!path.startsWith("/")) {
                             path = "/" + path;
                         }
