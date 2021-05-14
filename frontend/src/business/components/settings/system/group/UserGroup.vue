@@ -28,7 +28,12 @@
         <el-table-column prop="description" label="描述"/>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+              <template v-slot:behind>
+                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>
+                <ms-table-operator-button tip="设置权限" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
+              </template>
+            </ms-table-operator>
           </template>
         </el-table-column>
       </el-table>
@@ -38,6 +43,8 @@
     </el-card>
 
     <edit-user-group ref="editUserGroup" @refresh="initData"/>
+
+    <edit-permission ref="editPermission"/>
   </div>
 </template>
 
@@ -46,13 +53,19 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTableOperator from "@/business/components/common/components/MsTableOperator";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {USER_GROUP_SCOPE} from "@/common/js/table-constants";
-import EditUserGroup from "@/business/components/settings/system/EditUserGroup";
+import EditUserGroup from "@/business/components/settings/system/group/EditUserGroup";
+import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+import EditPermission from "@/business/components/settings/system/group/EditPermission";
 
 export default {
   name: "UserGroup",
   components: {
     EditUserGroup,
-    MsTableHeader, MsTableOperator, MsTablePagination
+    MsTableHeader,
+    MsTableOperator,
+    MsTablePagination,
+    MsTableOperatorButton,
+    EditPermission
   },
   data() {
     return {
@@ -66,6 +79,7 @@ export default {
   },
   created() {
     this.initData();
+    this.getGroupJson();
   },
   computed: {
     userGroupType() {
@@ -92,6 +106,17 @@ export default {
       this.result = this.$get("/user/group/delete/" + row.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.initData();
+      })
+    },
+    copy(row) {
+      console.log(row)
+    },
+    setPermission(row) {
+      this.$refs.editPermission.open();
+    },
+    getGroupJson() {
+      this.$get("/user/group/permission", result => {
+        let data = result.data;
       })
     }
   }

@@ -1,5 +1,7 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
@@ -13,18 +15,16 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.group.EditGroupRequest;
-import io.metersphere.dto.GroupDTO;
-import io.metersphere.dto.UserGroupDTO;
-import org.apache.commons.collections.CollectionUtils;
+import io.metersphere.dto.*;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,8 +78,43 @@ public class GroupService {
         // todo use_group 关系
     }
 
+    public GroupPermissionDTO getGroupResource() {
+        GroupPermissionDTO dto = new GroupPermissionDTO();
+        InputStream permission = getClass().getResourceAsStream("/permission.json");
+        if (permission == null) {
+            throw new RuntimeException("读取文件失败");
+        } else {
+            GroupJson group = null;
+            try {
+                group = JSON.parseObject(permission, GroupJson.class);
+                List<GroupResource> resource = group.getResource();
+                List<GroupPermission> permissions = group.getPermissions();
+                dto.setSystem(getResourcePermission(resource, permissions, "SYSTEM"));
+                dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION"));
+                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE"));
+                dto.setProject(getResourcePermission(resource, permissions, "PROJECT"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return dto;
+    }
 
-
+    private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type) {
+        List<GroupResourceDTO> dto = new ArrayList<>();
+        List<GroupResource> resources = resource.stream().filter(g -> g.getId().startsWith(type)).collect(Collectors.toList());
+        for (GroupResource r : resources) {
+            GroupResourceDTO resourceDTO = new GroupResourceDTO();
+            resourceDTO.setResource(r);
+            List<GroupPermission> collect = permissions
+                    .stream()
+                    .filter(p -> StringUtils.equals(r.getId(), p.getResourceId()))
+                    .collect(Collectors.toList());
+            resourceDTO.setPermissions(collect);
+            dto.add(resourceDTO);
+        }
+        return dto;
+    }
 
     private Pager<List<GroupDTO>> getGroups(List<String> groupTypeList, EditGroupRequest request) {
         if (groupTypeList.contains(UserGroupType.SYSTEM)) {
@@ -130,6 +165,5 @@ public class GroupService {
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);
         return PageUtils.setPageInfo(page, groups);
     }
-
 
 }
