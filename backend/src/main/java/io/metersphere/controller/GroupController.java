@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Group;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.dto.GroupDTO;
+import io.metersphere.dto.GroupPermissionDTO;
 import io.metersphere.service.GroupService;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,6 +39,11 @@ public class GroupController {
     @GetMapping("/delete/{id}")
     public void deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
+    }
+
+    @GetMapping("/permission")
+    public GroupPermissionDTO getGroupResource() {
+        return groupService.getGroupResource();
     }
 
 }
