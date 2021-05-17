@@ -13,7 +13,7 @@
             </div>
           </el-col>
           <el-col :span="9">
-            <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
+            <el-tooltip effect="dark" :content="request.responseResult.responseCode" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
               <div style="color: #5daf34" v-if="request.success">
                 {{ request.responseResult.responseCode }}
               </div>

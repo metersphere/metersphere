@@ -1,5 +1,5 @@
 export const ELEMENTS = new Map([
-  ['ALL', ["scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "IfController", "LoopController", "ConstantTimer", "JSR223Processor", "CustomizeReq"]],
+  ['ALL', ["scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "IfController","TransactionController", "LoopController", "ConstantTimer", "JSR223Processor", "CustomizeReq"]],
   ['scenario', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "CASE", "OT_IMPORT", "IfController", "ConstantTimer", "JSR223Processor", "CustomizeReq"]],
   ['HTTPSamplerProxy', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['DubboSampler', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
@@ -7,6 +7,7 @@ export const ELEMENTS = new Map([
   ['TCPSampler', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['OT_IMPORT', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['IfController', ["IfController", "scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
+  ['TransactionController', ["TransactionController", "scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
   ['LoopController', ["IfController", "scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
   ['ConstantTimer', []],
   ['JSR223Processor', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
@@ -26,6 +27,7 @@ export const ELEMENT_TYPE = {
   HTTPSamplerProxy: "HTTPSamplerProxy",
   OT_IMPORT: "OT_IMPORT",
   IfController: "IfController",
+  TransactionController: "TransactionController",
   ConstantTimer: "ConstantTimer",
   JSR223Processor: "JSR223Processor",
   JSR223PreProcessor: "JSR223PreProcessor",
