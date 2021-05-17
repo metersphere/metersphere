@@ -12,6 +12,7 @@
 <script>
   import MsConstantTimer from "./ConstantTimer";
   import MsIfController from "./IfController";
+  import MsTransactionController from  "./TransactionController";
   import {ELEMENT_TYPE} from "../Setting";
   import MsJsr233Processor from "./Jsr233Processor";
   import MsApiAssertions from "../../../definition/components/assertion/ApiAssertions";
@@ -23,7 +24,7 @@
 
   export default {
     name: "ComponentConfig",
-    components: {MsConstantTimer, MsIfController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, JmeterElementComponent},
+    components: {MsConstantTimer, MsIfController, MsTransactionController,MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, JmeterElementComponent},
     props: {
       type: String,
       scenario: {},
@@ -59,6 +60,9 @@
         switch (type) {
           case ELEMENT_TYPE.IfController:
             name = "MsIfController";
+            break;
+          case ELEMENT_TYPE.TransactionController:
+            name = "MsTransactionController";
             break;
           case ELEMENT_TYPE.ConstantTimer:
             name = "MsConstantTimer";

@@ -238,7 +238,8 @@
     Extract,
     IfController,
     JSR223Processor,
-    LoopController
+    LoopController,
+    TransactionController
   } from "../../definition/model/ApiTestModel";
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
@@ -427,6 +428,16 @@
             }
           },
           {
+            title: this.$t('api_test.automation.transcation_controller'),
+            show: this.showButton("TransactionController"),
+            titleColor: "#6D317C",
+            titleBgColor: "#F4F4F5",
+            icon: "alt_route",
+            click: () => {
+              this.addComponent('TransactionController')
+            }
+          },
+          {
             title: this.$t('api_test.automation.wait_controller'),
             show: this.showButton("ConstantTimer"),
             titleColor: "#67C23A",
@@ -544,31 +555,31 @@
       addComponent(type) {
         switch (type) {
           case ELEMENT_TYPE.IfController:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new IfController()) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new IfController()) :
               this.scenarioDefinition.push(new IfController());
             break;
           case ELEMENT_TYPE.ConstantTimer:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new ConstantTimer()) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new ConstantTimer()) :
               this.scenarioDefinition.push(new ConstantTimer());
             break;
           case ELEMENT_TYPE.JSR223Processor:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor()) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor()) :
               this.scenarioDefinition.push(new JSR223Processor());
             break;
           case ELEMENT_TYPE.JSR223PreProcessor:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
               this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
             break;
           case ELEMENT_TYPE.JSR223PostProcessor:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
               this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
             break;
           case ELEMENT_TYPE.Assertions:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new Assertions()) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new Assertions()) :
               this.scenarioDefinition.push(new Assertions());
             break;
           case ELEMENT_TYPE.Extract:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new Extract()) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new Extract()) :
               this.scenarioDefinition.push(new Extract());
             break;
           case ELEMENT_TYPE.CustomizeReq:
@@ -576,8 +587,12 @@
             this.customizeVisible = true;
             break;
           case  ELEMENT_TYPE.LoopController:
-            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new LoopController()) :
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new LoopController()) :
               this.scenarioDefinition.push(new LoopController());
+            break;
+          case ELEMENT_TYPE.TransactionController:
+            this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new TransactionController()) :
+              this.scenarioDefinition.push(new TransactionController());
             break;
           case ELEMENT_TYPE.scenario:
             this.isBtnHide = true;
