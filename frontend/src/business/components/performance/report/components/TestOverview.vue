@@ -96,7 +96,7 @@ export default {
       errorOption: {},
       resCodeOption: {},
       id: ''
-    }
+    };
   },
   methods: {
     initTableData() {
@@ -118,7 +118,7 @@ export default {
         this.responseTime90 = '0';
         this.avgBandwidth = '0';
         // this.$warning(this.$t('report.generation_error'));
-      })
+      });
       this.getLoadChart();
       this.getResChart();
       this.getErrorChart();
@@ -190,18 +190,18 @@ export default {
               color: '#E6113C',
             }
           ]
-        }
+        };
         yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'})
-        })
+          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
+        });
 
         yAxisIndex1List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'})
-        })
+          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'});
+        });
         this.loadOption = this.generateOption(loadOption, data, setting);
       }).catch(() => {
         this.loadOption = {};
-      })
+      });
     },
     getResChart() {
       this.$get("/performance/report/content/res_chart/" + this.id).then(res => {
@@ -265,7 +265,7 @@ export default {
             }
           ],
           series: []
-        }
+        };
         let setting = {
           series: [
             {
@@ -273,20 +273,20 @@ export default {
               color: '#0CA74A',
             }
           ]
-        }
+        };
 
         yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'})
-        })
+          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
+        });
 
         yAxisIndex1List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'})
-        })
+          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'});
+        });
 
         this.resOption = this.generateOption(resOption, data, setting);
       }).catch(() => {
         this.resOption = {};
-      })
+      });
     },
     getErrorChart() {
       this.$get("/performance/report/content/error_chart/" + this.id).then(res => {
@@ -340,7 +340,7 @@ export default {
             }
           ],
           series: []
-        }
+        };
         let setting = {
           series: [
             {
@@ -348,16 +348,16 @@ export default {
               color: '#0CA74A',
             }
           ]
-        }
+        };
 
         yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'})
-        })
+          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
+        });
 
         this.errorOption = this.generateOption(errorOption, data, setting);
       }).catch(() => {
         this.errorOption = {};
-      })
+      });
     },
     getResponseCodeChart() {
       this.$get("/performance/report/content/response_code_chart/" + this.id).then(res => {
@@ -411,7 +411,7 @@ export default {
             }
           ],
           series: []
-        }
+        };
         let setting = {
           series: [
             {
@@ -419,16 +419,16 @@ export default {
               color: '#0CA74A',
             }
           ]
-        }
+        };
 
         yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'})
-        })
+          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
+        });
 
         this.resCodeOption = this.generateOption(resCodeOption, data, setting);
       }).catch(() => {
         this.resCodeOption = {};
-      })
+      });
     },
     generateOption(option, data, setting) {
       let chartData = data;
@@ -445,18 +445,18 @@ export default {
         if (!xAxis.includes(item.xAxis)) {
           xAxis.push(item.xAxis);
         }
-        xAxis.sort()
-        let name = item.groupName
+        xAxis.sort();
+        let name = item.groupName;
         if (!legend.includes(name)) {
-          legend.push(name)
-          series[name] = []
+          legend.push(name);
+          series[name] = [];
         }
         if (item.yAxis === -1) {
           series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis2.toFixed(2)]);
         } else {
           series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
         }
-      })
+      });
       this.$set(option.legend, "data", legend);
       this.$set(option.legend, "type", "scroll");
       this.$set(option.legend, "bottom", "10px");
@@ -469,7 +469,8 @@ export default {
           type: 'line',
           data: d,
           smooth: true,
-          sampling: 'lttb'
+          sampling: 'lttb',
+          animation: !this.export,
         };
         let seriesArrayNames = seriesArray.map(m => m.name);
         if (seriesArrayNames.includes(name)) {
@@ -520,8 +521,8 @@ export default {
       deep: true
     }
   },
-  props: ['report']
-}
+  props: ['report', 'export']
+};
 </script>
 
 <style scoped>
