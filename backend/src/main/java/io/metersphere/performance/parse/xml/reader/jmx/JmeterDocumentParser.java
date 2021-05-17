@@ -88,7 +88,6 @@ public class JmeterDocumentParser implements DocumentParser {
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node node = childNodes.item(i);
                 if (node instanceof Element) {
-                    System.out.println(node.getNodeName());
                     Element ele = (Element) node;
 
                     if (nodeNameEquals(ele, HASH_TREE_ELEMENT)) {
