@@ -29,8 +29,8 @@
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
-              <template v-slot:behind>
-                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>
+              <template v-slot:middle>
+<!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
                 <ms-table-operator-button tip="设置权限" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
               </template>
             </ms-table-operator>
@@ -43,8 +43,8 @@
     </el-card>
 
     <edit-user-group ref="editUserGroup" @refresh="initData"/>
-
     <edit-permission ref="editPermission"/>
+    <ms-delete-confirm title="删除用户组" @delete="_handleDel" ref="deleteConfirm"/>
   </div>
 </template>
 
@@ -56,6 +56,7 @@ import {USER_GROUP_SCOPE} from "@/common/js/table-constants";
 import EditUserGroup from "@/business/components/settings/system/group/EditUserGroup";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import EditPermission from "@/business/components/settings/system/group/EditPermission";
+import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 
 export default {
   name: "UserGroup",
@@ -65,7 +66,8 @@ export default {
     MsTableOperator,
     MsTablePagination,
     MsTableOperatorButton,
-    EditPermission
+    EditPermission,
+    MsDeleteConfirm
   },
   data() {
     return {
@@ -77,9 +79,8 @@ export default {
       groups: []
     }
   },
-  created() {
+  activated() {
     this.initData();
-    this.getGroupJson();
   },
   computed: {
     userGroupType() {
@@ -102,23 +103,21 @@ export default {
     edit(row) {
       this.$refs.editUserGroup.open(row, 'edit');
     },
-    del(row) {
+    _handleDel(row) {
       this.result = this.$get("/user/group/delete/" + row.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.initData();
       })
     },
+    del(row) {
+      this.$refs.deleteConfirm.open(row);
+    },
     copy(row) {
       console.log(row)
     },
     setPermission(row) {
-      this.$refs.editPermission.open();
+      this.$refs.editPermission.open(row);
     },
-    getGroupJson() {
-      this.$get("/user/group/permission", result => {
-        let data = result.data;
-      })
-    }
   }
 }
 </script>

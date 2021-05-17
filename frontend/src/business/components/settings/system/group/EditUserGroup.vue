@@ -100,7 +100,9 @@ export default {
       this.dialogVisible = true;
       this.dialogType = type;
       this.form = Object.assign({}, row);
-      this.form.global = this.form.scopeId === "global";
+      if (type !== 'create') {
+        this.form.global = this.form.scopeId === "global";
+      }
     },
     cancel() {
       this.dialogVisible = false;

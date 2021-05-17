@@ -1,6 +1,7 @@
 package io.metersphere.controller.request.group;
 
 import io.metersphere.base.domain.Group;
+import io.metersphere.dto.GroupPermission;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,4 +21,8 @@ public class EditGroupRequest extends Group {
      * 是否是全局用户组
      */
     private Boolean global;
+
+    private List<GroupPermission> permissions;
+    private String userGroupId;
+
 }

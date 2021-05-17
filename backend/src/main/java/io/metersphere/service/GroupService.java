@@ -1,11 +1,11 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.GroupMapper;
+import io.metersphere.base.mapper.UserGroupPermissionMapper;
 import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.commons.constants.UserGroupType;
@@ -16,8 +16,12 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.dto.*;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +42,10 @@ public class GroupService {
     private GroupMapper groupMapper;
     @Resource
     private ExtGroupMapper extGroupMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private UserGroupPermissionMapper userGroupPermissionMapper;
 
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
@@ -75,24 +83,29 @@ public class GroupService {
 
     public void deleteGroup(String id) {
         groupMapper.deleteByPrimaryKey(id);
-        // todo use_group 关系
+        UserGroupPermissionExample example = new UserGroupPermissionExample();
+        example.createCriteria().andGroupIdEqualTo(id);
+        userGroupPermissionMapper.deleteByExample(example);
     }
 
-    public GroupPermissionDTO getGroupResource() {
+    public GroupPermissionDTO getGroupResource(Group g) {
         GroupPermissionDTO dto = new GroupPermissionDTO();
         InputStream permission = getClass().getResourceAsStream("/permission.json");
+        String type = g.getType();
+        String id = g.getId();
+        UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
+        userGroupPermissionExample.createCriteria().andGroupIdEqualTo(id);
+        List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
+        List<String> permissionList = userGroupPermissions.stream().map(UserGroupPermission::getPermissionId).collect(Collectors.toList());
         if (permission == null) {
-            throw new RuntimeException("读取文件失败");
+            throw new RuntimeException("读取文件失败!");
         } else {
             GroupJson group = null;
             try {
                 group = JSON.parseObject(permission, GroupJson.class);
                 List<GroupResource> resource = group.getResource();
                 List<GroupPermission> permissions = group.getPermissions();
-                dto.setSystem(getResourcePermission(resource, permissions, "SYSTEM"));
-                dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION"));
-                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE"));
-                dto.setProject(getResourcePermission(resource, permissions, "PROJECT"));
+                getPermission(resource, permissions, type, dto, permissionList);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -100,9 +113,48 @@ public class GroupService {
         return dto;
     }
 
-    private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type) {
+    public void editGroupPermission(EditGroupRequest request) {
+        List<GroupPermission> permissions = request.getPermissions();
+        if (CollectionUtils.isEmpty(permissions)) {
+            return;
+        }
+
+        UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
+        userGroupPermissionExample.createCriteria().andGroupIdEqualTo(request.getUserGroupId());
+        userGroupPermissionMapper.deleteByExample(userGroupPermissionExample);
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        UserGroupPermissionMapper mapper = sqlSession.getMapper(UserGroupPermissionMapper.class);
+        String groupId = request.getUserGroupId();
+        permissions.forEach(permission -> {
+            if (BooleanUtils.isTrue(permission.getChecked())) {
+                String permissionId = permission.getId();
+                String resourceId = permission.getResourceId();
+                UserGroupPermission groupPermission = new UserGroupPermission();
+                groupPermission.setId(UUID.randomUUID().toString());
+                groupPermission.setGroupId(groupId);
+                groupPermission.setPermissionId(permissionId);
+                groupPermission.setModuleId(resourceId);
+                mapper.insert(groupPermission);
+            }
+        });
+        sqlSession.flushStatements();
+    }
+
+
+
+
+
+
+
+    private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, List<String> permissionList) {
         List<GroupResourceDTO> dto = new ArrayList<>();
         List<GroupResource> resources = resource.stream().filter(g -> g.getId().startsWith(type)).collect(Collectors.toList());
+        permissions.forEach(p -> {
+            if (permissionList.contains(p.getId())) {
+                p.setChecked(true);
+            }
+        });
         for (GroupResource r : resources) {
             GroupResourceDTO resourceDTO = new GroupResourceDTO();
             resourceDTO.setResource(r);
@@ -134,6 +186,34 @@ public class GroupService {
         }
 
         return new Pager<>();
+    }
+    
+    private void getPermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, GroupPermissionDTO dto, List<String> permissionList) {
+        dto.setSystem(getResourcePermission(resource, permissions, "SYSTEM", permissionList));
+        dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION", permissionList));
+        dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
+        dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
+        switch (type) {
+            case "SYSTEM":
+                dto.setSystem(getResourcePermission(resource, permissions, "SYSTEM", permissionList));
+                dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION", permissionList));
+                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
+                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
+                break;
+            case "ORGANIZATION":
+                dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION", permissionList));
+                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
+                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
+                break;
+            case "WORKSPACE":
+                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
+                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
+                break;
+            case "PROJECT":
+                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
+                break;
+            default:
+        }
     }
 
 
