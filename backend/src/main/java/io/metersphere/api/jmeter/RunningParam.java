@@ -16,18 +16,6 @@ public class RunningParam {
     }
 
     public static void deleteParam(String enviromentId, String key){
-        checkService();
-        apiEnvironmentRunningParamService.deleteParam(enviromentId,key);
-    }
-
-    public static String getParam(String enviromentId, String key){
-        checkService();
-        return apiEnvironmentRunningParamService.getParam(enviromentId,key);
-    }
-
-    public static String showParams(String enviromentId){
-        checkService();
-        return apiEnvironmentRunningParamService.showParams(enviromentId);
     }
 
     public static void checkService(){
