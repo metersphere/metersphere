@@ -35,6 +35,8 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
     private final static String THREAD_GROUP = "ThreadGroup";
+    private final static String POST_THREAD_GROUP = "PostThreadGroup";
+    private final static String SETUP_THREAD_GROUP = "SetupThreadGroup";
     private final static String BACKEND_LISTENER = "BackendListener";
     private final static String CONFIG_TEST_ELEMENT = "ConfigTestElement";
     private final static String DNS_CACHE_MANAGER = "DNSCacheManager";
@@ -107,7 +109,9 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutTimer(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
                         processVariableThroughputTimer(ele);
-                    } else if (nodeNameEquals(ele, THREAD_GROUP)) {
+                    } else if (nodeNameEquals(ele, THREAD_GROUP) ||
+                            nodeNameEquals(ele, SETUP_THREAD_GROUP) ||
+                            nodeNameEquals(ele, POST_THREAD_GROUP)) {
                         processThreadType(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
@@ -707,7 +711,13 @@ public class JmeterDocumentParser implements DocumentParser {
             tgType = o.toString();
         }
         if (StringUtils.equals(tgType, THREAD_GROUP)) {
-            processBaseThreadGroup(threadGroup);
+            processBaseThreadGroup(threadGroup, THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, SETUP_THREAD_GROUP)) {
+            processBaseThreadGroup(threadGroup, SETUP_THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, POST_THREAD_GROUP)) {
+            processBaseThreadGroup(threadGroup, POST_THREAD_GROUP);
         }
         if (StringUtils.equals(tgType, CONCURRENCY_THREAD_GROUP)) {
             processConcurrencyThreadGroup(threadGroup);
@@ -715,11 +725,11 @@ public class JmeterDocumentParser implements DocumentParser {
 
     }
 
-    private void processBaseThreadGroup(Element threadGroup) {
+    private void processBaseThreadGroup(Element threadGroup, String tgType) {
         Document document = threadGroup.getOwnerDocument();
-        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
-        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
-        threadGroup.setAttribute("testclass", THREAD_GROUP);
+        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), tgType);
+        threadGroup.setAttribute("guiclass", tgType + "Gui");
+        threadGroup.setAttribute("testclass", tgType);
         /*
         <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="登录" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -918,9 +928,6 @@ public class JmeterDocumentParser implements DocumentParser {
 
     private void processIterationThreadGroup(Element threadGroup) {
         Document document = threadGroup.getOwnerDocument();
-        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
-        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
-        threadGroup.setAttribute("testclass", THREAD_GROUP);
         // 检查 threadgroup 后面的hashtree是否为空
         Node hashTree = threadGroup.getNextSibling();
         while (!(hashTree instanceof Element)) {
@@ -928,6 +935,28 @@ public class JmeterDocumentParser implements DocumentParser {
         }
         if (!hashTree.hasChildNodes()) {
             MSException.throwException(Translator.get("jmx_content_valid"));
+        }
+        Object tgTypes = context.getProperty("tgType");
+        String tgType = "ThreadGroup";
+        if (tgTypes instanceof List) {
+            Object o = ((List<?>) tgTypes).get(0);
+            ((List<?>) tgTypes).remove(0);
+            tgType = o.toString();
+        }
+        if (StringUtils.equals(tgType, THREAD_GROUP)) {
+            document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
+            threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
+            threadGroup.setAttribute("testclass", THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, SETUP_THREAD_GROUP)) {
+            document.renameNode(threadGroup, threadGroup.getNamespaceURI(), SETUP_THREAD_GROUP);
+            threadGroup.setAttribute("guiclass", SETUP_THREAD_GROUP + "Gui");
+            threadGroup.setAttribute("testclass", SETUP_THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, POST_THREAD_GROUP)) {
+            document.renameNode(threadGroup, threadGroup.getNamespaceURI(), POST_THREAD_GROUP);
+            threadGroup.setAttribute("guiclass", POST_THREAD_GROUP + "Gui");
+            threadGroup.setAttribute("testclass", POST_THREAD_GROUP);
         }
         removeChildren(threadGroup);
 
