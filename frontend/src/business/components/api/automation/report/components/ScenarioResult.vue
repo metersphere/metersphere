@@ -6,7 +6,6 @@
           <div class="el-step__icon-inner"> {{ node.index }}</div>
         </div>
         {{node.label}}
-
       </el-card>
     </div>
     <div v-else>

@@ -238,7 +238,8 @@
     Extract,
     IfController,
     JSR223Processor,
-    LoopController
+    LoopController,
+    TransactionController
   } from "../../definition/model/ApiTestModel";
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
@@ -427,6 +428,16 @@
             }
           },
           {
+            title: this.$t('api_test.automation.transcation_controller'),
+            show: this.showButton("TransactionController"),
+            titleColor: "#6D317C",
+            titleBgColor: "#F4F4F5",
+            icon: "alt_route",
+            click: () => {
+              this.addComponent('TransactionController')
+            }
+          },
+          {
             title: this.$t('api_test.automation.wait_controller'),
             show: this.showButton("ConstantTimer"),
             titleColor: "#67C23A",
@@ -578,6 +589,10 @@
           case  ELEMENT_TYPE.LoopController:
             this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new LoopController()) :
               this.scenarioDefinition.push(new LoopController());
+            break;
+          case ELEMENT_TYPE.TransactionController:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new TransactionController()) :
+              this.scenarioDefinition.push(new TransactionController());
             break;
           case ELEMENT_TYPE.scenario:
             this.isBtnHide = true;
