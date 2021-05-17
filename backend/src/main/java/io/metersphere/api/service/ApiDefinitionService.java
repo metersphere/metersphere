@@ -679,6 +679,8 @@ public class ApiDefinitionService {
         if (CollectionUtils.isNotEmpty(apiImport.getData())) {
             List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
             request.setName(String.join(",", names));
+            List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
         }
         return apiImport;
     }
@@ -989,6 +991,8 @@ public class ApiDefinitionService {
         if (CollectionUtils.isNotEmpty(((MsApiExportResult) apiExportResult).getData())) {
             List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
             request.setName(String.join(",", names));
+            List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
         }
         return apiExportResult;
     }
@@ -1076,7 +1080,7 @@ public class ApiDefinitionService {
         ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
-            OperatingLogDetails details = new OperatingLogDetails(id, bloBs.getProjectId(), bloBs.getCreateUser(), columns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;

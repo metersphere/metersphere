@@ -13,7 +13,7 @@
     </div>
     <div>
       <p class="tip">{{ this.$t('report.test_log_details') }} </p>
-      <div v-if="detail && detail.operType !== 'CREATE' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
+      <div v-if="detail && detail.operType !== 'CREATE' && detail.operType !=='DELETE' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
           <el-table :data="detail.details.columns">
             <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
@@ -22,7 +22,7 @@
           </el-table>
         </div>
       </div>
-      <div v-else-if="detail && (detail.details === null || (detail.details && detail.details.columns && detail.details.columns.length === 0))">
+      <div v-else-if="detail && (detail.operType ==='DELETE' || detail.details === null || (detail.details && detail.details.columns && detail.details.columns.length === 0))">
         <span>{{detail.operTitle}} </span>
         <span style="color: #409EFF">{{getType(detail.operType)}} </span>
         <span style="color: #409EFF"> {{$t('api_test.home_page.detail_card.success')}}</span>

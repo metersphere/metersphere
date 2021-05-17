@@ -112,7 +112,7 @@ public class ApiDefinitionController {
 
     @GetMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
-    @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiDefinitionService.class)
     public void delete(@PathVariable String id) {
         apiDefinitionService.delete(id);
     }
@@ -171,7 +171,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public String run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         request.setReportId(null);
         return apiDefinitionService.run(request, bodyFiles);
@@ -194,14 +194,14 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    @MsAuditLog(module = "api_definition", type = OperLogConstants.IMPORT, title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
     @PostMapping(value = "/export/{type}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXPORT, title = "#request.name", project = "#request.projectId")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiExportResult export(@RequestBody ApiBatchRequest request, @PathVariable String type) {
         return apiDefinitionService.export(request, type);
     }

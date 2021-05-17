@@ -710,6 +710,15 @@ public class ApiTestCaseService {
         return list;
     }
 
+    public String getLogDetails(String id) {
+        ApiTestCaseWithBLOBs bloBs = apiTestCaseMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUserId(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
     public String getLogDetails(List<String> ids) {
         ApiTestCaseExample example = new ApiTestCaseExample();
         ApiTestCaseExample.Criteria criteria = example.createCriteria();
@@ -718,15 +727,6 @@ public class ApiTestCaseService {
         if (CollectionUtils.isNotEmpty(nodes)) {
             List<String> names = nodes.stream().map(ApiTestCase::getName).collect(Collectors.toList());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), nodes.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUserId(), new LinkedList<>());
-            return JSON.toJSONString(details);
-        }
-        return null;
-    }
-
-    public String getLogDetails(String id) {
-        ApiTestCaseWithBLOBs bloBs = apiTestCaseMapper.selectByPrimaryKey(id);
-        if (bloBs != null) {
-            OperatingLogDetails details = new OperatingLogDetails(id, bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUserId(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
@@ -748,7 +748,7 @@ public class ApiTestCaseService {
         }
         if (bloBs != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.caseColumns);
-            OperatingLogDetails details = new OperatingLogDetails(bloBs.getId(), bloBs.getProjectId(), bloBs.getCreateUserId(), columns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(bloBs.getId()), bloBs.getProjectId(), bloBs.getCreateUserId(), columns);
             return JSON.toJSONString(details);
         }
         return null;

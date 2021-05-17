@@ -47,6 +47,12 @@ public @interface MsAuditLog {
     String title() default "";
 
     /**
+     * 资源ID
+     */
+    String sourceId() default "";
+
+
+    /**
      * 操作内容
      *
      * @return

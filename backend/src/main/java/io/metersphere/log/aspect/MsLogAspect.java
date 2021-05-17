@@ -160,6 +160,17 @@ public class MsLogAspect {
                         msOperLog.setOperTitle(title);
                     }
                 }
+                // 资源ID
+                if (StringUtils.isNotEmpty(msLog.sourceId())) {
+                    try {
+                        String sourceId = msLog.sourceId();
+                        Expression titleExp = parser.parseExpression(sourceId);
+                        sourceId = titleExp.getValue(context, String.class);
+                        msOperLog.setSourceId(sourceId);
+                    } catch (Exception e) {
+                    }
+                }
+
                 // 操作内容
                 if (StringUtils.isNotEmpty(msLog.content())) {
                     Expression expression = parser.parseExpression(msLog.content());
@@ -221,7 +232,6 @@ public class MsLogAspect {
 
                 String path = request.getServletPath();
                 msOperLog.setOperPath(path);
-
                 operatingLogService.create(msOperLog);
             }
         } catch (Exception e) {

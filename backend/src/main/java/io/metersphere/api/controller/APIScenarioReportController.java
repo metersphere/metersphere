@@ -8,10 +8,12 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.log.annotation.MsAuditLog;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -47,11 +49,13 @@ public class APIScenarioReportController {
     }
 
     @PostMapping("/delete")
+    @MsAuditLog(module = "api_automation_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioReportService.class)
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
     }
 
     @PostMapping("/batch/delete")
+    @MsAuditLog(module = "api_automation_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = ApiScenarioReportService.class)
     public void deleteAPIReportBatch(@RequestBody APIReportBatchRequest reportRequest) {
         apiReportService.deleteAPIReportBatch(reportRequest);
     }

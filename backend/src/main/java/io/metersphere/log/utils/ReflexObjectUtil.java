@@ -101,25 +101,25 @@ public class ReflexObjectUtil {
                             StringBuilder oldValue = new StringBuilder();
                             for (Diff item : after) {
                                 if (item.getOperation().equals(Operation.ADD)) {
-                                    addBuff.append(item.getPath() + "：" + item.getValue()).append("/n");
+                                    addBuff.append(item.getPath() + "：" + item.getValue()).append("\n");
                                 }
                                 if (item.getOperation().equals(Operation.REMOVE)) {
-                                    removeBuff.append(item.getPath() + "：" + item.getValue()).append("/n");
+                                    removeBuff.append(item.getPath() + "：" + item.getValue()).append("\n");
                                 }
                                 if (item.getOperation().equals(Operation.REPLACE)) {
-                                    repBuff.append(item.getPath() + "：" + item.getValue()).append("/n");
-                                    oldValue.append(item.getPath() + "：" + item.getSrcValue()).append("/n");
+                                    repBuff.append(item.getPath() + "：" + item.getValue()).append("\n");
+                                    oldValue.append(item.getPath() + "：" + item.getSrcValue()).append("\n");
                                 }
                             }
                             StringBuilder newValue = new StringBuilder();
                             if (addBuff != null && addBuff.toString().length() > 0) {
-                                newValue.append("添加：").append(addBuff).append("/n");
+                                newValue.append("添加：").append(addBuff).append("\n");
                             }
                             if (removeBuff != null && removeBuff.toString().length() > 0) {
-                                newValue.append("移除：").append(removeBuff).append("/n");
+                                newValue.append("移除：").append(removeBuff).append("\n");
                             }
                             if (repBuff != null && repBuff.toString().length() > 0) {
-                                newValue.append("修改：").append(repBuff).append("/n");
+                                newValue.append("修改：").append(repBuff).append("\n");
                             }
                             DetailColumn column = new DetailColumn();
                             BeanUtils.copyBean(column, originalColumns.get(i));

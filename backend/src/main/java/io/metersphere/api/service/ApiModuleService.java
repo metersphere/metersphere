@@ -18,7 +18,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.definition.DefinitionReference;
+import io.metersphere.log.vo.definition.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanApiCaseService;
@@ -422,8 +422,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             }
         }
         if (module != null) {
-            List<DetailColumn> columns = ReflexObjectUtil.getColumns(module, DefinitionReference.moduleColumns);
-            OperatingLogDetails details = new OperatingLogDetails(module.getId(), module.getProjectId(), module.getCreateUser(), columns);
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(module, ModuleReference.moduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(module.getId()), module.getProjectId(), module.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;
