@@ -3,9 +3,8 @@ package io.metersphere.base.mapper;
 import io.metersphere.base.domain.OperatingLog;
 import io.metersphere.base.domain.OperatingLogExample;
 import io.metersphere.base.domain.OperatingLogWithBLOBs;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface OperatingLogMapper {
     long countByExample(OperatingLogExample example);

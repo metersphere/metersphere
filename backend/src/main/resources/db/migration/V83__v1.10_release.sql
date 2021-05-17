@@ -41,13 +41,13 @@ CREATE TABLE `operating_log` (
 	`oper_method` varchar(500) DEFAULT NULL COMMENT 'operating method',
 	`create_user` varchar(100) DEFAULT NULL COMMENT 'source create u',
   `oper_user` varchar(50) DEFAULT NULL COMMENT 'operating user id',
-	`source_id` varchar(2000) DEFAULT NULL COMMENT 'operating source id',
+	`source_id` varchar(6000) DEFAULT NULL COMMENT 'operating source id',
   `oper_type` varchar(100) DEFAULT NULL COMMENT 'operating type',
   `oper_module` varchar(64) DEFAULT NULL COMMENT 'operating module',
-  `oper_title` varchar(2000) DEFAULT NULL COMMENT 'operating title',
+  `oper_title` varchar(6000) DEFAULT NULL COMMENT 'operating title',
   `oper_path` varchar(500) DEFAULT NULL COMMENT 'operating path',
 	`oper_content` longtext COMMENT 'operating content',
-	`oper_params` longtext COMMENT 'operating parrams',
+	`oper_params` longtext COMMENT 'operating params',
   `oper_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -58,3 +58,5 @@ ALTER TABLE api_module  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE api_scenario  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE api_scenario_module  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE api_scenario_report  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case_node  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case  ADD create_user VARCHAR(100) NULL;

@@ -24,6 +24,10 @@ import io.metersphere.excel.listener.TestCaseDataIgnoreErrorListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.TestCaseDTO;
@@ -44,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -115,7 +120,7 @@ public class TestCaseService {
     public TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
         checkTestCaseExist(testCase);
-        testCase.setId(UUID.randomUUID().toString());
+        testCase.setId(testCase.getId());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
         checkTestCustomNum(testCase);
@@ -123,6 +128,7 @@ public class TestCaseService {
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
         testCase.setDemandName(testCase.getDemandName());
+        testCase.setCreateUser(SessionUtils.getUserId());
         this.setNode(testCase);
         testCaseMapper.insert(testCase);
         return testCase;
@@ -387,7 +393,7 @@ public class TestCaseService {
     }
 
 
-    public ExcelResponse testCaseImport(MultipartFile multipartFile, String projectId, String userId) {
+    public ExcelResponse testCaseImport(MultipartFile multipartFile, String projectId, String userId, HttpServletRequest request) {
 
         ExcelResponse excelResponse = new ExcelResponse();
         boolean isUpdated = false;  //判断是否更新了用例
@@ -417,16 +423,24 @@ public class TestCaseService {
                     excelResponse.setErrList(errList);
                 }
                 if (errList.isEmpty()) {
+                    List<String> names = new LinkedList<>();
+                    List<String> ids = new LinkedList<>();
                     if (CollectionUtils.isNotEmpty(xmindParser.getNodePaths())) {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
                         Collections.reverse(xmindParser.getTestCase());
                         this.saveImportData(xmindParser.getTestCase(), projectId);
+                        names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
+                        ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                         this.updateImportData(xmindParser.getUpdateTestCase(), projectId);
+                        names.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getName).collect(Collectors.toList()));
+                        ids.addAll(xmindParser.getUpdateTestCase().stream().map(TestCase::getId).collect(Collectors.toList()));
                     }
+                    request.setAttribute("ms-req-title", String.join(",", names));
+                    request.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
                 }
                 xmindParser.clear();
             } catch (Exception e) {
@@ -449,6 +463,8 @@ public class TestCaseService {
                 TestCaseDataListener easyExcelListener = new TestCaseDataListener(clazz, projectId, testCaseNames, userIds);
                 //读取excel数据
                 EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+                request.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
+                request.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
 
                 errList = easyExcelListener.getErrList();
                 isUpdated = easyExcelListener.isUpdated();
@@ -639,8 +655,16 @@ public class TestCaseService {
     public void testCaseExport(HttpServletResponse response, TestCaseBatchRequest request) {
         try {
             EasyExcelExporter easyExcelExporter = new EasyExcelExporter(new TestCaseExcelDataFactory().getExcelDataByLocal());
-            easyExcelExporter.export(response, generateTestCaseExcel(request),
+            List<TestCaseExcelData> datas = generateTestCaseExcel(request);
+            easyExcelExporter.export(response, datas,
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"));
+
+            if (CollectionUtils.isNotEmpty(datas)) {
+                List<String> names = datas.stream().map(TestCaseExcelData::getName).collect(Collectors.toList());
+                request.setName(String.join(",", names));
+                List<String> ids = request.getIds();
+                request.setId(JSON.toJSONString(ids));
+            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
@@ -1031,7 +1055,7 @@ public class TestCaseService {
         extTestCaseMapper.updateTestCaseCustomNumByProjectId(projectId);
     }
 
-    public ExcelResponse testCaseImportIgnoreError(MultipartFile multipartFile, String projectId, String userId) {
+    public ExcelResponse testCaseImportIgnoreError(MultipartFile multipartFile, String projectId, String userId, HttpServletRequest request) {
 
         ExcelResponse excelResponse = new ExcelResponse();
         boolean isUpdated = false;  //判断是否更新了用例
@@ -1062,9 +1086,14 @@ public class TestCaseService {
                 }
                 List<TestCaseWithBLOBs> continueCaseList = xmindParser.getContinueValidatedCase();
                 if (CollectionUtils.isNotEmpty(continueCaseList) || CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
+                    List<String> names = new LinkedList<>();
+                    List<String> ids = new LinkedList<>();
+
                     if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
                         continueCaseList.removeAll(xmindParser.getUpdateTestCase());
                         this.updateImportData(xmindParser.getUpdateTestCase(), projectId);
+                        names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
+                        ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
                     }
                     List<String> nodePathList = xmindParser.getValidatedNodePath();
                     if (CollectionUtils.isNotEmpty(nodePathList)) {
@@ -1073,7 +1102,13 @@ public class TestCaseService {
                     if (CollectionUtils.isNotEmpty(continueCaseList)) {
                         Collections.reverse(continueCaseList);
                         this.saveImportData(continueCaseList, projectId);
+                        names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
+                        ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
+
                     }
+                    request.setAttribute("ms-req-title", String.join(",", names));
+                    request.setAttribute("ms-req-source-id", JSON.toJSONString(ids));
+
                 }
                 xmindParser.clear();
             } catch (Exception e) {
@@ -1096,7 +1131,8 @@ public class TestCaseService {
 
                 //读取excel数据
                 EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
-
+                request.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
+                request.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
                 errList = easyExcelListener.getErrList();
                 isUpdated = easyExcelListener.isUpdated();
             } catch (Exception e) {
@@ -1114,5 +1150,39 @@ public class TestCaseService {
         }
 
         return excelResponse;
+    }
+
+    public String getLogDetails(String id) {
+        TestCaseWithBLOBs bloBs = testCaseMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, TestCaseReference.testCaseColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogBeforeDetails(String id) {
+        TestPlanTestCaseWithBLOBs bloBs = testPlanTestCaseMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            String testCaseId = testPlanTestCaseMapper.selectByPrimaryKey(id).getCaseId();
+            TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, TestCaseReference.testCaseColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(testCaseWithBLOBs.getId()), testCaseWithBLOBs.getProjectId(), testCaseWithBLOBs.getName(), testCaseWithBLOBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestCase> definitions = testCaseMapper.selectByExample(example);
+            List<String> names = definitions.stream().map(TestCase::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }
