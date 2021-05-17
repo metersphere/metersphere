@@ -41,8 +41,11 @@
             <span class="ms-report-time-desc">
               {{ $t('report.test_start_time') }}：{{ startTime }}
             </span>
-            <span class="ms-report-time-desc">
+            <span class="ms-report-time-desc" v-if="report.status === 'Completed'">
               {{ $t('report.test_end_time') }}：{{ endTime }}
+            </span>
+            <span class="ms-report-time-desc" v-else>
+              {{ $t('report.test_end_time') }}：-
             </span>
           </el-col>
           <el-col :span="2">
