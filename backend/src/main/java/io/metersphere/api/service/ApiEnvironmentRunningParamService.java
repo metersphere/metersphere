@@ -1,19 +1,14 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONArray;
-import io.metersphere.base.domain.ApiEnvironmentRunningParam;
-import io.metersphere.base.domain.ApiEnvironmentRunningParamExample;
-import io.metersphere.base.mapper.ApiEnvironmentRunningParamMapper;
-import io.metersphere.commons.utils.SessionUtils;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.exception.MSException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * @author song.tianyang
@@ -23,66 +18,75 @@ import java.util.UUID;
 @Transactional(rollbackFor = Exception.class)
 public class ApiEnvironmentRunningParamService {
     @Resource
-    ApiEnvironmentRunningParamMapper apiEnvironmentRunningParamMapper;
+    ApiTestEnvironmentService apiTestEnvironmentService;
 
     public synchronized void addParam(String enviromentId, String key, String value) {
         if(StringUtils.isEmpty(key)){
             return;
         }
-        ApiEnvironmentRunningParamExample example = new ApiEnvironmentRunningParamExample();
-        example.createCriteria().andApiEnviromentIdEqualTo(enviromentId).andKeyEqualTo(key);
-        List<ApiEnvironmentRunningParam> list = apiEnvironmentRunningParamMapper.selectByExampleWithBLOBs(example);
-        long timeStamp = System.currentTimeMillis();
-        String userId = SessionUtils.getUserId();
-        if(list.isEmpty()){
-            ApiEnvironmentRunningParam model = new ApiEnvironmentRunningParam();
-            model.setApiEnviromentId(enviromentId);
-            model.setKey(key);
-            model.setValue(value);
-            model.setCreateUserId(userId);
-            model.setId(UUID.randomUUID().toString());
-            model.setCreateTime(timeStamp);
-            model.setUpdateTime(timeStamp);
-            model.setUpdateUserId(userId);
-            apiEnvironmentRunningParamMapper.insert(model);
+        ApiTestEnvironmentWithBLOBs apiTestEnvironmentWithBLOBs = apiTestEnvironmentService.get(enviromentId);
+        if(apiTestEnvironmentWithBLOBs == null ){
+            MSException.throwException("Unable find environment!");
+        }
+
+        JSONObject configObj = JSONObject.parseObject(apiTestEnvironmentWithBLOBs.getConfig());
+        if(configObj.containsKey("commonConfig")){
+            JSONObject commonConfig = configObj.getJSONObject("commonConfig");
+            if(commonConfig.containsKey("variables")){
+                JSONArray variables = commonConfig.getJSONArray("variables");
+                boolean contains = false;
+                for(int i = 0;i<variables.size();i++){
+                    JSONObject jsonObj = variables.getJSONObject(i);
+                    if(jsonObj.containsKey("name")&&StringUtils.equals(jsonObj.getString("name"), key)){
+                        contains = true;
+                        jsonObj.put("value",value);
+                    }
+                }
+                if(!contains){
+                    JSONObject itemObj = new JSONObject();
+                    itemObj.put("name",key);
+                    itemObj.put("value",value);
+                    itemObj.put("enable",true);
+
+                    if(variables.size() == 0){
+                        variables.add(itemObj);
+                    }else {
+                        variables.add(variables.size()-1,itemObj);
+                    }
+                    commonConfig.put("variables",variables);
+                }
+            }else {
+                JSONArray variables = new JSONArray();
+                JSONObject itemObj = new JSONObject();
+                itemObj.put("name",key);
+                itemObj.put("value",value);
+                itemObj.put("enable",true);
+
+                JSONObject emptyObj = new JSONObject();
+                emptyObj.put("enable",true);
+
+                variables.add(itemObj);
+                variables.add(emptyObj);
+                commonConfig.put("variables",variables);
+            }
         }else {
-            ApiEnvironmentRunningParam model = list.get(0);
-            model.setValue(value);
-            model.setUpdateTime(timeStamp);
-            model.setUpdateUserId(userId);
-            apiEnvironmentRunningParamMapper.updateByPrimaryKeySelective(model);
+            JSONObject commonConfig = new JSONObject();
+            JSONArray variables = new JSONArray();
+            JSONObject itemObj = new JSONObject();
+            itemObj.put("name",key);
+            itemObj.put("value",value);
+            itemObj.put("enable",true);
+
+            JSONObject emptyObj = new JSONObject();
+            emptyObj.put("enable",true);
+
+            variables.add(itemObj);
+            variables.add(emptyObj);
+            commonConfig.put("variables",variables);
+            configObj.put("commonConfig",commonConfig);
         }
+        apiTestEnvironmentWithBLOBs.setConfig(configObj.toJSONString());
+        apiTestEnvironmentService.update(apiTestEnvironmentWithBLOBs);
     }
 
-    public void deleteParam(String enviromentId, String key) {
-        ApiEnvironmentRunningParamExample example = new ApiEnvironmentRunningParamExample();
-        example.createCriteria().andApiEnviromentIdEqualTo(enviromentId).andKeyEqualTo(key);
-        apiEnvironmentRunningParamMapper.deleteByExample(example);
-    }
-
-    public String getParam(String enviromentId, String key) {
-        ApiEnvironmentRunningParamExample example = new ApiEnvironmentRunningParamExample();
-        example.createCriteria().andApiEnviromentIdEqualTo(enviromentId).andKeyEqualTo(key);
-        List<ApiEnvironmentRunningParam> list = apiEnvironmentRunningParamMapper.selectByExampleWithBLOBs(example);
-        if(list.isEmpty()){
-            return  "";
-        }else {
-            return list.get(0).getValue();
-        }
-    }
-
-    public String showParams(String enviromentId) {
-        Map<String,String> paramMap = new LinkedHashMap<>();
-
-        ApiEnvironmentRunningParamExample example = new ApiEnvironmentRunningParamExample();
-        example.createCriteria().andApiEnviromentIdEqualTo(enviromentId);
-        List<ApiEnvironmentRunningParam> list = apiEnvironmentRunningParamMapper.selectByExampleWithBLOBs(example);
-
-        for (ApiEnvironmentRunningParam model:
-             list) {
-            paramMap.put(model.getKey(),model.getValue());
-        }
-
-        return JSONArray.toJSONString(paramMap);
-    }
 }
