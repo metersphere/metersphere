@@ -71,8 +71,8 @@ export const ISSUE_STATUS_MAP = {
 
 export const USER_GROUP_SCOPE = {
   // todo i18n
-  'system': '系统',
-  'organization': '组织',
-  'workspace': '工作空间',
-  'project': '项目'
+  'SYSTEM': '系统',
+  'ORGANIZATION': '组织',
+  'WORKSPACE': '工作空间',
+  'PROJECT': '项目'
 }

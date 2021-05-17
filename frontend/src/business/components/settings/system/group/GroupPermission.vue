@@ -1,7 +1,9 @@
 <template>
   <div>
-    <span v-for="(permission, index) in permissions" :key="index" style="margin-left: 25px;">
-      <el-checkbox v-model="permission['checked']" @change="change($event, permission)">{{ permission.name }}</el-checkbox>
+    <span v-for="(permission, index) in permissions" :key="index" style="margin-right: 25px;">
+      <el-checkbox v-model="permission['checked']" @change="change($event, permission)">
+        {{ permission.name }}
+      </el-checkbox>
     </span>
   </div>
 </template>

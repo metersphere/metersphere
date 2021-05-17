@@ -47,6 +47,13 @@ public class GroupService {
     @Resource
     private UserGroupPermissionMapper userGroupPermissionMapper;
 
+    private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4){{
+        put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+        put(UserGroupType.ORGANIZATION, Arrays.asList(UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+        put(UserGroupType.WORKSPACE, Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+        put(UserGroupType.PROJECT, Collections.singletonList(UserGroupType.PROJECT));
+    }};
+
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
         List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(user.getId());
@@ -105,7 +112,11 @@ public class GroupService {
                 group = JSON.parseObject(permission, GroupJson.class);
                 List<GroupResource> resource = group.getResource();
                 List<GroupPermission> permissions = group.getPermissions();
-                getPermission(resource, permissions, type, dto, permissionList);
+                List<GroupResourceDTO> dtoPermissions = dto.getPermissions();
+                List<String> groups = map.get(type);
+                for (String gp : groups) {
+                    dtoPermissions.addAll(getResourcePermission(resource, permissions, gp, permissionList));
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -140,12 +151,6 @@ public class GroupService {
         });
         sqlSession.flushStatements();
     }
-
-
-
-
-
-
 
     private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, List<String> permissionList) {
         List<GroupResourceDTO> dto = new ArrayList<>();
@@ -187,59 +192,18 @@ public class GroupService {
 
         return new Pager<>();
     }
-    
-    private void getPermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, GroupPermissionDTO dto, List<String> permissionList) {
-        dto.setSystem(getResourcePermission(resource, permissions, "SYSTEM", permissionList));
-        dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION", permissionList));
-        dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
-        dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
-        switch (type) {
-            case "SYSTEM":
-                dto.setSystem(getResourcePermission(resource, permissions, "SYSTEM", permissionList));
-                dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION", permissionList));
-                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
-                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
-                break;
-            case "ORGANIZATION":
-                dto.setOrganization(getResourcePermission(resource, permissions, "ORGANIZATION", permissionList));
-                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
-                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
-                break;
-            case "WORKSPACE":
-                dto.setWorkspace(getResourcePermission(resource, permissions, "WORKSPACE", permissionList));
-                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
-                break;
-            case "PROJECT":
-                dto.setProject(getResourcePermission(resource, permissions, "PROJECT", permissionList));
-                break;
-            default:
-        }
-    }
-
 
     private Pager<List<GroupDTO>> getUserGroup(String groupType, EditGroupRequest request) {
-        List<String> types = new ArrayList<>();
+        List<String> types;
         String orgId = SessionUtils.getCurrentOrganizationId();
         List<String> scopes = Arrays.asList("global", orgId);
         int goPage = request.getGoPage();
         int pageSize = request.getPageSize();
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        switch (groupType) {
-            case UserGroupType.SYSTEM:
-                types = Arrays.asList(UserGroupType.SYSTEM,UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT);
-                scopes = new ArrayList<>();
-                break;
-            case UserGroupType.ORGANIZATION:
-                types = Arrays.asList(UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT);
-                break;
-            case UserGroupType.WORKSPACE:
-                types = Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT);
-                break;
-            case UserGroupType.PROJECT:
-                types.add(UserGroupType.PROJECT);
-                break;
-            default:
+        if (StringUtils.equals(groupType, UserGroupType.SYSTEM)) {
+            scopes = new ArrayList<>();
         }
+        types = map.get(groupType);
         request.setTypes(types);
         request.setScopes(scopes);
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);

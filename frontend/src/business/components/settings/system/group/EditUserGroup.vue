@@ -12,10 +12,10 @@
         <el-col :span="11" :offset="2">
           <el-form-item label="所属类型">
             <el-select v-model="form.type" placeholder="请选择所属类型" style="width: 100%">
-              <el-option label="系统" value="system"></el-option>
-              <el-option label="组织" value="organization"></el-option>
-              <el-option label="工作空间" value="workspace"></el-option>
-              <el-option label="项目" value="project"></el-option>
+              <el-option label="系统" value="SYSTEM"></el-option>
+              <el-option label="组织" value="ORGANIZATION"></el-option>
+              <el-option label="工作空间" value="WORKSPACE"></el-option>
+              <el-option label="项目" value="PROJECT"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
