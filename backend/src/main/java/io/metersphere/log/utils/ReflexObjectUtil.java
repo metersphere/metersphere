@@ -1,11 +1,15 @@
 package io.metersphere.log.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.flipkart.zjsonpatch.JsonDiff;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.log.utils.dff.Diff;
+import io.metersphere.log.utils.dff.JsonDiff;
+import io.metersphere.log.utils.dff.Operation;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +52,11 @@ public class ReflexObjectUtil {
                         DetailColumn column = new DetailColumn(columns.get(f.getName()), f.getName(), val, "");
                         if (dffColumns.contains(f.getName())) {
                             column.setDepthDff(true);
+                            if (val != null) {
+                                JSONObject object = JSONObject.parseObject(val.toString());
+                                String pretty = JSON.toJSONString(object, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+                                column.setOriginalValue(pretty);
+                            }
                         }
                         columnList.add(column);
                     }
@@ -79,16 +88,45 @@ public class ReflexObjectUtil {
                 List<DetailColumn> newColumns = newObj.getColumns();
                 for (int i = 0; i < originalColumns.size(); i++) {
                     if (!StringUtils.equals(JSON.toJSONString(originalColumns.get(i).getOriginalValue()), JSON.toJSONString(newColumns.get(i).getOriginalValue()))) {
-                        if (originalColumns.get(i).isDepthDff()) {
+                        // 深度对比
+                        if (originalColumns.get(i).isDepthDff() && originalColumns.get(i).getOriginalValue() != null && newColumns.get(i).getOriginalValue() != null) {
                             ObjectMapper mapper = new ObjectMapper();
-                            JsonNode source = mapper.readTree(JSON.toJSONString(originalColumns.get(i).getOriginalValue()));
-                            JsonNode target = mapper.readTree(JSON.toJSONString(newColumns.get(i).getOriginalValue()));
-                            JsonNode before = JsonDiff.asJson(target, source);
-                            JsonNode after = JsonDiff.asJson(source, target);
+                            JsonNode source = mapper.readTree(originalColumns.get(i).getOriginalValue().toString());
+                            JsonNode target = mapper.readTree(newColumns.get(i).getOriginalValue().toString());
+                            List<Diff> after = JsonDiff.jsonDiff(source, target);
+
+                            StringBuilder addBuff = new StringBuilder();
+                            StringBuilder removeBuff = new StringBuilder();
+                            StringBuilder repBuff = new StringBuilder();
+                            StringBuilder oldValue = new StringBuilder();
+                            for (Diff item : after) {
+                                if (item.getOperation().equals(Operation.ADD)) {
+                                    addBuff.append(item.getPath() + "：" + item.getValue()).append("/n");
+                                }
+                                if (item.getOperation().equals(Operation.REMOVE)) {
+                                    removeBuff.append(item.getPath() + "：" + item.getValue()).append("/n");
+                                }
+                                if (item.getOperation().equals(Operation.REPLACE)) {
+                                    repBuff.append(item.getPath() + "：" + item.getValue()).append("/n");
+                                    oldValue.append(item.getPath() + "：" + item.getSrcValue()).append("/n");
+                                }
+                            }
+                            StringBuilder newValue = new StringBuilder();
+                            if (addBuff != null && addBuff.toString().length() > 0) {
+                                newValue.append("添加：").append(addBuff).append("/n");
+                            }
+                            if (removeBuff != null && removeBuff.toString().length() > 0) {
+                                newValue.append("移除：").append(removeBuff).append("/n");
+                            }
+                            if (repBuff != null && repBuff.toString().length() > 0) {
+                                newValue.append("修改：").append(repBuff).append("/n");
+                            }
                             DetailColumn column = new DetailColumn();
                             BeanUtils.copyBean(column, originalColumns.get(i));
-                            column.setOriginalValue(before.toString());
-                            column.setNewValue(after.toString());
+                            if (oldValue != null && oldValue.length() > 0) {
+                                column.setOriginalValue(oldValue);
+                            }
+                            column.setNewValue(newValue);
                             comparedColumns.add(column);
                         } else {
                             DetailColumn column = new DetailColumn();

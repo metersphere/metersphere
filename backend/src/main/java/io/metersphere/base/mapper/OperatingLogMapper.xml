@@ -5,15 +5,18 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="oper_method" jdbcType="VARCHAR" property="operMethod" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="oper_user" jdbcType="VARCHAR" property="operUser" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
     <result column="oper_type" jdbcType="VARCHAR" property="operType" />
     <result column="oper_module" jdbcType="VARCHAR" property="operModule" />
     <result column="oper_title" jdbcType="VARCHAR" property="operTitle" />
+    <result column="oper_path" jdbcType="VARCHAR" property="operPath" />
     <result column="oper_time" jdbcType="BIGINT" property="operTime" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.OperatingLog">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.OperatingLogWithBLOBs">
     <result column="oper_content" jdbcType="LONGVARCHAR" property="operContent" />
+    <result column="oper_params" jdbcType="LONGVARCHAR" property="operParams" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -74,11 +77,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, oper_method, oper_user, source_id, oper_type, oper_module, oper_title, 
-    oper_time
+    id, project_id, oper_method, create_user, oper_user, source_id, oper_type, oper_module, 
+    oper_title, oper_path, oper_time
   </sql>
   <sql id="Blob_Column_List">
-    oper_content
+    oper_content, oper_params
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.OperatingLogExample" resultMap="ResultMapWithBLOBs">
     select
@@ -128,17 +131,19 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.OperatingLog">
+  <insert id="insert" parameterType="io.metersphere.base.domain.OperatingLogWithBLOBs">
     insert into operating_log (id, project_id, oper_method, 
-      oper_user, source_id, oper_type, 
-      oper_module, oper_title, oper_time, 
-      oper_content)
+      create_user, oper_user, source_id, 
+      oper_type, oper_module, oper_title, 
+      oper_path, oper_time, oper_content, 
+      oper_params)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{operMethod,jdbcType=VARCHAR}, 
-      #{operUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{operType,jdbcType=VARCHAR}, 
-      #{operModule,jdbcType=VARCHAR}, #{operTitle,jdbcType=VARCHAR}, #{operTime,jdbcType=BIGINT}, 
-      #{operContent,jdbcType=LONGVARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{operUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
+      #{operType,jdbcType=VARCHAR}, #{operModule,jdbcType=VARCHAR}, #{operTitle,jdbcType=VARCHAR}, 
+      #{operPath,jdbcType=VARCHAR}, #{operTime,jdbcType=BIGINT}, #{operContent,jdbcType=LONGVARCHAR}, 
+      #{operParams,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.OperatingLog">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.OperatingLogWithBLOBs">
     insert into operating_log
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -149,6 +154,9 @@
       </if>
       <if test="operMethod != null">
         oper_method,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="operUser != null">
         oper_user,
@@ -165,11 +173,17 @@
       <if test="operTitle != null">
         oper_title,
       </if>
+      <if test="operPath != null">
+        oper_path,
+      </if>
       <if test="operTime != null">
         oper_time,
       </if>
       <if test="operContent != null">
         oper_content,
+      </if>
+      <if test="operParams != null">
+        oper_params,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -181,6 +195,9 @@
       </if>
       <if test="operMethod != null">
         #{operMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="operUser != null">
         #{operUser,jdbcType=VARCHAR},
@@ -197,11 +214,17 @@
       <if test="operTitle != null">
         #{operTitle,jdbcType=VARCHAR},
       </if>
+      <if test="operPath != null">
+        #{operPath,jdbcType=VARCHAR},
+      </if>
       <if test="operTime != null">
         #{operTime,jdbcType=BIGINT},
       </if>
       <if test="operContent != null">
         #{operContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="operParams != null">
+        #{operParams,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -223,6 +246,9 @@
       <if test="record.operMethod != null">
         oper_method = #{record.operMethod,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.operUser != null">
         oper_user = #{record.operUser,jdbcType=VARCHAR},
       </if>
@@ -238,11 +264,17 @@
       <if test="record.operTitle != null">
         oper_title = #{record.operTitle,jdbcType=VARCHAR},
       </if>
+      <if test="record.operPath != null">
+        oper_path = #{record.operPath,jdbcType=VARCHAR},
+      </if>
       <if test="record.operTime != null">
         oper_time = #{record.operTime,jdbcType=BIGINT},
       </if>
       <if test="record.operContent != null">
         oper_content = #{record.operContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.operParams != null">
+        oper_params = #{record.operParams,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -254,13 +286,16 @@
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       oper_method = #{record.operMethod,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       oper_user = #{record.operUser,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       oper_type = #{record.operType,jdbcType=VARCHAR},
       oper_module = #{record.operModule,jdbcType=VARCHAR},
       oper_title = #{record.operTitle,jdbcType=VARCHAR},
+      oper_path = #{record.operPath,jdbcType=VARCHAR},
       oper_time = #{record.operTime,jdbcType=BIGINT},
-      oper_content = #{record.operContent,jdbcType=LONGVARCHAR}
+      oper_content = #{record.operContent,jdbcType=LONGVARCHAR},
+      oper_params = #{record.operParams,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -270,17 +305,19 @@
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       oper_method = #{record.operMethod,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       oper_user = #{record.operUser,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       oper_type = #{record.operType,jdbcType=VARCHAR},
       oper_module = #{record.operModule,jdbcType=VARCHAR},
       oper_title = #{record.operTitle,jdbcType=VARCHAR},
+      oper_path = #{record.operPath,jdbcType=VARCHAR},
       oper_time = #{record.operTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.OperatingLog">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.OperatingLogWithBLOBs">
     update operating_log
     <set>
       <if test="projectId != null">
@@ -288,6 +325,9 @@
       </if>
       <if test="operMethod != null">
         oper_method = #{operMethod,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="operUser != null">
         oper_user = #{operUser,jdbcType=VARCHAR},
@@ -304,37 +344,48 @@
       <if test="operTitle != null">
         oper_title = #{operTitle,jdbcType=VARCHAR},
       </if>
+      <if test="operPath != null">
+        oper_path = #{operPath,jdbcType=VARCHAR},
+      </if>
       <if test="operTime != null">
         oper_time = #{operTime,jdbcType=BIGINT},
       </if>
       <if test="operContent != null">
         oper_content = #{operContent,jdbcType=LONGVARCHAR},
       </if>
+      <if test="operParams != null">
+        oper_params = #{operParams,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.OperatingLog">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.OperatingLogWithBLOBs">
     update operating_log
     set project_id = #{projectId,jdbcType=VARCHAR},
       oper_method = #{operMethod,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       oper_user = #{operUser,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
       oper_type = #{operType,jdbcType=VARCHAR},
       oper_module = #{operModule,jdbcType=VARCHAR},
       oper_title = #{operTitle,jdbcType=VARCHAR},
+      oper_path = #{operPath,jdbcType=VARCHAR},
       oper_time = #{operTime,jdbcType=BIGINT},
-      oper_content = #{operContent,jdbcType=LONGVARCHAR}
+      oper_content = #{operContent,jdbcType=LONGVARCHAR},
+      oper_params = #{operParams,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.OperatingLog">
     update operating_log
     set project_id = #{projectId,jdbcType=VARCHAR},
       oper_method = #{operMethod,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       oper_user = #{operUser,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
       oper_type = #{operType,jdbcType=VARCHAR},
       oper_module = #{operModule,jdbcType=VARCHAR},
       oper_title = #{operTitle,jdbcType=VARCHAR},
+      oper_path = #{operPath,jdbcType=VARCHAR},
       oper_time = #{operTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>

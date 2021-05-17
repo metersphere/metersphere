@@ -2,8 +2,10 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.OperatingLog;
 import io.metersphere.base.domain.OperatingLogExample;
-import java.util.List;
+import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface OperatingLogMapper {
     long countByExample(OperatingLogExample example);
@@ -12,25 +14,25 @@ public interface OperatingLogMapper {
 
     int deleteByPrimaryKey(String id);
 
-    int insert(OperatingLog record);
+    int insert(OperatingLogWithBLOBs record);
 
-    int insertSelective(OperatingLog record);
+    int insertSelective(OperatingLogWithBLOBs record);
 
-    List<OperatingLog> selectByExampleWithBLOBs(OperatingLogExample example);
+    List<OperatingLogWithBLOBs> selectByExampleWithBLOBs(OperatingLogExample example);
 
     List<OperatingLog> selectByExample(OperatingLogExample example);
 
-    OperatingLog selectByPrimaryKey(String id);
+    OperatingLogWithBLOBs selectByPrimaryKey(String id);
 
-    int updateByExampleSelective(@Param("record") OperatingLog record, @Param("example") OperatingLogExample example);
+    int updateByExampleSelective(@Param("record") OperatingLogWithBLOBs record, @Param("example") OperatingLogExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") OperatingLog record, @Param("example") OperatingLogExample example);
+    int updateByExampleWithBLOBs(@Param("record") OperatingLogWithBLOBs record, @Param("example") OperatingLogExample example);
 
     int updateByExample(@Param("record") OperatingLog record, @Param("example") OperatingLogExample example);
 
-    int updateByPrimaryKeySelective(OperatingLog record);
+    int updateByPrimaryKeySelective(OperatingLogWithBLOBs record);
 
-    int updateByPrimaryKeyWithBLOBs(OperatingLog record);
+    int updateByPrimaryKeyWithBLOBs(OperatingLogWithBLOBs record);
 
     int updateByPrimaryKey(OperatingLog record);
 }

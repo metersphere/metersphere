@@ -324,6 +324,7 @@ public class ApiDefinitionService {
         test.setProtocol(request.getProtocol());
         test.setMethod(request.getMethod());
         test.setPath(request.getPath());
+        test.setCreateUser(SessionUtils.getUserId());
         test.setProjectId(request.getProjectId());
         request.getRequest().setId(request.getId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));
@@ -1073,9 +1074,12 @@ public class ApiDefinitionService {
 
     public String getLogDetails(String id) {
         ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
-        List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
-        OperatingLogDetails details = new OperatingLogDetails(id, bloBs.getProjectId(), columns);
-        return JSON.toJSONString(details);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
+            OperatingLogDetails details = new OperatingLogDetails(id, bloBs.getProjectId(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 
     public String getLogDetails(List<String> ids) {
@@ -1084,7 +1088,7 @@ public class ApiDefinitionService {
             example.createCriteria().andIdIn(ids);
             List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
             List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), new LinkedList<>());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
@@ -1096,29 +1100,31 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(request.getIds());
             List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
-            List<DetailColumn> columns = new LinkedList<>();
-            if (StringUtils.isNotEmpty(request.getMethod())) {
-                columns.clear();
-                definitions.forEach(item -> {
-                    DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("method"), "method", item.getMethod(), null);
-                    columns.add(column);
-                });
-            } else if (StringUtils.isNotEmpty(request.getStatus())) {
-                columns.clear();
-                definitions.forEach(item -> {
-                    DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", item.getStatus(), null);
-                    columns.add(column);
-                });
-            } else if (StringUtils.isNotEmpty(request.getUserId())) {
-                columns.clear();
-                definitions.forEach(item -> {
-                    DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
-                    columns.add(column);
-                });
+            if (CollectionUtils.isNotEmpty(definitions)) {
+                List<DetailColumn> columns = new LinkedList<>();
+                if (StringUtils.isNotEmpty(request.getMethod())) {
+                    columns.clear();
+                    definitions.forEach(item -> {
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("method"), "method", item.getMethod(), null);
+                        columns.add(column);
+                    });
+                } else if (StringUtils.isNotEmpty(request.getStatus())) {
+                    columns.clear();
+                    definitions.forEach(item -> {
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", item.getStatus(), null);
+                        columns.add(column);
+                    });
+                } else if (StringUtils.isNotEmpty(request.getUserId())) {
+                    columns.clear();
+                    definitions.forEach(item -> {
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
+                        columns.add(column);
+                    });
+                }
+                List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), columns);
+                return JSON.toJSONString(details);
             }
-            List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(),String.join(",",names), columns);
-            return JSON.toJSONString(details);
         }
         return null;
     }

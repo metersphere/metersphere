@@ -35,3 +35,23 @@ CREATE TABLE IF NOT EXISTS api_environment_running_param  (
 alter table schedule
     add config VARCHAR(500) null;
 
+CREATE TABLE `operating_log` (
+  `id` varchar(50) NOT NULL COMMENT 'ID',
+  `project_id` varchar(50) NOT NULL COMMENT 'Project ID',
+	`oper_method` varchar(500) DEFAULT NULL COMMENT 'operating method',
+	`create_user` varchar(100) DEFAULT NULL COMMENT 'source create u',
+  `oper_user` varchar(50) DEFAULT NULL COMMENT 'operating user id',
+	`source_id` varchar(2000) DEFAULT NULL COMMENT 'operating source id',
+  `oper_type` varchar(100) DEFAULT NULL COMMENT 'operating type',
+  `oper_module` varchar(64) DEFAULT NULL COMMENT 'operating module',
+  `oper_title` varchar(2000) DEFAULT NULL COMMENT 'operating title',
+  `oper_path` varchar(500) DEFAULT NULL COMMENT 'operating path',
+	`oper_content` longtext COMMENT 'operating content',
+	`oper_params` longtext COMMENT 'operating parrams',
+  `oper_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- add all table create_user
+ALTER TABLE api_definition  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_module  ADD create_user VARCHAR(100) NULL;

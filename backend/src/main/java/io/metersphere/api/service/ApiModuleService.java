@@ -13,18 +13,23 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.definition.DefinitionReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -108,6 +113,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
+        node.setCreateUser(SessionUtils.getUserId());
         double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
         node.setPos(pos);
         apiModuleMapper.insertSelective(node);
@@ -375,5 +381,51 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             apiModuleMapper.insertSelective(node);
             return node;
         }
+    }
+
+    public String getLogDetails(List<String> ids) {
+        ApiModuleExample example = new ApiModuleExample();
+        ApiModuleExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(ids);
+        List<ApiModule> nodes = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(nodes)) {
+            List<String> names = nodes.stream().map(ApiModule::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), nodes.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(ApiModule node) {
+        ApiModule module = null;
+        if (StringUtils.isNotEmpty(node.getId())) {
+            module = apiModuleMapper.selectByPrimaryKey(node.getId());
+        }
+        if (module == null && StringUtils.isNotEmpty(node.getName())) {
+            ApiModuleExample example = new ApiModuleExample();
+            ApiModuleExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(node.getName()).andProjectIdEqualTo(node.getProjectId());
+            if (StringUtils.isNotEmpty(node.getProtocol())) {
+                criteria.andProtocolEqualTo(node.getProtocol());
+            }
+            if (StringUtils.isNotEmpty(node.getParentId())) {
+                criteria.andParentIdEqualTo(node.getParentId());
+            } else {
+                criteria.andParentIdIsNull();
+            }
+            if (StringUtils.isNotEmpty(node.getId())) {
+                criteria.andIdNotEqualTo(node.getId());
+            }
+            List<ApiModule> list = apiModuleMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(list)) {
+                module = list.get(0);
+            }
+        }
+        if (module != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(module, DefinitionReference.moduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(module.getId(), module.getProjectId(), module.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

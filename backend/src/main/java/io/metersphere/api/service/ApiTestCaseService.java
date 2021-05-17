@@ -24,6 +24,10 @@ import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.definition.DefinitionReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.UserService;
@@ -704,5 +708,49 @@ public class ApiTestCaseService {
         }
 
         return list;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        ApiTestCaseExample.Criteria criteria = example.createCriteria();
+        criteria.andIdIn(ids);
+        List<ApiTestCase> nodes = apiTestCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(nodes)) {
+            List<String> names = nodes.stream().map(ApiTestCase::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), nodes.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUserId(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(String id) {
+        ApiTestCaseWithBLOBs bloBs = apiTestCaseMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            OperatingLogDetails details = new OperatingLogDetails(id, bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUserId(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(SaveApiTestCaseRequest request) {
+        ApiTestCaseWithBLOBs bloBs = null;
+        if (StringUtils.isNotEmpty(request.getId())) {
+            bloBs = apiTestCaseMapper.selectByPrimaryKey(request.getId());
+        }
+        if (bloBs == null && StringUtils.isNotEmpty(request.getName())) {
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            ApiTestCaseExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
+            List<ApiTestCaseWithBLOBs> list = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+            if (CollectionUtils.isNotEmpty(list)) {
+                bloBs = list.get(0);
+            }
+        }
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.caseColumns);
+            OperatingLogDetails details = new OperatingLogDetails(bloBs.getId(), bloBs.getProjectId(), bloBs.getCreateUserId(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

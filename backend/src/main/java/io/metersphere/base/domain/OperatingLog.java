@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class OperatingLog implements Serializable {
@@ -10,6 +11,8 @@ public class OperatingLog implements Serializable {
     private String projectId;
 
     private String operMethod;
+
+    private String createUser;
 
     private String operUser;
 
@@ -21,9 +24,9 @@ public class OperatingLog implements Serializable {
 
     private String operTitle;
 
-    private Long operTime;
+    private String operPath;
 
-    private String operContent;
+    private Long operTime;
 
     private static final long serialVersionUID = 1L;
 }

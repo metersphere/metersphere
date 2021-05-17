@@ -2,6 +2,9 @@
 
   <el-dialog :close-on-click-modal="false" :title="getType(detail.operType)+title" :visible.sync="infoVisible" width="60%" :destroy-on-close="true"
              @close="handleClose">
+    <div v-if="detail.createUser">
+      <p class="tip">{{ this.$t('report.user_name') }} ：{{detail.createUser}}</p>
+    </div>
     <div>
       <p class="tip">{{ this.$t('operating_log.user') }} ：{{detail.operUser}}</p>
     </div>
@@ -26,7 +29,7 @@
       </div>
       <div v-else>
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
-          <p v-for="n in detail.details.columns" :key="n.id">{{n.columnTitle}}：{{n.originalValue}}</p>
+          <pre style="overflow: auto" v-for="n in detail.details.columns" :key="n.id">{{n.columnTitle}}：{{n.originalValue}}</pre>
         </div>
       </div>
     </div>
