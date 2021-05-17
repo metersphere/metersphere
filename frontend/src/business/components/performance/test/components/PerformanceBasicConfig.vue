@@ -328,7 +328,7 @@ export default {
         return false;
       }
 
-      if (this.threadGroups.filter(tg => tg.attributes.enabled == 'true').length === 0) {
+      if (this.threadGroups.filter(tg => tg.enabled == 'true').length === 0) {
         this.$error(this.$t('load_test.threadgroup_at_least_one'));
         return false;
       }
