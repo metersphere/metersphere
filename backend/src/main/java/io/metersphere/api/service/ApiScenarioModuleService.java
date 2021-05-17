@@ -12,7 +12,12 @@ import io.metersphere.base.mapper.ApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.definition.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanProjectService;
@@ -98,6 +103,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         node.setId(UUID.randomUUID().toString());
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
+        node.setCreateUser(SessionUtils.getUserId());
         double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
         node.setPos(pos);
         apiScenarioModuleMapper.insertSelective(node);
@@ -324,4 +330,45 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         sqlSession.flushStatements();
     }
 
+    public String getLogDetails(List<String> ids) {
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenarioModule> nodes = apiScenarioModuleMapper.selectByExample(example);
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(nodes)) {
+            List<String> names = nodes.stream().map(ApiScenarioModule::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), nodes.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(ApiScenarioModule node) {
+        ApiScenarioModule module = null;
+        if (StringUtils.isNotEmpty(node.getId())) {
+            module = apiScenarioModuleMapper.selectByPrimaryKey(node.getId());
+        }
+        if (module == null && StringUtils.isNotEmpty(node.getName())) {
+            ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+            ApiScenarioModuleExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(node.getName()).andProjectIdEqualTo(node.getProjectId());
+            if (StringUtils.isNotEmpty(node.getParentId())) {
+                criteria.andParentIdEqualTo(node.getParentId());
+            } else {
+                criteria.andParentIdIsNull();
+            }
+            if (StringUtils.isNotEmpty(node.getId())) {
+                criteria.andIdNotEqualTo(node.getId());
+            }
+            List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(list)) {
+                module = list.get(0);
+            }
+        }
+        if (module != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(module, ModuleReference.moduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(module.getId()), module.getProjectId(), module.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

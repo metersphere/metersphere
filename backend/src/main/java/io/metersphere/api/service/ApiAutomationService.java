@@ -35,6 +35,10 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.job.sechedule.TestPlanTestJob;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.definition.AutomationReference;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -314,6 +318,8 @@ public class ApiAutomationService {
         scenario.setStepTotal(request.getStepTotal());
         scenario.setUpdateTime(System.currentTimeMillis());
         scenario.setDescription(request.getDescription());
+        scenario.setCreateUser(SessionUtils.getUserId());
+
         scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         if (StringUtils.isNotEmpty(request.getStatus())) {
             scenario.setStatus(request.getStatus());
@@ -650,6 +656,7 @@ public class ApiAutomationService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
+        report.setCreateUser(SessionUtils.getUserId());
         return report;
     }
 
@@ -1513,6 +1520,12 @@ public class ApiAutomationService {
         }
         if (apiImport != null) {
             editScenario(request, apiImport);
+            if (CollectionUtils.isNotEmpty(apiImport.getData())) {
+                List<String> names = apiImport.getData().stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
+                List<String> ids = apiImport.getData().stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
+                request.setName(String.join(",", names));
+                request.setId(JSON.toJSONString(ids));
+            }
         }
         return apiImport;
     }
@@ -1531,6 +1544,12 @@ public class ApiAutomationService {
         result.setData(getExportResult(request));
         result.setProjectId(request.getProjectId());
         result.setVersion(System.getenv("MS_VERSION"));
+        if (CollectionUtils.isNotEmpty(result.getData())) {
+            List<String> names = result.getData().stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
+            request.setName(String.join(",", names));
+            List<String> ids = result.getData().stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
+        }
         return result;
     }
 
@@ -1547,6 +1566,12 @@ public class ApiAutomationService {
                 }
             }
         });
+        if (CollectionUtils.isNotEmpty(apiScenarioWithBLOBs)) {
+            List<String> names = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getName).collect(Collectors.toList());
+            request.setName(String.join(",", names));
+            List<String> ids = apiScenarioWithBLOBs.stream().map(ApiScenarioWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
+        }
         return resList;
     }
 
@@ -1778,5 +1803,27 @@ public class ApiAutomationService {
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.listWithIds(request.getIds());
         return list;
+    }
+
+    public String getLogDetails(String id) {
+        ApiScenarioWithBLOBs bloBs = apiScenarioMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, AutomationReference.automationColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiScenario> definitions = apiScenarioMapper.selectByExample(example);
+            List<String> names = definitions.stream().map(ApiScenario::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }
