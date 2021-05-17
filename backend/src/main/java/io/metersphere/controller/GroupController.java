@@ -41,9 +41,15 @@ public class GroupController {
         groupService.deleteGroup(id);
     }
 
-    @GetMapping("/permission")
-    public GroupPermissionDTO getGroupResource() {
-        return groupService.getGroupResource();
+    @PostMapping("/permission")
+    public GroupPermissionDTO getGroupResource(@RequestBody Group group) {
+        return groupService.getGroupResource(group);
     }
+
+    @PostMapping("/permission/edit")
+    public void EditGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
+        groupService.editGroupPermission(editGroupRequest);
+    }
+
 
 }
