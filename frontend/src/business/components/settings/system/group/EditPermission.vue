@@ -52,16 +52,6 @@ export default {
       result: {}
     }
   },
-  computed: {
-    map() {
-      return new Map([
-        ['system', ['system', 'organization', 'workspace', 'project']],
-        ['organization', ['organization', 'workspace', 'project']],
-        ['workspace', ['workspace', 'project']],
-        ['project', ['project']],
-      ])
-    }
-  },
   components: {
     GroupPermission,
     GroupOperator
@@ -71,25 +61,15 @@ export default {
       this.tableData = [];
       this.dialogVisible = true;
       this.group = Object.assign({}, row);
-      this.getGroupJson(this.group.type);
+      this.getGroupJson();
     },
-    getGroupJson(type) {
+    getGroupJson() {
       this.result = this.$post("/user/group/permission", this.group, result => {
         let data = result.data;
         if (data) {
-          this.tableData = this._getGroupPermission(data, type);
+          this.tableData = data.permissions;
         }
       })
-    },
-    _getGroupPermission(data, type) {
-      let arr = [];
-      let group = this.map.get(type);
-      if (group) {
-        group.forEach(g => {
-          arr.push(...data[g]);
-        });
-      }
-      return arr;
     },
     onSubmit() {
       let param = {};
