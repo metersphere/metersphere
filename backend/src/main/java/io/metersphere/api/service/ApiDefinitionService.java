@@ -165,25 +165,23 @@ public class ApiDefinitionService {
     }
 
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
         createTest(request);
-        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
     }
 
     public ApiDefinitionWithBLOBs update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         if (request.getRequest() != null) {
             deleteFileByTestId(request.getRequest().getId());
         }
-        List<String> bodyUploadIds = request.getBodyUploadIds();
         request.setBodyUploadIds(null);
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
         ApiDefinitionWithBLOBs returnModel = updateTest(request);
-        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
         return returnModel;
     }
 
@@ -193,7 +191,7 @@ public class ApiDefinitionService {
         extApiDefinitionExecResultMapper.deleteByResourceId(apiId);
         apiDefinitionMapper.deleteByPrimaryKey(apiId);
         esbApiParamService.deleteByResourceId(apiId);
-        deleteBodyFiles(apiId);
+        FileUtils.deleteBodyFiles(apiId);
     }
 
     public void deleteBatch(List<String> apiIds) {
@@ -212,14 +210,6 @@ public class ApiDefinitionService {
                 (query) -> extApiDefinitionMapper.selectIds(query));
         if (request.getIds() != null || !request.getIds().isEmpty()) {
             extApiDefinitionMapper.reduction(request.getIds());
-        }
-    }
-
-    public void deleteBodyFiles(String apiId) {
-        File file = new File(BODY_FILE_DIR + "/" + apiId);
-        FileUtil.deleteContents(file);
-        if (file.exists()) {
-            file.delete();
         }
     }
 
@@ -547,8 +537,6 @@ public class ApiDefinitionService {
      * @return
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        //检查是否是ESB请求：ESB请求需要根据数据结构更换参数
-        request = esbApiParamService.checkIsEsbRequest(request);
         int count = 100;
         BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
         if (StringUtils.isNotEmpty(dto.getConcurrency())) {
@@ -557,8 +545,6 @@ public class ApiDefinitionService {
         if (request.getTestElement() != null && request.getTestElement().getHashTree().size() == 1 && request.getTestElement().getHashTree().get(0).getHashTree().size() > count) {
             MSException.throwException("并发数量过大，请重新选择！");
         }
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(request.getProjectId());
@@ -572,11 +558,23 @@ public class ApiDefinitionService {
             config.setConfig(envConfig);
         }
 
+
+        List<MsHTTPSamplerProxy> requests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(request.getTestElement(), null);
+
+        // 单接口调试生成tmp临时目录
+        requests.forEach(item -> {
+            String originId = item.getId();
+            item.setId("tmp/" + UUID.randomUUID().toString());
+            FileUtils.copyBdyFile(originId, item.getId());
+            FileUtils.createBodyFiles(item.getId(), bodyFiles);
+        });
+
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
+
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
         //jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null);

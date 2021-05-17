@@ -260,6 +260,7 @@
   import ScenarioHeader from "./maximize/ScenarioHeader";
   import MsDrawer from "../../../common/components/MsDrawer";
   import MsSelectTree from "../../../common/select-tree/SelectTree";
+  import {saveScenario} from "@/business/components/api/automation/api-automation";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -898,81 +899,6 @@
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
       },
-      setFiles(item, bodyUploadFiles, obj) {
-        if (item.body) {
-          if (item.body.kvs) {
-            item.body.kvs.forEach(param => {
-              if (param.files) {
-                param.files.forEach(item => {
-                  if (item.file) {
-                    if (!item.id) {
-                      let fileId = getUUID().substring(0, 12);
-                      item.name = item.file.name;
-                      item.id = fileId;
-                    }
-                    obj.bodyUploadIds.push(item.id);
-                    bodyUploadFiles.push(item.file);
-                  }
-                });
-              }
-            });
-          }
-          if (item.body.binary) {
-            item.body.binary.forEach(param => {
-              if (param.files) {
-                param.files.forEach(item => {
-                  if (item.file) {
-                    if (!item.id) {
-                      let fileId = getUUID().substring(0, 12);
-                      item.name = item.file.name;
-                      item.id = fileId;
-                    }
-                    obj.bodyUploadIds.push(item.id);
-                    bodyUploadFiles.push(item.file);
-                  }
-                });
-              }
-            });
-          }
-        }
-      },
-      recursiveFile(arr, bodyUploadFiles, obj) {
-        arr.forEach(item => {
-          this.setFiles(item, bodyUploadFiles, obj);
-          if (item.hashTree != undefined && item.hashTree.length > 0) {
-            this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
-          }
-        });
-      },
-      getBodyUploadFiles(obj) {
-        let bodyUploadFiles = [];
-        obj.bodyUploadIds = [];
-        this.scenarioDefinition.forEach(item => {
-          this.setFiles(item, bodyUploadFiles, obj);
-          if (item.hashTree != undefined && item.hashTree.length > 0) {
-            this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
-          }
-        })
-        // 场景变量csv 文件
-        if (this.currentScenario.variables) {
-          this.currentScenario.variables.forEach(param => {
-            if (param.type === 'CSV' && param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  if (!item.id) {
-                    let fileId = getUUID().substring(0, 12);
-                    item.name = item.file.name;
-                    item.id = fileId;
-                  }
-                  obj.bodyUploadIds.push(item.id);
-                  bodyUploadFiles.push(item.file);
-                }
-              })
-            }
-          })
-        }
-        return bodyUploadFiles;
-      },
       editScenario() {
         if (!document.getElementById("inputDelay")) {
           return;
@@ -982,8 +908,7 @@
           this.$refs['currentScenario'].validate((valid) => {
             if (valid) {
               this.setParameter();
-              let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
-              this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
+              saveScenario(this.path, this.currentScenario, this.scenarioDefinition, (response) => {
                 this.$success(this.$t('commons.save_success'));
                 this.path = "/api/automation/update";
                 if (response.data) {
@@ -994,7 +919,7 @@
                 }
                 this.$emit('refresh', this.currentScenario);
                 resolve();
-              })
+              });
             }
           })
         });

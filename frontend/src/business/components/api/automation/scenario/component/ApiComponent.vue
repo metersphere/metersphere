@@ -233,9 +233,11 @@
       getEnvironments() {
         this.environment = {};
         let id = this.envMap.get(this.request.projectId);
-        this.$get('/api/environment/get/' + id, response => {
-          this.environment = response.data;
-        });
+        if (id) {
+          this.$get('/api/environment/get/' + id, response => {
+            this.environment = response.data;
+          });
+        }
       },
       remove() {
         this.$emit('remove', this.request, this.node);

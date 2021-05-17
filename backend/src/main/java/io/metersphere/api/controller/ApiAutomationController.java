@@ -75,13 +75,15 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/create")
-    public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        return apiAutomationService.create(request, bodyFiles);
+    public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles,
+                              @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
+        return apiAutomationService.create(request, bodyFiles, scenarioFiles);
     }
 
     @PostMapping(value = "/update")
-    public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        apiAutomationService.update(request, bodyFiles);
+    public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles,
+                       @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
+        apiAutomationService.update(request, bodyFiles, scenarioFiles);
     }
 
     @GetMapping("/delete/{id}")
@@ -140,9 +142,10 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/run/debug")
-    public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public void runDebug(@RequestPart("request") RunDefinitionRequest request,
+                         @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
         request.setExecuteType(ExecuteType.Debug.name());
-        apiAutomationService.debugRun(request, bodyFiles);
+        apiAutomationService.debugRun(request, bodyFiles, scenarioFiles);
     }
 
     @PostMapping(value = "/run")

@@ -60,6 +60,7 @@
   import {WORKSPACE_ID} from '@/common/js/constants';
   import {getCurrentUser, getUUID} from "@/common/js/utils";
   import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+  import {saveScenario} from "@/business/components/api/automation/api-automation";
 
   export default {
     name: "MsAddBasisScenario",
@@ -100,7 +101,7 @@
               this.$emit('saveAsEdit', this.scenarioForm);
               this.visible = false;
             } else {
-              this.$fileUpload(path, null, [], this.scenarioForm, () => {
+              saveScenario(path, this.scenarioForm, [], () => {
                 this.visible = false;
                 this.$emit('refresh');
               });

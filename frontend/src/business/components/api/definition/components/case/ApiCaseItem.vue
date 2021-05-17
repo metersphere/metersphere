@@ -1,5 +1,5 @@
 <template>
-  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
+  <el-card v-loading="result.loading" style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
     <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
         <el-col :span="3">
@@ -324,6 +324,8 @@
           }
         }
 
+        tmp.id = tmp.request.id;
+
         if (tmp.request.esbDataStruct != null) {
           tmp.esbDataStruct = JSON.stringify(tmp.request.esbDataStruct);
         }
@@ -334,14 +336,14 @@
         if (tmp.tags instanceof Array) {
           tmp.tags = JSON.stringify(tmp.tags);
         }
-        this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
+        this.result = this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
           let data = response.data;
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
           if (!row.message) {
+            this.$success(this.$t('commons.save_success'));
             if (!hideAlert) {
-              this.$success(this.$t('commons.save_success'));
               this.$emit('refresh');
             }
           }

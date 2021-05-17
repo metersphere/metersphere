@@ -650,5 +650,24 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
     }
+
+    public static List<MsHTTPSamplerProxy> findHttpSampleFromHashTree(MsTestElement hashTree, List<MsHTTPSamplerProxy> requests) {
+        if (requests == null) {
+            requests = new ArrayList<>();
+        }
+        if (hashTree instanceof MsHTTPSamplerProxy) {
+            requests.add((MsHTTPSamplerProxy)hashTree);
+        } else {
+            if (hashTree!= null) {
+                LinkedList<MsTestElement> childHashTree = hashTree.getHashTree();
+                if (CollectionUtils.isNotEmpty(childHashTree)) {
+                    for (MsTestElement item : childHashTree) {
+                        findHttpSampleFromHashTree(item, requests);
+                    }
+                }
+            }
+        }
+        return requests;
+    }
 }
 

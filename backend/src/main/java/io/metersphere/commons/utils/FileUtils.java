@@ -42,6 +42,35 @@ public class FileUtils {
         }
     }
 
+    public static void createBodyFiles(String requestId, List<MultipartFile> bodyFiles) {
+        if (CollectionUtils.isNotEmpty(bodyFiles) && StringUtils.isNotBlank(requestId)) {
+            String path = BODY_FILE_DIR + "/" + requestId;
+            File testDir = new File(path);
+            if (!testDir.exists()) {
+                testDir.mkdirs();
+            }
+            bodyFiles.forEach(item -> {
+                File file = new File(path + "/" + item.getOriginalFilename());
+                try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
+                    file.createNewFile();
+                    FileUtil.copyStream(in, out);
+                } catch (IOException e) {
+                    LogUtil.error(e);
+                    MSException.throwException(Translator.get("upload_fail"));
+                }
+            });
+        }
+    }
+
+    public static void copyBdyFile(String originId, String toId) {
+        try {
+            FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + "/" + originId),
+                    new File(FileUtils.BODY_FILE_DIR + "/" + toId));
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
+    }
+
     public static void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
         FileUtils.create(bodyUploadIds, bodyFiles, null);
     }
@@ -67,8 +96,9 @@ public class FileUtils {
         return file.getPath();
     }
 
-    public static void delFile(String path) {
-        File file = new File(path);
+    public static void deleteBodyFiles(String requestId) {
+        File file = new File(BODY_FILE_DIR + "/" + requestId);
+        FileUtil.deleteContents(file);
         if (file.exists()) {
             file.delete();
         }

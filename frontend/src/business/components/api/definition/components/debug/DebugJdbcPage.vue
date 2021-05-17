@@ -88,14 +88,16 @@
     },
     created() {
       if (this.testCase) {
-        // 执行结果信息
-        let url = "/api/definition/report/getReport/" + this.testCase.id;
-        this.$get(url, response => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
+        if (this.testCase.id) {
+          // 执行结果信息
+          let url = "/api/definition/report/getReport/" + this.testCase.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.responseData = data;
+            }
+          });
+        }
         this.request = this.testCase.request;
         if (this.request) {
           this.debugForm.method = this.request.method;

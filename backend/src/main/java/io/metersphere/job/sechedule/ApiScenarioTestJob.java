@@ -20,13 +20,13 @@ import java.util.UUID;
  * @Date 2020/12/22 2:59 下午
  * @Description
  */
-public class ApiScenarioTestJob extends   MsScheduleJob {
+public class ApiScenarioTestJob extends MsScheduleJob {
     private  String projectID;
     private List<String> scenarioIds;
 
     private ApiAutomationService apiAutomationService;
     public ApiScenarioTestJob() {
-        apiAutomationService = (ApiAutomationService) CommonBeanFactory.getBean(ApiAutomationService.class);
+        apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
     }
 
     @Override

@@ -13,7 +13,7 @@ public class ApiTestJob extends MsScheduleJob {
 
     private APITestService apiTestService;
     public ApiTestJob() {
-        apiTestService = (APITestService) CommonBeanFactory.getBean(APITestService.class);
+        apiTestService = CommonBeanFactory.getBean(APITestService.class);
     }
 
     @Override

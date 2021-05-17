@@ -28,3 +28,6 @@ CREATE TABLE IF NOT EXISTS api_environment_running_param  (
     INDEX `key_api_enviroment_id`(`api_enviroment_id`,`key`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
+--  自动清理调试用的body文件
+-- INSERT INTO schedule (id,`key`,`type`,value,`group`,job,enable,resource_id,user_id,workspace_id,create_time,update_time,project_id,name)
+-- VALUES ('f7f99f50-850b-41b2-8cb9-edee70669c4b','f7f99f50-850b-41b2-8cb9-edee70669c4b','CRON','0 0 4 * * ?','CLEAR_JOB','io.metersphere.job.sechedule.ClearJob',1,'system','admin','system',unix_timestamp() * 1000,unix_timestamp() * 1000,'system','ClearJob');
