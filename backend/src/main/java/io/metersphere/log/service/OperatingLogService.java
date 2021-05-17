@@ -1,7 +1,7 @@
 package io.metersphere.log.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.OperatingLog;
+import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import io.metersphere.base.mapper.OperatingLogMapper;
 import io.metersphere.base.mapper.ext.ExtOperatingLogMapper;
 import io.metersphere.commons.utils.BeanUtils;
@@ -24,7 +24,7 @@ public class OperatingLogService {
     @Resource
     private ExtOperatingLogMapper extOperatingLogMapper;
 
-    public void create(OperatingLog log) {
+    public void create(OperatingLogWithBLOBs log) {
         operatingLogMapper.insert(log);
     }
 
@@ -37,7 +37,7 @@ public class OperatingLogService {
     }
 
     public OperatingLogDTO get(String id) {
-        OperatingLog log = operatingLogMapper.selectByPrimaryKey(id);
+        OperatingLogWithBLOBs log = operatingLogMapper.selectByPrimaryKey(id);
         OperatingLogDTO dto = new OperatingLogDTO();
         BeanUtils.copyBean(dto, log);
         if (StringUtils.isNotEmpty(log.getOperContent())) {

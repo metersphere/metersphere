@@ -24,6 +24,8 @@ public class OperatingLogDTO implements Serializable {
 
     private String operTitle;
 
+    private String createUser;
+
     private Long operTime;
 
     private OperatingLogDetails details;

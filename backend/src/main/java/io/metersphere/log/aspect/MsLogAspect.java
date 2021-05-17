@@ -1,7 +1,7 @@
 package io.metersphere.log.aspect;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.OperatingLog;
+import io.metersphere.base.domain.OperatingLogWithBLOBs;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -26,8 +26,11 @@ import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -116,7 +119,7 @@ public class MsLogAspect {
             MsAuditLog msLog = method.getAnnotation(MsAuditLog.class);
             if (msLog != null) {
                 //保存日志
-                OperatingLog msOperLog = new OperatingLog();
+                OperatingLogWithBLOBs msOperLog = new OperatingLogWithBLOBs();
 
                 //保存获取的操作
                 msOperLog.setId(UUID.randomUUID().toString());
@@ -164,19 +167,22 @@ public class MsLogAspect {
                     try {
                         if (StringUtils.isNotEmpty(content)) {
                             OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class);
-                            msOperLog.setSourceId(details.getSourceId());
                             if (StringUtils.isNotEmpty(details.getProjectId())) {
                                 msOperLog.setProjectId(details.getProjectId());
                             }
                             if (StringUtils.isEmpty(msLog.title())) {
                                 msOperLog.setOperTitle(details.getTitle());
                             }
+                            msOperLog.setSourceId(details.getSourceId());
+                            msOperLog.setCreateUser(details.getCreateUser());
                         }
                         if (StringUtils.isNotEmpty(content) && StringUtils.isNotEmpty(msLog.beforeValue())) {
                             OperatingLogDetails details = JSON.parseObject(content, OperatingLogDetails.class);
                             List<DetailColumn> columns = ReflexObjectUtil.compared(JSON.parseObject(msLog.beforeValue(), OperatingLogDetails.class), details);
                             details.setColumns(columns);
                             msOperLog.setOperContent(JSON.toJSONString(details));
+                            msOperLog.setSourceId(details.getSourceId());
+                            msOperLog.setCreateUser(details.getCreateUser());
                         } else {
                             msOperLog.setOperContent(content);
                         }
@@ -191,10 +197,11 @@ public class MsLogAspect {
                     if (StringUtils.isEmpty(msLog.title())) {
                         msOperLog.setOperTitle(details.getTitle());
                     }
-                    msOperLog.setSourceId(details.getSourceId());
                     if (StringUtils.isNotEmpty(details.getProjectId())) {
                         msOperLog.setProjectId(details.getProjectId());
                     }
+                    msOperLog.setSourceId(details.getSourceId());
+                    msOperLog.setCreateUser(details.getCreateUser());
                 }
 
                 //获取请求的类名
@@ -210,6 +217,11 @@ public class MsLogAspect {
                 } else {
                     msOperLog.setOperUser(SessionUtils.getUserId());
                 }
+                HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+
+                String path = request.getServletPath();
+                msOperLog.setOperPath(path);
+
                 operatingLogService.create(msOperLog);
             }
         } catch (Exception e) {

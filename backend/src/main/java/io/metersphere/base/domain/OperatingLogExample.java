@@ -314,6 +314,76 @@ public class OperatingLogExample {
             return (Criteria) this;
         }
 
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
         public Criteria andOperUserIsNull() {
             addCriterion("oper_user is null");
             return (Criteria) this;
@@ -661,6 +731,76 @@ public class OperatingLogExample {
 
         public Criteria andOperTitleNotBetween(String value1, String value2) {
             addCriterion("oper_title not between", value1, value2, "operTitle");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathIsNull() {
+            addCriterion("oper_path is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathIsNotNull() {
+            addCriterion("oper_path is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathEqualTo(String value) {
+            addCriterion("oper_path =", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathNotEqualTo(String value) {
+            addCriterion("oper_path <>", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathGreaterThan(String value) {
+            addCriterion("oper_path >", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathGreaterThanOrEqualTo(String value) {
+            addCriterion("oper_path >=", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathLessThan(String value) {
+            addCriterion("oper_path <", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathLessThanOrEqualTo(String value) {
+            addCriterion("oper_path <=", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathLike(String value) {
+            addCriterion("oper_path like", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathNotLike(String value) {
+            addCriterion("oper_path not like", value, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathIn(List<String> values) {
+            addCriterion("oper_path in", values, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathNotIn(List<String> values) {
+            addCriterion("oper_path not in", values, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathBetween(String value1, String value2) {
+            addCriterion("oper_path between", value1, value2, "operPath");
+            return (Criteria) this;
+        }
+
+        public Criteria andOperPathNotBetween(String value1, String value2) {
+            addCriterion("oper_path not between", value1, value2, "operPath");
             return (Criteria) this;
         }
 
