@@ -88,10 +88,8 @@ public class JmeterDocumentParser implements DocumentParser {
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node node = childNodes.item(i);
                 if (node instanceof Element) {
+                    System.out.println(node.getNodeName());
                     Element ele = (Element) node;
-                    if (invalid(ele)) {
-                        continue;
-                    }
 
                     if (nodeNameEquals(ele, HASH_TREE_ELEMENT)) {
                         parseHashTree(ele);
@@ -812,7 +810,6 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("guiclass", "LoopControlPanel");
         elementProp.setAttribute("testclass", "LoopController");
         elementProp.setAttribute("testname", "Loop Controller");
-        elementProp.setAttribute("enabled", "true");
         elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
         elementProp.appendChild(createStringProp(document, "LoopController.loops", "-1"));
         threadGroup.appendChild(elementProp);
