@@ -1,4 +1,4 @@
-package io.metersphere.log.vo.definition;
+package io.metersphere.log.vo.api;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

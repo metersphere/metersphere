@@ -36,7 +36,7 @@ import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.definition.DefinitionReference;
+import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;

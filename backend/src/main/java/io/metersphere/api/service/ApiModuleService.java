@@ -18,7 +18,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.definition.ModuleReference;
+import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanApiCaseService;

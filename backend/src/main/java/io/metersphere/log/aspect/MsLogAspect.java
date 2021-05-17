@@ -229,6 +229,19 @@ public class MsLogAspect {
                     msOperLog.setOperUser(SessionUtils.getUserId());
                 }
                 HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+                // 特殊情况处理
+                if (StringUtils.isEmpty(msOperLog.getOperTitle())) {
+                    Object title = request.getAttribute("ms-req-title");
+                    if (title != null) {
+                        msOperLog.setOperTitle(title.toString());
+                    }
+                }
+                if (StringUtils.isEmpty(msOperLog.getSourceId())) {
+                    Object sourceId = request.getAttribute("ms-req-source-id");
+                    if (sourceId != null) {
+                        msOperLog.setSourceId(sourceId.toString());
+                    }
+                }
 
                 String path = request.getServletPath();
                 msOperLog.setOperPath(path);

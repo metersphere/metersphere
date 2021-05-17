@@ -38,7 +38,7 @@ import io.metersphere.job.sechedule.TestPlanTestJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.definition.AutomationReference;
+import io.metersphere.log.vo.api.AutomationReference;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.TestPlanDTO;

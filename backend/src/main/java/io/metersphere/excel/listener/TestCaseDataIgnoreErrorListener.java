@@ -3,6 +3,7 @@ package io.metersphere.excel.listener;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
@@ -34,6 +35,25 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
     Set<String> testCaseNames;
 
     Set<String> userIds;
+
+    private List<String> names = new LinkedList<>();
+    private List<String> ids = new LinkedList<>();
+
+    public List<String> getNames() {
+        return this.names;
+    }
+
+    public List<String> getIds() {
+        return this.ids;
+    }
+
+    public void setNames(List<String> names) {
+        this.names = names;
+    }
+
+    public void setIds(List<String> ids) {
+        this.ids = ids;
+    }
 
     public boolean isUpdated() {
         return isUpdated;
@@ -142,6 +162,8 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
             testCaseService.saveImportData(result, projectId);
+            this.setNames(result.stream().map(TestCase::getName).collect(Collectors.toList()));
+            this.setIds(result.stream().map(TestCase::getId).collect(Collectors.toList()));
             this.isUpdated = true;
         }
 
@@ -150,6 +172,8 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
                     .map(item -> this.convert2TestCaseForUpdate(item))
                     .collect(Collectors.toList());
             testCaseService.updateImportDataCarryId(result2, projectId);
+            this.setNames(result2.stream().map(TestCase::getName).collect(Collectors.toList()));
+            this.setIds(result2.stream().map(TestCase::getId).collect(Collectors.toList()));
             this.isUpdated = true;
             updateList.clear();
         }

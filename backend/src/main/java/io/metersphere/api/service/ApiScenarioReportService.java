@@ -27,7 +27,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.log.vo.definition.ModuleReference;
+import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;

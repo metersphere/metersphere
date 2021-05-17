@@ -3,6 +3,7 @@ package io.metersphere.excel.listener;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
@@ -34,6 +35,9 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
     Set<String> testCaseNames;
 
     Set<String> userIds;
+
+    private List<String> names = new LinkedList<>();
+    private List<String> ids = new LinkedList<>();
 
     public boolean isUpdated() {
         return isUpdated;
@@ -70,9 +74,9 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             //增加字数校验，每一层不能超过100字
             for (int i = 0; i < nodes.length; i++) {
                 String nodeStr = nodes[i];
-                if(StringUtils.isNotEmpty(nodeStr)){
-                    if(nodeStr.trim().length()>100){
-                        stringBuilder.append(Translator.get("module") + Translator.get("test_track.length_less_than") + "100:"+nodeStr);
+                if (StringUtils.isNotEmpty(nodeStr)) {
+                    if (nodeStr.trim().length() > 100) {
+                        stringBuilder.append(Translator.get("module") + Translator.get("test_track.length_less_than") + "100:" + nodeStr);
                         break;
                     }
                 }
@@ -148,6 +152,22 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         return stringBuilder.toString();
     }
 
+    public List<String> getNames() {
+        return this.names;
+    }
+
+    public List<String> getIds() {
+        return this.ids;
+    }
+
+    public void setNames(List<String> names) {
+        this.names = names;
+    }
+
+    public void setIds(List<String> ids) {
+        this.ids = ids;
+    }
+
     @Override
     public void saveData() {
 
@@ -156,12 +176,14 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             return;
         }
 
-        if (!(list.size() == 0)){
+        if (!(list.size() == 0)) {
             Collections.reverse(list);  //因为saveImportData里面是先分配最大的ID，这个ID应该先发给list中最后的数据，所以要reverse
             List<TestCaseWithBLOBs> result = list.stream()
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
             testCaseService.saveImportData(result, projectId);
+            this.setNames(result.stream().map(TestCase::getName).collect(Collectors.toList()));
+            this.setIds(result.stream().map(TestCase::getId).collect(Collectors.toList()));
             this.isUpdated = true;
         }
 
@@ -171,6 +193,8 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                     .collect(Collectors.toList());
             testCaseService.updateImportDataCarryId(result2, projectId);
             this.isUpdated = true;
+            this.setNames(result2.stream().map(TestCase::getName).collect(Collectors.toList()));
+            this.setIds(result2.stream().map(TestCase::getId).collect(Collectors.toList()));
             updateList.clear();
         }
 
@@ -208,10 +232,11 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             testCase.setSteps(steps);
         }
         return testCase;
-}
+    }
 
     /**
      * 将Excel中的数据对象转换为用于更新操作的用例数据对象，
+     *
      * @param data
      * @return
      */
@@ -242,10 +267,10 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
     }
 
     /**
-     *  调整tags格式，便于前端进行解析。
-     *  例如对于：标签1，标签2。将调整为:["标签1","标签2"]。
+     * 调整tags格式，便于前端进行解析。
+     * 例如对于：标签1，标签2。将调整为:["标签1","标签2"]。
      */
-    public String modifyTagPattern(TestCaseExcelData data){
+    public String modifyTagPattern(TestCaseExcelData data) {
         String tags = data.getTags();
         try {
             if (StringUtils.isNotBlank(tags)) {
@@ -338,7 +363,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if (!StringUtils.isEmpty(errMsg)) {
 
             //如果errMsg只有"update testcase"，说明用例待更新
-            if (!errMsg.equals(updateMsg)){
+            if (!errMsg.equals(updateMsg)) {
                 ExcelErrData excelErrData = new ExcelErrData(testCaseExcelData, rowIndex,
                         Translator.get("number") + " " + rowIndex + " " + Translator.get("row") + Translator.get("error")
                                 + "：" + errMsg);
