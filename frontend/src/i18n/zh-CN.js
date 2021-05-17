@@ -810,6 +810,7 @@ export default {
       wait_controller: "等待控制器",
       if_controller: "条件控制器",
       loop_controller: "循环控制器",
+      transcation_controller:"事务控制器",
       scenario_import: "场景导入",
       customize_script: "自定义脚本",
       customize_req: "自定义请求",

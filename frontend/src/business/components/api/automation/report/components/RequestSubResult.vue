@@ -11,7 +11,9 @@
             <div class="el-step__icon is-text ms-api-col-create" v-else>
               <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
             </div>
-            {{ request.name }}
+            <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              {{ request.name }}
+            </div>
           </div>
         </el-col>
         <el-col :span="2">
@@ -21,7 +23,11 @@
         </el-col>
         <el-col :span="6">
           <div class="url">
-            {{ request.url }}
+            <el-tooltip :content="request.url " style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
+              <div>
+                {{ request.url }}
+              </div>
+            </el-tooltip>
           </div>
         </el-col>
         <el-col :span="5">
