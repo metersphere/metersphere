@@ -4,7 +4,7 @@
       <template v-slot:header >
         <span class="title">{{$t('report.test_overview')}}</span>
       </template>
-      <ms-report-test-overview :report="report" ref="testOverview"/>
+      <ms-report-test-overview :report="report" :export="true" ref="testOverview"/>
     </el-card>
     <el-card id="requestStatistics" title="'requestStatistics'">
       <template v-slot:header >
