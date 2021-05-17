@@ -98,7 +98,6 @@ import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
-import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
@@ -151,6 +150,9 @@ export default {
   },
   watch: {
     '$route'(to) {
+      if (to.name !== 'perPlan') {
+        return;
+      }
       this.projectId = to.params.projectId;
       this.initTableData();
     }

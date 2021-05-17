@@ -6,6 +6,8 @@ let travel = function (elements, threadGroups) {
   }
   for (let element of elements) {
     switch (element.name) {
+      case "SetupThreadGroup":
+      case "PostThreadGroup":
       case "ThreadGroup":
       case "kg.apc.jmeter.threads.UltimateThreadGroup":
       case "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup":
@@ -17,9 +19,9 @@ let travel = function (elements, threadGroups) {
       default:
         break;
     }
-    travel(element.elements, threadGroups)
+    travel(element.elements, threadGroups);
   }
-}
+};
 
 export function findThreadGroup(jmxContent, handler) {
   let jmxJson = JSON.parse(xml2json(jmxContent));
@@ -30,9 +32,16 @@ export function findThreadGroup(jmxContent, handler) {
     tg.handler = handler;
     tg.enabled = tg.attributes.enabled;
     tg.tgType = tg.name;
-    tg.threadType = 'DURATION';
+    if (tg.name === 'SetupThreadGroup' || tg.name === 'PostThreadGroup') {
+      tg.threadType = 'ITERATION';
+      tg.threadNumber = 1;
+      tg.iterateRampUp = 1;
+    } else {
+      tg.threadType = 'DURATION';
+      tg.threadNumber = 1;
+    }
     tg.unit = 'S';
-  })
+  });
   return threadGroups;
 }
 
