@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
+import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
@@ -71,6 +72,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = MsJDBCSampler.class, name = "JDBCSampler"),
         @JsonSubTypes.Type(value = MsConstantTimer.class, name = "ConstantTimer"),
         @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
+        @JsonSubTypes.Type(value = MsTransactionController.class, name = "TransactionController"),
         @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
         @JsonSubTypes.Type(value = MsLoopController.class, name = "LoopController"),
         @JsonSubTypes.Type(value = MsJmeterElement.class, name = "JmeterElement"),
@@ -78,7 +80,7 @@ import java.util.stream.Collectors;
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, MsAuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class,MsTransactionController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;
@@ -283,6 +285,15 @@ public abstract class MsTestElement {
                 }
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
                     return "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
+                }
+            }else if(MsTestElementConstants.TransactionController.name().equals(parent.getType())){
+                MsTransactionController transactionController = (MsTransactionController)parent;
+                if(StringUtils.isNotEmpty(transactionController.getName())){
+                    return transactionController.getName();
+                }else if(StringUtils.isNotEmpty(transactionController.getLabelName())){
+                    return transactionController.getLabelName();
+                }else {
+                    return "TransactionController";
                 }
             }
             // 获取全路径以备后面使用
