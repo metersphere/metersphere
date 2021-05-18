@@ -1,6 +1,10 @@
 package io.metersphere.track.issue;
 
-import io.metersphere.base.domain.*;
+import com.alibaba.fastjson.JSONArray;
+import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.ServiceIntegration;
+import io.metersphere.base.domain.TestCaseIssues;
+import io.metersphere.base.domain.TestCaseIssuesExample;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
@@ -11,6 +15,7 @@ import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -28,6 +33,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -165,5 +171,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
         issuesMapper.insert(issues);
+    }
+
+    protected List<CustomFieldItemDTO> getCustomFields(String customFieldsStr) {
+        if (StringUtils.isNotBlank(customFieldsStr)) {
+            return JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
+        }
+        return new ArrayList<>();
     }
 }
