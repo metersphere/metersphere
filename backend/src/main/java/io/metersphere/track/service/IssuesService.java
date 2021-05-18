@@ -17,6 +17,10 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
@@ -34,7 +38,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -130,6 +137,7 @@ public class IssuesService {
         Project project = getProjectByCaseId(caseId);
         return getIssuesByProject(issueRequest, project);
     }
+
     public List<IssuesDao> getIssuesByProject(IssuesRequest issueRequest, Project project) {
         List<IssuesDao> list = new ArrayList<>();
         List<String> platforms = getPlatforms(project);
@@ -394,5 +402,25 @@ public class IssuesService {
 
         ServiceIntegration integration = integrationService.get(request);
         return integration.getConfiguration();
+    }
+
+    public String getLogDetails(String id) {
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
+        if (issuesWithBLOBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(issuesWithBLOBs, TestPlanReference.issuesColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(issuesWithBLOBs.getId()), issuesWithBLOBs.getProjectId(), issuesWithBLOBs.getTitle(), issuesWithBLOBs.getCreator(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(IssuesUpdateRequest issuesRequest) {
+        if (issuesRequest != null) {
+            issuesRequest.setCreator(SessionUtils.getUserId());
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(issuesRequest, TestPlanReference.issuesColumns);
+            OperatingLogDetails details = new OperatingLogDetails(null, issuesRequest.getProjectId(), issuesRequest.getTitle(), issuesRequest.getCreator(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

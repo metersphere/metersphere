@@ -12,6 +12,7 @@ import io.metersphere.log.utils.dff.JsonDiff;
 import io.metersphere.log.utils.dff.Operation;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
@@ -49,12 +50,18 @@ public class ReflexObjectUtil {
                 try {
                     if (columns.containsKey(f.getName())) {
                         Object val = f.get(obj);
+                        if (val != null && StatusReference.statusMap.containsKey(val.toString())) {
+                            val = StatusReference.statusMap.get(val.toString());
+                        }
                         DetailColumn column = new DetailColumn(columns.get(f.getName()), f.getName(), val, "");
                         if (dffColumns.contains(f.getName())) {
                             column.setDepthDff(true);
                             if (val != null) {
                                 JSONObject object = JSONObject.parseObject(val.toString());
-                                String pretty = JSON.toJSONString(object, SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue, SerializerFeature.WriteDateUseDateFormat);
+                                String pretty = JSON.toJSONString(object,
+                                        SerializerFeature.PrettyFormat,
+                                        SerializerFeature.WriteMapNullValue,
+                                        SerializerFeature.WriteDateUseDateFormat);
                                 column.setOriginalValue(pretty);
                             }
                         }
@@ -65,8 +72,6 @@ public class ReflexObjectUtil {
                 }
             }
         }
-
-
         List<String> keys = columns.keySet().stream().collect(Collectors.toList());
         ReflexObjectUtil.order(keys, columnList);
         return columnList;

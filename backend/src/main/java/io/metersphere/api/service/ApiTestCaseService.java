@@ -407,6 +407,7 @@ public class ApiTestCaseService {
         apiTestCases.forEach(apiTestCase -> {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(UUID.randomUUID().toString());
+            testPlanApiCase.setCreateUser(SessionUtils.getUserId());
             testPlanApiCase.setApiCaseId(apiTestCase.getId());
             testPlanApiCase.setTestPlanId(request.getPlanId());
             testPlanApiCase.setEnvironmentId(request.getEnvironmentId());

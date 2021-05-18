@@ -99,9 +99,11 @@ public class ApiDefinitionService {
     @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
-    ApiModuleMapper apiModuleMapper;
+    private ApiModuleMapper apiModuleMapper;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -1125,6 +1127,19 @@ public class ApiDefinitionService {
                 OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), columns);
                 return JSON.toJSONString(details);
             }
+        }
+        return null;
+    }
+
+    public String getLogDetails(ApiCaseRelevanceRequest request) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(apiTestCases)) {
+            List<String> names = apiTestCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getSelectIds()), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
+            return JSON.toJSONString(details);
         }
         return null;
     }

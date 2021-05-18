@@ -210,6 +210,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/relevance")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request)", msClass = ApiAutomationService.class)
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiAutomationService.relevance(request);
     }
