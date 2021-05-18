@@ -1328,6 +1328,7 @@ export default {
       batch_move_case: 'Batch move',
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',
+      unlink: 'Unlink',
       project_name: "Project",
       status: 'Review Status',
       status_prepare: 'Not reviewed',

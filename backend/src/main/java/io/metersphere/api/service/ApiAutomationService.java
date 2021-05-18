@@ -119,6 +119,8 @@ public class ApiAutomationService {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -1374,6 +1376,7 @@ public class ApiAutomationService {
             }
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
+            testPlanApiScenario.setCreateUser(SessionUtils.getUserId());
             testPlanApiScenario.setApiScenarioId(id);
             testPlanApiScenario.setTestPlanId(request.getPlanId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
@@ -1897,6 +1900,21 @@ public class ApiAutomationService {
             List<ApiScenario> definitions = apiScenarioMapper.selectByExample(example);
             List<String> names = definitions.stream().map(ApiScenario::getName).collect(Collectors.toList());
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(ApiCaseRelevanceRequest request) {
+        Map<String, List<String>> mapping = request.getMapping();
+        Set<String> set = mapping.keySet();
+        if (CollectionUtils.isNotEmpty(set)) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(new ArrayList<>(set));
+            List<ApiScenario> scenarios = apiScenarioMapper.selectByExample(example);
+            List<String> names = scenarios.stream().map(ApiScenario::getName).collect(Collectors.toList());
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getSelectIds()), testPlan.getProjectId(), String.join(",", names), testPlan.getCreator(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;

@@ -1,5 +1,6 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.TestCaseReport;
 import io.metersphere.base.domain.TestCaseReportExample;
 import io.metersphere.base.domain.TestCaseReportTemplate;
@@ -9,6 +10,11 @@ import io.metersphere.base.mapper.TestCaseReportTemplateMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.track.request.testCaseReport.CreateReportRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -65,10 +71,21 @@ public class TestCaseReportService {
         BeanUtils.copyBean(report, template);
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         report.setName(testPlan.getName());
-        report.setId(UUID.randomUUID().toString());
+        report.setId(request.getId());
+        report.setCreateUser(SessionUtils.getUserId());
         testCaseReportMapper.insert(report);
         testPlan.setReportId(report.getId());
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
         return report.getId();
+    }
+
+    public String getLogDetails(String id) {
+        TestCaseReport report = testCaseReportMapper.selectByPrimaryKey(id);
+        if (report != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(report, TestPlanReference.reportColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(report.getId()), null, report.getName(), report.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }
