@@ -63,6 +63,8 @@ public class LocalRealm extends AuthorizingRealm {
         UserDTO userDTO = userService.getUserDTO(userId);
         Set<String> roles = userDTO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         authorizationInfo.setRoles(roles);
+        Set<String> userPermission = userService.getUserPermission(userId);
+        authorizationInfo.setStringPermissions(userPermission);
         return authorizationInfo;
     }
 

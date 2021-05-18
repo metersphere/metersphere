@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.GroupMapper;
+import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.UserGroupPermissionMapper;
 import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
@@ -46,6 +47,10 @@ public class GroupService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private UserGroupPermissionMapper userGroupPermissionMapper;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+    @Resource
+    private OrganizationService organizationService;
 
     private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4){{
         put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
@@ -152,6 +157,53 @@ public class GroupService {
         sqlSession.flushStatements();
     }
 
+    public List<Group> getGroupByType(EditGroupRequest request) {
+        List<Group> list = new ArrayList<>();
+        GroupExample example = new GroupExample();
+        GroupExample.Criteria criteria = example.createCriteria();
+        String type = request.getType();
+        if (StringUtils.isBlank(type)) {
+            return list;
+        }
+
+        if (!StringUtils.equals(type, UserGroupType.SYSTEM)) {
+            criteria.andTypeEqualTo(type);
+        }
+
+        return groupMapper.selectByExample(example);
+    }
+
+    public List<Map<String, Object>> getAllUserGroup(String userId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> groupsIds = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+        for (int i = 0; i < groupsIds.size(); i++) {
+            String id = groupsIds.get(i);
+            Group group = groupMapper.selectByPrimaryKey(id);
+            String type = group.getType();
+            Map<String, Object> map = new HashMap<>(2);
+            map.put("type", id + "+" + type);
+            OrganizationResource organizationResource = organizationService.listResource(id, group.getType());
+            List<String> collect = userGroups.stream().filter(ugp -> ugp.getGroupId().equals(id)).map(UserGroup::getSourceId).collect(Collectors.toList());
+            map.put("ids", collect);
+            if (StringUtils.equals(type, UserGroupType.ORGANIZATION)) {
+                map.put("organizations", organizationResource.getOrganizations());
+            }
+            if (StringUtils.equals(type, UserGroupType.WORKSPACE)) {
+                map.put("workspaces", organizationResource.getOrganizations());
+            }
+            if (StringUtils.equals(type, UserGroupType.PROJECT)) {
+                map.put("projects", organizationResource.getOrganizations());
+            }
+            list.add(map);
+        }
+        return list;
+    }
+
+
+
     private List<GroupResourceDTO> getResourcePermission(List<GroupResource> resource, List<GroupPermission> permissions, String type, List<String> permissionList) {
         List<GroupResourceDTO> dto = new ArrayList<>();
         List<GroupResource> resources = resource.stream().filter(g -> g.getId().startsWith(type)).collect(Collectors.toList());
@@ -168,6 +220,7 @@ public class GroupService {
                     .filter(p -> StringUtils.equals(r.getId(), p.getResourceId()))
                     .collect(Collectors.toList());
             resourceDTO.setPermissions(collect);
+            resourceDTO.setType(r.getId().split("_")[0]);
             dto.add(resourceDTO);
         }
         return dto;

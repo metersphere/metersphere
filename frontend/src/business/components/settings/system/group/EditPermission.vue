@@ -3,15 +3,22 @@
              title="设置权限"
              :destroy-on-close="true"
              v-loading="result.loading"
+             top="5%"
   >
-    <div style="height: 500px;overflow: auto">
+    <div style="height: 60vh;overflow: auto">
       <el-table
+        :span-method="objectSpanMethod"
+        border
         :data="tableData"
         style="width: 100%">
-<!--        <el-table-column-->
-<!--          type="selection"-->
-<!--          width="55">-->
-<!--        </el-table-column>-->
+        <el-table-column
+          prop="type"
+          label="功能菜单"
+          width="180">
+          <template v-slot:default="scope">
+            <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="resource"
           label="操作对象"
@@ -37,6 +44,7 @@
 <script>
 import GroupOperator from "@/business/components/settings/system/group/GroupOperator";
 import GroupPermission from "@/business/components/settings/system/group/GroupPermission";
+import {USER_GROUP_SCOPE} from "@/common/js/table-constants";
 
 export default {
   name: "EditPermission",
@@ -49,16 +57,23 @@ export default {
       tableData: [],
       selected: [],
       group: {},
-      result: {}
+      result: {},
+      spanArr: []
     }
   },
   components: {
     GroupPermission,
     GroupOperator
   },
+  computed: {
+    userGroupType() {
+      return USER_GROUP_SCOPE;
+    }
+  },
   methods: {
     open(row) {
       this.tableData = [];
+      this.spanArr = [];
       this.dialogVisible = true;
       this.group = Object.assign({}, row);
       this.getGroupJson();
@@ -68,6 +83,21 @@ export default {
         let data = result.data;
         if (data) {
           this.tableData = data.permissions;
+          for (let i = 0; i < this.tableData.length; i++) {
+            if (i === 0) {
+              this.spanArr.push(1);
+              this.pos = 0
+            } else {
+              // 判断当前元素与上一个元素是否相同
+              if (this.tableData[i].type === this.tableData[i - 1].type) {
+                this.spanArr[this.pos] += 1;
+                this.spanArr.push(0);
+              } else {
+                this.spanArr.push(1);
+                this.pos = i;
+              }
+            }
+          }
         }
       })
     },
@@ -86,7 +116,17 @@ export default {
     },
     cancel() {
       this.dialogVisible = false;
-    }
+    },
+    objectSpanMethod({row, column, rowIndex, columnIndex}) {
+      if (columnIndex === 0) {
+        const _row = this.spanArr[rowIndex];
+        const _col = _row > 0 ? 1 : 0;
+        return {
+          rowspan: _row,
+          colspan: _col
+        }
+      }
+    },
   }
 }
 </script>
