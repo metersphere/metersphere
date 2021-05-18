@@ -3,6 +3,8 @@ package io.metersphere.api.dto.definition.request.unknown;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -21,6 +23,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 暂时存放所有未知的Jmeter Element对象
@@ -61,7 +64,14 @@ public class MsJmeterElement extends MsTestElement {
                     if (!config.isOperating() && scriptWrapper instanceof CSVDataSet) {
                         String path = ((CSVDataSet) scriptWrapper).getPropertyAsString("filename");
                         if (!new File(path).exists()) {
-                            MSException.throwException(StringUtils.isEmpty(((CSVDataSet) scriptWrapper).getName()) ? "CSVDataSet" : ((CSVDataSet) scriptWrapper).getName() + "：[ CSV文件不存在 ]");
+                            // 检查场景变量中的csv文件是否存在
+                            String pathArr[] = path.split("\\/");
+                            String csvPath = this.getCSVPath(config, pathArr[pathArr.length - 1]);
+                            if (StringUtils.isNotEmpty(csvPath)) {
+                                ((CSVDataSet) scriptWrapper).setProperty("filename", csvPath);
+                            } else {
+                                MSException.throwException(StringUtils.isEmpty(((CSVDataSet) scriptWrapper).getName()) ? "CSVDataSet" : ((CSVDataSet) scriptWrapper).getName() + "：[ CSV文件不存在 ]");
+                            }
                         }
                     }
                     if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -77,6 +87,27 @@ public class MsJmeterElement extends MsTestElement {
             ex.printStackTrace();
             MSException.throwException(ex.getMessage());
         }
+    }
+
+    private String getCSVPath(ParameterConfig config, String name) {
+        if (CollectionUtils.isNotEmpty(config.getVariables())) {
+            List<ScenarioVariable> list = config.getVariables().stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(list)) {
+                for (ScenarioVariable item : list) {
+                    if (CollectionUtils.isNotEmpty(item.getFiles())) {
+                        List<String> names = item.getFiles().stream().map(BodyFile::getName).collect(Collectors.toList());
+                        if (CollectionUtils.isNotEmpty(names) && names.contains(name)) {
+                            if (!config.isOperating() && !new File(FileUtils.BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName()).exists()) {
+                                MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ CSV文件不存在 ]");
+                            } else {
+                                return FileUtils.BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public static InputStream getStrToStream(String sInputString) {

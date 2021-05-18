@@ -3,10 +3,12 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanReport;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.TestPlanReportDTO;
 import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
@@ -48,6 +50,7 @@ public class TestPlanReportController {
     }
 
     @PostMapping("/delete")
+    @MsAuditLog(module = "track_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanReportIdList)", msClass = TestPlanReportService.class)
     public void delete(@RequestBody List<String> testPlanReportIdList) {
         testPlanReportService.delete(testPlanReportIdList);
     }

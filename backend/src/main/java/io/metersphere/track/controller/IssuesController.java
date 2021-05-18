@@ -5,8 +5,10 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -31,11 +33,13 @@ public class IssuesController {
     }
 
     @PostMapping("/add")
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     public void addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
         issuesService.addIssues(issuesRequest);
     }
 
     @PostMapping("/update")
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#issuesRequest.id)", content = "#msClass.getLogDetails(#issuesRequest.id)", msClass = IssuesService.class)
     public void updateIssues(@RequestBody IssuesUpdateRequest issuesRequest) {
         issuesService.updateIssues(issuesRequest);
     }
@@ -56,11 +60,13 @@ public class IssuesController {
     }
 
     @PostMapping("/delete")
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = IssuesService.class)
     public void deleteIssue(@RequestBody IssuesRequest request) {
         issuesService.deleteIssue(request);
     }
 
     @GetMapping("/delete/{id}")
+    @MsAuditLog(module = "track_bug", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
     public void delete(@PathVariable String id) {
         issuesService.delete(id);
     }

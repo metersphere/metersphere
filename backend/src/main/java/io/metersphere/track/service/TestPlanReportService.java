@@ -1,5 +1,6 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
@@ -11,6 +12,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
@@ -21,6 +23,7 @@ import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -552,5 +555,17 @@ public class TestPlanReportService {
             ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
         }
         return ids;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.createCriteria().andIdIn(ids);
+        List<TestPlanReport> nodes = testPlanReportMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(nodes)) {
+            List<String> names = nodes.stream().map(TestPlanReport::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, String.join(",", names), null, new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

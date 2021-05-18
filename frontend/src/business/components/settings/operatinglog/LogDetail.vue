@@ -67,6 +67,7 @@
           {id: 'BATCH_DEL', label: this.$t('api_test.definition.request.batch_delete')},
           {id: 'BATCH_UPDATE', label: this.$t('api_test.definition.request.batch_edit')},
           {id: 'BATCH_ADD', label: this.$t('commons.batch_add')},
+          {id: 'UN_ASSOCIATE_CASE', label: this.$t('test_track.case.unlink')},
           {id: 'BATCH_RESTORE', label: "批量恢复"},
           {id: 'BATCH_GC', label: "批量回收"}
         ],
@@ -91,6 +92,7 @@
           ['BATCH_ADD', this.$t('commons.batch_add')],
           ['BATCH_RESTORE', "批量恢复"],
           ['BATCH_GC', "批量回收"],
+          ['UN_ASSOCIATE_CASE', this.$t('test_track.case.unlink')],
         ])
       }
     },

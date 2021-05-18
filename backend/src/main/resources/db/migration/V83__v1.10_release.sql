@@ -39,6 +39,7 @@ CREATE TABLE `operating_log` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+
 -- add all table create_user
 ALTER TABLE api_definition
     ADD create_user VARCHAR(100) NULL;
@@ -71,3 +72,19 @@ alter table load_test_report
 
 alter table load_test_report
     add test_duration BIGINT(13) null;
+
+-- add all table create_user
+ALTER TABLE api_definition  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_module  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_scenario  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_scenario_module  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_scenario_report  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case_node  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case_review  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_plan_test_case  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case_review_test_case  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_plan_api_case  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_plan_api_scenario  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_plan_load_case  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case_report  ADD create_user VARCHAR(100) NULL;

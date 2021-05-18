@@ -1334,6 +1334,7 @@ export default {
       batch_move_case: '批量移動',
       batch_delete_case: '批量刪除',
       batch_unlink: '批量取消關聯',
+      unlink: '取消關聯',
       project_name: '所屬項目',
       status: '評審結果',
       status_prepare: '未開始',

@@ -1334,6 +1334,7 @@ export default {
       batch_move_case: '批量移动',
       batch_delete_case: '批量删除',
       batch_unlink: '批量取消关联',
+      unlink: '取消关联',
       project_name: '所属项目',
       status: '评审结果',
       status_prepare: '未开始',
