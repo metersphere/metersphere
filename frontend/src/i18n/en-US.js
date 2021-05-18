@@ -156,6 +156,7 @@ export default {
     more_operator: "More operator",
     mock: "Mock settings",
     all_module_title: "All module",
+    create_user: 'Creator',
     table: {
       select_tip: "Item {0} data is selected"
     },

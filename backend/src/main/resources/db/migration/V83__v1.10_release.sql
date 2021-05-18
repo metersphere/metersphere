@@ -54,6 +54,8 @@ ALTER TABLE test_case_node
     ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case
     ADD create_user VARCHAR(100) NULL;
+ALTER TABLE project
+    ADD create_user VARCHAR(100) NULL;
 
 -- system_parameter
 UPDATE system_parameter

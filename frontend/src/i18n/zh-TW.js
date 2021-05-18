@@ -157,6 +157,7 @@ export default {
     more_operator: "更多操作",
     mock: "Mock 設置",
     all_module_title: "全部模塊",
+    create_user: "創建人",
     table: {
       select_tip: "已選中 {0} 條數據"
     },
