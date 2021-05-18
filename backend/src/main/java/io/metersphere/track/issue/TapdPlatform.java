@@ -10,6 +10,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -150,6 +151,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
     public void addIssue(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
 
+        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
+
         String url = "https://api.tapd.cn/bugs";
         String testCaseId = issuesRequest.getTestCaseId();
         String tapdId = getProjectId(issuesRequest.getProjectId());
@@ -172,6 +175,12 @@ public class TapdPlatform extends AbstractIssuePlatform {
         paramMap.add("description", issuesRequest.getDescription());
         paramMap.add("reporter", username);
         paramMap.add("current_owner", usersStr);
+
+        customFields.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getCustomData())) {
+                paramMap.add(item.getCustomData(), item.getValue());
+            }
+        });
 
         ResultHolder result = call(url, HttpMethod.POST, paramMap);
 
