@@ -38,6 +38,11 @@ export const TAPD = 'Tapd';
 export const JIRA = 'Jira';
 export const ZEN_TAO = 'Zentao';
 
+export const GROUP_SYSTEM = 'SYSTEM';
+export const GROUP_ORGANIZATION = 'ORGANIZATION';
+export const GROUP_WORKSPACE = 'WORKSPACE';
+export const GROUP_PROJECT = 'PROJECT';
+
 export const SCHEDULE_TYPE = {
   API_TEST: 'API_TEST',
   PERFORMANCE_TEST: 'PERFORMANCE_TEST'

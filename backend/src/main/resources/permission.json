@@ -1,10 +1,10 @@
 {
   "permissions": [
-//    {
-//      "id": "SYSTEM_USER:READ",
-//      "name": "用户",
-//      "resourceId": "SYSTEM_USER"
-//    },
+    {
+      "id": "SYSTEM_USER:READ",
+      "name": "查询用户",
+      "resourceId": "SYSTEM_USER"
+    },
     {
       "id": "SYSTEM_USER:READ+CREATE",
       "name": "创建用户",
@@ -29,31 +29,31 @@
       "name": "修改密码",
       "resourceId": "SYSTEM_USER"
     },
-//    {
-//      "id": "SYSTEM_ORGANIZATION:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "SYSTEM_ORGANIZATION"
-//    },
+    {
+      "id": "SYSTEM_ORGANIZATION:READ",
+      "name": "查询组织",
+      "resourceId": "SYSTEM_ORGANIZATION"
+    },
     {
       "id": "SYSTEM_ORGANIZATION:READ+CREATE",
-      "name": "创建场景",
+      "name": "创建组织",
       "resourceId": "SYSTEM_ORGANIZATION"
     },
     {
       "id": "SYSTEM_ORGANIZATION:READ+EDIT",
-      "name": "编辑场景",
+      "name": "编辑组织",
       "resourceId": "SYSTEM_ORGANIZATION"
     },
     {
       "id": "SYSTEM_ORGANIZATION:READ+DELETE",
-      "name": "删除场景",
+      "name": "删除组织",
       "resourceId": "SYSTEM_ORGANIZATION"
     },
-//    {
-//      "id": "SYSTEM_WORKSPACE:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "SYSTEM_WORKSPACE"
-//    },
+    {
+      "id": "SYSTEM_WORKSPACE:READ",
+      "name": "查询工作空间",
+      "resourceId": "SYSTEM_WORKSPACE"
+    },
     {
       "id": "SYSTEM_WORKSPACE:READ+CREATE",
       "name": "创建工作空间",
@@ -69,11 +69,11 @@
       "name": "删除工作空间",
       "resourceId": "SYSTEM_WORKSPACE"
     },
-//    {
-//      "id": "SYSTEM_GROUP:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "SYSTEM_GROUP"
-//    },
+    {
+      "id": "SYSTEM_GROUP:READ",
+      "name": "查询用户组与权限",
+      "resourceId": "SYSTEM_GROUP"
+    },
     {
       "id": "SYSTEM_GROUP:READ+CREATE",
       "name": "创建用户组",
@@ -94,11 +94,11 @@
       "name": "删除",
       "resourceId": "SYSTEM_GROUP"
     },
-//    {
-//      "id": "SYSTEM_SETTING:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "SYSTEM_SETTING"
-//    },
+    {
+      "id": "SYSTEM_SETTING:READ",
+      "name": "查询系统设置",
+      "resourceId": "SYSTEM_SETTING"
+    },
     {
       "id": "SYSTEM_SETTING:READ+EDIT",
       "name": "编辑",
@@ -109,31 +109,31 @@
       "name": "授权管理",
       "resourceId": "SYSTEM_SETTING"
     },
-//    {
-//      "id": "SYSTEM_QUOTA:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "SYSTEM_QUOTA"
-//    },
+    {
+      "id": "SYSTEM_QUOTA:READ",
+      "name": "查询系统配额",
+      "resourceId": "SYSTEM_QUOTA"
+    },
     {
       "id": "SYSTEM_QUOTA:READ+EDIT",
       "name": "编辑",
       "resourceId": "SYSTEM_QUOTA"
     },
-//    {
-//      "id": "SYSTEM_AUTH:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "SYSTEM_AUTH"
-//    },
+    {
+      "id": "SYSTEM_AUTH:READ",
+      "name": "查询系统授权",
+      "resourceId": "SYSTEM_AUTH"
+    },
     {
       "id": "SYSTEM_AUTH:READ+EDIT",
       "name": "编辑",
       "resourceId": "SYSTEM_AUTH"
     },
-//    {
-//      "id": "ORGANIZATION_USER:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "ORGANIZATION_USER"
-//    },
+    {
+      "id": "ORGANIZATION_USER:READ",
+      "name": "查询成员",
+      "resourceId": "ORGANIZATION_USER"
+    },
     {
       "id": "ORGANIZATION_USER:READ+CREATE",
       "name": "添加成员",
@@ -149,11 +149,11 @@
       "name": "移除成员",
       "resourceId": "ORGANIZATION_USER"
     },
-//    {
-//      "id": "ORGANIZATION_WORKSPACE:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "ORGANIZATION_WORKSPACE"
-//    },
+    {
+      "id": "ORGANIZATION_WORKSPACE:READ",
+      "name": "查询工作空间",
+      "resourceId": "ORGANIZATION_WORKSPACE"
+    },
     {
       "id": "ORGANIZATION_WORKSPACE:READ+CREATE",
       "name": "创建工作空间",
@@ -169,11 +169,11 @@
       "name": "删除工作空间",
       "resourceId": "ORGANIZATION_WORKSPACE"
     },
-//    {
-//      "id": "ORGANIZATION_GROUP:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "ORGANIZATION_GROUP"
-//    },
+    {
+      "id": "ORGANIZATION_GROUP:READ",
+      "name": "查询用户组与权限",
+      "resourceId": "ORGANIZATION_GROUP"
+    },
     {
       "id": "ORGANIZATION_GROUP:READ+CREATE",
       "name": "创建",
@@ -194,31 +194,31 @@
       "name": "删除",
       "resourceId": "ORGANIZATION_GROUP"
     },
-//    {
-//      "id": "ORGANIZATION_SERVICE:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "ORGANIZATION_SERVICE"
-//    },
+    {
+      "id": "ORGANIZATION_SERVICE:READ",
+      "name": "查询",
+      "resourceId": "ORGANIZATION_SERVICE"
+    },
     {
       "id": "ORGANIZATION_SERVICE:READ+EDIT",
       "name": "编辑",
       "resourceId": "ORGANIZATION_SERVICE"
     },
-//    {
-//      "id": "ORGANIZATION_MESSAGE:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "ORGANIZATION_MESSAGE"
-//    },
+    {
+      "id": "ORGANIZATION_MESSAGE:READ",
+      "name": "查询",
+      "resourceId": "ORGANIZATION_MESSAGE"
+    },
     {
       "id": "ORGANIZATION_MESSAGE:READ+EDIT",
       "name": "编辑",
       "resourceId": "ORGANIZATION_MESSAGE"
     },
-//    {
-//      "id": "WORKSPACE_USER:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "WORKSPACE_USER"
-//    },
+    {
+      "id": "WORKSPACE_USER:READ",
+      "name": "查询成员",
+      "resourceId": "WORKSPACE_USER"
+    },
     {
       "id": "WORKSPACE_USER:READ+CREATE",
       "name": "添加成员",
@@ -234,11 +234,11 @@
       "name": "删除成员",
       "resourceId": "WORKSPACE_USER"
     },
-//    {
-//      "id": "WORKSPACE_TEMPLATE:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "WORKSPACE_TEMPLATE"
-//    },
+    {
+      "id": "WORKSPACE_TEMPLATE:READ",
+      "name": "查询",
+      "resourceId": "WORKSPACE_TEMPLATE"
+    },
     {
       "id": "WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE",
       "name": "用例模版",
@@ -259,11 +259,11 @@
       "name": "测试报告模版",
       "resourceId": "WORKSPACE_TEMPLATE"
     },
-//    {
-//      "id": "PROJECT_USER:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_USER"
-//    },
+    {
+      "id": "PROJECT_USER:READ",
+      "name": "查询成员",
+      "resourceId": "PROJECT_USER"
+    },
     {
       "id": "PROJECT_USER:READ+CREATE",
       "name": "添加成员",
@@ -279,11 +279,11 @@
       "name": "移除成员",
       "resourceId": "PROJECT_USER"
     },
-//    {
-//      "id": "PROJECT_MANAGER:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_MANAGER"
-//    },
+    {
+      "id": "PROJECT_MANAGER:READ",
+      "name": "查询项目",
+      "resourceId": "PROJECT_MANAGER"
+    },
     {
       "id": "PROJECT_MANAGER:READ+CREATE",
       "name": "创建项目",
@@ -299,11 +299,11 @@
       "name": "删除项目",
       "resourceId": "PROJECT_MANAGER"
     },
-//    {
-//      "id": "PROJECT_ENVIRONMENT:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_ENVIRONMENT"
-//    },
+    {
+      "id": "PROJECT_ENVIRONMENT:READ",
+      "name": "查询环境",
+      "resourceId": "PROJECT_ENVIRONMENT"
+    },
     {
       "id": "PROJECT_ENVIRONMENT:READ+CREATE",
       "name": "创建环境",
@@ -334,11 +334,11 @@
       "name": "导出环境",
       "resourceId": "PROJECT_ENVIRONMENT"
     },
-//    {
-//      "id": "PROJECT_TRACK_CASE:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_TRACK_CASE"
-//    },
+    {
+      "id": "PROJECT_TRACK_CASE:READ",
+      "name": "查询用例",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
     {
       "id": "PROJECT_TRACK_CASE:READ+CREATE",
       "name": "创建用例",
@@ -369,11 +369,11 @@
       "name": "导出用例",
       "resourceId": "PROJECT_TRACK_CASE"
     },
-//    {
-//      "id": "PROJECT_TRACK_REVIEW:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_TRACK_REVIEW"
-//    },
+    {
+      "id": "PROJECT_TRACK_REVIEW:READ",
+      "name": "查询评审",
+      "resourceId": "PROJECT_TRACK_REVIEW"
+    },
     {
       "id": "PROJECT_TRACK_REVIEW:READ+CREATE",
       "name": "创建评审",
@@ -404,11 +404,11 @@
       "name": "关联/取消关联用例",
       "resourceId": "PROJECT_TRACK_REVIEW"
     },
-//    {
-//      "id": "PROJECT_TRACK_PLAN:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_TRACK_PLAN"
-//    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ",
+      "name": "查询测试计划",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
     {
       "id": "PROJECT_TRACK_PLAN:READ+CREATE",
       "name": "创建测试计划",
@@ -434,11 +434,11 @@
       "name": "关联/取消关联用例",
       "resourceId": "PROJECT_TRACK_PLAN"
     },
-//    {
-//      "id": "PROJECT_API_DEFINITION:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_API_DEFINITION"
-//    },
+    {
+      "id": "PROJECT_API_DEFINITION:READ",
+      "name": "查询接口",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
     {
       "id": "PROJECT_API_DEFINITION:READ+CREATE_API",
       "name": "创建接口",
@@ -504,11 +504,11 @@
       "name": "MOCK设置",
       "resourceId": "PROJECT_API_DEFINITION"
     },
-//    {
-//      "id": "PROJECT_API_SCENARIO:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_API_SCENARIO"
-//    },
+    {
+      "id": "PROJECT_API_SCENARIO:READ",
+      "name": "查询场景",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
     {
       "id": "PROJECT_API_SCENARIO:READ+CREATE",
       "name": "创建场景",
@@ -564,21 +564,21 @@
       "name": "创建性能测试",
       "resourceId": "PROJECT_API_SCENARIO"
     },
-//    {
-//      "id": "PROJECT_API_REPORT:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_API_REPORT"
-//    },
+    {
+      "id": "PROJECT_API_REPORT:READ",
+      "name": "查询报告",
+      "resourceId": "PROJECT_API_REPORT"
+    },
     {
       "id": "PROJECT_API_REPORT:READ+DELETE",
       "name": "删除报告",
       "resourceId": "PROJECT_API_REPORT"
     },
-//    {
-//      "id": "PROJECT_PERFORMANCE_TEST:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_PERFORMANCE_TEST"
-//    },
+    {
+      "id": "PROJECT_PERFORMANCE_TEST:READ",
+      "name": "查询测试",
+      "resourceId": "PROJECT_PERFORMANCE_TEST"
+    },
     {
       "id": "PROJECT_PERFORMANCE_TEST:READ+CREATE",
       "name": "创建测试",
@@ -609,11 +609,11 @@
       "name": "定时任务",
       "resourceId": "PROJECT_PERFORMANCE_TEST"
     },
-//    {
-//      "id": "PROJECT_PERFORMANCE_REPORT:READ",
-//      "name": "$[{i18n_view_overview}]",
-//      "resourceId": "PROJECT_PERFORMANCE_REPORT"
-//    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT:READ",
+      "name": "查询报告",
+      "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    },
     {
       "id": "PROJECT_PERFORMANCE_REPORT:READ+DELETE",
       "name": "删除报告",
@@ -623,103 +623,103 @@
   "resource": [
     {
       "id": "SYSTEM_USER",
-      "name": "系统/用户"
+      "name": "用户"
     },
     {
       "id": "SYSTEM_ORGANIZATION",
-      "name": "系统/组织"
+      "name": "组织"
     },
     {
       "id": "SYSTEM_WORKSPACE",
-      "name": "系统/工作空间"
+      "name": "工作空间"
     },
     {
       "id": "SYSTEM_GROUP",
-      "name": "系统/用户组与权限"
+      "name": "用户组与权限"
     },
     {
       "id": "SYSTEM_SETTING",
-      "name": "系统/系统参数设置"
+      "name": "系统参数设置"
     },
     {
       "id": "SYSTEM_QUOTA",
-      "name": "系统/配额管理"
+      "name": "配额管理"
     },
     {
       "id": "SYSTEM_AUTH",
-      "name": "系统/授权管理"
+      "name": "授权管理"
     },
     {
       "id": "ORGANIZATION_USER",
-      "name": "组织/成员"
+      "name": "成员"
     },
     {
       "id": "ORGANIZATION_WORKSPACE",
-      "name": "组织/工作空间"
+      "name": "工作空间"
     },
     {
       "id": "ORGANIZATION_GROUP",
-      "name": "组织/用户组与权限"
+      "name": "用户组与权限"
     },
     {
       "id": "ORGANIZATION_SERVICE",
-      "name": "组织/服务集成"
+      "name": "服务集成"
     },
     {
       "id": "ORGANIZATION_MESSAGE",
-      "name": "组织/消息设置"
+      "name": "消息设置"
     },
     {
       "id": "WORKSPACE_USER",
-      "name": "工作空间/成员"
+      "name": "成员"
     },
     {
       "id": "WORKSPACE_TEMPLATE",
-      "name": "工作空间/模版设置"
+      "name": "模版设置"
     },
     {
       "id": "PROJECT_USER",
-      "name": "项目/成员"
+      "name": "成员"
     },
     {
       "id": "PROJECT_MANAGER",
-      "name": "项目/项目管理"
+      "name": "项目管理"
     },
     {
       "id": "PROJECT_ENVIRONMENT",
-      "name": "项目/环境设置"
+      "name": "环境设置"
     },
     {
       "id": "PROJECT_TRACK_CASE",
-      "name": "项目/测试用例"
+      "name": "测试用例"
     },
     {
       "id": "PROJECT_TRACK_REVIEW",
-      "name": "项目/测试评审"
+      "name": "测试评审"
     },
     {
       "id": "PROJECT_TRACK_PLAN",
-      "name": "项目/测试计划"
+      "name": "测试计划"
     },
     {
       "id": "PROJECT_API_DEFINITION",
-      "name": "项目/接口定义"
+      "name": "接口定义"
     },
     {
       "id": "PROJECT_API_SCENARIO",
-      "name": "项目/接口自动化"
+      "name": "接口自动化"
     },
     {
       "id": "PROJECT_API_REPORT",
-      "name": "项目/测试报告"
+      "name": "测试报告"
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",
-      "name": "项目/测试"
+      "name": "测试"
     },
     {
       "id": "PROJECT_PERFORMANCE_REPORT",
-      "name": "项目/报告"
+      "name": "报告"
     }
   ]
 }
