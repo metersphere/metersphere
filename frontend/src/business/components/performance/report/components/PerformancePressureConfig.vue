@@ -51,7 +51,7 @@
                     :disabled="true"
                     v-model="threadGroup.duration"
                     :min="1"
-                    @change="calculateTotalChart(threadGroup)"
+                    @change="calculateTotalChart()"
                     size="mini"/>
                 </el-form-item>
                 <el-form-item>
@@ -68,7 +68,7 @@
                   <el-input-number
                     :disabled="true"
                     v-model="threadGroup.rpsLimit"
-                    @change="calculateTotalChart(threadGroup)"
+                    @change="calculateTotalChart()"
                     :min="1"
                     size="mini"/>
                 </el-form-item>
@@ -80,7 +80,7 @@
                       :min="1"
                       :max="threadGroup.duration"
                       v-model="threadGroup.rampUpTime"
-                      @change="calculateTotalChart(threadGroup)"
+                      @change="calculateTotalChart()"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_minutes', [getUnitLabel(threadGroup)])">
@@ -89,7 +89,7 @@
                       :min="1"
                       :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
                       v-model="threadGroup.step"
-                      @change="calculateTotalChart(threadGroup)"
+                      @change="calculateTotalChart()"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
@@ -113,7 +113,7 @@
                     :disabled="true"
                     v-model="threadGroup.iterateNum"
                     :min="1"
-                    @change="calculateTotalChart(threadGroup)"
+                    @change="calculateTotalChart()"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -123,7 +123,7 @@
                   <el-input-number
                     :disabled="true || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
-                    @change="calculateTotalChart(threadGroup)"
+                    @change="calculateTotalChart()"
                     :min="1"
                     size="mini"/>
                 </el-form-item>
@@ -133,7 +133,7 @@
                     :disabled="true"
                     :min="1"
                     v-model="threadGroup.iterateRampUp"
-                    @change="calculateTotalChart(threadGroup)"
+                    @change="calculateTotalChart()"
                     size="mini"/>
                 </el-form-item>
                 <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
@@ -256,7 +256,7 @@ export default {
               break;
           }
         });
-        this.calculateTotalChart(this.threadGroups[i]);
+        this.calculateTotalChart();
       }
     },
     getLoadConfig() {
@@ -326,7 +326,9 @@ export default {
 
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
-        if (handler.threadGroups[i].enabled === 'false' || handler.threadGroups[i].deleted === 'true') {
+        if (handler.threadGroups[i].enabled === 'false' ||
+          handler.threadGroups[i].deleted === 'true' ||
+          handler.threadGroups[i].threadType === 'ITERATION') {
           continue;
         }
         let seriesData = {
