@@ -47,7 +47,7 @@ public class MsTransactionController extends MsTestElement {
             this.setName(getLabelName());
         }
         transactionController.setName(this.getName());
-        transactionController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
+        transactionController.setProperty(TestElement.TEST_CLASS, TransactionController.class.getName());
         transactionController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TransactionControllerGui"));
         transactionController.setGenerateParentSample(generateParentSample);
         transactionController.setIncludeTimers(includeTimers);
