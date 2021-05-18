@@ -83,6 +83,7 @@ public class ProjectService {
         project.setUpdateTime(createTime);
         // set workspace id
         project.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        project.setCreateUser(SessionUtils.getUserId());
         projectMapper.insertSelective(project);
         return project;
     }

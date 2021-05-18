@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.AddProjectRequest;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.service.CheckPermissionService;
@@ -66,7 +67,7 @@ public class ProjectController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
-    public Project addProject(@RequestBody Project project, HttpServletRequest request) {
+    public Project addProject(@RequestBody AddProjectRequest project, HttpServletRequest request) {
         Project returnModel = projectService.addProject(project);
 
         //创建项目的时候默认增加Mock环境
