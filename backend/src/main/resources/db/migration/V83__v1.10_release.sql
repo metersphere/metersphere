@@ -40,11 +40,22 @@ CREATE TABLE `operating_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- add all table create_user
-ALTER TABLE api_definition  ADD create_user VARCHAR(100) NULL;
-ALTER TABLE api_module  ADD create_user VARCHAR(100) NULL;
-ALTER TABLE api_scenario  ADD create_user VARCHAR(100) NULL;
-ALTER TABLE api_scenario_module  ADD create_user VARCHAR(100) NULL;
-ALTER TABLE api_scenario_report  ADD create_user VARCHAR(100) NULL;
-ALTER TABLE test_case_node  ADD create_user VARCHAR(100) NULL;
-ALTER TABLE test_case  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_definition
+    ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_module
+    ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_scenario
+    ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_scenario_module
+    ADD create_user VARCHAR(100) NULL;
+ALTER TABLE api_scenario_report
+    ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case_node
+    ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_case
+    ADD create_user VARCHAR(100) NULL;
 
+-- system_parameter
+UPDATE system_parameter
+SET param_key = 'base.prometheus.host'
+WHERE param_key = 'prometheus.host';

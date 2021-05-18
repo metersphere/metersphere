@@ -5,7 +5,6 @@ import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.constants.SystemParam;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
@@ -55,11 +54,6 @@ public class SystemParameterController {
     @GetMapping("/base/info")
     public BaseSystemConfigDTO getBaseInfo() {
         return SystemParameterService.getBaseInfo();
-    }
-
-    @GetMapping("/prometheus/host")
-    public String getPrometheusInfo() {
-        return SystemParameterService.getValue(SystemParam.PROMETHEUS_HOST);
     }
 
     @PostMapping("/system/header")

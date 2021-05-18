@@ -233,6 +233,9 @@ public class SystemParameterService {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.CONCURRENCY.getValue())) {
                     baseSystemConfigDTO.setConcurrency(param.getParamValue());
                 }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.PROMETHEUS_HOST.getValue())) {
+                    baseSystemConfigDTO.setPrometheusHost(param.getParamValue());
+                }
             }
         }
         return baseSystemConfigDTO;
