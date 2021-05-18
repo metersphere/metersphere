@@ -2,18 +2,17 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.OrganizationMapper;
-import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.base.mapper.UserRoleMapper;
-import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
+import io.metersphere.dto.OrganizationResource;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.i18n.Translator;
@@ -51,6 +50,10 @@ public class OrganizationService {
     private WorkspaceService workspaceService;
     @Resource
     private UserService userService;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private GroupMapper groupMapper;
 
     public Organization addOrganization(Organization organization) {
         checkOrganization(organization);
@@ -197,5 +200,54 @@ public class OrganizationService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public OrganizationResource listResource(String groupId, String type) {
+        Group group = groupMapper.selectByPrimaryKey(groupId);
+        final String orgId = group.getScopeId();
+        OrganizationResource resource = new OrganizationResource();
+        if (!StringUtils.equals("global", orgId)) {
+            Organization organization = organizationMapper.selectByPrimaryKey(orgId);
+            if (organization == null) {
+                return resource;
+            }
+        }
+
+        if (StringUtils.equals(UserGroupType.ORGANIZATION, type)) {
+            OrganizationExample organizationExample = new OrganizationExample();
+            OrganizationExample.Criteria criteria = organizationExample.createCriteria();
+            if (!StringUtils.equals(orgId, "global")) {
+                criteria.andIdEqualTo(orgId);
+            }
+            List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
+            resource.setOrganizations(organizations);
+        }
+
+        if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(orgId, "global")) {
+                criteria.andOrganizationIdEqualTo(orgId);
+            }
+            List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+            resource.setWorkspaces(workspaces);
+        }
+
+        if (StringUtils.equals(UserGroupType.PROJECT, type)) {
+            ProjectExample projectExample = new ProjectExample();
+            ProjectExample.Criteria pc = projectExample.createCriteria();
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(orgId, "global")) {
+                criteria.andOrganizationIdEqualTo(orgId);
+                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+                List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
+                pc.andWorkspaceIdIn(list);
+            }
+            List<Project> projects = projectMapper.selectByExample(projectExample);
+            resource.setProjects(projects);
+        }
+
+        return resource;
     }
 }

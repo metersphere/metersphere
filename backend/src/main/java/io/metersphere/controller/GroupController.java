@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 
 @RequestMapping("/user/group")
@@ -24,6 +25,11 @@ public class GroupController {
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
         return groupService.getGroupList(request);
+    }
+
+    @PostMapping("/get")
+    public List<Group> getGroupByType(@RequestBody EditGroupRequest request) {
+        return groupService.getGroupByType(request);
     }
 
     @PostMapping("/add")
@@ -49,6 +55,11 @@ public class GroupController {
     @PostMapping("/permission/edit")
     public void EditGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
         groupService.editGroupPermission(editGroupRequest);
+    }
+
+    @GetMapping("/all/{userId}")
+    public List<Map<String, Object>> getAllUserGroup(@PathVariable("userId") String userId) {
+        return groupService.getAllUserGroup(userId);
     }
 
 

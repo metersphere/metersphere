@@ -71,6 +71,12 @@ public class UserController {
         return userService.getUserRole(userId);
     }
 
+    @GetMapping("/special/user/group/{userId}")
+    @RequiresRoles(RoleConstants.ADMIN)
+    public UserGroupPermissionDTO getUserGroup(@PathVariable("userId") String userId) {
+        return userService.getUserGroup(userId);
+    }
+
     @GetMapping("/special/delete/{userId}")
     @RequiresRoles(RoleConstants.ADMIN)
     @MsAuditLog(module = "system_user", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)

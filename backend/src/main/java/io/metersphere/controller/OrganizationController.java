@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
+import io.metersphere.dto.OrganizationResource;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
@@ -75,5 +76,10 @@ public class OrganizationController {
     @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO.id)", content = "#msClass.getLogDetails(#memberDTO.id)", msClass = OrganizationService.class)
     public void updateOrgMember(@RequestBody OrganizationMemberDTO memberDTO) {
         organizationService.updateOrgMember(memberDTO);
+    }
+
+    @GetMapping("/list/resource/{groupId}/{type}")
+    public OrganizationResource listResource(@PathVariable String groupId, @PathVariable String type) {
+        return organizationService.listResource(groupId, type);
     }
 }

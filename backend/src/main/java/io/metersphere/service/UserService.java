@@ -23,10 +23,7 @@ import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
-import io.metersphere.dto.OrganizationMemberDTO;
-import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserRoleDTO;
-import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.dto.*;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.UserDataListener;
@@ -39,6 +36,9 @@ import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -80,6 +80,14 @@ public class UserService {
     private WorkspaceService workspaceService;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+    @Resource
+    private UserGroupPermissionMapper userGroupPermissionMapper;
+    @Resource
+    private GroupMapper groupMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -103,11 +111,50 @@ public class UserService {
         } else {
             createUser(user);
         }
-        List<Map<String, Object>> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            insertUserRole(roles, user.getId());
+//        List<Map<String, Object>> roles = user.getRoles();
+//        if (!roles.isEmpty()) {
+//            insertUserRole(roles, user.getId());
+//        }
+        List<Map<String, Object>> groups = user.getGroups();
+        if (!groups.isEmpty()) {
+            insertUserGroup(groups, user.getId());
         }
         return getUserDTO(user.getId());
+    }
+
+    public void insertUserGroup(List<Map<String, Object>> groups, String userId) {
+        for (Map<String, Object> map : groups) {
+            String idType = (String) map.get("type");
+            String[] arr = idType.split("\\+");
+            String groupId = arr[0];
+            String type = arr[1];
+            if (StringUtils.equals(type, UserGroupType.SYSTEM)) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(groupId);
+                userGroup.setSourceId("system");
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
+            } else {
+                List<String> ids = (List<String>) map.get("ids");
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+                for (String id : ids) {
+                    UserGroup userGroup = new UserGroup();
+                    userGroup.setId(UUID.randomUUID().toString());
+                    userGroup.setUserId(userId);
+                    userGroup.setGroupId(groupId);
+                    userGroup.setSourceId(id);
+                    userGroup.setCreateTime(System.currentTimeMillis());
+                    userGroup.setUpdateTime(System.currentTimeMillis());
+                    mapper.insertSelective(userGroup);
+                }
+                sqlSession.flushStatements();
+            }
+
+        }
     }
 
     public User selectUser(String userId, String email) {
@@ -231,7 +278,39 @@ public class UserService {
         UserRoleDTO userRole = getUserRole(userId);
         userDTO.setUserRoles(Optional.ofNullable(userRole.getUserRoles()).orElse(new ArrayList<>()));
         userDTO.setRoles(Optional.ofNullable(userRole.getRoles()).orElse(new ArrayList<>()));
+        UserGroupPermissionDTO dto = getUserGroupPermission(userId);
+        userDTO.setUserGroups(dto.getUserGroups());
+        userDTO.setGroups(dto.getGroups());
+        userDTO.setGroupPermissions(dto.getList());
         return userDTO;
+    }
+
+    private UserGroupPermissionDTO getUserGroupPermission(String userId) {
+        UserGroupPermissionDTO permissionDTO = new UserGroupPermissionDTO();
+        List<GroupResourceDTO> list = new ArrayList<>();
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        if (CollectionUtils.isEmpty(userGroups)) {
+            return permissionDTO;
+        }
+        permissionDTO.setUserGroups(userGroups);
+        List<String> groupList = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andIdIn(groupList);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        permissionDTO.setGroups(groups);
+        for (Group gp : groups) {
+            GroupResourceDTO dto = new GroupResourceDTO();
+            dto.setGroup(gp);
+            UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
+            userGroupPermissionExample.createCriteria().andGroupIdEqualTo(gp.getId());
+            List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
+            dto.setUserGroupPermissions(userGroupPermissions);
+            list.add(dto);
+        }
+        permissionDTO.setList(list);
+        return permissionDTO;
     }
 
     public UserDTO getLoginUser(String userId, List<String> list) {
@@ -304,6 +383,10 @@ public class UserService {
         UserRoleExample example = new UserRoleExample();
         example.createCriteria().andUserIdEqualTo(userId);
         userRoleMapper.deleteByExample(example);
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        userGroupMapper.deleteByExample(userGroupExample);
 
         userMapper.deleteByPrimaryKey(userId);
     }
@@ -852,6 +935,39 @@ public class UserService {
                 userMapper.updateByPrimaryKeySelective(user);
             }
         }
+    }
+
+    public Set<String> getUserPermission(String userId) {
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> groupId = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+        UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
+        userGroupPermissionExample.createCriteria().andGroupIdIn(groupId);
+        List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
+        return userGroupPermissions.stream().map(UserGroupPermission::getPermissionId).collect(Collectors.toSet());
+    }
+
+    public UserGroupPermissionDTO getUserGroup(String userId) {
+        UserGroupPermissionDTO userGroupPermissionDTO = new UserGroupPermissionDTO();
+        //
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+
+        if (CollectionUtils.isEmpty(userGroups)) {
+            return userGroupPermissionDTO;
+        }
+        // 设置 user_role
+        userGroupPermissionDTO.setUserGroups(userGroups);
+
+        List<String> groupId = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andIdIn(groupId);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        userGroupPermissionDTO.setGroups(groups);
+        return userGroupPermissionDTO;
     }
 
     public String getLogDetails(String id) {
