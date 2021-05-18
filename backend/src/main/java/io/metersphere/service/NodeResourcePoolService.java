@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,17 +40,25 @@ public class NodeResourcePoolService {
             MSException.throwException(Translator.get("no_nodes_message"));
         }
 
-        deleteTestResource(testResourcePool.getId());
-        List<ImmutablePair> Ip_Port = testResourcePool.getResources().stream()
+
+        List<ImmutablePair<String, Integer>> ipPort = testResourcePool.getResources().stream()
                 .map(resource -> {
                     NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
-                    return new ImmutablePair(nodeDTO.getIp(), nodeDTO.getPort());
+                    return new ImmutablePair<>(nodeDTO.getIp(), nodeDTO.getPort());
                 })
                 .distinct()
                 .collect(Collectors.toList());
-        if (Ip_Port.size() < testResourcePool.getResources().size()) {
+        if (ipPort.size() < testResourcePool.getResources().size()) {
             MSException.throwException(Translator.get("duplicate_node_ip_port"));
         }
+
+        List<TestResource> resourcesFromDB = getResourcesFromDB(testResourcePool);
+        List<String> resourceIdsFromDB = resourcesFromDB.stream().map(TestResource::getId).collect(Collectors.toList());
+        List<String> resourceIdsFromPage = testResourcePool.getResources().stream().map(TestResource::getId).collect(Collectors.toList());
+        Collection<String> deletedResources = CollectionUtils.subtract(resourceIdsFromDB, resourceIdsFromPage);
+        // 删除不关联的资源节点
+        deleteTestResources(deletedResources);
+
         testResourcePool.setStatus(VALID.name());
         boolean isValid = true;
         for (TestResource resource : testResourcePool.getResources()) {
@@ -66,6 +75,18 @@ public class NodeResourcePoolService {
             updateTestResource(resource);
         }
         return isValid;
+    }
+
+    private void deleteTestResources(Collection<String> ids) {
+        for (String deletedResourceId : ids) {
+            testResourceMapper.deleteByPrimaryKey(deletedResourceId);
+        }
+    }
+
+    private List<TestResource> getResourcesFromDB(TestResourcePoolDTO testResourcePool) {
+        TestResourceExample example = new TestResourceExample();
+        example.createCriteria().andTestResourcePoolIdEqualTo(testResourcePool.getId());
+        return testResourceMapper.selectByExample(example);
     }
 
 
@@ -90,14 +111,9 @@ public class NodeResourcePoolService {
         testResource.setCreateTime(System.currentTimeMillis());
         if (StringUtils.isBlank(testResource.getId())) {
             testResource.setId(UUID.randomUUID().toString());
+            testResourceMapper.insertSelective(testResource);
+        } else {
+            testResourceMapper.updateByPrimaryKeySelective(testResource);
         }
-        // 如果是更新操作，插入与原来的ID相同的数据
-        testResourceMapper.insertSelective(testResource);
-    }
-
-    private void deleteTestResource(String testResourcePoolId) {
-        TestResourceExample testResourceExample = new TestResourceExample();
-        testResourceExample.createCriteria().andTestResourcePoolIdEqualTo(testResourcePoolId);
-        testResourceMapper.deleteByExample(testResourceExample);
     }
 }
