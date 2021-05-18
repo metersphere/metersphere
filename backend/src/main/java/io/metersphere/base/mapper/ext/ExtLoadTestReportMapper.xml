@@ -66,7 +66,8 @@
 
     <select id="getReportList" resultType="io.metersphere.dto.ReportDTO">
         select ltr.id, ltr.name, ltr.test_id as testId, ltr.max_users maxUsers, ltr.avg_response_time avgResponseTime,
-        ltr.tps, ltr.description, user.name as userName, project.name as
+        ltr.tps, ltr.test_start_time as testStartTime, ltr.test_end_time as testEndTime, ltr.test_duration as testDuration,
+        ltr.description, user.name as userName, project.name as
         projectName, ltr.trigger_mode,
         ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
         project.id as projectId

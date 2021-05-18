@@ -59,3 +59,13 @@ ALTER TABLE test_case
 UPDATE system_parameter
 SET param_key = 'base.prometheus.host'
 WHERE param_key = 'prometheus.host';
+
+-- load_test_report
+alter table load_test_report
+    add test_start_time BIGINT(13) null;
+
+alter table load_test_report
+    add test_end_time BIGINT(13) null;
+
+alter table load_test_report
+    add test_duration BIGINT(13) null;

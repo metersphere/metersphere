@@ -201,11 +201,8 @@ public class MetricQueryService {
         MetricRequest metricRequest = new MetricRequest();
         metricRequest.setMetricDataQueries(list);
         try {
-            SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-            Date startTime = df.parse(reportTimeInfo.getStartTime());
-            Date endTime = df.parse(reportTimeInfo.getEndTime());
-            metricRequest.setStartTime(startTime.getTime());
-            metricRequest.setEndTime(endTime.getTime());
+            metricRequest.setStartTime(reportTimeInfo.getStartTime());
+            metricRequest.setEndTime(reportTimeInfo.getEndTime());
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             e.printStackTrace();
