@@ -33,7 +33,7 @@ public class Project implements Serializable {
 
     private Boolean scenarioCustomNum;
 
-    private static final long serialVersionUID = 1L;
+    private String createUser;
 
-    private String protocal;
+    private static final long serialVersionUID = 1L;
 }
