@@ -1,13 +1,6 @@
 import {getUUID} from "@/common/js/utils";
 import {getUploadConfig, request} from "@/common/js/ajax";
 
-function setFiles(item, bodyUploadFiles, obj) {
-  if (item.body) {
-    buildBodyFile(item, bodyUploadFiles, obj, item.body.kvs);
-    buildBodyFile(item, bodyUploadFiles, obj, item.body.binary);
-  }
-}
-
 function buildBodyFile(item, bodyUploadFiles, obj, bodyParam) {
   if (bodyParam) {
     bodyParam.forEach(param => {
@@ -21,6 +14,13 @@ function buildBodyFile(item, bodyUploadFiles, obj, bodyParam) {
         });
       }
     });
+  }
+}
+
+function setFiles(item, bodyUploadFiles, obj) {
+  if (item.body) {
+    buildBodyFile(item, bodyUploadFiles, obj, item.body.kvs);
+    buildBodyFile(item, bodyUploadFiles, obj, item.body.binary);
   }
 }
 
@@ -38,7 +38,7 @@ export function getBodyUploadFiles(obj, scenarioDefinition) {
   obj.bodyFileRequestIds = [];
   scenarioDefinition.forEach(item => {
     setFiles(item, bodyUploadFiles, obj);
-    if (item.hashTree != undefined && item.hashTree.length > 0) {
+    if (item.hashTree !== undefined && item.hashTree.length > 0) {
       recursiveFile(item.hashTree, bodyUploadFiles, obj);
     }
   })

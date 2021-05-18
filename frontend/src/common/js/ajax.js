@@ -28,7 +28,7 @@ export function getUploadConfig(url, formData) {
 // 登入请求不重定向
 let unRedirectUrls = new Set(['signin', 'ldap/signin', '/signin', '/ldap/signin']);
 
-function login() {
+export function login() {
   MessageBox.alert(i18n.t('commons.tips'), i18n.t('commons.prompt'), {
     callback: () => {
       axios.get("/signout");
