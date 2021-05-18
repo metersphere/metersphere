@@ -11,7 +11,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.SystemParam;
+import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -58,7 +58,7 @@ public class MetricQueryService {
 
 
     public List<MetricData> queryMetricData(MetricRequest metricRequest) {
-        String host = systemParameterService.getValue(SystemParam.PROMETHEUS_HOST);
+        String host = systemParameterService.getValue(ParamConstants.BASE.PROMETHEUS_HOST.getValue());
         prometheusHost = StringUtils.isNotBlank(host) ? host : "http://ms-prometheus:9090";
         List<MetricData> metricDataList = new ArrayList<>();
         long endTime = metricRequest.getEndTime();
@@ -282,7 +282,7 @@ public class MetricQueryService {
                 granularity = data.getGranularity();
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage() ,e);
+            LogUtil.error(e.getMessage(), e);
         }
         return granularity;
     }
