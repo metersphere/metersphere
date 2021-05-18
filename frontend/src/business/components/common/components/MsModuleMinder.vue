@@ -238,4 +238,8 @@ export default {
 .full-screen .fulls-screen-btn {
   right: 30px;
 }
+
+/deep/ *[disabled] {
+  opacity: 0.7 !important;
+}
 </style>
