@@ -1,5 +1,6 @@
 package io.metersphere.job.sechedule;
 
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.LogUtil;
 import org.python.antlr.ast.Str;
@@ -290,11 +291,13 @@ public class ScheduleManager {
         addOrUpdateCronJob(jobKey, triggerKey, jobClass, cron, null);
     }
 
-    public JobDataMap getDefaultJobDataMap(String resourceId, String expression, String userId) {
+    public JobDataMap getDefaultJobDataMap(Schedule schedule, String expression, String userId) {
         JobDataMap jobDataMap = new JobDataMap();
-        jobDataMap.put("resourceId", resourceId);
+        jobDataMap.put("resourceId", schedule.getResourceId());
         jobDataMap.put("expression", expression);
         jobDataMap.put("userId", userId);
+        jobDataMap.put("config", schedule.getConfig());
+
         return jobDataMap;
     }
 

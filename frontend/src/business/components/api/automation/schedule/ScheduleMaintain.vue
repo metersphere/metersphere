@@ -19,7 +19,9 @@
                     </el-button>
                   </el-col>
                   <el-col :span="6">
-                    <schedule-switch :schedule="schedule" :corn-value="form.cronValue" @resultListChange="getExecuteTimeTemplate" @scheduleChange="scheduleChange"></schedule-switch>
+                    <schedule-switch :schedule="schedule" :corn-value="form.cronValue"
+                                     @resultListChange="getExecuteTimeTemplate"
+                                     @scheduleChange="scheduleChange"></schedule-switch>
                   </el-col>
                 </el-row>
 
@@ -174,15 +176,15 @@ export default {
 
       if (this.isTesterPermission) {
         this.result = this.$post('user/org/member/list/all', param, response => {
-          this.scheduleReceiverOptions = response.data
+          this.scheduleReceiverOptions = response.data;
         });
       }
 
     },
     buildParam() {
       let param = {};
-      param.notices = this.tableData
-      param.testId = this.testId
+      param.notices = this.tableData;
+      param.testId = this.testId;
       return param;
     },
     open(row) {
@@ -202,7 +204,7 @@ export default {
       this.dialogVisible = true;
       this.form.cronValue = this.schedule.value;
       listenGoBack(this.close);
-      this.activeName = 'first'
+      this.activeName = 'first';
     },
     findSchedule() {
       var scheduleResourceID = this.testId;
@@ -228,7 +230,7 @@ export default {
       this.$refs['from'].validate((valid) => {
         if (valid) {
           this.intervalShortValidate();
-          let formCronValue = this.form.cronValue
+          let formCronValue = this.form.cronValue;
           this.schedule.enable = true;
           this.schedule.value = formCronValue;
           this.saveSchedule();
@@ -301,7 +303,7 @@ export default {
       let time2 = new Date(resultList[1]);
       return time2 - time1;
     },
-    getExecuteTimeTemplate(executeTileArr){
+    getExecuteTimeTemplate(executeTileArr) {
       alert(executeTileArr);
     },
   },

@@ -23,5 +23,7 @@ public class ApiModule implements Serializable {
 
     private Double pos;
 
+    private String createUser;
+
     private static final long serialVersionUID = 1L;
 }

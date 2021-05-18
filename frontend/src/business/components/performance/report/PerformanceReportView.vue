@@ -46,8 +46,11 @@
             <span class="ms-report-time-desc">
               {{ $t('report.test_start_time') }}：{{ startTime }}
             </span>
-            <span class="ms-report-time-desc">
+            <span class="ms-report-time-desc" v-if="report.status === 'Completed'">
               {{ $t('report.test_end_time') }}：{{ endTime }}
+            </span>
+            <span class="ms-report-time-desc" v-else>
+              {{ $t('report.test_end_time') }}：-
             </span>
           </el-col>
           <el-col :span="2">
@@ -59,10 +62,10 @@
                 <i class="el-icon-refresh" style="cursor: pointer;padding-top: 8px;" @click="refresh"></i>
               </template>
               <el-option
-                  v-for="item in refreshTimes"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                v-for="item in refreshTimes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
               </el-option>
             </el-select>
           </el-col>
@@ -205,18 +208,18 @@ export default {
       }
       if (this.reportId) {
         this.result = this.$get("/performance/report/content/report_time/" + this.reportId)
-            .then(res => {
-              let data = res.data.data;
-              if (data) {
-                this.startTime = data.startTime;
-                this.endTime = data.endTime;
-                let duration = data.duration;
-                this.minutes = Math.floor(duration / 60);
-                this.seconds = duration % 60;
-              }
-            }).catch(() => {
-              this.clearData();
-            });
+          .then(res => {
+            let data = res.data.data;
+            if (data) {
+              this.startTime = data.startTime;
+              this.endTime = data.endTime;
+              let duration = data.duration;
+              this.minutes = Math.floor(duration / 60);
+              this.seconds = duration % 60;
+            }
+          }).catch(() => {
+            this.clearData();
+          });
       }
     },
     initWebSocket() {
@@ -374,8 +377,8 @@ export default {
           }
 
           this.$get('/performance/get/' + data.testId)
-              .then(() => this.testDeleted = false)
-              .catch(() => this.testDeleted = true);
+            .then(() => this.testDeleted = false)
+            .catch(() => this.testDeleted = true);
 
           this.initBreadcrumb();
           this.initWebSocket();

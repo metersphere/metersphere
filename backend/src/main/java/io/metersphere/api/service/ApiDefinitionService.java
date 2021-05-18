@@ -33,6 +33,10 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
@@ -308,6 +312,7 @@ public class ApiDefinitionService {
         test.setProtocol(request.getProtocol());
         test.setMethod(request.getMethod());
         test.setPath(request.getPath());
+        test.setCreateUser(SessionUtils.getUserId());
         test.setProjectId(request.getProjectId());
         request.getRequest().setId(request.getId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));
@@ -574,8 +579,11 @@ public class ApiDefinitionService {
         }
 
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
-        //jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null);
+        if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+            jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, request.getConfig());
+        } else {
+            jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        }
         return request.getId();
     }
 
@@ -664,6 +672,12 @@ public class ApiDefinitionService {
             MSException.throwException(Translator.get("parse_data_error"));
         }
         importApi(request, apiImport);
+        if (CollectionUtils.isNotEmpty(apiImport.getData())) {
+            List<String> names = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+            request.setName(String.join(",", names));
+            List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
+        }
         return apiImport;
     }
 
@@ -970,6 +984,12 @@ public class ApiDefinitionService {
             System.out.println(apiDefinitionMapper.selectByExampleWithBLOBs(example));
             apiExportResult = swagger3Parser.swagger3Export(apiDefinitionMapper.selectByExampleWithBLOBs(example));
         }
+        if (CollectionUtils.isNotEmpty(((MsApiExportResult) apiExportResult).getData())) {
+            List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+            request.setName(String.join(",", names));
+            List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+            request.setId(JSON.toJSONString(ids));
+        }
         return apiExportResult;
     }
 
@@ -1051,4 +1071,62 @@ public class ApiDefinitionService {
             }
         }
     }
+
+    public String getLogDetails(String id) {
+        ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
+            List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), definitions.get(0).getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(ApiBatchRequest request) {
+        request.getCondition();
+        if (CollectionUtils.isNotEmpty(request.getIds())) {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(request.getIds());
+            List<ApiDefinition> definitions = apiDefinitionMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(definitions)) {
+                List<DetailColumn> columns = new LinkedList<>();
+                if (StringUtils.isNotEmpty(request.getMethod())) {
+                    columns.clear();
+                    definitions.forEach(item -> {
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("method"), "method", item.getMethod(), null);
+                        columns.add(column);
+                    });
+                } else if (StringUtils.isNotEmpty(request.getStatus())) {
+                    columns.clear();
+                    definitions.forEach(item -> {
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", item.getStatus(), null);
+                        columns.add(column);
+                    });
+                } else if (StringUtils.isNotEmpty(request.getUserId())) {
+                    columns.clear();
+                    definitions.forEach(item -> {
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("userId"), "userId", item.getUserId(), null);
+                        columns.add(column);
+                    });
+                }
+                List<String> names = definitions.stream().map(ApiDefinition::getName).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIds()), request.getProjectId(), String.join(",", names), definitions.get(0).getCreateUser(), columns);
+                return JSON.toJSONString(details);
+            }
+        }
+        return null;
+    }
+
 }

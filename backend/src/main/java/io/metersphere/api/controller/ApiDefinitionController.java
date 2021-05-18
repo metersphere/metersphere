@@ -19,6 +19,7 @@ import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.CronUtils;
@@ -26,6 +27,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -94,6 +96,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         apiDefinitionService.create(request, bodyFiles);
@@ -101,6 +104,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     public ApiDefinitionWithBLOBs update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.update(request, bodyFiles);
@@ -108,12 +112,14 @@ public class ApiDefinitionController {
 
     @GetMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiDefinitionService.class)
     public void delete(@PathVariable String id) {
         apiDefinitionService.delete(id);
     }
 
     @PostMapping("/deleteBatch")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void deleteBatch(@RequestBody List<String> ids) {
         apiDefinitionService.deleteBatch(ids);
     }
@@ -128,23 +134,27 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/deleteBatchByParams")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void deleteBatchByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.deleteByParams(request);
     }
 
     @PostMapping("/removeToGc")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
     public void removeToGc(@RequestBody List<String> ids) {
         apiDefinitionService.removeToGc(ids);
     }
 
     @PostMapping("/removeToGcByParams")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void removeToGcByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.removeToGcByParams(request);
     }
 
     @PostMapping("/reduction")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     public void reduction(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.reduction(request);
     }
@@ -155,11 +165,13 @@ public class ApiDefinitionController {
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
     public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         return apiDefinitionService.run(request, bodyFiles);
     }
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public String run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         request.setReportId(null);
         return apiDefinitionService.run(request, bodyFiles);
@@ -182,18 +194,21 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
     @PostMapping(value = "/export/{type}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiExportResult export(@RequestBody ApiBatchRequest request, @PathVariable String type) {
         return apiDefinitionService.export(request, type);
     }
 
     //定时任务创建
     @PostMapping(value = "/schedule/create")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.scheduleFrom", project = "#request.projectId")
     public void createSchedule(@RequestBody ScheduleRequest request) throws MalformedURLException {
         apiDefinitionService.createSchedule(request);
     }
@@ -252,6 +267,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/batch/editByParams")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
     public void editByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiByParam(request);
     }

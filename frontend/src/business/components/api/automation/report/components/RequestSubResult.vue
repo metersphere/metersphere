@@ -5,13 +5,16 @@
       <el-row :gutter="10" type="flex" align="middle" class="info">
         <el-col :span="6" v-if="indexNumber!=undefined">
           <div class="method">
-            <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
-              <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+
+            <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
+                <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+              </div>
+              <div class="el-step__icon is-text ms-api-col-create" v-else>
+                <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+              </div>
+              {{ request.name }}
             </div>
-            <div class="el-step__icon is-text ms-api-col-create" v-else>
-              <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
-            </div>
-            {{ request.name }}
           </div>
         </el-col>
         <el-col :span="2">
@@ -21,7 +24,11 @@
         </el-col>
         <el-col :span="6">
           <div class="url">
-            {{ request.url }}
+            <el-tooltip :content="request.url " style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
+              <div>
+                {{ request.url }}
+              </div>
+            </el-tooltip>
           </div>
         </el-col>
         <el-col :span="5">

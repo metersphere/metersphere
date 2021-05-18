@@ -10,6 +10,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="pos" jdbcType="DOUBLE" property="pos" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos
+    id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseNodeExample" resultMap="BaseResultMap">
     select
@@ -105,10 +106,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseNode">
     insert into test_case_node (id, project_id, `name`, 
       parent_id, `level`, create_time, 
-      update_time, pos)
+      update_time, pos, create_user
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE})
+      #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE}, #{createUser,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseNode">
     insert into test_case_node
@@ -137,6 +140,9 @@
       <if test="pos != null">
         pos,
       </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +168,9 @@
       </if>
       <if test="pos != null">
         #{pos,jdbcType=DOUBLE},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +207,9 @@
       <if test="record.pos != null">
         pos = #{record.pos,jdbcType=DOUBLE},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +224,8 @@
       `level` = #{record.level,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      pos = #{record.pos,jdbcType=DOUBLE}
+      pos = #{record.pos,jdbcType=DOUBLE},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +254,9 @@
       <if test="pos != null">
         pos = #{pos,jdbcType=DOUBLE},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,7 +268,8 @@
       `level` = #{level,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      pos = #{pos,jdbcType=DOUBLE}
+      pos = #{pos,jdbcType=DOUBLE},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

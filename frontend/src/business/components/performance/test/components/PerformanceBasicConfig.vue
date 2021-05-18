@@ -31,7 +31,10 @@
       <el-table-column
         :label="$t('load_test.thread_group')">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small"
+          <span v-if="row.tgType === 'PostThreadGroup' || row.tgType === 'SetupThreadGroup'">
+            {{ row.tgType }}
+          </span>
+          <el-select v-else v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small"
                      @change="tgTypeChange(row)">
             <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
                        :value="tg.testclass"></el-option>
@@ -171,13 +174,13 @@ export default {
   },
   created() {
     if (this.test.id) {
-      this.getFileMetadata(this.test)
+      this.getFileMetadata(this.test);
     }
   },
   watch: {
     test() {
       if (this.test.id) {
-        this.getFileMetadata(this.test)
+        this.getFileMetadata(this.test);
       }
     }
   },
@@ -199,7 +202,7 @@ export default {
         this.tableData.map(f => {
           f.size = (f.size / 1024).toFixed(2) + ' KB';
         });
-      })
+      });
     },
     selectAttachFileById(metadataIdArr) {
       this.metadataIdList = metadataIdArr;
@@ -214,7 +217,7 @@ export default {
               f.size = (f.size / 1024).toFixed(2) + ' KB';
             });
           }
-        })
+        });
       }
     },
     handleDownload(file) {
@@ -238,10 +241,10 @@ export default {
           aTag.download = file.name;
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
+          navigator.msSaveBlob(blob, this.filename);
         }
       }).catch(e => {
         Message.error({message: e.message, showClose: true});
@@ -325,7 +328,7 @@ export default {
         return false;
       }
 
-      if (this.threadGroups.filter(tg => tg.attributes.enabled == 'true').length === 0) {
+      if (this.threadGroups.filter(tg => tg.enabled == 'true').length === 0) {
         this.$error(this.$t('load_test.threadgroup_at_least_one'));
         return false;
       }
@@ -357,7 +360,7 @@ export default {
       this.$refs.existScenarios.handleImport();
     },
   },
-}
+};
 </script>
 
 <style scoped>
