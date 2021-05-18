@@ -27,7 +27,7 @@ function setFiles(item, bodyUploadFiles, obj) {
 function recursiveFile(arr, bodyUploadFiles, obj) {
   arr.forEach(item => {
     setFiles(item, bodyUploadFiles, obj);
-    if (item.hashTree != undefined && item.hashTree.length > 0) {
+    if (item.hashTree !== undefined && item.hashTree.length > 0) {
       recursiveFile(item.hashTree, bodyUploadFiles, obj);
     }
   });
