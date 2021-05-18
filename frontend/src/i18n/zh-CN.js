@@ -157,6 +157,7 @@ export default {
     more_operator: "更多操作",
     mock: "Mock 设置",
     all_module_title: "全部模块",
+    create_user: '创建人',
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -811,7 +812,7 @@ export default {
       wait_controller: "等待控制器",
       if_controller: "条件控制器",
       loop_controller: "循环控制器",
-      transcation_controller:"事务控制器",
+      transcation_controller: "事务控制器",
       scenario_import: "场景导入",
       customize_script: "自定义脚本",
       customize_req: "自定义请求",
