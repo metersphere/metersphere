@@ -85,6 +85,13 @@ public class TestResult {
                     item.getSubRequestResults().forEach(subItem -> {
                         subItem.setName(array[0]);
                     });
+                }else {
+                    item.getSubRequestResults().forEach(subItem -> {
+                        if (StringUtils.isNotEmpty(subItem.getName()) && subItem.getName().indexOf(SEPARATOR) != -1) {
+                            String array[] = subItem.getName().split(SEPARATOR);
+                            subItem.setName(array[0]);
+                        }
+                    });
                 }
             });
             scenarios.add(result);
