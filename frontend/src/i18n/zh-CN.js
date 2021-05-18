@@ -486,6 +486,7 @@ export default {
     test_monitor_details: '监控详情',
     test_details: '测试详情',
     test_duration: '执行时长：{0} 分钟 {1} 秒',
+    test_execute_time: '执行时长',
     test_start_time: '开始时间',
     test_end_time: '结束时间',
     test_stop_now: '立即停止',

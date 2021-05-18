@@ -16,6 +16,9 @@
     <result column="tps" jdbcType="VARCHAR" property="tps" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="test_name" jdbcType="VARCHAR" property="testName" />
+    <result column="test_start_time" jdbcType="BIGINT" property="testStartTime" />
+    <result column="test_end_time" jdbcType="BIGINT" property="testEndTime" />
+    <result column="test_duration" jdbcType="BIGINT" property="testDuration" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -82,7 +85,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, file_id, 
-    max_users, avg_response_time, tps, project_id, test_name
+    max_users, avg_response_time, tps, project_id, test_name, test_start_time, test_end_time, 
+    test_duration
   </sql>
   <sql id="Blob_Column_List">
     description, load_configuration, jmx_content
@@ -140,13 +144,15 @@
       create_time, update_time, `status`, 
       user_id, trigger_mode, file_id, 
       max_users, avg_response_time, tps, 
-      project_id, test_name, description, 
+      project_id, test_name, test_start_time, 
+      test_end_time, test_duration, description, 
       load_configuration, jmx_content)
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
       #{maxUsers,jdbcType=VARCHAR}, #{avgResponseTime,jdbcType=VARCHAR}, #{tps,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testStartTime,jdbcType=BIGINT}, 
+      #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}, 
       #{loadConfiguration,jdbcType=LONGVARCHAR}, #{jmxContent,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
@@ -193,6 +199,15 @@
       </if>
       <if test="testName != null">
         test_name,
+      </if>
+      <if test="testStartTime != null">
+        test_start_time,
+      </if>
+      <if test="testEndTime != null">
+        test_end_time,
+      </if>
+      <if test="testDuration != null">
+        test_duration,
       </if>
       <if test="description != null">
         description,
@@ -246,6 +261,15 @@
       </if>
       <if test="testName != null">
         #{testName,jdbcType=VARCHAR},
+      </if>
+      <if test="testStartTime != null">
+        #{testStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="testEndTime != null">
+        #{testEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="testDuration != null">
+        #{testDuration,jdbcType=BIGINT},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -309,6 +333,15 @@
       <if test="record.testName != null">
         test_name = #{record.testName,jdbcType=VARCHAR},
       </if>
+      <if test="record.testStartTime != null">
+        test_start_time = #{record.testStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.testEndTime != null">
+        test_end_time = #{record.testEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.testDuration != null">
+        test_duration = #{record.testDuration,jdbcType=BIGINT},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -339,6 +372,9 @@
       tps = #{record.tps,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       test_name = #{record.testName,jdbcType=VARCHAR},
+      test_start_time = #{record.testStartTime,jdbcType=BIGINT},
+      test_end_time = #{record.testEndTime,jdbcType=BIGINT},
+      test_duration = #{record.testDuration,jdbcType=BIGINT},
       description = #{record.description,jdbcType=LONGVARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR}
@@ -361,7 +397,10 @@
       avg_response_time = #{record.avgResponseTime,jdbcType=VARCHAR},
       tps = #{record.tps,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      test_name = #{record.testName,jdbcType=VARCHAR}
+      test_name = #{record.testName,jdbcType=VARCHAR},
+      test_start_time = #{record.testStartTime,jdbcType=BIGINT},
+      test_end_time = #{record.testEndTime,jdbcType=BIGINT},
+      test_duration = #{record.testDuration,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -408,6 +447,15 @@
       <if test="testName != null">
         test_name = #{testName,jdbcType=VARCHAR},
       </if>
+      <if test="testStartTime != null">
+        test_start_time = #{testStartTime,jdbcType=BIGINT},
+      </if>
+      <if test="testEndTime != null">
+        test_end_time = #{testEndTime,jdbcType=BIGINT},
+      </if>
+      <if test="testDuration != null">
+        test_duration = #{testDuration,jdbcType=BIGINT},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -435,6 +483,9 @@
       tps = #{tps,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       test_name = #{testName,jdbcType=VARCHAR},
+      test_start_time = #{testStartTime,jdbcType=BIGINT},
+      test_end_time = #{testEndTime,jdbcType=BIGINT},
+      test_duration = #{testDuration,jdbcType=BIGINT},
       description = #{description,jdbcType=LONGVARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       jmx_content = #{jmxContent,jdbcType=LONGVARCHAR}
@@ -454,7 +505,10 @@
       avg_response_time = #{avgResponseTime,jdbcType=VARCHAR},
       tps = #{tps,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
-      test_name = #{testName,jdbcType=VARCHAR}
+      test_name = #{testName,jdbcType=VARCHAR},
+      test_start_time = #{testStartTime,jdbcType=BIGINT},
+      test_end_time = #{testEndTime,jdbcType=BIGINT},
+      test_duration = #{testDuration,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

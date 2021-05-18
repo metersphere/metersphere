@@ -35,6 +35,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,7 +170,25 @@ public class PerformanceReportService {
     public ReportTimeInfo getReportTimeInfo(String id) {
         checkReportStatus(id);
         String content = getContent(id, ReportKeys.TimeInfo);
-        return JSON.parseObject(content, ReportTimeInfo.class);
+        try {
+            return JSON.parseObject(content, ReportTimeInfo.class);
+        } catch (Exception e) {
+            // 兼容字符串和数字
+            ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            String startTime = jsonObject.getString("startTime");
+            String endTime = jsonObject.getString("endTime");
+            String duration = jsonObject.getString("duration");
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            try {
+                reportTimeInfo.setStartTime(df.parse(startTime).getTime());
+                reportTimeInfo.setEndTime(df.parse(endTime).getTime());
+                reportTimeInfo.setDuration(Long.parseLong(duration));
+            } catch (Exception parseException) {
+            }
+            return reportTimeInfo;
+        }
     }
 
     public List<ChartsData> getLoadChartData(String id) {

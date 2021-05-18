@@ -488,6 +488,7 @@ export default {
     test_monitor_details: 'Test Monitor Details',
     test_details: 'Test Details',
     test_duration: 'Execution Time：{0} minutes {1} seconds',
+    test_execute_time: 'Execution Time',
     test_start_time: 'Start Time',
     test_end_time: 'End Time',
     test_stop_now: 'Test Stop Now',

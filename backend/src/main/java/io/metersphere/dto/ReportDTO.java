@@ -23,4 +23,7 @@ public class ReportDTO {
     private String maxUsers;
     private String avgResponseTime;
     private String tps;
+    private long testStartTime;
+    private long testEndTime;
+    private long testDuration;
 }
