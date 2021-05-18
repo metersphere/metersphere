@@ -81,7 +81,7 @@
                     <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="expectedResult"/>
                     <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
 
-                    <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                    <test-case-edit-other-info v-if="otherInfoActive" @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                   </el-form>
                 </div>
 
@@ -182,7 +182,8 @@ export default {
       comments: [],
       testCaseTemplate: {},
       formLabelWidth: "100px",
-      isCustomFiledActive: false
+      isCustomFiledActive: false,
+      otherInfoActive: true
     };
   },
   props: {
@@ -314,10 +315,18 @@ export default {
     handleNext() {
       this.index++;
       this.getTestCase(this.index);
+      this.reloadOtherInfo();
+    },
+    reloadOtherInfo() {
+      this.otherInfoActive = false;
+      this.$nextTick(() => {
+        this.otherInfoActive = true;
+      })
     },
     handlePre() {
       this.index--;
       this.getTestCase(this.index);
+      this.reloadOtherInfo();
     },
     getTestCase(index) {
       this.testCase = {};
