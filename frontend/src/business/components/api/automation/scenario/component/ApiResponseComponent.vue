@@ -54,7 +54,7 @@
     methods: {
       getExecResult() {
         // 执行结果信息
-        if (this.apiItem) {
+        if (this.apiItem && this.apiItem.id) {
           let url = "/api/definition/report/getReport/" + this.apiItem.id;
           this.$get(url, response => {
             if (response.data) {

@@ -25,13 +25,15 @@ import java.util.UUID;
  * @Description
  */
 public class ApiScenarioTestJob extends MsScheduleJob {
-    private String projectID;
+
+    private  String projectID;
+
     private List<String> scenarioIds;
 
     private ApiAutomationService apiAutomationService;
 
     public ApiScenarioTestJob() {
-        apiAutomationService = (ApiAutomationService) CommonBeanFactory.getBean(ApiAutomationService.class);
+        apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
     }
 
     @Override

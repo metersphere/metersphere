@@ -180,9 +180,8 @@ public class ApiTestCaseService {
     }
 
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         ApiTestCase test = createTest(request);
-        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(request.getId(), bodyFiles);
         return test;
     }
 
@@ -195,10 +194,9 @@ public class ApiTestCaseService {
 
     public ApiTestCase update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         deleteFileByTestId(request.getId());
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
-        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(request.getId(), bodyFiles);
         return test;
     }
 
@@ -293,7 +291,6 @@ public class ApiTestCaseService {
     }
 
     private ApiTestCase createTest(SaveApiTestCaseRequest request) {
-        request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
 
         if (StringUtils.isNotEmpty(request.getEsbDataStruct()) || StringUtils.isNotEmpty(request.getBackEsbDataStruct())) {
@@ -318,6 +315,7 @@ public class ApiTestCaseService {
         } else {
             test.setTags(request.getTags());
         }
+        FileUtils.copyBdyFile(request.getApiDefinitionId(), request.getId());
         apiTestCaseMapper.insert(test);
         return test;
     }

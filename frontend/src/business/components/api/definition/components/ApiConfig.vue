@@ -203,6 +203,7 @@ export default {
       saveApi(data) {
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
+        data.requestId = data.request.id;
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/definition/update";
@@ -236,10 +237,10 @@ export default {
               if (param.files) {
                 param.files.forEach(item => {
                   if (item.file) {
-                    let fileId = getUUID().substring(0, 8);
+                    // let fileId = getUUID().substring(0, 8);
                     item.name = item.file.name;
-                    item.id = fileId;
-                    data.bodyUploadIds.push(fileId);
+                    // item.id = fileId;
+                    // data.bodyUploadIds.push(fileId);
                     bodyUploadFiles.push(item.file);
                   }
                 });

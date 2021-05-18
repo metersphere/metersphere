@@ -17,6 +17,11 @@ SET load_test_report.test_name = load_test.name;
 alter table schedule
     add config VARCHAR(500) null;
 
+
+--  自动清理调试用的body文件
+-- INSERT INTO schedule (id,`key`,`type`,value,`group`,job,enable,resource_id,user_id,workspace_id,create_time,update_time,project_id,name)
+-- VALUES ('f7f99f50-850b-41b2-8cb9-edee70669c4b','f7f99f50-850b-41b2-8cb9-edee70669c4b','CRON','0 0 4 * * ?','CLEAR_JOB','io.metersphere.job.sechedule.ClearJob',1,'system','admin','system',unix_timestamp() * 1000,unix_timestamp() * 1000,'system','ClearJob');
+
 CREATE TABLE `operating_log` (
   `id` varchar(50) NOT NULL COMMENT 'ID',
   `project_id` varchar(50) NOT NULL COMMENT 'Project ID',
@@ -42,3 +47,4 @@ ALTER TABLE api_scenario_module  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE api_scenario_report  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case_node  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case  ADD create_user VARCHAR(100) NULL;
+

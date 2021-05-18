@@ -42,7 +42,9 @@ public class SaveApiScenarioRequest {
 
     private MsTestElement scenarioDefinition;
 
-    List<String> bodyUploadIds;
+    List<String> bodyFileRequestIds;
+
+    List<String> scenarioFileIds;
 
     private List<String> scenarioIds;
 

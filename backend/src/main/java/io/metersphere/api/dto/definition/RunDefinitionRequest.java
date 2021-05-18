@@ -17,6 +17,8 @@ public class RunDefinitionRequest {
 
     private String reportId;
 
+    private String requestId;
+
     private String name;
 
     private String type;
@@ -35,9 +37,11 @@ public class RunDefinitionRequest {
 
     private Response response;
 
-    private RunModeConfig config;
+    List<String> bodyFileRequestIds;
 
-    private List<String> bodyUploadIds;
+    List<String> scenarioFileIds;
+
+    private RunModeConfig config;
 
     private Map<String, String> environmentMap;
 }

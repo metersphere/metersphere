@@ -287,9 +287,11 @@ export function getBodyUploadFiles(obj, runData) {
   if (runData) {
     if (runData instanceof Array) {
       runData.forEach(request => {
+        obj.requestId = request.id;
         _getBodyUploadFiles(request, bodyUploadFiles, obj);
       });
     } else {
+      obj.requestId = runData.id;
       _getBodyUploadFiles(runData, bodyUploadFiles, obj);
     }
   }
@@ -299,8 +301,10 @@ export function getBodyUploadFiles(obj, runData) {
 export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
   let body = null;
   if (request.hashTree && request.hashTree.length > 0 && request.hashTree[0] && request.hashTree[0].body) {
+    obj.requestId = request.hashTree[0].id;
     body = request.hashTree[0].body;
   } else if (request.body) {
+    obj.requestId = request.id;
     body = request.body;
   }
   if (body) {
@@ -309,12 +313,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
         if (param.files) {
           param.files.forEach(item => {
             if (item.file) {
-              if (!item.id) {
-                let fileId = getUUID().substring(0, 12);
-                item.name = item.file.name;
-                item.id = fileId;
-              }
-              obj.bodyUploadIds.push(item.id);
+              item.name = item.file.name;
               bodyUploadFiles.push(item.file);
             }
           });
@@ -326,12 +325,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
         if (param.files) {
           param.files.forEach(item => {
             if (item.file) {
-              if (!item.id) {
-                let fileId = getUUID().substring(0, 12);
-                item.name = item.file.name;
-                item.id = fileId;
-              }
-              obj.bodyUploadIds.push(item.id);
+              item.name = item.file.name;
               bodyUploadFiles.push(item.file);
             }
           });
