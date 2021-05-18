@@ -697,6 +697,7 @@ export default {
         select_case: "Search use cases",
         select_api: "Search api",
         case: "Case",
+        responsible: "Responsible",
         title: "Create api",
         path_info: "Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
         path_all_info: "Please enter the complete test address",
