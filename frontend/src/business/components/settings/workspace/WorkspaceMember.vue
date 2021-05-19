@@ -8,6 +8,7 @@
       <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
                 @select-all="handleSelectAll"
                 @select="handleSelect"
+                :height="screenHeight"
                 ref="userTable">
 
         <el-table-column type="selection" width="50"/>
@@ -164,6 +165,7 @@
             {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
           ]
         },
+        screenHeight: 'calc(100vh - 255px)',
         multipleSelection: [],
         currentPage: 1,
         pageSize: 10,
@@ -173,7 +175,7 @@
         batchAddTitle: this.$t('project.batch_choose_workspace'),
         selectRows: new Set(),
         referenced: false,
-        batchAddUserRoleOptions:[],
+        batchAddUserRoleOptions: [],
         buttons: [
           {
             name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch

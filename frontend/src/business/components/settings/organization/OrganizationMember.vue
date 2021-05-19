@@ -8,6 +8,7 @@
       <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
                 @select-all="handleSelectAll"
                 @select="handleSelect"
+                :height="screenHeight"
                 ref="userTable">
         <el-table-column type="selection" width="50"/>
         <ms-table-header-select-popover v-show="total>0"
@@ -157,6 +158,7 @@
         result: {},
         createVisible: false,
         updateVisible: false,
+        screenHeight: 'calc(100vh - 255px)',
         form: {},
         queryPath: "/user/org/member/list",
         condition: {},

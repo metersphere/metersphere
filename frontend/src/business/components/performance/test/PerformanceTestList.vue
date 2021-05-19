@@ -11,6 +11,7 @@
         <el-table border :data="tableData" class="adjust-table test-content"
                   @sort-change="sort"
                   @filter-change="filter"
+                  :height="screenHeight"
         >
           <el-table-column
             prop="num"
@@ -146,6 +147,7 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       userFilters: [],
+      screenHeight: 'calc(100vh - 295px)',
     };
   },
   watch: {

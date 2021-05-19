@@ -7,7 +7,9 @@
                          :create-tip="$t('organization.create')" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->
-      <el-table border class="adjust-table" :data="tableData" style="width: 100%">
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
@@ -224,6 +226,7 @@ export default {
       dialogPageSize: 10,
       dialogTotal: 0,
       currentRow: {},
+      screenHeight: 'calc(100vh - 255px)',
       condition: {},
       dialogCondition: {},
       tableData: [],
