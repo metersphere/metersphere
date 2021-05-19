@@ -330,10 +330,13 @@
         this.runData.projectId = this.request.projectId;
         this.request.useEnvironment = this.currentEnvironmentId;
         this.request.customizeReq = this.isCustomizeReq;
+        let requestParam = JSON.parse(JSON.stringify(this.request));
+        // 禁用调试报错
+        requestParam.enable = true;
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
-          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
+          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [requestParam],
         };
         this.runData.push(debugData);
         /*触发执行操作*/
