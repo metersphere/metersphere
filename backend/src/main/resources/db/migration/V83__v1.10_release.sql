@@ -23,6 +23,9 @@ SET load_test_report.test_name = load_test.name;
 UPDATE load_test_report JOIN load_test ON load_test.id = test_id
 SET load_test_report.advanced_configuration = load_test.advanced_configuration;
 
+UPDATE load_test_report JOIN load_test ON load_test.id = test_id
+SET load_test_report.test_resource_pool_id = load_test.test_resource_pool_id;
+
 -- schedule
 alter table schedule
     add config VARCHAR(500) null;
