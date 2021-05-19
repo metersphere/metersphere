@@ -348,8 +348,10 @@ public class PerformanceTestService {
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
             // 启动正常插入 report
             testReport.setLoadConfiguration(loadTest.getLoadConfiguration());
+            testReport.setAdvancedConfiguration(loadTest.getAdvancedConfiguration());
             testReport.setStatus(PerformanceTestStatus.Starting.name());
             testReport.setProjectId(loadTest.getProjectId());
+            testReport.setTestResourcePoolId(loadTest.getTestResourcePoolId());
             testReport.setTestName(loadTest.getName());
             loadTestReportMapper.insertSelective(testReport);
 
