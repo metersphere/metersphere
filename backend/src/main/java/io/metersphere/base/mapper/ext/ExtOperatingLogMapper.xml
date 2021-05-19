@@ -18,7 +18,7 @@
             operating_log t
             LEFT JOIN USER t1 ON t.oper_user = t1.id
             LEFT JOIN project t2 ON t.project_id = t2.id
-            join workspace w on t2.workspace_id = w.id
+            LEFT JOIN workspace w on t2.workspace_id = w.id
         <where>
             <if test="request.operUser != null and request.operUser != ''">
                 and t.oper_user like #{request.operUser, jdbcType=VARCHAR}

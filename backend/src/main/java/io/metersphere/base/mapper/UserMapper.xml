@@ -15,6 +15,7 @@
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="source" jdbcType="VARCHAR" property="source" />
     <result column="last_project_id" jdbcType="VARCHAR" property="lastProjectId" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, email, `password`, `status`, create_time, update_time, `language`, last_workspace_id, 
-    last_organization_id, phone, `source`, last_project_id
+    last_organization_id, phone, `source`, last_project_id, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.UserExample" resultMap="BaseResultMap">
     select
@@ -113,12 +114,12 @@
       `password`, `status`, create_time, 
       update_time, `language`, last_workspace_id, 
       last_organization_id, phone, `source`, 
-      last_project_id)
+      last_project_id, create_user)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
       #{password,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{language,jdbcType=VARCHAR}, #{lastWorkspaceId,jdbcType=VARCHAR}, 
       #{lastOrganizationId,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, 
-      #{lastProjectId,jdbcType=VARCHAR})
+      #{lastProjectId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.User">
     insert into user
@@ -162,6 +163,9 @@
       <if test="lastProjectId != null">
         last_project_id,
       </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +206,9 @@
       </if>
       <if test="lastProjectId != null">
         #{lastProjectId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -253,6 +260,9 @@
       <if test="record.lastProjectId != null">
         last_project_id = #{record.lastProjectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +282,8 @@
       last_organization_id = #{record.lastOrganizationId,jdbcType=VARCHAR},
       phone = #{record.phone,jdbcType=VARCHAR},
       `source` = #{record.source,jdbcType=VARCHAR},
-      last_project_id = #{record.lastProjectId,jdbcType=VARCHAR}
+      last_project_id = #{record.lastProjectId,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +327,9 @@
       <if test="lastProjectId != null">
         last_project_id = #{lastProjectId,jdbcType=VARCHAR},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -332,7 +346,8 @@
       last_organization_id = #{lastOrganizationId,jdbcType=VARCHAR},
       phone = #{phone,jdbcType=VARCHAR},
       `source` = #{source,jdbcType=VARCHAR},
-      last_project_id = #{lastProjectId,jdbcType=VARCHAR}
+      last_project_id = #{lastProjectId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

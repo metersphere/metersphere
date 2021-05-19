@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
@@ -13,6 +14,10 @@ import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.dto.UpdatePoolDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -230,5 +235,13 @@ public class TestResourcePoolService {
         }
         return list;
     }
-
+    public String getLogDetails(String id) {
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
+        if (pool != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(pool, SystemReference.poolColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(pool.getId()), null, pool.getName(), pool.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

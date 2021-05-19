@@ -1,6 +1,7 @@
 package io.metersphere.service;
 
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
@@ -31,6 +32,10 @@ import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.UserDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
 import org.apache.commons.lang3.StringUtils;
@@ -172,6 +177,7 @@ public class UserService {
         User user = new User();
         BeanUtils.copyProperties(userRequest, user);
         user.setCreateTime(System.currentTimeMillis());
+        user.setCreateUser(SessionUtils.getUserId());
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus(UserStatus.NORMAL);
@@ -646,7 +652,7 @@ public class UserService {
             UserExcelData data = new UserExcelData();
             data.setId("user_id_" + i);
             data.setName(Translator.get("user") + i);
-            data.setPassword(Translator.get("required")+";"+Translator.get("password_format_is_incorrect"));
+            data.setPassword(Translator.get("required") + ";" + Translator.get("password_format_is_incorrect"));
             data.setEmail(Translator.get("required"));
             String workspace = "";
             for (int workspaceIndex = 1; workspaceIndex <= i; workspaceIndex++) {
@@ -754,11 +760,11 @@ public class UserService {
 
         if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             List<String> userIdList = new ArrayList<>();
-            if(StringUtils.isEmpty(request.getOrganizationId())){
+            if (StringUtils.isEmpty(request.getOrganizationId())) {
                 userIdList = extUserMapper.selectIdsByQuery(request.getCondition());
-            }else{
+            } else {
                 //组织->成员 页面发起的请求
-                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(),request.getCondition());
+                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(), request.getCondition());
             }
 
             return userIdList;
@@ -846,5 +852,28 @@ public class UserService {
                 userMapper.updateByPrimaryKeySelective(user);
             }
         }
+    }
+
+    public String getLogDetails(String id) {
+        User user = userMapper.selectByPrimaryKey(id);
+        if (user != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.userColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(user.getId()), null, user.getName(), user.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(UserBatchProcessRequest request) {
+        List<String> userIdList = this.selectIdByUserRequest(request);
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(userIdList);
+        List<User> users = userMapper.selectByExample(example);
+        if (users != null) {
+            List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(userIdList), null, String.join(",", names), null, new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

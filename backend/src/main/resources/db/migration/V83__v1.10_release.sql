@@ -84,3 +84,7 @@ ALTER TABLE test_plan_load_case  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case_report  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE project ADD create_user VARCHAR(100) NULL;
 ALTER TABLE load_test  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE user  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE organization  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE workspace  ADD create_user VARCHAR(100) NULL;
+ALTER TABLE test_resource_pool  ADD create_user VARCHAR(100) NULL;

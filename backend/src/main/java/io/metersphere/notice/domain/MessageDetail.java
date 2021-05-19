@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class MessageDetail {
     private List<String> userIds = new ArrayList<>();
+    private String id;
     private String event;
     private String taskType;
     private String webhook;

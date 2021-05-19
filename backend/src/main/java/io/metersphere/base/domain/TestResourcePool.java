@@ -26,5 +26,7 @@ public class TestResourcePool implements Serializable {
 
     private String gcAlgo;
 
+    private String createUser;
+
     private static final long serialVersionUID = 1L;
 }

@@ -3,11 +3,13 @@ package io.metersphere.controller;
 import io.metersphere.base.domain.SystemHeader;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.UserHeader;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MailInfo;
 import io.metersphere.service.SystemParameterService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -25,6 +27,7 @@ public class SystemParameterController {
 
     @PostMapping("/edit/email")
     @RequiresRoles(value = {RoleConstants.ADMIN})
+    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置")
     public void editMail(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.editMail(systemParameter);
     }
@@ -63,12 +66,14 @@ public class SystemParameterController {
 
     @PostMapping("/save/base")
     @RequiresRoles(value = {RoleConstants.ADMIN})
+    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "基本配置")
     public void saveBaseInfo(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveBaseInfo(systemParameter);
     }
 
     @PostMapping("/save/ldap")
     @RequiresRoles(value = {RoleConstants.ADMIN})
+    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "LDAP设置")
     public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveLdap(systemParameter);
     }
@@ -80,6 +85,7 @@ public class SystemParameterController {
     }
 
     @PostMapping("save/header")
+    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "显示设置")
     public void saveHeader(@RequestBody UserHeader userHeader) {
         SystemParameterService.saveHeader(userHeader);
     }
