@@ -234,7 +234,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         LogUtil.error(e.getMessage(), e);
                     }
                 } else {
-                    if (!isCustomizeReq()) {
+                    if (!isCustomizeReq() || isRefEnvironment) {
                         //1.9 增加对Mock环境的判断
                         if (this.isMockEnvironment()) {
                             url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
