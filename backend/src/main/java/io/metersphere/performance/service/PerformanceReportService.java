@@ -345,14 +345,10 @@ public class PerformanceReportService {
 
     public String getPoolTypeByReportId(String reportId) {
         LoadTestReportWithBLOBs report = getReport(reportId);
-        String testId = report.getTestId();
-        LoadTestWithBLOBs test = loadTestMapper.selectByPrimaryKey(testId);
-        if (test != null) {
-            String poolId = test.getTestResourcePoolId();
-            TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
-            if (testResourcePool != null) {
-                return testResourcePool.getType();
-            }
+        String poolId = report.getTestResourcePoolId();
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
+        if (testResourcePool != null) {
+            return testResourcePool.getType();
         }
         return "";
     }
