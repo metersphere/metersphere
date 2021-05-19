@@ -208,6 +208,7 @@ export default {
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/definition/update";
+          this.currentApi.isCopy = false;
           this.$emit('saveApi', data);
         });
       },
