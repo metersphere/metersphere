@@ -13,7 +13,7 @@
     </div>
     <div>
       <p class="tip">{{ this.$t('report.test_log_details') }} </p>
-      <div v-if="detail && detail.operType !== 'CREATE' && detail.operType !=='DELETE' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
+      <div v-if="detail && detail.operType !== 'CREATE' && detail.operType !=='DELETE' && detail.operType !=='COPY' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
           <el-table :data="detail.details.columns">
             <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
