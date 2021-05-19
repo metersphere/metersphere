@@ -54,6 +54,11 @@
         }
       }
     },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
+      }
+    },
     mounted() {
       this.envMap = this.projectEnvMap;
       this.getVariableSize();
@@ -124,6 +129,7 @@
         return new Promise((resolve) => {
           this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
             if (res.data) {
+              res.data.projectIds.push(this.projectId);
               this.$emit("update:projectIds", new Set(res.data.projectIds));
               this.$emit("update:isFullUrl", res.data.fullUrl);
             }

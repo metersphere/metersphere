@@ -944,6 +944,7 @@
           this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
             if (res.data) {
               this.projectIds = new Set(res.data.projectIds);
+              this.projectIds.add(this.projectId);
               this.isFullUrl = res.data.fullUrl;
             }
             resolve();
