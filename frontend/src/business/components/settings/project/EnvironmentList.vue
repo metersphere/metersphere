@@ -15,11 +15,14 @@
       </template>
       <!-- 环境列表内容 -->
       <el-table border :data="environments" @filter-change="filter"
-                @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table">
+                @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table"
+                :height="screenHeight"
+      >
         <el-table-column type="selection"></el-table-column>
-        <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId" show-overflow-tooltip>
+        <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId"
+                         show-overflow-tooltip>
           <template v-slot="scope">
-            <span>{{idNameMap.get(scope.row.projectId)}}</span>
+            <span>{{ idNameMap.get(scope.row.projectId) }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('api_test.environment.name')" prop="name" show-overflow-tooltip>
@@ -141,6 +144,7 @@
         total: 0,
         projectIds: [],   //当前工作空间所拥有的所有项目id
         projectFilters: [],
+        screenHeight: 'calc(100vh - 255px)',
       }
     },
     created() {

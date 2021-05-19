@@ -5,7 +5,9 @@
         <ms-table-header :condition.sync="condition" @search="list" @create="create"
                          :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
-      <el-table border class="adjust-table" :data="items" style="width: 100%">
+      <el-table border class="adjust-table" :data="items" style="width: 100%"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
@@ -473,6 +475,7 @@
         dialogTotal: 0,
         memberLineData: [],
         memberForm: {},
+        screenHeight: 'calc(100vh - 255px)',
         form: {
           // name: "",
           // description: ""

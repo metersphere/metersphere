@@ -50,14 +50,18 @@
               </el-col>
 
               <el-col :span="2">
-                <el-button type="primary" size="small" style="float: right" @click="search">{{$t('commons.adv_search.search')}}</el-button>
+                <el-button type="primary" size="small" style="float: right" @click="search">
+                  {{ $t('commons.adv_search.search') }}
+                </el-button>
               </el-col>
             </el-row>
           </el-form>
         </div>
 
       </template>
-      <el-table border class="adjust-table" :data="tableData" ref="operLog">
+      <el-table border class="adjust-table" :data="tableData" ref="operLog"
+                :height="screenHeight"
+      >
         <el-table-column prop="operTime" :label="$t('operating_log.time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.operTime | timestampFormatDate }}</span>
@@ -67,7 +71,7 @@
         <el-table-column prop="projectName" :label="$t('commons.project')"/>
         <el-table-column prop="operType" :label="$t('operating_log.type')">
           <template v-slot:default="scope">
-            <span>{{getType(scope.row.operType)}}</span>
+            <span>{{ getType(scope.row.operType) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="operModule" :label="$t('operating_log.object')" show-overflow-tooltip width="120px"/>
@@ -108,6 +112,7 @@
         items: [],
         condition: {},
         tableData: [],
+        screenHeight: 'calc(100vh - 275px)',
         LOG_TYPE: [
           {id: 'CREATE', label: this.$t('api_test.definition.request.create_info')},
           {id: 'DELETE', label: this.$t('commons.delete')},

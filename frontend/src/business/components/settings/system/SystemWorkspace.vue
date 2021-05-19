@@ -6,14 +6,16 @@
                          :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
       <!-- workspace table -->
-      <el-table border class="adjust-table" :data="items" style="width: 100%">
+      <el-table border class="adjust-table" :data="items" style="width: 100%"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="organizationName" :label="$t('workspace.organization_name')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
             <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
-              {{scope.row.memberSize}}
+              {{ scope.row.memberSize }}
             </el-link>
           </template>
         </el-table-column>
@@ -494,6 +496,7 @@
         dialogTotal: 0,
         memberLineData: [],
         memberForm: {},
+        screenHeight: 'calc(100vh - 255px)',
         form: {
           // name: "",
           // description: ""

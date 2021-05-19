@@ -6,7 +6,9 @@
                          :create-tip="$t('test_resource_pool.create_resource_pool')"
                          :title="$t('commons.test_resource_pool')"/>
       </template>
-      <el-table border class="adjust-table" :data="items" style="width: 100%">
+      <el-table border class="adjust-table" :data="items" style="width: 100%"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">
@@ -203,6 +205,7 @@ export default {
       pageSize: 10,
       total: 0,
       form: {},
+      screenHeight: 'calc(100vh - 255px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
         name: [

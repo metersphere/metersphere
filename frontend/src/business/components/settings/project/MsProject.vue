@@ -12,7 +12,9 @@
       </template>
       <el-table border class="adjust-table" :data="items" style="width: 100%"
                 @sort-change="sort"
-                @filter-change="filter">
+                @filter-change="filter"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -194,6 +196,7 @@ export default {
         // caseTemplateId: [{required: true}],
         // issueTemplateId: [{required: true}],
       },
+      screenHeight: 'calc(100vh - 255px)',
     };
   },
   props: {
