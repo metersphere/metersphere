@@ -10,6 +10,7 @@
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @select-all="handleSelectAll"
                   @select="handleSelect"
+                  :height="screenHeight"
                   @filter-change="filter" @row-click="handleView">
           <el-table-column
             type="selection"/>
@@ -130,6 +131,7 @@ export default {
       selectAll: false,
       unSelection: [],
       selectDataCounts: 0,
+      screenHeight: 'calc(100vh - 295px)',
     }
   },
 
