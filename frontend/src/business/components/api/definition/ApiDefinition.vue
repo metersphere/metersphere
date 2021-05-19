@@ -389,6 +389,7 @@
         this.apiDefaultTab = newTabName;
       },
       handleTabsEdit(targetName, action, api) {
+        console.log(api);
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
@@ -410,8 +411,14 @@
         this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
       },
       editApi(row) {
-        let name = this.$t('api_test.definition.request.edit_api');
-        if (row.name) {
+        let name = "";
+
+        if (row.isCopy) {
+          console.log(row.isCopy);
+          name = "copy" + "-" + row.name;
+          row.name = "copy" + "-" + row.name;
+
+        } else {
           name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
         }
         this.handleTabsEdit(name, "ADD", row);

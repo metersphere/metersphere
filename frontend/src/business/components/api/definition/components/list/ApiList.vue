@@ -11,7 +11,7 @@
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
                 :batch-operators="trashEnable ? trashButtons : buttons" :screenHeight="screenHeight"
-                :operators="tableOperatorButtons" operator-width="170px"
+                :operators="tableOperatorButtons" operator-width="200px"
                 @refresh="initTable"
                 @openCustomHeader="customHeader"
                 ref="apiDefinitionTable"
@@ -52,7 +52,8 @@
             :filters="statusFilters"
             :label="$t('api_test.definition.api_status')"
             width="120px"
-            :key="index">
+            :key="index"
+          >
             <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <api-status :value="scope.row.status"/>
@@ -126,6 +127,7 @@
           <ms-table-column
             v-if="item.id == 'caseTotal'"
             prop="caseTotal"
+            sortable="custom"
             width="140px"
             :label="$t('api_test.definition.api_case_number')"
             show-overflow-tooltip
@@ -134,14 +136,17 @@
           <ms-table-column
             v-if="item.id == 'caseStatus'"
             prop="caseStatus"
+            :filters="caseStatusFilters"
             width="130px"
             :label="$t('api_test.definition.api_case_status')"
             show-overflow-tooltip
-            :key="index"/>
+            :key="index"
+          />
 
           <ms-table-column
             v-if="item.id == 'casePassingRate'"
             width="150px"
+            sortable="custom"
             prop="casePassingRate"
             :label="$t('api_test.definition.api_case_passing_rate')"
             show-overflow-tooltip
@@ -192,7 +197,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
-  buildBatchParam,
+  buildBatchParam, deepClone,
   getLabel,
   getSelectDataCounts,
   initCondition,
@@ -262,6 +267,7 @@ export default {
         {tip: this.$t('commons.edit'), icon: "el-icon-edit", exec: this.editApi},
         {tip: "CASE", exec: this.handleTestCase, isDivButton: true, type: "primary"},
         {tip: this.$t('commons.delete'), exec: this.handleDelete, icon: "el-icon-delete", type: "danger"},
+        {tip: this.$t('commons.copy'), exec: this.handleCopy, icon: "el-icon-document-copy", type: "primary"},
       ],
       tableTrashOperatorButtons: [
         {tip: this.$t('api_test.automation.execute'), icon: "el-icon-video-play", exec: this.runApi},
@@ -279,6 +285,11 @@ export default {
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
         {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
+      ],
+      caseStatusFilters: [
+        {text: this.$t('api_test.home_page.detail_card.unexecute'), value: '未执行'},
+        {text: this.$t('test_track.review.pass'), value: '通过'},
+        {text: this.$t('test_track.review.un_pass'), value: '未通过'},
       ],
       methodFilters: [
         {text: 'GET', value: 'GET'},
@@ -389,7 +400,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
@@ -514,13 +526,17 @@ export default {
     editApi(row) {
       this.$emit('editApi', row);
     },
+    handleCopy(row) {
+      row.isCopy = true;
+      this.$emit('editApi', row);
+    },
     runApi(row) {
 
       let request = row ? JSON.parse(row.request) : {};
       if (row.tags instanceof Array) {
         row.tags = JSON.stringify(row.tags);
       }
-      let response = ""
+      let response = "";
       if (row.response != null && row.response != 'null' && row.response != undefined) {
         if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
           response = row.response;
@@ -665,6 +681,7 @@ export default {
         }
       });
     },
+
     getColor(enable, method) {
       if (enable) {
         return this.methodColorMap.get(method);
