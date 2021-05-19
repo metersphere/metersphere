@@ -310,19 +310,23 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return this.$store.state.projectId;
     },
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
-    }
+    },
+
+
   },
   created: function () {
     this.$emit('setCondition', this.condition);
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     this.initTableData();
+    let redirectParam = this.$route.query.dataSelectRange;
+    this.checkRedirectEditPage(redirectParam);
 
   },
   activated() {
@@ -340,8 +344,17 @@ export default {
     }
   },
   methods: {
+    checkRedirectEditPage(redirectParam) {
+      if (redirectParam != null) {
+        this.$get('test/case/get/' + redirectParam, response => {
+          let testCase = response.data;
+          testCase.label = "redirect";
+          this.$emit('testCaseEdit', testCase);
+        });
+      }
+    },
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      this.$refs.headerCustom.open(this.tableLabel);
     },
     getSelectDataRange() {
       let dataRange = this.$route.params.dataSelectRange;

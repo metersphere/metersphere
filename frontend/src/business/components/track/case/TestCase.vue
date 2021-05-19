@@ -172,6 +172,7 @@ export default {
       let redirectParam = this.$route.params.dataSelectRange;
       return redirectParam;
     },
+
     projectId() {
       return this.$store.state.projectId
     },
@@ -300,11 +301,13 @@ export default {
       }
     },
     editTestCase(testCase) {
-      this.type="edit"
+      this.type = "edit";
       this.testCaseReadOnly = false;
-      if (this.treeNodes.length < 1) {
-        this.$warning(this.$t('test_track.case.create_module_first'));
-        return;
+      if (testCase.label != "redirect") {
+        if (this.treeNodes.length < 1) {
+          this.$warning(this.$t('test_track.case.create_module_first'));
+          return;
+        }
       }
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },

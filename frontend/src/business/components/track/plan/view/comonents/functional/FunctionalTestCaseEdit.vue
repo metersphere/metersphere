@@ -32,9 +32,11 @@
 
                   </el-row>
 
-                  <el-row style="margin-top: 0;">
+                  <el-row class="head-bar">
                     <el-col>
-                      <el-divider content-position="left">{{ testCase.name }}</el-divider>
+                      <el-divider content-position="left">
+                        <el-button type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                      </el-divider>
                     </el-col>
                   </el-row>
                 </el-header>
@@ -427,11 +429,20 @@ export default {
           break;
         }
         case "automation": {
-          let automationData = this.$router.resolve({name:'ApiAutomation',params:{redirectID:getUUID(),dataType:"scenario",dataSelectRange:'edit:'+id}});
+          let automationData = this.$router.resolve({
+            name: 'ApiAutomation',
+            params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + id}
+          });
           window.open(automationData.href, '_blank');
           break;
         }
       }
+    },
+    openTestTestCase(item) {
+      let TestCaseData = this.$router.resolve(
+        {path: '/track/case/all', query: {redirectID: getUUID(), dataType: "testCase", dataSelectRange: item.caseId}}
+      );
+      window.open(TestCaseData.href, '_blank');
     },
     addPLabel(str) {
       return "<p>" + str + "</p>";
