@@ -153,7 +153,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '流量(MB/s)'
+          name: '流量(kb/s)'
         },
         series: [{
           data: yAxis,
@@ -188,7 +188,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '流量(MB/s)'
+          name: '流量(kb/s)'
         },
         series: [{
           data: yAxis,
