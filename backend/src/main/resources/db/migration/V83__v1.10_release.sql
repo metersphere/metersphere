@@ -70,3 +70,4 @@ ALTER TABLE test_plan_api_scenario  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_plan_load_case  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case_report  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE project ADD create_user VARCHAR(100) NULL;
+ALTER TABLE load_test  ADD create_user VARCHAR(100) NULL;

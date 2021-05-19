@@ -4,11 +4,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.controller.request.DeleteReportRequest;
 import io.metersphere.performance.controller.request.RenameReportRequest;
@@ -46,6 +48,7 @@ public class PerformanceReportController {
 
     @PostMapping("/delete/{reportId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "performance_test_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reportId)", msClass = PerformanceReportService.class)
     public void deleteReport(@PathVariable String reportId) {
         performanceReportService.deleteReport(reportId);
     }
@@ -129,6 +132,7 @@ public class PerformanceReportController {
 
     @PostMapping("/batch/delete")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @MsAuditLog(module = "performance_test_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = PerformanceReportService.class)
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         performanceReportService.deleteReportBatch(reportRequest);
     }
@@ -144,6 +148,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("rename")
+    @MsAuditLog(module = "performance_test_report", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceReportService.class)
     public void renameReport(@RequestBody RenameReportRequest request) {
         performanceReportService.renameReport(request);
     }

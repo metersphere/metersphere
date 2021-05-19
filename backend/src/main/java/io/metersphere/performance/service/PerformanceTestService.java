@@ -1,5 +1,6 @@
 package io.metersphere.performance.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
@@ -20,6 +21,10 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
@@ -204,7 +209,8 @@ public class PerformanceTestService {
 
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
         loadTest.setUserId(SessionUtils.getUser().getId());
-        loadTest.setId(UUID.randomUUID().toString());
+        loadTest.setId(request.getId());
+        loadTest.setCreateUser(SessionUtils.getUserId());
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
         loadTest.setCreateTime(System.currentTimeMillis());
@@ -466,6 +472,7 @@ public class PerformanceTestService {
                 loadTestFileMapper.insert(loadTestFile);
             });
         }
+        request.setId(copy.getId());
     }
 
     public void updateSchedule(Schedule request) {
@@ -613,5 +620,15 @@ public class PerformanceTestService {
         LoadTestReportExample example = new LoadTestReportExample();
         example.createCriteria().andTestIdEqualTo(testId);
         return loadTestReportMapper.countByExample(example);
+    }
+
+    public String getLogDetails(String id) {
+        LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
+        if (loadTest != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(loadTest, PerformanceReference.performanceColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(loadTest.getId()), loadTest.getProjectId(), loadTest.getName(), loadTest.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

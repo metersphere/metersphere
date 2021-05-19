@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -14,6 +15,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -30,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "performance")
@@ -68,15 +71,18 @@ public class PerformanceTestController {
     }
 
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
+    @MsAuditLog(module = "performance_test", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,
             @RequestPart(value = "file") List<MultipartFile> files
     ) {
+        request.setId(UUID.randomUUID().toString());
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return performanceTestService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
+    @MsAuditLog(module = "performance_test", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     public String edit(
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
@@ -124,12 +130,14 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/delete")
+    @MsAuditLog(module = "performance_test", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     public void delete(@RequestBody DeleteTestPlanRequest request) {
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         performanceTestService.delete(request);
     }
 
     @PostMapping("/run")
+    @MsAuditLog(module = "performance_test", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     public String run(@RequestBody RunTestPlanRequest request) {
         return performanceTestService.run(request);
     }
@@ -170,6 +178,7 @@ public class PerformanceTestController {
     }
 
     @PostMapping(value = "/copy")
+    @MsAuditLog(module = "performance_test", type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     public void copy(@RequestBody SaveTestPlanRequest request) {
         performanceTestService.copy(request);
     }
