@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
@@ -18,6 +19,10 @@ import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +72,7 @@ public class WorkspaceService {
             workspace.setId(UUID.randomUUID().toString());
             workspace.setCreateTime(currentTime);
             workspace.setUpdateTime(currentTime);
+            workspace.setCreateUser(SessionUtils.getUserId());
             workspaceMapper.insertSelective(workspace);
         } else {
             workspace.setUpdateTime(currentTime);
@@ -253,6 +259,7 @@ public class WorkspaceService {
         workspace.setId(UUID.randomUUID().toString());
         workspace.setCreateTime(System.currentTimeMillis());
         workspace.setUpdateTime(System.currentTimeMillis());
+        workspace.setCreateUser(SessionUtils.getUserId());
         workspaceMapper.insertSelective(workspace);
         return workspace;
     }
@@ -291,5 +298,15 @@ public class WorkspaceService {
 
     public List<WorkspaceDTO> findIdAndNameByOrganizationId(String organizationId) {
         return extWorkspaceMapper.findIdAndNameByOrganizationId(organizationId);
+    }
+
+    public String getLogDetails(String id) {
+        Workspace user = workspaceMapper.selectByPrimaryKey(id);
+        if (user != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.organizationColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(user.getId()), null, user.getName(), user.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

@@ -3,6 +3,7 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Workspace;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -10,6 +11,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -32,6 +34,7 @@ public class WorkspaceController {
 
     @PostMapping("add")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace addWorkspace(@RequestBody Workspace workspace) {
         String currentOrganizationId = SessionUtils.getCurrentOrganizationId();
         organizationService.checkOrgOwner(currentOrganizationId);
@@ -45,12 +48,14 @@ public class WorkspaceController {
 
     @PostMapping("special/add")
     @RequiresRoles(RoleConstants.ADMIN)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace addWorkspaceByAdmin(@RequestBody Workspace workspace) {
         return workspaceService.addWorkspaceByAdmin(workspace);
     }
 
     @PostMapping("update")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace updateWorkspace(@RequestBody Workspace workspace) {
         workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
@@ -58,12 +63,14 @@ public class WorkspaceController {
 
     @PostMapping("special/update")
     @RequiresRoles(RoleConstants.ADMIN)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public void updateWorkspaceByAdmin(@RequestBody Workspace workspace) {
         workspaceService.updateWorkspaceByAdmin(workspace);
     }
 
     @GetMapping("special/delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ADMIN)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)",  msClass = WorkspaceService.class)
     public void deleteWorkspaceByAdmin(@PathVariable String workspaceId) {
         userService.refreshSessionUser("workspace", workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
@@ -71,6 +78,7 @@ public class WorkspaceController {
 
     @GetMapping("delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
     public void deleteWorkspace(@PathVariable String workspaceId) {
         workspaceService.checkWorkspaceOwnerByOrgAdmin(workspaceId);
         userService.refreshSessionUser("workspace", workspaceId);
@@ -105,6 +113,7 @@ public class WorkspaceController {
 
     @PostMapping("/member/update")
     @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO.id)", content = "#msClass.getLogDetails(#memberDTO.id)", msClass = WorkspaceService.class)
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }
