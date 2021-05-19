@@ -211,7 +211,7 @@ export default {
           priority: CASE_PRIORITY,
         },
         methodColorMap: new Map(API_METHOD_COLOUR),
-        screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
+        screenHeight: document.documentElement.clientHeight - 400,//屏幕高度
         tableData: [],
         currentPage: 1,
         pageSize: 10,
