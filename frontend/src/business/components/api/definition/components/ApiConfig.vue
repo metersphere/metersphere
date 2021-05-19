@@ -173,7 +173,8 @@ export default {
         } else {
           this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
         }
-        if (this.currentApi != null && this.currentApi.id != null) {
+
+        if (this.currentApi != null && this.currentApi.id != null && this.currentApi.isCopy != true) {
           this.reqUrl = "/api/definition/update";
         } else {
           this.reqUrl = "/api/definition/create";
@@ -221,7 +222,12 @@ export default {
         } else {
           data.request.protocol = this.currentProtocol;
         }
-        data.id = data.request.id;
+        if (data.isCopy) {
+          data.id = getUUID();
+        } else {
+          data.id = data.request.id;
+        }
+
         if (!data.method) {
           data.method = this.currentProtocol;
         }
