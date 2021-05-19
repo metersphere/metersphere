@@ -1261,6 +1261,7 @@ public class ApiAutomationService {
         HashTree hashTree = null;
         try {
             hashTree = request.getTestElement().generateHashTree(config);
+            LogUtil.info(request.getTestElement().getJmx(hashTree));
         } catch (Exception e) {
             MSException.throwException(e.getMessage());
         }
