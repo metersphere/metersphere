@@ -19,11 +19,13 @@
     <result column="test_start_time" jdbcType="BIGINT" property="testStartTime" />
     <result column="test_end_time" jdbcType="BIGINT" property="testEndTime" />
     <result column="test_duration" jdbcType="BIGINT" property="testDuration" />
+    <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
     <result column="jmx_content" jdbcType="LONGVARCHAR" property="jmxContent" />
+    <result column="advanced_configuration" jdbcType="LONGVARCHAR" property="advancedConfiguration" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -86,10 +88,10 @@
   <sql id="Base_Column_List">
     id, test_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, file_id, 
     max_users, avg_response_time, tps, project_id, test_name, test_start_time, test_end_time, 
-    test_duration
+    test_duration, test_resource_pool_id
   </sql>
   <sql id="Blob_Column_List">
-    description, load_configuration, jmx_content
+    description, load_configuration, jmx_content, advanced_configuration
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportExample" resultMap="ResultMapWithBLOBs">
     select
@@ -145,15 +147,19 @@
       user_id, trigger_mode, file_id, 
       max_users, avg_response_time, tps, 
       project_id, test_name, test_start_time, 
-      test_end_time, test_duration, description, 
-      load_configuration, jmx_content)
+      test_end_time, test_duration, test_resource_pool_id, 
+      description, load_configuration, 
+      jmx_content, advanced_configuration
+      )
     values (#{id,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
       #{maxUsers,jdbcType=VARCHAR}, #{avgResponseTime,jdbcType=VARCHAR}, #{tps,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{testName,jdbcType=VARCHAR}, #{testStartTime,jdbcType=BIGINT}, 
-      #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}, 
-      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{jmxContent,jdbcType=LONGVARCHAR})
+      #{testEndTime,jdbcType=BIGINT}, #{testDuration,jdbcType=BIGINT}, #{testResourcePoolId,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
+      #{jmxContent,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportWithBLOBs">
     insert into load_test_report
@@ -209,6 +215,9 @@
       <if test="testDuration != null">
         test_duration,
       </if>
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id,
+      </if>
       <if test="description != null">
         description,
       </if>
@@ -217,6 +226,9 @@
       </if>
       <if test="jmxContent != null">
         jmx_content,
+      </if>
+      <if test="advancedConfiguration != null">
+        advanced_configuration,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -271,6 +283,9 @@
       <if test="testDuration != null">
         #{testDuration,jdbcType=BIGINT},
       </if>
+      <if test="testResourcePoolId != null">
+        #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -279,6 +294,9 @@
       </if>
       <if test="jmxContent != null">
         #{jmxContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="advancedConfiguration != null">
+        #{advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -342,6 +360,9 @@
       <if test="record.testDuration != null">
         test_duration = #{record.testDuration,jdbcType=BIGINT},
       </if>
+      <if test="record.testResourcePoolId != null">
+        test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -350,6 +371,9 @@
       </if>
       <if test="record.jmxContent != null">
         jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.advancedConfiguration != null">
+        advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -375,9 +399,11 @@
       test_start_time = #{record.testStartTime,jdbcType=BIGINT},
       test_end_time = #{record.testEndTime,jdbcType=BIGINT},
       test_duration = #{record.testDuration,jdbcType=BIGINT},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
-      jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR}
+      jmx_content = #{record.jmxContent,jdbcType=LONGVARCHAR},
+      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -400,7 +426,8 @@
       test_name = #{record.testName,jdbcType=VARCHAR},
       test_start_time = #{record.testStartTime,jdbcType=BIGINT},
       test_end_time = #{record.testEndTime,jdbcType=BIGINT},
-      test_duration = #{record.testDuration,jdbcType=BIGINT}
+      test_duration = #{record.testDuration,jdbcType=BIGINT},
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -456,6 +483,9 @@
       <if test="testDuration != null">
         test_duration = #{testDuration,jdbcType=BIGINT},
       </if>
+      <if test="testResourcePoolId != null">
+        test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -464,6 +494,9 @@
       </if>
       <if test="jmxContent != null">
         jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="advancedConfiguration != null">
+        advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -486,9 +519,11 @@
       test_start_time = #{testStartTime,jdbcType=BIGINT},
       test_end_time = #{testEndTime,jdbcType=BIGINT},
       test_duration = #{testDuration,jdbcType=BIGINT},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
-      jmx_content = #{jmxContent,jdbcType=LONGVARCHAR}
+      jmx_content = #{jmxContent,jdbcType=LONGVARCHAR},
+      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReport">
@@ -508,7 +543,8 @@
       test_name = #{testName,jdbcType=VARCHAR},
       test_start_time = #{testStartTime,jdbcType=BIGINT},
       test_end_time = #{testEndTime,jdbcType=BIGINT},
-      test_duration = #{testDuration,jdbcType=BIGINT}
+      test_duration = #{testDuration,jdbcType=BIGINT},
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

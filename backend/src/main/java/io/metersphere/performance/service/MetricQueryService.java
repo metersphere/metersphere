@@ -6,9 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
-import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.ParamConstants;
@@ -32,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -45,8 +42,6 @@ public class MetricQueryService {
     private RestTemplate restTemplate;
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
-    @Resource
-    private LoadTestMapper loadTestMapper;
     @Resource
     private PerformanceReportService performanceReportService;
     @Resource
@@ -163,9 +158,7 @@ public class MetricQueryService {
     public List<MetricData> queryMetric(String reportId) {
         List<String> instances = new ArrayList<>();
         LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
-        String testId = report.getTestId();
-        LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
-        String poolId = loadTestWithBLOBs.getTestResourcePoolId();
+        String poolId = report.getTestResourcePoolId();
         List<TestResource> resourceList = testResourceService.getTestResourceList(poolId);
         // 默认监控资源池下的节点
         if (CollectionUtils.isNotEmpty(resourceList)) {
@@ -177,7 +170,7 @@ public class MetricQueryService {
                 }
             });
         }
-        String advancedConfiguration = loadTestWithBLOBs.getAdvancedConfiguration();
+        String advancedConfiguration = report.getAdvancedConfiguration();
         JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
         JSONArray monitorParams = jsonObject.getJSONArray("monitorParams");
         if (monitorParams == null) {
@@ -247,9 +240,7 @@ public class MetricQueryService {
         });
 
         LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
-        String testId = report.getTestId();
-        LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
-        String advancedConfiguration = loadTestWithBLOBs.getAdvancedConfiguration();
+        String advancedConfiguration = report.getAdvancedConfiguration();
         JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
         JSONArray monitorParams = jsonObject.getJSONArray("monitorParams");
         if (monitorParams == null) {

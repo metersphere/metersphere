@@ -39,5 +39,7 @@ public class LoadTestReport implements Serializable {
 
     private Long testDuration;
 
+    private String testResourcePoolId;
+
     private static final long serialVersionUID = 1L;
 }
