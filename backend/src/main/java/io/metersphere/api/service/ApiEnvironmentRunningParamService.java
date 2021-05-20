@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.exception.MSException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,4 +90,40 @@ public class ApiEnvironmentRunningParamService {
         apiTestEnvironmentService.update(apiTestEnvironmentWithBLOBs);
     }
 
+    public void parseEvn(String envStr) {
+        String [] envStringArr = envStr.split("\n");
+        for (String env :envStringArr) {
+            if(StringUtils.contains(env,"=")){
+                String [] envItem = env.split("=");
+                if(envItem.length > 1){
+                    String jmeterVarKey = envItem[0];
+                    if(this.checkValidity(jmeterVarKey,"MS.ENV.")){
+                        String [] envAndKeyArr = jmeterVarKey.substring("MS.ENV.".length()).split("\\.");
+                        String envId = envAndKeyArr[0];
+                        String [] keyArr = ArrayUtils.remove(envAndKeyArr,0);
+                        String key = StringUtils.join(keyArr,".");
+                        String [] valueArr = ArrayUtils.remove(envItem,0);
+                        String value = StringUtils.join(valueArr,"=");
+                        if(StringUtils.isNoneEmpty(envId,key,value)){
+                            this.addParam(envId,key,value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    public boolean checkValidity (String str, String regex) {
+        if(str == null){
+            return false;
+        }
+        if(regex == null){
+            return  true;
+        }
+
+        if (str.startsWith(regex)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

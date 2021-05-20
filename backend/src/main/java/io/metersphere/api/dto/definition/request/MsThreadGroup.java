@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.definition.request;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.request.sampler.MsDebugSampler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -34,10 +36,21 @@ public class MsThreadGroup extends MsTestElement {
             cookieManager.setControlledByThread(false);
             groupTree.add(cookieManager);
         }
+        //如果没有自行增加debugSampler，新增一个。用于处理jmeter中的变量
+        boolean hasDebugSampler = false;
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
+            for (MsTestElement el : hashTree) {
                 el.toHashTree(groupTree, el.getHashTree(), config);
-            });
+                if(el instanceof MsDebugSampler){
+                    hasDebugSampler = true;
+                }
+            }
+            if(!hasDebugSampler){
+                MsDebugSampler el = new MsDebugSampler();
+                el.setName(RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME);
+                el.toHashTree(groupTree, el.getHashTree(), config);
+            }
         }
     }
 
