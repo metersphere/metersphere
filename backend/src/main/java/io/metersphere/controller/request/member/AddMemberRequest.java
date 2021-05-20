@@ -12,4 +12,5 @@ public class AddMemberRequest {
     private String workspaceId;
     private List<String> userIds;
     private List<String> roleIds;
+    private List<String> groupIds;
 }

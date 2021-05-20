@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.UserGroupType;
@@ -54,6 +55,10 @@ public class OrganizationService {
     private ProjectMapper projectMapper;
     @Resource
     private GroupMapper groupMapper;
+    @Resource
+    private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private UserGroupMapper userGroupMapper;
 
     public Organization addOrganization(Organization organization) {
         checkOrganization(organization);
@@ -144,36 +149,33 @@ public class OrganizationService {
     public void updateOrgMember(OrganizationMemberDTO memberDTO) {
         String orgId = memberDTO.getOrganizationId();
         String userId = memberDTO.getId();
-        // 已有角色
-        List<Role> memberRoles = extUserRoleMapper.getOrganizationMemberRoles(orgId, userId);
-        // 修改后的角色
-        List<String> roles = memberDTO.getRoleIds();
-        List<String> allRoleIds = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
-        // 更新用户时添加了角色
-        for (int i = 0; i < roles.size(); i++) {
-            if (checkSourceRole(orgId, userId, roles.get(i)) == 0) {
-                UserRole userRole = new UserRole();
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setUserId(userId);
-                userRole.setRoleId(roles.get(i));
-                userRole.setSourceId(orgId);
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRoleMapper.insertSelective(userRole);
+        List<Group> memberGroups = extUserGroupMapper.getOrganizationMemberGroups(orgId, userId);
+        List<String> groups = memberDTO.getGroupIds();
+        List<String> allGroupIds = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
+        for (int i = 0; i < groups.size(); i++) {
+            if (checkSourceRole(orgId, userId, groups.get(i)) == 0) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(groups.get(i));
+                userGroup.setSourceId(orgId);
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
             }
         }
-        allRoleIds.removeAll(roles);
-        if (allRoleIds.size() > 0) {
-            UserRoleExample userRoleExample = new UserRoleExample();
-            userRoleExample.createCriteria().andUserIdEqualTo(userId)
+        allGroupIds.removeAll(groups);
+        if (allGroupIds.size() > 0) {
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId)
                     .andSourceIdEqualTo(orgId)
-                    .andRoleIdIn(allRoleIds);
-            userRoleMapper.deleteByExample(userRoleExample);
+                    .andGroupIdIn(allGroupIds);
+            userGroupMapper.deleteByExample(userGroupExample);
         }
     }
 
-    public Integer checkSourceRole(String orgId, String userId, String roleId) {
-        return extOrganizationMapper.checkSourceRole(orgId, userId, roleId);
+    public Integer checkSourceRole(String orgId, String userId, String groupId) {
+        return extOrganizationMapper.checkSourceRole(orgId, userId, groupId);
     }
 
     public void checkOrgOwner(String organizationId) {

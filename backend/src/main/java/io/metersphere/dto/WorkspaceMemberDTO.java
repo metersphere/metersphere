@@ -20,5 +20,6 @@ public class WorkspaceMemberDTO {
     private String language;
     private String workspaceId;
     private List<String> roleIds = new ArrayList<>();
+    private List<String> groupIds = new ArrayList<>();
 
 }

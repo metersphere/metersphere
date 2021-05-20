@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.*;
@@ -88,6 +89,8 @@ public class UserService {
     private GroupMapper groupMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ExtUserGroupMapper extUserGroupMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -473,27 +476,27 @@ public class UserService {
     }
 
     public List<User> getMemberList(QueryMemberRequest request) {
-        return extUserRoleMapper.getMemberList(request);
+        return extUserGroupMapper.getMemberList(request);
     }
 
     public void addMember(AddMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                UserRoleExample userRoleExample = new UserRoleExample();
-                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
-                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-                if (userRoles.size() > 0) {
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (userGroups.size() > 0) {
                     MSException.throwException(Translator.get("user_already_exists"));
                 } else {
-                    for (String roleId : request.getRoleIds()) {
-                        UserRole userRole = new UserRole();
-                        userRole.setRoleId(roleId);
-                        userRole.setSourceId(request.getWorkspaceId());
-                        userRole.setUserId(userId);
-                        userRole.setId(UUID.randomUUID().toString());
-                        userRole.setUpdateTime(System.currentTimeMillis());
-                        userRole.setCreateTime(System.currentTimeMillis());
-                        userRoleMapper.insertSelective(userRole);
+                    for (String groupId : request.getGroupIds()) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(request.getWorkspaceId());
+                        userGroup.setUserId(userId);
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroupMapper.insertSelective(userGroup);
                     }
                 }
             }
@@ -501,10 +504,22 @@ public class UserService {
     }
 
     public void deleteMember(String workspaceId, String userId) {
-        UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andRoleIdLike("%test%")
-                .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
+//        UserRoleExample example = new UserRoleExample();
+//        example.createCriteria().andRoleIdLike("%test%")
+//                .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
 
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.WORKSPACE);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return;
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                .andSourceIdEqualTo(workspaceId)
+                .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
             user.setLastWorkspaceId("");
@@ -512,27 +527,40 @@ public class UserService {
             userMapper.updateByPrimaryKeySelective(user);
         }
 
-        userRoleMapper.deleteByExample(example);
+        userGroupMapper.deleteByExample(userGroupExample);
     }
 
     public void addOrganizationMember(AddOrgMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                UserRoleExample userRoleExample = new UserRoleExample();
-                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
-                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-                if (userRoles.size() > 0) {
+//                UserRoleExample userRoleExample = new UserRoleExample();
+//                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
+//                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (userGroups.size() > 0) {
                     MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
                 } else {
-                    for (String roleId : request.getRoleIds()) {
-                        UserRole userRole = new UserRole();
-                        userRole.setId(UUID.randomUUID().toString());
-                        userRole.setRoleId(roleId);
-                        userRole.setSourceId(request.getOrganizationId());
-                        userRole.setUserId(userId);
-                        userRole.setUpdateTime(System.currentTimeMillis());
-                        userRole.setCreateTime(System.currentTimeMillis());
-                        userRoleMapper.insertSelective(userRole);
+//                    for (String roleId : request.getRoleIds()) {
+//                        UserRole userRole = new UserRole();
+//                        userRole.setId(UUID.randomUUID().toString());
+//                        userRole.setRoleId(roleId);
+//                        userRole.setSourceId(request.getOrganizationId());
+//                        userRole.setUserId(userId);
+//                        userRole.setUpdateTime(System.currentTimeMillis());
+//                        userRole.setCreateTime(System.currentTimeMillis());
+//                        userRoleMapper.insertSelective(userRole);
+//                    }
+                    for (String groupId : request.getGroupIds()) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUserId(userId);
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(request.getOrganizationId());
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        userGroupMapper.insertSelective(userGroup);
                     }
                 }
             }
@@ -541,11 +569,22 @@ public class UserService {
 
     public void delOrganizationMember(String organizationId, String userId) {
 
-        List<String> resourceIds = workspaceService.getWorkspaceIdsOrgId(organizationId);
-        resourceIds.add(organizationId);
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.ORGANIZATION);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
 
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(resourceIds);
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return;
+        }
+
+//        UserRoleExample userRoleExample = new UserRoleExample();
+//        userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(resourceIds);
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                .andGroupIdIn(groupIds)
+                .andSourceIdEqualTo(organizationId);
 
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {
@@ -554,11 +593,12 @@ public class UserService {
             userMapper.updateByPrimaryKeySelective(user);
         }
 
-        userRoleMapper.deleteByExample(userRoleExample);
+//        userRoleMapper.deleteByExample(userRoleExample);
+        userGroupMapper.deleteByExample(userGroupExample);
     }
 
     public List<User> getOrgMemberList(QueryOrgMemberRequest request) {
-        return extUserRoleMapper.getOrgMemberList(request);
+        return extUserGroupMapper.getOrgMemberList(request);
     }
 
     public boolean checkUserPassword(String userId, String password) {

@@ -1,11 +1,16 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.Group;
+import io.metersphere.base.domain.Role;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.dto.GroupDTO;
 import io.metersphere.dto.GroupPermissionDTO;
 import io.metersphere.service.GroupService;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -60,6 +65,22 @@ public class GroupController {
     @GetMapping("/all/{userId}")
     public List<Map<String, Object>> getAllUserGroup(@PathVariable("userId") String userId) {
         return groupService.getAllUserGroup(userId);
+    }
+
+    @PostMapping("/list")
+    public List<Group> getGroupsByType(@RequestBody GroupRequest request) {
+        return groupService.getGroupsByType(request);
+    }
+
+    @GetMapping("/list/org/{orgId}/{userId}")
+    public List<Group> getOrganizationMemberGroups(@PathVariable String orgId, @PathVariable String userId) {
+        return groupService.getOrganizationMemberGroups(orgId, userId);
+    }
+
+    @GetMapping("/list/ws/{workspaceId}/{userId}")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public List<Group> getWorkspaceMemberGroups(@PathVariable String workspaceId, @PathVariable String userId) {
+        return groupService.getWorkspaceMemberGroups(workspaceId, userId);
     }
 
 
