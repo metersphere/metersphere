@@ -99,9 +99,9 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column :label="$t('commons.role')" width="120">
+        <el-table-column label="用户组" width="120">
           <template v-slot:default="scope">
-            <ms-roles-tag :roles="scope.row.roles" type="success"/>
+            <ms-roles-tag :roles="scope.row.groups" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -136,13 +136,13 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+        <el-form-item label="用户组" prop="groupIds">
+          <el-select filterable v-model="memberForm.groupIds" multiple placeholder="请选择用户组"
                      class="select-width">
             <el-option
-              v-for="item in memberForm.roles"
+              v-for="item in memberForm.groups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -173,14 +173,14 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds"
+        <el-form-item label="用户组" prop="groupIds"
                       :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
-          <el-select filterable v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+          <el-select filterable v-model="memberForm.groupIds" multiple placeholder="请选择用户组"
                      class="select-width">
             <el-option
-              v-for="item in memberForm.allroles"
+              v-for="item in memberForm.allgroups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -213,7 +213,7 @@
     getCurrentWorkspaceId, listenGoBack,
     refreshSessionAndCookies, removeGoBackListener
   } from "@/common/js/utils";
-  import {DEFAULT, WORKSPACE} from "@/common/js/constants";
+  import {DEFAULT, GROUP_ORGANIZATION, GROUP_WORKSPACE, WORKSPACE} from "@/common/js/constants";
   import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
   export default {
@@ -274,9 +274,9 @@
           this.$set(this.memberForm, "userList", response.data);
           this.$set(this.memberForm, "copyUserList", response.data);
         });
-        this.result = this.$get('/role/list/test', response => {
-          this.$set(this.memberForm, "roles", response.data);
-        });
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+          this.$set(this.memberForm, "groups", response.data);
+        })
 
         listenGoBack(this.handleClose);
       },
@@ -288,16 +288,17 @@
           name: '',
           workspaceId: row.id
         };
+        this.wsId = row.id;
         let path = "/user/special/ws/member/list";
         this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
-          let url = "/userrole/list/ws/" + row.id;
+          let url = "/user/group/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
-              let roles = response.data;
-              this.$set(this.memberLineData[i], "roles", roles);
+              let groups = response.data;
+              this.$set(this.memberLineData[i], "groups", groups);
             })
           }
           this.dialogTotal = data.itemCount;
@@ -317,8 +318,8 @@
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
-              let roles = response.data;
-              this.$set(this.memberLineData[i], "roles", roles);
+              let groups = response.data;
+              this.$set(this.memberLineData[i], "groups", groups);
             })
           }
           this.dialogTotal = data.itemCount;
@@ -387,7 +388,7 @@
           if (valid) {
             let param = {
               userIds: this.memberForm.userIds,
-              roleIds: this.memberForm.roleIds,
+              groupIds: this.memberForm.groupIds,
               workspaceId: this.currentWorkspaceRow.id
             };
             this.result = this.$post("user/special/ws/member/add", param, () => {
@@ -402,12 +403,14 @@
       editMember(row) {
         this.dialogWsMemberUpdateVisible = true;
         this.memberForm = Object.assign({}, row);
-        let roleIds = this.memberForm.roles.map(r => r.id);
-        this.result = this.$get('/role/list/test', response => {
-          this.$set(this.memberForm, "allroles", response.data);
+        console.log(this.memberForm)
+        let groupIds = this.memberForm.groups.map(r => r.id);
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+          this.$set(this.memberForm, "allgroups", response.data);
         })
+        console.log(this.memberForm)
         // 编辑时填充角色信息
-        this.$set(this.memberForm, 'roleIds', roleIds);
+        this.$set(this.memberForm, 'groupIds', groupIds);
         listenGoBack(this.handleClose);
       },
       handleDelete(workspace) {
@@ -463,7 +466,7 @@
           name: this.memberForm.name,
           email: this.memberForm.email,
           phone: this.memberForm.phone,
-          roleIds: this.memberForm.roleIds,
+          groupIds: this.memberForm.groupIds,
           workspaceId: this.currentWorkspaceRow.id
         }
         this.$refs[formName].validate((valid) => {
@@ -528,6 +531,7 @@
           ]
         },
         currentWorkspaceRow: {},
+        wsId: ""
       }
     }
   }

@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ExtOrganizationMapper {
 
-    int checkSourceRole(@Param("sourceId") String sourceId,@Param("userId") String userId,@Param("roleId") String roleId);
+    int checkSourceRole(@Param("sourceId") String sourceId,@Param("userId") String userId,@Param("groupId") String groupId);
 
     List<OrganizationMemberDTO> findIdAndNameByOrganizationId(@Param("organizationId")String organizationID);
 }
