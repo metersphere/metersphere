@@ -15,7 +15,7 @@
                 @filter-change="filter"
                 :height="screenHeight"
       >
-        <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
+        <el-table-column prop="name" :label="$t('commons.name')" min-width="100" show-overflow-tooltip/>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
           <template v-slot:default="scope">
             <pre>{{ scope.row.description }}</pre>
@@ -32,25 +32,25 @@
             <span>{{ scope.row.createUserName }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          sortable
-          prop="createTime"
-          :label="$t('commons.create_time')"
-          show-overflow-tooltip>
+        <el-table-column min-width="100"
+                         sortable
+                         prop="createTime"
+                         :label="$t('commons.create_time')"
+                         show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          sortable
-          prop="updateTime"
-          :label="$t('commons.update_time')"
-          show-overflow-tooltip>
+        <el-table-column min-width="100"
+                         sortable
+                         prop="updateTime"
+                         :label="$t('commons.update_time')"
+                         show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column :label="$t('commons.operating')" width="180">
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
