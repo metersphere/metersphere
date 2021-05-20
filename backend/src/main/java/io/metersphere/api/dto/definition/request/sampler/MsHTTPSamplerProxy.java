@@ -204,6 +204,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
+                if(StringUtils.isEmpty(this.useEnvironment)){
+                    this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
+                }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
 
