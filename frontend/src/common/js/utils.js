@@ -52,15 +52,78 @@ export function hasRolePermission(role) {
   return false;
 }
 
+export function hasPermission(permission) {
+  let user = getCurrentUser();
+
+  user.groupPermissions.forEach(gp => {
+    for (let userGroup of user.userGroups) {
+      if (gp.group.id === userGroup.id) {
+        gp.sourceId = userGroup.sourceId;
+      }
+    }
+  });
+
+  // todo 权限验证
+  let currentProjectPermissions = user.groupPermissions.filter(gp => gp.group.type === 'PROJECT')
+    .filter(gp => gp.group.scopeId === getCurrentProjectID())[0]?.userGroupPermissions
+    .map(g => g.permissionId) || [];
+
+  for (const p of currentProjectPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  let currentWorkspacePermissions = user.groupPermissions.filter(gp => gp.group.type === 'WORKSPACE')
+    .filter(gp => gp.group.scopeId === getCurrentWorkspaceId())[0]?.userGroupPermissions
+    .map(g => g.permissionId) || [];
+
+  for (const p of currentWorkspacePermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  let currentOrganizationPermissions = user.groupPermissions.filter(gp => gp.group.type === 'ORGANIZATION')
+    .filter(gp => gp.group.scopeId === getCurrentOrganizationId())[0]?.userGroupPermissions
+    .map(g => g.permissionId) || [];
+
+  for (const p of currentOrganizationPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  let systemPermissions = user.groupPermissions.filter(gp => gp.group.type === 'SYSTEM')
+    .filter(gp => gp.group.scopeId === 'global')[0]?.userGroupPermissions
+    .map(g => g.permissionId) || [];
+
+  for (const p of systemPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function hasLicense() {
   let v = localStorage.getItem(LicenseKey);
   return v === 'valid';
 }
 
-//是否含有对应组织或工作空间的角色
 export function hasRolePermissions(...roles) {
   for (let role of roles) {
     if (hasRolePermission(role)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function hasPermissions(...permissions) {
+  for (let p of permissions) {
+    if (hasPermission(p)) {
       return true;
     }
   }
