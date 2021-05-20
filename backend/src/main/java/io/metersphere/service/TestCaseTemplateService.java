@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseTemplateMapper;
@@ -7,11 +8,16 @@ import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateCaseFieldTemplateRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.TestCaseTemplateDao;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -48,9 +54,11 @@ public class TestCaseTemplateService extends TemplateBaseService {
         testCaseTemplate.setCreateTime(System.currentTimeMillis());
         testCaseTemplate.setUpdateTime(System.currentTimeMillis());
         testCaseTemplate.setGlobal(false);
+        testCaseTemplate.setCreateUser(SessionUtils.getUserId());
         if (testCaseTemplate.getSystem() == null) {
             testCaseTemplate.setSystem(false);
         }
+        request.setId(testCaseTemplate.getId());
         testCaseTemplateMapper.insert(testCaseTemplate);
         customFieldTemplateService.create(request.getCustomFields(), testCaseTemplate.getId(),
                 TemplateConstants.FieldTemplateScene.TEST_CASE.name());
@@ -188,5 +196,15 @@ public class TestCaseTemplateService extends TemplateBaseService {
         List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());
         caseTemplateDao.setCustomFields(result);
         return caseTemplateDao;
+    }
+
+    public String getLogDetails(String id) {
+        TestCaseTemplateWithBLOBs templateWithBLOBs = testCaseTemplateMapper.selectByPrimaryKey(id);
+        if (templateWithBLOBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.caseFieldColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

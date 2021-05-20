@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class ApiTestEnvironment implements Serializable {
@@ -18,6 +19,8 @@ public class ApiTestEnvironment implements Serializable {
     private String domain;
 
     private Integer port;
+
+    private String createUser;
 
     private static final long serialVersionUID = 1L;
 }

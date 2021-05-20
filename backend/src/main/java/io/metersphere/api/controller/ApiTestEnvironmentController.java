@@ -7,10 +7,12 @@ import io.metersphere.api.dto.ssl.KeyStoreEntry;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.CommandService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.EnvironmentRequest;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -70,18 +72,21 @@ public class ApiTestEnvironmentController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
+    @MsAuditLog(module = "project_environment_setting", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#apiTestEnvironmentWithBLOBs.id)", msClass = ApiTestEnvironmentService.class)
     public String create(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironmentWithBLOBs, @RequestPart(value = "files") List<MultipartFile> sslFiles) {
         return apiTestEnvironmentService.add(apiTestEnvironmentWithBLOBs, sslFiles);
     }
 
     @PostMapping(value = "/update")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
+    @MsAuditLog(module = "project_environment_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#apiTestEnvironment.id)", content = "#msClass.getLogDetails(#apiTestEnvironment.id)", msClass = ApiTestEnvironmentService.class)
     public void update(@RequestPart("request") ApiTestEnvironmentDTO apiTestEnvironment, @RequestPart(value = "files") List<MultipartFile> sslFiles) {
         apiTestEnvironmentService.update(apiTestEnvironment, sslFiles);
     }
 
     @GetMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
+    @MsAuditLog(module = "project_environment_setting", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestEnvironmentService.class)
     public void delete(@PathVariable String id) {
         apiTestEnvironmentService.delete(id);
     }

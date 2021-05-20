@@ -323,7 +323,8 @@ public class TestReviewTestCaseService {
             List<TestCase> cases = testCaseMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(cases)) {
                 List<String> names = cases.stream().map(TestCase::getName).collect(Collectors.toList());
-                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), cases.get(0).getProjectId(), String.join(",", names), cases.get(0).getCreateUser(), columns);
+                List<TestCase> collect = cases.stream().filter(u -> StringUtils.isNotEmpty(u.getProjectId())).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), CollectionUtils.isNotEmpty(collect) ? collect.get(0).getProjectId() : null, String.join(",", names), cases.get(0).getCreateUser(), columns);
                 return JSON.toJSONString(details);
             }
         }

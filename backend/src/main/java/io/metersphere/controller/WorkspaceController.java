@@ -113,7 +113,7 @@ public class WorkspaceController {
 
     @PostMapping("/member/update")
     @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO.id)", content = "#msClass.getLogDetails(#memberDTO.id)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, title = "#memberDTO.name")
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }

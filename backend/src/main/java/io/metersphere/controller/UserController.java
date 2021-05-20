@@ -154,7 +154,7 @@ public class UserController {
     }
 
     @PostMapping("/update/current")
-    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
+    @MsAuditLog(module = "personal_information_personal_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
     public UserDTO updateCurrentUser(@RequestBody User user) {
         String currentUserId = SessionUtils.getUserId();
         if (!StringUtils.equals(currentUserId, user.getId())) {

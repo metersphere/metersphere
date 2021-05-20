@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestEnvironmentDTO;
@@ -8,11 +9,16 @@ import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -77,6 +83,7 @@ public class ApiTestEnvironmentService {
 
     public String add(ApiTestEnvironmentDTO request, List<MultipartFile> sslFiles) {
         request.setId(UUID.randomUUID().toString());
+        request.setCreateUser(SessionUtils.getUserId());
         checkEnvironmentExist(request);
         FileUtils.createFiles(request.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
         apiTestEnvironmentMapper.insert(request);
@@ -290,5 +297,15 @@ public class ApiTestEnvironmentService {
                 model = this.checkMockEvnIsRightful(model, protocal, model.getProjectId(), model.getName(), baseUrl);
             }
         }
+    }
+
+    public String getLogDetails(String id) {
+        ApiTestEnvironmentWithBLOBs bloBs = apiTestEnvironmentMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, SystemReference.environmentColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(bloBs.getId()), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }
