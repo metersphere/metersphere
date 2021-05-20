@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.JarConfigExample;
@@ -8,6 +9,10 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -121,4 +126,14 @@ public class JarConfigService {
             }
         }
     }
+    public String getLogDetails(String id) {
+        JarConfig jarConfig = jarConfigMapper.selectByPrimaryKey(id);
+        if (jarConfig != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(jarConfig, SystemReference.jarColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(jarConfig.getId()), null, jarConfig.getName(), jarConfig.getCreator(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
 }

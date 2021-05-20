@@ -1,11 +1,16 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.TestCaseReportTemplate;
 import io.metersphere.base.domain.TestCaseReportTemplateExample;
 import io.metersphere.base.mapper.TestCaseReportTemplateMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.track.request.testCaseReport.QueryTemplateRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -70,4 +75,13 @@ public class TestCaseReportTemplateService {
         return testCaseReportTemplateMapper.deleteByPrimaryKey(id);
     }
 
+    public String getLogDetails(String id) {
+        TestCaseReportTemplate templateWithBLOBs = testCaseReportTemplateMapper.selectByPrimaryKey(id);
+        if (templateWithBLOBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

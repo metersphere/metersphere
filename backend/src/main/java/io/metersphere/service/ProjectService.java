@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
@@ -13,6 +14,10 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.performance.request.DeleteTestPlanRequest;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.performance.service.PerformanceReportService;
@@ -283,4 +288,20 @@ public class ProjectService {
         fileService.deleteFileById(fileId);
     }
 
+    public String getLogDetails(String id) {
+        Project project = projectMapper.selectByPrimaryKey(id);
+        if (project != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(project, SystemReference.projectColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(project.getId()), null, project.getName(), project.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        } else {
+            FileMetadata fileMetadata = fileService.getFileMetadataById(id);
+            if (fileMetadata != null) {
+                List<DetailColumn> columns = ReflexObjectUtil.getColumns(fileMetadata, SystemReference.projectColumns);
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(fileMetadata.getId()), null, fileMetadata.getName(), null, columns);
+                return JSON.toJSONString(details);
+            }
+        }
+        return null;
+    }
 }

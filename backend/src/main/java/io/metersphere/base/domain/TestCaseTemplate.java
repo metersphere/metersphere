@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class TestCaseTemplate implements Serializable {
@@ -28,6 +29,8 @@ public class TestCaseTemplate implements Serializable {
     private Long updateTime;
 
     private String stepModel;
+
+    private String createUser;
 
     private static final long serialVersionUID = 1L;
 }
