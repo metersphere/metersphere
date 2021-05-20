@@ -41,4 +41,31 @@
             order by t.oper_time desc
      </select>
 
+
+    <select id="findBySourceId" resultType="io.metersphere.log.vo.OperatingLogDTO">
+        SELECT
+        t.id,
+        t.project_id,
+        t.oper_user,
+        t.source_id,
+        t.oper_type,
+        t.oper_module,
+        t.oper_title,
+        t.oper_time,
+        t.oper_content,
+        t1.NAME userName,
+        t2.`name` projectName
+        FROM
+        operating_log t
+        LEFT JOIN USER t1 ON t.oper_user = t1.id
+        LEFT JOIN project t2 ON t.project_id = t2.id
+        LEFT JOIN workspace w on t2.workspace_id = w.id
+        <where>
+            t.oper_type in ('UPDATE','BATCH_UPDATE')
+            <if test="request.sourceId != null and request.sourceId != ''">
+                and t.source_id like #{request.sourceId, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by t.oper_time desc
+    </select>
 </mapper>

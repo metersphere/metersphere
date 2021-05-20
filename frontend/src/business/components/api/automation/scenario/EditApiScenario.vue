@@ -5,6 +5,8 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="currentScenario.id">{{$t('operating_log.change_history')}}</el-link>
+
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario" title="ctrl + s" v-tester>
             {{ $t('commons.save') }}
           </el-button>
@@ -224,6 +226,7 @@
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
                            :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
+      <ms-change-history ref="changeHistory"/>
 
     </div>
   </el-card>
@@ -262,6 +265,7 @@
   import MsDrawer from "../../../common/components/MsDrawer";
   import MsSelectTree from "../../../common/select-tree/SelectTree";
   import {saveScenario} from "@/business/components/api/automation/api-automation";
+  import MsChangeHistory from "../../../history/ChangeHistory";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -289,7 +293,8 @@
       MaximizeScenario,
       ScenarioHeader,
       MsDrawer,
-      MsSelectTree
+      MsSelectTree,
+      MsChangeHistory
     },
     data() {
       return {
@@ -494,6 +499,9 @@
       },
     },
     methods: {
+      openHis(){
+        this.$refs.changeHistory.open(this.currentScenario.id);
+      },
       setModule(id, data) {
         this.currentScenario.apiScenarioModuleId = id;
         this.currentScenario.modulePath = data.path;

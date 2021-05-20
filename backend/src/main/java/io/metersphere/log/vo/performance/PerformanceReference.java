@@ -15,6 +15,7 @@ public class PerformanceReference {
         performanceColumns.put("loadConfiguration", "压力配置");
         performanceColumns.put("advancedConfiguration", "高级配置");
         performanceColumns.put("description", "描述");
+        performanceColumns.put("ms-dff-col", "loadConfiguration,advancedConfiguration");
 
         reportColumns.put("name","报告名称");
     }

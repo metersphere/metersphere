@@ -30,6 +30,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
@@ -1156,6 +1157,13 @@ public class TestCaseService {
         TestCaseWithBLOBs bloBs = testCaseMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, TestCaseReference.testCaseColumns);
+            // 增加评论内容
+            List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(id);
+            if (CollectionUtils.isNotEmpty(dtos)) {
+                List<String> names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
+                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+                columns.add(detailColumn);
+            }
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
@@ -1168,6 +1176,13 @@ public class TestCaseService {
             String testCaseId = testPlanTestCaseMapper.selectByPrimaryKey(id).getCaseId();
             TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(testCaseId);
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, TestCaseReference.testCaseColumns);
+            // 增加评论内容
+            List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(id);
+            if (CollectionUtils.isNotEmpty(dtos)) {
+                List<String> names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
+                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+                columns.add(detailColumn);
+            }
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(testCaseWithBLOBs.getId()), testCaseWithBLOBs.getProjectId(), testCaseWithBLOBs.getName(), testCaseWithBLOBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }

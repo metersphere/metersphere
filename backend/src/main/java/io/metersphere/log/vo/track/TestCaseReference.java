@@ -16,7 +16,7 @@ public class TestCaseReference {
         testCaseColumns.put("priority", "用例等级");
         testCaseColumns.put("method", "请求类型");
         testCaseColumns.put("prerequisite", "前置条件");
-        testCaseColumns.put("remark", "评论");
+        testCaseColumns.put("remark", "备注");
         testCaseColumns.put("steps", "用例步骤");
         testCaseColumns.put("other_test_name", "其他名称");
         testCaseColumns.put("review_status", "评审状态");
@@ -24,7 +24,8 @@ public class TestCaseReference {
         testCaseColumns.put("demand_name", "需求名称");
         testCaseColumns.put("follow_people", "关注人");
         testCaseColumns.put("status", "用例状态");
-        testCaseColumns.put("step_description", "步骤描述");
-        testCaseColumns.put("expected_result", "预期结果");
+        testCaseColumns.put("stepDescription", "步骤描述");
+        testCaseColumns.put("expectedResult", "预期结果");
+        testCaseColumns.put("comment", "评论");
     }
 }

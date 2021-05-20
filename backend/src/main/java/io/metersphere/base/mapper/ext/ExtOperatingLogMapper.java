@@ -9,4 +9,7 @@ import java.util.List;
 public interface ExtOperatingLogMapper {
 
     List<OperatingLogDTO> list(@Param("request") OperatingLogRequest request);
+
+    List<OperatingLogDTO> findBySourceId(@Param("request") OperatingLogRequest request);
+
 }
