@@ -5,6 +5,7 @@
       <el-col>
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px">
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">{{$t('operating_log.change_history')}}</el-link>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-tester>{{ $t('commons.save') }}</el-button>
           <el-button type="primary" size="small" @click="runTest" v-tester>{{ $t('commons.test') }}</el-button>
         </div>
@@ -23,6 +24,7 @@
     <!-- 请求参数 -->
     <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
     <ms-basis-parameters :showScript="false" :request="request"/>
+    <ms-change-history ref="changeHistory"/>
 
   </div>
 </template>
@@ -30,11 +32,12 @@
 <script>
 import MsBasisApi from "./BasisApi";
 import MsBasisParameters from "../request/database/BasisParameters";
+import MsChangeHistory from "../../../../history/ChangeHistory";
 
 export default {
   name: "MsApiSqlRequestForm",
   components: {
-    MsBasisApi, MsBasisParameters
+    MsBasisApi, MsBasisParameters,MsChangeHistory
   },
   props: {
     request: {},
@@ -70,6 +73,9 @@ export default {
     return {validated: false}
   },
   methods: {
+    openHis(){
+      this.$refs.changeHistory.open(this.basisData.id);
+    },
     callback() {
       this.validated = true;
     },

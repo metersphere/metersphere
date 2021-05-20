@@ -45,4 +45,18 @@ public class OperatingLogService {
         }
         return dto;
     }
+
+    public List<OperatingLogDTO> findBySourceId(String id) {
+        OperatingLogRequest request = new OperatingLogRequest();
+        request.setSourceId("%" + id + "%");
+        List<OperatingLogDTO> logWithBLOBs = extOperatingLogMapper.findBySourceId(request);
+        if (CollectionUtils.isNotEmpty(logWithBLOBs)) {
+            for (OperatingLogDTO logWithBLOB : logWithBLOBs) {
+                if (StringUtils.isNotEmpty(logWithBLOB.getOperContent())) {
+                    logWithBLOB.setDetails(JSON.parseObject(logWithBLOB.getOperContent(), OperatingLogDetails.class));
+                }
+            }
+        }
+        return logWithBLOBs;
+    }
 }

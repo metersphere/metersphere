@@ -35,4 +35,10 @@ public class OperatingLogController {
         return operatingLogService.get(id);
     }
 
+
+    @GetMapping("/get/source/{id}")
+    public List<OperatingLogDTO> findBySourceId(@PathVariable String id) {
+        return operatingLogService.findBySourceId(id);
+    }
+
 }

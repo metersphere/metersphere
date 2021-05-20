@@ -1822,5 +1822,6 @@ export default {
     before_change: "Before change",
     after_change: "After change",
     share: "Share",
+    change_history: "Change history",
   }
 };

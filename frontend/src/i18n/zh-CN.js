@@ -1830,5 +1830,6 @@ export default {
     before_change: "变更前",
     after_change: "变更后",
     share: "分享",
+    change_history: "变更历史",
   }
 };

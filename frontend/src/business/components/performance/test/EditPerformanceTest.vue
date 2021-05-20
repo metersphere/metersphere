@@ -12,6 +12,7 @@
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
+            <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="test.id">{{$t('operating_log.change_history')}}</el-link>
             <el-button :disabled="isReadOnly" type="primary" plain @click="save">{{ $t('commons.save') }}</el-button>
             <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun">
               {{ $t('load_test.save_and_run') }}
@@ -41,6 +42,9 @@
           </el-tab-pane>
         </el-tabs>
       </el-card>
+
+      <ms-change-history ref="changeHistory"/>
+
     </ms-main-container>
   </ms-container>
 </template>
@@ -54,6 +58,7 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
+import MsChangeHistory from "../../history/ChangeHistory";
 
 export default {
   name: "EditPerformanceTest",
@@ -63,7 +68,8 @@ export default {
     PerformanceBasicConfig,
     PerformanceAdvancedConfig,
     MsContainer,
-    MsMainContainer
+    MsMainContainer,
+    MsChangeHistory
   },
   data() {
     return {
@@ -122,6 +128,9 @@ export default {
     this.importAPITest();
   },
   methods: {
+    openHis(){
+      this.$refs.changeHistory.open(this.test.id);
+    },
     importAPITest() {
       let apiTest = this.$store.state.test;
       if (apiTest && apiTest.name) {

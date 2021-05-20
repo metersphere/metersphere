@@ -5,6 +5,7 @@
       <el-col>
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px">
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">{{$t('operating_log.change_history')}}</el-link>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-tester>{{ $t('commons.save') }}</el-button>
           <el-button type="primary" size="small" @click="runTest" v-tester>{{ $t('commons.test') }}</el-button>
         </div>
@@ -32,6 +33,7 @@
 <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
 
+    <ms-change-history ref="changeHistory"/>
 
   </div>
 
@@ -40,12 +42,14 @@
 <script>
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsBasisParameters from "../request/tcp/TcpBasisParameters";
+import MsChangeHistory from "../../../../history/ChangeHistory";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
-  components: {MsTcpBasicApi, MsBasisParameters,
+  components: {MsTcpBasicApi, MsBasisParameters,MsChangeHistory,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default},
   props: {
@@ -102,6 +106,9 @@ export default {
     },
   },
   methods: {
+    openHis(){
+      this.$refs.changeHistory.open(this.basisData.id);
+    },
     callback() {
       this.validated = true;
     },
