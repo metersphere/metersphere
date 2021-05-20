@@ -29,7 +29,7 @@
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
         <el-table-column prop="roles" :label="$t('commons.role')" width="140">
           <template v-slot:default="scope">
-            <ms-roles-tag :roles="scope.row.roles"/>
+            <ms-roles-tag :roles="scope.row.groups"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -71,12 +71,12 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+        <el-form-item :label="$t('commons.role')" prop="groupIds">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
-              v-for="item in form.roles"
+              v-for="item in form.groups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -105,11 +105,11 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds"
+        <el-form-item label="用户组" prop="groupIds"
                       :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
-          <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
             <el-option
-              v-for="item in form.allroles"
+              v-for="item in form.allgroups"
               :key="item.id"
               :label="$t('role.' + item.id)"
               :value="item.id">
@@ -145,6 +145,7 @@
   } from "@/common/js/tableUtils";
   import UserCascader from "@/business/components/settings/system/components/UserCascader";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
+  import {GROUP_ORGANIZATION} from "@/common/js/constants";
 
   export default {
     name: "MsOrganizationMember",
@@ -206,16 +207,11 @@
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/userrole/list/org/" + this.currentUser().lastOrganizationId;
+          let url = "/user/group/list/org/" + this.currentUser().lastOrganizationId;
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
-              let roles = response.data;
-              if (roles.length < 1) {
-                roles.push({
-                  id : "org_member",
-                });
-              }
-              this.$set(this.tableData[i], "roles", roles);
+              let groups = response.data;
+              this.$set(this.tableData[i], "groups", groups);
             })
           }
           this.total = data.itemCount;
@@ -262,12 +258,12 @@
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
-        let roleIds = this.form.roles.map(r => r.id);
-        this.result = this.$get('/role/list/org', response => {
-          this.$set(this.form, "allroles", response.data);
-        });
+        let groupIds = this.form.groups.map(r => r.id);
+        this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: this.currentUser().lastOrganizationId}, response => {
+          this.$set(this.form, "allgroups", response.data);
+        })
         // 编辑使填充角色信息
-        this.$set(this.form, 'roleIds', roleIds);
+        this.$set(this.form, 'groupIds', groupIds);
         listenGoBack(this.handleClose);
       },
       updateOrgMember(formName) {
@@ -276,7 +272,7 @@
           name: this.form.name,
           email: this.form.email,
           phone: this.form.phone,
-          roleIds: this.form.roleIds,
+          groupIds: this.form.groupIds,
           organizationId: this.currentUser().lastOrganizationId
         };
         this.$refs[formName].validate((valid) => {
@@ -311,9 +307,9 @@
         }
         this.form = {};
         this.createVisible = true;
-        this.result = this.$get('/role/list/org', response => {
-          this.$set(this.form, "roles", response.data);
-        });
+        this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: orgId}, response => {
+          this.$set(this.form, "groups", response.data);
+        })
         listenGoBack(this.handleClose);
       },
       submitForm(formName) {
@@ -322,7 +318,7 @@
           if (valid) {
             let param = {
               userIds: this.form.ids,
-              roleIds: this.form.roleIds,
+              groupIds: this.form.groupIds,
               organizationId: orgId
             };
             this.result = this.$post("user/org/member/add", param, () => {

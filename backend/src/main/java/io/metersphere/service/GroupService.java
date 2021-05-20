@@ -15,6 +15,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.dto.*;
 import org.apache.commons.collections.CollectionUtils;
@@ -192,15 +193,34 @@ public class GroupService {
                 map.put("organizations", organizationResource.getOrganizations());
             }
             if (StringUtils.equals(type, UserGroupType.WORKSPACE)) {
-                map.put("workspaces", organizationResource.getOrganizations());
+                map.put("workspaces", organizationResource.getWorkspaces());
             }
             if (StringUtils.equals(type, UserGroupType.PROJECT)) {
-                map.put("projects", organizationResource.getOrganizations());
+                map.put("projects", organizationResource.getProjects());
             }
             list.add(map);
         }
         return list;
     }
+
+    public List<Group> getGroupsByType(GroupRequest request) {
+        String resourceId = request.getResourceId();
+        String type = request.getType();
+        List<String> scopeList = Arrays.asList("global", resourceId);
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andScopeIdIn(scopeList)
+                .andTypeEqualTo(type);
+        return groupMapper.selectByExample(groupExample);
+    }
+
+    public List<Group> getOrganizationMemberGroups(String orgId, String userId) {
+        return extUserGroupMapper.getOrganizationMemberGroups(orgId, userId);
+    }
+
+    public List<Group> getWorkspaceMemberGroups(String workspaceId, String userId) {
+        return extUserGroupMapper.getWorkspaceMemberGroups(workspaceId, userId);
+    }
+
 
 
 

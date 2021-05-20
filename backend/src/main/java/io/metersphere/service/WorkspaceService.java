@@ -2,11 +2,9 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ProjectMapper;
-import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.base.mapper.UserRoleMapper;
-import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.RoleConstants;
@@ -55,6 +53,10 @@ public class WorkspaceService {
     private ProjectMapper projectMapper;
     @Resource
     private UserService userService;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+    @Resource
+    private ExtUserGroupMapper extUserGroupMapper;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -216,30 +218,30 @@ public class WorkspaceService {
         String workspaceId = memberDTO.getWorkspaceId();
         String userId = memberDTO.getId();
         // 已有角色
-        List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
+        List<Group> memberGroups = extUserGroupMapper.getWorkspaceMemberGroups(workspaceId, userId);
         // 修改后的角色
-        List<String> roles = memberDTO.getRoleIds();
-        List<String> allRoleIds = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
+        List<String> groups = memberDTO.getGroupIds();
+        List<String> allGroupIds = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
         // 更新用户时添加了角色
-        for (int i = 0; i < roles.size(); i++) {
-            if (checkSourceRole(workspaceId, userId, roles.get(i)) == 0) {
-                UserRole userRole = new UserRole();
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setUserId(userId);
-                userRole.setRoleId(roles.get(i));
-                userRole.setSourceId(workspaceId);
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRoleMapper.insertSelective(userRole);
+        for (int i = 0; i < groups.size(); i++) {
+            if (checkSourceRole(workspaceId, userId, groups.get(i)) == 0) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(groups.get(i));
+                userGroup.setSourceId(workspaceId);
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
             }
         }
-        allRoleIds.removeAll(roles);
-        if (allRoleIds.size() > 0) {
-            UserRoleExample userRoleExample = new UserRoleExample();
-            userRoleExample.createCriteria().andUserIdEqualTo(userId)
+        allGroupIds.removeAll(groups);
+        if (allGroupIds.size() > 0) {
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId)
                     .andSourceIdEqualTo(workspaceId)
-                    .andRoleIdIn(allRoleIds);
-            userRoleMapper.deleteByExample(userRoleExample);
+                    .andGroupIdIn(allGroupIds);
+            userGroupMapper.deleteByExample(userGroupExample);
         }
     }
 
