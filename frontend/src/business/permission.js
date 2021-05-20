@@ -4,7 +4,7 @@ import {
   checkoutTestManagerOrTestUser,
   enableModules,
   hasLicense,
-  hasRolePermissions,
+  hasPermissions,
   hasRoles
 } from "@/common/js/utils";
 import NProgress from 'nprogress'; // progress bar
@@ -37,7 +37,7 @@ function checkRolePermission(el, binding, type) {
     if (type === 'roles') {
       hasPermission = hasRoles(...permissionRoles);
     } else if (type === 'permission') {
-      hasPermission = hasRolePermissions(...permissionRoles);
+      hasPermission = hasPermissions(...permissionRoles);
     }
     if (!hasPermission) {
       el.parentNode && el.parentNode.removeChild(el);

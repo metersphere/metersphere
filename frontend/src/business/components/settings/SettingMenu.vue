@@ -1,6 +1,6 @@
 <template>
   <el-menu menu-trigger="click" :default-active="$route.path" router class="setting">
-    <el-submenu index="1" v-permission="['admin']">
+    <el-submenu index="1" v-roles="['admin']">
       <template v-slot:title>
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
         <span>{{ $t('commons.system') }}</span>
@@ -10,7 +10,7 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="2" v-permission="['org_admin']" v-if="isCurrentOrganizationAdmin">
+    <el-submenu index="2" v-roles="['org_admin']" v-if="isCurrentOrganizationAdmin">
       <template v-slot:title>
         <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>{{ $t('commons.organization') }}</span>
@@ -20,7 +20,7 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="3" v-permission="['test_manager']" v-if="isCurrentWorkspaceUser">
+    <el-submenu index="3" v-roles="['test_manager']" v-if="isCurrentWorkspaceUser">
       <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{ $t('commons.workspace') }}</span>
@@ -30,25 +30,26 @@
       </el-menu-item>
       <el-submenu index="3-1">
         <template slot="title">模板管理</template>
-        <el-menu-item v-for="menu in workspaceTemplate" :key="menu.index" :index="menu.index" class="setting-item" v-permission="menu.roles">
+        <el-menu-item v-for="menu in workspaceTemplate" :key="menu.index" :index="menu.index" class="setting-item"
+                      v-roles="menu.roles">
           {{ $t(menu.title) }}
         </el-menu-item>
       </el-submenu>
     </el-submenu>
 
-    <el-submenu index="4" v-permission="['test_user','test_manager', 'org_admin', 'admin']">
+    <el-submenu index="4" v-roles="['test_user','test_manager', 'org_admin', 'admin']">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
-        <span>{{$t('commons.project')}}</span>
+        <span>{{ $t('commons.project') }}</span>
       </template>
       <el-menu-item v-for="menu in project" :key="menu.index" :index="menu.index" class="setting-item">
         {{ $t(menu.title) }}
       </el-menu-item>
     </el-submenu>
 
-<!--    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"-->
-<!--                  v-permission="['test_user','test_manager', 'org_admin', 'admin']">-->
-<!--      <template v-slot:title>-->
+    <!--    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"-->
+    <!--                  v-roles="['test_user','test_manager', 'org_admin', 'admin']">-->
+    <!--      <template v-slot:title>-->
 <!--        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>-->
 <!--        <span>{{ $t(menu.title) }}</span>-->
 <!--      </template>-->
@@ -60,7 +61,7 @@
         <span>{{ $t('commons.personal_info') }}</span>
       </template>
       <el-menu-item v-for="menu in persons" :key="menu.index" :index="menu.index" class="setting-item"
-                    v-permission="menu.roles">
+                    v-roles="menu.roles">
         {{ $t(menu.title) }}
       </el-menu-item>
     </el-submenu>

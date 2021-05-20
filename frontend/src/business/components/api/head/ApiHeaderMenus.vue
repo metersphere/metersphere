@@ -25,18 +25,18 @@
           </el-menu-item>
 
           <el-submenu v-show="isOldVersion"
-                      v-permission="['test_manager','test_user','test_viewer']" index="4">
+                      v-roles="['test_manager','test_user','test_viewer']" index="4">
             <template v-slot:title>{{ $t('commons.test') }}</template>
             <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/test/list/all'"/>
             <el-menu-item :index="apiTestProjectPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
+            <ms-create-button v-roles="['test_manager','test_user']" :index="'/api/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
           <el-submenu v-show="isOldVersion"
-                      v-permission="['test_manager','test_user','test_viewer']" index="5">
+                      v-roles="['test_manager','test_user','test_viewer']" index="5">
             <template v-slot:title>{{ $t('commons.report') }}</template>
             <ms-recent-list ref="reportRecent" :options="reportRecent"/>
             <el-divider class="menu-divider"/>
@@ -45,7 +45,7 @@
 
 
           <el-menu-item v-show="isOldVersion"
-                        v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
+                        v-roles="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
             {{ $t('commons.monitor') }}
           </el-menu-item>
         </el-menu>

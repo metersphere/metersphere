@@ -8,17 +8,17 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
+          <el-submenu v-roles="['test_manager','test_user','test_viewer']"
                       index="4" popper-class="submenu">
             <template v-slot:title>{{ $t('commons.test') }}</template>
             <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/performance/test/create'"
+            <ms-create-button v-roles="['test_manager','test_user']" :index="'/performance/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
+          <el-submenu v-roles="['test_manager','test_user','test_viewer']"
                       index="5" popper-class="submenu">
             <template v-slot:title>{{ $t('commons.report') }}</template>
             <ms-recent-list ref="reportRecent" :options="reportRecent"/>
