@@ -55,17 +55,18 @@ export function hasRolePermission(role) {
 export function hasPermission(permission) {
   let user = getCurrentUser();
 
-  user.groupPermissions.forEach(gp => {
-    for (let userGroup of user.userGroups) {
-      if (gp.group.id === userGroup.id) {
-        gp.sourceId = userGroup.sourceId;
+  user.userGroups.forEach(ug => {
+    user.groupPermissions.forEach(gp => {
+      if (gp.group.id === ug.groupId) {
+        ug.userGroupPermissions = gp.userGroupPermissions;
+        ug.group = gp.group;
       }
-    }
+    });
   });
 
   // todo 权限验证
-  let currentProjectPermissions = user.groupPermissions.filter(gp => gp.group.type === 'PROJECT')
-    .filter(gp => gp.group.scopeId === getCurrentProjectID())[0]?.userGroupPermissions
+  let currentProjectPermissions = user.userGroups.filter(ug => ug.group.type === 'PROJECT')
+    .filter(g => g.sourceId === getCurrentProjectID())[0]?.userGroupPermissions
     .map(g => g.permissionId) || [];
 
   for (const p of currentProjectPermissions) {
@@ -74,8 +75,8 @@ export function hasPermission(permission) {
     }
   }
 
-  let currentWorkspacePermissions = user.groupPermissions.filter(gp => gp.group.type === 'WORKSPACE')
-    .filter(gp => gp.group.scopeId === getCurrentWorkspaceId())[0]?.userGroupPermissions
+  let currentWorkspacePermissions = user.userGroups.filter(ug => ug.group.type === 'WORKSPACE')
+    .filter(g => g.sourceId === getCurrentWorkspaceId())[0]?.userGroupPermissions
     .map(g => g.permissionId) || [];
 
   for (const p of currentWorkspacePermissions) {
@@ -84,8 +85,8 @@ export function hasPermission(permission) {
     }
   }
 
-  let currentOrganizationPermissions = user.groupPermissions.filter(gp => gp.group.type === 'ORGANIZATION')
-    .filter(gp => gp.group.scopeId === getCurrentOrganizationId())[0]?.userGroupPermissions
+  let currentOrganizationPermissions = user.userGroups.filter(ug => ug.group.type === 'ORGANIZATION')
+    .filter(ug => ug.sourceId === getCurrentOrganizationId())[0]?.userGroupPermissions
     .map(g => g.permissionId) || [];
 
   for (const p of currentOrganizationPermissions) {
@@ -94,8 +95,8 @@ export function hasPermission(permission) {
     }
   }
 
-  let systemPermissions = user.groupPermissions.filter(gp => gp.group.type === 'SYSTEM')
-    .filter(gp => gp.group.scopeId === 'global')[0]?.userGroupPermissions
+  let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
+    .filter(ug => ug.sourceId === 'system')[0]?.userGroupPermissions
     .map(g => g.permissionId) || [];
 
   for (const p of systemPermissions) {
