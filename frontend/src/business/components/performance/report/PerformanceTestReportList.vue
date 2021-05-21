@@ -108,7 +108,8 @@
                                         @exec="handleView(scope.row)" type="primary"/>
               <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-s-operation"
                                         @exec="handleDiff(scope.row)" type="warning"/>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
+              <ms-table-operator-button :tip="$t('api_report.delete')"
+                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ+DELETE']"
                                         icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
           </el-table-column>

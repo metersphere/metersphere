@@ -21,6 +21,7 @@
             </el-button>
 
             <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
+                                v-permission="['PROJECT_PERFORMANCE_TEST:READ+SCHEDULE']"
                                 :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
           </el-col>
         </el-row>
