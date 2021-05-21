@@ -57,7 +57,7 @@ public class WorkspaceController {
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     @MsAuditLog(module = "system_workspace", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#workspace.id)", content = "#msClass.getLogDetails(#workspace.id)", msClass = WorkspaceService.class)
     public Workspace updateWorkspace(@RequestBody Workspace workspace) {
-        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
+//        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspace.getId());
         return workspaceService.saveWorkspace(workspace);
     }
 
@@ -80,7 +80,7 @@ public class WorkspaceController {
     @RequiresRoles(RoleConstants.ORG_ADMIN)
     @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
     public void deleteWorkspace(@PathVariable String workspaceId) {
-        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspaceId);
+//        workspaceService.checkWorkspaceOwnerByOrgAdmin(workspaceId);
         userService.refreshSessionUser("workspace", workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
     }
