@@ -7,7 +7,9 @@
            text-color="#fff">
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="1" popper-class="org-ws-submenu"
-                v-roles="['org_admin', 'test_manager', 'test_user', 'test_viewer']">
+                v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+                'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
+                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ']">
       <template v-slot:title>{{ $t('commons.organization') }}:
         <span class="org-ws-name" :title="currentOrganizationName">
           {{ currentOrganizationName }}
@@ -29,7 +31,11 @@
         </el-menu-item>
       </div>
     </el-submenu>
-    <el-submenu index="2" popper-class="submenu" v-roles="['test_manager', 'test_user', 'test_viewer']">
+    <el-submenu index="2" popper-class="submenu"
+                v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+                'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
+                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ','WORKSPACE_USER:READ']"
+    >
       <template v-slot:title>{{ $t('commons.workspace') }}:
         <span class="org-ws-name" :title="currentWorkspaceName">
           {{ currentWorkspaceName }}
@@ -87,7 +93,7 @@ export default {
       searchWs: '',
       orgListCopy: [{name: this.$t('organization.none')}],
       wsListCopy: [{name: this.$t('workspace.none')}]
-    }
+    };
   },
   computed: {
     currentUser: () => {
@@ -125,7 +131,7 @@ export default {
         this.$get("/workspace/list/orgworkspace/", response => {
           let data = response.data;
           if (data.length === 0) {
-            this.workspaceList = [{name: this.$t('workspace.none')}]
+            this.workspaceList = [{name: this.$t('workspace.none')}];
           } else {
             this.workspaceList = data;
             this.wsListCopy = data;
@@ -135,13 +141,13 @@ export default {
               localStorage.setItem(WORKSPACE_ID, workspace[0].id);
             }
           }
-        })
+        });
       }
     },
     getCurrentUserInfo() {
       this.$get("/user/info/" + encodeURIComponent(this.currentUserId), response => {
         this.currentUserInfo = response.data;
-      })
+      });
     },
     changeOrg(data) {
       let orgId = data.id;
@@ -171,7 +177,7 @@ export default {
         this.$router.push('/').then(() => {
           window.location.reload();
         }).catch(err => err);
-      })
+      });
     },
     query(sign, queryString) {
       if (sign === 'org') {
@@ -187,7 +193,7 @@ export default {
       };
     },
   }
-}
+};
 </script>
 
 <style scoped>
