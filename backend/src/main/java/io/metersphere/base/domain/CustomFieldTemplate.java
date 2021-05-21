@@ -21,5 +21,7 @@ public class CustomFieldTemplate implements Serializable {
 
     private String customData;
 
+    private Boolean isThirdPart;
+
     private static final long serialVersionUID = 1L;
 }

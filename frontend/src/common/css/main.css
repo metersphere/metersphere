@@ -102,11 +102,13 @@ textarea {
 /* 表格拖拽表头调整宽度 --> */
 
 /* <-- 表格 input 编辑效果 */
-.table-edit-input .el-textarea__inner {
+.table-edit-input .el-textarea__inner,
+.table-edit-input .el-input__inner {
   border-style: hidden;
 }
 
-.table-edit-input.is-disabled .el-textarea__inner {
+.table-edit-input.is-disabled .el-textarea__inner,
+.table-edit-input.is-disabled .el-input__inner {
   background-color: white;
   color: #606266;
 }
@@ -116,7 +118,8 @@ textarea {
   border-radius: 5px;
 }
 
-.table-edit-input .el-textarea__inner:focus {
+.table-edit-input .el-textarea__inner:focus,
+.table-edit-input .el-input__inner:focus {
   border: 1px solid #409EFF;
 }
 

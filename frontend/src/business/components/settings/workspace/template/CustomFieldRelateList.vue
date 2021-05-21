@@ -167,16 +167,7 @@ export default {
       this.visible = true;
     },
     save() {
-      if (this.condition.selectAll) {
-        if (this.scene) {
-          // this.result = this.$post('custom/field/list/ids' + this.currentPage + '/' + this.pageSize,
-          //   this.condition, (response) => {
-          //     this.$emit('save', response.data);
-          //   });
-        }
-      } else {
-        this.$emit('save', this.$refs.table.selectIds);
-      }
+      this.$emit('save', this.$refs.table.selectIds);
       this.visible = false;
     },
   }

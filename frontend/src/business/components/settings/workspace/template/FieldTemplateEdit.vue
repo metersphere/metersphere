@@ -41,6 +41,7 @@
               <custom-field-form-list
                 :table-data="relateFields"
                 :scene="scene"
+                :platform="form.platform"
                 :template-contain-ids="templateContainIds"
                 :custom-field-ids="form.customFieldIds"
                 ref="customFieldFormList"

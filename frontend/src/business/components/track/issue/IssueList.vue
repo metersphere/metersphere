@@ -140,7 +140,7 @@ export default {
         for (let i = 0; i < this.tableData.length; i++) {
           if (this.tableData[i]) {
             if (this.tableData[i].platform !== 'Local') {
-              this.$post("issues/get/platform/issue", this.tableData[i]).then(response => {
+              this.result = this.$post("issues/get/platform/issue", this.tableData[i]).then(response => {
                 let issues = response.data.data;
                 if (issues) {
                   this.$set(this.tableData[i], "title", issues.title ? issues.title : "--");

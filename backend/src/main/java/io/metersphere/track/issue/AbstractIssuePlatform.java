@@ -168,6 +168,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setPlatform(issuesRequest.getPlatform());
         issues.setProjectId(issuesRequest.getProjectId());
         issues.setCustomFields(issuesRequest.getCustomFields());
+        issues.setCreator(issuesRequest.getCreator());
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
         issuesMapper.insert(issues);

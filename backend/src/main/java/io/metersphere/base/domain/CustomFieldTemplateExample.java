@@ -643,6 +643,66 @@ public class CustomFieldTemplateExample {
             addCriterion("custom_data not between", value1, value2, "customData");
             return (Criteria) this;
         }
+
+        public Criteria andIsThirdPartIsNull() {
+            addCriterion("is_third_part is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartIsNotNull() {
+            addCriterion("is_third_part is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartEqualTo(Boolean value) {
+            addCriterion("is_third_part =", value, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartNotEqualTo(Boolean value) {
+            addCriterion("is_third_part <>", value, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartGreaterThan(Boolean value) {
+            addCriterion("is_third_part >", value, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_third_part >=", value, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartLessThan(Boolean value) {
+            addCriterion("is_third_part <", value, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_third_part <=", value, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartIn(List<Boolean> values) {
+            addCriterion("is_third_part in", values, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartNotIn(List<Boolean> values) {
+            addCriterion("is_third_part not in", values, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_third_part between", value1, value2, "isThirdPart");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsThirdPartNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_third_part not between", value1, value2, "isThirdPart");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
