@@ -7,17 +7,6 @@
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item :label="$t('custom_field.issue_creator')" prop="title">
-          <el-select filterable v-model="form.creator" :placeholder="$t('custom_field.issue_creator')">
-            <el-option
-              v-for="(item) in memberOptions"
-              :key="item.id"
-              :label="item.id + ' (' + item.name + ')'"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-
         <!-- 自定义字段 -->
         <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                  class="case-form">
@@ -130,8 +119,7 @@ export default {
       zentaoUsers: [],
       Builds: [],
       hasTapdId: false,
-      hasZentaoId: false,
-      memberOptions: []
+      hasZentaoId: false
     };
   },
   props: {
@@ -157,18 +145,12 @@ export default {
   methods: {
     open(data) {
       let initAddFuc = this.initEdit;
-      this.getMemberOptions();
       getTemplate('field/template/issue/get/relate/', this)
         .then((template) => {
           this.issueTemplate = template;
           this.getThirdPartyInfo();
           initAddFuc(data);
         });
-    },
-    getMemberOptions() {
-      this.$post('/user/ws/member/tester/list', {workspaceId: getCurrentWorkspaceId()}, response => {
-        this.memberOptions = response.data;
-      });
     },
     getThirdPartyInfo() {
       let platform = this.issueTemplate.platform;
@@ -200,6 +182,9 @@ export default {
         } else {
           //copy
           this.url = 'issues/add';
+          if (!this.form.creator) {
+            this.form.creator = getCurrentUserId();
+          }
           this.form.title = data.title + '_copy';
         }
       } else {
@@ -208,9 +193,9 @@ export default {
           description: this.issueTemplate.content
         }
         this.url = 'issues/add';
-      }
-      if (!this.form.creator) {
-        this.form.creator = getCurrentUserId();
+        if (!this.form.creator) {
+          this.form.creator = getCurrentUserId();
+        }
       }
       parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules, null);
       this.$nextTick(() => {

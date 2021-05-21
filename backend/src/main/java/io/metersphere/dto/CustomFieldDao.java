@@ -12,6 +12,4 @@ public class CustomFieldDao extends CustomField {
     private String defaultValue;
 
     private String customData;
-
-    private Boolean isThirdPart;
 }
