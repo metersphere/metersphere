@@ -5,11 +5,13 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.GroupMapper;
+import io.metersphere.base.mapper.OrganizationMapper;
 import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.UserGroupPermissionMapper;
 import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.commons.constants.UserGroupType;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.PageUtils;
@@ -52,6 +54,8 @@ public class GroupService {
     private UserGroupMapper userGroupMapper;
     @Resource
     private OrganizationService organizationService;
+    @Resource
+    private OrganizationMapper organizationMapper;
 
     private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4){{
         put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
@@ -69,6 +73,7 @@ public class GroupService {
 
     public Group addGroup(EditGroupRequest request) {
         Group group = new Group();
+        checkGroupExist(request);
         group.setId(UUID.randomUUID().toString());
         group.setName(request.getName());
         group.setCreator(SessionUtils.getUserId());
@@ -86,7 +91,23 @@ public class GroupService {
         return group;
     }
 
+    private void checkGroupExist(EditGroupRequest request) {
+        String name = request.getName();
+        String id = request.getId();
+        GroupExample groupExample = new GroupExample();
+        GroupExample.Criteria criteria = groupExample.createCriteria();
+        criteria.andNameEqualTo(name);
+        if (StringUtils.isNotBlank(id)) {
+            criteria.andIdNotEqualTo(id);
+        }
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        if (CollectionUtils.isNotEmpty(groups)) {
+            MSException.throwException("用户组名称已存在！");
+        }
+    }
+
     public void editGroup(EditGroupRequest request) {
+        checkGroupExist(request);
         Group group = new Group();
         request.setScopeId(null);
         BeanUtils.copyBean(group, request);
@@ -280,4 +301,28 @@ public class GroupService {
         return PageUtils.setPageInfo(page, groups);
     }
 
+    public List<Organization> getOrganization(String userId) {
+        List<Organization> list = new ArrayList<>();
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.ORGANIZATION);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(groups)) {
+            return list;
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId).andGroupIdIn(groupIds);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> orgIds = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+
+        if (CollectionUtils.isEmpty(orgIds)) {
+            return list;
+        }
+
+        OrganizationExample organizationExample = new OrganizationExample();
+        organizationExample.createCriteria().andIdIn(orgIds);
+        list = organizationMapper.selectByExample(organizationExample);
+        return list;
+    }
 }
