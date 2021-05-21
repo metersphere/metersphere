@@ -33,6 +33,7 @@ import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,7 +48,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/definition")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class ApiDefinitionController {
     @Resource
     private ScheduleService scheduleService;
@@ -63,6 +63,7 @@ public class ApiDefinitionController {
     private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -84,6 +85,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/list/all")
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
     public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.list(request);
     }

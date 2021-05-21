@@ -12,15 +12,16 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-menu-item v-show="isNewVersion" :index="'/api/definition'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/definition'" v-permission="['PROJECT_API_DEFINITION:READ']">
             {{ $t("i18n.definition") }}
           </el-menu-item>
 
-          <el-menu-item v-show="isNewVersion" :index="'/api/automation'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/automation'" v-permission="['PROJECT_API_SCENARIO:READ']">
             {{ $t("i18n.automation") }}
           </el-menu-item>
 
-          <el-menu-item v-show="isNewVersion" :index="'/api/automation/report'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/automation/report'"
+                        v-permission="['PROJECT_API_REPORT:READ']">
             {{ $t("i18n.report") }}
           </el-menu-item>
 
@@ -78,7 +79,7 @@ export default {
           return '/api/test/edit/' + item.id;
         },
         router: function (item) {
-          return {path: '/api/test/edit', query: {id: item.id}}
+          return {path: '/api/test/edit', query: {id: item.id}};
         }
       },
       reportRecent: {
@@ -93,7 +94,7 @@ export default {
       isRouterAlive: true,
       apiTestProjectPath: '',
       currentProject: ''
-    }
+    };
   },
   computed: {
     ...mapGetters([
@@ -121,7 +122,7 @@ export default {
   beforeDestroy() {
     ApiEvent.$off(LIST_CHANGE);
   }
-}
+};
 
 </script>
 
