@@ -256,6 +256,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 //                if (isCustomMap.get(item.getCustomData())) {
 //                    fields.put(item.getCustomData(), item.getValue());
 //                } else {
+                  // Jira文档说明中自定义字段和系统字段参数格式有区别，实测是一样的
                     JSONObject param = new JSONObject();
                     param.put("id", item.getValue());
                     fields.put(item.getCustomData(), param);
