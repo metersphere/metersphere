@@ -27,7 +27,7 @@
         </el-table-column>
         <el-table-column prop="creator" label="操作人"/>
         <el-table-column prop="description" label="描述"/>
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column :label="$t('commons.operating')" min-width="120">
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
               <template v-slot:middle>
