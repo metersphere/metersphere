@@ -208,7 +208,7 @@ public class OrganizationService {
 
     public OrganizationResource listResource(String groupId, String type) {
         Group group = groupMapper.selectByPrimaryKey(groupId);
-        final String orgId = group.getScopeId();
+        String orgId = group.getScopeId();
         OrganizationResource resource = new OrganizationResource();
         if (!StringUtils.equals("global", orgId)) {
             Organization organization = organizationMapper.selectByPrimaryKey(orgId);
