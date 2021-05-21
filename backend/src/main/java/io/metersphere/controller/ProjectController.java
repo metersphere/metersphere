@@ -53,7 +53,6 @@ public class ProjectController {
     }
 
     @GetMapping("/recent/{count}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<Project> recentProjects(@PathVariable int count) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         ProjectRequest request = new ProjectRequest();
@@ -69,7 +68,6 @@ public class ProjectController {
     }
 
     @PostMapping("/add")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#project.id)", msClass = ProjectService.class)
     public Project addProject(@RequestBody AddProjectRequest project, HttpServletRequest request) {
         Project returnModel = projectService.addProject(project);
@@ -93,7 +91,6 @@ public class ProjectController {
     }
 
     @GetMapping("/delete/{projectId}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
     public void deleteProject(@PathVariable(value = "projectId") String projectId) {
         checkPermissionService.checkProjectOwner(projectId);
@@ -101,7 +98,6 @@ public class ProjectController {
     }
 
     @PostMapping("/update")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#Project.id)", content = "#msClass.getLogDetails(#Project.id)", msClass = ProjectService.class)
     public void updateProject(@RequestBody Project Project) {
         projectService.updateProject(Project);

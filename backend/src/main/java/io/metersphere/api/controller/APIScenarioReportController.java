@@ -23,7 +23,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/scenario/report")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class APIScenarioReportController {
 
     @Resource
@@ -42,7 +41,6 @@ public class APIScenarioReportController {
     }
 
     @PostMapping("/update")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public String update(@RequestBody APIScenarioReportResult node) {
         node.setExecuteType(ExecuteType.Saved.name());
         return apiReportService.update(node);

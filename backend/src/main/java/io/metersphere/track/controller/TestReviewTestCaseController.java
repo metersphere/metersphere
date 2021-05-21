@@ -34,28 +34,28 @@ public class TestReviewTestCaseController {
     }
 
     @PostMapping("/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
     public int deleteTestCase(@RequestBody DeleteRelevanceRequest request) {
         return testReviewTestCaseService.deleteTestCase(request);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
     public void deleteTestCaseBatch(@RequestBody TestReviewCaseBatchRequest request) {
         testReviewTestCaseService.deleteTestCaseBatch(request);
     }
 
     @PostMapping("/batch/edit/status")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = TestReviewTestCaseService.class)
     public void editTestCaseBatch(@RequestBody TestReviewCaseBatchRequest request) {
         testReviewTestCaseService.editTestCaseBatchStatus(request);
     }
 
     @PostMapping("/minder/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#testCases)", msClass = TestReviewTestCaseService.class)
     public void editTestCaseForMinder(@RequestBody List<TestCaseReviewTestCase> testCases) {
         testReviewTestCaseService.editTestCaseForMinder(testCases);
@@ -67,20 +67,20 @@ public class TestReviewTestCaseController {
     }
 
     @PostMapping("/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.REVIEW, content = "#msClass.getLogDetails(#testCaseReviewTestCase)", msClass = TestReviewTestCaseService.class)
     public void editTestCase(@RequestBody TestCaseReviewTestCase testCaseReviewTestCase) {
         testReviewTestCaseService.editTestCase(testCaseReviewTestCase);
     }
 
     @GetMapping("/get/{reviewId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+
     public TestReviewCaseDTO get(@PathVariable String reviewId) {
         return testReviewTestCaseService.get(reviewId);
     }
 
     @PostMapping("/list/ids")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+
     public List<TestReviewCaseDTO> getTestReviewCaseList(@RequestBody QueryCaseReviewRequest request) {
         return testReviewTestCaseService.getTestCaseReviewDTOList(request);
     }

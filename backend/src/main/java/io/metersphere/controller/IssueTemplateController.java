@@ -21,7 +21,7 @@ import java.util.List;
 
 @RequestMapping("field/template/issue")
 @RestController
-@RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
 public class IssueTemplateController {
     @Resource
     private IssueTemplateService issueTemplateService;
