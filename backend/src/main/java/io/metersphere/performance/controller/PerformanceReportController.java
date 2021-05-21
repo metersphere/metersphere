@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.LogDetailDTO;
@@ -17,8 +16,7 @@ import io.metersphere.performance.controller.request.RenameReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.service.PerformanceReportService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,7 +31,7 @@ public class PerformanceReportController {
     private PerformanceReportService performanceReportService;
 
     @PostMapping("/recent/{count}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
     public List<ReportDTO> recentProjects(@PathVariable int count, @RequestBody ReportRequest request) {
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
@@ -47,7 +45,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/delete/{reportId}")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ+DELETE")
     @MsAuditLog(module = "performance_test_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reportId)", msClass = PerformanceReportService.class)
     public void deleteReport(@PathVariable String reportId) {
         performanceReportService.deleteReport(reportId);
@@ -131,7 +129,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ+DELETE")
     @MsAuditLog(module = "performance_test_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = PerformanceReportService.class)
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         performanceReportService.deleteReportBatch(reportRequest);
