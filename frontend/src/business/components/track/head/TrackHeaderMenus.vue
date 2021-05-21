@@ -9,7 +9,7 @@
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-menu-item :index="'/track/case/all'" v-permission="['test_manager','test_user','test_viewer']">
+          <el-menu-item :index="'/track/case/all'" v-permission="['PROJECT_TRACK_CASE:READ']">
             {{ $t("test_track.case.test_case") }}
           </el-menu-item>
           <!--

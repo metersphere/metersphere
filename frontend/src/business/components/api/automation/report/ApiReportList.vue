@@ -29,7 +29,7 @@
               </el-dropdown-menu>
             </el-dropdown>
             <template v-slot:default="scope">
-              <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
