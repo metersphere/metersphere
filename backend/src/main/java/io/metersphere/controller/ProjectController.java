@@ -13,6 +13,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.AddProjectRequest;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
+import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ProjectService;
@@ -122,5 +123,11 @@ public class ProjectController {
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
     public void deleteFile(@PathVariable String fileId) {
         projectService.deleteFile(fileId);
+    }
+
+    @PostMapping("/member/update")
+//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, title = "#memberDTO.name")
+    public void updateMember(@RequestBody WorkspaceMemberDTO memberDTO) {
+        projectService.updateMember(memberDTO);
     }
 }

@@ -325,4 +325,8 @@ public class GroupService {
         list = organizationMapper.selectByExample(organizationExample);
         return list;
     }
+
+    public List<Group> getProjectMemberGroups(String projectId, String userId) {
+        return extUserGroupMapper.getProjectMemberGroups(projectId, userId);
+    }
 }

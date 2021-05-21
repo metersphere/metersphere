@@ -66,4 +66,17 @@
 
         WHERE ug.user_id = #{userId}
     </select>
+    <select id="getProjectMemberList" resultType="io.metersphere.base.domain.User">
+        SELECT DISTINCT * FROM (
+        SELECT `user`.* FROM user_group JOIN `user` ON user_group.user_id = `user`.id
+        WHERE user_group.source_id = #{request.projectId}
+        order by `user`.update_time desc) temp
+    </select>
+    <select id="getProjectMemberGroups" resultType="io.metersphere.base.domain.Group">
+        select r.id, r.name
+        from project p
+                 join user_group ur on p.id = ur.source_id
+                 join `group` r on r.id = ur.group_id
+        where p.id = #{projectId} and ur.user_id = #{userId}
+    </select>
 </mapper>
