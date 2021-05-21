@@ -44,21 +44,21 @@ public class TestPlanApiCaseController {
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanApiCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanApiCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanApiCaseService.class)
     public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping("/batch/update/env")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanApiCaseService.class)
     public void batchUpdateEnv(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.batchUpdateEnv(request);

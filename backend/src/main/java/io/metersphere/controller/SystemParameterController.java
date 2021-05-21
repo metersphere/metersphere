@@ -26,14 +26,12 @@ public class SystemParameterController {
     private SystemParameterService SystemParameterService;
 
     @PostMapping("/edit/email")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置")
     public void editMail(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.editMail(systemParameter);
     }
 
     @PostMapping("/testConnection")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     public void testConnection(@RequestBody HashMap<String, String> hashMap) {
         SystemParameterService.testConnection(hashMap);
     }
@@ -49,7 +47,6 @@ public class SystemParameterController {
     }
 
     @GetMapping("/mail/info")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     public MailInfo mailInfo() {
         return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
     }
@@ -65,21 +62,18 @@ public class SystemParameterController {
     }
 
     @PostMapping("/save/base")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "基本配置")
     public void saveBaseInfo(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveBaseInfo(systemParameter);
     }
 
     @PostMapping("/save/ldap")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "LDAP设置")
     public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveLdap(systemParameter);
     }
 
     @GetMapping("/ldap/info")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     public LdapInfo getLdapInfo() {
         return SystemParameterService.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
     }
