@@ -1,10 +1,11 @@
 package io.metersphere.service;
 
+import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.UserRole;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,18 +34,18 @@ public class CheckPermissionService {
     private ExtTestCaseReviewMapper extTestCaseReviewMapper;
 
 
-    public void checkReadOnlyUser() {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        Set<String> collect = Objects.requireNonNull(SessionUtils.getUser()).getUserRoles().stream()
-                .filter(ur ->
-                        StringUtils.equals(ur.getRoleId(), RoleConstants.TEST_VIEWER))
-                .map(UserRole::getSourceId)
-                .filter(sourceId -> StringUtils.equals(currentWorkspaceId, sourceId))
-                .collect(Collectors.toSet());
-        if (CollectionUtils.isNotEmpty(collect)) {
-            throw new RuntimeException(Translator.get("check_owner_read_only"));
-        }
-    }
+//    public void checkReadOnlyUser() {
+//        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+//        Set<String> collect = Objects.requireNonNull(SessionUtils.getUser()).getUserRoles().stream()
+//                .filter(ur ->
+//                        StringUtils.equals(ur.getRoleId(), RoleConstants.TEST_VIEWER))
+//                .map(UserRole::getSourceId)
+//                .filter(sourceId -> StringUtils.equals(currentWorkspaceId, sourceId))
+//                .collect(Collectors.toSet());
+//        if (CollectionUtils.isNotEmpty(collect)) {
+//            throw new RuntimeException(Translator.get("check_owner_read_only"));
+//        }
+//    }
 
     public void checkProjectOwner(String projectId) {
         Set<String> workspaceIds = getUserRelatedWorkspaceIds();
@@ -60,10 +62,14 @@ public class CheckPermissionService {
     }
 
     private Set<String> getUserRelatedWorkspaceIds() {
-        return Objects.requireNonNull(SessionUtils.getUser()).getUserRoles().stream()
-                .filter(ur ->
-                        StringUtils.equalsAny(ur.getRoleId(), RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER))
-                .map(UserRole::getSourceId)
+        List<String> groupIds = Objects.requireNonNull(SessionUtils.getUser()).getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.WORKSPACE))
+                .map(Group::getId)
+                .collect(Collectors.toList());
+        return Objects.requireNonNull(SessionUtils.getUser()).getUserGroups().stream()
+                .filter(ur -> groupIds.contains(ur.getGroupId()))
+                .map(UserGroup::getSourceId)
                 .collect(Collectors.toSet());
     }
 

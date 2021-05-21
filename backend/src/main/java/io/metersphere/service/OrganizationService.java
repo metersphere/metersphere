@@ -12,10 +12,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrganizationRequest;
-import io.metersphere.dto.OrganizationMemberDTO;
-import io.metersphere.dto.OrganizationResource;
-import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserRoleHelpDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -128,9 +125,9 @@ public class OrganizationService {
     }
 
     public List<Organization> getOrganizationListByUserId(String userId) {
-        List<UserRoleHelpDTO> userRoleHelpList = extUserRoleMapper.getUserRoleHelpList(userId);
+        List<UserGroupHelpDTO> userGroupHelpDTOList = extUserGroupMapper.getUserRoleHelpList(userId);
         List<String> list = new ArrayList<>();
-        userRoleHelpList.forEach(r -> {
+        userGroupHelpDTOList.forEach(r -> {
             if (StringUtils.isEmpty(r.getParentId())) {
                 list.add(r.getSourceId());
             } else {
@@ -181,9 +178,14 @@ public class OrganizationService {
     public void checkOrgOwner(String organizationId) {
         SessionUser sessionUser = SessionUtils.getUser();
         UserDTO user = userService.getUserDTO(sessionUser.getId());
-        List<String> collect = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()) || RoleConstants.ORG_MEMBER.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
+        List<String> groupIds = user.getGroups()
+                .stream()
+                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.ORGANIZATION))
+                .map(Group::getId)
+                .collect(Collectors.toList());
+        List<String> collect = user.getUserGroups().stream()
+                .filter(ur -> groupIds.contains(ur.getGroupId()))
+                .map(UserGroup::getSourceId)
                 .collect(Collectors.toList());
         if (!collect.contains(organizationId)) {
             MSException.throwException(Translator.get("organization_does_not_belong_to_user"));
