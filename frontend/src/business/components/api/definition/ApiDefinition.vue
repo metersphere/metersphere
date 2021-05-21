@@ -120,8 +120,8 @@
 
           <el-tab-pane name="add">
             <template v-slot:label>
-              <el-dropdown @command="handleCommand" v-tester>
-                <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
+              <el-dropdown @command="handleCommand">
+                <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="debug" v-permission="['PROJECT_API_DEFINITION:READ+DEBUG']">
                     {{ $t('api_test.definition.request.fast_debug') }}

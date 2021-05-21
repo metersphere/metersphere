@@ -3,13 +3,13 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
         <test-plan-case-list-header
-            :project-id="getProjectId()"
-            :condition="condition"
-            :plan-id="planId"
-            @refresh="initTable"
-            @relevanceCase="$emit('relevanceCase')"
-            @setEnvironment="setEnvironment"
-            v-if="isPlanModel"/>
+          :project-id="getProjectId()"
+          :condition="condition"
+          :plan-id="planId"
+          @refresh="initTable"
+          @relevanceCase="$emit('relevanceCase')"
+          @setEnvironment="setEnvironment"
+          v-if="isPlanModel"/>
       </template>
 
       <el-table v-loading="result.loading" ref="table"
@@ -38,57 +38,57 @@
                            :label="$t('api_test.definition.api_name')" show-overflow-tooltip :key="index"/>
 
           <el-table-column
-              v-if="item.id == 'priority'"
-              prop="priority"
-              :filters="priorityFilters"
-              sortable="custom"
-              column-key="priority"
-              :label="$t('test_track.case.priority')"
-              show-overflow-tooltip
-              min-width="120"
-              :key="index">
+            v-if="item.id == 'priority'"
+            prop="priority"
+            :filters="priorityFilters"
+            sortable="custom"
+            column-key="priority"
+            :label="$t('test_track.case.priority')"
+            show-overflow-tooltip
+            min-width="120"
+            :key="index">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </el-table-column>
 
           <el-table-column
-              v-if="item.id == 'path'"
-              min-width="100"
-              prop="path"
-              :label="$t('api_test.definition.api_path')"
-              show-overflow-tooltip
-              :key="index"/>
+            v-if="item.id == 'path'"
+            min-width="100"
+            prop="path"
+            :label="$t('api_test.definition.api_path')"
+            show-overflow-tooltip
+            :key="index"/>
 
           <el-table-column
-              v-if="item.id == 'createUser'"
-              prop="createUser"
-              column-key="user_id"
-              sortable="custom"
-              min-width="100"
-              :filters="userFilters"
-              :label="'创建人'"
-              show-overflow-tooltip
-              :key="index"/>
+            v-if="item.id == 'createUser'"
+            prop="createUser"
+            column-key="user_id"
+            sortable="custom"
+            min-width="100"
+            :filters="userFilters"
+            :label="'创建人'"
+            show-overflow-tooltip
+            :key="index"/>
 
           <el-table-column
-              v-if="item.id == 'custom'"
-              sortable="custom"
-              min-width="160"
-              :label="$t('api_test.definition.api_last_time')"
-              prop="updateTime"
-              :key="index">
+            v-if="item.id == 'custom'"
+            sortable="custom"
+            min-width="160"
+            :label="$t('api_test.definition.api_last_time')"
+            prop="updateTime"
+            :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
 
           <el-table-column
-              v-if="item.id == 'tags'"
-              prop="tags"
-              min-width="100"
-              :label="$t('commons.tag')"
-              :key="index">
+            v-if="item.id == 'tags'"
+            prop="tags"
+            min-width="100"
+            :label="$t('commons.tag')"
+            :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
@@ -120,11 +120,13 @@
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
+            <ms-table-operator-button class="run-button" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
+                                      :tip="$t('api_test.run')"
                                       icon="el-icon-video-play"
-                                      @exec="singleRun(scope.row)" v-tester/>
-            <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
-                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)" v-tester/>
+                                      @exec="singleRun(scope.row)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
+                                      :tip="$t('test_track.plan_view.cancel_relevance')"
+                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
 

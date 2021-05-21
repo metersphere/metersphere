@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition"
+      <ms-table-header v-permission="['PROJECT_TRACK_PLAN:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testPlanCreate"
                        :create-tip="$t('test_track.plan.create_plan')"
                        :title="$t('test_track.plan.test_plan')"
@@ -163,30 +163,34 @@
         </el-table-column>
       </template>
       <el-table-column
-        min-width="150"
+        min-width="180"
         :label="$t('commons.operating')">
         <template slot="header">
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
+          <ms-table-operator v-permission="['PROJECT_TRACK_PLAN:READ+EDIT', 'PROJECT_TRACK_PLAN:READ+DELETE']"
+                             @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
             <template v-slot:middle>
-              <ms-table-operator-button :isTesterPermission="true"
+              <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                         style="background-color: #85888E;border-color: #85888E"
                                         v-if="!scope.row.reportId"
                                         :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
                                         @exec="openTestReportTemplate(scope.row)"/>
               <ms-table-operator-button v-if="scope.row.reportId"
+                                        v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                         :tip="$t('test_track.plan_view.view_report')" icon="el-icon-s-data"
                                         @exec="openReport(scope.row.id, scope.row.reportId)"/>
             </template>
           </ms-table-operator>
           <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;"
+                                    v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
                                     v-if="!scope.row.scheduleOpen" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
           <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;"
+                                    v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
                                     v-if="scope.row.scheduleOpen" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>

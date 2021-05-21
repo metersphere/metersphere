@@ -9,7 +9,7 @@
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-menu-item :index="'/track/case/all'">
+          <el-menu-item :index="'/track/case/all'" v-permission="['PROJECT_TRACK_CASE:READ']">
             {{ $t("test_track.case.test_case") }}
           </el-menu-item>
           <!--
@@ -26,24 +26,24 @@
                     </el-submenu>
           -->
 
-          <el-submenu v-roles="['test_manager','test_user','test_viewer']"
+          <el-submenu v-permission="['PROJECT_TRACK_REVIEW:READ']"
                       index="8" popper-class="submenu">
             <template v-slot:title>{{ $t('test_track.review.test_review') }}</template>
             <ms-recent-list ref="reviewRecent" :options="reviewRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/review/all'"/>
             <el-menu-item :index="testCaseReviewEditPath" class="blank_item"/>
-            <ms-create-button v-roles="['test_manager','test_user']" :index="'/track/review/create'"
+            <ms-create-button v-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :index="'/track/review/create'"
                               :title="$t('test_track.review.create_review')"/>
           </el-submenu>
 
-          <el-submenu v-roles="['test_manager','test_user','test_viewer']" index="7" popper-class="submenu">
+          <el-submenu v-permission="['PROJECT_TRACK_PLAN:READ']" index="7" popper-class="submenu">
             <template v-slot:title>{{ $t('test_track.plan.test_plan') }}</template>
             <ms-recent-list ref="planRecent" :options="planRecent"/>
             <el-divider/>
             <ms-show-all :index="'/track/plan/all'"/>
             <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-roles="['test_manager','test_user']" :index="'/track/plan/create'"
+            <ms-create-button v-permission="['PROJECT_TRACK_PLAN:READ+CREATE']" :index="'/track/plan/create'"
                               :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
 

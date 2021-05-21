@@ -19,7 +19,8 @@
           </span>
           <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
             {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
+            <i class="el-icon-edit" style="cursor:pointer" @click="editName"
+               v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
           </span>
         </slot>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>

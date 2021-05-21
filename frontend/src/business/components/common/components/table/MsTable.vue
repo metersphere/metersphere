@@ -26,7 +26,7 @@
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-          <show-more-btn :is-show="scope.row.showMore" :buttons="batchOperators" :size="selectDataCounts" v-tester/>
+          <show-more-btn :is-show="scope.row.showMore" :buttons="batchOperators" :size="selectDataCounts"/>
         </template>
       </el-table-column>
 

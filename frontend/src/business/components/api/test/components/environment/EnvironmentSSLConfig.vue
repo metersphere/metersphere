@@ -26,7 +26,7 @@
             <ms-table-operator-button :tip="$t('commons.update')" icon="el-icon-edit"
                                       type="primary" @exec="edit(row)"/>
             <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                      icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
+                                      icon="el-icon-delete" @exec="remove(row)" type="danger"/>
           </template>
         </el-table-column>
       </el-table>

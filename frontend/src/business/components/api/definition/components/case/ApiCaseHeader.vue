@@ -54,7 +54,8 @@
           </div>
         </el-col>
         <el-col :span="1" v-if="!(isReadOnly || isCaseEdit)">
-          <el-button size="small" type="primary" @click="addCase" v-tester>+{{$t('api_test.definition.request.case')}}</el-button>
+          <el-button size="small" type="primary" @click="addCase">+{{ $t('api_test.definition.request.case') }}
+          </el-button>
         </el-col>
       </el-row>
     </el-card>

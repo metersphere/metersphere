@@ -28,7 +28,7 @@
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
                 <span>{{ apiCase.id ? apiCase.name : '' }}</span>
-              <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
+              <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)"/>
             </span>
           </span>
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
@@ -62,12 +62,12 @@
         <el-col :span="4">
           <span @click.stop>
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
+                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle/>
             <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
         </el-col>
 
@@ -110,7 +110,8 @@
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
-        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester v-if="type!=='detail'">
+        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
+                   v-if="type!=='detail'">
           {{ $t('commons.save') }}
         </el-button>
       </div>

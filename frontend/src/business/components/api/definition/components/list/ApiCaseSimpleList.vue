@@ -107,11 +107,11 @@
                                       icon="el-icon-video-play"
                                       @exec="runTestCase(scope.row)"/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
-                                      v-tester/>
+                                      />
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"
-                                      type="danger" v-tester/>
+                                      type="danger"/>
             <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment"
-                                           @createPerformance="createPerformance" :row="scope.row" v-tester/>
+                                           @createPerformance="createPerformance" :row="scope.row"/>
           </template>
         </el-table-column>
 
