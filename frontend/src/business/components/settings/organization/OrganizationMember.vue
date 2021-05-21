@@ -186,12 +186,12 @@
         batchAddWorkspaceOptions:[],
         batchAddUserRoleOptions:[],
         buttons: [
-          {
-            name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
-          },
-          {
-            name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
-          }
+          // {
+          //   name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
+          // },
+          // {
+          //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
+          // }
         ],
       }
     },
