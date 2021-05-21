@@ -131,15 +131,15 @@ export default {
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
-          meta: {permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']}
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
-          meta: {permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']}
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
-          meta: {permissions: ['PROJECT_PERFORMANCE_TEST:READ+DELETE']}
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+DELETE']
         }
       ],
       statusFilters: [
