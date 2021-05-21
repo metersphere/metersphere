@@ -96,7 +96,7 @@ export function hasPermission(permission) {
   }
 
   let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
-    .filter(ug => ug.sourceId === 'system')[0]?.userGroupPermissions
+    .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')[0]?.userGroupPermissions
     .map(g => g.permissionId) || [];
 
   for (const p of systemPermissions) {

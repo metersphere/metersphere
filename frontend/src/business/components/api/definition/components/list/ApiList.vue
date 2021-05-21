@@ -194,18 +194,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
-import {
-  _filter,
-  _handleSelect,
-  _handleSelectAll,
-  _sort,
-  buildBatchParam, deepClone,
-  getLabel,
-  getSelectDataCounts,
-  initCondition,
-  setUnSelectIds,
-  toggleAllSelection
-} from "@/common/js/tableUtils";
+import {_filter, _sort, buildBatchParam, getLabel, initCondition} from "@/common/js/tableUtils";
 import {Api_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -251,31 +240,90 @@ export default {
       selectDataRange: "all",
       deletePath: "/test/case/delete",
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
         {
-          name: this.$t('api_test.definition.request.batch_move'), handleClick: this.handleBatchMove
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_edit'),
+          handleClick: this.handleEditBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_move'),
+          handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_API_DEFINITION:READ+BATCH_MOVE']
         }
       ],
       trashButtons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
         {
           name: "批量恢复", handleClick: this.handleBatchRestore
         },
       ],
       tableOperatorButtons: [],
       tableUsualOperatorButtons: [
-        {tip: this.$t('api_test.automation.execute'), icon: "el-icon-video-play", exec: this.runApi},
-        {tip: this.$t('commons.edit'), icon: "el-icon-edit", exec: this.editApi},
-        {tip: "CASE", exec: this.handleTestCase, isDivButton: true, type: "primary"},
-        {tip: this.$t('commons.delete'), exec: this.handleDelete, icon: "el-icon-delete", type: "danger"},
-        {tip: this.$t('commons.copy'), exec: this.handleCopy, icon: "el-icon-document-copy", type: "primary"},
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.runApi,
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
+        {
+          tip: this.$t('commons.edit'),
+          icon: "el-icon-edit",
+          exec: this.editApi,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        },
+        {
+          tip: "CASE",
+          exec: this.handleTestCase,
+          isDivButton: true,
+          type: "primary",
+          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_CASE']
+        },
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.handleDelete,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
+        {
+          tip: this.$t('commons.copy'),
+          exec: this.handleCopy,
+          icon: "el-icon-document-copy",
+          type: "primary",
+          permissions: ['PROJECT_API_DEFINITION:READ+COPY']
+        },
       ],
       tableTrashOperatorButtons: [
-        {tip: this.$t('api_test.automation.execute'), icon: "el-icon-video-play", exec: this.runApi},
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.runApi,
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reductionApi},
-        {tip: "CASE", exec: this.handleTestCase, isDivButton: true, type: "primary"},
-        {tip: this.$t('commons.delete'), exec: this.handleDelete, icon: "el-icon-delete", type: "danger"},
+        {
+          tip: "CASE",
+          exec: this.handleTestCase,
+          isDivButton: true,
+          type: "primary",
+          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_CASE']
+        },
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.handleDelete,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
       ],
       typeArr: [
         {id: 'status', name: this.$t('api_test.definition.api_status')},
@@ -321,7 +369,7 @@ export default {
       screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
-    }
+    };
   },
   props: {
     currentProtocol: String,
@@ -347,13 +395,13 @@ export default {
     moduleTree: {
       type: Array,
       default() {
-        return []
+        return [];
       },
     },
     moduleOptions: {
       type: Array,
       default() {
-        return []
+        return [];
       },
     }
   },
@@ -453,7 +501,7 @@ export default {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
-          })
+          });
 
           // nexttick:表格加载完成之后触发。判断是否需要勾选行
           this.$nextTick(function () {
@@ -461,7 +509,7 @@ export default {
               this.$refs.apiDefinitionTable.checkTableRowIsSelect();
               this.$refs.apiDefinitionTable.doLayout();
             }
-          })
+          });
         });
       }
       getLabel(this, API_LIST);
@@ -513,7 +561,7 @@ export default {
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.valueArr.userId = response.data;
         this.userFilters = response.data.map(u => {
-          return {text: u.name, value: u.id}
+          return {text: u.name, value: u.id};
         });
       });
     },
@@ -562,8 +610,8 @@ export default {
         }
         response.body = body;
       }
-      row.request = request
-      row.response = response
+      row.request = request;
+      row.response = response;
       this.$emit('runTest', row);
     },
     reductionApi(row) {
@@ -706,7 +754,7 @@ export default {
       this.$emit("changeSelectDataRangeAll", "api");
     },
     getIds(rowSets) {
-      let rowArray = Array.from(rowSets)
+      let rowArray = Array.from(rowSets);
       let ids = rowArray.map(s => s.id);
       return ids;
     },
@@ -739,7 +787,7 @@ export default {
             if (api.moduleId === item.id) {
               api.modulePath = item.path;
             }
-          })
+          });
         });
       } catch (e) {
         console.log(e);
@@ -773,7 +821,7 @@ export default {
       return row[property] === value;
     }
   },
-}
+};
 </script>
 
 <style scoped>
