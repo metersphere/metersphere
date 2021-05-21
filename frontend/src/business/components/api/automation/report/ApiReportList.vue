@@ -61,6 +61,7 @@
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                         @exec="handleView(scope.row)" type="primary"/>
               <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
+                                        v-permission="['PROJECT_API_REPORT:READ+DELETE']"
                                         icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
           </el-table-column>
