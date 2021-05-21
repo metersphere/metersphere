@@ -10,7 +10,6 @@
     <result column="order" jdbcType="INTEGER" property="order" />
     <result column="default_value" jdbcType="VARCHAR" property="defaultValue" />
     <result column="custom_data" jdbcType="VARCHAR" property="customData" />
-    <result column="is_third_part" jdbcType="BIT" property="isThirdPart" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,8 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, field_id, template_id, scene, required, `order`, default_value, custom_data, 
-    is_third_part
+    id, field_id, template_id, scene, required, `order`, default_value, custom_data
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample" resultMap="BaseResultMap">
     select
@@ -107,12 +105,10 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
     insert into custom_field_template (id, field_id, template_id, 
       scene, required, `order`, 
-      default_value, custom_data, is_third_part
-      )
+      default_value, custom_data)
     values (#{id,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, 
       #{scene,jdbcType=VARCHAR}, #{required,jdbcType=BIT}, #{order,jdbcType=INTEGER}, 
-      #{defaultValue,jdbcType=VARCHAR}, #{customData,jdbcType=VARCHAR}, #{isThirdPart,jdbcType=BIT}
-      )
+      #{defaultValue,jdbcType=VARCHAR}, #{customData,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
     insert into custom_field_template
@@ -141,9 +137,6 @@
       <if test="customData != null">
         custom_data,
       </if>
-      <if test="isThirdPart != null">
-        is_third_part,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -169,9 +162,6 @@
       </if>
       <if test="customData != null">
         #{customData,jdbcType=VARCHAR},
-      </if>
-      <if test="isThirdPart != null">
-        #{isThirdPart,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -208,9 +198,6 @@
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=VARCHAR},
       </if>
-      <if test="record.isThirdPart != null">
-        is_third_part = #{record.isThirdPart,jdbcType=BIT},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -225,8 +212,7 @@
       required = #{record.required,jdbcType=BIT},
       `order` = #{record.order,jdbcType=INTEGER},
       default_value = #{record.defaultValue,jdbcType=VARCHAR},
-      custom_data = #{record.customData,jdbcType=VARCHAR},
-      is_third_part = #{record.isThirdPart,jdbcType=BIT}
+      custom_data = #{record.customData,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -255,9 +241,6 @@
       <if test="customData != null">
         custom_data = #{customData,jdbcType=VARCHAR},
       </if>
-      <if test="isThirdPart != null">
-        is_third_part = #{isThirdPart,jdbcType=BIT},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -269,8 +252,7 @@
       required = #{required,jdbcType=BIT},
       `order` = #{order,jdbcType=INTEGER},
       default_value = #{defaultValue,jdbcType=VARCHAR},
-      custom_data = #{customData,jdbcType=VARCHAR},
-      is_third_part = #{isThirdPart,jdbcType=BIT}
+      custom_data = #{customData,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

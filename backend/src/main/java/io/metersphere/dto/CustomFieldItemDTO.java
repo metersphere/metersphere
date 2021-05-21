@@ -8,5 +8,4 @@ public class CustomFieldItemDTO {
     private String name;
     private String value;
     private String customData;
-    private Boolean isThirdPart;
 }

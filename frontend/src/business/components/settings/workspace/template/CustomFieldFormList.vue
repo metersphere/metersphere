@@ -58,16 +58,6 @@
     </ms-table-column>
 
     <ms-table-column
-      v-if="platform !== 'metersphere'"
-      :label="platform + $t('custom_field.field')"
-      width="100"
-      prop="thirdPart">
-      <template v-slot="scope">
-        <el-checkbox v-model="scope.row.isThirdPart"/>
-      </template>
-    </ms-table-column>
-
-    <ms-table-column
       :label="$t('commons.remark')"
       prop="remark">
     </ms-table-column>
@@ -139,7 +129,6 @@ export default {
             }
             item.fieldId = item.id;
             item.id = null;
-            item.isThirdPart = false;
             item.options = JSON.parse(item.options);
             if (item.type === 'checkbox') {
               item.defaultValue = [];
