@@ -18,7 +18,5 @@ public class ApiTestEnvironmentWithBLOBs extends ApiTestEnvironment implements S
 
     private String hosts;
 
-    private String customData;
-
     private static final long serialVersionUID = 1L;
 }
