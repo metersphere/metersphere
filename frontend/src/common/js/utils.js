@@ -66,8 +66,16 @@ export function hasPermission(permission) {
 
   // todo 权限验证
   let currentProjectPermissions = user.userGroups.filter(ug => ug.group.type === 'PROJECT')
-    .filter(g => g.sourceId === getCurrentProjectID())[0]?.userGroupPermissions
-    .map(g => g.permissionId) || [];
+    .filter(ug => ug.sourceId === getCurrentProjectID())
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
 
   for (const p of currentProjectPermissions) {
     if (p === permission) {
@@ -76,8 +84,16 @@ export function hasPermission(permission) {
   }
 
   let currentWorkspacePermissions = user.userGroups.filter(ug => ug.group.type === 'WORKSPACE')
-    .filter(g => g.sourceId === getCurrentWorkspaceId())[0]?.userGroupPermissions
-    .map(g => g.permissionId) || [];
+    .filter(ug => ug.sourceId === getCurrentWorkspaceId())
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
 
   for (const p of currentWorkspacePermissions) {
     if (p === permission) {
@@ -86,8 +102,16 @@ export function hasPermission(permission) {
   }
 
   let currentOrganizationPermissions = user.userGroups.filter(ug => ug.group.type === 'ORGANIZATION')
-    .filter(ug => ug.sourceId === getCurrentOrganizationId())[0]?.userGroupPermissions
-    .map(g => g.permissionId) || [];
+    .filter(ug => ug.sourceId === getCurrentOrganizationId())
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
 
   for (const p of currentOrganizationPermissions) {
     if (p === permission) {
@@ -96,8 +120,16 @@ export function hasPermission(permission) {
   }
 
   let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
-    .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')[0]?.userGroupPermissions
-    .map(g => g.permissionId) || [];
+    .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
 
   for (const p of systemPermissions) {
     if (p === permission) {
