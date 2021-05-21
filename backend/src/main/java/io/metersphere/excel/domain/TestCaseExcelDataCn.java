@@ -1,6 +1,5 @@
 package io.metersphere.excel.domain;
 
-import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import io.metersphere.excel.annotation.NotRequired;
