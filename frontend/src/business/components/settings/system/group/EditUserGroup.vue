@@ -5,13 +5,13 @@
     <el-form ref="form" :model="form" label-width="auto" size="small" :rules="rules">
       <el-row>
         <el-col :span="11">
-          <el-form-item label="名称">
+          <el-form-item label="名称" prop="name">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="11" :offset="2">
-          <el-form-item label="所属类型">
-            <el-select v-model="form.type" placeholder="请选择所属类型" style="width: 100%">
+          <el-form-item label="所属类型" prop="type">
+            <el-select v-model="form.type" placeholder="请选择所属类型" style="width: 100%" @change="changeGroup">
               <el-option label="系统" value="SYSTEM"></el-option>
               <el-option label="组织" value="ORGANIZATION"></el-option>
               <el-option label="工作空间" value="WORKSPACE"></el-option>
@@ -20,19 +20,16 @@
           </el-form-item>
         </el-col>
       </el-row>
-
-
-      <el-form-item label="描述">
+      <el-form-item label="描述" prop="description">
         <el-input type="textarea" v-model="form.description"></el-input>
       </el-form-item>
       <el-form-item label="全局用户组">
-        <el-switch v-model="form.global" :disabled="dialogType === 'edit'"></el-switch>
+        <el-switch v-model="form.global" :disabled="dialogType === 'edit'" @change="change(form.global)"></el-switch>
       </el-form-item>
 
-      <el-form-item label="所属组织" v-if="!form.global">
-        <el-select v-model="form.scopeId" placeholder="请选择所属组织" style="width: 100%;" :disabled="dialogType === 'edit'">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+      <el-form-item label="所属组织" v-if="show" prop="scopeId">
+        <el-select v-model="form.scopeId" placeholder="请选择所属组织" style="width: 100%;" :disabled="dialogType === 'edit'" clearable>
+          <el-option v-for="item in organizations" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>
       <el-form-item>
@@ -44,6 +41,9 @@
 </template>
 
 <script>
+import {GROUP_SYSTEM} from "@/common/js/constants";
+import {getCurrentUserId} from "@/common/js/utils";
+
 export default {
   name: "EditUserGroup",
   data() {
@@ -53,9 +53,24 @@ export default {
         global: false
       },
       rules: {
-
+        name: [
+          {required: true, message: '请输入名称', trigger: 'blur'},
+          {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
+        ],
+        type: [
+          {required: true, message: '请选择所属类型', trigger: 'blur'},
+        ],
+        description: [
+          {min: 2, max: 90, message: this.$t('commons.input_limit', [2, 90]), trigger: 'blur'},
+        ],
+        scopeId: [
+          {required: true, message: '请选择所属组织', trigger: 'blur'},
+        ]
       },
       dialogType: '',
+      isSystem: false,
+      show: true,
+      organizations: []
     }
   },
   props: {
@@ -83,10 +98,16 @@ export default {
 
     },
     create() {
-      this.$post("/user/group/add", this.form, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.$emit("refresh")
-        this.dialogVisible = false;
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          this.$post("/user/group/add", this.form, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.$emit("refresh")
+            this.dialogVisible = false;
+          })
+        } else {
+          return false;
+        }
       })
     },
     edit() {
@@ -97,15 +118,44 @@ export default {
       })
     },
     open(row, type) {
+      this.isSystem = false;
+      this.show = true;
       this.dialogVisible = true;
       this.dialogType = type;
       this.form = Object.assign({}, row);
       if (type !== 'create') {
-        this.form.global = this.form.scopeId === "global";
+        if (this.form.type === GROUP_SYSTEM) {
+          this.form.global = true;
+          this.show = false;
+        } else {
+          this.form.global = this.form.scopeId === "global";
+          this.show = !this.form.global;
+        }
       }
+      this.getOrganization();
     },
     cancel() {
       this.dialogVisible = false;
+    },
+    change(global) {
+      this.show = this.isSystem ? false : !global;
+    },
+    changeGroup(val) {
+      if (val === GROUP_SYSTEM) {
+        this.isSystem = true;
+        this.$set(this.form, "global", true);
+        this.change(true);
+      } else {
+        this.isSystem = false;
+      }
+    },
+    getOrganization() {
+      this.$get("/user/group/org/" + getCurrentUserId(), res => {
+        let data = res.data;
+        if (data) {
+          this.organizations = data;
+        }
+      })
     }
   }
 }
