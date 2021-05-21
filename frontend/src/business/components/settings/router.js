@@ -90,6 +90,11 @@ export default {
       meta: {workspace: true, title: 'commons.member', permissions: ['WORKSPACE_USER:READ']}
     },
     {
+      path: 'projectmember',
+      component: () => import('@/business/components/settings/project/Member'),
+      meta: {project: true, title: 'commons.member', permissions: ['PROJECT_USER:READ']}
+    },
+    {
       path: 'personsetting',
       component: () => import('@/business/components/settings/personal/PersonSetting'),
       meta: {person: true, title: 'commons.personal_setting'}

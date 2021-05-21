@@ -13,4 +13,5 @@ public class AddMemberRequest {
     private List<String> userIds;
     private List<String> roleIds;
     private List<String> groupIds;
+    private String projectId;
 }
