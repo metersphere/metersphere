@@ -1053,4 +1053,54 @@ public class UserService {
         }
         return null;
     }
+
+    public List<User> getProjectMemberList(QueryMemberRequest request) {
+        return extUserGroupMapper.getProjectMemberList(request);
+    }
+
+    public void addProjectMember(AddMemberRequest request) {
+        if (!CollectionUtils.isEmpty(request.getUserIds())) {
+            for (String userId : request.getUserIds()) {
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getProjectId());
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (userGroups.size() > 0) {
+                    MSException.throwException(Translator.get("user_already_exists"));
+                } else {
+                    for (String groupId : request.getGroupIds()) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(request.getProjectId());
+                        userGroup.setUserId(userId);
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroupMapper.insertSelective(userGroup);
+                    }
+                }
+            }
+        }
+    }
+
+    public void deleteProjectMember(String projectId, String userId) {
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.PROJECT);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return;
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                .andSourceIdEqualTo(projectId)
+                .andGroupIdIn(groupIds);
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (StringUtils.equals(projectId, user.getLastProjectId())) {
+            user.setLastProjectId("");
+            userMapper.updateByPrimaryKeySelective(user);
+        }
+
+        userGroupMapper.deleteByExample(userGroupExample);
+    }
 }

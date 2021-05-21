@@ -211,6 +211,12 @@ public class UserController {
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
     }
 
+    @PostMapping("/project/member/list/{goPage}/{pageSize}")
+    public Pager<List<User>> getProjectMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
+    }
+
     /**
      * 获取工作空间成员用户 不分页
      */
@@ -233,6 +239,13 @@ public class UserController {
         userService.addMember(request);
     }
 
+    @PostMapping("/project/member/add")
+//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, title = "添加项目成员成员")
+    public void addProjectMember(@RequestBody AddMemberRequest request) {
+//        workspaceService.checkWorkspaceOwner(wsId);
+        userService.addProjectMember(request);
+    }
+
     /**
      * 删除工作空间成员
      */
@@ -246,6 +259,17 @@ public class UserController {
             MSException.throwException(Translator.get("cannot_remove_current"));
         }
         userService.deleteMember(workspaceId, userId);
+    }
+
+    @GetMapping("/project/member/delete/{projectId}/{userId}")
+//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, title = "删除工作空间成员")
+    public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
+//        workspaceService.checkWorkspaceOwner(workspaceId);
+//        String currentUserId = SessionUtils.getUser().getId();
+//        if (StringUtils.equals(userId, currentUserId)) {
+//            MSException.throwException(Translator.get("cannot_remove_current"));
+//        }
+        userService.deleteProjectMember(projectId, userId);
     }
 
     /**
