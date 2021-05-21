@@ -89,14 +89,17 @@
         operators: [
           {
             label: this.$t('api_test.automation.add_scenario'),
-            callback: this.addScenario
+            callback: this.addScenario,
+            permissions: ['PROJECT_API_SCENARIO:READ+CREATE']
           },
           {
             label: this.$t('api_test.api_import.label'),
-            callback: this.handleImport
+            callback: this.handleImport,
+            permissions: ['PROJECT_API_SCENARIO:READ+IMPORT_SCENARIO']
           },
           {
             label: this.$t('report.export'),
+            permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
             children: [
               {
                 label: this.$t('report.export_to_ms_format'),
