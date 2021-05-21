@@ -399,7 +399,13 @@ public class UserService {
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+
+//        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(list)) {
             if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
                 user.setLastOrganizationId("");
@@ -408,10 +414,13 @@ public class UserService {
             }
         }
 
-        userRoleMapper.deleteByExample(userRoleExample);
-        List<Map<String, Object>> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            insertUserRole(roles, user.getId());
+        userGroupMapper.deleteByExample(userGroupExample);
+//        userRoleMapper.deleteByExample(userRoleExample);
+//        List<Map<String, Object>> roles = user.getRoles();
+        List<Map<String, Object>> groups = user.getGroups();
+        if (!groups.isEmpty()) {
+            insertUserGroup(groups, user.getId());
+//            insertUserRole(roles, user.getId());
         }
 
         UserExample example = new UserExample();

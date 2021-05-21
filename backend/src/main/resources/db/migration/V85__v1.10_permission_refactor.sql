@@ -45,19 +45,19 @@ CREATE TABLE IF NOT EXISTS `user_group_permission`
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
 VALUES ('admin', '系统管理员', '默认用户组', 1, 'SYSTEM', 1621224000000, 1621224000000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('org_admin', '组织管理员', '组织管理员', 1, 'ORGANIZATION', 1620674220001, 1620674220000, 'system', 'global');
+VALUES ('org_admin', '组织管理员', '组织管理员', 1, 'ORGANIZATION', 1620674220001, 1620674220000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('org_member', '组织成员', '组织成员', 1, 'ORGANIZATION', 1620674220002, 1620674220000, 'system', 'global');
+VALUES ('org_member', '组织成员', '组织成员', 1, 'ORGANIZATION', 1620674220002, 1620674220000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('project_admin', '项目管理员', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'system', 'global');
+VALUES ('project_admin', '项目管理员', '项目管理员', 1, 'PROJECT', 1620674220004, 1620674220000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'system', 'global');
+VALUES ('project_member', '项目成员', '项目成员', 1, 'PROJECT', 1620674220005, 1620674220000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('read_only', '只读用户', '只读用户', 1, 'PROJECT', 1620674220006, 1620674220000, 'system', 'global');
+VALUES ('read_only', '只读用户', '只读用户', 1, 'PROJECT', 1620674220006, 1620674220000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('ws_admin', '工作空间管理员', '工作空间管理员', 1, 'WORKSPACE', 1620674220007, 1620674220000, 'system', 'global');
+VALUES ('ws_admin', '工作空间管理员', '工作空间管理员', 1, 'WORKSPACE', 1620674220007, 1620674220000, 'admin', 'global');
 INSERT INTO `group` (id, name, description, `system`, type, create_time, update_time, creator, scope_id)
-VALUES ('ws_member', '工作空间成员', '工作空间成员', 1, 'WORKSPACE', 1620674220008, 1620674220000, 'system', 'global');
+VALUES ('ws_member', '工作空间成员', '工作空间成员', 1, 'WORKSPACE', 1620674220008, 1620674220000, 'admin', 'global');
 
 
 -- 系统管理员 组织管理员 组织成员
@@ -94,8 +94,10 @@ WHERE role_id = 'test_user';
 
 -- 只读用户
 INSERT INTO user_group(id, user_id, group_id, source_id, create_time, update_time)
-SELECT UUID(), user_id, 'read_only', source_id, create_time, update_time
-FROM user_role
+SELECT UUID(), user_id, 'read_only', project.id, w.create_time, w.update_time
+FROM project
+         JOIN workspace w ON project.workspace_id = w.id
+         JOIN user_role ON source_id = workspace_id
 WHERE role_id = 'test_viewer';
 
 

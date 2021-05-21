@@ -197,7 +197,7 @@ public class GroupService {
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andUserIdEqualTo(userId);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
-        List<String> groupsIds = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+        List<String> groupsIds = userGroups.stream().map(UserGroup::getGroupId).distinct().collect(Collectors.toList());
         for (int i = 0; i < groupsIds.size(); i++) {
             String id = groupsIds.get(i);
             Group group = groupMapper.selectByPrimaryKey(id);

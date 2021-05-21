@@ -199,7 +199,7 @@ export default {
       this.title = title ? title : this.title;
 
       if (type === 'Edit') {
-        this.$get('/user/group/all/' + encodeURIComponent(row.id), response => {
+        this.result = this.$get('/user/group/all/' + encodeURIComponent(row.id), response => {
           let data = response.data;
           this.$set(this.form, "groups", data);
         });
@@ -262,7 +262,8 @@ export default {
     createUser(createUserForm) {
       this.$refs[createUserForm].validate(valid => {
         if (valid) {
-          this.result = this.$post('/user/special/add', this.form, () => {
+          let url = this.type === 'Add' ? '/user/special/add' : '/user/special/update';
+          this.result = this.$post(url, this.form, () => {
             this.$success(this.$t('commons.save_success'));
             this.$emit("refresh");
             this.createVisible = false;
