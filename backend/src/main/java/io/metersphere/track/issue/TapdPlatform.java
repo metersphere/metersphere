@@ -177,7 +177,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         paramMap.add("current_owner", usersStr);
 
         customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData())) {
+            if (StringUtils.isNotBlank(item.getCustomData()) && item.getIsThirdPart() != null && item.getIsThirdPart()) {
                 paramMap.add(item.getCustomData(), item.getValue());
             }
         });
