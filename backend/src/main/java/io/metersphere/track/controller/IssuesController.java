@@ -32,6 +32,12 @@ public class IssuesController {
         return PageUtils.setPageInfo(page, issuesService.list(request));
     }
 
+    @PostMapping("/list/relate/{goPage}/{pageSize}")
+    public Pager<List<IssuesDao>> relateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody IssuesRequest request) {
+        Page<List<Issues>> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, issuesService.relateList(request));
+    }
+
     @PostMapping("/add")
     @MsAuditLog(module = "track_bug", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#issuesRequest)", msClass = IssuesService.class)
     public void addIssues(@RequestBody IssuesUpdateRequest issuesRequest) {

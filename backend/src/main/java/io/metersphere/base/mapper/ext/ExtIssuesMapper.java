@@ -11,4 +11,6 @@ public interface ExtIssuesMapper {
     List<IssuesDao> getIssuesByCaseId(@Param("request") IssuesRequest issuesRequest);
 
     List<IssuesDao> getIssuesByProjectId(@Param("request") IssuesRequest issuesRequest);
+
+    List<IssuesDao> getRelateIssues(@Param("request") IssuesRequest request);
 }

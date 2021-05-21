@@ -423,4 +423,8 @@ public class IssuesService {
         }
         return null;
     }
+
+    public List<IssuesDao> relateList(IssuesRequest request) {
+       return extIssuesMapper.getRelateIssues(request);
+    }
 }

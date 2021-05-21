@@ -36,11 +36,6 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     private String nodePath;
 
     @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("Type")
-    @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "{test_case_type_validate}")
-    private String type;
-
-    @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("Maintainer")
     private String maintainer;
 

@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-button class="add-btn" :disabled="readOnly" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
+    <el-button class="add-btn" :disabled="readOnly" type="primary" size="mini" @click="relateIssue">{{ $t('test_track.case.relate_issue') }}</el-button>
     <el-tooltip class="item" effect="dark"
                 :content="$t('test_track.issue.platform_tip')"
                 placement="right">
@@ -61,6 +62,7 @@
     </ms-table>
 
     <test-plan-issue-edit :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
+    <IssueRelateList :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
   </div>
 </template>
 
@@ -70,9 +72,10 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
+import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
 export default {
   name: "TestCaseIssueRelate",
-  components: {IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
+  components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
   data() {
     return {
       issues: [],
@@ -99,6 +102,13 @@ export default {
         return;
       }
       this.$refs.issueEdit.open();
+    },
+    relateIssue() {
+      if (!this.caseId) {
+        this.$warning(this.$t('api_test.automation.save_case_info'));
+        return;
+      }
+      this.$refs.issueRelate.open();
     },
     closeIssue(row) {
       if (row.status === 'closed') {

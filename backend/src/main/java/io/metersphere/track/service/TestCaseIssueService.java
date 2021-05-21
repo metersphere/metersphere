@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.issues.IssuesRelevanceRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,5 +59,31 @@ public class TestCaseIssueService {
        return getTestCaseIssuesByIssuesId(issuesId).stream()
                .map(TestCaseIssues::getTestCaseId)
                .collect(Collectors.toList());
+    }
+
+    public void relate(IssuesRelevanceRequest request) {
+        if (StringUtils.isNotBlank(request.getCaseId())) {
+            List<String> issueIds = request.getIssueIds();
+            if (!CollectionUtils.isEmpty(issueIds)) {
+                issueIds.forEach(issueId -> {
+                    create(request.getCaseId(), issueId);
+                });
+            }
+        } else if (StringUtils.isNotBlank(request.getIssuesId())) {
+            List<String> caseIds = request.getTestCaseIds();
+            if (!CollectionUtils.isEmpty(caseIds)) {
+                caseIds.forEach(caseId -> {
+                    create(caseId, request.getIssuesId());
+                });
+            }
+        }
+    }
+
+    public void create(String caseId, String issueId) {
+        TestCaseIssues testCaseIssues = new TestCaseIssues();
+        testCaseIssues.setId(UUID.randomUUID().toString());
+        testCaseIssues.setTestCaseId(caseId);
+        testCaseIssues.setIssuesId(issueId);
+        testCaseIssuesMapper.insert(testCaseIssues);
     }
 }
