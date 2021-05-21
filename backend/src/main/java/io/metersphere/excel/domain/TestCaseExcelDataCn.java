@@ -1,5 +1,6 @@
 package io.metersphere.excel.domain;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
 import io.metersphere.excel.annotation.NotRequired;
@@ -33,11 +34,6 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     @ColumnWidth(30)
     @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
     private String nodePath;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("用例类型")
-    @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "{test_case_type_validate}")
-    private String type;
 
     @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("维护人")

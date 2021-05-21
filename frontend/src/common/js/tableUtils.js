@@ -192,3 +192,13 @@ export function deepClone(source) {
   return targetObj;
 }
 
+export function getPageInfo() {
+  return {
+    total: 0,
+    pageSize: 10,
+    currentPage: 1,
+    result: {},
+    data: [],
+    condition: {},
+  }
+}
