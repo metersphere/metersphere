@@ -48,3 +48,6 @@ ALTER TABLE api_scenario_report  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case_node  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case  ADD create_user VARCHAR(100) NULL;
 
+-- 是否提交到第三方平台
+ALTER TABLE custom_field_template ADD is_third_part tinyint(1) DEFAULT 0 COMMENT 'Is ThirdPart Field';
+update custom_field_template set is_third_part = 0 where 1;
