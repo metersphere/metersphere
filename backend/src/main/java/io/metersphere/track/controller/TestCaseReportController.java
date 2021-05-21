@@ -32,7 +32,7 @@ public class TestCaseReportController {
     }
 
     @PostMapping("/add")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseReportService.class)
     public String addByTemplateId(@RequestBody CreateReportRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -40,14 +40,14 @@ public class TestCaseReportController {
     }
 
     @PostMapping("/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#TestCaseReport.id)", content = "#msClass.getLogDetails(#TestCaseReport.id)", msClass = TestCaseReportService.class)
     public void edit(@RequestBody TestCaseReport TestCaseReport) {
         testCaseReportService.editTestCaseReport(TestCaseReport);
     }
 
     @PostMapping("/delete/{id}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestCaseReportService.class)
     public int delete(@PathVariable String id) {
         return testCaseReportService.deleteTestCaseReport(id);
