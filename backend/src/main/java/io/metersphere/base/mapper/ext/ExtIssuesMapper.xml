@@ -20,6 +20,17 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
+        select issues.id, issues.title, issues.project_id, issues.create_time, issues.update_time,
+        issues.description, issues.status, issues.platform, issues.custom_fields,
+        issues.lastmodify
+        from issues
+        left join
+        test_case_issues on issues.id = test_case_issues.issues_id
+        <include refid="queryWhereCondition"/>
+        and test_case_issues.issues_id is null
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
 
     <sql id="queryWhereCondition">
         <where>

@@ -1,5 +1,5 @@
 <template>
-  <el-main v-loading="result.loading" class="container">
+  <el-main v-loading="result.loading" class="container" :style="isPlan ? '' : 'height: calc(100vh - 62px)'">
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="140px" ref="form">
 
@@ -264,9 +264,6 @@ export default {
 
 <style scoped>
 
-.container {
-  height: calc(100vh - 62px);
-}
 
 .filed-list {
   margin-top: 30px;

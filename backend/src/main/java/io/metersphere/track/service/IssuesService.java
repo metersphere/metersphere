@@ -395,4 +395,8 @@ public class IssuesService {
         ServiceIntegration integration = integrationService.get(request);
         return integration.getConfiguration();
     }
+
+    public List<IssuesDao> relateList(IssuesRequest request) {
+       return extIssuesMapper.getRelateIssues(request);
+    }
 }

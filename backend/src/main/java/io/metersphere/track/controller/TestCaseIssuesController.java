@@ -22,4 +22,9 @@ public class TestCaseIssuesController {
     public List<TestCaseDTO> list(@RequestBody IssuesRelevanceRequest request) {
         return testCaseIssueService.list(request);
     }
+
+    @PostMapping("/relate")
+    public void relate(@RequestBody IssuesRelevanceRequest request) {
+        testCaseIssueService.relate(request);
+    }
 }
