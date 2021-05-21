@@ -126,46 +126,48 @@ public class WorkspaceService {
      * ORG_ADMIN需要检查是否有操作此工作空间的权限
      */
     public void checkWorkspaceOwnerByOrgAdmin(String workspaceId) {
-        checkWorkspaceIsExist(workspaceId);
-        WorkspaceExample example = new WorkspaceExample();
-        SessionUser sessionUser = SessionUtils.getUser();
-        UserDTO user = userService.getUserDTO(sessionUser.getId());
-        List<String> orgIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        example.createCriteria()
-                .andOrganizationIdIn(orgIds)
-                .andIdEqualTo(workspaceId);
-        if (workspaceMapper.countByExample(example) == 0) {
-            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-        }
+        // todo
+//        checkWorkspaceIsExist(workspaceId);
+//        WorkspaceExample example = new WorkspaceExample();
+//        SessionUser sessionUser = SessionUtils.getUser();
+//        UserDTO user = userService.getUserDTO(sessionUser.getId());
+//        List<String> orgIds = user.getUserRoles().stream()
+//                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+//                .map(UserRole::getSourceId)
+//                .collect(Collectors.toList());
+//        example.createCriteria()
+//                .andOrganizationIdIn(orgIds)
+//                .andIdEqualTo(workspaceId);
+//        if (workspaceMapper.countByExample(example) == 0) {
+//            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
+//        }
     }
 
     public void checkWorkspaceOwner(String workspaceId) {
-        checkWorkspaceIsExist(workspaceId);
-        int size = 0;
-        WorkspaceExample example = new WorkspaceExample();
-        SessionUser sessionUser = SessionUtils.getUser();
-        UserDTO user = userService.getUserDTO(sessionUser.getId());
-        List<String> orgIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(orgIds)) {
-            example.createCriteria()
-                    .andOrganizationIdIn(orgIds)
-                    .andIdEqualTo(workspaceId);
-            size = (int) workspaceMapper.countByExample(example);
-        }
-        List<String> wsIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        boolean contains = wsIds.contains(workspaceId);
-        if (size == 0 && !contains) {
-            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-        }
+        // todo
+//        checkWorkspaceIsExist(workspaceId);
+//        int size = 0;
+//        WorkspaceExample example = new WorkspaceExample();
+//        SessionUser sessionUser = SessionUtils.getUser();
+//        UserDTO user = userService.getUserDTO(sessionUser.getId());
+//        List<String> orgIds = user.getUserRoles().stream()
+//                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+//                .map(UserRole::getSourceId)
+//                .collect(Collectors.toList());
+//        if (!CollectionUtils.isEmpty(orgIds)) {
+//            example.createCriteria()
+//                    .andOrganizationIdIn(orgIds)
+//                    .andIdEqualTo(workspaceId);
+//            size = (int) workspaceMapper.countByExample(example);
+//        }
+//        List<String> wsIds = user.getUserRoles().stream()
+//                .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
+//                .map(UserRole::getSourceId)
+//                .collect(Collectors.toList());
+//        boolean contains = wsIds.contains(workspaceId);
+//        if (size == 0 && !contains) {
+//            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
+//        }
     }
 
     public void checkWorkspaceIsExist(String workspaceId) {
@@ -194,13 +196,13 @@ public class WorkspaceService {
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andOrganizationIdEqualTo(orgId);
         List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(useId);
-        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(useId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
         List<Workspace> resultWorkspaceList = new ArrayList<>();
-        userRoles.forEach(userRole -> {
+        userGroups.forEach(userGroup -> {
             workspaces.forEach(workspace -> {
-                if (StringUtils.equals(userRole.getSourceId(), workspace.getId())) {
+                if (StringUtils.equals(userGroup.getSourceId(), workspace.getId())) {
                     if (!resultWorkspaceList.contains(workspace)) {
                         resultWorkspaceList.add(workspace);
                     }

@@ -48,4 +48,22 @@
         </if>
         order by user_group.update_time desc) temp
     </select>
+    <select id="getUserRoleHelpList" resultType="io.metersphere.dto.UserGroupHelpDTO">
+        SELECT
+            ug.group_id AS roleId,
+            g.`name` AS roleName,
+            ug.source_id AS sourceId,
+
+            IF(workspace.id IS NULL,IF(organization.id IS NULL,'',organization.`name`),workspace.name) AS sourceName,
+
+            IF(workspace.id IS NULL,NULL,workspace.organization_id) AS parentId
+
+        FROM user_group ug LEFT JOIN `group` g ON g.id = ug.group_id
+
+                       LEFT JOIN workspace ON workspace.id = ug.source_id
+
+                       LEFT JOIN organization ON organization.id = ug.source_id
+
+        WHERE ug.user_id = #{userId}
+    </select>
 </mapper>

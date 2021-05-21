@@ -714,9 +714,21 @@ public class UserService {
                 UserDTO user = (UserDTO) subject.getSession().getAttribute(ATTR_USER);
                 // 自动选中组织，工作空间
                 if (StringUtils.isEmpty(user.getLastOrganizationId())) {
-                    List<UserRole> userRoles = user.getUserRoles();
-                    List<UserRole> test = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("test")).collect(Collectors.toList());
-                    List<UserRole> org = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("org")).collect(Collectors.toList());
+                    List<String> orgIds = user.getGroups()
+                            .stream()
+                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
+                            .map(Group::getId)
+                            .collect(Collectors.toList());
+                    List<String> testIds = user.getGroups()
+                            .stream()
+                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
+                            .map(Group::getId)
+                            .collect(Collectors.toList());
+                    List<UserGroup> userGroups = user.getUserGroups();
+                    List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+                            .collect(Collectors.toList());
+                    List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
+                            .collect(Collectors.toList());
                     if (test.size() > 0) {
                         String wsId = test.get(0).getSourceId();
                         switchUserRole("workspace", wsId);

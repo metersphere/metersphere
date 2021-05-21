@@ -229,7 +229,7 @@ public class UserController {
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, title = "添加工作空间成员")
     public void addMember(@RequestBody AddMemberRequest request) {
         String wsId = request.getWorkspaceId();
-        workspaceService.checkWorkspaceOwner(wsId);
+//        workspaceService.checkWorkspaceOwner(wsId);
         userService.addMember(request);
     }
 
@@ -240,7 +240,7 @@ public class UserController {
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, title = "删除工作空间成员")
     public void deleteMember(@PathVariable String workspaceId, @PathVariable String userId) {
-        workspaceService.checkWorkspaceOwner(workspaceId);
+//        workspaceService.checkWorkspaceOwner(workspaceId);
         String currentUserId = SessionUtils.getUser().getId();
         if (StringUtils.equals(userId, currentUserId)) {
             MSException.throwException(Translator.get("cannot_remove_current"));

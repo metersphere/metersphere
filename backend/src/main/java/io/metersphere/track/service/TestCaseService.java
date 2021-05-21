@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
+import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
@@ -105,6 +106,10 @@ public class TestCaseService {
     TestCaseFileMapper testCaseFileMapper;
     @Resource
     TestCaseTestMapper testCaseTestMapper;
+    @Resource
+    private GroupMapper groupMapper;
+    @Resource
+    private UserGroupMapper userGroupMapper;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -450,12 +455,16 @@ public class TestCaseService {
             }
 
         } else {
-            UserRoleExample userRoleExample = new UserRoleExample();
-            userRoleExample.createCriteria()
-                    .andRoleIdIn(Arrays.asList(RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER))
-                    .andSourceIdEqualTo(currentWorkspaceId);
+            GroupExample groupExample = new GroupExample();
+            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+            List<Group> groups = groupMapper.selectByExample(groupExample);
+            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
 
-            Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria()
+                    .andGroupIdIn(groupIds)
+                    .andSourceIdEqualTo(currentWorkspaceId);
+            Set<String> userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
 
             try {
                 //根据本地语言环境选择用哪种数据对象进行存放读取的数据
@@ -1115,12 +1124,16 @@ public class TestCaseService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            UserRoleExample userRoleExample = new UserRoleExample();
-            userRoleExample.createCriteria()
-                    .andRoleIdIn(Arrays.asList(RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER))
-                    .andSourceIdEqualTo(currentWorkspaceId);
+            GroupExample groupExample = new GroupExample();
+            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
+            List<Group> groups = groupMapper.selectByExample(groupExample);
+            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
 
-            Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria()
+                    .andGroupIdIn(groupIds)
+                    .andSourceIdEqualTo(currentWorkspaceId);
+            Set<String> userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
 
             try {
                 //根据本地语言环境选择用哪种数据对象进行存放读取的数据
