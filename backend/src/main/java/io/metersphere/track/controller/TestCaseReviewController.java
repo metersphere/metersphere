@@ -21,6 +21,7 @@ import io.metersphere.track.request.testreview.TestReviewRelevanceRequest;
 import io.metersphere.track.service.TestCaseReviewService;
 import io.metersphere.track.service.TestReviewProjectService;
 import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -47,7 +48,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/save")
-
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+CREATE")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.CREATE, title = "#reviewRequest.name", content = "#msClass.getLogDetails(#reviewRequest.id)", msClass = TestCaseReviewService.class)
     public String saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
         reviewRequest.setId(UUID.randomUUID().toString());
@@ -72,14 +73,14 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/edit")
-
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+EDIT")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testCaseReview.id)", title = "#testCaseReview.name", content = "#msClass.getLogDetails(#testCaseReview.id)", msClass = TestCaseReviewService.class)
     public String editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         return testCaseReviewService.editCaseReview(testCaseReview);
     }
 
     @GetMapping("/delete/{reviewId}")
-
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+DELETE")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reviewId)", msClass = TestCaseReviewService.class)
     public void deleteCaseReview(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
@@ -120,7 +121,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/edit/status/{reviewId}")
-
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+EDIT")
     public void editTestPlanStatus(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);

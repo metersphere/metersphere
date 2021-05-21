@@ -2,12 +2,9 @@ package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.TestCaseReport;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testCaseReport.CreateReportRequest;
 import io.metersphere.track.service.TestCaseReportService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -32,7 +29,6 @@ public class TestCaseReportController {
     }
 
     @PostMapping("/add")
-
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseReportService.class)
     public String addByTemplateId(@RequestBody CreateReportRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -40,14 +36,12 @@ public class TestCaseReportController {
     }
 
     @PostMapping("/edit")
-
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#TestCaseReport.id)", content = "#msClass.getLogDetails(#TestCaseReport.id)", msClass = TestCaseReportService.class)
     public void edit(@RequestBody TestCaseReport TestCaseReport) {
         testCaseReportService.editTestCaseReport(TestCaseReport);
     }
 
     @PostMapping("/delete/{id}")
-
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestCaseReportService.class)
     public int delete(@PathVariable String id) {
         return testCaseReportService.deleteTestCaseReport(id);

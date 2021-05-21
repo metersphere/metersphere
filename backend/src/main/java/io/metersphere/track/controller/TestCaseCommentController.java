@@ -5,6 +5,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.service.TestCaseCommentService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -19,6 +20,7 @@ public class TestCaseCommentController {
     private TestCaseCommentService testCaseCommentService;
 
     @PostMapping("/save")
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+COMMENT")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     public void saveComment(@RequestBody SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -31,12 +33,14 @@ public class TestCaseCommentController {
     }
 
     @GetMapping("/delete/{commentId}")
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+COMMENT")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#commentId)", msClass = TestCaseCommentService.class)
     public void deleteComment(@PathVariable String commentId) {
         testCaseCommentService.delete(commentId);
     }
 
     @PostMapping("/edit")
+    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+COMMENT")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     public void editComment(@RequestBody SaveCommentRequest request) {
         testCaseCommentService.edit(request);
