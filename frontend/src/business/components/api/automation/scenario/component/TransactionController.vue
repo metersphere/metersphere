@@ -14,8 +14,8 @@
     <template v-slot:headerLeft>
 
       <el-input draggable size="mini" v-model="controller.name" style="width: 20%" :placeholder="$t('api_test.automation.transcation_controller')"/>
-      <el-checkbox v-model="controller.generateParentSample" style="margin-left: 20px">Generate Parent Sample</el-checkbox>
-      <el-checkbox v-model="controller.includeTimers">Include Timers</el-checkbox>
+      <el-checkbox v-model="controller.generateParentSample" style="margin-left: 20px" @change="changeGenerateParantSample">Generate Parent Sample</el-checkbox>
+      <el-checkbox v-model="controller.includeTimers" @change="changeIncludeTimers">Include Timers</el-checkbox>
     </template>
 
   </api-base-component>
@@ -101,7 +101,15 @@
         if (value.indexOf("empty") > 0 && !!this.controller.value) {
           this.controller.value = "";
         }
-      }
+      },
+      changeGenerateParantSample(value){
+        this.controller.generateParentSample = value;
+        this.$emit('refReload', this.controller, this.controller);
+      },
+      changeIncludeTimers(value){
+        this.controller.includeTimers = value;
+        this.$emit('refReload', this.controller, this.controller);
+      },
     },
     computed: {
       hasEmptyOperator() {
