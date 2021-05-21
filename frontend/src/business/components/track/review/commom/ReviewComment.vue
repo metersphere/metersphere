@@ -16,19 +16,21 @@
     </div>
     <div>
       <el-input
-          ref="test"
-          type="textarea"
-          :placeholder="$t('test_track.comment.send_comment')"
-          v-model.trim="textarea"
-          maxlength="180"
-          show-word-limt
-          resize="none"
-          :autosize="{ minRows: 4, maxRows: 4}"
-          @keyup.ctrl.enter.native="sendComment"
-          :disabled="isReadOnly"
+        ref="test"
+        type="textarea"
+        :placeholder="$t('test_track.comment.send_comment')"
+        v-model.trim="textarea"
+        maxlength="180"
+        show-word-limt
+        resize="none"
+        :autosize="{ minRows: 4, maxRows: 4}"
+        @keyup.ctrl.enter.native="sendComment"
+        :disabled="isReadOnly"
       >
       </el-input>
-      <el-button type="primary" size="mini" class="send-btn" @click="sendComment" :disabled="isReadOnly">
+      <el-button type="primary" size="mini" class="send-btn"
+                 v-permission="['PROJECT_TRACK_REVIEW:READ+COMMENT']"
+                 @click="sendComment" :disabled="isReadOnly">
         {{ $t('test_track.comment.send') }}
       </el-button>
     </div>
@@ -53,7 +55,7 @@ export default {
       result: {},
       textarea: '',
       isReadOnly: false
-    }
+    };
   },
   created() {
     this.isReadOnly = !checkoutTestManagerOrTestUser();
@@ -63,7 +65,7 @@ export default {
       let comment = {};
       comment.caseId = this.caseId;
       comment.description = this.textarea;
-      comment.reviewId=this.reviewId;
+      comment.reviewId = this.reviewId;
       if (!this.textarea) {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
@@ -81,7 +83,7 @@ export default {
       this.$emit('getComments');
     },
   }
-}
+};
 </script>
 
 <style scoped>

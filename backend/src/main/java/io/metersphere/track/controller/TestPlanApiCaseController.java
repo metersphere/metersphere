@@ -13,6 +13,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,21 +45,21 @@ public class TestPlanApiCaseController {
     }
 
     @GetMapping("/delete/{id}")
-
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanApiCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanApiCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanApiCaseService.class)
     public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping("/batch/update/env")
-
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL")
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanApiCaseService.class)
     public void batchUpdateEnv(@RequestBody TestPlanApiCaseBatchRequest request) {
         testPlanApiCaseService.batchUpdateEnv(request);
