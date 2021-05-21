@@ -252,7 +252,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 //                collect(Collectors.toMap(JiraField::getId, JiraField::isCustom));
 
         customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData()) && item.getIsThirdPart() != null && item.getIsThirdPart()) {
+            if (StringUtils.isNotBlank(item.getCustomData())) {
 //                if (isCustomMap.get(item.getCustomData())) {
 //                    fields.put(item.getCustomData(), item.getValue());
 //                } else {
