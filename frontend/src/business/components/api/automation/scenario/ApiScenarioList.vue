@@ -26,7 +26,7 @@
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="trashEnable ? trashButtons: buttons"
-                           :size="selectDataCounts" v-tester/>
+                           :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -137,9 +137,9 @@
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
               <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
-                                        @exec="reductionApi(row)" v-tester/>
+                                        @exec="reductionApi(row)"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete"
-                                        @exec="remove(row)" type="danger" v-tester/>
+                                        @exec="remove(row)" type="danger"/>
             </div>
             <div v-else>
               <ms-table-operator-button :tip="$t('api_test.automation.edit')" icon="el-icon-edit" @exec="edit(row)"

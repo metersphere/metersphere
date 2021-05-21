@@ -5,10 +5,16 @@
         <el-icon class="el-icon-more"></el-icon>
       </el-link>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="remove" v-tester>{{this.$t('api_test.automation.delete_step')}}</el-dropdown-item>
-        <el-dropdown-item command="scenarioVar" v-tester v-if="data.type==='scenario'">{{this.$t("api_test.automation.view_scene_variables")}}</el-dropdown-item>
-        <el-dropdown-item command="openScenario" v-tester v-if="data.type==='scenario' && data.referenced==='REF'">{{this.$t("api_test.automation.open_scene")}}</el-dropdown-item>
-        <el-dropdown-item command="saveAs" v-tester v-if="allSamplers.indexOf(data.type)!=-1 && data.referenced ==='Created' ">{{this.$t("api_test.automation.save_as_api")}}</el-dropdown-item>
+        <el-dropdown-item command="remove">{{ this.$t('api_test.automation.delete_step') }}</el-dropdown-item>
+        <el-dropdown-item command="scenarioVar" v-if="data.type==='scenario'">
+          {{ this.$t("api_test.automation.view_scene_variables") }}
+        </el-dropdown-item>
+        <el-dropdown-item command="openScenario" v-if="data.type==='scenario' && data.referenced==='REF'">
+          {{ this.$t("api_test.automation.open_scene") }}
+        </el-dropdown-item>
+        <el-dropdown-item command="saveAs" v-if="allSamplers.indexOf(data.type)!=-1 && data.referenced ==='Created' ">
+          {{ this.$t("api_test.automation.save_as_api") }}
+        </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <ms-variable-list ref="scenarioParameters"/>

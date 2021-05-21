@@ -12,9 +12,15 @@
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
-            <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="test.id">{{$t('operating_log.change_history')}}</el-link>
-            <el-button :disabled="isReadOnly" type="primary" plain @click="save">{{ $t('commons.save') }}</el-button>
-            <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun">
+            <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="test.id">
+              {{ $t('operating_log.change_history') }}
+            </el-link>
+            <el-button :disabled="isReadOnly" type="primary" plain @click="save"
+                       v-permission="['PROJECT_PERFORMANCE:READ+RUN']"
+            >{{ $t('commons.save') }}
+            </el-button>
+            <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun"
+                       v-permission="['PROJECT_PERFORMANCE:READ+RUN']">
               {{ $t('load_test.save_and_run') }}
             </el-button>
             <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{ $t('commons.cancel') }}
@@ -96,7 +102,7 @@ export default {
         id: '2',
         component: 'PerformanceAdvancedConfig'
       }]
-    }
+    };
   },
   watch: {
     '$route'(to) {
@@ -129,7 +135,7 @@ export default {
     this.importAPITest();
   },
   methods: {
-    openHis(){
+    openHis() {
       this.$refs.changeHistory.open(this.test.id);
     },
     importAPITest() {
@@ -179,7 +185,7 @@ export default {
       this.result = this.$request(options, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.advancedConfig.cancelAllEdit();
-        this.$router.push({path: '/performance/test/all'})
+        this.$router.push({path: '/performance/test/all'});
         // 发送广播，刷新 head 上的最新列表
         PerformanceEvent.$emit(LIST_CHANGE);
       });
@@ -196,10 +202,10 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.result = this.$post(this.runPath, {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
           let reportId = response.data;
-          this.$router.push({path: '/performance/report/view/' + reportId})
+          this.$router.push({path: '/performance/report/view/' + reportId});
           // 发送广播，刷新 head 上的最新列表
           PerformanceEvent.$emit(LIST_CHANGE);
-        })
+        });
       });
     },
     getSaveOption() {
@@ -223,7 +229,7 @@ export default {
 
       // file属性不需要json化
       let requestJson = JSON.stringify(this.test, function (key, value) {
-        return key === "file" ? undefined : value
+        return key === "file" ? undefined : value;
       });
 
       formData.append('request', new Blob([requestJson], {
@@ -240,7 +246,7 @@ export default {
       };
     },
     cancel() {
-      this.$router.push({path: '/performance/test/all'})
+      this.$router.push({path: '/performance/test/all'});
     },
     validTest() {
       let currentProjectId = getCurrentProjectID();
@@ -309,11 +315,11 @@ export default {
         return {
           pass: false,
           info: this.$t('load_test.schedule_tip')
-        }
+        };
       }
       return {
         pass: true
-      }
+      };
     },
     fileChange(threadGroups) {
       let handler = this.$refs.pressureConfig;
@@ -341,7 +347,7 @@ export default {
       handler.calculateTotalChart();
     }
   }
-}
+};
 </script>
 
 <style scoped>
