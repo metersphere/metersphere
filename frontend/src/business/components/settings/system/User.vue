@@ -3,8 +3,8 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create" @import="importUserDialogOpen"
-                         :create-tip="$t('user.create')" :show-import="true" :import-tip="$t('commons.import_user')" :title="$t('commons.user')"/>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="$t('user.create')" :title="$t('commons.user')"/>
 
       </template>
 
@@ -437,12 +437,12 @@ export default {
       checkPasswordForm: {},
       ruleForm: {},
       buttons: [
-        {
-          name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
-        },
-        {
-          name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
-        }
+        // {
+        //   name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
+        // },
+        // {
+        //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
+        // }
       ],
       rule: {
         id: [
