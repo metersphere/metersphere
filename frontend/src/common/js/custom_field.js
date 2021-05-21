@@ -93,6 +93,7 @@ export function buildCustomFields(data, param, template) {
           hasField = true;
           customFields[index].name = item.name;
           customFields[index].value = item.defaultValue;
+          customFields[index].isThirdPart = item.isThirdPart;
           break;
         }
       }
@@ -101,7 +102,8 @@ export function buildCustomFields(data, param, template) {
           id: item.id,
           name: item.name,
           value: item.defaultValue,
-          customData: item.customData
+          customData: item.customData,
+          isThirdPart: item.isThirdPart
         };
         customFields.push(customField);
       }

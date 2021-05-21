@@ -16,4 +16,6 @@ public class CustomFieldTemplateDao extends CustomFieldTemplate {
     private String options;
 
     private Boolean system;
+
+    private Boolean isThirdPart;
 }

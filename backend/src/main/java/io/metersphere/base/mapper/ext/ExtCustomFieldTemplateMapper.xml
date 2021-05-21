@@ -10,7 +10,7 @@
     <select id="list" resultType="io.metersphere.dto.CustomFieldTemplateDao">
         select
         field_id, template_id, required, default_value, custom_data,
-        cft.id as id,
+        cft.id as id, is_third_part,
         cf.name as name, cf.type as type, cf.remark as remark, cf.`system` as system, cf.options as options
         from custom_field_template cft
         inner join custom_field cf
