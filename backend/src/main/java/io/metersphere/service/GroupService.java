@@ -119,10 +119,7 @@ public class GroupService {
                 List<GroupResource> resource = group.getResource();
                 List<GroupPermission> permissions = group.getPermissions();
                 List<GroupResourceDTO> dtoPermissions = dto.getPermissions();
-                List<String> groups = map.get(type);
-                for (String gp : groups) {
-                    dtoPermissions.addAll(getResourcePermission(resource, permissions, gp, permissionList));
-                }
+                dtoPermissions.addAll(getResourcePermission(resource, permissions, type, permissionList));
             } catch (IOException e) {
                 e.printStackTrace();
             }
