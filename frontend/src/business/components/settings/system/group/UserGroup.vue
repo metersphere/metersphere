@@ -6,7 +6,8 @@
                          create-tip="创建用户组" title="用户组与权限"/>
       </template>
 
-      <el-table :data="groups">
+      <el-table :data="groups" border class="adjust-table" style="width: 100%"
+                :height="screenHeight">
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="type" label="所属类型">
           <template v-slot="scope">
@@ -30,7 +31,7 @@
           <template v-slot:default="scope">
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
               <template v-slot:middle>
-<!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
+                <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
                 <ms-table-operator-button tip="设置权限" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
               </template>
             </ms-table-operator>
@@ -76,8 +77,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      screenHeight: 'calc(100vh - 275px)',
       groups: []
-    }
+    };
   },
   activated() {
     this.initData();
@@ -95,7 +97,7 @@ export default {
           this.total = data.itemCount;
           this.groups = data.listObject;
         }
-      })
+      });
     },
     create() {
       this.$refs.editUserGroup.open({}, 'create');
@@ -107,19 +109,19 @@ export default {
       this.result = this.$get("/user/group/delete/" + row.id, () => {
         this.$success(this.$t('commons.delete_success'));
         this.initData();
-      })
+      });
     },
     del(row) {
       this.$refs.deleteConfirm.open(row);
     },
     copy(row) {
-      console.log(row)
+      console.log(row);
     },
     setPermission(row) {
       this.$refs.editPermission.open(row);
     },
   }
-}
+};
 </script>
 
 <style scoped>
