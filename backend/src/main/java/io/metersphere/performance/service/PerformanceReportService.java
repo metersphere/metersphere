@@ -145,7 +145,8 @@ public class PerformanceReportService {
         example.createCriteria().andReportIdEqualTo(id).andReportKeyEqualTo(reportKey.name());
         List<LoadTestReportResult> loadTestReportResults = loadTestReportResultMapper.selectByExampleWithBLOBs(example);
         if (loadTestReportResults.size() == 0) {
-            MSException.throwException("get report result error.");
+            LogUtil.warn("get report result error");
+            return "";
         }
         return loadTestReportResults.get(0).getReportValue();
     }
