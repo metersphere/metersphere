@@ -91,6 +91,8 @@ public class UserService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -465,14 +467,31 @@ public class UserService {
             List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(sourceId);
             if (workspaces.size() > 0) {
                 user.setLastWorkspaceId(workspaces.get(0).getId());
+                ProjectExample projectExample = new ProjectExample();
+                projectExample.createCriteria().andWorkspaceIdEqualTo(workspaces.get(0).getId());
+                List<Project> projects = projectMapper.selectByExample(projectExample);
+                if (projects.size() > 0) {
+                    user.setLastProjectId(projects.get(0).getId());
+                } else {
+                    user.setLastProjectId("");
+                }
             } else {
                 user.setLastWorkspaceId("");
+                user.setLastProjectId("");
             }
         }
         if (StringUtils.equals("workspace", sign)) {
+            ProjectExample projectExample = new ProjectExample();
+            projectExample.createCriteria().andWorkspaceIdEqualTo(sourceId);
+            List<Project> projects = projectMapper.selectByExample(projectExample);
             Workspace workspace = workspaceMapper.selectByPrimaryKey(sourceId);
             user.setLastOrganizationId(workspace.getOrganizationId());
             user.setLastWorkspaceId(sourceId);
+            if (projects.size() > 0) {
+                user.setLastProjectId(projects.get(0).getId());
+            } else {
+                user.setLastProjectId("");
+            }
         }
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user

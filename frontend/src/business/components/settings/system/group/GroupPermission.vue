@@ -32,7 +32,19 @@ export default {
   },
   methods: {
     change(val, permission) {
-      permission.checked = val;
+      // 取消读权限则取消其它所有操作权限
+      let id = permission.id.split(":")[1];
+      if (id === "READ" && !val) {
+        this.permissions.map(p => p.checked = val);
+      } else {
+        if (val) {
+          let p = this.permissions.filter(p => p.id.split(":")[1] === "READ");
+          if (p.length > 0) {
+            p[0].checked = val;
+          }
+        }
+        permission.checked = val;
+      }
     }
   }
 }
