@@ -18,7 +18,12 @@ public class PermissionConstants {
     public static final String SYSTEM_WORKSPACE_READ_CREATE = "SYSTEM_WORKSPACE:READ+CREATE";
     public static final String SYSTEM_WORKSPACE_READ_EDIT = "SYSTEM_WORKSPACE:READ+EDIT";
     public static final String SYSTEM_WORKSPACE_READ_DELETE = "SYSTEM_WORKSPACE:READ+DELETE";
-    
+
+    public static final String SYSTEM_TEST_POOL_READ = "SYSTEM_TEST_POOL:READ";
+    public static final String SYSTEM_TEST_POOL_READ_CREATE = "SYSTEM_TEST_POOL:READ+CREATE";
+    public static final String SYSTEM_TEST_POOL_READ_EDIT = "SYSTEM_TEST_POOL:READ+EDIT";
+    public static final String SYSTEM_TEST_POOL_READ_DELETE = "SYSTEM_TEST_POOL:READ+DELETE";
+
     public static final String SYSTEM_GROUP_READ = "SYSTEM_GROUP:READ";
     public static final String SYSTEM_GROUP_READ_CREATE = "SYSTEM_GROUP:READ+CREATE";
     public static final String SYSTEM_GROUP_READ_EDIT = "SYSTEM_GROUP:READ+EDIT";

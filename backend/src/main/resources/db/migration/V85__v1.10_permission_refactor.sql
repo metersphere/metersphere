@@ -154,6 +154,14 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'admin', 'SYSTEM_SETTING:READ+AUTH_MANAGE', 'SYSTEM_SETTING');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'admin', 'SYSTEM_QUOTA:READ', 'SYSTEM_QUOTA');
+INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_id`)
+VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ+DELETE', 'SYSTEM_TEST_POOL');
+INSERT `user_group_permission` (`id`, `group_id`, `permission_id`, `module_id`)
+VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ+CREATE', 'SYSTEM_TEST_POOL');
+INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_id`)
+VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_TEST_POOL');
+INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_id`)
+VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ+EDIT', 'SYSTEM_TEST_POOL');
 
 -- 组织管理员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
