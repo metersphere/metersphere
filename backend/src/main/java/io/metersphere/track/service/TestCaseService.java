@@ -625,7 +625,6 @@ public class TestCaseService {
             data.setNodePath(path.toString());
             data.setPriority("P" + i % 4);
             String type = types.get(i % 3);
-            data.setType(type);
 //            if (StringUtils.equals(TestCaseConstants.Type.Functional.getValue(), type)) {
 //                data.setMethod(TestCaseConstants.Method.Manual.getValue());
 //            } else {
@@ -695,7 +694,6 @@ public class TestCaseService {
             data.setName(t.getName());
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
-            data.setType(t.getType());
             data.setCustomNum(t.getCustomNum());
             if (StringUtils.isBlank(t.getStepModel())) {
                 data.setStepModel(TestCaseConstants.StepModel.STEP.name());
