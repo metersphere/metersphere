@@ -264,6 +264,7 @@ export default {
         this.$success(this.$t('report.test_stop_success'));
         if (forceStop) {
           this.$router.push('/performance/report/all');
+          this.websocket.close();
         } else {
           this.report.status = 'Completed';
         }

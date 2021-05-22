@@ -47,15 +47,21 @@ export default {
   },
   methods: {
     getResource() {
-      this.result = this.$get("/metric/query/resource/" + this.report.id, data => {
-        this.instances = data.data;
-      });
+      this.result = this.$get("/metric/query/resource/" + this.report.id)
+        .then(response => {
+          this.instances = response.data.data;
+        })
+        .catch(() => {
+        });
 
-      this.$get("/metric/query/" + this.report.id, result => {
-        if (result) {
-          this.data = result.data;
-        }
-      });
+      this.$get("/metric/query/" + this.report.id)
+        .then(result => {
+          if (result) {
+            this.data = result.data.data;
+          }
+        })
+        .catch(() => {
+        });
     },
     getCpuOption(id) {
       let xAxis = [];
