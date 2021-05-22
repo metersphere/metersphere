@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
+        <ms-table-header v-permission="['PROJECT_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')" :have-search="false"/>
       </template>
       <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
@@ -20,7 +20,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <ms-table-operator :edit-permission="['PROJECT_USER:READ+EDIT']"
+                               :delete-permission="['PROJECT_USER:READ+DELETE']"
+              :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>

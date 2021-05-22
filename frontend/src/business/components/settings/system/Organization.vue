@@ -3,7 +3,7 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
+        <ms-table-header v-permission="['SYSTEM_ORGANIZATION:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('organization.create')" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->
@@ -21,7 +21,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            <ms-table-operator :edit-permission="['SYSTEM_ORGANIZATION:READ+EDIT']"
+                               :delete-permission="['SYSTEM_ORGANIZATION:READ+DELETE']"
+              @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>

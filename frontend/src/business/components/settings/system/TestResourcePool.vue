@@ -2,7 +2,7 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header v-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="$t('test_resource_pool.create_resource_pool')"
                          :title="$t('commons.test_resource_pool')"/>
       </template>
@@ -39,7 +39,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <ms-table-operator :edit-permission="['SYSTEM_TEST_POOL:READ+EDIT']"
+                               :delete-permission="['SYSTEM_TEST_POOL:READ+DELETE']"
+              @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
