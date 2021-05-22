@@ -2,7 +2,7 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="list" @create="create"
+        <ms-table-header v-permission="['ORGANIZATION_WORKSPACE:READ+CREATE']" :condition.sync="condition" @search="list" @create="create"
                          :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
       <el-table border class="adjust-table" :data="items" style="width: 100%"
@@ -19,7 +19,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            <ms-table-operator :edit-permission="['ORGANIZATION_WORKSPACE:READ+EDIT']"
+                               :delete-permission="['ORGANIZATION_WORKSPACE:READ+DELETE']"
+              @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>

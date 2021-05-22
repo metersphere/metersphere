@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header v-permission="['PROJECT_MANAGER:READ+CREATE']" :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.project')">
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-box"
@@ -52,7 +52,10 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="180">
           <template v-slot:default="scope">
-            <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
+            <ms-table-operator
+              :edit-permission="['PROJECT_MANAGER:READ+EDIT']"
+              :delete-permission="['PROJECT_MANAGER:READ+DELETE']"
+              :is-tester-permission="true" @editClick="edit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
               <template v-slot:behind>
                 <ms-table-operator-button :is-tester-permission="true"

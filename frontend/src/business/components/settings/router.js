@@ -20,7 +20,7 @@ export default {
     {
       path: 'usergroup',
       component: () => import('@/business/components/settings/system/group/UserGroup'),
-      meta: {system: true, title: '用户组与权限', permissions: ['SYSTEM_GROUP:READ']}
+      meta: {system: true, title: '用户组与权限', permissions: ['SYSTEM_GROUP:READ', 'ORGANIZATION_GROUP:READ']}
     },
     {
       path: 'workspace/template/field',
@@ -55,7 +55,7 @@ export default {
     {
       path: 'testresourcepool',
       component: () => import('@/business/components/settings/system/TestResourcePool'),
-      meta: {system: true, title: 'commons.test_resource_pool', permissions: ['SYSTEM_WORKSPACE:READ']}
+      meta: {system: true, title: 'commons.test_resource_pool', permissions: ['SYSTEM_TEST_POOL:READ']}
     },
     {
       path: 'systemparametersetting',
