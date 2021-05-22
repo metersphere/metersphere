@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :title="title"
-             :visible.sync="createVisible" width="35%"
+             :visible.sync="createVisible" width="40%"
              @closed="handleClose" class="edit-user-dialog"
              :destroy-on-close="true">
     <div v-loading="result.loading">
