@@ -278,6 +278,11 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         cancelButtonText: this.$t('commons.cancel'),
         inputValue: report.name,
+        inputValidator: function (value) {
+          if (value.length > 63) {
+            return false;
+          }
+        }
       }).then(({value}) => {
         this.$post('/performance/report/rename', {id: report.id, name: value}, response => {
           this.initTableData();
