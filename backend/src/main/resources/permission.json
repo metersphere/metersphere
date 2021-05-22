@@ -95,6 +95,26 @@
       "resourceId": "SYSTEM_GROUP"
     },
     {
+      "id": "SYSTEM_TEST_POOL:READ",
+      "name": "查询测试资源池",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ+CREATE",
+      "name": "创建测试资源池",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ+EDIT",
+      "name": "编辑测试资源池",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL:READ+DELETE",
+      "name": "删除测试资源池",
+      "resourceId": "SYSTEM_TEST_POOL"
+    },
+    {
       "id": "SYSTEM_SETTING:READ",
       "name": "查询系统设置",
       "resourceId": "SYSTEM_SETTING"
@@ -636,6 +656,10 @@
     {
       "id": "SYSTEM_GROUP",
       "name": "用户组与权限"
+    },
+    {
+      "id": "SYSTEM_TEST_POOL",
+      "name": "测试资源池"
     },
     {
       "id": "SYSTEM_SETTING",
