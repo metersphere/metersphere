@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.dto.LogDetailDTO;
@@ -45,7 +46,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/delete/{reportId}")
-    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ+DELETE")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE)
     @MsAuditLog(module = "performance_test_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reportId)", msClass = PerformanceReportService.class)
     public void deleteReport(@PathVariable String reportId) {
         performanceReportService.deleteReport(reportId);
@@ -129,7 +130,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/batch/delete")
-    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ+DELETE")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE)
     @MsAuditLog(module = "performance_test_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = PerformanceReportService.class)
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         performanceReportService.deleteReportBatch(reportRequest);
