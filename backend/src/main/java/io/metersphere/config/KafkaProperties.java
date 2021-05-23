@@ -24,6 +24,7 @@ public class KafkaProperties {
     private String batchSize;
     private String clientId;
     private String connectionsMaxIdleMs;
+    private String queueSize = "5000";
     private KafkaProperties.Ssl ssl = new KafkaProperties.Ssl();
     private KafkaProperties.Log log = new KafkaProperties.Log();
 

@@ -618,7 +618,7 @@ public class JmeterDocumentParser implements DocumentParser {
         // 清空child
         removeChildren(backendListener);
         backendListener.appendChild(createStringProp(document, "classname", "io.github.rahulsinghai.jmeter.backendlistener.kafka.KafkaBackendClient"));
-        backendListener.appendChild(createStringProp(document, "QUEUE_SIZE", "5000"));
+        backendListener.appendChild(createStringProp(document, "QUEUE_SIZE", kafkaProperties.getQueueSize()));
         // elementProp
         Element elementProp = document.createElement("elementProp");
         elementProp.setAttribute("name", "arguments");
