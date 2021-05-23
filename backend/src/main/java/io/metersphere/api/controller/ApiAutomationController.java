@@ -12,6 +12,7 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -76,7 +77,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/create")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+CREATE")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE)
     public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles,
                               @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
         return apiAutomationService.create(request, bodyFiles, scenarioFiles);
@@ -84,7 +85,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/update")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+EDIT")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles,
                        @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
         apiAutomationService.update(request, bodyFiles, scenarioFiles);
@@ -92,7 +93,7 @@ public class ApiAutomationController {
 
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiAutomationService.class)
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+delete")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     public void delete(@PathVariable String id) {
         apiAutomationService.delete(id);
     }
@@ -188,14 +189,14 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/batch/edit")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+EDIT")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
     }
 
     @PostMapping("/batch/update/env")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+EDIT")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public void batchUpdateEnv(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.batchUpdateEnv(request);
@@ -248,21 +249,21 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+IMPORT_SCENARIO")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_IMPORT_SCENARIO)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ScenarioImport scenarioImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiAutomationService.scenarioImport(file, request);
     }
 
     @PostMapping(value = "/export")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public ApiScenrioExportResult export(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.export(request);
     }
 
     @PostMapping(value = "/export/jmx")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EXPORT_SCENARIO)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);

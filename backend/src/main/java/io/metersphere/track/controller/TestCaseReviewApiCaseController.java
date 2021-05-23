@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -30,7 +31,7 @@ public class TestCaseReviewApiCaseController {
     }
 
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
-    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     public Pager<List<ApiTestCaseDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -38,19 +39,19 @@ public class TestCaseReviewApiCaseController {
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     public int deleteTestCase(@PathVariable String id) {
         return testCaseReviewApiCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     public void deleteApiCaseBath(@RequestBody TestReviewApiCaseBatchRequest request) {
         testCaseReviewApiCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping("/batch/update/env")
-    @RequiresPermissions("PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_RELEVANCE_OR_CANCEL)
     public void batchUpdateEnv(@RequestBody TestPlanApiCaseBatchRequest request) {
         testCaseReviewApiCaseService.batchUpdateEnv(request);
     }
