@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header v-permission="['PROJECT_MANAGER:READ+CREATE']" :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['PROJECT_MANAGER:READ+CREATE']" :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.project')">
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-box"
