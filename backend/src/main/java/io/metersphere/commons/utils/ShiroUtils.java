@@ -29,6 +29,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/display/file/**", "anon");
         filterChainDefinitionMap.put("/jmeter/download/**", "anon");
         filterChainDefinitionMap.put("/jmeter/ping", "anon");
+        filterChainDefinitionMap.put("/jmeter/ready/**", "anon");
         filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
         filterChainDefinitionMap.put("/sso/signin", "anon");
         filterChainDefinitionMap.put("/sso/callback", "anon");

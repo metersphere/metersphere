@@ -88,7 +88,7 @@ public class EngineFactory {
         return null;
     }
 
-    public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, long startTime, String reportId, int resourceIndex) {
+    public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, String reportId, int resourceIndex) {
         final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
@@ -104,7 +104,6 @@ public class EngineFactory {
         engineContext.setNamespace(loadTest.getProjectId());
         engineContext.setFileType(FileType.JMX.name());
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
-        engineContext.setStartTime(startTime);
         engineContext.setReportId(reportId);
         engineContext.setResourceIndex(resourceIndex);
 

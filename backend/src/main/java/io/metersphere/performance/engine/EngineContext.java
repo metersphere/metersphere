@@ -10,7 +10,6 @@ public class EngineContext {
     private String fileType;
     private String content;
     private String resourcePoolId;
-    private Long startTime;
     private String reportId;
     private Integer resourceIndex;
     private Map<String, Object> properties = new HashMap<>();
@@ -74,14 +73,6 @@ public class EngineContext {
 
     public void setResourcePoolId(String resourcePoolId) {
         this.resourcePoolId = resourcePoolId;
-    }
-
-    public Long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Long startTime) {
-        this.startTime = startTime;
     }
 
     public String getReportId() {
