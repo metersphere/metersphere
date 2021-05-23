@@ -2,7 +2,7 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header v-permission="['SYSTEM_WORKSPACE:READ+CREATE']" :condition.sync="condition" @search="list" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_WORKSPACE:READ+CREATE']" :condition.sync="condition" @search="list" @create="create"
                          :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
       <!-- workspace table -->

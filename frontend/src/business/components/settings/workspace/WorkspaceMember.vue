@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header v-permission="['WORKSPACE_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
+        <ms-table-header :create-permission="['WORKSPACE_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
       <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"

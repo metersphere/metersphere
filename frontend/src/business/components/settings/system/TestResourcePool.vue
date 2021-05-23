@@ -2,7 +2,7 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header v-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="$t('test_resource_pool.create_resource_pool')"
                          :title="$t('commons.test_resource_pool')"/>
       </template>

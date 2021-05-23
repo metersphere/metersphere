@@ -3,7 +3,7 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header v-permission="['SYSTEM_USER:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_USER:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="$t('user.create')" :title="$t('commons.user')"/>
 
       </template>

@@ -3,7 +3,7 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header v-permission="['SYSTEM_ORGANIZATION:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_ORGANIZATION:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('organization.create')" :title="$t('commons.organization')"/>
       </template>
       <!-- system menu organization table-->

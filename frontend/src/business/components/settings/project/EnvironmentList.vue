@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="result.loading">
       <!-- 表头 -->
       <template v-slot:header>
-        <ms-table-header v-permission="['PROJECT_ENVIRONMENT:READ+CREATE']" :title="$t('api_test.environment.environment_list')" :create-tip="btnTips"
+        <ms-table-header :create-permission="['PROJECT_ENVIRONMENT:READ+CREATE']" :title="$t('api_test.environment.environment_list')" :create-tip="btnTips"
                          :condition.sync="condition" :is-tester-permission="isTesterPermission" @search="search" @create="createEnv">
           <template v-slot:button>
             <ms-table-button v-permission="['PROJECT_ENVIRONMENT:READ+IMPORT']" :is-tester-permission="isTesterPermission" icon="el-icon-box"

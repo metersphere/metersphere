@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header v-permission="['SYSTEM_GROUP:READ+CREATE']" :condition.sync="condition" @search="initData" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE']" :condition.sync="condition" @search="initData" @create="create"
                          create-tip="创建用户组" title="用户组与权限"/>
       </template>
 
