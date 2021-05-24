@@ -36,6 +36,7 @@ import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
@@ -1090,7 +1091,7 @@ public class ApiDefinitionService {
         ApiDefinitionWithBLOBs bloBs = apiDefinitionMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, DefinitionReference.definitionColumns);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getCreateUser(), columns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;
@@ -1125,7 +1126,7 @@ public class ApiDefinitionService {
                 } else if (StringUtils.isNotEmpty(request.getStatus())) {
                     columns.clear();
                     definitions.forEach(item -> {
-                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", item.getStatus(), null);
+                        DetailColumn column = new DetailColumn(DefinitionReference.definitionColumns.get("status"), "status", StatusReference.statusMap.get(item.getStatus()), null);
                         columns.add(column);
                     });
                 } else if (StringUtils.isNotEmpty(request.getUserId())) {

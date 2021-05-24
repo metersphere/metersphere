@@ -1200,7 +1200,7 @@ public class ApiAutomationService {
                 }
                 return this.modeRun(request);
             } else {
-                return this.excute(request);
+                return this.modeRun(request);
             }
         } else {
             return this.excute(request);

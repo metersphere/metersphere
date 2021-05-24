@@ -31,7 +31,7 @@
                 and t.oper_type like #{request.operType, jdbcType=VARCHAR}
             </if>
             <if test="request.operModule != null and request.operModule != ''">
-                and p.oper_module like #{request.opeModule, jdbcType=VARCHAR}
+                and t.oper_module like #{request.operModule, jdbcType=VARCHAR}
             </if>
             <if test="request.startTime != null and request.endTime != null">
                 AND t.oper_time BETWEEN #{request.startTime} AND #{request.endTime}
@@ -62,6 +62,7 @@
         LEFT JOIN workspace w on t2.workspace_id = w.id
         <where>
             t.oper_type in ('UPDATE','BATCH_UPDATE')
+            and t.oper_content is not null
             <if test="request.sourceId != null and request.sourceId != ''">
                 and t.source_id like #{request.sourceId, jdbcType=VARCHAR}
             </if>

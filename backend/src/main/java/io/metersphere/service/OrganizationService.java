@@ -198,4 +198,19 @@ public class OrganizationService {
         }
         return null;
     }
+
+    public String getLogDetails(OrganizationMemberDTO memberDTO) {
+        String orgId = memberDTO.getOrganizationId();
+        String userId = memberDTO.getId();
+        // 已有角色
+        List<Role> memberRoles = extUserRoleMapper.getOrganizationMemberRoles(orgId, userId);
+        Organization user = organizationMapper.selectByPrimaryKey(orgId);
+        if (user != null) {
+            List<String> names = memberRoles.stream().map(Role::getName).collect(Collectors.toList());
+            List<String> ids = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), null);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

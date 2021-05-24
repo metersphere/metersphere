@@ -209,7 +209,7 @@ public class WorkspaceService {
     }
 
     public List<String> getWorkspaceIdsOrgId(String orgId) {
-       return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
+        return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
@@ -309,4 +309,20 @@ public class WorkspaceService {
         }
         return null;
     }
+
+    public String getLogDetails(WorkspaceMemberDTO memberDTO) {
+        String workspaceId = memberDTO.getWorkspaceId();
+        String userId = memberDTO.getId();
+        Workspace user = workspaceMapper.selectByPrimaryKey(workspaceId);
+        if (user != null) {
+            // 已有角色
+            List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
+            List<String> names = memberRoles.stream().map(Role::getName).collect(Collectors.toList());
+            List<String> ids = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), null);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
 }

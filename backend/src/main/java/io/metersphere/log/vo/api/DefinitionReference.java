@@ -23,7 +23,7 @@ public class DefinitionReference {
         definitionColumns.put("response", "返回参数");
         definitionColumns.put("description", "描述");
         // 需要深度对比的字段，可以支持多个req1,req2
-        definitionColumns.put("ms-dff-col", "request,response");
+        definitionColumns.put("ms-dff-col", "request,response,tags");
 
         // 用例列数据
         caseColumns.put("name", "用例名称");
@@ -34,7 +34,7 @@ public class DefinitionReference {
         caseColumns.put("description", "描述");
         caseColumns.put("request", "请求参数");
         // 深度对比字段
-        caseColumns.put("ms-dff-col", "request");
+        caseColumns.put("ms-dff-col", "request,tags");
 
     }
 }
