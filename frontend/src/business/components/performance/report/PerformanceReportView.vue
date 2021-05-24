@@ -59,6 +59,7 @@
           <el-col :span="2">
             <el-select v-model="refreshTime"
                        size="mini"
+                       :disabled="report.status === 'Completed' || report.status === 'Error'"
                        @change="refresh"
                        style="width: 100%;">
               <template slot="prefix">
