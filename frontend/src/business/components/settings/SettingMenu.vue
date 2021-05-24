@@ -11,7 +11,7 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="2" v-if="isCurrentOrganizationAdmin">
+    <el-submenu index="2">
       <template v-slot:title>
         <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>{{ $t('commons.organization') }}</span>
@@ -22,7 +22,7 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="3" v-if="isCurrentWorkspaceUser">
+    <el-submenu index="3">
       <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{ $t('commons.workspace') }}</span>
@@ -74,7 +74,6 @@
 </template>
 
 <script>
-import {checkoutCurrentOrganization, checkoutCurrentWorkspace} from "@/common/js/utils";
 import Setting from "@/business/components/settings/router";
 import {LicenseKey} from '@/common/js/constants';
 
@@ -105,8 +104,6 @@ export default {
       persons: getMenus('person'),
       project: getMenus('project'),
       workspaceTemplate: getMenus('workspaceTemplate'),
-      isCurrentOrganizationAdmin: false,
-      isCurrentWorkspaceUser: false,
     };
   },
   methods: {
@@ -124,8 +121,6 @@ export default {
     }
   },
   mounted() {
-    this.isCurrentOrganizationAdmin = checkoutCurrentOrganization();
-    this.isCurrentWorkspaceUser = checkoutCurrentWorkspace();
     if (component != null) {
       this.valid();
     }
