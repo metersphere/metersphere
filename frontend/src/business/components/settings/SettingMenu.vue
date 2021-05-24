@@ -11,7 +11,8 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="2">
+    <el-submenu index="2"
+                v-permission="['ORGANIZATION_USER:READ', 'ORGANIZATION_WORKSPACE:READ','ORGANIZATION_SERVICE:READ','ORGANIZATION_MESSAGE:READ']">
       <template v-slot:title>
         <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>{{ $t('commons.organization') }}</span>
@@ -22,7 +23,8 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-submenu index="3">
+    <el-submenu index="3"
+                v-permission="['WORKSPACE_USER:READ']">
       <template v-slot:title>
         <font-awesome-icon class="icon workspace" :icon="['far', 'list-alt']" size="lg"/>
         <span>{{ $t('commons.workspace') }}</span>
@@ -33,14 +35,13 @@
       </el-menu-item>
       <el-submenu index="3-1">
         <template slot="title">模板管理</template>
-        <el-menu-item v-for="menu in workspaceTemplate" :key="menu.index" :index="menu.index" class="setting-item"
-                      v-roles="menu.roles">
+        <el-menu-item v-for="menu in workspaceTemplate" :key="menu.index" :index="menu.index" class="setting-item">
           {{ $t(menu.title) }}
         </el-menu-item>
       </el-submenu>
     </el-submenu>
 
-    <el-submenu index="4">
+    <el-submenu index="4" v-permission="['PROJECT_USER:READ']">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
         <span>{{ $t('commons.project') }}</span>
