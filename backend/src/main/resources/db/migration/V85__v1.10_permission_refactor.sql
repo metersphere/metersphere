@@ -232,27 +232,27 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'ws_admin', 'WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE', 'WORKSPACE_TEMPLATE');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'ws_admin', 'WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE', 'WORKSPACE_TEMPLATE');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_MANAGER');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+CREATE', 'WORKSPACE_PROJECT_MANAGER');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+DELETE', 'WORKSPACE_PROJECT_MANAGER');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+EDIT', 'WORKSPACE_PROJECT_MANAGER');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ','WORKSPACE_PROJECT_ENVIRONMENT');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY','WORKSPACE_PROJECT_ENVIRONMENT');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE','WORKSPACE_PROJECT_ENVIRONMENT');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT','WORKSPACE_PROJECT_ENVIRONMENT');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT','WORKSPACE_PROJECT_ENVIRONMENT');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT','WORKSPACE_PROJECT_ENVIRONMENT');
-insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE','WORKSPACE_PROJECT_ENVIRONMENT');
 
 
