@@ -31,11 +31,11 @@
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
-                    :disabled="true"
-                    :placeholder="$t('load_test.input_thread_num')"
-                    v-model="threadGroup.threadNumber"
-                    :min="1"
-                    size="mini"/>
+                  :disabled="true"
+                  :placeholder="$t('load_test.input_thread_num')"
+                  v-model="threadGroup.threadNumber"
+                  :min="1"
+                  size="mini"/>
               </el-form-item>
               <br>
               <el-form-item>
@@ -98,10 +98,10 @@
                 <div v-if="threadGroup.tgType === 'ThreadGroup'">
                   <el-form-item :label="$t('load_test.ramp_up_time_within')">
                     <el-input-number
-                        :disabled="true"
-                        :min="1"
-                        v-model="threadGroup.rampUpTime"
-                        size="mini"/>
+                      :disabled="true"
+                      :min="1"
+                      v-model="threadGroup.rampUpTime"
+                      size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
                 </div>
@@ -171,11 +171,11 @@ const DELETED = "deleted";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
-      + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
+    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
 };
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
-      + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
 };
 
 export default {
@@ -288,30 +288,34 @@ export default {
         return;
       }
       let threadGroups = [];
-      this.result = this.$get('/performance/report/get-jmx-content/' + this.report.id, (response) => {
-        let d = response.data;
-        threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-        threadGroups.forEach(tg => {
-          tg.options = {};
-        });
-        this.threadGroups = threadGroups;
-        this.getLoadConfig();
-
-        // 兼容数据
-        if (!threadGroups || threadGroups.length === 0) {
-          this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
-            response.data.forEach(d => {
-              threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-              threadGroups.forEach(tg => {
-                tg.options = {};
-              });
-              this.threadGroups = threadGroups;
-              this.getLoadConfig();
-            });
+      this.result = this.$get('/performance/report/get-jmx-content/' + this.report.id)
+        .then((response) => {
+          let d = response.data.data;
+          threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+          threadGroups.forEach(tg => {
+            tg.options = {};
           });
-        }
+          this.threadGroups = threadGroups;
+          this.getLoadConfig();
 
-      });
+          // 兼容数据
+          if (!threadGroups || threadGroups.length === 0) {
+            this.result = this.$get('/performance/get-jmx-content/' + this.report.testId)
+              .then((response) => {
+                response.data.data.forEach(d => {
+                  threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+                  threadGroups.forEach(tg => {
+                    tg.options = {};
+                  });
+                  this.threadGroups = threadGroups;
+                  this.getLoadConfig();
+                });
+              })
+              .catch(() => {
+              });
+          }
+        }).catch(() => {
+        });
     },
     calculateTotalChart() {
       let handler = this;
