@@ -12,47 +12,15 @@
           <el-menu-item :index="'/track/case/all'" v-permission="['PROJECT_TRACK_CASE:READ']">
             {{ $t("test_track.case.test_case") }}
           </el-menu-item>
-          <!--
-                    <el-submenu v-permission="['test_manager','test_user','test_viewer']"
-                                index="6" popper-class="submenu">
-                      <template v-slot:title>{{ $t('test_track.case.test_case') }}</template>
-                      <ms-recent-list ref="caseRecent" :options="caseRecent"/>
-                      <el-divider/>
-                      <ms-show-all :index="'/track/case/all'"/>
-                      <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
-                      <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
-                      <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/case/create'"
-                                        :title="$t('test_track.case.create_case')"/>
-                    </el-submenu>
-          -->
-          <el-menu-item :index="'/track/review/all'" v-permission="['test_manager','test_user','test_viewer']"
+
+          <el-menu-item :index="'/track/review/all'" v-permission="['PROJECT_TRACK_REVIEW:READ']"
                         popper-class="submenu">
             {{ $t('test_track.review.test_review') }}
           </el-menu-item>
-          <el-menu-item :index="'/track/plan/all'" v-permission="['test_manager','test_user','test_viewer']"
+          <el-menu-item :index="'/track/plan/all'" v-permission="['PROJECT_TRACK_PLAN:READ']"
                         popper-class="submenu">
             {{ $t('test_track.plan.test_plan') }}
           </el-menu-item>
-
-          <!--          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
-                                :index="'/track/review/all'" popper-class="submenu">-->
-          <!--            <template v-slot:title>{{$t('test_track.review.test_review')}}</template>
-                      <ms-recent-list ref="reviewRecent" :options="reviewRecent"/>
-                      <el-divider/>
-                      <ms-show-all :index="'/track/review/all'"/>
-                      <el-menu-item :index="testCaseReviewEditPath" class="blank_item"/>
-                      <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/review/create'" :title="$t('test_track.review.create_review')"/>-->
-          <!--          </el-submenu>-->
-
-          <!--                    <el-submenu v-permission="['test_manager','test_user','test_viewer']" :index="'/track/plan/all'" popper-class="submenu">
-                                <template v-slot:title>{{ $t('test_track.plan.test_plan') }}</template>
-                                <ms-recent-list ref="planRecent" :options="planRecent"/>
-                                <el-divider/>
-                                <ms-show-all :index="'/track/plan/all'"/>
-                                <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-                                <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/plan/create'"
-                                                  :title="$t('test_track.plan.create_plan')"/>
-                             </el-submenu>-->
 
           <el-menu-item :index="'/track/issue'">
             {{ $t("缺陷管理") }}
