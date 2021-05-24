@@ -194,7 +194,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
-import {_filter, _sort, buildBatchParam, getLabel, initCondition} from "@/common/js/tableUtils";
+import {_filter, _sort, buildBatchParam, getLabel, initCondition, deepClone} from "@/common/js/tableUtils";
 import {Api_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
