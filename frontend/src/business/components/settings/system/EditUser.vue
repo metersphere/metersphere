@@ -288,7 +288,9 @@ export default {
       return idType.split("+")[1];
     },
     getResource(idType, index) {
-      if (!idType) return;
+      if (!idType) {
+        return;
+      }
       let id = idType.split("+")[0];
       let type = idType.split("+")[1];
       this.result = this.$get('/organization/list/resource/' + id + "/" + type, res => {
