@@ -9,6 +9,7 @@ import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioModuleMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
@@ -20,6 +21,8 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.track.dto.TestCaseNodeDTO;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.lang3.StringUtils;
@@ -52,6 +55,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     TestPlanProjectService testPlanProjectService;
     @Resource
     private ProjectService projectService;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
 
     public ApiScenarioModuleService() {
         super(ApiScenarioModuleDTO.class);
@@ -75,7 +80,41 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         }
 
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
+        ApiScenarioRequest request = new ApiScenarioRequest();
+        request.setProjectId(projectId);
+        List<String> list = new ArrayList<>();
+        list.add("Prepare");
+        list.add("Underway");
+        list.add("Completed");
+        Map<String, List<String>> filters = new LinkedHashMap<>();
+        filters.put("status", list);
+        request.setFilters(filters);
+        nodes.forEach(node -> {
+            List<String> scenarioNodes = new ArrayList<>();
+            scenarioNodes = this.nodeList(nodes, node.getId(), scenarioNodes);
+            scenarioNodes.add(node.getId());
+            request.setModuleIds(scenarioNodes);
+            int num = this.getCaseNum(request);
+            node.setCaseNum(num);
+        });
         return getNodeTrees(nodes);
+    }
+
+    private int getCaseNum(ApiScenarioRequest request) {
+        return extApiScenarioMapper.list(request).size();
+    }
+
+    public static List<String> nodeList(List<ApiScenarioModuleDTO> nodes, String pid, List<String> list) {
+        for (ApiScenarioModuleDTO node : nodes) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (StringUtils.equals(node.getParentId(), pid)) {
+                list.add(node.getId());
+                //递归遍历下一级
+                nodeList(nodes, node.getId(), list);
+            }
+        }
+
+        return list;
     }
 
     private double getNextLevelPos(String projectId, int level, String parentId) {

@@ -2,10 +2,7 @@ package io.metersphere.api.service;
 
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.definition.ApiDefinitionRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
-import io.metersphere.api.dto.definition.DragModuleRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
@@ -21,6 +18,8 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.track.dto.TestCaseNodeDTO;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.collections.CollectionUtils;
@@ -81,7 +80,41 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             apiModuleMapper.insert(record);
         }
         List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
+        ApiDefinitionRequest request = new ApiDefinitionRequest();
+        request.setProjectId(projectId);
+        request.setProtocol(protocol);
+        List<String> list = new ArrayList<>();
+        list.add("Prepare");
+        list.add("Underway");
+        list.add("Completed");
+        Map<String, List<String>> filters = new LinkedHashMap<>();
+        filters.put("status", list);
+        request.setFilters(filters);
+        apiModules.forEach(node -> {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            request.setModuleIds(moduleIds);
+            int num = this.getCaseNum(request);
+            node.setCaseNum(num);
+        });
         return getNodeTrees(apiModules);
+    }
+
+    private int getCaseNum(ApiDefinitionRequest request) {
+        return extApiDefinitionMapper.list(request).size();
+    }
+
+    public static List<String> nodeList(List<ApiModuleDTO> apiNodes, String pid, List<String> list) {
+        for (ApiModuleDTO node : apiNodes) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (StringUtils.equals(node.getParentId(), pid)) {
+                list.add(node.getId());
+                //递归遍历下一级
+                nodeList(apiNodes, node.getId(), list);
+            }
+        }
+        return list;
     }
 
     public String addNode(ApiModule node) {
