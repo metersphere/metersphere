@@ -16,25 +16,25 @@
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
-              <el-button :disabled="isReadOnly || report.status !== 'Running' || testDeleted" type="primary" plain
+              <el-button :disabled="report.status !== 'Running' || testDeleted" type="primary" plain
                          size="mini"
                          @click="dialogFormVisible=true">
                 {{ $t('report.test_stop_now') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed' || testDeleted" type="success" plain
+              <el-button :disabled="report.status !== 'Completed' || testDeleted" type="success" plain
                          size="mini"
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
+              <el-button type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain
+              <el-button :disabled="report.status !== 'Completed'" type="default" plain
                          size="mini"
                          @click="compareReports()">
                 {{ $t('report.compare') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
+              <el-button type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
             </el-row>
@@ -127,7 +127,7 @@ import MsPerformancePressureConfig from "./components/PerformancePressureConfig"
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
-import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
+import {exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
@@ -167,7 +167,6 @@ export default {
       seconds: '0',
       title: 'Logging',
       report: {},
-      isReadOnly: false,
       websocket: null,
       dialogFormVisible: false,
       reportExportVisible: false,
@@ -414,10 +413,6 @@ export default {
     }
   },
   created() {
-    this.isReadOnly = false;
-    if (!checkoutTestManagerOrTestUser()) {
-      this.isReadOnly = true;
-    }
     this.reportId = this.$route.path.split('/')[4];
     this.getReport(this.reportId);
     this.getPoolType(this.reportId);
@@ -425,10 +420,6 @@ export default {
   watch: {
     '$route'(to) {
       if (to.name === "perReportView") {
-        this.isReadOnly = false;
-        if (!checkoutTestManagerOrTestUser()) {
-          this.isReadOnly = true;
-        }
         this.reportId = to.path.split('/')[4];
         this.getReport(this.reportId);
         this.initBreadcrumb((response) => {
