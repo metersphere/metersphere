@@ -66,6 +66,9 @@
             <if test="proRequest.workspaceId != null">
                 and w.id = #{proRequest.workspaceId}
             </if>
+            <if test="proRequest.projectId != null">
+                and p.id = #{proRequest.projectId}
+            </if>
         </where>
         <if test="proRequest.orders != null and proRequest.orders.size() > 0">
             order by

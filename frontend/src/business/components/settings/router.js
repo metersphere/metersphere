@@ -109,9 +109,19 @@ export default {
       }
     },
     {
-      path: 'project/:type',
-      component: () => import('@/business/components/settings/project/MsProject'),
+      path: 'project/list/:type',
+      component: () => import('@/business/components/settings/project/ProjectList'),
       meta: {project: true, title: 'project.manager', permissions: ['PROJECT_MANAGER:READ']}
+    },
+    {
+      path: 'project/:type',
+      component: () => import('@/business/components/settings/workspace/MsProject'),
+      meta: {workspace: true, title: 'project.manager', permissions: ['WORKSPACE_PROJECT_MANAGER:READ']}
+    },
+    {
+      path: 'wsenvlist',
+      component: () => import('@/business/components/settings/workspace/WsEnvironmentList'),
+      meta: {workspace: true, title: 'api_test.environment.environment_config', permissions: ['PROJECT_ENVIRONMENT:READ']}
     },
     {
       path: 'envlist',

@@ -120,7 +120,7 @@ export default {
     initTableData() {
       let param = {};
       param.projectId = this.projectId;
-      this.$post('/user/project/member/list/' + this.currentPage + "/" + this.pageSize, param, response => {
+      this.result = this.$post('/user/project/member/list/' + this.currentPage + "/" + this.pageSize, param, response => {
         let data = response.data;
         this.tableData = data.listObject;
         let url = "/user/group/list/project/" + this.projectId;

@@ -113,36 +113,32 @@ export default {
   },
   methods: {
     initMenuData() {
-      if (hasRoles(ROLE_ORG_ADMIN, ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
-          let data = response.data;
-          this.organizationList = data;
-          this.orgListCopy = data;
-          let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
-          if (org.length > 0) {
-            this.currentOrganizationName = org[0].name;
-          }
-        });
-      }
-      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        if (!this.currentUser.lastOrganizationId) {
-          return false;
+      this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
+        let data = response.data;
+        this.organizationList = data;
+        this.orgListCopy = data;
+        let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
+        if (org.length > 0) {
+          this.currentOrganizationName = org[0].name;
         }
-        this.$get("/workspace/list/orgworkspace/", response => {
-          let data = response.data;
-          if (data.length === 0) {
-            this.workspaceList = [{name: this.$t('workspace.none')}];
-          } else {
-            this.workspaceList = data;
-            this.wsListCopy = data;
-            let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
-            if (workspace.length > 0) {
-              this.currentWorkspaceName = workspace[0].name;
-              localStorage.setItem(WORKSPACE_ID, workspace[0].id);
-            }
-          }
-        });
+      });
+      if (!this.currentUser.lastOrganizationId) {
+        return false;
       }
+      this.$get("/workspace/list/orgworkspace/", response => {
+        let data = response.data;
+        if (data.length === 0) {
+          this.workspaceList = [{name: this.$t('workspace.none')}];
+        } else {
+          this.workspaceList = data;
+          this.wsListCopy = data;
+          let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
+          if (workspace.length > 0) {
+            this.currentWorkspaceName = workspace[0].name;
+            localStorage.setItem(WORKSPACE_ID, workspace[0].id);
+          }
+        }
+      });
     },
     getCurrentUserInfo() {
       this.$get("/user/info/" + encodeURIComponent(this.currentUserId), response => {
@@ -159,11 +155,11 @@ export default {
         if (response.data.workspaceId) {
           localStorage.setItem("workspace_id", response.data.workspaceId);
         }
-        if (response.data.lastProjectId) {
-          localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-        } else {
-          localStorage.removeItem(PROJECT_ID);
-        }
+        // if (response.data.lastProjectId) {
+        //   localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+        // } else {
+        //   localStorage.removeItem(PROJECT_ID);
+        // }
         this.$router.push('/').then(() => {
           window.location.reload();
         }).catch(err => err);
@@ -177,11 +173,11 @@ export default {
       this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
         saveLocalStorage(response);
         localStorage.setItem("workspace_id", workspaceId);
-        if (response.data.lastProjectId) {
-          localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-        } else {
-          localStorage.removeItem(PROJECT_ID);
-        }
+        // if (response.data.lastProjectId) {
+        //   localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+        // } else {
+        //   localStorage.removeItem(PROJECT_ID);
+        // }
         this.$router.push('/').then(() => {
           window.location.reload();
         }).catch(err => err);
