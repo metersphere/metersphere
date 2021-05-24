@@ -16,11 +16,11 @@
               {{ $t('operating_log.change_history') }}
             </el-link>
             <el-button :disabled="isReadOnly" type="primary" plain @click="save"
-                       v-permission="['PROJECT_PERFORMANCE:READ+RUN']"
+                       v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
             >{{ $t('commons.save') }}
             </el-button>
             <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun"
-                       v-permission="['PROJECT_PERFORMANCE:READ+RUN']">
+                       v-permission="['PROJECT_PERFORMANCE_TEST:READ+RUN']">
               {{ $t('load_test.save_and_run') }}
             </el-button>
             <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{ $t('commons.cancel') }}
@@ -62,7 +62,7 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import MsChangeHistory from "../../history/ChangeHistory";
@@ -117,18 +117,12 @@ export default {
       }
 
       this.isReadOnly = false;
-      if (!checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
       this.getTest(to.params.testId);
     }
 
   },
   created() {
     this.isReadOnly = false;
-    if (!checkoutTestManagerOrTestUser()) {
-      this.isReadOnly = true;
-    }
     this.getTest(this.$route.params.testId);
   },
   mounted() {

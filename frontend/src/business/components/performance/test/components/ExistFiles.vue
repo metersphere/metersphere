@@ -3,7 +3,7 @@
              :destroy-on-close="true"
              :title="$t('load_test.exist_jmx')" width="70%"
              :visible.sync="loadFileVisible">
-    <ms-table-header :is-tester-permission="true" title="" :condition.sync="condition" @search="getProjectFiles"
+    <ms-table-header title="" :condition.sync="condition" @search="getProjectFiles"
                      :show-create="false">
       <template v-slot:button>
         <el-upload
@@ -19,7 +19,7 @@
           :on-exceed="handleExceed"
           :disabled="isReadOnly"
           :file-list="fileList">
-          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+          <ms-table-button icon="el-icon-upload2"
                            :content="$t('load_test.upload_jmx')"/>
         </el-upload>
         <el-upload
@@ -35,7 +35,7 @@
           :on-exceed="handleExceed"
           :disabled="isReadOnly"
           :file-list="fileList">
-          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+          <ms-table-button icon="el-icon-upload2"
                            :content="$t('load_test.upload_file')"/>
         </el-upload>
       </template>
@@ -82,11 +82,11 @@
                          size="mini"/>
             </el-tooltip>
           </el-upload>
-          <ms-table-operator-button :is-tester-permission="true"
-                                    icon="el-icon-delete"
-                                    type="danger"
-                                    :tip="$t('commons.delete')"
-                                    @exec="handleDelete(scope.row)">
+          <ms-table-operator-button
+            icon="el-icon-delete"
+            type="danger"
+            :tip="$t('commons.delete')"
+            @exec="handleDelete(scope.row)">
           </ms-table-operator-button>
         </template>
       </el-table-column>

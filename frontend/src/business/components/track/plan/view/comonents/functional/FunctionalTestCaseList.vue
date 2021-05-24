@@ -1,6 +1,6 @@
 <template>
   <div class="card-container">
-    <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+    <ms-table-header :condition.sync="condition" @search="initTableData"
                      :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
 
       <!-- 不显示 “全部用例” 标题,使标题为空 -->

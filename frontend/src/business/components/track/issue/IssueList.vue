@@ -3,8 +3,9 @@
     <el-card>
 
       <template v-slot:header>
-        <ms-table-header :is-tester-permission="true" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
-                         :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"  :tip="$t('issue.search_name')" :have-search="false"/>
+        <ms-table-header :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
+                         :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"
+                         :tip="$t('issue.search_name')" :have-search="false"/>
       </template>
 
       <ms-table

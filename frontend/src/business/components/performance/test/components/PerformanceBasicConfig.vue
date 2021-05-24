@@ -4,9 +4,9 @@
       <h4>{{ $t('load_test.scenario_list') }}</h4>
     </el-row>
     <el-row type="flex" justify="start" align="middle">
-      <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
+      <ms-table-button icon="el-icon-circle-plus-outline"
                        :content="$t('load_test.load_exist_jmx')" @click="loadJMX()"/>
-      <ms-table-button :is-tester-permission="true" icon="el-icon-share"
+      <ms-table-button icon="el-icon-share"
                        @click="loadApiAutomation()"
                        :content="$t('load_test.load_api_automation_jmx')"/>
     </el-row>
@@ -58,7 +58,7 @@
     </el-row>
     <el-row type="flex" justify="start" align="middle">
 
-      <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
+      <ms-table-button icon="el-icon-circle-plus-outline"
                        :content="$t('load_test.load_exist_file')" @click="loadFile()"/>
     </el-row>
     <el-table class="basic-config" :data="tableData">

@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+          <ms-table-header :condition.sync="condition" @search="search"
                            :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
@@ -60,7 +60,7 @@
             <template v-slot:default="scope">
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                         @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
+              <ms-table-operator-button :tip="$t('api_report.delete')"
                                         v-permission="['PROJECT_API_REPORT:READ+DELETE']"
                                         icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>

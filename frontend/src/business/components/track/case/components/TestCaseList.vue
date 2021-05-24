@@ -2,7 +2,7 @@
 
   <div class="card-container" v-loading="result.loading">
 
-    <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+    <ms-table-header :condition.sync="condition" @search="initTableData"
                      :tip="$t('commons.search_by_name_or_id')" title="" :show-create="false"/>
     <el-table
         border
