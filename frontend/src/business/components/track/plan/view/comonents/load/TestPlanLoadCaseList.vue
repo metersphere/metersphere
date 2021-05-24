@@ -118,7 +118,7 @@
           </template>
           <template v-slot:default="scope">
             <ms-table-operator-button class="run-button"
-                                      v-permission="['PROJECT_PERFORMANCE:READ+RUN']"
+                                      v-permission="['PROJECT_PERFORMANCE_TEST:READ+RUN']"
                                       :tip="$t('api_test.run')"
                                       icon="el-icon-video-play"
                                       @exec="run(scope.row)"/>

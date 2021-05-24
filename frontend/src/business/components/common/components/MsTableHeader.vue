@@ -10,7 +10,7 @@
       <span class="operate-button">
         <ms-table-button v-permission="createPermission" :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
-        <ms-table-button :is-tester-permission="true" icon="el-icon-download" v-if="showImport"
+        <ms-table-button icon="el-icon-download" v-if="showImport"
                          :content="importTip" @click="importData"/>
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
                          type="primary"

@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+          <ms-table-header :condition.sync="condition" @search="search"
                            :title="$t('commons.report')"
                            :show-create="false"/>
         </template>

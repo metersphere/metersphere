@@ -102,7 +102,7 @@
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true"
+            <ms-table-operator-button class="run-button"
                                       :tip="$t('api_test.automation.execute')"
                                       icon="el-icon-video-play"
                                       @exec="runTestCase(scope.row)"/>

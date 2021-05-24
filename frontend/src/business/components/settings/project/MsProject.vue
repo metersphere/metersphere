@@ -2,10 +2,11 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :create-permission="['PROJECT_MANAGER:READ+CREATE']" :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['PROJECT_MANAGER:READ+CREATE']" :condition.sync="condition"
+                         @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.project')">
           <template v-slot:button>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-box"
+            <ms-table-button icon="el-icon-box"
                              :content="$t('api_test.jar_config.title')" @click="openJarConfig"/>
           </template>
         </ms-table-header>
@@ -55,13 +56,13 @@
             <ms-table-operator
               :edit-permission="['PROJECT_MANAGER:READ+EDIT']"
               :delete-permission="['PROJECT_MANAGER:READ+DELETE']"
-              :is-tester-permission="true" @editClick="edit(scope.row)"
-                               @deleteClick="handleDelete(scope.row)">
+              @editClick="edit(scope.row)"
+              @deleteClick="handleDelete(scope.row)">
               <template v-slot:behind>
-                <ms-table-operator-button :is-tester-permission="true"
-                                          :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
-                                          type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                <ms-table-operator-button :is-tester-permission="true" :tip="$t('load_test.other_resource')"
+                <ms-table-operator-button
+                  :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
+                  type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                <ms-table-operator-button :tip="$t('load_test.other_resource')"
                                           icon="el-icon-files"
                                           type="success" @exec="openFiles(scope.row)"/>
               </template>
