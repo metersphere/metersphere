@@ -641,6 +641,9 @@ public class TestPlanService {
     }
 
     public List<TestPlan> getTestPlanByIds(List<String> planIds) {
+        if (CollectionUtils.isEmpty(planIds)) {
+            return new ArrayList<>();
+        }
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andIdIn(planIds);
         return testPlanMapper.selectByExample(example);
