@@ -27,5 +27,7 @@ public class TreeNodeDTO<T> {
 
     private List<T> children;
 
+    private Integer caseNum;
+
     private static final long serialVersionUID = 1L;
 }

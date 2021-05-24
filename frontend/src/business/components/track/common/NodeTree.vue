@@ -22,22 +22,25 @@
       <span class="custom-tree-node father" @click="handleNodeSelect(node)">
 
         <span v-if="data.isEdit" @click.stop>
-          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur" v-model="data.name" class="name-input" size="mini" ref="nameInput"/>
+          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur" v-model="data.name"
+                    class="name-input" size="mini" ref="nameInput"/>
         </span>
 
         <span v-if="!data.isEdit" class="node-icon">
           <i class="el-icon-folder"/>
         </span>
         <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
-
+        <span v-if="data.caseNum" class="node-title">
+          <span>(0/{{ data.caseNum }})</span>
+        </span>
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !=='默认模块'"
-            class="item"
-            effect="dark"
-            :open-delay="200"
-            :content="$t('test_track.module.rename')"
-            placement="top">
+              v-if="data.id !== 'root' && data.name !=='默认模块'"
+              class="item"
+              effect="dark"
+              :open-delay="200"
+              :content="$t('test_track.module.rename')"
+              placement="top">
             <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
           </el-tooltip>
           <el-tooltip

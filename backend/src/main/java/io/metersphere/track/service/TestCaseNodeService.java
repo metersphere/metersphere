@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.NodeNumDTO;
 import io.metersphere.exception.ExcelException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -29,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -84,6 +86,12 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         return node.getId();
     }
 
+    public List<String> getNodes(String nodeId) {
+        return extTestCaseNodeMapper.getNodes(nodeId);
+    }
+
+    ;
+
     private void validateNode(TestCaseNode node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
             throw new RuntimeException(Translator.get("test_case_node_level_tip")
@@ -118,7 +126,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
         long count = testCaseNodeMapper.countByExample(example);
         if (count <= 0) {
-            TestCaseNode record = new TestCaseNode();
+            NodeNumDTO record = new NodeNumDTO();
+            //TestCaseNode record = new TestCaseNode();
             record.setId(UUID.randomUUID().toString());
             record.setCreateUser(SessionUtils.getUserId());
             record.setName("默认模块");
@@ -128,9 +137,43 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             record.setUpdateTime(System.currentTimeMillis());
             record.setProjectId(projectId);
             testCaseNodeMapper.insert(record);
+            record.setCaseNum(0);
         }
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        request.setUserId(SessionUtils.getUserId());
+        request.setProjectId(projectId);
+        for (TestCaseNodeDTO node : testCaseNodes) {
+            List<String> nodeIds = new ArrayList<>();
+            nodeIds = this.nodeList(testCaseNodes, node.getId(), nodeIds);
+            nodeIds.add(node.getId());
+            request.setNodeIds(nodeIds);
+            int num = this.getCaseNum(request);
+            node.setCaseNum(num);
+        }
         return getNodeTrees(testCaseNodes);
+    }
+
+    public static List<String> nodeList(List<TestCaseNodeDTO> testCaseNodes, String pid, List<String> list) {
+        for (TestCaseNodeDTO node : testCaseNodes) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (StringUtils.equals(node.getParentId(), pid)) {
+                list.add(node.getId());
+                //递归遍历下一级
+                nodeList(testCaseNodes, node.getId(), list);
+            }
+        }
+        /*if(null==list||list.size()==0){
+            list.add(pid);
+        }*/
+        return list;
+    }
+
+
+    //获取模块下用例数
+    public int getCaseNum(QueryTestCaseRequest request) {
+        List<TestCaseDTO> list = extTestCaseMapper.list(request);
+        return list.size();
     }
 
     public int editNode(DragNodeRequest request) {

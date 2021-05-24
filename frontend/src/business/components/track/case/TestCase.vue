@@ -299,6 +299,7 @@ export default {
       if ( this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
+      this.$refs.nodeTree.list();
     },
     editTestCase(testCase) {
       this.type = "edit";
