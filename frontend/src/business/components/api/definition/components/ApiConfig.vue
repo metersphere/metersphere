@@ -174,7 +174,7 @@ export default {
           this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
         }
 
-        if (this.currentApi != null && this.currentApi.id != null && this.currentApi.isCopy != true) {
+        if (this.currentApi !== null && this.currentApi.id !== null && this.currentApi.isCopy !== true) {
           this.reqUrl = "/api/definition/update";
         } else {
           this.reqUrl = "/api/definition/create";
