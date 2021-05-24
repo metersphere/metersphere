@@ -351,8 +351,8 @@ public class UserController {
 
     @PostMapping("/import/{userId}")
 
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId) {
-        return userService.userImport(file, userId);
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
+        return userService.userImport(file, userId, request);
     }
 
     @PostMapping("/special/batchProcessUserInfo")
