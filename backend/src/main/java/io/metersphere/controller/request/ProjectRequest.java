@@ -10,6 +10,7 @@ import java.util.Map;
 @Setter
 public class ProjectRequest {
     private String workspaceId;
+    private String projectId;
     private String name;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;

@@ -255,6 +255,31 @@
       "resourceId": "WORKSPACE_USER"
     },
     {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ",
+      "name": "查询项目",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+CREATE",
+      "name": "创建项目",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+EDIT",
+      "name": "创建项目",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER:READ+DELETE",
+      "name": "删除项目",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
+      "name": "查询环境",
+      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+    },
+    {
       "id": "WORKSPACE_TEMPLATE:READ",
       "name": "查询",
       "resourceId": "WORKSPACE_TEMPLATE"
@@ -700,6 +725,14 @@
     {
       "id": "WORKSPACE_TEMPLATE",
       "name": "模版设置"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_MANAGER",
+      "name": "项目管理"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT",
+      "name": "环境设置"
     },
     {
       "id": "PROJECT_USER",

@@ -2,7 +2,7 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :create-permission="['PROJECT_MANAGER:READ+CREATE']" :condition.sync="condition"
+        <ms-table-header :create-permission="['WORKSPACE_PROJECT_MANAGER:READ+CREATE']" :condition.sync="condition"
                          @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.project')">
           <template v-slot:button>
@@ -54,17 +54,20 @@
         <el-table-column :label="$t('commons.operating')" width="180">
           <template v-slot:default="scope">
             <ms-table-operator
-              :edit-permission="['PROJECT_MANAGER:READ+EDIT']"
-              :delete-permission="['PROJECT_MANAGER:READ+DELETE']"
+              :edit-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
+              :delete-permission="['WORKSPACE_PROJECT_MANAGER:READ+DELETE']"
               @editClick="edit(scope.row)"
               @deleteClick="handleDelete(scope.row)">
               <template v-slot:behind>
                 <ms-table-operator-button
+                  v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
                   :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                   type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                <ms-table-operator-button :tip="$t('load_test.other_resource')"
-                                          icon="el-icon-files"
-                                          type="success" @exec="openFiles(scope.row)"/>
+                <ms-table-operator-button
+                  v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
+                  :tip="$t('load_test.other_resource')"
+                  icon="el-icon-files"
+                  type="success" @exec="openFiles(scope.row)"/>
               </template>
             </ms-table-operator>
           </template>
