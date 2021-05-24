@@ -274,16 +274,6 @@ export default {
         } else {
           this.$refs.reviewComment.inputLight();
           this.$warning(this.$t('test_track.comment.description_is_null'));
-          this.$post('/test/review/case/edit', param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.updateTestCases(param);
-            this.setReviewStatus(this.testCase.reviewId);
-            this.testCase.reviewStatus = status;
-            this.testCases[this.index].reviewStatus = status;
-            if (this.index < this.testCases.length - 1) {
-              this.handleNext();
-            }
-          });
         }
       } else {
         this.$post('/test/review/case/edit', param, () => {
