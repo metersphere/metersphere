@@ -389,7 +389,6 @@
         this.apiDefaultTab = newTabName;
       },
       handleTabsEdit(targetName, action, api) {
-        console.log(api);
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
@@ -414,7 +413,6 @@
         let name = "";
 
         if (row.isCopy) {
-          console.log(row.isCopy);
           name = "copy" + "-" + row.name;
           row.name = "copy" + "-" + row.name;
 

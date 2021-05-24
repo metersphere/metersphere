@@ -304,7 +304,7 @@ export default {
     editTestCase(testCase) {
       this.type = "edit";
       this.testCaseReadOnly = false;
-      if (testCase.label != "redirect") {
+      if (testCase.label !== "redirect") {
         if (this.treeNodes.length < 1) {
           this.$warning(this.$t('test_track.case.create_module_first'));
           return;

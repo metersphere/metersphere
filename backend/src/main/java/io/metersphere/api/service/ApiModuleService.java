@@ -18,8 +18,6 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.dto.TestCaseNodeDTO;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.collections.CollectionUtils;
