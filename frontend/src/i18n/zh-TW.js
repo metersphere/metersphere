@@ -1546,6 +1546,7 @@ export default {
     },
     issue: {
       issue: "缺陷",
+      issue_resource: "缺陷來源",
       create_issue: "創建缺陷",
       add_issue: "添加缺陷",
       issue_list: "缺陷列表",

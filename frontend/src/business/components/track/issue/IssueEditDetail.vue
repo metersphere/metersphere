@@ -76,7 +76,7 @@ import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/cust
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentUserId} from "@/common/js/utils";
 
 export default {
   name: "IssueEditDetail",
@@ -129,7 +129,8 @@ export default {
         return false;
       }
     },
-    caseId: String
+    caseId: String,
+    planId: String
   },
   computed: {
     isSystem() {
@@ -235,6 +236,9 @@ export default {
         param.testCaseIds = [this.caseId];
       } else {
         param.testCaseIds = Array.from(this.testCaseContainIds);
+      }
+      if (this.planId) {
+        param.resourceId = this.planId;
       }
       return param;
     },

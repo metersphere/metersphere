@@ -1,14 +1,15 @@
 <template>
   <ms-edit-dialog
+    :append-to-body="true"
     :visible.sync="visible"
-    :title="'关联缺陷'"
+    :title="$t('test_track.case.relate_issue')"
     @confirm="save"
     ref="relevanceDialog">
     <ms-table
       v-loading="page.result.loading"
       :data="page.data"
       :condition="page.condition"
-      :total="total"
+      :total="page.total"
       :page-size.sync="page.pageSize"
       :show-select-all="false"
       @handlePageChange="getIssues"

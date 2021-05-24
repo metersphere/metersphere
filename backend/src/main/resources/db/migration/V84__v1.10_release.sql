@@ -68,3 +68,8 @@ ALTER TABLE test_case_template  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE issue_template  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE test_case_report_template  ADD create_user VARCHAR(100) NULL;
 ALTER TABLE api_test_environment  ADD create_user VARCHAR(100) NULL;
+
+
+-- 缺陷来源
+ALTER TABLE issues ADD resource_id varchar(50) DEFAULT NULL COMMENT 'Issue resource id';
+
