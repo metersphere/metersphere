@@ -991,17 +991,19 @@ public class ApiDefinitionService {
             ((MsApiExportResult) apiExportResult).setProtocol(request.getProtocol());
             ((MsApiExportResult) apiExportResult).setProjectId(request.getProjectId());
             ((MsApiExportResult) apiExportResult).setVersion(System.getenv("MS_VERSION"));
+            if (CollectionUtils.isNotEmpty(((MsApiExportResult) apiExportResult).getData())) {
+                List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
+                request.setName(String.join(",", names));
+                List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+                request.setId(JSON.toJSONString(ids));
+            }
         } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
             System.out.println(apiDefinitionMapper.selectByExampleWithBLOBs(example));
             apiExportResult = swagger3Parser.swagger3Export(apiDefinitionMapper.selectByExampleWithBLOBs(example));
+
         }
-        if (CollectionUtils.isNotEmpty(((MsApiExportResult) apiExportResult).getData())) {
-            List<String> names = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getName).collect(Collectors.toList());
-            request.setName(String.join(",", names));
-            List<String> ids = ((MsApiExportResult) apiExportResult).getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
-            request.setId(JSON.toJSONString(ids));
-        }
+
         return apiExportResult;
     }
 
