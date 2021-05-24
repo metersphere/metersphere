@@ -623,6 +623,20 @@ public class TestCaseReviewService {
         TestCaseReview review = testCaseReviewMapper.selectByPrimaryKey(id);
         if (review != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(review, TestCaseReviewReference.testCaseReviewColumns);
+
+            String reviewId = review.getId();
+            TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+            testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
+            List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
+
+            List<String> userIds = testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
+            UserExample example = new UserExample();
+            example.createCriteria().andIdIn(userIds);
+            List<User> users = userMapper.selectByExample(example);
+            List<String> userNames = users.stream().map(User::getName).collect(Collectors.toList());
+
+            DetailColumn column = new DetailColumn("评审人", "reviewUser", String.join(",", userNames), null);
+            columns.add(column);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), review.getProjectId(), review.getName(), review.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }

@@ -70,7 +70,7 @@ public class WorkspaceController {
 
     @GetMapping("special/delete/{workspaceId}")
     @RequiresRoles(RoleConstants.ADMIN)
-    @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)",  msClass = WorkspaceService.class)
+    @MsAuditLog(module = "system_workspace", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#workspaceId)", msClass = WorkspaceService.class)
     public void deleteWorkspaceByAdmin(@PathVariable String workspaceId) {
         userService.refreshSessionUser("workspace", workspaceId);
         workspaceService.deleteWorkspace(workspaceId);
@@ -113,7 +113,7 @@ public class WorkspaceController {
 
     @PostMapping("/member/update")
     @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, title = "#memberDTO.name")
+    @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = WorkspaceService.class)
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }

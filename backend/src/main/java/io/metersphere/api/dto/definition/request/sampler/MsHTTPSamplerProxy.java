@@ -204,7 +204,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
-                if(StringUtils.isEmpty(this.useEnvironment)){
+                if (StringUtils.isEmpty(this.useEnvironment)) {
                     this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
@@ -232,7 +232,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setPath(urlObject.getPath());
+                        sampler.setPath(URLDecoder.decode(urlObject.getPath(), "UTF-8"));
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
@@ -255,14 +255,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             envPath += this.getPath();
                         }
                         if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
-                            sampler.setDomain(httpConfig.getDomain());
+                            sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), "UTF-8"));
                             sampler.setProtocol(httpConfig.getProtocol());
                         } else {
                             sampler.setDomain("");
                             sampler.setProtocol("");
                         }
                         sampler.setPort(httpConfig.getPort());
-                        sampler.setPath(envPath);
+                        sampler.setPath(URLDecoder.decode(envPath, "UTF-8"));
                     }
                 }
                 String envPath = sampler.getPath();
@@ -283,7 +283,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         }
                         path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
-                    sampler.setProperty("HTTPSampler.path", path);
+                    sampler.setProperty("HTTPSampler.path", URLDecoder.decode(path, "UTF-8"));
                 }
             } else {
                 String url = this.getUrl();
@@ -294,7 +294,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url.replaceAll(this.getPort(), "10990");
                 }
                 if (url == null) {
-                    MSException.throwException("请填写请求地址");
+                    MSException.throwException("请重新选择环境");
                 }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
@@ -659,9 +659,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             requests = new ArrayList<>();
         }
         if (hashTree instanceof MsHTTPSamplerProxy) {
-            requests.add((MsHTTPSamplerProxy)hashTree);
+            requests.add((MsHTTPSamplerProxy) hashTree);
         } else {
-            if (hashTree!= null) {
+            if (hashTree != null) {
                 LinkedList<MsTestElement> childHashTree = hashTree.getHashTree();
                 if (CollectionUtils.isNotEmpty(childHashTree)) {
                     for (MsTestElement item : childHashTree) {

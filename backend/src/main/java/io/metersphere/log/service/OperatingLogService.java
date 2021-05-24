@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -50,12 +51,20 @@ public class OperatingLogService {
         OperatingLogRequest request = new OperatingLogRequest();
         request.setSourceId("%" + id + "%");
         List<OperatingLogDTO> logWithBLOBs = extOperatingLogMapper.findBySourceId(request);
+        List<OperatingLogDTO> dtos = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(logWithBLOBs)) {
             for (OperatingLogDTO logWithBLOB : logWithBLOBs) {
                 if (StringUtils.isNotEmpty(logWithBLOB.getOperContent())) {
                     logWithBLOB.setDetails(JSON.parseObject(logWithBLOB.getOperContent(), OperatingLogDetails.class));
                 }
+                if (CollectionUtils.isEmpty(logWithBLOB.getDetails().getColumns())) {
+                    dtos.add(logWithBLOB);
+                }
+
             }
+        }
+        if (CollectionUtils.isNotEmpty(dtos)) {
+            logWithBLOBs.removeAll(dtos);
         }
         return logWithBLOBs;
     }

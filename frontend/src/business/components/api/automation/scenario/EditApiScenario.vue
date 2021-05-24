@@ -5,7 +5,7 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="currentScenario.id">{{$t('operating_log.change_history')}}</el-link>
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{$t('operating_log.change_history')}}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario" title="ctrl + s" v-tester>
             {{ $t('commons.save') }}
@@ -499,7 +499,7 @@
       },
     },
     methods: {
-      openHis(){
+      openHis() {
         this.$refs.changeHistory.open(this.currentScenario.id);
       },
       setModule(id, data) {

@@ -1,7 +1,7 @@
 <template>
 
-  <el-dialog :close-on-click-modal="false" :title="$t('operating_log.change_history')" :visible.sync="infoVisible" width="900px" :destroy-on-close="true"
-             @close="handleClose">
+  <el-dialog :close-on-click-modal="false" :title="$t('operating_log.change_history')" :visible.sync="infoVisible" width="900px" :destroy-on-close="true" append-to-body
+             @close="handleClose" v-loading="loading">
     <el-table :data="details">
       <el-table-column prop="operTime" :label="$t('operating_log.time')">
         <template v-slot:default="scope">
@@ -61,8 +61,9 @@
     data() {
       return {
         infoVisible: false,
+        loading: false,
         details: [],
-        linkDatas: ["prerequisite", "steps", "remark", "request", "response","scenarioDefinition","loadConfiguration","advancedConfiguration"],
+        linkDatas: ["prerequisite", "steps", "remark", "request", "response", "scenarioDefinition", "loadConfiguration", "advancedConfiguration"],
       }
     },
     methods: {
@@ -72,6 +73,7 @@
       getDetails(id) {
         this.result = this.$get("/operating/log/get/source/" + id, response => {
           let data = response.data;
+          this.loading =false;
           if (data) {
             this.details = data;
           }
@@ -79,6 +81,7 @@
       },
       open(id) {
         this.infoVisible = true;
+        this.loading = true;
         this.getDetails(id);
       },
       openDetail(row, value) {

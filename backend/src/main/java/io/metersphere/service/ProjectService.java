@@ -292,13 +292,13 @@ public class ProjectService {
         Project project = projectMapper.selectByPrimaryKey(id);
         if (project != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(project, SystemReference.projectColumns);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(project.getId()), null, project.getName(), project.getCreateUser(), columns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(project.getId()), project.getId(), project.getName(), project.getCreateUser(), columns);
             return JSON.toJSONString(details);
         } else {
             FileMetadata fileMetadata = fileService.getFileMetadataById(id);
             if (fileMetadata != null) {
                 List<DetailColumn> columns = ReflexObjectUtil.getColumns(fileMetadata, SystemReference.projectColumns);
-                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(fileMetadata.getId()), null, fileMetadata.getName(), null, columns);
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(fileMetadata.getId()), fileMetadata.getProjectId(), fileMetadata.getName(), null, columns);
                 return JSON.toJSONString(details);
             }
         }

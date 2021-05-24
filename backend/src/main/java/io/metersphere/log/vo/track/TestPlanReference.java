@@ -22,6 +22,7 @@ public class TestPlanReference {
         testPlanColumns.put("plannedStartTime", "计划开始时间");
         testPlanColumns.put("plannedEndTime", "计划结束时间");
         testPlanColumns.put("description", "描述");
+        testPlanColumns.put("ms-dff-col", "tags");
 
         reportColumns.put("name", "名称");
         reportColumns.put("startTime", "开始时间");

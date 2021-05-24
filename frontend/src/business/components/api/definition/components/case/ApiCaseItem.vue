@@ -30,6 +30,8 @@
                 <span>{{ apiCase.id ? apiCase.name : '' }}</span>
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
             </span>
+
+            <el-link type="primary" style="margin-left: 10px" @click="openHis(apiCase)" v-if="apiCase.id">{{$t('operating_log.change_history')}}</el-link>
           </span>
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
             <!--<span>-->
@@ -115,6 +117,8 @@
         </el-button>
       </div>
     </el-collapse-transition>
+    <ms-change-history ref="changeHistory"/>
+
   </el-card>
 
 </template>
@@ -141,6 +145,7 @@
   const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
   const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
   import {API_METHOD_COLOUR} from "../../model/JsonData";
+  import MsChangeHistory from "../../../../history/ChangeHistory";
 
   export default {
     name: "ApiCaseItem",
@@ -159,6 +164,7 @@
       MsRequestResultTail,
       MsJmxStep,
       ShowMoreBtn,
+      MsChangeHistory,
       "esbDefinition": esbDefinition.default,
       "esbDefinitionResponse": esbDefinitionResponse.default
     },
@@ -214,6 +220,9 @@
     },
     watch: {},
     methods: {
+      openHis(row){
+        this.$refs.changeHistory.open(row.id);
+      },
       handleRunBatch() {
         this.$emit('batchRun');
       },
@@ -299,6 +308,7 @@
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {
           if (row) {
             this.api.saved = false;
+            row.apiDefinitionId = data.id;
             this.saveCase(row);
           }
         });

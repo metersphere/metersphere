@@ -625,7 +625,7 @@ public class PerformanceTestService {
     }
 
     public String getLogDetails(String id) {
-        LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
         if (loadTest != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(loadTest, PerformanceReference.performanceColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(loadTest.getId()), loadTest.getProjectId(), loadTest.getName(), loadTest.getCreateUser(), columns);

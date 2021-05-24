@@ -238,6 +238,8 @@
         }
       },
       setDataSource() {
+        this.initDataSource();
+
         for (let item of this.databaseConfigsOptions) {
           if (this.request.dataSourceId === item.id) {
             this.request.dataSource = item;

@@ -27,5 +27,7 @@ public class TestCaseReference {
         testCaseColumns.put("stepDescription", "步骤描述");
         testCaseColumns.put("expectedResult", "预期结果");
         testCaseColumns.put("comment", "评论");
+        testCaseColumns.put("ms-dff-col", "tags");
+
     }
 }

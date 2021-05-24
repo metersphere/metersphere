@@ -229,7 +229,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/save")
-    @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#testCaseWithBLOBs.name", content = "#msClass.getLogDetails(#testCaseWithBLOBs.id)", msClass = TestCaseService.class)
     public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
         testCaseWithBLOBs.setId(UUID.randomUUID().toString());
         return testCaseService.addTestCase(testCaseWithBLOBs);

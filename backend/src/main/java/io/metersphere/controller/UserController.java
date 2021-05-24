@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +54,7 @@ public class UserController {
 
     @PostMapping("/special/add")
     @RequiresRoles(RoleConstants.ADMIN)
-    @MsAuditLog(module = "system_user", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
+    @MsAuditLog(module = "system_user", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
     public UserDTO insertUser(@RequestBody UserRequest user) {
         return userService.insert(user);
     }
@@ -82,7 +83,7 @@ public class UserController {
 
     @PostMapping("/special/update")
     @RequiresRoles(RoleConstants.ADMIN)
-    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
+    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user)", content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
     public void updateUser(@RequestBody UserRequest user) {
         userService.updateUserRole(user);
     }
@@ -247,7 +248,7 @@ public class UserController {
      */
     @PostMapping("/org/member/add")
     @RequiresRoles(RoleConstants.ORG_ADMIN)
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, title = "添加组织成员")
+    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, title = "'添加组织成员-'+#request.userIds")
     public void addOrganizationMember(@RequestBody AddOrgMemberRequest request) {
         organizationService.checkOrgOwner(request.getOrganizationId());
         userService.addOrganizationMember(request);
@@ -296,7 +297,7 @@ public class UserController {
      * 修改当前用户密码
      * */
     @PostMapping("/update/password")
-    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = UserService.class)
+    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, title = "个人密码")
     public int updateCurrentUserPassword(@RequestBody EditPassWordRequest request) {
         return userService.updateCurrentUserPassword(request);
     }
@@ -332,8 +333,9 @@ public class UserController {
 
     @PostMapping("/import/{userId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId) {
-        return userService.userImport(file, userId);
+    @MsAuditLog(module = "system_user", type = OperLogConstants.IMPORT)
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
+        return userService.userImport(file, userId,request);
     }
 
     @PostMapping("/special/batchProcessUserInfo")

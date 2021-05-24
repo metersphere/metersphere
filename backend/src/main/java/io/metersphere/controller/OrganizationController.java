@@ -72,7 +72,7 @@ public class OrganizationController {
 
     @PostMapping("/member/update")
     @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO.id)", content = "#msClass.getLogDetails(#memberDTO.id)", msClass = OrganizationService.class)
+    @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = OrganizationService.class)
     public void updateOrgMember(@RequestBody OrganizationMemberDTO memberDTO) {
         organizationService.updateOrgMember(memberDTO);
     }

@@ -38,6 +38,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -47,10 +48,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,6 +81,8 @@ public class UserService {
     private WorkspaceService workspaceService;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
+    @Resource
+    private UserRoleService userRoleService;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -680,7 +683,7 @@ public class UserService {
         return list;
     }
 
-    public ExcelResponse userImport(MultipartFile multipartFile, String userId) {
+    public ExcelResponse userImport(MultipartFile multipartFile, String userId, HttpServletRequest request) {
 
         ExcelResponse excelResponse = new ExcelResponse();
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
@@ -704,6 +707,10 @@ public class UserService {
             }
             EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap);
             EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+            if (CollectionUtils.isNotEmpty(((UserDataListener) easyExcelListener).getNames())) {
+                request.setAttribute("ms-req-title", String.join(",", ((UserDataListener) easyExcelListener).getNames()));
+                request.setAttribute("ms-req-source-id", JSON.toJSONString(((UserDataListener) easyExcelListener).getIds()));
+            }
             errList = easyExcelListener.getErrList();
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -864,6 +871,52 @@ public class UserService {
         return null;
     }
 
+    private String getRoles(String userId) {
+        List<Map<String, Object>> maps = userRoleService.getUserRole(userId);
+        List<String> colNames = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(maps)) {
+            for (Map<String, Object> map : maps) {
+                String id = map.get("id").toString();
+                OrganizationExample example = new OrganizationExample();
+                example.createCriteria().andIdIn((List<String>) map.get("ids"));
+                List<Organization> list = organizationMapper.selectByExample(example);
+                List<String> names = new LinkedList<>();
+                if (CollectionUtils.isNotEmpty(list)) {
+                    names = list.stream().map(Organization::getName).collect(Collectors.toList());
+                }
+                WorkspaceExample workspaceExample = new WorkspaceExample();
+                workspaceExample.createCriteria().andIdIn((List<String>) map.get("ids"));
+                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+                if (CollectionUtils.isNotEmpty(workspaces)) {
+                    names = workspaces.stream().map(Workspace::getName).collect(Collectors.toList());
+                }
+                StringBuilder nameBuff = new StringBuilder();
+                switch (id) {
+                    case "org_member":
+                        nameBuff.append("组织成员：").append(names);
+                        break;
+                    case "org_admin":
+                        nameBuff.append("组织管理员：").append(names);
+                        break;
+                    case "test_manager":
+                        nameBuff.append("测试管理员：").append(names);
+                        break;
+                    case "test_viewer":
+                        nameBuff.append("只读用户：").append(names);
+                        break;
+                    case "admin":
+                        nameBuff.append("系统管理员");
+                        break;
+                    case "test_user":
+                        nameBuff.append("测试成员：").append(names);
+                        break;
+                }
+                colNames.add(nameBuff.toString());
+            }
+        }
+        return String.join("\n", colNames);
+    }
+
     public String getLogDetails(UserBatchProcessRequest request) {
         List<String> userIdList = this.selectIdByUserRequest(request);
         UserExample example = new UserExample();
@@ -871,9 +924,27 @@ public class UserService {
         List<User> users = userMapper.selectByExample(example);
         if (users != null) {
             List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(userIdList), null, String.join(",", names), null, new LinkedList<>());
+            String roles = "\n" + "成员角色：\n" + this.getRoles(users.get(0).getId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(userIdList), null, String.join(",", names) + roles, null, new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
     }
+
+    public String getLogDetails(UserRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
+        if (user != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.userColumns);
+            DetailColumn detailColumn = new DetailColumn();
+            detailColumn.setId(UUID.randomUUID().toString());
+            detailColumn.setColumnTitle("角色权限");
+            detailColumn.setColumnName("roles");
+            detailColumn.setOriginalValue(this.getRoles(request.getId()));
+            columns.add(detailColumn);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(user.getId()), null, user.getName(), user.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
 }

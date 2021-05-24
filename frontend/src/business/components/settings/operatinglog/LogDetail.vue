@@ -1,6 +1,6 @@
 <template>
 
-  <el-dialog :close-on-click-modal="false" :title="getType(detail.operType)+title" :visible.sync="infoVisible" width="60%" :destroy-on-close="true"
+  <el-dialog :close-on-click-modal="false" :title="getType(detail.operType)+title" :visible.sync="infoVisible" width="65%" :destroy-on-close="true"
              @close="handleClose">
     <div v-if="detail.createUser">
       <p class="tip">{{ this.$t('report.user_name') }} ：{{detail.createUser}}</p>
@@ -16,14 +16,22 @@
       <div v-if="detail && detail.operType !== 'CREATE' && detail.operType !=='DELETE' && detail.operType !=='COPY' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
           <el-table :data="detail.details.columns">
-            <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
-            <el-table-column prop="originalValue" :label="$t('operating_log.before_change')"/>
-            <el-table-column prop="newValue" :label="$t('operating_log.after_change')"/>
+            <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" width="150px" show-overflow-tooltip/>
+            <el-table-column prop="originalValue" :label="$t('operating_log.before_change')" width="400px" show-overflow-tooltip>
+              <template v-slot:default="scope">
+                <pre>{{scope.row.originalValue}} </pre>
+              </template>
+            </el-table-column>
+            <el-table-column prop="newValue" :label="$t('operating_log.after_change')" width="400px" show-overflow-tooltip>
+              <template v-slot:default="scope">
+                <pre>{{scope.row.newValue}} </pre>
+              </template>
+            </el-table-column>
           </el-table>
         </div>
       </div>
       <div v-else-if="detail && (detail.operType ==='DELETE' || detail.details === null || (detail.details && detail.details.columns && detail.details.columns.length === 0))">
-        <span>{{detail.operTitle}} </span>
+        <pre>{{detail.operTitle}} </pre>
         <span style="color: #409EFF">{{getType(detail.operType)}} </span>
         <span style="color: #409EFF"> {{$t('api_test.home_page.detail_card.success')}}</span>
       </div>
