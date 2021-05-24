@@ -24,12 +24,13 @@
             show-overflow-tooltip
             min-width="80px"
             sortable=true
-            :key="index">
+            :key="index"
+          >
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
               <!--<el-tooltip v-else content="编辑">-->
-                <!--<a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>-->
+              <!--<a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>-->
               <!--</el-tooltip>-->
               <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
@@ -127,7 +128,7 @@
           <ms-table-column
             v-if="item.id == 'caseTotal'"
             prop="caseTotal"
-            sortable="custom"
+            sortable
             width="140px"
             :label="$t('api_test.definition.api_case_number')"
             show-overflow-tooltip
@@ -141,12 +142,13 @@
             :label="$t('api_test.definition.api_case_status')"
             show-overflow-tooltip
             :key="index"
+            :filter-method="filterHandler"
           />
 
           <ms-table-column
             v-if="item.id == 'casePassingRate'"
             width="150px"
-            sortable="custom"
+            sortable
             prop="casePassingRate"
             :label="$t('api_test.definition.api_case_passing_rate')"
             show-overflow-tooltip
@@ -765,6 +767,10 @@ export default {
     },
     open() {
       this.$refs.searchBar.open();
+    },
+    filterHandler(value, row, column) {
+      const property = column['property'];
+      return row[property] === value;
     }
   },
 }
