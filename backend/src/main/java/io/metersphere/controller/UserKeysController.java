@@ -21,7 +21,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("user/key")
-
 public class UserKeysController {
 
     @Resource

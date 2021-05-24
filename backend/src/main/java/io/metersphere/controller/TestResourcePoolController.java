@@ -62,13 +62,11 @@ public class TestResourcePoolController {
     }
 
     @GetMapping("list/all/valid")
-
     public List<TestResourcePoolDTO> listValidResourcePools() {
         return testResourcePoolService.listValidResourcePools();
     }
 
     @GetMapping("list/quota/valid")
-
     public List<TestResourcePoolDTO> listValidQuotaResourcePools() {
         return testResourcePoolService.listValidQuotaResourcePools();
     }

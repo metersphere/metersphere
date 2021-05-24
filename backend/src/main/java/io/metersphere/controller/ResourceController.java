@@ -14,13 +14,11 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/resource")
-
 public class ResourceController {
 
     @Resource
     ResourceService resourceService;
     @PostMapping(value = "/md/upload", consumes = {"multipart/form-data"})
-
     public void upload(@RequestPart(value = "request") MdUploadRequest request, @RequestPart(value = "file") MultipartFile file) {
         resourceService.mdUpload(request, file);
     }
@@ -31,7 +29,6 @@ public class ResourceController {
     }
 
     @GetMapping("/md/delete/{fileName}")
-
     public void delete(@PathVariable("fileName") String fileName) {
         resourceService.mdDelete(fileName);
     }

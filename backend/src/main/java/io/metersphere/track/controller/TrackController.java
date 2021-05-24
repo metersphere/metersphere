@@ -22,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/track")
-
 public class TrackController {
 
     @Resource
