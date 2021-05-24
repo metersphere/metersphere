@@ -52,7 +52,6 @@ public class UserController {
     private CheckPermissionService checkPermissionService;
 
     @PostMapping("/special/add")
-
     @RequiresRoles(RoleConstants.ADMIN)
     @MsAuditLog(module = "system_user", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
     public UserDTO insertUser(@RequestBody UserRequest user) {
@@ -60,26 +59,22 @@ public class UserController {
     }
 
     @PostMapping("/special/list/{goPage}/{pageSize}")
-
     public Pager<List<User>> getUserList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody io.metersphere.controller.request.UserRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getUserListWithRequest(request));
     }
 
     @GetMapping("/special/user/role/{userId}")
-
     public UserRoleDTO getUserRole(@PathVariable("userId") String userId) {
         return userService.getUserRole(userId);
     }
 
     @GetMapping("/special/user/group/{userId}")
-
     public UserGroupPermissionDTO getUserGroup(@PathVariable("userId") String userId) {
         return userService.getUserGroup(userId);
     }
 
     @GetMapping("/special/delete/{userId}")
-
     @MsAuditLog(module = "system_user", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
     public void deleteUser(@PathVariable(value = "userId") String userId) {
         userService.deleteUser(userId);
@@ -88,69 +83,59 @@ public class UserController {
     }
 
     @PostMapping("/special/update")
-
     @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
     public void updateUser(@RequestBody UserRequest user) {
         userService.updateUserRole(user);
     }
 
     @PostMapping("/special/update_status")
-
     @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
     public void updateStatus(@RequestBody User user) {
         userService.updateUser(user);
     }
 
     @PostMapping("/special/ws/member/list/{goPage}/{pageSize}")
-
     public Pager<List<User>> getMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getMemberList(request));
     }
 
     @PostMapping("/special/ws/member/list/all")
-
     public List<User> getMemberListByAdmin(@RequestBody QueryMemberRequest request) {
         return userService.getMemberList(request);
     }
 
     @PostMapping("/special/ws/member/add")
-
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = WorkspaceService.class)
     public void addMemberByAdmin(@RequestBody AddMemberRequest request) {
         userService.addMember(request);
     }
 
     @GetMapping("/special/ws/member/delete/{workspaceId}/{userId}")
-
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
     public void deleteMemberByAdmin(@PathVariable String workspaceId, @PathVariable String userId) {
         userService.deleteMember(workspaceId, userId);
     }
 
     @PostMapping("/special/org/member/add")
-
     @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = OrganizationService.class)
     public void addOrganizationMemberByAdmin(@RequestBody AddOrgMemberRequest request) {
         userService.addOrganizationMember(request);
     }
 
     @GetMapping("/special/org/member/delete/{organizationId}/{userId}")
-
     @MsAuditLog(module = "organization_member", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#userId)", msClass = UserService.class)
     public void delOrganizationMemberByAdmin(@PathVariable String organizationId, @PathVariable String userId) {
         userService.delOrganizationMember(organizationId, userId);
     }
 
     @PostMapping("/special/org/member/list/{goPage}/{pageSize}")
-
     public Pager<List<User>> getOrgMemberListByAdmin(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
     }
 
     @PostMapping("/special/org/member/list/all")
-
     public List<User> getOrgMemberListByAdmin(@RequestBody QueryOrgMemberRequest request) {
         return userService.getOrgMemberList(request);
     }
@@ -293,7 +278,6 @@ public class UserController {
      * 查询组织成员列表
      */
     @PostMapping("/org/member/list/{goPage}/{pageSize}")
-
     public Pager<List<User>> getOrgMemberList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryOrgMemberRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, userService.getOrgMemberList(request));
@@ -303,7 +287,6 @@ public class UserController {
      * 组织成员列表不分页
      */
     @PostMapping("/org/member/list/all")
-
     public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
         return userService.getOrgMemberList(request);
     }
@@ -333,31 +316,26 @@ public class UserController {
      * 获取工作空间成员用户 不分页
      */
     @PostMapping("/ws/member/tester/list")
-
     public List<User> getTestManagerAndTestUserList(@RequestBody QueryMemberRequest request) {
         return userService.getTestManagerAndTestUserList(request);
     }
 
     @GetMapping("/search/{condition}")
-
     public List<User> searchUser(@PathVariable String condition) {
         return userService.searchUser(condition);
     }
 
     @GetMapping("/export/template")
-
     public void testCaseTemplateExport(HttpServletResponse response) {
         userService.userTemplateExport(response);
     }
 
     @PostMapping("/import/{userId}")
-
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
         return userService.userImport(file, userId, request);
     }
 
     @PostMapping("/special/batchProcessUserInfo")
-
     @MsAuditLog(module = "system_user", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = UserService.class)
     public String batchProcessUserInfo(@RequestBody UserBatchProcessRequest request) {
         String returnString = "success";

@@ -46,14 +46,12 @@ public class TestPlanScenarioCaseController {
     }
 
     @GetMapping("/delete/{id}")
-
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanScenarioCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanScenarioCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public void deleteApiCaseBath(@RequestBody TestPlanScenarioCaseBatchRequest request) {
         testPlanScenarioCaseService.deleteApiCaseBath(request);
@@ -76,7 +74,6 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/batch/update/env")
-
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
         testPlanScenarioCaseService.batchUpdateEnv(request);

@@ -38,13 +38,11 @@ public class TestCaseReviewScenarioCaseController {
     }
 
     @GetMapping("/delete/{id}")
-
     public int deleteTestCase(@PathVariable String id) {
         return testCaseReviewScenarioCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-
     public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
         testCaseReviewScenarioCaseService.deleteApiCaseBath(request);
     }
@@ -56,7 +54,6 @@ public class TestCaseReviewScenarioCaseController {
     }
 
     @PostMapping("/batch/update/env")
-
     public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
         testCaseReviewScenarioCaseService.batchUpdateEnv(request);
     }

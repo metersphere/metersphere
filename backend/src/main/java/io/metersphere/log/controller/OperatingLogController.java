@@ -18,7 +18,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/operating/log")
-
 public class OperatingLogController {
     @Resource
     private OperatingLogService operatingLogService;

@@ -135,21 +135,18 @@ public class TestCaseController {
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
-
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
         return testCaseService.edit(request, files);
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
-
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
         return testCaseService.editTestCase(request, files);
     }
 
     @PostMapping("/delete/{testCaseId}")
-
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     public int deleteTestCase(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
@@ -157,7 +154,6 @@ public class TestCaseController {
     }
 
     @PostMapping("/import/{projectId}/{userId}")
-
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);

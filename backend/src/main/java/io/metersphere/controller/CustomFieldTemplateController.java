@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("custom/field/template")
-
 public class CustomFieldTemplateController {
 
     @Resource

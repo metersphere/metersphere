@@ -11,7 +11,6 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/api/database")
-
 public class ApiDatabaseController {
 
     @Resource

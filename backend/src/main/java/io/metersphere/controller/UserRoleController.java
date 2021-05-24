@@ -22,19 +22,16 @@ public class UserRoleController {
     private UserRoleService userRoleService;
 
     @GetMapping("/list/org/{orgId}/{userId}")
-
     public List<Role> getOrganizationMemberRoles(@PathVariable String orgId, @PathVariable String userId) {
         return userRoleService.getOrganizationMemberRoles(orgId, userId);
     }
 
     @GetMapping("/list/ws/{workspaceId}/{userId}")
-
     public List<Role> getWorkspaceMemberRoles(@PathVariable String workspaceId, @PathVariable String userId) {
         return userRoleService.getWorkspaceMemberRoles(workspaceId, userId);
     }
 
     @GetMapping("/all/{userId}")
-
     public List<Map<String, Object>> getUserRole(@PathVariable("userId") String userId) {
         return userRoleService.getUserRole(userId);
     }
