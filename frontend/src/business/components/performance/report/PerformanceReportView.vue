@@ -133,6 +133,7 @@ import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
+import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 
 
 export default {
@@ -264,6 +265,8 @@ export default {
       this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
         this.$success(this.$t('report.test_stop_success'));
         if (forceStop) {
+          // 发送广播，刷新 head 上的最新列表
+          PerformanceEvent.$emit(LIST_CHANGE);
           this.$router.push('/performance/report/all');
           this.websocket.close();
         } else {
@@ -281,6 +284,7 @@ export default {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});
+          this.clearData();
         });
       }).catch(() => {
       });
