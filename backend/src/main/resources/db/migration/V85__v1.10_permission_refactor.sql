@@ -235,11 +235,26 @@ VALUES (uuid(), 'ws_admin', 'WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE', 'WORKSPACE_
 insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_MANAGER');
 insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+CREATE','WORKSPACE_PROJECT_MANAGER');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+CREATE', 'WORKSPACE_PROJECT_MANAGER');
 insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+DELETE', 'WORKSPACE_PROJECT_MANAGER');
 insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+EDIT', 'WORKSPACE_PROJECT_MANAGER');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ','WORKSPACE_PROJECT_ENVIRONMENT');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY','WORKSPACE_PROJECT_ENVIRONMENT');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE','WORKSPACE_PROJECT_ENVIRONMENT');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT','WORKSPACE_PROJECT_ENVIRONMENT');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT','WORKSPACE_PROJECT_ENVIRONMENT');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT','WORKSPACE_PROJECT_ENVIRONMENT');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE','WORKSPACE_PROJECT_ENVIRONMENT');
+
 
 -- 工作空间成员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -375,8 +390,6 @@ VALUES (uuid(), 'project_admin', 'PROJECT_API_REPORT:READ+DELETE', 'PROJECT_API_
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_PERFORMANCE_REPORT:READ', 'PROJECT_PERFORMANCE_REPORT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_TRACK_CASE:READ+EDIT', 'PROJECT_TRACK_CASE');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE', 'PROJECT_API_DEFINITION');
@@ -386,8 +399,6 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_API_SCENARIO:READ+COPY', 'PROJECT_API_SCENARIO');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_API_DEFINITION:READ+RUN', 'PROJECT_API_DEFINITION');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+CREATE', 'PROJECT_ENVIRONMENT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_ENVIRONMENT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -420,8 +431,6 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_TRACK_REVIEW:READ+DELETE', 'PROJECT_TRACK_REVIEW');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_SCENARIO:READ+IMPORT_SCENARIO', 'PROJECT_API_SCENARIO');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_member', 'PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+DELETE', 'PROJECT_TRACK_PLAN');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -526,8 +535,6 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_DEFINITION:READ+EDIT_CASE', 'PROJECT_API_DEFINITION');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_DEFINITION:READ', 'PROJECT_API_DEFINITION');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_member', 'PROJECT_ENVIRONMENT:READ+CREATE', 'PROJECT_ENVIRONMENT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_SCENARIO:READ', 'PROJECT_API_SCENARIO');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)

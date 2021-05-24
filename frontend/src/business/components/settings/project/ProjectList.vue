@@ -57,6 +57,7 @@
               :edit-permission="['PROJECT_MANAGER:READ+EDIT']"
               :delete-permission="['PROJECT_MANAGER:READ+DELETE']"
               @editClick="edit(scope.row)"
+              :show-delete="false"
               @deleteClick="handleDelete(scope.row)">
               <template v-slot:behind>
                 <ms-table-operator-button

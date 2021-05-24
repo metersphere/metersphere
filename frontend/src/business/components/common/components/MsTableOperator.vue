@@ -1,9 +1,9 @@
 <template>
   <span>
     <slot name="front"></slot>
-    <ms-table-operator-button  v-permission="editPermission" :isTesterPermission="isTesterPermission" :tip="tip1" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
+    <ms-table-operator-button v-permission="editPermission" :tip="tip1" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
     <slot name="middle"></slot>
-    <ms-table-operator-button v-permission="deletePermission" :isTesterPermission="isTesterPermission" :tip="tip2" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
+    <ms-table-operator-button v-permission="deletePermission" v-if="showDelete" :tip="tip2" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
     <slot name="behind"></slot>
   </span>
 
@@ -41,6 +41,12 @@
           type: Array,
           default() {
             return [];
+          }
+        },
+        showDelete: {
+          type: Boolean,
+          default() {
+            return true;
           }
         }
       },
