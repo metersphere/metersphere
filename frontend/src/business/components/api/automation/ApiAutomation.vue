@@ -167,7 +167,10 @@
                   this.$refs.nodeTree.list();
                 }
                 let row = data.listObject[0];
-                row.tags = JSON.parse(row.tags);
+                if (row.tags.length > 0) {
+                  row.tags = JSON.parse(row.tags);
+                }
+
                 this.editScenario(row);
               }
             });
