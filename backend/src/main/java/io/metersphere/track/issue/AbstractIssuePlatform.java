@@ -1,10 +1,7 @@
 package io.metersphere.track.issue;
 
 import com.alibaba.fastjson.JSONArray;
-import io.metersphere.base.domain.IssuesWithBLOBs;
-import io.metersphere.base.domain.ServiceIntegration;
-import io.metersphere.base.domain.TestCaseIssues;
-import io.metersphere.base.domain.TestCaseIssuesExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
