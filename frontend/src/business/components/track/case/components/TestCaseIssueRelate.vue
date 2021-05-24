@@ -61,7 +61,7 @@
 
     </ms-table>
 
-    <test-plan-issue-edit :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
+    <test-plan-issue-edit :plan-id="planId" :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
     <IssueRelateList :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
   </div>
 </template>
@@ -82,7 +82,7 @@ export default {
       result: {},
     }
   },
-  props: ['caseId', 'readOnly'],
+  props: ['caseId', 'readOnly','planId'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;

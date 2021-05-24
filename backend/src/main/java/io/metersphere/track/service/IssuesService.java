@@ -52,6 +52,8 @@ public class IssuesService {
     private IntegrationService integrationService;
     @Resource
     private ProjectService projectService;
+    @Resource
+    private TestPlanService testPlanService;
     @Lazy
     @Resource
     private TestCaseService testCaseService;
@@ -302,16 +304,29 @@ public class IssuesService {
 //            list.addAll(issue);
 //        });
         List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
+
         List<String> ids = issues.stream()
                 .map(IssuesDao::getCreator)
                 .collect(Collectors.toList());
         Map<String, User> userMap = ServiceUtils.getUserMap(ids);
+        List<String> resourceIds = issues.stream()
+                .map(IssuesDao::getResourceId)
+                .collect(Collectors.toList());
+
+        List<TestPlan> testPlans = testPlanService.getTestPlanByIds(resourceIds);
+        Map<String, String> planMap = testPlans.stream()
+                .collect(Collectors.toMap(TestPlan::getId, TestPlan::getName));
+
         issues.forEach(item -> {
             User createUser = userMap.get(item.getCreator());
             if (createUser != null) {
                 item.setCreatorName(createUser.getName());
             }
+            if (planMap.get(item.getResourceId()) != null) {
+                item.setResourceName(planMap.get(item.getResourceId()));
+            }
         });
+
 //        Map<String, List<IssuesDao>> issueMap = getIssueMap(issues);
 //        Map<String, AbstractIssuePlatform> platformMap = getPlatformMap(request);
 //        issueMap.forEach((platformName, data) -> {

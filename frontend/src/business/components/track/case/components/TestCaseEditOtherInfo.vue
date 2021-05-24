@@ -49,6 +49,7 @@
 
     <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
       <test-case-issue-relate
+        :plan-id="planId"
         :read-only="readOnly && !(isTestPlan && isTesterPermission)"
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
@@ -97,7 +98,7 @@ import FormRichTextItem from "@/business/components/track/case/components/FormRi
 export default {
   name: "TestCaseEditOtherInfo",
   components: {FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],
   data() {
     return {
       result: {},

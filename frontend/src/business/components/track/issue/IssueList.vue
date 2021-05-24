@@ -46,6 +46,19 @@
           prop="creatorName">
         </ms-table-column>
 
+        <ms-table-column
+          :label="$t('test_track.issue.issue_resource')"
+          prop="resourceName">
+          <template v-slot="scope">
+            <el-link v-if="scope.row.resourceName" @click="$router.push('/track/plan/view/' + scope.row.resourceId)">
+              {{scope.row.resourceName}}
+            </el-link>
+            <span v-else>
+              --
+            </span>
+          </template>
+        </ms-table-column>
+
         <issue-description-table-item/>
 
       </ms-table>

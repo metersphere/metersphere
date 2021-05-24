@@ -7,7 +7,7 @@
     append-to-body
     ref="msEditDialog">
     <template v-slot:default="scope">
-      <issue-edit-detail :case-id="caseId" :is-plan="true" @refresh="$emit('refresh')" @close="handleClose" ref="issueEditDetail"/>
+      <issue-edit-detail :plan-id="planId" :case-id="caseId" :is-plan="true" @refresh="$emit('refresh')" @close="handleClose" ref="issueEditDetail"/>
     </template>
   </ms-edit-dialog>
 </template>
@@ -30,7 +30,7 @@ export default {
       return this.$store.state.projectId;
     }
   },
-  props: ['caseId'],
+  props: ['caseId', 'planId'],
   methods: {
     open(data) {
       this.visible = true;

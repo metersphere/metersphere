@@ -1541,6 +1541,7 @@ export default {
     },
     issue: {
       issue: "Issue",
+      issue_resource: "Issue source",
       create_issue: "Create Issue",
       add_issue: "Add Issue",
       issue_list: "Issue List",
