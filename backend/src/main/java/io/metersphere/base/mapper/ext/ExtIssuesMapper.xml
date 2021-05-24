@@ -24,7 +24,7 @@
         SELECT * FROM issues WHERE issues.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
     <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
-        select issues.id, issues.title, issues.project_id, issues.create_time, issues.update_time,
+        select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
         issues.description, issues.status, issues.platform, issues.custom_fields,
         issues.lastmodify
         from issues
