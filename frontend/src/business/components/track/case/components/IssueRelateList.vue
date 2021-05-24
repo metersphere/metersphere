@@ -18,7 +18,11 @@
 
       <ms-table-column
         :label="$t('test_track.issue.id')"
-        prop="id">
+        prop="id" v-if="false">
+      </ms-table-column>
+      <ms-table-column
+        :label="$t('test_track.issue.id')"
+        prop="num">
       </ms-table-column>
 
       <ms-table-column
