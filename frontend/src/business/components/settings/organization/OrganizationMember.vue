@@ -108,12 +108,12 @@
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
         <el-form-item label="用户组" prop="groupIds"
-                      :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
+                      :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
           <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>

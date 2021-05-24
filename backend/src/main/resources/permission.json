@@ -277,7 +277,37 @@
     {
       "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ",
       "name": "查询环境",
-      "resourceId": "WORKSPACE_PROJECT_MANAGER"
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE",
+      "name": "创建环境",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT",
+      "name": "编辑环境",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE",
+      "name": "删除环境",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY",
+      "name": "复制环境",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT",
+      "name": "导入环境",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT",
+      "name": "导出环境",
+      "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
     },
     {
       "id": "WORKSPACE_TEMPLATE:READ",
@@ -329,21 +359,21 @@
       "name": "查询项目",
       "resourceId": "PROJECT_MANAGER"
     },
-    {
-      "id": "PROJECT_MANAGER:READ+CREATE",
-      "name": "创建项目",
-      "resourceId": "PROJECT_MANAGER"
-    },
+//    {
+//      "id": "PROJECT_MANAGER:READ+CREATE",
+//      "name": "创建项目",
+//      "resourceId": "PROJECT_MANAGER"
+//    },
     {
       "id": "PROJECT_MANAGER:READ+EDIT",
       "name": "编辑项目",
       "resourceId": "PROJECT_MANAGER"
     },
-    {
-      "id": "PROJECT_MANAGER:READ+DELETE",
-      "name": "删除项目",
-      "resourceId": "PROJECT_MANAGER"
-    },
+//    {
+//      "id": "PROJECT_MANAGER:READ+DELETE",
+//      "name": "删除项目",
+//      "resourceId": "PROJECT_MANAGER"
+//    },
     {
       "id": "PROJECT_ENVIRONMENT:READ",
       "name": "查询环境",

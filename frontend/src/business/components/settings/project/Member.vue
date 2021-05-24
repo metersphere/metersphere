@@ -81,6 +81,7 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import EditMember from "@/business/components/settings/project/EditMember";
 import {GROUP_PROJECT, GROUP_WORKSPACE} from "@/common/js/constants";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "Member",
@@ -110,7 +111,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
   methods: {

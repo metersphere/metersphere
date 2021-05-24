@@ -22,9 +22,6 @@
         ON user_group.user_id = `user`.id
         WHERE user_group.source_id in
         (
-        SELECT id FROM workspace w
-        WHERE w.organization_id = #{orgMember.organizationId}
-        UNION
         SELECT #{orgMember.organizationId} AS id FROM dual
         )
         <if test="orgMember.name != null">

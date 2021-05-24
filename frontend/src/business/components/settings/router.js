@@ -121,7 +121,7 @@ export default {
     {
       path: 'wsenvlist',
       component: () => import('@/business/components/settings/workspace/WsEnvironmentList'),
-      meta: {workspace: true, title: 'api_test.environment.environment_config', permissions: ['PROJECT_ENVIRONMENT:READ']}
+      meta: {workspace: true, title: 'api_test.environment.environment_config', permissions: ['WORKSPACE_PROJECT_ENVIRONMENT:READ']}
     },
     {
       path: 'envlist',

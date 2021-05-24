@@ -14,12 +14,12 @@
         </ms-table-header>
       </template>
       <!-- 环境列表内容 -->
-      <el-table border :data="environments" @filter-change="filter"
+      <el-table border :data="environments"
                 @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table"
                 :height="screenHeight"
       >
         <el-table-column type="selection"></el-table-column>
-        <el-table-column :label="$t('commons.project')" width="250" :filters="projectFilters" column-key="projectId"
+        <el-table-column :label="$t('commons.project')" width="250" column-key="projectId"
                          show-overflow-tooltip>
           <template v-slot="scope">
             <span>{{ idNameMap.get(scope.row.projectId) }}</span>
@@ -110,7 +110,7 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
   import SearchList from "@/business/components/common/head/SearchList";
-  import {checkoutTestManagerOrTestUser, downloadFile} from "@/common/js/utils";
+  import {checkoutTestManagerOrTestUser, downloadFile, getCurrentProjectID} from "@/common/js/utils";
   import EnvironmentImport from "@/business/components/settings/project/EnvironmentImport";
 
   export default {
@@ -212,6 +212,7 @@
         if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
           this.$get("/project/listAll", (response) => {
             this.projectList = response.data;  //获取当前工作空间所拥有的项目,
+            this.projectList = this.projectList.filter(project => project.id === getCurrentProjectID());
             this.projectList.forEach(project => {
               this.idNameMap.set(project.id, project.name);
               this.projectIds.push(project.id);
@@ -297,9 +298,9 @@
       },
 
       //筛选指定项目下的环境
-      filter(filters) {
-        this.getEnvironments(filters.projectId)
-      },
+      // filter(filters) {
+      //   this.getEnvironments(filters.projectId)
+      // },
 
       //对话框取消按钮
       close() {
