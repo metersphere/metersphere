@@ -37,8 +37,7 @@
           <template v-slot:default="scope">
             <ms-table-operator :edit-permission="['WORKSPACE_USER:READ+EDIT']"
                                :delete-permission="['WORKSPACE_USER:READ+DELETE']"
-              :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"
-                               v-roles="['test_manager']"/>
+                               :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
