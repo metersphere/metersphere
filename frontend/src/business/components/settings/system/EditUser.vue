@@ -282,7 +282,9 @@ export default {
       })
     },
     groupType(idType) {
-      if (!idType) return;
+      if (!idType) {
+        return;
+      }
       return idType.split("+")[1];
     },
     getResource(idType, index) {

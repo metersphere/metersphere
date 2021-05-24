@@ -1,6 +1,5 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.base.domain.Group;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.dto.GroupDTO;
 import org.apache.ibatis.annotations.Param;

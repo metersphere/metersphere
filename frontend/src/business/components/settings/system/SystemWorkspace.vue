@@ -404,12 +404,12 @@
       editMember(row) {
         this.dialogWsMemberUpdateVisible = true;
         this.memberForm = Object.assign({}, row);
-        console.log(this.memberForm)
+        // console.log(this.memberForm)
         let groupIds = this.memberForm.groups.map(r => r.id);
         this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
           this.$set(this.memberForm, "allgroups", response.data);
         })
-        console.log(this.memberForm)
+        // console.log(this.memberForm)
         // 编辑时填充角色信息
         this.$set(this.memberForm, 'groupIds', groupIds);
         listenGoBack(this.handleClose);
