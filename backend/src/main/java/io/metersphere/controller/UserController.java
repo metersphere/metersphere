@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -351,8 +352,8 @@ public class UserController {
 
     @PostMapping("/import/{userId}")
 
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId) {
-        return userService.userImport(file, userId);
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
+        return userService.userImport(file, userId, request);
     }
 
     @PostMapping("/special/batchProcessUserInfo")
