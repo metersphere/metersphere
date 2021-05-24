@@ -830,7 +830,7 @@ public class ApiAutomationService {
     }
 
     private void checkEnv(RunScenarioRequest request, List<ApiScenarioWithBLOBs> apiScenarios) {
-        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO.name())) {
+        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name())) {
             StringBuilder builder = new StringBuilder();
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
                 try {
