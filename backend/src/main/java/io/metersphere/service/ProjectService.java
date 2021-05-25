@@ -219,6 +219,21 @@ public class ProjectService {
         return projectMapper.selectByPrimaryKey(id);
     }
 
+    public boolean useCustomNum(String projectId){
+        Project project = this.getProjectById(projectId);
+        if (project != null) {
+            Boolean customNum = project.getCustomNum();
+            // 未开启自定义ID
+            if (!customNum) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public List<Project> getByCaseTemplateId(String templateId) {
         ProjectExample example = new ProjectExample();
         example.createCriteria()

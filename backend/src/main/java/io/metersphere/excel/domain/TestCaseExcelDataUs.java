@@ -14,12 +14,12 @@ import javax.validation.constraints.Pattern;
 @ColumnWidth(15)
 public class TestCaseExcelDataUs extends TestCaseExcelData {
 
-    @ExcelProperty("ID")
-    @NotRequired
-    private Integer num;
+//    @ExcelProperty("ID")
+//    @NotRequired
+//    private Integer num;
 
     @ColumnWidth(50)
-    @ExcelProperty("Custom ID")
+    @ExcelProperty("ID")
     @NotRequired
     private String customNum;
 

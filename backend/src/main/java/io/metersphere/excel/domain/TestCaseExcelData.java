@@ -4,9 +4,14 @@ import com.alibaba.excel.annotation.ExcelIgnore;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Getter
 @Setter
 public class TestCaseExcelData {
+
+    private String id;
 
     @ExcelIgnore
     private Integer num;
@@ -32,4 +37,14 @@ public class TestCaseExcelData {
     private String stepResult;
     @ExcelIgnore
     private String stepModel;
+
+    public Set<String> getExcludeColumnFiledNames(boolean needNum){
+        Set<String> excludeColumnFiledNames = new HashSet<>();
+        if(!needNum){
+            excludeColumnFiledNames.add("num");
+        }
+        excludeColumnFiledNames.add("customNum");
+
+        return excludeColumnFiledNames;
+    }
 }

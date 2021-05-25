@@ -126,7 +126,7 @@
     </select>
 
     <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,test_case.num,test_case.custom_num
         from test_case
         <where>
             <if test="request.combine != null">
