@@ -76,6 +76,7 @@
       open() {
         this.$refs.baseRelevance.open();
         if (this.$refs.apiScenarioList) {
+          this.$refs.apiScenarioList.clear();
           this.$refs.apiScenarioList.search();
         }
       },
