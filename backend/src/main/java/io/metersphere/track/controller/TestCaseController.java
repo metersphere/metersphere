@@ -153,31 +153,31 @@ public class TestCaseController {
         return testCaseService.deleteTestCase(testCaseId);
     }
 
-    @PostMapping("/import/{projectId}/{userId}")
+    @PostMapping("/import/{projectId}/{userId}/{importType}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, HttpServletRequest request) {
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.testCaseImport(file, projectId, userId, request);
+        return testCaseService.testCaseImport(file, projectId, userId, importType,request);
     }
 
     @PostMapping("/importIgnoreError/{projectId}/{userId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_IMPORT)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
-    public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, HttpServletRequest request) {
+    public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.testCaseImportIgnoreError(file, projectId, userId, request);
+        return testCaseService.testCaseImportIgnoreError(file, projectId, userId,importType, request);
     }
 
-    @GetMapping("/export/template")
+    @GetMapping("/export/template/{projectId}/{importType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
-    public void testCaseTemplateExport(HttpServletResponse response) {
-        testCaseService.testCaseTemplateExport(response);
+    public void testCaseTemplateExport(@PathVariable String projectId,@PathVariable String importType,HttpServletResponse response) {
+        testCaseService.testCaseTemplateExport(projectId,importType,response);
     }
 
-    @GetMapping("/export/xmindTemplate")
+    @GetMapping("/export/xmindTemplate/{projectId}/{importType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
-    public void xmindTemplate(HttpServletResponse response) {
-        testCaseService.testCaseXmindTemplateExport(response);
+    public void xmindTemplate(@PathVariable String projectId,@PathVariable String importType,HttpServletResponse response) {
+        testCaseService.testCaseXmindTemplateExport(projectId,importType,response);
     }
 
     @PostMapping("/export/testcase")
