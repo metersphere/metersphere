@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :visible.sync="dialogVisible" width="50%"
-             :title="dialogTitle"
+             :title="title"
              :destroy-on-close="true">
     <el-form ref="form" :model="form" label-width="auto" size="small" :rules="rules">
       <el-row>
@@ -11,7 +11,7 @@
         </el-col>
         <el-col :span="11" :offset="2">
           <el-form-item label="所属类型" prop="type">
-            <el-select v-model="form.type" placeholder="请选择所属类型" style="width: 100%" @change="changeGroup">
+            <el-select v-model="form.type" placeholder="请选择所属类型" style="width: 100%" @change="changeGroup" :disabled="dialogType === 'edit'">
               <el-option label="系统" value="SYSTEM"></el-option>
               <el-option label="组织" value="ORGANIZATION"></el-option>
               <el-option label="工作空间" value="WORKSPACE"></el-option>
@@ -70,7 +70,8 @@ export default {
       dialogType: '',
       isSystem: false,
       show: true,
-      organizations: []
+      organizations: [],
+      title: '创建用户组'
     }
   },
   props: {
@@ -117,7 +118,8 @@ export default {
         this.dialogVisible = false;
       })
     },
-    open(row, type) {
+    open(row, type, title) {
+      this.title = title;
       this.isSystem = false;
       this.show = true;
       this.dialogVisible = true;

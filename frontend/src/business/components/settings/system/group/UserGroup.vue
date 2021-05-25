@@ -102,10 +102,14 @@ export default {
       });
     },
     create() {
-      this.$refs.editUserGroup.open({}, 'create');
+      this.$refs.editUserGroup.open({}, 'create', '创建用户组');
     },
     edit(row) {
-      this.$refs.editUserGroup.open(row, 'edit');
+      if (row.id === "admin") {
+        this.$warning("系统管理员不支持编辑！");
+        return ;
+      }
+      this.$refs.editUserGroup.open(row, 'edit', '编辑用户组');
     },
     _handleDel(row) {
       this.result = this.$get("/user/group/delete/" + row.id, () => {
@@ -114,6 +118,10 @@ export default {
       });
     },
     del(row) {
+      if (row.id === "admin") {
+        this.$warning("系统管理员不支持删除！");
+        return ;
+      }
       this.$refs.deleteConfirm.open(row);
     },
     copy(row) {
