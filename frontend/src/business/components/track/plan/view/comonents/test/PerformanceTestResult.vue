@@ -36,7 +36,7 @@
 
         <el-divider></el-divider>
 
-        <el-tabs v-model="active" type="border-card" :stretch="true">
+        <el-tabs v-model="active">
           <el-tab-pane :label="$t('report.test_overview')">
             <test-overview :report="report"/>
           </el-tab-pane>

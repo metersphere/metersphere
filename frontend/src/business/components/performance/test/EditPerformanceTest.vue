@@ -33,7 +33,7 @@
         </el-row>
 
 
-        <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
+        <el-tabs class="testplan-config" v-model="active">
           <el-tab-pane :label="$t('load_test.basic_config')">
             <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
                                       @tgTypeChange="tgTypeChange"

@@ -77,7 +77,7 @@
 
         <el-divider/>
         <div ref="resume">
-          <el-tabs v-model="active" type="border-card" :stretch="true">
+          <el-tabs v-model="active">
             <el-tab-pane :label="$t('load_test.pressure_config')">
               <ms-performance-pressure-config :is-read-only="true" :report="report"/>
             </el-tab-pane>

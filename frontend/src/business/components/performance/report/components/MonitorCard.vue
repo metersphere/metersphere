@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-tabs type="border-card" :stretch="true">
+    <el-tabs>
       <el-tab-pane v-for="(item,index) in instances" :key="index" :label="item" class="logging-content">
         <el-row>
           <el-col :span="12">
