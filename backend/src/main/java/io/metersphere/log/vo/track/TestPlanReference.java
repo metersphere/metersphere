@@ -34,9 +34,9 @@ public class TestPlanReference {
         issuesColumns.put("platform","平台");
         issuesColumns.put("creator","创建人");
         issuesColumns.put("reporter","处理人");
-        issuesColumns.put("custom_fields","自定义字段");
+        issuesColumns.put("customFields","自定义字段");
         // 深度处理字段
-        issuesColumns.put("ms-dff-col", "custom_fields");
+        issuesColumns.put("ms-dff-col", "customFields");
 
     }
 }

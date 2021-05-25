@@ -503,7 +503,7 @@ public class UserService {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         List<Project> projects = projectMapper.selectByExample(projectExample);
-        
+
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andUserIdEqualTo(useId);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
@@ -1086,7 +1086,7 @@ public class UserService {
     }
 
     private String getRoles(String userId) {
-        List<Map<String, Object>> maps = userRoleService.getUserRole(userId);
+        List<Map<String, Object>> maps = userRoleService.getUserGroup(userId);
         List<String> colNames = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(maps)) {
             for (Map<String, Object> map : maps) {
@@ -1105,25 +1105,9 @@ public class UserService {
                     names = workspaces.stream().map(Workspace::getName).collect(Collectors.toList());
                 }
                 StringBuilder nameBuff = new StringBuilder();
-                switch (id) {
-                    case "org_member":
-                        nameBuff.append("组织成员：").append(names);
-                        break;
-                    case "org_admin":
-                        nameBuff.append("组织管理员：").append(names);
-                        break;
-                    case "test_manager":
-                        nameBuff.append("测试管理员：").append(names);
-                        break;
-                    case "test_viewer":
-                        nameBuff.append("只读用户：").append(names);
-                        break;
-                    case "admin":
-                        nameBuff.append("系统管理员");
-                        break;
-                    case "test_user":
-                        nameBuff.append("测试成员：").append(names);
-                        break;
+                Group group = groupMapper.selectByPrimaryKey(id);
+                if (group != null && CollectionUtils.isNotEmpty(names)) {
+                    nameBuff.append(group.getName()).append(names);
                 }
                 colNames.add(nameBuff.toString());
             }
@@ -1149,6 +1133,15 @@ public class UserService {
         User user = userMapper.selectByPrimaryKey(request.getId());
         if (user != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.userColumns);
+            for (DetailColumn column : columns) {
+                if (column.getColumnName().equals("status") && column.getOriginalValue() != null && StringUtils.isNotEmpty(column.getOriginalValue().toString())) {
+                    if (column.getOriginalValue().equals("0")) {
+                        column.setOriginalValue("未激活");
+                    } else {
+                        column.setOriginalValue("已激活");
+                    }
+                }
+            }
             DetailColumn detailColumn = new DetailColumn();
             detailColumn.setId(UUID.randomUUID().toString());
             detailColumn.setColumnTitle("角色权限");

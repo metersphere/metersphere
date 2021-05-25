@@ -6,13 +6,15 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrganizationRequest;
-import io.metersphere.dto.*;
+import io.metersphere.dto.OrganizationMemberDTO;
+import io.metersphere.dto.OrganizationResource;
+import io.metersphere.dto.UserDTO;
+import io.metersphere.dto.UserGroupHelpDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -259,12 +261,15 @@ public class OrganizationService {
         String orgId = memberDTO.getOrganizationId();
         String userId = memberDTO.getId();
         // 已有角色
-        List<Role> memberRoles = extUserRoleMapper.getOrganizationMemberRoles(orgId, userId);
+        List<Group> memberGroups = extUserGroupMapper.getOrganizationMemberGroups(orgId, userId);
         Organization user = organizationMapper.selectByPrimaryKey(orgId);
         if (user != null) {
-            List<String> names = memberRoles.stream().map(Role::getName).collect(Collectors.toList());
-            List<String> ids = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), null);
+            List<String> names = memberGroups.stream().map(Group::getName).collect(Collectors.toList());
+            List<String> ids = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.organizationColumns);
+            DetailColumn column = new DetailColumn("成员角色", "userRoles", String.join(",", names), null);
+            columns.add(column);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;

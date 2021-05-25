@@ -64,7 +64,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/member/update")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#memberDTO)", msClass = OrganizationService.class)
+    @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE,beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = OrganizationService.class)
     public void updateOrgMember(@RequestBody OrganizationMemberDTO memberDTO) {
         organizationService.updateOrgMember(memberDTO);
     }
