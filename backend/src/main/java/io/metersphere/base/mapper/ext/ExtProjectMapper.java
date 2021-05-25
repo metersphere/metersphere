@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.base.domain.Project;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
 import org.apache.ibatis.annotations.Param;
@@ -13,4 +14,6 @@ public interface ExtProjectMapper {
     List<String> getProjectIdByWorkspaceId(String workspaceId);
 
     int removeIssuePlatform(@Param("platform") String platform, @Param("orgId") String orgId);
+
+    List<ProjectDTO> getSwitchProject(@Param("proRequest") ProjectRequest request);
 }

@@ -90,6 +90,18 @@ public class ProjectController {
         return PageUtils.setPageInfo(page, projectService.getProjectList(request));
     }
 
+    /**
+     * 切换项目
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/related")
+    public List<ProjectDTO> getSwitchProject(@RequestBody ProjectRequest request) {
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return projectService.getSwitchProject(request);
+    }
+
+
     @GetMapping("/delete/{projectId}")
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
     public void deleteProject(@PathVariable(value = "projectId") String projectId) {
