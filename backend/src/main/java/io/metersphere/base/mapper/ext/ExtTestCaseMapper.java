@@ -90,4 +90,6 @@ public interface ExtTestCaseMapper {
     List<TestCaseDTO> getTestCaseByIds(@Param("ids")List<String> ids);
 
     void updateTestCaseCustomNumByProjectId(@Param("projectId") String projectId);
+
+    List<String> selectRelateIdsByQuery(@Param("request") BaseQueryRequest query);
 }

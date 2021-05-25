@@ -1,7 +1,8 @@
 import {post} from "@/common/js/ajax";
-import {getPageDate} from "@/network/network-utils";
+import {getPageDate} from "@/common/js/tableUtils";
 
-export function buildIssues(data, page) {
+export function buildIssues(page) {
+  let data = page.data;
   for (let i = 0; i < data.length; i++) {
     if (data[i]) {
       if (data[i].platform !== 'Local') {
@@ -9,13 +10,12 @@ export function buildIssues(data, page) {
       }
     }
   }
-  page.data = data;
 }
 
 export function getIssues(page) {
   return post('issues/list/' + page.currentPage + '/' + page.pageSize, page.condition, (response) => {
-    let data = getPageDate(response, page);
-    buildIssues(data, page);
+    getPageDate(response, page);
+    buildIssues(page);
   });
 }
 
@@ -44,8 +44,8 @@ export function testCaseIssueRelate(param, success) {
 
 export function getRelateIssues(page) {
   return post('issues/list/relate/' + page.currentPage + '/' + page.pageSize, page.condition, (response) => {
-    let data = getPageDate(response, page);
-    buildIssues(data, page);
+    getPageDate(response, page);
+    buildIssues(page);
   });
 }
 

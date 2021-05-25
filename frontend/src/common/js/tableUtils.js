@@ -205,3 +205,13 @@ export function getPageInfo() {
     condition: {},
   }
 }
+
+export function buildPagePath(path, page) {
+  return path + "/" + page.currentPage + "/" + page.pageSize;
+}
+
+export function getPageDate(response, page) {
+  let data = response.data;
+  page.total = data.itemCount;
+  page.data = data.listObject;
+}
