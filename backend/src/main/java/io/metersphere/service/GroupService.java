@@ -107,6 +107,9 @@ public class GroupService {
     }
 
     public void editGroup(EditGroupRequest request) {
+        if (StringUtils.equals(request.getId(), "admin")) {
+            MSException.throwException("系统管理员无法编辑！");
+        }
         checkGroupExist(request);
         Group group = new Group();
         request.setScopeId(null);
@@ -116,6 +119,9 @@ public class GroupService {
     }
 
     public void deleteGroup(String id) {
+        if (StringUtils.equals(id, "admin")) {
+            MSException.throwException("系统管理员无法删除！");
+        }
         groupMapper.deleteByPrimaryKey(id);
         UserGroupPermissionExample example = new UserGroupPermissionExample();
         example.createCriteria().andGroupIdEqualTo(id);
