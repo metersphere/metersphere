@@ -47,7 +47,7 @@ public class IssueTemplateService extends TemplateBaseService {
     @Resource
     ProjectService projectService;
 
-    public void add(UpdateIssueTemplateRequest request) {
+    public String add(UpdateIssueTemplateRequest request) {
         checkExist(request);
         IssueTemplate template = new IssueTemplate();
         BeanUtils.copyBean(template, request);
@@ -63,6 +63,7 @@ public class IssueTemplateService extends TemplateBaseService {
         issueTemplateMapper.insert(template);
         customFieldTemplateService.create(request.getCustomFields(), template.getId(),
                 TemplateConstants.FieldTemplateScene.ISSUE.name());
+        return template.getId();
     }
 
     public List<IssueTemplate> list(BaseQueryRequest request) {
@@ -78,8 +79,10 @@ public class IssueTemplateService extends TemplateBaseService {
 
     public void update(UpdateIssueTemplateRequest request) {
         if (request.getGlobal() != null && request.getGlobal()) {
+            String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
-            add(request);
+            String id = add(request);
+            projectService.updateIssueTemplate(originId, id);
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
