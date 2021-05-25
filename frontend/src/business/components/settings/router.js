@@ -131,7 +131,7 @@ export default {
     {
       path: 'operatingLog',
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
-      meta: {system: true, title: 'operating_log.title'}
+      meta: {system: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
     }
 
   ]
