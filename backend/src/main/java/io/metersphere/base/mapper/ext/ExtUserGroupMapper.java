@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.User;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
+import io.metersphere.dto.RelatedSource;
 import io.metersphere.dto.UserGroupDTO;
 import io.metersphere.dto.UserGroupHelpDTO;
 import org.apache.ibatis.annotations.Param;
@@ -27,4 +28,6 @@ public interface ExtUserGroupMapper {
     List<User> getProjectMemberList(@Param("request") QueryMemberRequest request);
 
     List<Group> getProjectMemberGroups(@Param("projectId") String projectId,@Param("userId") String userId);
+
+    List<RelatedSource> getRelatedSource(@Param("userId") String userId);
 }

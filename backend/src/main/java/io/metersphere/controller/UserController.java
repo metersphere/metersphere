@@ -52,7 +52,6 @@ public class UserController {
     private CheckPermissionService checkPermissionService;
 
     @PostMapping("/special/add")
-    @RequiresRoles(RoleConstants.ADMIN)
     @MsAuditLog(module = "system_user", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
     public UserDTO insertUser(@RequestBody UserRequest user) {
         return userService.insert(user);

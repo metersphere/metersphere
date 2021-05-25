@@ -121,18 +121,20 @@ export default {
     initTableData() {
       let param = {};
       param.projectId = this.projectId;
-      this.result = this.$post('/user/project/member/list/' + this.currentPage + "/" + this.pageSize, param, response => {
-        let data = response.data;
-        this.tableData = data.listObject;
-        let url = "/user/group/list/project/" + this.projectId;
-        for (let i = 0; i < this.tableData.length; i++) {
-          this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
-            let groups = response.data;
-            this.$set(this.tableData[i], "groups", groups);
-          })
-        }
-        this.total = data.itemCount;
-      })
+      if (this.projectId) {
+        this.result = this.$post('/user/project/member/list/' + this.currentPage + "/" + this.pageSize, param, response => {
+          let data = response.data;
+          this.tableData = data.listObject;
+          let url = "/user/group/list/project/" + this.projectId;
+          for (let i = 0; i < this.tableData.length; i++) {
+            this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
+              let groups = response.data;
+              this.$set(this.tableData[i], "groups", groups);
+            })
+          }
+          this.total = data.itemCount;
+        });
+      }
     },
     edit(row) {
       this.updateVisible = true;

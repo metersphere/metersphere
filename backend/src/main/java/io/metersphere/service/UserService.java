@@ -283,9 +283,9 @@ public class UserService {
         }
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
-        UserRoleDTO userRole = getUserRole(userId);
-        userDTO.setUserRoles(Optional.ofNullable(userRole.getUserRoles()).orElse(new ArrayList<>()));
-        userDTO.setRoles(Optional.ofNullable(userRole.getRoles()).orElse(new ArrayList<>()));
+//        UserRoleDTO userRole = getUserRole(userId);
+//        userDTO.setUserRoles(Optional.ofNullable(userRole.getUserRoles()).orElse(new ArrayList<>()));
+//        userDTO.setRoles(Optional.ofNullable(userRole.getRoles()).orElse(new ArrayList<>()));
         UserGroupPermissionDTO dto = getUserGroupPermission(userId);
         userDTO.setUserGroups(dto.getUserGroups());
         userDTO.setGroups(dto.getGroups());
@@ -761,31 +761,32 @@ public class UserService {
             subject.login(token);
             if (subject.isAuthenticated()) {
                 UserDTO user = (UserDTO) subject.getSession().getAttribute(ATTR_USER);
+                autoSwitch(user);
                 // 自动选中组织，工作空间
-                if (StringUtils.isEmpty(user.getLastOrganizationId())) {
-                    List<String> orgIds = user.getGroups()
-                            .stream()
-                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
-                            .map(Group::getId)
-                            .collect(Collectors.toList());
-                    List<String> testIds = user.getGroups()
-                            .stream()
-                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
-                            .map(Group::getId)
-                            .collect(Collectors.toList());
-                    List<UserGroup> userGroups = user.getUserGroups();
-                    List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
-                            .collect(Collectors.toList());
-                    List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
-                            .collect(Collectors.toList());
-                    if (test.size() > 0) {
-                        String wsId = test.get(0).getSourceId();
-                        switchUserRole("workspace", wsId);
-                    } else if (org.size() > 0) {
-                        String orgId = org.get(0).getSourceId();
-                        switchUserRole("organization", orgId);
-                    }
-                }
+//                if (StringUtils.isEmpty(user.getLastOrganizationId())) {
+//                    List<String> orgIds = user.getGroups()
+//                            .stream()
+//                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
+//                            .map(Group::getId)
+//                            .collect(Collectors.toList());
+//                    List<String> testIds = user.getGroups()
+//                            .stream()
+//                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
+//                            .map(Group::getId)
+//                            .collect(Collectors.toList());
+//                    List<UserGroup> userGroups = user.getUserGroups();
+//                    List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+//                            .collect(Collectors.toList());
+//                    List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
+//                            .collect(Collectors.toList());
+//                    if (test.size() > 0) {
+//                        String wsId = test.get(0).getSourceId();
+//                        switchUserRole("workspace", wsId);
+//                    } else if (org.size() > 0) {
+//                        String orgId = org.get(0).getSourceId();
+//                        switchUserRole("organization", orgId);
+//                    }
+//                }
                 // 返回 userDTO
                 return ResultHolder.success(subject.getSession().getAttribute("user"));
             } else {
@@ -803,6 +804,56 @@ public class UserService {
             throw new AuthenticationException(e.getMessage());
         } catch (UnauthorizedException e) {
             throw new UnauthorizedException(Translator.get("not_authorized") + e.getMessage());
+        }
+    }
+
+    private void autoSwitch(UserDTO user) {
+        if (StringUtils.isEmpty(user.getLastProjectId())) {
+            List<UserGroup> userGroups = user.getUserGroups();
+            List<String> projectGroupIds = user.getGroups()
+                    .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
+                    .map(Group::getId)
+                    .collect(Collectors.toList());
+            List<UserGroup> project = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isEmpty(project)) {
+                // 项目用户组为空切换工作空间
+                List<String> orgIds = user.getGroups()
+                        .stream()
+                        .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
+                        .map(Group::getId)
+                        .collect(Collectors.toList());
+                List<String> testIds = user.getGroups()
+                        .stream()
+                        .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
+                        .map(Group::getId)
+                        .collect(Collectors.toList());
+                List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+                        .collect(Collectors.toList());
+                List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
+                        .collect(Collectors.toList());
+                if (test.size() > 0) {
+                    String wsId = test.get(0).getSourceId();
+                    switchUserRole("workspace", wsId);
+                } else if (org.size() > 0) {
+                    String orgId = org.get(0).getSourceId();
+                    switchUserRole("organization", orgId);
+                }
+            } else {
+                UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
+                        .collect(Collectors.toList()).get(0);
+                String projectId = userGroup.getSourceId();
+                Project p = projectMapper.selectByPrimaryKey(projectId);
+                String wsId = p.getWorkspaceId();
+                Workspace workspace = workspaceMapper.selectByPrimaryKey(wsId);
+                String orgId = workspace.getOrganizationId();
+                user.setId(user.getId());
+                user.setLastProjectId(projectId);
+                user.setLastWorkspaceId(wsId);
+                user.setLastOrganizationId(orgId);
+                updateUser(user);
+                SecurityUtils.getSubject().getSession().setAttribute(ATTR_USER, user);
+            }
         }
     }
 

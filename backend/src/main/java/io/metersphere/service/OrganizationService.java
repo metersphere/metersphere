@@ -11,15 +11,13 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrganizationRequest;
-import io.metersphere.dto.OrganizationMemberDTO;
-import io.metersphere.dto.OrganizationResource;
-import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserGroupHelpDTO;
+import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.system.SystemReference;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -127,21 +125,17 @@ public class OrganizationService {
     }
 
     public List<Organization> getOrganizationListByUserId(String userId) {
-        List<UserGroupHelpDTO> userGroupHelpDTOList = extUserGroupMapper.getUserRoleHelpList(userId);
-        List<String> list = new ArrayList<>();
-        userGroupHelpDTOList.forEach(r -> {
-            if (StringUtils.isEmpty(r.getParentId())) {
-                list.add(r.getSourceId());
-            } else {
-                list.add(r.getParentId());
-            }
-        });
-
-        // ignore list size is 0
-        list.add("no_such_id");
-
+        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(userId);
+        List<String> organizationIds = relatedSource
+                .stream()
+                .map(RelatedSource::getOrganizationId)
+                .distinct()
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(organizationIds)) {
+            return new ArrayList<>();
+        }
         OrganizationExample organizationExample = new OrganizationExample();
-        organizationExample.createCriteria().andIdIn(list);
+        organizationExample.createCriteria().andIdIn(organizationIds);
         return organizationMapper.selectByExample(organizationExample);
     }
 
