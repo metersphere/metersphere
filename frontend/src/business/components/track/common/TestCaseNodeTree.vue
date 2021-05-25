@@ -59,15 +59,20 @@ export default {
       operators: [
         {
           label: this.$t('test_track.case.create'),
-          callback: this.addTestCase
+          callback: this.addTestCase,
+          permissions: ['PROJECT_TRACK_CASE:READ+CREATE']
         },
         {
           label: this.$t('api_test.api_import.label'),
-          callback: this.handleImport
+          callback: this.handleImport,
+          permissions: ['PROJECT_TRACK_CASE:READ+IMPORT']
         },
         {
           label: this.$t('api_test.export_config'),
-          callback: () => {this.$emit('exportTestCase')}
+          callback: () => {
+            this.$emit('exportTestCase');
+          },
+          permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
         }
       ]
     };

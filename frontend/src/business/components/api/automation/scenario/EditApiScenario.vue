@@ -5,9 +5,10 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="currentScenario.id">{{$t('operating_log.change_history')}}</el-link>
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{$t('operating_log.change_history')}}</el-link>
 
-          <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario" title="ctrl + s" v-tester>
+          <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
+                     title="ctrl + s">
             {{ $t('commons.save') }}
           </el-button>
         </div>
@@ -119,23 +120,28 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
                 </el-col>
-                <el-col :span="3" class="ms-col-one ms-font" v-tester>
-                  <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
+                <el-col :span="3" class="ms-col-one ms-font">
+                  <el-link class="head" @click="showScenarioParameters">{{ $t('api_test.automation.scenario_total') }}
+                  </el-link>
                   ：{{ getVariableSize() }}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
-                               :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover" v-tester/>
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
+                               :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
+                               :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
+                               :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
-                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug" v-tester>{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
+                             @click="runDebug">{{ $t('api_test.request.debug') }}
+                  </el-button>
                   <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">
                     <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh" v-prevent-re-click @click="getApiScenario"></el-button>
                   </el-tooltip>
-                  <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen" v-tester/>
+                  <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
                 </el-col>
               </el-row>
             </div>
@@ -156,7 +162,7 @@
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
-                       <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
+                       <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
                                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
                     </span>
@@ -165,7 +171,7 @@
           </el-col>
           <!-- 按钮列表 -->
           <el-col :span="3">
-            <div @click="fabClick" v-tester>
+            <div @click="fabClick">
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                        :click-auto-close="false" v-outside-click="outsideClick">
                 <fab-item
@@ -499,7 +505,7 @@
       },
     },
     methods: {
-      openHis(){
+      openHis() {
         this.$refs.changeHistory.open(this.currentScenario.id);
       },
       setModule(id, data) {

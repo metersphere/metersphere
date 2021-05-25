@@ -90,4 +90,10 @@ export const API_SCENARIO_FILTERS = {
   ],
 }
 
-
+export const USER_GROUP_SCOPE = {
+  // todo i18n
+  'SYSTEM': '系统',
+  'ORGANIZATION': '组织',
+  'WORKSPACE': '工作空间',
+  'PROJECT': '项目'
+}

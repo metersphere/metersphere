@@ -6,6 +6,7 @@ import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -23,6 +24,7 @@ import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -36,7 +38,6 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "performance")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class PerformanceTestController {
     @Resource
     private PerformanceTestService performanceTestService;
@@ -52,12 +53,14 @@ public class PerformanceTestController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.list(request));
     }
 
     @GetMapping("/list/{projectId}")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public List<LoadTest> list(@PathVariable String projectId) {
         checkPermissionService.checkProjectOwner(projectId);
         return performanceTestService.getLoadTestByProjectId(projectId);
@@ -65,6 +68,7 @@ public class PerformanceTestController {
 
 
     @GetMapping("/state/get/{testId}")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public LoadTest listByTestId(@PathVariable String testId) {
         checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadTestBytestId(testId);
@@ -72,6 +76,7 @@ public class PerformanceTestController {
 
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "performance_test", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,
             @RequestPart(value = "file") List<MultipartFile> files
@@ -83,6 +88,7 @@ public class PerformanceTestController {
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "performance_test", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT)
     public String edit(
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
@@ -131,6 +137,7 @@ public class PerformanceTestController {
 
     @PostMapping("/delete")
     @MsAuditLog(module = "performance_test", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE)
     public void delete(@RequestBody DeleteTestPlanRequest request) {
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         performanceTestService.delete(request);
@@ -138,6 +145,7 @@ public class PerformanceTestController {
 
     @PostMapping("/run")
     @MsAuditLog(module = "performance_test", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
     public String run(@RequestBody RunTestPlanRequest request) {
         return performanceTestService.run(request);
     }
@@ -179,21 +187,25 @@ public class PerformanceTestController {
 
     @PostMapping(value = "/copy")
     @MsAuditLog(module = "performance_test", type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_COPY)
     public void copy(@RequestBody SaveTestPlanRequest request) {
         performanceTestService.copy(request);
     }
 
     @PostMapping(value = "/schedule/create")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE)
     public void createSchedule(@RequestBody ScheduleRequest request) {
         performanceTestService.createSchedule(request);
     }
 
     @PostMapping(value = "/schedule/update")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_SCHEDULE)
     public void updateSchedule(@RequestBody Schedule request) {
         performanceTestService.updateSchedule(request);
     }
 
     @PostMapping("/list/schedule/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public List<ScheduleDao> listSchedule(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryScheduleRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return performanceTestService.listSchedule(request);

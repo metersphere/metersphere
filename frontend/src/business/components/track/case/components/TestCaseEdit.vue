@@ -6,7 +6,7 @@
         <!--操作按钮-->
         <div class="ms-opt-btn">
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">{{$t('operating_log.change_history')}}</el-link>
-          <ms-table-button v-if="type!='add'" :is-tester-permission="true"
+          <ms-table-button v-if="type!='add'"
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.save')"

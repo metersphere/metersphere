@@ -19,7 +19,7 @@ import java.util.List;
 
 @RequestMapping("custom/field")
 @RestController
-@RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+
 public class CustomFieldController {
 
     @Resource

@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition"
+      <ms-table-header v-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
                        :create-tip="$t('test_track.review.create_review')"
                        :title="$t('test_track.review.test_review')"/>
@@ -94,7 +94,8 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
+          <ms-table-operator v-permission="['PROJECT_TRACK_REVIEW:READ+EDIT', 'PROJECT_TRACK_REVIEW:READ+DELETE']"
+                             @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
           </ms-table-operator>
         </template>
@@ -118,14 +119,11 @@ import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
-import {
-  checkoutTestManagerOrTestUser,
-  getCurrentWorkspaceId
-} from "../../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
-import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
+import {TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
@@ -162,7 +160,7 @@ export default {
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
       ],
-    }
+    };
   },
   watch: {
     '$route'(to) {
@@ -177,12 +175,12 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return this.$store.state.projectId;
     },
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      this.$refs.headerCustom.open(this.tableLabel);
     },
 
     initTableData() {
@@ -200,7 +198,7 @@ export default {
           if (item.tags && item.tags.length > 0) {
             item.tags = JSON.parse(item.tags);
           }
-        })
+        });
         for (let i = 0; i < this.tableData.length; i++) {
           let path = "/test/case/review/project";
           this.$post(path, {id: this.tableData[i].id}, res => {
@@ -214,7 +212,7 @@ export default {
             let userIds = arr.map(data => data.id);
             this.$set(this.tableData[i], "reviewer", reviewer);
             this.$set(this.tableData[i], "userIds", userIds);
-          })
+          });
         }
       });
       getLabel(this, TEST_CASE_REVIEW_LIST);
@@ -254,7 +252,7 @@ export default {
       this.initTableData();
     },
   }
-}
+};
 </script>
 
 <style scoped>

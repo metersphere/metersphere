@@ -1,10 +1,11 @@
 package io.metersphere.log.utils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.log.utils.dff.Diff;
@@ -57,12 +58,16 @@ public class ReflexObjectUtil {
                         if (dffColumns.contains(f.getName())) {
                             column.setDepthDff(true);
                             if (val != null) {
-                                JSONObject object = JSONObject.parseObject(val.toString());
-                                String pretty = JSON.toJSONString(object,
-                                        SerializerFeature.PrettyFormat,
-                                        SerializerFeature.WriteMapNullValue,
-                                        SerializerFeature.WriteDateUseDateFormat);
-                                column.setOriginalValue(pretty);
+                                try {
+                                    if (f.getName().equals("loadConfiguration")) {
+                                        val = "{\"" + "压力配置" + "\":" + val.toString() + "}";
+                                    }
+                                    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                                    JsonObject jsonObject = gson.fromJson(val.toString(), JsonObject.class);
+                                    column.setOriginalValue(gson.toJson(jsonObject));
+                                } catch (Exception e) {
+
+                                }
                             }
                         }
                         columnList.add(column);

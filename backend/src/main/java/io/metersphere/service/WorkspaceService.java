@@ -2,11 +2,9 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ProjectMapper;
-import io.metersphere.base.mapper.UserMapper;
-import io.metersphere.base.mapper.UserRoleMapper;
-import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
 import io.metersphere.commons.constants.RoleConstants;
@@ -55,6 +53,10 @@ public class WorkspaceService {
     private ProjectMapper projectMapper;
     @Resource
     private UserService userService;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+    @Resource
+    private ExtUserGroupMapper extUserGroupMapper;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -124,46 +126,48 @@ public class WorkspaceService {
      * ORG_ADMIN需要检查是否有操作此工作空间的权限
      */
     public void checkWorkspaceOwnerByOrgAdmin(String workspaceId) {
-        checkWorkspaceIsExist(workspaceId);
-        WorkspaceExample example = new WorkspaceExample();
-        SessionUser sessionUser = SessionUtils.getUser();
-        UserDTO user = userService.getUserDTO(sessionUser.getId());
-        List<String> orgIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        example.createCriteria()
-                .andOrganizationIdIn(orgIds)
-                .andIdEqualTo(workspaceId);
-        if (workspaceMapper.countByExample(example) == 0) {
-            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-        }
+        // todo
+//        checkWorkspaceIsExist(workspaceId);
+//        WorkspaceExample example = new WorkspaceExample();
+//        SessionUser sessionUser = SessionUtils.getUser();
+//        UserDTO user = userService.getUserDTO(sessionUser.getId());
+//        List<String> orgIds = user.getUserRoles().stream()
+//                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+//                .map(UserRole::getSourceId)
+//                .collect(Collectors.toList());
+//        example.createCriteria()
+//                .andOrganizationIdIn(orgIds)
+//                .andIdEqualTo(workspaceId);
+//        if (workspaceMapper.countByExample(example) == 0) {
+//            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
+//        }
     }
 
     public void checkWorkspaceOwner(String workspaceId) {
-        checkWorkspaceIsExist(workspaceId);
-        int size = 0;
-        WorkspaceExample example = new WorkspaceExample();
-        SessionUser sessionUser = SessionUtils.getUser();
-        UserDTO user = userService.getUserDTO(sessionUser.getId());
-        List<String> orgIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        if (!CollectionUtils.isEmpty(orgIds)) {
-            example.createCriteria()
-                    .andOrganizationIdIn(orgIds)
-                    .andIdEqualTo(workspaceId);
-            size = (int) workspaceMapper.countByExample(example);
-        }
-        List<String> wsIds = user.getUserRoles().stream()
-                .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
-                .map(UserRole::getSourceId)
-                .collect(Collectors.toList());
-        boolean contains = wsIds.contains(workspaceId);
-        if (size == 0 && !contains) {
-            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
-        }
+        // todo
+//        checkWorkspaceIsExist(workspaceId);
+//        int size = 0;
+//        WorkspaceExample example = new WorkspaceExample();
+//        SessionUser sessionUser = SessionUtils.getUser();
+//        UserDTO user = userService.getUserDTO(sessionUser.getId());
+//        List<String> orgIds = user.getUserRoles().stream()
+//                .filter(ur -> RoleConstants.ORG_ADMIN.equals(ur.getRoleId()))
+//                .map(UserRole::getSourceId)
+//                .collect(Collectors.toList());
+//        if (!CollectionUtils.isEmpty(orgIds)) {
+//            example.createCriteria()
+//                    .andOrganizationIdIn(orgIds)
+//                    .andIdEqualTo(workspaceId);
+//            size = (int) workspaceMapper.countByExample(example);
+//        }
+//        List<String> wsIds = user.getUserRoles().stream()
+//                .filter(ur -> RoleConstants.TEST_MANAGER.equals(ur.getRoleId()))
+//                .map(UserRole::getSourceId)
+//                .collect(Collectors.toList());
+//        boolean contains = wsIds.contains(workspaceId);
+//        if (size == 0 && !contains) {
+//            MSException.throwException(Translator.get("workspace_does_not_belong_to_user"));
+//        }
     }
 
     public void checkWorkspaceIsExist(String workspaceId) {
@@ -192,13 +196,13 @@ public class WorkspaceService {
         WorkspaceExample workspaceExample = new WorkspaceExample();
         workspaceExample.createCriteria().andOrganizationIdEqualTo(orgId);
         List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(useId);
-        List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(useId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
         List<Workspace> resultWorkspaceList = new ArrayList<>();
-        userRoles.forEach(userRole -> {
+        userGroups.forEach(userGroup -> {
             workspaces.forEach(workspace -> {
-                if (StringUtils.equals(userRole.getSourceId(), workspace.getId())) {
+                if (StringUtils.equals(userGroup.getSourceId(), workspace.getId())) {
                     if (!resultWorkspaceList.contains(workspace)) {
                         resultWorkspaceList.add(workspace);
                     }
@@ -209,37 +213,37 @@ public class WorkspaceService {
     }
 
     public List<String> getWorkspaceIdsOrgId(String orgId) {
-       return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
+        return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
         String workspaceId = memberDTO.getWorkspaceId();
         String userId = memberDTO.getId();
         // 已有角色
-        List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
+        List<Group> memberGroups = extUserGroupMapper.getWorkspaceMemberGroups(workspaceId, userId);
         // 修改后的角色
-        List<String> roles = memberDTO.getRoleIds();
-        List<String> allRoleIds = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
+        List<String> groups = memberDTO.getGroupIds();
+        List<String> allGroupIds = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
         // 更新用户时添加了角色
-        for (int i = 0; i < roles.size(); i++) {
-            if (checkSourceRole(workspaceId, userId, roles.get(i)) == 0) {
-                UserRole userRole = new UserRole();
-                userRole.setId(UUID.randomUUID().toString());
-                userRole.setUserId(userId);
-                userRole.setRoleId(roles.get(i));
-                userRole.setSourceId(workspaceId);
-                userRole.setCreateTime(System.currentTimeMillis());
-                userRole.setUpdateTime(System.currentTimeMillis());
-                userRoleMapper.insertSelective(userRole);
+        for (int i = 0; i < groups.size(); i++) {
+            if (checkSourceRole(workspaceId, userId, groups.get(i)) == 0) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(groups.get(i));
+                userGroup.setSourceId(workspaceId);
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
             }
         }
-        allRoleIds.removeAll(roles);
-        if (allRoleIds.size() > 0) {
-            UserRoleExample userRoleExample = new UserRoleExample();
-            userRoleExample.createCriteria().andUserIdEqualTo(userId)
+        allGroupIds.removeAll(groups);
+        if (allGroupIds.size() > 0) {
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId)
                     .andSourceIdEqualTo(workspaceId)
-                    .andRoleIdIn(allRoleIds);
-            userRoleMapper.deleteByExample(userRoleExample);
+                    .andGroupIdIn(allGroupIds);
+            userGroupMapper.deleteByExample(userGroupExample);
         }
     }
 
@@ -309,4 +313,20 @@ public class WorkspaceService {
         }
         return null;
     }
+
+    public String getLogDetails(WorkspaceMemberDTO memberDTO) {
+        String workspaceId = memberDTO.getWorkspaceId();
+        String userId = memberDTO.getId();
+        Workspace user = workspaceMapper.selectByPrimaryKey(workspaceId);
+        if (user != null) {
+            // 已有角色
+            List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
+            List<String> names = memberRoles.stream().map(Role::getName).collect(Collectors.toList());
+            List<String> ids = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), null);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
 }

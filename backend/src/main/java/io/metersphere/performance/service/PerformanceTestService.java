@@ -117,21 +117,13 @@ public class PerformanceTestService {
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());
 
-        deleteFileByTestId(request.getId());
+        detachFileByTestId(request.getId());
     }
 
-    public void deleteFileByTestId(String testId) {
+    public void detachFileByTestId(String testId) {
         LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
         loadTestFileExample.createCriteria().andTestIdEqualTo(testId);
-        final List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
         loadTestFileMapper.deleteByExample(loadTestFileExample);
-
-        if (!CollectionUtils.isEmpty(loadTestFiles)) {
-            List<String> fileIds = loadTestFiles.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
-            LoadTestFileExample example3 = new LoadTestFileExample();
-            example3.createCriteria().andFileIdIn(fileIds);
-            loadTestFileMapper.deleteByExample(example3);
-        }
     }
 
     public String save(SaveTestPlanRequest request, List<MultipartFile> files) {
@@ -625,7 +617,7 @@ public class PerformanceTestService {
     }
 
     public String getLogDetails(String id) {
-        LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
         if (loadTest != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(loadTest, PerformanceReference.performanceColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(loadTest.getId()), loadTest.getProjectId(), loadTest.getName(), loadTest.getCreateUser(), columns);

@@ -84,5 +84,8 @@
 <!--        <table tableName="test_case"></table>-->
 <!--        <table tableName="custom_field_template"></table>-->
 
+<!--        表名和关键字冲突-->
+<!--                <table tableName="group" delimitIdentifiers="true"></table>-->
+
     </context>
 </generatorConfiguration>

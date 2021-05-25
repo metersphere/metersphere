@@ -130,3 +130,7 @@ DELIMITER ;
 
 CALL test_cursor();
 DROP PROCEDURE IF EXISTS test_cursor;
+
+
+-- 修改 test_case type字段为为非必填
+ALTER TABLE test_case MODIFY COLUMN `type` varchar(25) NULL COMMENT 'Test case type';

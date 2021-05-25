@@ -16,7 +16,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("custom/field/template")
-@RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
 public class CustomFieldTemplateController {
 
     @Resource

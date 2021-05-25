@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.OrganizationRequest;
 import io.metersphere.dto.OrganizationMemberDTO;
+import io.metersphere.dto.OrganizationResource;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
@@ -30,7 +31,6 @@ public class OrganizationController {
     private UserService userService;
 
     @PostMapping("/add")
-    @RequiresRoles(RoleConstants.ADMIN)
     @MsAuditLog(module = "system_organization", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#organization.id)", msClass = OrganizationService.class)
     public Organization addOrganization(@RequestBody Organization organization) {
         organization.setId(UUID.randomUUID().toString());
@@ -38,20 +38,17 @@ public class OrganizationController {
     }
 
     @GetMapping("/list")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public List<Organization> getOrganizationList() {
         return organizationService.getOrganizationList(new OrganizationRequest());
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     public Pager<List<Organization>> getOrganizationList(@RequestBody OrganizationRequest request, @PathVariable int goPage, @PathVariable int pageSize) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, organizationService.getOrganizationList(request));
     }
 
     @GetMapping("/delete/{organizationId}")
-    @RequiresRoles(RoleConstants.ADMIN)
     @MsAuditLog(module = "system_organization", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#organizationId)", msClass = OrganizationService.class)
     public void deleteOrganization(@PathVariable(value = "organizationId") String organizationId) {
         userService.refreshSessionUser("organization", organizationId);
@@ -59,7 +56,6 @@ public class OrganizationController {
     }
 
     @PostMapping("/update")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     @MsAuditLog(module = "system_organization", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#organization.id)", content = "#msClass.getLogDetails(#organization.id)", msClass = OrganizationService.class)
     public void updateOrganization(@RequestBody Organization organization) {
         organizationService.updateOrganization(organization);
@@ -71,9 +67,13 @@ public class OrganizationController {
     }
 
     @PostMapping("/member/update")
-    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
     @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO.id)", content = "#msClass.getLogDetails(#memberDTO.id)", msClass = OrganizationService.class)
     public void updateOrgMember(@RequestBody OrganizationMemberDTO memberDTO) {
         organizationService.updateOrgMember(memberDTO);
+    }
+
+    @GetMapping("/list/resource/{groupId}/{type}")
+    public OrganizationResource listResource(@PathVariable String groupId, @PathVariable String type) {
+        return organizationService.listResource(groupId, type);
     }
 }

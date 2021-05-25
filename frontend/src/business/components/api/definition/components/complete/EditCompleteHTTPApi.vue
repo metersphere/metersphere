@@ -5,9 +5,11 @@
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px">
-          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="httpForm.id">{{$t('operating_log.change_history')}}</el-link>
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-tester>{{ $t('commons.save') }}</el-button>
-          <el-button type="primary" size="small" @click="runTest" v-tester>{{ $t('commons.test') }}</el-button>
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="httpForm.id">
+            {{ $t('operating_log.change_history') }}
+          </el-link>
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
+          <el-button type="primary" size="small" @click="runTest">{{ $t('commons.test') }}</el-button>
         </div>
         <br/>
         <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>

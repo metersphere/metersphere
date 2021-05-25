@@ -22,6 +22,6 @@ public class AutomationReference {
         automationColumns.put("scenarioDefinition", "场景步骤");
         automationColumns.put("description", "描述");
         // 需要深度对比的字段，可以支持多个req1,req2
-        automationColumns.put("ms-dff-col", "scenarioDefinition");
+        automationColumns.put("ms-dff-col", "scenarioDefinition,tags");
     }
 }

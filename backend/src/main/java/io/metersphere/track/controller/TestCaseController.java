@@ -7,7 +7,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -22,8 +22,7 @@ import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestCaseService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +37,6 @@ import java.util.UUID;
 
 @RequestMapping("/test/case")
 @RestController
-@RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
 public class TestCaseController {
 
     @Resource
@@ -49,12 +47,14 @@ public class TestCaseController {
     private FileService fileService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.listTestCase(request));
     }
 
     @GetMapping("/list/{projectId}")
+    @RequiresPermissions("PROJECT_TRACK_CASE:READ")
     public List<TestCaseDTO> list(@PathVariable String projectId) {
         checkPermissionService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
@@ -127,7 +127,7 @@ public class TestCaseController {
     }
 
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
         request.setId(UUID.randomUUID().toString());
@@ -135,21 +135,18 @@ public class TestCaseController {
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
         return testCaseService.edit(request, files);
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
     public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
         return testCaseService.editTestCase(request, files);
     }
 
     @PostMapping("/delete/{testCaseId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
     public int deleteTestCase(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
@@ -157,7 +154,6 @@ public class TestCaseController {
     }
 
     @PostMapping("/import/{projectId}/{userId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
@@ -165,7 +161,7 @@ public class TestCaseController {
     }
 
     @PostMapping("/importIgnoreError/{projectId}/{userId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_IMPORT)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
@@ -173,33 +169,33 @@ public class TestCaseController {
     }
 
     @GetMapping("/export/template")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
     public void testCaseTemplateExport(HttpServletResponse response) {
         testCaseService.testCaseTemplateExport(response);
     }
 
     @GetMapping("/export/xmindTemplate")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
     public void xmindTemplate(HttpServletResponse response) {
         testCaseService.testCaseXmindTemplateExport(response);
     }
 
     @PostMapping("/export/testcase")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public void testCaseExport(HttpServletResponse response, @RequestBody TestCaseBatchRequest request) {
         testCaseService.testCaseExport(response, request);
     }
 
     @PostMapping("/batch/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void editTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.editTestCaseBath(request);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteTestCaseBath(request);
@@ -229,14 +225,14 @@ public class TestCaseController {
     }
 
     @PostMapping("/save")
-    @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#testCaseWithBLOBs.name", content = "#msClass.getLogDetails(#testCaseWithBLOBs.id)", msClass = TestCaseService.class)
     public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
         testCaseWithBLOBs.setId(UUID.randomUUID().toString());
         return testCaseService.addTestCase(testCaseWithBLOBs);
     }
 
     @PostMapping("/minder/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, project = "#request.projectId", beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
     public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
         testCaseService.minderEdit(request);

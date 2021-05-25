@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition"
+      <ms-table-header :condition.sync="condition"
                        @search="initTableData" :showCreate="false"
                        :title="$t('test_track.plan.test_plan')">
       </ms-table-header>

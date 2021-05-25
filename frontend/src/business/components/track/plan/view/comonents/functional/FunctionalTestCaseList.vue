@@ -1,6 +1,6 @@
 <template>
   <div class="card-container">
-    <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+    <ms-table-header :condition.sync="condition" @search="initTableData"
                      :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
 
       <!-- 不显示 “全部用例” 标题,使标题为空 -->
@@ -9,11 +9,11 @@
       </template>
 
       <template v-slot:button>
-        <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom"
+        <ms-table-button v-permission="['PROJECT_TRACK_CASE:READ']" v-if="!showMyTestCase" icon="el-icon-s-custom"
                          :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
-        <ms-table-button :is-tester-permission="true" v-if="showMyTestCase" icon="el-icon-files"
+        <ms-table-button v-permission="['PROJECT_TRACK_CASE:READ']" v-if="showMyTestCase" icon="el-icon-files"
                          :content="$t('test_track.plan_view.all_case')" @click="searchMyTestCase"/>
-        <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
+        <ms-table-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" icon="el-icon-connection"
                          :content="$t('test_track.plan_view.relevance_test_case')"
                          @click="$emit('openTestCaseRelevanceDialog')"/>
       </template>
@@ -235,9 +235,11 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
+          <ms-table-operator-button v-permission="['PROJECT_TRACK_CASE:READ+EDIT']" :tip="$t('commons.edit')"
+                                    icon="el-icon-edit"
                                     @exec="handleEdit(scope.row)"/>
-          <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
+          <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
+                                    :tip="$t('test_track.plan_view.cancel_relevance')"
                                     icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
         </template>
       </el-table-column>

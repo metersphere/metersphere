@@ -17,7 +17,7 @@
       </template>
 
       <template v-slot:button>
-        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
+        <el-button @click="runDebug" :disabled="!controller.enable" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
       </template>
       <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
         <el-row>
@@ -319,7 +319,7 @@
                   this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios !== null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
                   // 把请求结果分给各个请求
                   this.setResult(this.controller.hashTree);
-                  this.$emit("refReload",this.node);
+                  this.$emit("refReload", this.node);
                 } catch (e) {
                   throw e;
                 }

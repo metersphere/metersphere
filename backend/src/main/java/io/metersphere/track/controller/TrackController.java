@@ -22,7 +22,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/track")
-@RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
 public class TrackController {
 
     @Resource

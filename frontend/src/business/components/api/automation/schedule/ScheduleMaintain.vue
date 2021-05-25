@@ -13,7 +13,7 @@
                   <el-col :span="18">
                     <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
                               :placeholder="$t('schedule.please_input_cron_expression')"/>
-                    <el-button :disabled="isReadOnly" type="primary" @click="saveCron" v-tester>{{
+                    <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
                         $t('commons.save')
                       }}
                     </el-button>

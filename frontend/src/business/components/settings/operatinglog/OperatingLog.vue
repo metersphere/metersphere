@@ -43,16 +43,19 @@
                 </el-form-item>
               </el-col>
 
-              <el-col :span="4">
+              <el-col :span="3">
                 <el-form-item :label="$t('operating_log.object')" prop="module">
                   <el-input size="small" v-model="condition.operModule"/>
                 </el-form-item>
               </el-col>
 
-              <el-col :span="2">
-                <el-button type="primary" size="small" style="float: right" @click="search">
-                  {{ $t('commons.adv_search.search') }}
-                </el-button>
+              <el-col :span="3">
+                <div style="width: 140px">
+                  <el-button type="primary" size="small" style="float: right" @click="search">
+                    {{ $t('commons.adv_search.search') }}
+                  </el-button>
+                  <el-button size="small" @click="reset">{{$t('commons.adv_search.reset')}}</el-button>
+                </div>
               </el-col>
             </el-row>
           </el-form>
@@ -60,8 +63,7 @@
 
       </template>
       <el-table border class="adjust-table" :data="tableData" ref="operLog"
-                :height="screenHeight"
-      >
+                :height="screenHeight">
         <el-table-column prop="operTime" :label="$t('operating_log.time')">
           <template v-slot:default="scope">
             <span>{{ scope.row.operTime | timestampFormatDate }}</span>
@@ -174,6 +176,9 @@
           this.total = response.data.itemCount;
           this.result.loading = false;
         })
+      },
+      reset() {
+        this.condition = {};
       },
       initProject() {
         if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {

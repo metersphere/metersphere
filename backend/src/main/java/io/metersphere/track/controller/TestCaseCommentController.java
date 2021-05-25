@@ -1,13 +1,12 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.service.TestCaseCommentService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -22,6 +21,7 @@ public class TestCaseCommentController {
     private TestCaseCommentService testCaseCommentService;
 
     @PostMapping("/save")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     public void saveComment(@RequestBody SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -34,13 +34,14 @@ public class TestCaseCommentController {
     }
 
     @GetMapping("/delete/{commentId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#commentId)", msClass = TestCaseCommentService.class)
     public void deleteComment(@PathVariable String commentId) {
         testCaseCommentService.delete(commentId);
     }
 
     @PostMapping("/edit")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
     public void editComment(@RequestBody SaveCommentRequest request) {
         testCaseCommentService.edit(request);

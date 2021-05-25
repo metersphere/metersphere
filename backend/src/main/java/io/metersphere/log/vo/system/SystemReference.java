@@ -17,6 +17,7 @@ public class SystemReference {
     public static Map<String, String> projectColumns = new LinkedHashMap<>();
     public static Map<String, String> jarColumns = new LinkedHashMap<>();
     public static Map<String, String> environmentColumns = new LinkedHashMap<>();
+    public static Map<String, String> licenseColumns = new LinkedHashMap<>();
 
     static {
 
@@ -33,6 +34,7 @@ public class SystemReference {
         projectColumns.clear();
         jarColumns.clear();
         environmentColumns.clear();
+        licenseColumns.clear();
 
         userColumns.put("name", "用户名称");
         userColumns.put("createUser", "创建人");
@@ -40,6 +42,7 @@ public class SystemReference {
         userColumns.put("status", "状态");
         userColumns.put("phone", "电话");
         userColumns.put("workspace", "工作空间");
+        userColumns.put("roles", "角色权限");
         userColumns.put("organization", "组织");
 
         organizationColumns.put("name", "名称");
@@ -105,6 +108,14 @@ public class SystemReference {
         environmentColumns.put("config", "配置");
         // 深度对比字段
         environmentColumns.put("ms-dff-col", "config,variables");
+        //
+        licenseColumns.put("corporation", "客户名称");
+        licenseColumns.put("expired", "授权截止时间");
+        licenseColumns.put("product", "产品名称");
+        licenseColumns.put("edition", "产品版本");
+        licenseColumns.put("count", "icense版本");
+        licenseColumns.put("licenseVersion", "授权数量");
+        licenseColumns.put("status", "状态");
 
     }
 }

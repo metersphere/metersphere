@@ -40,9 +40,9 @@
             <template v-slot:default="scope">
               <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
                                         @exec="copyExpect(scope.row)"
-                                        v-tester/>
+                                        />
               <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-delete" @exec="removeExpect(scope.row)"
-                                        v-tester/>
+              />
             </template>
           </el-table-column>
         </el-table>

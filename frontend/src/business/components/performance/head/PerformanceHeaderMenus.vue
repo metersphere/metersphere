@@ -8,17 +8,18 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
+          <el-submenu v-permission="['PROJECT_PERFORMANCE_TEST:READ']"
                       index="4" popper-class="submenu">
             <template v-slot:title>{{ $t('commons.test') }}</template>
             <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider/>
             <ms-show-all :index="'/performance/test/all'"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/performance/test/create'"
+            <ms-create-button v-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
+                              :index="'/performance/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
+          <el-submenu v-permission="['PROJECT_PERFORMANCE_REPORT:READ']"
                       index="5" popper-class="submenu">
             <template v-slot:title>{{ $t('commons.report') }}</template>
             <ms-recent-list ref="reportRecent" :options="reportRecent"/>
@@ -28,7 +29,7 @@
         </el-menu>
       </el-col>
       <el-col :span="4">
-        <el-row type="flex" justify="center">
+        <el-row type="flex" justify="center" v-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']">
           <ms-create-test :to="'/performance/test/create'"/>
         </el-row>
       </el-col>

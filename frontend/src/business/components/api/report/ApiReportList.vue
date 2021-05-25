@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+          <ms-table-header :condition.sync="condition" @search="search"
                            :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
@@ -15,7 +15,7 @@
             type="selection"/>
           <el-table-column width="40" :resizable="false" align="center">
             <template v-slot:default="scope">
-              <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
@@ -45,7 +45,7 @@
             <template v-slot:default="scope">
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                         @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
+              <ms-table-operator-button :tip="$t('api_report.delete')"
                                         icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
           </el-table-column>

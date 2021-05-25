@@ -6,6 +6,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -21,6 +22,7 @@ import io.metersphere.track.request.testreview.TestReviewRelevanceRequest;
 import io.metersphere.track.service.TestCaseReviewService;
 import io.metersphere.track.service.TestReviewProjectService;
 import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +32,7 @@ import java.util.UUID;
 
 @RequestMapping("/test/case/review")
 @RestController
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+
 public class TestCaseReviewController {
 
     @Resource
@@ -47,7 +49,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/save")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_CREATE)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.CREATE, title = "#reviewRequest.name", content = "#msClass.getLogDetails(#reviewRequest.id)", msClass = TestCaseReviewService.class)
     public String saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
         reviewRequest.setId(UUID.randomUUID().toString());
@@ -72,14 +74,14 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testCaseReview.id)", title = "#testCaseReview.name", content = "#msClass.getLogDetails(#testCaseReview.id)", msClass = TestCaseReviewService.class)
     public String editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         return testCaseReviewService.editCaseReview(testCaseReview);
     }
 
     @GetMapping("/delete/{reviewId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_DELETE)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reviewId)", msClass = TestCaseReviewService.class)
     public void deleteCaseReview(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
@@ -120,7 +122,7 @@ public class TestCaseReviewController {
     }
 
     @PostMapping("/edit/status/{reviewId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     public void editTestPlanStatus(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);

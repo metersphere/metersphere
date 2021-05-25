@@ -72,7 +72,7 @@
             <ms-table-operator-button :tip="$t('api_test.automation.copy')"
                                       icon="el-icon-document-copy" @exec="copy(row)"/>
             <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                      icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
+                                      icon="el-icon-delete" @exec="remove(row)" type="danger"/>
           </template>
         </el-table-column>
       </el-table>

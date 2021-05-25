@@ -26,7 +26,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/testcase")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class ApiTestCaseController {
 
     @Resource
@@ -119,13 +118,11 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/batch/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editApiBath(@RequestBody ApiCaseBatchRequest request) {
         apiTestCaseService.editApiBath(request);
     }
 
     @PostMapping("/batch/editByParam")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.editApiBathByParam(request);

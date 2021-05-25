@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -22,6 +23,7 @@ import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,6 +48,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_TRACK_PLAN:READ")
     public Pager<List<TestPlanDTOWithMetric>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         request.setWorkspaceId(currentWorkspaceId);
@@ -86,7 +89,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/add")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_CREATE)
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.CREATE, title = "#testPlan.name", content = "#msClass.getLogDetails(#testPlan.id)", msClass = TestPlanService.class)
     public String addTestPlan(@RequestBody AddTestPlanRequest testPlan) {
         testPlan.setId(UUID.randomUUID().toString());
@@ -95,14 +98,14 @@ public class TestPlanController {
     }
 
     @PostMapping("/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testPlanDTO.id)", content = "#msClass.getLogDetails(#testPlanDTO.id)", msClass = TestPlanService.class)
     public String editTestPlan(@RequestBody TestPlanDTO testPlanDTO) {
         return testPlanService.editTestPlan(testPlanDTO, true);
     }
 
     @PostMapping("/edit/status/{planId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
     public void editTestPlanStatus(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);
@@ -110,7 +113,7 @@ public class TestPlanController {
     }
 
     @PostMapping("/delete/{testPlanId}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_DELETE)
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanId)", msClass = TestPlanService.class)
     public int deleteTestPlan(@PathVariable String testPlanId) {
         checkPermissionService.checkTestPlanOwner(testPlanId);
