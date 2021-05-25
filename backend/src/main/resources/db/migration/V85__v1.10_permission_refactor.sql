@@ -251,9 +251,9 @@ values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT','WORKSPA
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT','WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE', 'WORKSPACE_PROJECT_ENVIRONMENT');
 
 
 -- 工作空间成员
@@ -261,6 +261,10 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'ws_member', 'WORKSPACE_USER:READ', 'WORKSPACE_USER');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'ws_member', 'WORKSPACE_TEMPLATE:READ', 'WORKSPACE_TEMPLATE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_member', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_PROJECT_ENVIRONMENT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_member', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_MANAGER');
 
 -- 项目管理员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -340,13 +344,9 @@ VALUES (uuid(), 'project_admin', 'PROJECT_API_DEFINITION:READ+DELETE_CASE', 'PRO
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_API_DEFINITION:READ+CREATE_API', 'PROJECT_API_DEFINITION');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_admin', 'PROJECT_MANAGER:READ+DELETE', 'PROJECT_MANAGER');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_PERFORMANCE_TEST:READ+DELETE', 'PROJECT_PERFORMANCE_TEST');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_TRACK_REVIEW:READ+REVIEW', 'PROJECT_TRACK_REVIEW');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_admin', 'PROJECT_MANAGER:READ+CREATE', 'PROJECT_MANAGER');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+SCHEDULE', 'PROJECT_TRACK_PLAN');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -460,8 +460,6 @@ VALUES (uuid(), 'project_member', 'PROJECT_PERFORMANCE_TEST:READ+CREATE', 'PROJE
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_USER:READ+DELETE', 'PROJECT_USER');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_member', 'PROJECT_MANAGER:READ+DELETE', 'PROJECT_MANAGER');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+SCHEDULE', 'PROJECT_TRACK_PLAN');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_DEFINITION:READ+EXPORT_API', 'PROJECT_API_DEFINITION');
@@ -471,8 +469,6 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_PERFORMANCE_REPORT:READ+DELETE', 'PROJECT_PERFORMANCE_REPORT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_MANAGER:READ+EDIT', 'PROJECT_MANAGER');
-INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
-VALUES (uuid(), 'project_member', 'PROJECT_MANAGER:READ+CREATE', 'PROJECT_MANAGER');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_TRACK_REVIEW:READ', 'PROJECT_TRACK_REVIEW');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
