@@ -444,46 +444,33 @@ public class TestPlanService {
 
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {
 
-        List<String> testCaseIds = request.getTestCaseIds();
+        ServiceUtils.getSelectAllIds(request, request.getRequest(),
+                (query) -> extTestCaseMapper.selectRelateIdsByQuery(query));
+
+        List<String> testCaseIds = request.getIds();
 
         if (testCaseIds.isEmpty()) {
             return;
         }
 
-        // 如果是关联全部指令则根据条件查询未关联的案例
-        if (testCaseIds.get(0).equals("all")) {
-            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInPlan(request.getRequest());
-            if (!testCases.isEmpty()) {
-                testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
-            }
-        }
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
-
-        Map<String, TestCaseWithBLOBs> testCaseMap =
-                testCaseMapper.selectByExampleWithBLOBs(testCaseExample)
-                        .stream()
-                        .collect(Collectors.toMap(TestCase::getId, testcase -> testcase));
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
 
-        if (!testCaseIds.isEmpty()) {
-            testCaseIds.forEach(caseId -> {
-                TestCaseWithBLOBs testCase = testCaseMap.get(caseId);
-                TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
-                testPlanTestCase.setId(UUID.randomUUID().toString());
-                testPlanTestCase.setCreateUser(SessionUtils.getUserId());
-                testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
-                testPlanTestCase.setCaseId(caseId);
-                testPlanTestCase.setCreateTime(System.currentTimeMillis());
-                testPlanTestCase.setUpdateTime(System.currentTimeMillis());
-                testPlanTestCase.setPlanId(request.getPlanId());
-                testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
-                testPlanTestCase.setResults(testCase.getSteps());
-                batchMapper.insert(testPlanTestCase);
-            });
-        }
+        testCaseIds.forEach(caseId -> {
+            TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+            testPlanTestCase.setId(UUID.randomUUID().toString());
+            testPlanTestCase.setCreateUser(SessionUtils.getUserId());
+            testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
+            testPlanTestCase.setCaseId(caseId);
+            testPlanTestCase.setCreateTime(System.currentTimeMillis());
+            testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+            testPlanTestCase.setPlanId(request.getPlanId());
+            testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
+            batchMapper.insert(testPlanTestCase);
+        });
 
         sqlSession.flushStatements();
         //同步添加关联的接口和测试用例
@@ -548,11 +535,8 @@ public class TestPlanService {
                             if (testPlanApiScenarioMapper.countByExample(example) <= 0) {
                                 testPlanApiScenarioMapper.insert(t);
                             }
-
                         }
                     });
-
-
                 });
             }
         }

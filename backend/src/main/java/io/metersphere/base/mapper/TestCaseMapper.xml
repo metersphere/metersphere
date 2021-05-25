@@ -94,8 +94,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
-    create_time, update_time, test_id, sort, num, other_test_name, review_status, tags, 
+    id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`,
+    create_time, update_time, test_id, sort, num, other_test_name, review_status, tags,
     demand_id, demand_name, follow_people, `status`, custom_num, step_model, create_user
   </sql>
   <sql id="Blob_Column_List">
@@ -132,7 +132,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -150,27 +150,27 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
-    insert into test_case (id, node_id, node_path, 
-      project_id, `name`, `type`, 
-      maintainer, priority, `method`, 
-      create_time, update_time, test_id, 
-      sort, num, other_test_name, 
-      review_status, tags, demand_id, 
-      demand_name, follow_people, `status`, 
-      custom_num, step_model, create_user, 
-      prerequisite, remark, steps, 
-      step_description, expected_result, 
+    insert into test_case (id, node_id, node_path,
+      project_id, `name`, `type`,
+      maintainer, priority, `method`,
+      create_time, update_time, test_id,
+      sort, num, other_test_name,
+      review_status, tags, demand_id,
+      demand_name, follow_people, `status`,
+      custom_num, step_model, create_user,
+      prerequisite, remark, steps,
+      step_description, expected_result,
       custom_fields)
-    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{testId,jdbcType=VARCHAR}, 
-      #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, #{otherTestName,jdbcType=VARCHAR}, 
-      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR}, 
-      #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{customNum,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, 
-      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR},
+      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
+      #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR},
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{testId,jdbcType=VARCHAR},
+      #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, #{otherTestName,jdbcType=VARCHAR},
+      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR},
+      #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
+      #{customNum,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
+      #{prerequisite,jdbcType=LONGVARCHAR}, #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR},
+      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR},
       #{customFields,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
@@ -366,7 +366,10 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
-  <update id="updateByExampleSelective" parameterType="map">
+    <select id="selectIdsByQuery" resultType="java.lang.String">
+
+    </select>
+    <update id="updateByExampleSelective" parameterType="map">
     update test_case
     <set>
       <if test="record.id != null">

@@ -337,7 +337,11 @@ export default {
       this.result = this.$get('/test/plan/case/get/' + testCase.id, response => {
         let item = {};
         Object.assign(item, response.data);
-        item.results = JSON.parse(item.results);
+        if (item.results) {
+          item.results = JSON.parse(item.results);
+        } else {
+          item.results = [item.steps.length];
+        }
         if (item.issues) {
           item.issues = JSON.parse(item.issues);
         } else {
