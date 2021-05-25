@@ -35,4 +35,8 @@ public class RunScenarioRequest extends ApiScenarioWithBLOBs {
     private ApiScenarioRequest condition;
 
     private RunModeConfig config;
+
+    private boolean isTestPlanScheduleJob = false;
+    //生成测试报告：当isTestPlanScheduleJob为ture时使用
+    private String testPlanReportId;
 }
