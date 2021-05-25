@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class JmeterFileController {
     @Resource
     private JmeterFileService jmeterFileService;
-    private final WeakConcurrentHashMap<String, List<Double>> readyMap = new WeakConcurrentHashMap<>(600_000);// 默认保留10分钟
+    private final WeakConcurrentHashMap<String, List<Double>> readyMap = new WeakConcurrentHashMap<>(30 * 60 * 1000);// 默认保留30分钟
 
     @GetMapping("ping")
     public String checkStatus() {
