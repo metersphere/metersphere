@@ -65,9 +65,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JiraConfig config = getConfig();
         JiraClient.setConfig(config);
         List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
-        issuesIds.forEach(issuesId -> {
-            IssuesDao dto = parseIssue(JiraClient.getIssues(issuesId));
-            if (StringUtils.isBlank(dto.getId())) {
+        issues.forEach(item -> {
+            String issuesId = item.getId();
+            parseIssue(item, JiraClient.getIssues(issuesId));
+            if (StringUtils.isBlank(item.getId())) {
                 // 缺陷不存在，解除用例和缺陷的关联
                 TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
                 issuesExample.createCriteria()
@@ -77,15 +78,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
                 issuesMapper.deleteByPrimaryKey(issuesId);
             } else {
                 // 缺陷状态为 完成，则不显示
-                if (!StringUtils.equals("done", dto.getStatus())) {
-                    list.add(dto);
+                if (!StringUtils.equals("done", item.getStatus())) {
+                    list.add(item);
                 }
             }
         });
         return list;
     }
 
-    public IssuesDao parseIssue(JiraIssue jiraIssue) {
+    public void parseIssue(IssuesDao item, JiraIssue jiraIssue) {
         String lastmodify = "";
         String status = "";
         JSONObject fields = jiraIssue.getFields();
@@ -106,15 +107,13 @@ public class JiraPlatform extends AbstractIssuePlatform {
         if (assignee != null) {
             lastmodify = assignee.getString("displayName");
         }
-        IssuesDao issues = new IssuesDao();
-        issues.setId(jiraIssue.getKey());
-        issues.setTitle(fields.getString("summary"));
-        issues.setCreateTime(fields.getLong("created"));
-        issues.setLastmodify(lastmodify);
-        issues.setDescription(description);
-        issues.setStatus(status);
-        issues.setPlatform(IssuesManagePlatform.Jira.toString());
-        return issues;
+        item.setId(jiraIssue.getKey());
+        item.setTitle(fields.getString("summary"));
+        item.setCreateTime(fields.getLong("created"));
+        item.setLastmodify(lastmodify);
+        item.setDescription(description);
+        item.setStatus(status);
+        item.setPlatform(IssuesManagePlatform.Jira.toString());
     }
 
     public HttpHeaders getAuthHeader(JSONObject object) {

@@ -42,9 +42,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
         List<IssuesDao> list = new ArrayList<>();
         String tapdId = getProjectId(issuesRequest.getProjectId());
 
-//        TestCaseIssuesExample example = new TestCaseIssuesExample();
-//        example.createCriteria().andTestCaseIdEqualTo(testCaseId);
-
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
@@ -53,9 +50,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
 
-        List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
-        issuesIds.forEach(issuesId -> {
+        issues.forEach(item -> {
+            String issuesId = item.getId();
             IssuesDao dto = getTapdIssues(tapdId, issuesId);
+            dto.setNum(item.getNum());
             if (StringUtils.isBlank(dto.getId())) {
                 // 缺陷不存在，解除用例和缺陷的关联
                 TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
