@@ -40,7 +40,7 @@
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
-            <ms-schedule-notification :is-tester-permission="isTesterPermission" :test-id="testId"
+            <ms-schedule-notification :test-id="testId"
                                       :schedule-receiver-options="scheduleReceiverOptions"/>
           </el-tab-pane>
         </el-tabs>
@@ -174,11 +174,9 @@ export default {
         organizationId: this.currentUser().lastOrganizationId
       };
 
-      if (this.isTesterPermission) {
-        this.result = this.$post('user/org/member/list/all', param, response => {
-          this.scheduleReceiverOptions = response.data;
-        });
-      }
+      this.result = this.$post('user/org/member/list/all', param, response => {
+        this.scheduleReceiverOptions = response.data;
+      });
 
     },
     buildParam() {
@@ -307,11 +305,6 @@ export default {
       alert(executeTileArr);
     },
   },
-  computed: {
-    isTesterPermission() {
-      return checkoutTestManagerOrTestUser();
-    }
-  }
 }
 </script>
 

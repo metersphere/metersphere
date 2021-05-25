@@ -50,7 +50,7 @@
     <el-tab-pane :label="$t('test_track.case.relate_issue')" name="bug">
       <test-case-issue-relate
         :plan-id="planId"
-        :read-only="readOnly && !(isTestPlan && isTesterPermission)"
+        :read-only="readOnly && !(isTestPlan)"
         :case-id="caseId" ref="issue"/>
     </el-tab-pane>
 

@@ -5,9 +5,6 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
-    import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
-
     export default {
       name: "MsTableButton",
       data() {
@@ -36,11 +33,6 @@
         isTesterPermission: {
           type: Boolean,
           default: false
-        }
-      },
-      mounted() {
-        if (this.isTesterPermission && !checkoutTestManagerOrTestUser()) {
-          this.disabled = true;
         }
       },
       methods: {
