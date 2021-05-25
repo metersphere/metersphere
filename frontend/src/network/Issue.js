@@ -1,4 +1,4 @@
-import {post} from "@/common/js/ajax";
+import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
 
 export function buildIssues(page) {
@@ -17,6 +17,15 @@ export function getIssues(page) {
     getPageDate(response, page);
     buildIssues(page);
   });
+}
+
+export function getIssuesByCaseId(caseId, page) {
+  if (caseId) {
+    return get('issues/get/' + caseId, (response) => {
+      page.data = response.data;
+      buildIssues(page);
+    });
+  }
 }
 
 export function buildPlatformIssue(data) {

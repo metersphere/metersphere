@@ -123,13 +123,15 @@ public class CustomFieldService {
                 .collect(Collectors.toMap(CustomField::getId, item -> item));
 
         List<CustomFieldDao> result = new ArrayList<>();
-        customFields.forEach((item) -> {
-            CustomFieldDao customFieldDao = new CustomFieldDao();
-            CustomField customField = fieldMap.get(item.getFieldId());
-            BeanUtils.copyBean(customFieldDao, customField);
-            BeanUtils.copyBean(customFieldDao, item);
-            result.add(customFieldDao);
-        });
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            customFields.forEach((item) -> {
+                CustomFieldDao customFieldDao = new CustomFieldDao();
+                CustomField customField = fieldMap.get(item.getFieldId());
+                BeanUtils.copyBean(customFieldDao, customField);
+                BeanUtils.copyBean(customFieldDao, item);
+                result.add(customFieldDao);
+            });
+        }
         return result;
     }
 

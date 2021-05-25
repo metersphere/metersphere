@@ -9,9 +9,9 @@
     </el-tooltip>
 
     <ms-table
-      v-loading="result.loading"
+      v-loading="page.result.loading"
       :show-select-all="false"
-      :data="issues"
+      :data="page.data"
       :enable-selection="false"
       @refresh="getIssues">
 
@@ -49,14 +49,14 @@
           <el-tooltip :content="$t('test_track.issue.close')"
                       placement="top" :enterable="false">
             <el-button type="danger" icon="el-icon-circle-close" size="mini"
-                       circle v-if="scope.row.platform === 'Local'"
+                       circle :disabled="scope.row.platform !== 'Local'"
                        @click="closeIssue(scope.row)"
             />
           </el-tooltip>
           <el-tooltip :content="$t('test_track.issue.delete')"
                       placement="top" :enterable="false">
             <el-button type="danger" icon="el-icon-delete" size="mini"
-                       circle v-if="scope.row.platform === 'Local'"
+                       circle :disabled="scope.row.platform !== 'Local'"
                        @click="deleteIssue(scope.row)"
             />
           </el-tooltip>
@@ -77,13 +77,16 @@ import MsTableColumn from "@/business/components/common/components/table/Ms-tabl
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
+import {getIssuesByCaseId} from "@/network/Issue";
 export default {
   name: "TestCaseIssueRelate",
   components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
   data() {
     return {
-      issues: [],
-      result: {},
+      page: {
+        data: [],
+        result: {},
+      },
     }
   },
   props: ['caseId', 'readOnly','planId'],
@@ -94,11 +97,7 @@ export default {
   },
   methods: {
     getIssues() {
-      if (this.caseId) {
-        this.result = this.$get("/issues/get/" + this.caseId, (response) => {
-          this.issues = response.data;
-        });
-      }
+      this.page.result = getIssuesByCaseId(this.caseId, this.page);
     },
     appIssue() {
       if (!this.caseId) {
@@ -118,14 +117,14 @@ export default {
       if (row.status === 'closed') {
         this.$success(this.$t('test_track.issue.close_success'));
       } else {
-        this.result = this.$get("/issues/close/" + row.id, () => {
+        this.page.result = this.$get("/issues/close/" + row.id, () => {
           this.getIssues();
           this.$success(this.$t('test_track.issue.close_success'));
         });
       }
     },
     deleteIssue(row) {
-      this.result = this.$post("/issues/delete", {id: row.id, caseId: this.caseId}, () => {
+      this.page.result = this.$post("/issues/delete", {id: row.id, caseId: this.caseId}, () => {
         this.getIssues();
         this.$success(this.$t('commons.delete_success'));
       })
