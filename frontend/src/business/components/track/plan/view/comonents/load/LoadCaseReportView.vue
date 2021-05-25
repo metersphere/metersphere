@@ -57,6 +57,9 @@
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
             </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_monitor_details')" v-if="poolType === 'NODE'">
+              <monitor-card :report="report"/>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -91,11 +94,13 @@ import MsReportTestOverview from "@/business/components/performance/report/compo
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsPerformancePressureConfig from "@/business/components/performance/report/components/PerformancePressureConfig";
+import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 
 
 export default {
   name: "LoadCaseReportView",
   components: {
+    MonitorCard,
     MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
@@ -125,7 +130,8 @@ export default {
       dialogFormVisible: false,
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
-      show: true
+      show: true,
+      poolType: "",
     }
   },
   props: {
@@ -316,10 +322,6 @@ export default {
       });
     },
     init() {
-      this.isReadOnly = false;
-      if (!checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
       this.clearData();
       this.result = this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
@@ -336,13 +338,22 @@ export default {
           this.initBreadcrumb();
           this.initWebSocket();
         } else {
-          this.$error(this.$t('report.not_exist'))
+          this.$error(this.$t('report.not_exist'));
+        }
+      });
+    },
+    getPoolType(reportId) {
+      this.$get("/performance/report/pool/type/" + reportId, result => {
+        let data = result.data;
+        if (data) {
+          this.poolType = data;
         }
       });
     }
   },
   created() {
     this.init();
+    this.getPoolType(this.reportId);
   }
 }
 </script>
