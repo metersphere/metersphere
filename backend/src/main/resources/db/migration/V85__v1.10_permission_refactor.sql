@@ -162,6 +162,9 @@ INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_
 VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_TEST_POOL');
 INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_id`)
 VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ+EDIT', 'SYSTEM_TEST_POOL');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'admin', 'SYSTEM_OPERATING_LOG:READ', 'SYSTEM_OPERATING_LOG');
+
 
 -- 组织管理员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -241,19 +244,19 @@ values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+DELETE', 'WORKSPACE_
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_MANAGER:READ+EDIT', 'WORKSPACE_PROJECT_MANAGER');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE','WORKSPACE_PROJECT_ENVIRONMENT');
+values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE', 'WORKSPACE_PROJECT_ENVIRONMENT');
 
 
 -- 工作空间成员

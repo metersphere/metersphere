@@ -150,6 +150,11 @@
       "resourceId": "SYSTEM_AUTH"
     },
     {
+      "id": "SYSTEM_OPERATING_LOG:READ",
+      "name": "查询操作日志",
+      "resourceId": "SYSTEM_OPERATING_LOG"
+    },
+    {
       "id": "ORGANIZATION_USER:READ",
       "name": "查询成员",
       "resourceId": "ORGANIZATION_USER"
@@ -727,6 +732,10 @@
     {
       "id": "SYSTEM_AUTH",
       "name": "授权管理"
+    },
+    {
+      "id": "SYSTEM_OPERATING_LOG",
+      "name": "操作日志"
     },
     {
       "id": "ORGANIZATION_USER",
