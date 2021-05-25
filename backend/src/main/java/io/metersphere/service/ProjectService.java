@@ -151,6 +151,24 @@ public class ProjectService {
         userGroupMapper.deleteByExample(userGroupExample);
     }
 
+    public void updateIssueTemplate(String originId, String templateId) {
+        Project project = new Project();
+        project.setIssueTemplateId(templateId);
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andIssueTemplateIdEqualTo(originId);
+        projectMapper.updateByExampleSelective(project, example);
+    }
+
+    public void updateCaseTemplate(String originId, String templateId) {
+        Project project = new Project();
+        project.setCaseTemplateId(templateId);
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andCaseTemplateIdEqualTo(originId);
+        projectMapper.updateByExampleSelective(project, example);
+    }
+
     private void deleteLoadTestResourcesByProjectId(String projectId) {
         LoadTestExample loadTestExample = new LoadTestExample();
         loadTestExample.createCriteria().andProjectIdEqualTo(projectId);

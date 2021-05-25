@@ -175,7 +175,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected int getNextNum(String projectId) {
         Issues issue = extIssuesMapper.getNextNum(projectId);
-        if (issue == null) {
+        if (issue == null || issue.getNum() == null) {
             return 100001;
         } else {
             return Optional.of(issue.getNum() + 1).orElse(100001);

@@ -46,7 +46,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
     @Resource
     ProjectService projectService;
 
-    public void add(UpdateCaseFieldTemplateRequest request) {
+    public String add(UpdateCaseFieldTemplateRequest request) {
         checkExist(request);
         TestCaseTemplateWithBLOBs testCaseTemplate = new TestCaseTemplateWithBLOBs();
         BeanUtils.copyBean(testCaseTemplate, request);
@@ -62,6 +62,7 @@ public class TestCaseTemplateService extends TemplateBaseService {
         testCaseTemplateMapper.insert(testCaseTemplate);
         customFieldTemplateService.create(request.getCustomFields(), testCaseTemplate.getId(),
                 TemplateConstants.FieldTemplateScene.TEST_CASE.name());
+        return testCaseTemplate.getId();
     }
 
     public List<TestCaseTemplateWithBLOBs> list(BaseQueryRequest request) {
@@ -77,8 +78,10 @@ public class TestCaseTemplateService extends TemplateBaseService {
 
     public void update(UpdateCaseFieldTemplateRequest request) {
         if (request.getGlobal() != null && request.getGlobal()) {
+            String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
-            add(request);
+            String id = add(request);
+            projectService.updateCaseTemplate(originId, id);
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
