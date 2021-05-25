@@ -23,7 +23,7 @@
 
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top">
-          <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
       </template>
 
@@ -118,6 +118,7 @@
       },
       currentEnvironmentId: String,
       projectList: Array,
+      expandedNode: Array,
       envMap: Map
     },
     components: {
@@ -327,6 +328,13 @@
         this.request.active = !this.request.active;
         if (this.node) {
           this.node.expanded = this.request.active;
+        }
+        if (this.node.expanded && this.expandedNode.indexOf(this.request.resourceId) === -1) {
+          this.expandedNode.push(this.request.resourceId);
+        } else {
+          if (this.expandedNode.indexOf(this.request.resourceId) !== -1) {
+            this.expandedNode.splice(this.expandedNode.indexOf(this.request.resourceId), 1);
+          }
         }
         this.reload();
       },

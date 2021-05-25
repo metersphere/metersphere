@@ -19,25 +19,36 @@
             <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" width="150px" show-overflow-tooltip/>
             <el-table-column prop="originalValue" :label="$t('operating_log.before_change')" width="400px" show-overflow-tooltip>
               <template v-slot:default="scope">
-                <pre>{{scope.row.originalValue}} </pre>
+                <span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.originalValue | timestampFormatDate }}</span>
+                <pre v-else>{{ scope.row.originalValue }}</pre>
+
               </template>
             </el-table-column>
             <el-table-column prop="newValue" :label="$t('operating_log.after_change')" width="400px" show-overflow-tooltip>
               <template v-slot:default="scope">
-                <pre>{{scope.row.newValue}} </pre>
+                <span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.newValue | timestampFormatDate }}</span>
+                <pre v-else>{{ scope.row.newValue }}</pre>
               </template>
             </el-table-column>
           </el-table>
         </div>
       </div>
       <div v-else-if="detail && (detail.operType ==='DELETE' || detail.details === null || (detail.details && detail.details.columns && detail.details.columns.length === 0))">
-        <pre>{{detail.operTitle}} </pre>
+        <pre style="overflow: auto">{{detail.operTitle}} </pre>
         <span style="color: #409EFF">{{getType(detail.operType)}} </span>
         <span style="color: #409EFF"> {{$t('api_test.home_page.detail_card.success')}}</span>
       </div>
       <div v-else>
-        <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
-          <pre style="overflow: auto" v-for="n in detail.details.columns" :key="n.id">{{n.columnTitle}}：{{n.originalValue}}</pre>
+        <div v-if="detail && detail.details && detail.details.columns" style="overflow: auto">
+          <span v-for="n in detail.details.columns" :key="n.id">
+            <pre v-if="timeDates.indexOf(n.columnName)!==-1">
+              {{n.columnTitle}}：{{ n.originalValue | timestampFormatDate }}
+            </pre>
+            <pre style="overflow: auto" v-else>
+              {{n.columnTitle}}：{{n.originalValue}}
+            </pre>
+          </span>
+
         </div>
       </div>
     </div>
@@ -101,7 +112,8 @@
           ['BATCH_RESTORE', "批量恢复"],
           ['BATCH_GC', "批量回收"],
           ['UN_ASSOCIATE_CASE', this.$t('test_track.case.unlink')],
-        ])
+        ]),
+        timeDates: ["plannedStartTime", "plannedEndTime", "startTime", "endTime"],
       }
     },
     methods: {

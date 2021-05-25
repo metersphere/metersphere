@@ -427,11 +427,13 @@ export default {
   watch: {
     selectNodeIds() {
       initCondition(this.condition, false);
+      this.currentPage = 1;
       this.condition.moduleIds = [];
       this.condition.moduleIds.push(this.selectNodeIds);
       this.initTable();
     },
     currentProtocol() {
+      this.currentPage = 1;
       initCondition(this.condition, false);
       this.initTable();
     },
