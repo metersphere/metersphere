@@ -156,6 +156,9 @@
           });
         });
       },
+      clear() {
+        this.selectRows.clear();
+      },
       handleSelectAll(selection) {
         _handleSelectAll(this, selection, this.tableData, this.selectRows);
         this.initProjectIds();

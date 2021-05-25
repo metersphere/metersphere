@@ -165,7 +165,6 @@
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
   import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonData";
-  import {getCurrentProjectID} from "@/common/js/utils";
   import ApiListContainer from "../../../definition/components/list/ApiListContainer";
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
@@ -319,7 +318,7 @@
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
-          });          
+          });
           this.genProtocalFilter(this.condition.protocol);
           this.$nextTick(function () {
             if (this.$refs.apitable) {
@@ -419,6 +418,11 @@
         let param = buildBatchParam(this);
         param.ids = Array.from(sampleSelectRows).map(row => row.id);
         return param;
+      },
+      clear() {
+        if (this.$refs.apitable) {
+          this.$refs.apitable.clear();
+        }
       }
     },
   }
