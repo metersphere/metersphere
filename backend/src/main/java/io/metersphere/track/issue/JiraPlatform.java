@@ -64,7 +64,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
         }
         JiraConfig config = getConfig();
         JiraClient.setConfig(config);
-        List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issues.forEach(item -> {
             String issuesId = item.getId();
             parseIssue(item, JiraClient.getIssues(issuesId));

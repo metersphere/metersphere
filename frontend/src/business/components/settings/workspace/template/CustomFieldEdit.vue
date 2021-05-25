@@ -143,6 +143,12 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.workspaceId = getCurrentWorkspaceId();
+          for (const item of this.form.options) {
+            if (!item.text || !item.value) {
+              this.$warning('请填写完整选项值');
+              return;
+            }
+          }
           param.options = JSON.stringify(this.form.options);
           this.result = this.$post(this.url, param, (response) => {
             this.visible = false;

@@ -126,9 +126,11 @@ export default {
       }
     },
     handleValueEdit(element) {
-      this.editIndex = -1;
       if (!this.isKv) {
         element.text = element.value;
+      }
+      if (element.value && element.text) {
+        this.editIndex = -1;
       }
     },
     isSystem(element) {
