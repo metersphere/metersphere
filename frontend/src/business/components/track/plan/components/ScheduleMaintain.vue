@@ -264,7 +264,9 @@ export default {
       this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
-          this.runConfig = JSON.parse(response.data.config);
+          if(response.data.config){
+            this.runConfig = JSON.parse(response.data.config);
+          }
         } else {
           this.schedule = {};
         }

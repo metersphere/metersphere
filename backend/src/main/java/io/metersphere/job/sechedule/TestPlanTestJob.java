@@ -1,9 +1,12 @@
 package io.metersphere.job.sechedule;
 
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.lang3.StringUtils;
 import org.quartz.*;
 
 /**
@@ -59,7 +62,11 @@ public class TestPlanTestJob extends MsScheduleJob {
 
     @Override
     void businessExecute(JobExecutionContext context) {
-        testPlanService.run(this.resourceId, this.projectID, this.userId, ReportTriggerMode.SCHEDULE.name());
+
+        JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+        String config = jobDataMap.getString("config");
+
+        testPlanService.run(this.resourceId, this.projectID, this.userId, ReportTriggerMode.SCHEDULE.name(),config);
     }
 
     public static JobKey getJobKey(String testId) {
