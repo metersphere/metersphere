@@ -25,17 +25,17 @@ export default {
     {
       path: 'workspace/template/field',
       component: () => import('@/business/components/settings/workspace/template/CustomFieldList'),
-      meta: {workspaceTemplate: true, title: 'custom_field.name', permissions: ['WORKSPACE_TEMPLATE:READ']},
+      meta: {workspaceTemplate: true, title: 'custom_field.name', permissions: ['WORKSPACE_TEMPLATE:READ+CUSTOM']},
     },
     {
       path: 'workspace/template/case',
       component: () => import('@/business/components/settings/workspace/template/TestCaseTemplateList'),
-      meta: {workspaceTemplate: true, title: '用例模板', permissions: ['WORKSPACE_TEMPLATE:READ']},
+      meta: {workspaceTemplate: true, title: '用例模板', permissions: ['WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE']},
     },
     {
       path: 'workspace/template/issues',
       component: () => import('@/business/components/settings/workspace/template/IssuesTemplateList'),
-      meta: {workspaceTemplate: true, title: '缺陷模板', permissions: ['WORKSPACE_TEMPLATE:READ']},
+      meta: {workspaceTemplate: true, title: '缺陷模板', permissions: ['WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE']},
     },
     {
       path: 'workspace/template/report',
@@ -44,7 +44,7 @@ export default {
       meta: {
         workspaceTemplate: true,
         title: 'test_track.plan_view.report_template',
-        permissions: ['WORKSPACE_TEMPLATE:READ']
+        permissions: ['WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE']
       }
     },
     {

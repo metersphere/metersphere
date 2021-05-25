@@ -33,9 +33,10 @@
                     class="setting-item">
         {{ $t(menu.title) }}
       </el-menu-item>
-      <el-submenu index="3-1">
+      <el-submenu index="3-1"
+                  v-permission="['WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE', 'WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE', 'WORKSPACE_TEMPLATE:READ+CUSTOM', 'WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE']">
         <template slot="title">模板管理</template>
-        <el-menu-item v-for="menu in workspaceTemplate" :key="menu.index" :index="menu.index" class="setting-item">
+        <el-menu-item v-for="menu in workspaceTemplate" v-permission="menu.permissions" :key="menu.index" :index="menu.index" class="setting-item">
           {{ $t(menu.title) }}
         </el-menu-item>
       </el-submenu>
