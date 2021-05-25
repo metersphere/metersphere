@@ -76,4 +76,23 @@
                  join `group` r on r.id = ur.group_id
         where p.id = #{projectId} and ur.user_id = #{userId}
     </select>
+    <select id="getRelatedSource" resultType="io.metersphere.dto.RelatedSource">
+        SELECT organization_id, workspace_id, project.id
+        FROM user_group
+                 JOIN project ON source_id = project.id
+                 JOIN workspace w ON project.workspace_id = w.id
+                 JOIN organization o ON w.organization_id = o.id
+        WHERE user_id = #{userId} -- project_admin project_member read_only bb
+        UNION
+        SELECT organization_id, w.id, ''
+        FROM user_group
+                 JOIN workspace w ON user_group.source_id = w.id
+                 JOIN organization o2 ON w.organization_id = o2.id
+        WHERE user_id = #{userId} -- workspace_admin workspace_member ccc
+        UNION
+        SELECT o.id, '', ''
+        FROM user_group
+                 JOIN organization o ON user_group.source_id = o.id
+        WHERE user_id = #{userId} -- org_admin org_member aaa
+    </select>
 </mapper>

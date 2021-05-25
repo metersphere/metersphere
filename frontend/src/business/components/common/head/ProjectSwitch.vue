@@ -10,11 +10,11 @@
       </template>
       <search-list :current-project.sync="currentProject"/>
       <el-divider/>
-      <el-menu-item :index="'/setting/project/create'">
+      <el-menu-item :index="'/setting/project/create'" v-permission="['WORKSPACE_PROJECT_MANAGER:READ+CREATE']">
         <font-awesome-icon :icon="['fa', 'plus']"/>
         <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
       </el-menu-item>
-      <el-menu-item :index="'/setting/project/all'">
+      <el-menu-item :index="'/setting/project/all'" v-permission="['WORKSPACE_PROJECT_MANAGER:READ']">
         <font-awesome-icon :icon="['fa', 'list-ul']"/>
         <span style="padding-left: 7px;">{{ $t('commons.show_all') }}</span>
       </el-menu-item>

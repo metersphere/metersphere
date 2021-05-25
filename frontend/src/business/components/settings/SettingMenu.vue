@@ -1,6 +1,6 @@
 <template>
   <el-menu menu-trigger="click" :default-active="$route.path" router class="setting">
-    <el-submenu index="1">
+    <el-submenu index="1" v-permission="systemPermission">
       <template v-slot:title>
         <font-awesome-icon class="icon account" :icon="['far', 'address-card']" size="lg"/>
         <span>{{ $t('commons.system') }}</span>
@@ -106,6 +106,11 @@ export default {
       persons: getMenus('person'),
       project: getMenus('project'),
       workspaceTemplate: getMenus('workspaceTemplate'),
+      systemPermission: [
+        'SYSTEM_USER:READ','SYSTEM_ORGANIZATION:READ', 'SYSTEM_GROUP:READ',
+        'ORGANIZATION_GROUP:READ', 'SYSTEM_WORKSPACE:READ','SYSTEM_TEST_POOL:READ',
+        'SYSTEM_SETTING:READ','SYSTEM_QUOTA:READ','SYSTEM_AUTH:READ'
+      ]
     };
   },
   methods: {
