@@ -726,15 +726,17 @@ public class ApiAutomationService {
         report.setStatus(APITestStatus.Running.name());
         if (StringUtils.isNotEmpty(userID)) {
             report.setUserId(userID);
+            report.setCreateUser(userID);
         } else {
             report.setUserId(SessionUtils.getUserId());
+            report.setCreateUser(SessionUtils.getUserId());
         }
         report.setTriggerMode(triggerMode);
         report.setExecuteType(execType);
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
-        report.setCreateUser(SessionUtils.getUserId());
+
         return report;
     }
 
@@ -894,7 +896,7 @@ public class ApiAutomationService {
             APIScenarioReportResult report;
             Map<String, String> planEnvMap = new HashMap<>();
             //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
-            if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+            if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(),ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                 String testPlanScenarioId = item.getId();
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                     testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
@@ -905,8 +907,15 @@ public class ApiAutomationService {
                         planEnvMap = JSON.parseObject(environment, Map.class);
                     }
                 }
-                report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
-                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
+                if(request.isTestPlanScheduleJob()){
+                    String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
+                    report = createScenarioReport(reportId, savedScenarioId, item.getName(), request.getTriggerMode(),
+                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
+                }else{
+                    report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
+                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
+                }
+
             } else {
                 report = createScenarioReport(reportId, item.getId(), item.getName(), request.getTriggerMode(),
                         request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
@@ -1049,7 +1058,8 @@ public class ApiAutomationService {
                 if (reportIds != null) {
                     //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
                     APIScenarioReportResult report = null;
-                    if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+//                  if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+                    if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(),ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                         String testPlanScenarioId = item.getId();
                         if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                             testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
@@ -1060,8 +1070,14 @@ public class ApiAutomationService {
                                 scenario.setEnvironmentMap(JSON.parseObject(environment, Map.class));
                             }
                         }
-                        report = createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                        if(request.isTestPlanScheduleJob()){
+                            String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
+                            report = createScenarioReport(group.getName(), savedScenarioId, item.getName(), request.getTriggerMode(),
+                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
+                        }else{
+                            report = createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                        }
                     } else {
                         report = createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());

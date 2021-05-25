@@ -10,9 +10,8 @@ import java.util.Set;
 @Getter
 @Setter
 public class TestCaseExcelData {
-
+    @ExcelIgnore
     private String id;
-
     @ExcelIgnore
     private Integer num;
     @ExcelIgnore
@@ -41,10 +40,10 @@ public class TestCaseExcelData {
     public Set<String> getExcludeColumnFiledNames(boolean needNum){
         Set<String> excludeColumnFiledNames = new HashSet<>();
         if(!needNum){
-            excludeColumnFiledNames.add("num");
+            excludeColumnFiledNames.add("customNum");
         }
-        excludeColumnFiledNames.add("customNum");
-
+        excludeColumnFiledNames.add("id");
+        excludeColumnFiledNames.add("num");
         return excludeColumnFiledNames;
     }
 }

@@ -157,6 +157,6 @@ public class TestPlanController {
     }
     @PostMapping("/testplan/jenkins")
     public void  runJenkins(@RequestBody TestplanRunRequest testplanRunRequest){
-        testPlanService.run(testplanRunRequest.getTestPlanID(),testplanRunRequest.getProjectID(),testplanRunRequest.getUserId(),testplanRunRequest.getTriggerMode());
+        testPlanService.run(testplanRunRequest.getTestPlanID(),testplanRunRequest.getProjectID(),testplanRunRequest.getUserId(),testplanRunRequest.getTriggerMode(),null);
     }
 }
