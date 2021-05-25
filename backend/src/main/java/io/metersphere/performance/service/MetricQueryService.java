@@ -198,7 +198,6 @@ public class MetricQueryService {
             metricRequest.setEndTime(reportTimeInfo.getEndTime());
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            e.printStackTrace();
         }
 
         return queryMetricData(metricRequest);
