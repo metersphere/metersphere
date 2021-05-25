@@ -164,7 +164,7 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _handleSelect, _handleSelectAll, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import {Api_Case_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -314,7 +314,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     initTable() {
       if (this.$refs.caseTable) {

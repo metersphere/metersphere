@@ -177,7 +177,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
-  buildBatchParam,
+  buildBatchParam, deepClone,
   getLabel,
   getSelectDataCounts,
   initCondition,
@@ -360,7 +360,8 @@ export default {
       }
     },
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel);
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     getSelectDataRange() {
       let dataRange = this.$route.params.dataSelectRange;

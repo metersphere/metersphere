@@ -120,7 +120,7 @@ import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
 import {checkoutTestManagerOrTestUser, getCurrentWorkspaceId} from "@/common/js/utils";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
@@ -180,7 +180,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel);
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
 
     initTableData() {

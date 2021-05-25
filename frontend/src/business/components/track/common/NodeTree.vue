@@ -31,7 +31,7 @@
         </span>
         <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
         <span v-if="data.caseNum" class="node-title">
-          <span>(0/{{ data.caseNum }})</span>
+          <span>({{ data.caseNum }})</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
