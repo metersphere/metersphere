@@ -1,9 +1,10 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.TestCaseIssues;
-import io.metersphere.base.domain.TestCaseIssuesExample;
+import com.alibaba.fastjson.JSON;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.issues.IssuesRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -56,9 +58,9 @@ public class TestCaseIssueService {
     }
 
     public List<String> getTestCaseIdsByIssuesId(String issuesId) {
-       return getTestCaseIssuesByIssuesId(issuesId).stream()
-               .map(TestCaseIssues::getTestCaseId)
-               .collect(Collectors.toList());
+        return getTestCaseIssuesByIssuesId(issuesId).stream()
+                .map(TestCaseIssues::getTestCaseId)
+                .collect(Collectors.toList());
     }
 
     public void relate(IssuesRelevanceRequest request) {
@@ -85,5 +87,19 @@ public class TestCaseIssueService {
         testCaseIssues.setTestCaseId(caseId);
         testCaseIssues.setIssuesId(issueId);
         testCaseIssuesMapper.insert(testCaseIssues);
+    }
+
+
+    public String getLogDetails(IssuesRelevanceRequest request) {
+        TestCaseWithBLOBs bloBs = testCaseService.getTestCase(request.getCaseId());
+        if (bloBs != null) {
+            IssuesExample example = new IssuesExample();
+            example.createCriteria().andIdIn(request.getIssueIds());
+            List<Issues> issues = issuesMapper.selectByExample(example);
+            List<String> names = issues.stream().map(Issues::getTitle).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getIssueIds()), bloBs.getProjectId(), bloBs.getName() + " 关联 " + names, bloBs.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

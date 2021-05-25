@@ -3,7 +3,6 @@
  */
 package io.metersphere.api.service.task;
 
-import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.ApiScenarioReport;
@@ -34,7 +33,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            jMeterService.runSerial(JSON.toJSONString(id), hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
+            jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
             while (index < 200) {

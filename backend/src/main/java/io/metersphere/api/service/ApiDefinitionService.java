@@ -569,9 +569,11 @@ public class ApiDefinitionService {
         Map<String, String> map = request.getEnvironmentMap();
         if (map != null && map.size() > 0) {
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(request.getProjectId()));
-            EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-            envConfig.put(request.getProjectId(), env);
-            config.setConfig(envConfig);
+            if (environment != null) {
+                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                envConfig.put(request.getProjectId(), env);
+                config.setConfig(envConfig);
+            }
         }
 
 

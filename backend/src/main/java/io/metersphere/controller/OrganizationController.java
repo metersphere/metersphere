@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Organization;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.OrganizationRequest;
@@ -13,8 +12,6 @@ import io.metersphere.dto.OrganizationResource;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -67,7 +64,7 @@ public class OrganizationController {
     }
 
     @PostMapping("/member/update")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO.id)", content = "#msClass.getLogDetails(#memberDTO.id)", msClass = OrganizationService.class)
+    @MsAuditLog(module = "organization_member", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#memberDTO)", msClass = OrganizationService.class)
     public void updateOrgMember(@RequestBody OrganizationMemberDTO memberDTO) {
         organizationService.updateOrgMember(memberDTO);
     }

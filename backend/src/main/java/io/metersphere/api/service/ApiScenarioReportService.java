@@ -326,8 +326,12 @@ public class ApiScenarioReportService {
      */
     private void updateScenarioStatus(String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            List<String> list = new ArrayList<>();
-            list.add(reportId);
+            List<String> list = new LinkedList<>();
+            try {
+                list = JSON.parseObject(reportId, List.class);
+            } catch (Exception e) {
+                list.add(reportId);
+            }
             ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
             scenarioReportExample.createCriteria().andIdIn(list);
             List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
@@ -336,7 +340,7 @@ public class ApiScenarioReportService {
             if (CollectionUtils.isNotEmpty(reportList)) {
                 reportList.forEach(report -> {
                     report.setUpdateTime(System.currentTimeMillis());
-                    String status = "Success";
+                    String status = "Error";
                     report.setStatus(status);
                     scenarioReportMapper.updateByPrimaryKeySelective(report);
                     // 把上一条调试的数据内容清空
