@@ -10,6 +10,8 @@
 
       <el-table ref="scenarioTable" border :data="tableData" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
+                @sort-change="sort"
+                @filter-change="filter"
                 :height="screenHeight"
                 @select="handleSelect">
         <el-table-column width="50" type="selection"/>
@@ -26,6 +28,7 @@
         <template v-for="(item, index) in tableLabel">
           <el-table-column
             v-if="item.id == 'num'"
+            sortable="custom"
             prop="customNum"
             min-width="80px"
             label="ID"
@@ -33,12 +36,12 @@
           <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')" min-width="120px"
                            show-overflow-tooltip :key="index"/>
           <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')" min-width="100px"
+                           column-key="level"
+                           sortable="custom"
+                           :filters="LEVEL_FILTERS"
                            show-overflow-tooltip :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
-              <ms-tag v-if="scope.row.level == 'P1'" type="warning" effect="plain" content="P1"/>
-              <ms-tag v-if="scope.row.level == 'P2'" type="success" effect="plain" content="P2"/>
-              <ms-tag v-if="scope.row.level == 'P3'" type="danger" effect="plain" content="P3"/>
+              <priority-table-item :value="scope.row.level" ref="level"/>
             </template>
 
           </el-table-column>
@@ -51,7 +54,10 @@
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')" min-width="100px"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'updateTime'" prop="updateTime" min-width="120px"
+          <el-table-column v-if="item.id == 'updateTime'"
+                           prop="updateTime"
+                           min-width="120px"
+                           sortable="custom"
                            :label="$t('api_test.automation.update_time')" width="180" :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -60,6 +66,7 @@
           <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')" min-width="80px"
                            show-overflow-tooltip :key="index"/>
           <el-table-column v-if="item.id == 'lastResult'" prop="lastResult" min-width="100px"
+                           :filters="RESULT_FILTERS"
                            :label="$t('api_test.automation.last_result')" :key="index">
             <template v-slot:default="{row}">
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
@@ -114,7 +121,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -141,10 +148,13 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
+import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 
 export default {
   name: "MsTestPlanApiScenarioList",
   components: {
+    PriorityTableItem,
     HeaderLabelOperate,
     HeaderCustom,
     MsTableOperatorButton,
@@ -192,6 +202,7 @@ export default {
       infoDb: false,
       runVisible: false,
       runData: [],
+      ...API_SCENARIO_FILTERS,
       buttons: [
         {
           name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
@@ -367,6 +378,18 @@ export default {
       this.runVisible = true;
       this.infoDb = true;
       this.reportId = row.reportId;
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.search();
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.search();
     },
     remove(row) {
       if (this.planId) {

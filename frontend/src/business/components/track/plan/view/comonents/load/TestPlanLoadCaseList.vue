@@ -29,7 +29,7 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.id == 'num'" prop="num" min-width="80" label="ID" show-overflow-tooltip :key="index"/>
+          <el-table-column v-if="item.id == 'num'" prop="num" sortable min-width="80" label="ID" show-overflow-tooltip :key="index"/>
           <el-table-column
               v-if="item.id == 'caseName'"
               prop="caseName"

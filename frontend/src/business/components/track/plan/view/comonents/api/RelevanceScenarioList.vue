@@ -27,10 +27,7 @@
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
-            <ms-tag v-if="scope.row.level == 'P1'" type="warning" effect="plain" content="P1"/>
-            <ms-tag v-if="scope.row.level == 'P2'" type="success" effect="plain" content="P2"/>
-            <ms-tag v-if="scope.row.level == 'P3'" type="danger" effect="plain" content="P3"/>
+            <priority-table-item :value="scope.row.level" ref="level"/>
           </template>
 
         </el-table-column>
@@ -74,10 +71,12 @@
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
+  import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 
   export default {
     name: "RelevanceScenarioList",
     components: {
+      PriorityTableItem,
       EnvPopover,
       TestPlanScenarioListHeader,
       MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},

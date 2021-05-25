@@ -1,10 +1,8 @@
 <template>
   <div>
     <el-card class="table-card-nopadding" v-loading="result.loading">
-      <!--      <template v-slot:header>-->
       <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
                        :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
-      <!--      </template>-->
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all-fixed"
                 @sort-change="sort"
@@ -62,7 +60,7 @@
           <el-table-column v-if="item.id == 'level'" prop="level"
                            sortable="custom"
                            column-key="level"
-                           :filters="levelFilters"
+                           :filters="LEVEL_FILTERS"
                            min-width="130px"
                            :label="$t('api_test.automation.case_level')"
                            show-overflow-tooltip :key="index">
@@ -73,7 +71,7 @@
           <el-table-column v-if="item.id == 'status'" prop="status" :label="$t('test_track.plan.plan_status')"
                            sortable="custom"
                            column-key="status"
-                           :filters="statusFilters"
+                           :filters="STATUS_FILTERS"
                            show-overflow-tooltip min-width="120px" :key="index">
             <template v-slot:default="scope">
               <plan-status-table-item :value="scope.row.status"/>
@@ -113,7 +111,7 @@
                            show-overflow-tooltip :key="index"/>
           <el-table-column v-if="item.id == 'lastResult'" prop="lastResult"
                            :label="$t('api_test.automation.last_result')"
-                           :filters="resultFilters"
+                           :filters="RESULT_FILTERS"
 
                            sortable="custom" column-key="last_result" min-width="130px" :key="index">
             <template v-slot:default="{row}">
@@ -219,6 +217,7 @@ import {
 import {Api_Scenario_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 
 export default {
   name: "MsApiScenarioList",
@@ -348,6 +347,7 @@ export default {
       isSelectAllDate: false,
       selectRows: new Set(),
       selectDataCounts: 0,
+      ...API_SCENARIO_FILTERS,
       typeArr: [
         {id: 'level', name: this.$t('test_track.case.priority')},
         {id: 'status', name: this.$t('test_track.plan.plan_status')},
@@ -358,22 +358,6 @@ export default {
         },
         // {id: 'environmentId', name: this.$t('api_test.definition.request.run_env'), optionMethod: this.getEnvsOptions},
         {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
-      ],
-      statusFilters: [
-        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-        {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
-        {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
-      ],
-      levelFilters: [
-        {text: 'P0', value: 'P0'},
-        {text: 'P1', value: 'P1'},
-        {text: 'P2', value: 'P2'},
-        {text: 'P3', value: 'P3'}
-      ],
-      resultFilters: [
-        {text: 'Fail', value: 'Fail'},
-        {text: 'Success', value: 'Success'}
       ],
       valueArr: {
         level: [
