@@ -2,6 +2,7 @@ package io.metersphere.performance.engine;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
@@ -17,6 +18,7 @@ import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -104,19 +106,21 @@ public abstract class AbstractEngine implements Engine {
         String loadConfiguration = t.getLoadConfiguration();
         JSONArray jsonArray = JSON.parseArray(loadConfiguration);
 
+        Iterator<Object> iterator = jsonArray.iterator();
         outer:
-        for (int i = 0; i < jsonArray.size(); i++) {
-            if (jsonArray.get(i) instanceof List) {
-                JSONArray o = jsonArray.getJSONArray(i);
-                for (int j = 0; j < o.size(); j++) {
-                    if (StringUtils.equals(o.getJSONObject(j).getString("deleted"), "true")) {
-                        jsonArray.remove(i);
+        while (iterator.hasNext()) {
+            Object next = iterator.next();
+            if (next instanceof List) {
+                List<Object> o = (List<Object>) next;
+                for (Object o1 : o) {
+                    if (StringUtils.equals(JSONObject.parseObject(o1.toString()).getString("deleted"), "true")) {
+                        iterator.remove();
                         continue outer;
                     }
                 }
-                for (int j = 0; j < o.size(); j++) {
-                    if (!StringUtils.equals(o.getJSONObject(j).getString("enabled"), "true")) {
-                        jsonArray.remove(i);
+                for (Object o1 : o) {
+                    if (StringUtils.equals(JSONObject.parseObject(o1.toString()).getString("enabled"), "false")) {
+                        iterator.remove();
                         continue outer;
                     }
                 }
