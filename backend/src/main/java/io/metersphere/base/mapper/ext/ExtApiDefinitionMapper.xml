@@ -487,6 +487,40 @@
         WHERE project_id = #{0} AND status != 'Trash' AND protocol = 'HTTP'
     </select>
 
+    <select id="moduleCount" resultType="java.lang.Integer">
+        select count(id) from api_definition
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and api_definition.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='method'">
+                            and api_definition.method in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='user_id'">
+                            and api_definition.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
     <sql id="queryWhereCondition">
         <where>
             <if test="request.combine != null">
@@ -504,12 +538,6 @@
             <if test="request.protocol != null">
                 AND api_definition.protocol = #{request.protocol}
             </if>
-            <if test="request.workspaceId != null">
-                AND project.workspace_id = #{request.workspaceId}
-            </if>
-            <if test="request.projectId != null">
-                AND project.id = #{request.projectId}
-            </if>
             <if test="request.id != null">
                 AND api_definition.id = #{request.id}
             </if>
@@ -522,41 +550,24 @@
             <if test="request.moduleId != null">
                 AND api_definition.module_id = #{request.moduleId}
             </if>
-            <if test="request.projectId != null">
-                AND api_definition.project_id = #{request.projectId}
-            </if>
-            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-                AND api_definition.module_id in
-                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='status'">
-                                and api_definition.status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='method'">
-                                and api_definition.method in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='user_id'">
-                                and api_definition.user_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
+            <choose>
+                <when test="request.moduleIds != null and request.moduleIds.size() > 0">
+                    AND api_definition.module_id in
+                    <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    AND api_definition.project_id = #{request.projectId}
+                </when>
+                <when test="request.projectId != null">
+                    AND project.id = #{request.projectId}
+                </when>
+                <when test="request.workspaceId != null">
+                    AND project.workspace_id = #{request.workspaceId}
+                </when>
+            </choose>
+            <include refid="filter"/>
             <if test="request.apiCaseCoverage == 'uncoverage' ">
                 and api_definition.id not in
                 (SELECT api_definition_id FROM api_test_case)
@@ -565,8 +576,6 @@
                 and api_definition.id in
                 (SELECT api_definition_id FROM api_test_case)
             </if>
-
-
         </where>
     </sql>
 </mapper>

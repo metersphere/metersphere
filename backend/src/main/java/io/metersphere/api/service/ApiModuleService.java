@@ -93,14 +93,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
             moduleIds.add(node.getId());
             request.setModuleIds(moduleIds);
-            int num = this.getCaseNum(request);
-            node.setCaseNum(num);
+            node.setCaseNum(extApiDefinitionMapper.moduleCount(request));
         });
         return getNodeTrees(apiModules);
-    }
-
-    private int getCaseNum(ApiDefinitionRequest request) {
-        return extApiDefinitionMapper.list(request).size();
     }
 
     public static List<String> nodeList(List<ApiModuleDTO> apiNodes, String pid, List<String> list) {
