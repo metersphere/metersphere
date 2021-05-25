@@ -604,9 +604,9 @@ export default {
       })
     },
     search() {
-      if (!hasRole(ROLE_ADMIN)) {
-        return;
-      }
+      // if (!hasRole(ROLE_ADMIN)) {
+      //   return;
+      // }
       this.selectRows = new Set();
       // this.condition.selectAll = false;
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {

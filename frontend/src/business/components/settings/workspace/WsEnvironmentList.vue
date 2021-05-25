@@ -4,11 +4,11 @@
       <!-- 表头 -->
       <template v-slot:header>
         <ms-table-header :create-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE']" :title="$t('api_test.environment.environment_list')" :create-tip="btnTips"
-                         :condition.sync="condition" :is-tester-permission="isTesterPermission" @search="search" @create="createEnv">
+                         :condition.sync="condition" @search="search" @create="createEnv">
           <template v-slot:button>
-            <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT']" :is-tester-permission="isTesterPermission" icon="el-icon-box"
+            <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+IMPORT']" icon="el-icon-box"
                              :content="$t('commons.import')" @click="importJSON"/>
-            <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT']" :is-tester-permission="isTesterPermission" icon="el-icon-box"
+            <ms-table-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT']" icon="el-icon-box"
                              :content="$t('commons.export')" @click="exportJSON"/>
           </template>
         </ms-table-header>
@@ -39,7 +39,7 @@
                                :delete-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE']"
               @editClick="editEnv(scope.row)" @deleteClick="deleteEnv(scope.row)">
               <template v-slot:middle>
-                <ms-table-operator-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY']" :tip="$t('commons.copy')" @exec="copyEnv(scope.row)" :is-tester-permission="isTesterPermission"
+                <ms-table-operator-button v-permission="['WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY']" :tip="$t('commons.copy')" @exec="copyEnv(scope.row)"
                                           icon="el-icon-document-copy" type="info"/>
               </template>
             </ms-table-operator>

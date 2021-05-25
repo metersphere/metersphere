@@ -2,7 +2,7 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <el-button :disabled="!isTesterPermission" icon="el-icon-circle-plus-outline" plain size="mini"
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini"
                    @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
@@ -98,14 +98,12 @@
                 type="primary"
                 size="mini"
                 v-show="scope.row.isSet"
-                :disabled="!isTesterPermission"
                 @click="handleAddTask(scope.$index,scope.row)"
               >{{ $t('commons.add') }}
               </el-button>
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
-                :disabled="!isTesterPermission"
                 @click.native.prevent="removeRowTask(scope.$index,scheduleTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
@@ -113,7 +111,6 @@
                 type="primary"
                 size="mini"
                 v-show="!scope.row.isSet"
-                :disabled="!isTesterPermission"
                 @click="handleEditTask(scope.$index,scope.row)"
               >{{ $t('commons.edit') }}
               </el-button>
@@ -122,7 +119,6 @@
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
-                :disabled="!isTesterPermission"
                 @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
               ></el-button>
             </template>
