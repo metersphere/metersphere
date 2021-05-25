@@ -15,4 +15,14 @@ public class TestCaseExcelDataFactory implements ExcelDataFactory {
         }
         return TestCaseExcelDataCn.class;
     }
+
+    public TestCaseExcelData getTestCaseExcelDataLocal(){
+        Locale locale = LocaleContextHolder.getLocale();
+        if (Locale.US.toString().equalsIgnoreCase(locale.toString())) {
+            return new TestCaseExcelDataUs();
+        } else if (Locale.TRADITIONAL_CHINESE.toString().equalsIgnoreCase(locale.toString())) {
+            return new TestCaseExcelDataTw();
+        }
+        return new TestCaseExcelDataCn();
+    }
 }
