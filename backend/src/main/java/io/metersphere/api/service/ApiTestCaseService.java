@@ -626,7 +626,6 @@ public class ApiTestCaseService {
                 HashTree jmeterHashTree = this.generateHashTree(request, apiCaseBolbs);
                 // 调用执行方法
                 jMeterService.runDefinition(id, jmeterHashTree, debugReportId, runMode);
-
             } catch (Exception ex) {
                 LogUtil.error(ex.getMessage());
             }
