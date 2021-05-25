@@ -85,7 +85,7 @@ export default {
     },
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
-        this.resourcePools = response.data;
+        this.resourcePools = response.data.filter(p => p.type === 'NODE');
       });
     },
   },
