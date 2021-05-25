@@ -6,7 +6,6 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -17,8 +16,6 @@ import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ProjectService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,6 +89,7 @@ public class ProjectController {
 
     /**
      * 切换项目
+     *
      * @param request
      * @return
      */
@@ -116,13 +114,13 @@ public class ProjectController {
     }
 
     @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT,  content = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
     public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
         return projectService.uploadFiles(projectId, files);
     }
 
     @PostMapping(value = "/update/file/{fileId}", consumes = {"multipart/form-data"})
-    @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT,  content = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
+    @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
     public FileMetadata updateFile(@PathVariable String fileId, @RequestPart(value = "file") MultipartFile file) {
         return projectService.updateFile(fileId, file);
     }
@@ -134,7 +132,7 @@ public class ProjectController {
     }
 
     @PostMapping("/member/update")
-//    @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, title = "#memberDTO.name")
+    @MsAuditLog(module = "project_project_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = ProjectService.class)
     public void updateMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         projectService.updateMember(memberDTO);
     }

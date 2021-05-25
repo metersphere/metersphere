@@ -22,12 +22,14 @@
         <el-row>
           <el-col :span="12">
             <div style="width: 400px;overflow: auto">
-              <pre>{{ detail.originalValue }}</pre>
+              <pre v-if="formatData.indexOf(detail.columnName)!==-1">{{ detail.originalValue }}</pre>
+              <div v-else>{{ detail.originalValue }}</div>
             </div>
           </el-col>
           <el-col :span="12">
             <div style="width: 400px;overflow: auto">
-              <pre>{{ detail.newValue }}</pre>
+              <pre v-if="formatData.indexOf(detail.columnName)!==-1">{{ detail.newValue }}</pre>
+              <div v-else>{{ detail.newValue }}</div>
             </div>
           </el-col>
         </el-row>
@@ -47,6 +49,7 @@
       return {
         infoVisible: false,
         detail: {},
+        formatData:["loadConfiguration","advancedConfiguration","config","variables","tags","customFields","steps","scenarioDefinition","request","response"],
       }
     },
     methods: {

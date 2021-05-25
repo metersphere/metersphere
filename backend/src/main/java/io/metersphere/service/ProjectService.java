@@ -38,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -237,7 +238,7 @@ public class ProjectService {
         return projectMapper.selectByPrimaryKey(id);
     }
 
-    public boolean useCustomNum(String projectId){
+    public boolean useCustomNum(String projectId) {
         Project project = this.getProjectById(projectId);
         if (project != null) {
             Boolean customNum = project.getCustomNum();
@@ -376,6 +377,21 @@ public class ProjectService {
                     .andGroupIdIn(allGroupIds);
             userGroupMapper.deleteByExample(userGroupExample);
         }
+    }
+
+    public String getLogDetails(WorkspaceMemberDTO memberDTO) {
+        String userId = memberDTO.getId();
+        // 已有角色
+        List<DetailColumn> columns = new LinkedList<>();
+        // 已有角色
+        List<Group> memberGroups = extUserGroupMapper.getProjectMemberGroups(memberDTO.getProjectId(), userId);
+        List<String> names = memberGroups.stream().map(Group::getName).collect(Collectors.toList());
+        List<String> ids = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
+        DetailColumn column = new DetailColumn("成员角色", "userRoles", String.join(",", names), null);
+        columns.add(column);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), memberDTO.getProjectId(), "用户 " + userId + " 修改角色为：" + String.join(",", names), null, columns);
+        return JSON.toJSONString(details);
+
     }
 
     public Integer checkSourceRole(String workspaceId, String userId, String roleId) {

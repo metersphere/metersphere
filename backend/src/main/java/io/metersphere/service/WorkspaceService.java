@@ -7,12 +7,9 @@ import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
-import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleHelpDTO;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.dto.WorkspaceMemberDTO;
@@ -28,6 +25,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +42,7 @@ public class WorkspaceService {
     @Resource
     private UserRoleMapper userRoleMapper;
     @Resource
-    private UserMapper userMapper;
+    private GroupMapper groupMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
     @Resource
@@ -320,10 +318,26 @@ public class WorkspaceService {
         Workspace user = workspaceMapper.selectByPrimaryKey(workspaceId);
         if (user != null) {
             // 已有角色
-            List<Role> memberRoles = extUserRoleMapper.getWorkspaceMemberRoles(workspaceId, userId);
-            List<String> names = memberRoles.stream().map(Role::getName).collect(Collectors.toList());
-            List<String> ids = memberRoles.stream().map(Role::getId).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), null);
+            List<String> names = new LinkedList<>();
+            List<String> ids = new LinkedList<>();
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.organizationColumns);
+
+            UserGroupExample example = new UserGroupExample();
+            example.createCriteria().andSourceIdEqualTo(workspaceId).andUserIdEqualTo(userId);
+            List<UserGroup> memberRoles = userGroupMapper.selectByExample(example);
+            if (!CollectionUtils.isEmpty(memberRoles)) {
+                List<String> groupIds = memberRoles.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+                if (!CollectionUtils.isEmpty(groupIds)) {
+                    GroupExample groupExample = new GroupExample();
+                    groupExample.createCriteria().andIdIn(groupIds);
+                    List<Group> groups = groupMapper.selectByExample(groupExample);
+                    names = groups.stream().map(Group::getName).collect(Collectors.toList());
+                    ids = groups.stream().map(Group::getId).collect(Collectors.toList());
+                }
+            }
+            DetailColumn column = new DetailColumn("成员角色", "userRoles", String.join(",", names), null);
+            columns.add(column);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, "用户 " + userId + " 修改角色为：" + String.join(",", names), user.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
         return null;
