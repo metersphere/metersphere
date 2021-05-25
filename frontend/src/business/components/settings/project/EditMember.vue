@@ -43,6 +43,7 @@
 
 <script>
 import {GROUP_PROJECT} from "@/common/js/constants";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "EditMember",
@@ -63,7 +64,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
   methods: {

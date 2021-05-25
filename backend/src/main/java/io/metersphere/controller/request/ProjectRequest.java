@@ -11,6 +11,7 @@ import java.util.Map;
 public class ProjectRequest {
     private String workspaceId;
     private String projectId;
+    private String userId;
     private String name;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;

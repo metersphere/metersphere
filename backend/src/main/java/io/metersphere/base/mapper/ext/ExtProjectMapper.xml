@@ -82,6 +82,17 @@
           from project
           where workspace_id = #{workspaceId}
     </select>
+    <select id="getSwitchProject" resultType="io.metersphere.dto.ProjectDTO">
+        select distinct p.* from `group` g join user_group ug on g.id = ug.group_id
+        join project p on p.id = ug.source_id
+        <where>
+            g.type = 'PROJECT' and ug.user_id = #{proRequest.userId}
+            and p.workspace_id = #{proRequest.workspaceId}
+            <if test="proRequest.name != null and proRequest.name != ''">
+                and p.name like #{proRequest.name, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
 
     <update id="removeIssuePlatform">
         update project
