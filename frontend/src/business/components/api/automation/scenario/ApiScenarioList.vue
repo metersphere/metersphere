@@ -400,6 +400,7 @@ export default {
   },
   watch: {
     selectNodeIds() {
+      this.currentPage = 1;
       this.condition.selectAll = false;
       this.condition.unSelectIds = [];
       this.selectDataCounts = 0;

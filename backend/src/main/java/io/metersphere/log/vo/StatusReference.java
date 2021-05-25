@@ -45,6 +45,9 @@ public class StatusReference {
         statusMap.put("DELETE", "删除");
         statusMap.put("false", "否");
         statusMap.put("true", "是");
+        statusMap.put("functional", "功能用例");
+        statusMap.put("performance", "性能用例");
+        statusMap.put("api", "接口用例");
 
     }
 

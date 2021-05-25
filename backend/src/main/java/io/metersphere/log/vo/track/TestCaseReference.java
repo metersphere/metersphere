@@ -17,6 +17,7 @@ public class TestCaseReference {
         testCaseColumns.put("method", "请求类型");
         testCaseColumns.put("prerequisite", "前置条件");
         testCaseColumns.put("remark", "备注");
+        testCaseColumns.put("customNum", "ID");
         testCaseColumns.put("steps", "用例步骤");
         testCaseColumns.put("other_test_name", "其他名称");
         testCaseColumns.put("review_status", "评审状态");
