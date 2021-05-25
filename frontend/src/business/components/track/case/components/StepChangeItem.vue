@@ -7,11 +7,11 @@
       <el-dropdown-menu>
         <el-dropdown-item command="STEP">
           <div>{{ $t('test_track.case.step_describe') }}</div>
-          <div>{{ $t('test_track.case.step_describe_tip') }}</div>
+<!--          <div>{{ $t('test_track.case.step_describe_tip') }}</div>-->
         </el-dropdown-item>
         <el-dropdown-item command="TEXT">
           <div>{{  $t('test_track.case.text_describe') }}</div>
-          <div>{{ $t('test_track.case.text_describe_tip') }}</div>
+<!--          <div>{{ $t('test_track.case.text_describe_tip') }}</div>-->
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>

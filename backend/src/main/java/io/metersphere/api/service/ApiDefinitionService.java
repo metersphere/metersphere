@@ -15,6 +15,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
@@ -107,8 +108,6 @@ public class ApiDefinitionService {
     private TestPlanMapper testPlanMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
-
-    private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -574,16 +573,17 @@ public class ApiDefinitionService {
             config.setConfig(envConfig);
         }
 
-
-        List<MsHTTPSamplerProxy> requests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(request.getTestElement(), null);
-
-        // 单接口调试生成tmp临时目录
-        requests.forEach(item -> {
-            String originId = item.getId();
-            item.setId("tmp/" + UUID.randomUUID().toString());
-            FileUtils.copyBdyFile(originId, item.getId());
-            FileUtils.createBodyFiles(item.getId(), bodyFiles);
-        });
+        if (CollectionUtils.isNotEmpty(bodyFiles)) {
+            List<MsHTTPSamplerProxy> requests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(request.getTestElement());
+            // 单接口调试生成tmp临时目录
+            requests.forEach(item -> {
+                Body body = item.getBody();
+                String tmpFilePath = "tmp/" + UUID.randomUUID().toString();
+                body.setTmpFilePath(tmpFilePath);
+                FileUtils.copyBdyFile(item.getId(), tmpFilePath);
+                FileUtils.createBodyFiles(tmpFilePath, bodyFiles);
+            });
+        }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = ApiRunMode.DEFINITION.name();
