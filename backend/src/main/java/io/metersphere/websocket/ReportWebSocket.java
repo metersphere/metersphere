@@ -3,8 +3,8 @@ package io.metersphere.websocket;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.performance.service.PerformanceReportService;
+import io.metersphere.performance.service.PerformanceTestService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -112,7 +112,11 @@ public class ReportWebSocket {
                 if (!session.isOpen()) {
                     return;
                 }
-                if (StringUtils.equalsAny(report.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Reporting.name())) {
+                if (StringUtils.equalsAny(report.getStatus(),
+                        PerformanceTestStatus.Starting.name(),
+                        PerformanceTestStatus.Running.name(),
+                        PerformanceTestStatus.Reporting.name())
+                ) {
                     session.getBasicRemote().sendText("refresh-" + Math.random());
                 }
             } catch (Exception e) {
