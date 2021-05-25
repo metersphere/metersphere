@@ -327,7 +327,7 @@ public class ApiAutomationService {
         ApiScenarioWithBLOBs oldScenario = apiScenarioMapper.selectByPrimaryKey(scenario.getId());
         Set<String> newRequestIds = getRequestIds(scenario.getScenarioDefinition());
         MsTestElement msTestElement = parseScenarioDefinition(oldScenario.getScenarioDefinition());
-        List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement, null);
+        List<MsHTTPSamplerProxy> oldRequests = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
         oldRequests.forEach(item -> {
             if (item.isCustomizeReq() && !newRequestIds.contains(item.getId())) {
                 FileUtils.deleteBodyFiles(item.getId());
@@ -343,7 +343,7 @@ public class ApiAutomationService {
 
     public Set<String> getRequestIds(String scenarioDefinition) {
         MsScenario msScenario = parseScenarioDefinition(scenarioDefinition);
-        List<MsHTTPSamplerProxy> httpSampleFromHashTree = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msScenario, null);
+        List<MsHTTPSamplerProxy> httpSampleFromHashTree = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msScenario);
         return httpSampleFromHashTree.stream()
                 .map(MsHTTPSamplerProxy::getId).collect(Collectors.toSet());
     }
@@ -442,7 +442,7 @@ public class ApiAutomationService {
 
     public void deleteBodyFile(String scenarioDefinition) {
         MsTestElement msTestElement = parseScenarioDefinition(scenarioDefinition);
-        List<MsHTTPSamplerProxy> httpSampleFromHashTree = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement, null);
+        List<MsHTTPSamplerProxy> httpSampleFromHashTree = MsHTTPSamplerProxy.findHttpSampleFromHashTree(msTestElement);
         httpSampleFromHashTree.forEach((httpSamplerProxy) -> {
             if (httpSamplerProxy.isCustomizeReq()) {
                 FileUtils.deleteBodyFiles(httpSamplerProxy.getId());

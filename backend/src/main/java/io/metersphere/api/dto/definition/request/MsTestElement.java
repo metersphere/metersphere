@@ -49,10 +49,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
@@ -318,6 +315,25 @@ public abstract class MsTestElement {
             }
             return false;
         }
+    }
+
+    public static <T> List<T> findFromHashTreeByType(MsTestElement hashTree, Class<T> clazz, List<T> requests) {
+        if (requests == null) {
+            requests = new ArrayList<>();
+        }
+        if (clazz.isInstance(hashTree)) {
+            requests.add((T) hashTree);
+        } else {
+            if (hashTree != null) {
+                LinkedList<MsTestElement> childHashTree = hashTree.getHashTree();
+                if (CollectionUtils.isNotEmpty(childHashTree)) {
+                    for (MsTestElement item : childHashTree) {
+                        findFromHashTreeByType(item, clazz, requests);
+                    }
+                }
+            }
+        }
+        return requests;
     }
 }
 
