@@ -208,7 +208,7 @@ import {
   _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort,
+  _sort, deepClone,
   getLabel,
   getSelectDataCounts,
   setUnSelectIds,
@@ -418,7 +418,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel);
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     selectByParam() {
       this.changeSelectDataRangeAll();

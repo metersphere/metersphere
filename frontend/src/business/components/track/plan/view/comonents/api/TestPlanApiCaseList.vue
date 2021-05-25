@@ -181,7 +181,7 @@ import {
   _handleSelectAll,
   _sort,
   buildBatchParam,
-  checkTableRowIsSelect,
+  checkTableRowIsSelect, deepClone,
   getLabel,
   getSelectDataCounts,
   setUnSelectIds,
@@ -334,7 +334,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel);
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);

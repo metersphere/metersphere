@@ -158,7 +158,7 @@ import {
   buildBatchParam,
   initCondition,
   toggleAllSelection,
-  checkTableRowIsSelect
+  checkTableRowIsSelect, deepClone
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TAPD, TEST_CASE_LIST, TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
@@ -296,7 +296,8 @@ export default {
     },
 
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     initTable() {
       this.autoCheckStatus();

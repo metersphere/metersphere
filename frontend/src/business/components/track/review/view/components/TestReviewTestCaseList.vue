@@ -211,7 +211,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
-  buildBatchParam,
+  buildBatchParam, deepClone,
   getLabel,
   getSelectDataCounts,
   initCondition,
@@ -315,7 +315,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel);
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     initTableData() {
       initCondition(this.condition, this.condition.selectAll);

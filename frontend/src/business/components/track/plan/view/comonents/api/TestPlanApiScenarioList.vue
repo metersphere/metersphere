@@ -138,7 +138,7 @@ import {
   initCondition,
   buildBatchParam,
   toggleAllSelection,
-  checkTableRowIsSelect
+  checkTableRowIsSelect, deepClone
 } from "../../../../../../../common/js/tableUtils";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -241,7 +241,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     search() {
       initCondition(this.condition,this.condition.selectAll);
