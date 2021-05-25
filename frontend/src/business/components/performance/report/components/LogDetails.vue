@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-tabs type="border-card" :stretch="true" @tab-click="selectTab">
+    <el-tabs @tab-click="selectTab">
       <el-tab-pane v-for="item in resource" :key="item.resourceId" :label="item.resourceName" class="logging-content">
         <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)" infinite-scroll-disabled="disabled">
           <li class="infinite-list-item" v-for="(log, index) in logContent" :key="index">{{ log.content }}</li>

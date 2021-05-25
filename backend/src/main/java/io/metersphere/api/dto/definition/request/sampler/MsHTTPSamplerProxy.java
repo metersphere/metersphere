@@ -197,12 +197,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         compatible(config);
+
         HttpConfig httpConfig = null;
         try {
             if (config.isEffective(this.getProjectId())) {
                 httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
                 if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
+                }
+                if(StringUtils.isEmpty(httpConfig.getProtocol())){
+                    MSException.throwException(this.getName() +"接口，对应的环境无协议，请完善环境信息");
                 }
                 if (StringUtils.isEmpty(this.useEnvironment)) {
                     this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
@@ -428,11 +432,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 数据兼容处理
-        if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+        if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
+            // 1.8 之后 当前正常数据
+        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
             // 1.8 前后 混合数据
             this.setProjectId(getParentProjectId());
-        } else if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
-            // 1.8 之后 当前正常数据
         } else {
             // 1.8 之前 数据
             if (config.getConfig() != null) {

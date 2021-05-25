@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
+import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.xmind.parser.XmindParser;
@@ -63,7 +64,11 @@ public class XmindCaseParser {
 
     private List<String> errorPath;
 
-    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames) {
+    private boolean isUseCustomId;
+
+    private String importType;
+
+    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames,boolean isUseCustomId,String importType) {
         this.testCaseService = testCaseService;
         this.maintainer = userId;
         this.projectId = projectId;
@@ -75,6 +80,8 @@ public class XmindCaseParser {
         nodePaths = new ArrayList<>();
         continueValidatedCase = new ArrayList<>();
         errorPath = new ArrayList<>();
+        this.isUseCustomId = isUseCustomId;
+        this.importType = importType;
     }
 
     private static final String TC_REGEX = "(?:tc:|tc：|tc)";
@@ -92,11 +99,19 @@ public class XmindCaseParser {
     }
 
     public List<TestCaseWithBLOBs> getTestCase() {
-        return this.testCases;
+        if(StringUtils.equals(this.importType,FunctionCaseImportEnum.Create.name())){
+            return this.testCases;
+        }else {
+            return  new ArrayList<>();
+        }
     }
 
     public List<TestCaseWithBLOBs> getUpdateTestCase() {
-        return this.updateTestCases;
+        if(StringUtils.equals(this.importType,FunctionCaseImportEnum.Update.name())){
+            return this.updateTestCases;
+        }else {
+            return  new ArrayList<>();
+        }
     }
 
     public List<String> getNodePaths() {
@@ -183,18 +198,19 @@ public class XmindCaseParser {
             process.add(Translator.get("functional_method_tip"), nodePath + data.getName());
         }
 
-        if (testCaseNames.contains(data.getName())) {
-            TestCaseWithBLOBs bloBs = testCaseService.checkTestCaseExist(data);
-            if (bloBs != null) {
-                // process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
-                // 记录需要变更的用例
-                BeanUtils.copyBean(bloBs, data, "id");
-                updateTestCases.add(bloBs);
-                return false;
-            }
-        } else {
-            testCaseNames.add(data.getName());
-        }
+//        if (testCaseNames.contains(data.getName())) {
+//            TestCaseWithBLOBs bloBs = testCaseService.checkTestCaseExist(data);
+//            if (bloBs != null) {
+//                // process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
+//                // 记录需要变更的用例
+//                BeanUtils.copyBean(bloBs, data, "id");
+//                updateTestCases.add(bloBs);
+//                return false;
+//            }
+//
+//        } else {
+//            testCaseNames.add(data.getName());
+//        }
 
         // 用例等级和用例性质处理
         if (!priorityList.contains(data.getPriority())) {
@@ -214,6 +230,45 @@ public class XmindCaseParser {
             process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + compartData.getName());
         }
         compartDatas.add(compartData);
+
+
+        //自定义ID判断
+        if(StringUtils.isEmpty(data.getCustomNum())){
+            if(StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())){
+                validatePass = false;
+                process.add(Translator.get("id_required"), nodePath + "/" + compartData.getName());
+                return false;
+            }else{
+                if(isUseCustomId){
+                    validatePass = false;
+                    process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
+                    return false;
+                }
+            }
+        }
+
+        //判断更新
+        if(StringUtils.equals(this.importType,FunctionCaseImportEnum.Update.name())) {
+            String checkResult = null;
+            if (isUseCustomId) {
+                checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
+            } else {
+                checkResult = testCaseService.checkIdExist(Integer.parseInt(data.getCustomNum()), projectId);
+            }
+            if (null != checkResult) {  //该ID在当前项目中存在
+                //如果前面所经过的校验都没报错
+                if(!isUseCustomId){
+                    data.setNum(Integer.parseInt(data.getCustomNum()));
+                    data.setCustomNum(null);
+                }
+                data.setId(checkResult);
+                updateTestCases.add(data);
+            }else {
+                process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
+                validatePass = false;
+            }
+        }
+
         if (validatePass) {
             this.continueValidatedCase.add(data);
         }
@@ -351,7 +406,10 @@ public class XmindCaseParser {
             });
         }
         testCase.setRemark(rc.toString());
-        testCase.setCustomNum(customId.toString());
+        if(isUseCustomId || StringUtils.equals(importType,FunctionCaseImportEnum.Update.name())){
+            testCase.setCustomNum(customId.toString());
+        }
+
         testCase.setTags(JSON.toJSONString(tags));
         testCase.setSteps(this.getSteps(steps));
         // 校验合规性

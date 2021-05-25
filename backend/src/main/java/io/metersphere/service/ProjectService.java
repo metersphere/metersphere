@@ -110,6 +110,14 @@ public class ProjectService {
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
+    public List<ProjectDTO> getSwitchProject(ProjectRequest request) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extProjectMapper.getSwitchProject(request);
+    }
+
     public List<Project> getProjectByIds(List<String> ids) {
         if (!CollectionUtils.isEmpty(ids)) {
             ProjectExample example = new ProjectExample();
@@ -128,8 +136,18 @@ public class ProjectService {
 
         // 删除项目下 接口测试 相关
         deleteAPIResourceByProjectId(projectId);
+
+        // User Group
+        deleteProjectUserGroup(projectId);
+
         // delete project
         projectMapper.deleteByPrimaryKey(projectId);
+    }
+
+    private void deleteProjectUserGroup(String projectId) {
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andSourceIdEqualTo(projectId);
+        userGroupMapper.deleteByExample(userGroupExample);
     }
 
     private void deleteLoadTestResourcesByProjectId(String projectId) {
@@ -217,6 +235,21 @@ public class ProjectService {
 
     public Project getProjectById(String id) {
         return projectMapper.selectByPrimaryKey(id);
+    }
+
+    public boolean useCustomNum(String projectId){
+        Project project = this.getProjectById(projectId);
+        if (project != null) {
+            Boolean customNum = project.getCustomNum();
+            // 未开启自定义ID
+            if (!customNum) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
     }
 
     public List<Project> getByCaseTemplateId(String templateId) {

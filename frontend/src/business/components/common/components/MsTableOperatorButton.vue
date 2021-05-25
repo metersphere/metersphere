@@ -62,11 +62,6 @@
         default: false
       }
     },
-    mounted() {
-      if (this.isTesterPermission && !checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
-    },
     methods: {
       exec() {
         this.$emit('exec');

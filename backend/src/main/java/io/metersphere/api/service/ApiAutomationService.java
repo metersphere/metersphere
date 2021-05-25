@@ -883,7 +883,6 @@ public class ApiAutomationService {
             request.setTriggerMode(ReportTriggerMode.MANUAL.name());
         }
         String reportId = request.getId();
-
         Map<APIScenarioReportResult, HashTree> map = new LinkedHashMap<>();
         List<String> scenarioIds = new ArrayList<>();
         StringBuilder scenarioNames = new StringBuilder();

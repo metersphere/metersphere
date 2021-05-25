@@ -288,7 +288,7 @@
         })
       },
       del(row) {
-        this.$confirm(this.$t('member.org_remove_member'), '', {
+        this.$confirm(this.$t('member.remove_member'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'

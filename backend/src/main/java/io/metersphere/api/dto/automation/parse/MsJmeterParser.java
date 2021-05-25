@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.*;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
+import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
@@ -53,6 +54,7 @@ import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
 import org.apache.jmeter.control.LoopController;
+import org.apache.jmeter.control.TransactionController;
 import org.apache.jmeter.control.WhileController;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.extractor.RegexExtractor;
@@ -742,6 +744,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 countController.setInputVal(foreachController.getInputValString());
                 countController.setReturnVal(foreachController.getReturnValString());
                 ((MsLoopController) elementNode).setForEachController(countController);
+            }else if(key instanceof TransactionController){
+                TransactionController transactionController = (TransactionController) key;
+                elementNode = new MsTransactionController();
+                elementNode.setName(transactionController.getName());
+                ((MsTransactionController)elementNode).setGenerateParentSample(transactionController.isGenerateParentSample());
+                ((MsTransactionController)elementNode).setIncludeTimers(transactionController.isIncludeTimers());
             }
             // 平台不能识别的Jmeter步骤
             else {

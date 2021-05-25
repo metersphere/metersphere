@@ -83,7 +83,7 @@ public class UserController {
     }
 
     @PostMapping("/special/update")
-    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
+    @MsAuditLog(module = "system_user", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user)", content = "#msClass.getLogDetails(#user)", msClass = UserService.class)
     public void updateUser(@RequestBody UserRequest user) {
         userService.updateUserRole(user);
     }
@@ -254,7 +254,7 @@ public class UserController {
      * 添加组织成员
      */
     @PostMapping("/org/member/add")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, title = "添加组织成员")
+    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, title = "'添加组织成员-'+#request.userIds")
     public void addOrganizationMember(@RequestBody AddOrgMemberRequest request) {
         organizationService.checkOrgOwner(request.getOrganizationId());
         userService.addOrganizationMember(request);
@@ -331,6 +331,7 @@ public class UserController {
     }
 
     @PostMapping("/import/{userId}")
+    @MsAuditLog(module = "system_user", type = OperLogConstants.IMPORT)
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
         return userService.userImport(file, userId, request);
     }

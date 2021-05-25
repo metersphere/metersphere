@@ -381,7 +381,7 @@ export class HttpRequest extends Request {
           }
         }
         let url = null;
-        if (environment && this.environment.config.httpConfig
+        if (environment && environment.config && environment.config.httpConfig
           && environment.config.httpConfig.conditions && environment.config.httpConfig.conditions.length > 0) {
           environment.config.httpConfig.conditions.forEach(item => {
             if (item.type === 'NONE') {

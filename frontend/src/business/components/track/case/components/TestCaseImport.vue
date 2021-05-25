@@ -4,9 +4,36 @@
 
     <el-tabs v-model="activeName" @tab-click="clickTabs" simple>
       <el-tab-pane :label="$t('test_track.case.import.excel_title')" name="excelImport">
+        <el-row class="import-row" style="margin-left: 34px">
+          <el-radio v-model="importType" label="Create">导入新建</el-radio>
+          <el-radio v-model="importType" label="Update">导入更新</el-radio>
+        </el-row>
+        <el-row class="import-row">
+          <div class="el-step__icon is-text" style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px">
+            <div class="el-step__icon-inner">1</div>
+          </div>
+          <label class="ms-license-label">{{$t('test_track.case.import.import_desc')}}</label>
+        </el-row>
+        <el-row class="import-row">
+          <div style="margin-left: 34px">
+            <div v-if="importType === 'Create'">
+              项目设置中“测试用例自定义ID” 开关开启时ID为必填项
+            </div>
+            <div v-else >
+              导入更新时ID为必填项
+            </div>
 
+          </div>
+        </el-row>
+        <el-row class="import-row">
+          <div class="el-step__icon is-text"
+               style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px ">
+            <div class="el-step__icon-inner">2</div>
+          </div>
+          <label class="ms-license-label">{{$t('test_track.case.import.import_file')}}</label>
+        </el-row>
         <el-row>
-          <el-link type="primary" class="download-template"
+          <el-link type="primary" class="download-template" style="margin: 20px 34px;"
                    @click="downloadTemplate"
           >{{ $t('test_track.case.import.download_template') }}
           </el-link>
@@ -56,19 +83,31 @@
       </el-tab-pane>
       <!-- Xmind 导入 -->
       <el-tab-pane :label="$t('test_track.case.import.xmind_title')" name="xmindImport" style="border: 0px">
+        <el-row class="import-row" style="margin-left: 34px">
+          <el-radio v-model="importType" label="Create">导入新建</el-radio>
+          <el-radio v-model="importType" label="Update">导入更新</el-radio>
+        </el-row>
         <el-row class="import-row">
           <div class="el-step__icon is-text" style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px">
             <div class="el-step__icon-inner">1</div>
           </div>
           <label class="ms-license-label">{{$t('test_track.case.import.import_desc')}}</label>
         </el-row>
-        <el-row class="import-row">
-          <el-card :body-style="{ padding: '0px' }">
-            <img src="../../../../../assets/xmind.jpg"
-                 class="testcase-import-img">
-          </el-card>
-
+        <el-row class="import-row" style="margin-left: 34px">
+          <div v-if="importType === 'Create'">
+            项目设置中“测试用例自定义ID” 开关开启时ID为必填项
+          </div>
+          <div v-else >
+            导入更新时ID为必填项
+          </div>
         </el-row>
+<!--        <el-row class="import-row">-->
+<!--          <el-card :body-style="{ padding: '0px' }">-->
+<!--            <img src="../../../../../assets/xmind.jpg"-->
+<!--                 class="testcase-import-img">-->
+<!--          </el-card>-->
+
+<!--        </el-row>-->
         <el-row class="import-row">
           <div class="el-step__icon is-text"
                style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px ">
@@ -77,7 +116,7 @@
           <label class="ms-license-label">{{$t('test_track.case.import.import_file')}}</label>
         </el-row>
         <el-row class="import-row">
-          <el-link type="primary" class="download-template"
+          <el-link type="primary" class="download-template" style="margin: 0px 34px;"
                    @click="downloadXmindTemplate"
           >{{$t('test_track.case.import.download_template')}}
           </el-link>
@@ -144,6 +183,7 @@
         fileList: [],
         lastXmindFile: null,
         lastExcelFile: null,
+        importType:"Create",
         errList: [],
         xmindErrList: [],
         isLoading: false,
@@ -227,10 +267,11 @@
         }
       },
       downloadTemplate() {
-        this.$fileDownload('/test/case/export/template');
+
+        this.$fileDownload('/test/case/export/template/'+this.projectId+"/"+this.importType);
       },
       downloadXmindTemplate() {
-        axios.get('/test/case/export/xmindTemplate', {responseType: 'blob'})
+        axios.get('/test/case/export/xmindTemplate/'+this.projectId+"/"+this.importType, {responseType: 'blob'})
           .then(response => {
             let fileName = window.decodeURI(response.headers['content-disposition'].split('=')[1]);
             let link = document.createElement("a");
@@ -246,7 +287,7 @@
 
         let user = JSON.parse(localStorage.getItem(TokenKey));
 
-        this.result = this.$fileUpload('/test/case/import/' + this.projectId + '/' + user.id, file.file, null, {}, response => {
+        this.result = this.$fileUpload('/test/case/import/' + this.projectId + '/' + user.id+'/'+this.importType, file.file, null, {}, response => {
           let res = response.data;
           if (res.success) {
             this.$success(this.$t('test_track.case.import.success'));
@@ -279,7 +320,7 @@
           this.uploadIgnoreError = true;
           file = this.lastExcelFile;
         }
-        this.result = this.$fileUpload('/test/case/importIgnoreError/' + this.projectId + '/' + user.id, file, null, {}, response => {
+        this.result = this.$fileUpload('/test/case/importIgnoreError/' + this.projectId + '/' + user.id+'/'+this.importType, file, null, {}, response => {
           let res = response.data;
           this.$success(this.$t('test_track.case.import.success'));
           this.dialogVisible = false;
@@ -305,7 +346,7 @@
         this.lastXmindFile = file.file;
         let user = JSON.parse(localStorage.getItem(TokenKey));
 
-        this.result = this.$fileUpload('/test/case/import/' + this.projectId + '/' + user.id, file.file, null, {}, response => {
+        this.result = this.$fileUpload('/test/case/import/' + this.projectId + '/' + user.id+'/'+this.importType, file.file, null, {}, response => {
           let res = response.data;
           if (res.success) {
             this.$success(this.$t('test_track.case.import.success'));
