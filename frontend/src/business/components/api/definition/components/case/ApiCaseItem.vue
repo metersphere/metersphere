@@ -259,6 +259,7 @@
       },
       copyCase(data) {
         let uuid = getUUID();
+        data.request.id = uuid;
         let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: data.request, uuid: uuid};
         this.$emit('copyCase', obj);
       },

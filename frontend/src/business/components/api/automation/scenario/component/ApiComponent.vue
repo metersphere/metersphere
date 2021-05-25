@@ -77,7 +77,7 @@
       </template>
     </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
 
   </div>
 </template>
@@ -370,6 +370,9 @@
         this.runData.push(debugData);
         /*触发执行操作*/
         this.reportId = getUUID();
+      },
+      errorRefresh(){
+        this.loading = false;
       },
       runRefresh(data) {
         this.request.requestResult = data;

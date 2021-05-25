@@ -26,29 +26,29 @@
 </template>
 
 <script>
-import MsEditCompleteHttpApi from "./complete/EditCompleteHTTPApi";
-import MsEditCompleteTcpApi from "./complete/EditCompleteTCPApi";
-import MsEditCompleteDubboApi from "./complete/EditCompleteDubboApi";
-import MsEditCompleteSqlApi from "./complete/EditCompleteSQLApi";
+  import MsEditCompleteHttpApi from "./complete/EditCompleteHTTPApi";
+  import MsEditCompleteTcpApi from "./complete/EditCompleteTCPApi";
+  import MsEditCompleteDubboApi from "./complete/EditCompleteDubboApi";
+  import MsEditCompleteSqlApi from "./complete/EditCompleteSQLApi";
 
-import {Body} from "../model/ApiTestModel";
-import {getUUID} from "@/common/js/utils";
-import {createComponent, Request} from "./jmeter/components";
-import Sampler from "./jmeter/components/sampler/sampler";
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {handleCtrlSEvent} from "../../../../../common/js/utils";
+  import {Body} from "../model/ApiTestModel";
+  import {getUUID} from "@/common/js/utils";
+  import {createComponent, Request} from "./jmeter/components";
+  import Sampler from "./jmeter/components/sampler/sampler";
+  import {WORKSPACE_ID} from '@/common/js/constants';
+  import {handleCtrlSEvent} from "../../../../../common/js/utils";
 
-export default {
-  name: "ApiConfig",
-  components: {MsEditCompleteHttpApi, MsEditCompleteTcpApi, MsEditCompleteDubboApi, MsEditCompleteSqlApi},
-  data() {
-    return {
-      reqUrl: "",
-      request: Sampler,
-      config: {},
-      response: {},
-      maintainerOptions: [],
-    }
+  export default {
+    name: "ApiConfig",
+    components: {MsEditCompleteHttpApi, MsEditCompleteTcpApi, MsEditCompleteDubboApi, MsEditCompleteSqlApi},
+    data() {
+      return {
+        reqUrl: "",
+        request: Sampler,
+        config: {},
+        response: {},
+        maintainerOptions: [],
+      }
     },
     props: {
       currentApi: {},
@@ -173,8 +173,7 @@ export default {
         } else {
           this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
         }
-
-        if (this.currentApi !== null && this.currentApi.id !== null && this.currentApi.isCopy !== true) {
+        if (this.currentApi && this.currentApi.id && !this.currentApi.isCopy) {
           this.reqUrl = "/api/definition/update";
         } else {
           this.reqUrl = "/api/definition/create";

@@ -8,7 +8,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.constants.UserGroupType;
@@ -93,7 +92,7 @@ public class TestCaseService {
     TestCaseNodeService testCaseNodeService;
 
     @Resource
-    UserRoleMapper userRoleMapper;
+    ApiTestCaseMapper apiTestCaseMapper;
 
     @Resource
     TestCaseIssueService testCaseIssueService;
@@ -111,6 +110,14 @@ public class TestCaseService {
     private GroupMapper groupMapper;
     @Resource
     private UserGroupMapper userGroupMapper;
+    @Resource
+    private LoadTestMapper loadTestMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private TestCaseIssuesMapper testCaseIssuesMapper;
+    @Resource
+    private IssuesMapper issuesMapper;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -1267,13 +1274,88 @@ public class TestCaseService {
         TestCaseWithBLOBs bloBs = testCaseMapper.selectByPrimaryKey(id);
         if (bloBs != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, TestCaseReference.testCaseColumns);
+            // 关联内容用例内容
+            TestCaseTestExample example = new TestCaseTestExample();
+            example.createCriteria().andTestCaseIdEqualTo(id);
+            List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
+            StringBuilder nameBuilder = new StringBuilder();
+            if (CollectionUtils.isNotEmpty(testCaseTests)) {
+                List<String> testCaseIds = testCaseTests.stream()
+                        .filter(user -> user.getTestType().equals("testcase")).map(TestCaseTest::getTestId)
+                        .collect(Collectors.toList());
+
+                List<String> performanceIds = testCaseTests.stream()
+                        .filter(user -> user.getTestType().equals("performance")).map(TestCaseTest::getTestId)
+                        .collect(Collectors.toList());
+
+                List<String> automationIds = testCaseTests.stream()
+                        .filter(user -> user.getTestType().equals("automation")).map(TestCaseTest::getTestId)
+                        .collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(testCaseIds)) {
+                    ApiTestCaseExample testCaseExample = new ApiTestCaseExample();
+                    testCaseExample.createCriteria().andIdIn(testCaseIds);
+                    List<ApiTestCase> testCases = apiTestCaseMapper.selectByExample(testCaseExample);
+                    List<String> caseNames = testCases.stream().map(ApiTestCase::getName).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(caseNames)) {
+                        nameBuilder.append("接口用例：").append("\n").append(caseNames).append("\n");
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(performanceIds)) {
+                    LoadTestExample loadTestExample = new LoadTestExample();
+                    loadTestExample.createCriteria().andIdIn(performanceIds);
+                    List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
+                    List<String> caseNames = loadTests.stream().map(LoadTest::getName).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(caseNames)) {
+                        nameBuilder.append("性能用例：").append("\n").append(caseNames).append("\n");
+                    }
+                }
+                if (CollectionUtils.isNotEmpty(automationIds)) {
+                    ApiScenarioExample scenarioExample = new ApiScenarioExample();
+                    scenarioExample.createCriteria().andIdIn(automationIds);
+                    List<ApiScenario> scenarios = apiScenarioMapper.selectByExample(scenarioExample);
+                    List<String> caseNames = scenarios.stream().map(ApiScenario::getName).collect(Collectors.toList());
+                    if (CollectionUtils.isNotEmpty(caseNames)) {
+                        nameBuilder.append("自动化用例：").append("\n").append(caseNames).append("\n");
+                    }
+                }
+            }
+            DetailColumn column = new DetailColumn("关联测试", "testcase", nameBuilder.toString(), null);
+            columns.add(column);
+
+            //关联缺陷
+            List<String> issuesNames = new LinkedList<>();
+            TestCaseIssuesExample testCaseIssuesExample = new TestCaseIssuesExample();
+            testCaseIssuesExample.createCriteria().andTestCaseIdEqualTo(bloBs.getId());
+            List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(testCaseIssuesExample);
+            if (CollectionUtils.isNotEmpty(testCaseIssues)) {
+                List<String> issuesIds = testCaseIssues.stream().map(TestCaseIssues::getIssuesId).collect(Collectors.toList());
+                IssuesExample issuesExample = new IssuesExample();
+                issuesExample.createCriteria().andIdIn(issuesIds);
+                List<Issues> issues = issuesMapper.selectByExample(issuesExample);
+                if (CollectionUtils.isNotEmpty(issues)) {
+                    issuesNames = issues.stream().map(Issues::getTitle).collect(Collectors.toList());
+                }
+            }
+            DetailColumn issuesColumn = new DetailColumn("关联缺陷 ", "issues", String.join(",", issuesNames), null);
+            columns.add(issuesColumn);
+            //附件
+            List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(id);
+            List<String> fileNames = new LinkedList<>();
+            if (CollectionUtils.isNotEmpty(originFiles)) {
+                fileNames = originFiles.stream().map(FileMetadata::getName).collect(Collectors.toList());
+            }
+            DetailColumn fileColumn = new DetailColumn("附件 ", "files", String.join(",", fileNames), null);
+            columns.add(fileColumn);
+
             // 增加评论内容
             List<TestCaseCommentDTO> dtos = testCaseCommentService.getCaseComments(id);
+            List<String> names = new LinkedList<>();
             if (CollectionUtils.isNotEmpty(dtos)) {
-                List<String> names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
-                DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
-                columns.add(detailColumn);
+                names = dtos.stream().map(TestCaseCommentDTO::getDescription).collect(Collectors.toList());
             }
+            DetailColumn detailColumn = new DetailColumn("评论", "comment", String.join("\n", names), null);
+            columns.add(detailColumn);
+
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
             return JSON.toJSONString(details);
         }
