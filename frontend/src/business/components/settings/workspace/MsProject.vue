@@ -195,7 +195,7 @@ export default {
       rules: {
         name: [
           {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
-          {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+          {min: 2, max: 60, message: this.$t('commons.input_limit', [2, 60]), trigger: 'blur'}
         ],
         description: [
           {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
