@@ -530,6 +530,11 @@
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
+      "id": "PROJECT_TRACK_PLAN:READ+REPORT_DELETE",
+      "name": "删除测试计划报告",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
       "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE",
       "name": "批量取消关联用例",
       "resourceId": "PROJECT_TRACK_PLAN"
@@ -853,11 +858,11 @@
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",
-      "name": "测试"
+      "name": "性能测试"
     },
     {
       "id": "PROJECT_PERFORMANCE_REPORT",
-      "name": "报告"
+      "name": "性能测试报告"
     }
   ]
 }
