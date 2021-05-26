@@ -79,18 +79,18 @@
         SELECT COUNT(1) as c
         FROM project, test_case_review_project
         WHERE project.id = test_case_review_project.project_id AND test_case_review_project.review_id = #{reviewId}
-        <if test="workspaceIds != null and workspaceIds.size() > 0">
-            AND project.workspace_id IN
-            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project.id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>
         union
         select count(1) as c from test_case_review, project
         WHERE project_id = project.id AND test_case_review.id = #{reviewId}
-        <if test="workspaceIds != null and workspaceIds.size() > 0">
-            AND project.workspace_id IN
-            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project_id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>) as temp
