@@ -330,13 +330,12 @@
         if (tmp.id) {
           url = "/api/testcase/update";
         } else {
+          tmp.id = tmp.request.id;
           tmp.request.path = this.api.path;
           if (tmp.request.protocol != "dubbo://" && tmp.request.protocol != "DUBBO") {
             tmp.request.method = this.api.method;
           }
         }
-
-        tmp.id = tmp.request.id;
 
         if (tmp.request.esbDataStruct != null) {
           tmp.esbDataStruct = JSON.stringify(tmp.request.esbDataStruct);
