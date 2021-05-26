@@ -19,7 +19,6 @@
 </template>
 
 <script>
-  import {schemaToJson} from './common';
   import MsImportJson from './import/ImportJson';
 
   const Convert = require('./convert/convert.js');
@@ -66,12 +65,10 @@
     methods: {
       handleClick() {
         if (this.activeName === 'preview') {
-          // 前端转换
-          //this.preview = schemaToJson(this.schema.root);
           this.loading = true;
           // 后台转换
-          this.$post('/api/definition/preview', this.schema.root, response => {
-            this.preview = response.data;
+          MsConvert.schemaToJsonStr(this.schema.root, (result) => {
+            this.preview = result;
             this.loading = false;
           });
         }

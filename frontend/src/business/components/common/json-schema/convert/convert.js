@@ -5,6 +5,7 @@ const isNull = require("lodash.isnull");
 const isNumber = require("lodash.isnumber");
 const isObject = require("lodash.isobject");
 const isString = require("lodash.isstring");
+const {post} = require("@/common/js/ajax");
 const isArray = Array.isArray;
 
 
@@ -174,6 +175,18 @@ class Convert {
     }
 
     return objectTemplate;
+  }
+
+  /**
+   *  后台转换
+   * @param callback
+   */
+  schemaToJsonStr(schema, callback) {
+    post('/api/definition/preview', schema, (response) => {
+      if (callback) {
+        callback(response.data);
+      }
+    });
   }
 }
 

@@ -16,6 +16,7 @@ import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
@@ -716,17 +717,26 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             String bodyType = body.getString("type");
             if(bodyType == null) {
 
-            }else if(bodyType.equals("JSON")) {
-                try{    //  若请求体是一个 object
-                    bodyInfo = buildRequestBodyJsonInfo(body.getJSONArray("raw"));
-                } catch (Exception e) {
-                    try {   //  若请求体是一个 array
-                        bodyInfo = buildRequestBodyJsonInfo(body.getJSONObject("raw"));
-                    } catch (Exception e1) {    //  若请求体 json 不合法，则忽略错误，原样字符串导出/导入
-                        bodyInfo = new JSONObject();
-                        ((JSONObject) bodyInfo).put("type", "string");
-                        ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+            } else if(bodyType.equals("JSON")) {
+                try {
+                    if (StringUtils.equals(body.getString("format"), "JSON-SCHEMA")) {
+                        String jsonSchema = JSONSchemaGenerator.getJson(body.getString("jsonSchema"));
+                        try {
+                            bodyInfo = buildRequestBodyJsonInfo(JSONObject.parseObject(jsonSchema));
+                        } catch (Exception e) {
+                            bodyInfo = buildRequestBodyJsonInfo(JSONObject.parseArray(jsonSchema));
+                        }
+                    } else {
+                        try{    //  若请求体是一个 object
+                            bodyInfo = buildRequestBodyJsonInfo(body.getJSONArray("raw"));
+                        } catch (Exception e) {
+                            bodyInfo = buildRequestBodyJsonInfo(body.getJSONObject("raw"));
+                        }
                     }
+                } catch (Exception e1) {    //  若请求体 json 不合法，则忽略错误，原样字符串导出/导入
+                    bodyInfo = new JSONObject();
+                    ((JSONObject) bodyInfo).put("type", "string");
+                    ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
                 }
             } else if(bodyType.equals("XML")) {
                 String xmlText = body.getString("raw");

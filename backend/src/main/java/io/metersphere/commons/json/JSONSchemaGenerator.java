@@ -225,22 +225,22 @@ public class JSONSchemaGenerator {
 
                 if (object.has("items")) {
                     if (itemsObject.has("enum")) {
-                        array.add(analyzeEnumProperty(object));
+                        array.add(analyzeEnumProperty(itemsObject));
                     } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("string")) {
-                        if (object.has("default")) {
-                            array.add(object.get("default"));
-                        } else if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
-                            array.add(object.get(value));
+                        if (itemsObject.has("default")) {
+                            array.add(itemsObject.get("default"));
+                        } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                            String value = ScriptEngineUtils.calculate(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                            array.add(value);
                         } else {
                             array.add(null);
                         }
                     } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("number")) {
-                        if (object.has("default")) {
-                            array.add(object.get("default"));
-                        } else if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
-                            array.add(object.get(value));
+                        if (itemsObject.has("default")) {
+                            array.add(itemsObject.get("default"));
+                        } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                            String value = ScriptEngineUtils.calculate(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                            array.add(value);
                         } else {
                             array.add(0);
                         }
