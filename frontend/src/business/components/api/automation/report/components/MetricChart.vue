@@ -9,7 +9,13 @@
             </div>
           </el-row>
 
-          <ms-chart id="chart" ref="chart" :options="options" :autoresize="true"></ms-chart>
+          <!--<ms-chart id="chart" ref="chart" :options="options" :autoresize="true"></ms-chart>-->
+          <span class="ms-req ms-req-error" v-if="content.error && content.error>0">
+                <span class="ms-req-span"> {{content.success+content.error}} 请求</span>
+           </span>
+          <span class="ms-req ms-req-success" v-else>
+                <span class="ms-req-span">  {{content.success? content.success+content.error :0}} 请求</span>
+           </span>
           <el-row type="flex" justify="center" align="middle">
             <i class="circle success"/>
             <div class="metric-box">
@@ -92,10 +98,11 @@
         scenarioTotal: 0,
         scenarioSuccess: 0,
         scenarioError: 0,
+        reqTotal: 0,
       }
     },
     created() {
-      this.initTime()
+      this.initTime();
     },
     methods: {
       initTime() {
@@ -279,4 +286,28 @@
     font-size: 40px;
   }
 
+  .ms-req {
+    border-radius: 50%;
+    height: 110px;
+    width: 110px;
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 30px;
+  }
+
+  .ms-req-error {
+    border: 5px #F56C6C solid;
+  }
+
+  .ms-req-success {
+    border: 5px #67C23A solid;
+  }
+
+  .ms-req-span {
+    display: block;
+    color: black;
+    height: 110px;
+    line-height: 110px;
+    text-align: center;
+  }
 </style>

@@ -27,4 +27,7 @@ public class OperatingLogRequest implements Serializable {
     private String operTitle;
 
     private List<Long> times;
+
+    private List<String> projectIds;
+
 }
