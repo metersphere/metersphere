@@ -49,16 +49,14 @@ export default {
 
   methods: {
     recent() {
-      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        if (this.options.condition) {
-          this.result = this.$post(this.options.url, this.options.condition, (response) => {
-            this.items = response.data;
-          });
-        } else {
-          this.result = this.$get(this.options.url, (response) => {
-            this.items = response.data;
-          });
-        }
+      if (this.options.condition) {
+        this.result = this.$post(this.options.url, this.options.condition, (response) => {
+          this.items = response.data;
+        });
+      } else {
+        this.result = this.$get(this.options.url, (response) => {
+          this.items = response.data;
+        });
       }
     }
   }

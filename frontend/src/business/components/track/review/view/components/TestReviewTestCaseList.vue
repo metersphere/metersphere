@@ -387,12 +387,10 @@ export default {
       this.initTableData();
     },
     refreshTestReviewRecent() {
-      if (hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        let param = {};
-        param.id = this.reviewId;
-        param.updateTime = Date.now();
-        // this.$post('/test/case/review/edit', param);
-      }
+      let param = {};
+      param.id = this.reviewId;
+      param.updateTime = Date.now();
+      // this.$post('/test/case/review/edit', param);
     },
     search() {
       this.initTableData();

@@ -511,12 +511,10 @@ export default {
       this.initTableData();
     },
     refreshTestPlanRecent() {
-      if (hasRoles(ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        let param = {};
-        param.id = this.planId;
-        param.updateTime = Date.now();
-        this.$post('/test/plan/edit', param);
-      }
+      let param = {};
+      param.id = this.planId;
+      param.updateTime = Date.now();
+      this.$post('/test/plan/edit', param);
     },
     search() {
       this.initTableData();
