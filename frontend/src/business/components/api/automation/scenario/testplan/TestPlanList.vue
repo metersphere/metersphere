@@ -144,7 +144,6 @@ import MsTableOperatorButton from "../../../../common/components/MsTableOperator
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../../../track/common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../../../track/common/tableItems/plan/PlanStageTableItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import TestReportTemplateList from "../../../../track/plan/view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
@@ -207,7 +206,7 @@ export default {
     },
     created() {
       this.projectId = this.$route.params.projectId;
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+      this.isTestManagerOrTestUser = true;
       this.initTableData();
       this.setScenarioSelectRows(this.row);
       this.getWsProjects();

@@ -264,7 +264,7 @@ import {
   TokenKey,
   WORKSPACE_ID
 } from "@/common/js/constants";
-import {checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
+import {hasRoles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
@@ -419,7 +419,7 @@ export default {
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
     });
     this.refreshTableAndPlan();
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
     this.getMaintainerOptions();
   },
   beforeDestroy() {
@@ -526,9 +526,6 @@ export default {
     },
     handleEdit(testCase, index) {
       this.isReadOnly = false;
-      if (!checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(testCase);
     },
     handleDelete(testCase) {

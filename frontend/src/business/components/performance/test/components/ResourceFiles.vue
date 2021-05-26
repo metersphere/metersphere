@@ -59,7 +59,6 @@
             <el-tooltip effect="dark" :content="$t('project.upload_file_again')" placement="bottom">
               <el-button circle
                          type="success"
-                         :disabled="!checkoutTestManagerOrTestUser()"
                          icon="el-icon-upload"
                          @click="handleEdit(scope.row)"
                          size="mini"/>
@@ -84,7 +83,7 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import {Message} from "element-ui";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
@@ -117,7 +116,6 @@ export default {
     };
   },
   methods: {
-    checkoutTestManagerOrTestUser,
     open(project) {
       this.projectId = project.id;
       this.loadFileVisible = true;

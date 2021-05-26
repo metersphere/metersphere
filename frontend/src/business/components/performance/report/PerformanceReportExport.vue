@@ -27,8 +27,6 @@
   import MsReportRequestStatistics from './components/RequestStatistics';
   import MsReportTestOverview from './components/TestOverview';
 
-  import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
-  import MsPerformanceReportExport from "./PerformanceReportExport";
   import MsReportTitle from "../../common/components/report/MsReportTitle";
   import MsReportExportTemplate from "../../common/components/report/MsReportExportTemplate";
 

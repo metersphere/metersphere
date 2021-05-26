@@ -86,7 +86,6 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 
 export default {
   name: "MsNodeTree",
@@ -134,7 +133,7 @@ export default {
   },
   computed: {
     disabled() {
-      return this.type != 'edit' || !checkoutTestManagerOrTestUser();
+      return this.type !== 'edit';
     }
   },
   methods: {

@@ -76,7 +76,6 @@
             <el-tooltip effect="dark" :content="$t('project.upload_file_again')" placement="bottom">
               <el-button circle
                          type="success"
-                         :disabled="!checkoutTestManagerOrTestUser()"
                          icon="el-icon-upload"
                          @click="handleEdit(scope.row)"
                          size="mini"/>
@@ -103,7 +102,7 @@
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import axios from "axios";
@@ -136,7 +135,6 @@ export default {
     };
   },
   methods: {
-    checkoutTestManagerOrTestUser,
     open(loadType) {
       this.loadFileVisible = true;
       this.loadType = loadType;
