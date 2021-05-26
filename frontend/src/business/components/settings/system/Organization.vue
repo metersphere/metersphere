@@ -153,7 +153,7 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="groupIds"
+        <el-form-item :label="$t('commons.group')" prop="groupIds"
                       :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
           <el-select filterable v-model="memberForm.groupIds" multiple :placeholder="$t('role.please_choose_role')"
                      class="select-width">

@@ -63,6 +63,7 @@ export default {
     email: 'Email',
     phone: 'Phone',
     role: 'Role',
+    group: 'Group',
     personal_info: 'Personal Info',
     status: 'Status',
     show_all: 'Show All',

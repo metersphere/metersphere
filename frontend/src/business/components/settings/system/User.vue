@@ -29,7 +29,7 @@
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.name')" width="200"/>
 
-        <el-table-column :label="$t('commons.role')" width="120">
+        <el-table-column :label="$t('commons.group')" width="120">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.roles"/>
           </template>
@@ -516,7 +516,7 @@ export default {
   activated() {
     this.currentUserId = getCurrentUser().id;
     this.search();
-    this.getAllRole();
+    // this.getAllRole();
   },
   methods: {
     create() {

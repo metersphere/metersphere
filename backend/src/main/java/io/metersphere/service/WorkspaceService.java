@@ -112,10 +112,10 @@ public class WorkspaceService {
             projectService.deleteProject(projectId);
         });
 
-        // delete workspace member
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andSourceIdEqualTo(workspaceId);
-        userRoleMapper.deleteByExample(userRoleExample);
+        // delete user group
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andSourceIdEqualTo(workspaceId);
+        userGroupMapper.deleteByExample(userGroupExample);
 
         // delete workspace
         workspaceMapper.deleteByPrimaryKey(workspaceId);
