@@ -122,7 +122,7 @@ import ApiTestDetail from "../test/ApiTestDetail";
 import ApiTestResult from "../test/ApiTestResult";
 import PerformanceTestDetail from "../test/PerformanceTestDetail";
 import PerformanceTestResult from "../test/PerformanceTestResult";
-import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getUUID, hasPermission, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
@@ -185,7 +185,8 @@ export default {
       testCaseTemplate: {},
       formLabelWidth: "100px",
       isCustomFiledActive: false,
-      otherInfoActive: true
+      otherInfoActive: true,
+      isReadOnly: false
     };
   },
   props: {
@@ -194,10 +195,6 @@ export default {
     },
     searchParam: {
       type: Object
-    },
-    isReadOnly: {
-      type: Boolean,
-      default: false
     }
   },
   computed: {
@@ -383,6 +380,8 @@ export default {
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;
+      this.isReadOnly = !hasPermission('PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL');
+
       listenGoBack(this.handleClose);
       let initFuc = this.initData;
       getTemplate('field/template/case/get/relate/', this)

@@ -7,11 +7,6 @@
 <script>
     export default {
       name: "MsTableButton",
-      data() {
-        return {
-          disabled: false
-        }
-      },
       props: {
         content: String,
         icon: {
@@ -33,7 +28,8 @@
         isTesterPermission: {
           type: Boolean,
           default: false
-        }
+        },
+        disabled: Boolean
       },
       methods: {
         exec() {

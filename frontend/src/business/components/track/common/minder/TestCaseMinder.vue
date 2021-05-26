@@ -9,6 +9,7 @@
     :distinct-tags="tags"
     :tag-edit-check="tagEditCheck()"
     :priority-disable-check="priorityDisableCheck()"
+    :disabled="disabled"
     @save="save"
     ref="minder"
   />
@@ -21,7 +22,7 @@ import {
   getTestCaseDataMap,
   parseCase, priorityDisableCheck, tagEditCheck, updateNode
 } from "@/business/components/track/common/minder/minderUtils";
-import {getNodePath} from "@/common/js/utils";
+import {getNodePath, hasPermission} from "@/common/js/utils";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -52,6 +53,9 @@ name: "TestCaseMinder",
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
+    },
+    disabled() {
+      return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
     }
   },
   watch: {

@@ -12,6 +12,7 @@
                            :content="$t('commons.save')"
                            size="small" @click="saveCase"
                            icon=""
+                           :disabled="readOnly"
                            title="ctrl + s"/>
           <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
@@ -123,7 +124,7 @@
   import {
     getCurrentUser,
     getNodePath,
-    handleCtrlSEvent,
+    handleCtrlSEvent, hasPermission,
     listenGoBack,
     removeGoBackListener
   } from "@/common/js/utils";
@@ -208,7 +209,6 @@
           stepModel: 'STEP',
           customNum: ''
         },
-        readOnly: false,
         maintainerOptions: [],
         testOptions: [],
         workspaceId: '',
@@ -277,6 +277,9 @@
       },
       systemNameMap() {
         return SYSTEM_FIELD_NAME_MAP;
+      },
+      readOnly() {
+        return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
       }
     },
     mounted() {

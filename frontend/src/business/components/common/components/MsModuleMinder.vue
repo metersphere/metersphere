@@ -14,6 +14,7 @@
       :default-mold="defaultMode"
       @afterMount="$emit('afterMount')"
       @moldChange="handleMoldChange"
+      :disabled="disabled"
       @save="save"
     />
   </div>
@@ -63,7 +64,8 @@ export default {
     },
     tagDisableCheck: Function,
     tagEditCheck: Function,
-    priorityDisableCheck: Function
+    priorityDisableCheck: Function,
+    disabled: Boolean
   },
   data() {
     return {
