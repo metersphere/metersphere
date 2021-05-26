@@ -177,9 +177,6 @@ public class UserController {
 
     @GetMapping("/info/{userId}")
     public UserDTO getUserInfo(@PathVariable(value = "userId") String userId) {
-        if (!StringUtils.equals(userId, SessionUtils.getUserId())) {
-            MSException.throwException(Translator.get("not_authorized"));
-        }
         return userService.getUserInfo(userId);
     }
 
