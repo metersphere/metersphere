@@ -162,8 +162,8 @@ INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_
 VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ', 'SYSTEM_TEST_POOL');
 INSERT INTO `user_group_permission` (`id`, `group_id`, `permission_id`, `module_id`)
 VALUES (uuid(), 'admin', 'SYSTEM_TEST_POOL:READ+EDIT', 'SYSTEM_TEST_POOL');
-insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'admin', 'SYSTEM_OPERATING_LOG:READ', 'SYSTEM_OPERATING_LOG');
+INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
+VALUES (uuid(), 'admin', 'SYSTEM_OPERATING_LOG:READ', 'SYSTEM_OPERATING_LOG');
 
 
 -- 组织管理员
