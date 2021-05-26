@@ -17,17 +17,16 @@
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
           <el-table :data="detail.details.columns">
             <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" width="150px" show-overflow-tooltip/>
-            <el-table-column prop="originalValue" :label="$t('operating_log.before_change')" width="400px" show-overflow-tooltip>
-              <template v-slot:default="scope">
-                <span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.originalValue | timestampFormatDate }}</span>
-                <pre v-else>{{ scope.row.originalValue }}</pre>
-
-              </template>
-            </el-table-column>
-            <el-table-column prop="newValue" :label="$t('operating_log.after_change')" width="400px" show-overflow-tooltip>
+            <!--<el-table-column prop="originalValue" :label="$t('operating_log.before_change')" width="400px">-->
+              <!--<template v-slot:default="scope">-->
+                <!--<span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.originalValue | timestampFormatDate }}</span>-->
+                <!--<div v-else>{{ scope.row.originalValue }}</div>-->
+              <!--</template>-->
+            <!--</el-table-column>-->
+            <el-table-column prop="newValue" :label="$t('operating_log.change_content')">
               <template v-slot:default="scope">
                 <span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.newValue | timestampFormatDate }}</span>
-                <pre v-else>{{ scope.row.newValue }}</pre>
+                <pre v-html="getDiff(scope.row.originalValue,scope.row.newValue)" v-else></pre>
               </template>
             </el-table-column>
           </el-table>
@@ -48,7 +47,6 @@
               {{n.columnTitle}}：{{n.originalValue}}
             </pre>
           </span>
-
         </div>
       </div>
     </div>
@@ -57,6 +55,9 @@
 </template>
 
 <script>
+  const jsondiffpatch = require('jsondiffpatch');
+  const formattersHtml = jsondiffpatch.formatters.html;
+
   export default {
     name: "MsLogDetail",
     components: {},
@@ -66,6 +67,8 @@
     data() {
       return {
         infoVisible: false,
+        d1: "",
+        d2: "",
         detail: {},
         LOG_TYPE: [
           {id: 'CREATE', label: this.$t('api_test.definition.request.create_info')},
@@ -122,10 +125,18 @@
       handleClose() {
         this.infoVisible = false;
       },
+      getDiff(v1, v2) {
+        let delta = jsondiffpatch.diff(v1, v2);
+        return formattersHtml.format(delta, v1);
+      },
       getDetails(id) {
         this.result = this.$get("/operating/log/get/" + id, response => {
           let data = response.data;
           this.detail = data;
+          //let delta = jsondiffpatch.diff(this.d1, this.d2);/
+          //document.getElementById('visual').innerHTML = formattersHtml.format(delta, this.d1);
+          // self-explained json
+          //document.getElementById('annotated').innerHTML = jsondiffpatch.formatters.annotated.format(delta, this.d1);
         })
       },
       open(id) {
@@ -140,6 +151,8 @@
 </script>
 
 <style scoped>
+  @import "~jsondiffpatch/dist/formatters-styles/html.css";
+  @import "~jsondiffpatch/dist/formatters-styles/annotated.css";
 
   .tip {
     padding: 3px 5px;
