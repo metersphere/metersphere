@@ -110,7 +110,7 @@
                 <el-col :span="6" class="ms-col-one ms-font">
                   <el-tooltip placement="top" effect="light">
                     <template v-slot:content>
-                      <div>{{ currentScenario.name }}</div>
+                      <div>{{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}</div>
                     </template>
                     <span class="scenario-name">
                         {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
