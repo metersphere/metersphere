@@ -99,7 +99,6 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {

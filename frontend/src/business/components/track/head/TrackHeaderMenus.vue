@@ -41,7 +41,6 @@
 import MsShowAll from "../../common/head/ShowAll";
 import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 
@@ -104,7 +103,6 @@ export default {
   },
   mounted() {
     this.init();
-    this.registerEvents();
   },
   methods: {
     reload() {
@@ -128,15 +126,9 @@ export default {
         this.reload();
       }
     },
-    registerEvents() {
-      TrackEvent.$on(LIST_CHANGE, () => {
-        this.$refs.planRecent.recent();
-        // this.$refs.caseRecent.recent();
-      });
-    }
+
   },
   beforeDestroy() {
-    TrackEvent.$off(LIST_CHANGE);
   }
 }
 

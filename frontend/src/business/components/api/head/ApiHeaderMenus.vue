@@ -59,7 +59,6 @@ import MsRecentList from "../../common/head/RecentList";
 import MsShowAll from "../../common/head/ShowAll";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsCreateTest from "../../common/head/CreateTest";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 import {mapGetters} from "vuex";
@@ -100,12 +99,6 @@ export default {
     ])
   },
   methods: {
-    registerEvents() {
-      ApiEvent.$on(LIST_CHANGE, () => {
-        this.$refs.testRecent.recent();
-        this.$refs.reportRecent.recent();
-      });
-    },
     reload() {
       this.isRouterAlive = false;
       this.$nextTick(function () {
@@ -114,10 +107,10 @@ export default {
     },
   },
   mounted() {
-    this.registerEvents();
+
   },
   beforeDestroy() {
-    ApiEvent.$off(LIST_CHANGE);
+
   }
 };
 

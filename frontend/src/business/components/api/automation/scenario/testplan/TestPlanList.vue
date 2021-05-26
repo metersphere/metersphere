@@ -148,7 +148,6 @@ import TestReportTemplateList from "../../../../track/plan/view/comonents/TestRe
 import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-components";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import EnvPopover from "@/business/components/track/common/EnvPopover";

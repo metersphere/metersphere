@@ -64,7 +64,6 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
-import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import MsChangeHistory from "../../history/ChangeHistory";
 
 export default {

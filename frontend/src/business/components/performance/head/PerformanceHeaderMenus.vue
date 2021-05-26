@@ -31,10 +31,8 @@ import MsCreateTest from "../../common/head/CreateTest";
 import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsShowAll from "../../common/head/ShowAll";
-import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
-import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "PerformanceHeaderMenus",
@@ -48,51 +46,13 @@ export default {
   },
   data() {
     return {
-      testRecent: {
-        title: this.$t('load_test.recent'),
-        url: "/performance/recent/5",
-        condition: {
-          workspaceId: getCurrentWorkspaceId(),
-          projectId: getCurrentProjectID(),
-          userId: getCurrentUserId()
-        },
-        index(item) {
-          return '/performance/test/edit/' + item.id;
-        },
-        router(item) {
-        }
-      },
-      reportRecent: {
-        title: this.$t('report.recent'),
-        url: "/performance/report/recent/5",
-        condition: {
-          workspaceId: getCurrentWorkspaceId(),
-          projectId: getCurrentProjectID(),
-          userId: getCurrentUserId()
-        },
-        showTime: true,
-        index(item) {
-          return '/performance/report/view/' + item.id;
-        },
-        router(item) {
-        }
-      },
       currentProject: ''
     };
   },
-  methods: {
-    registerEvents() {
-      PerformanceEvent.$on(LIST_CHANGE, () => {
-        this.$refs.testRecent.recent();
-        this.$refs.reportRecent.recent();
-      });
-    }
-  },
+  methods: {},
   mounted() {
-    this.registerEvents();
   },
   beforeDestroy() {
-    PerformanceEvent.$off(LIST_CHANGE);
   }
 };
 
