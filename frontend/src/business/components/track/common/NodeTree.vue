@@ -30,17 +30,17 @@
           <i class="el-icon-folder"/>
         </span>
         <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
-        <span v-if="data.caseNum" class="node-title">
-          <span>({{ data.caseNum }})</span>
+        <span class="node-title">
+          <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-              v-if="data.id !== 'root' && data.name !=='默认模块'"
-              class="item"
-              effect="dark"
-              :open-delay="200"
-              :content="$t('test_track.module.rename')"
-              placement="top">
+            v-if="data.id !== 'root' && data.name !=='默认模块'"
+            class="item"
+            effect="dark"
+            :open-delay="200"
+            :content="$t('test_track.module.rename')"
+            placement="top">
             <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
           </el-tooltip>
           <el-tooltip
@@ -139,12 +139,17 @@ export default {
   },
   methods: {
     init() {
+      let num = 0;
+      this.treeNodes.forEach(t => {
+        num += t.caseNum;
+      });
       this.extendTreeNodes = [];
       this.extendTreeNodes.unshift({
         "id": "root",
         "name": this.allLabel,
         "level": 0,
         "children": this.treeNodes,
+        "caseNum": num
       });
       if (this.expandedNode.length === 0) {
         this.expandedNode.push("root");
