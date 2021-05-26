@@ -44,7 +44,6 @@
               show-word-limit>
               <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
             </el-autocomplete>
-            <ms-api-variable-advance ref="variableAdvance"/>
           </div>
         </el-col>
         <el-col class="item kv-delete">
@@ -53,6 +52,7 @@
         </el-col>
       </el-row>
     </div>
+    <ms-api-variable-advance ref="variableAdvance"/>
   </div>
 </template>
 
