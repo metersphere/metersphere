@@ -12,7 +12,7 @@
     </el-submenu>
 
     <el-submenu index="2"
-                v-permission="['ORGANIZATION_USER:READ', 'ORGANIZATION_WORKSPACE:READ','ORGANIZATION_SERVICE:READ','ORGANIZATION_MESSAGE:READ']">
+                v-permission="['ORGANIZATION_USER:READ', 'ORGANIZATION_WORKSPACE:READ','ORGANIZATION_SERVICE:READ','ORGANIZATION_MESSAGE:READ', 'ORGANIZATION_OPERATING_LOG:READ']">
       <template v-slot:title>
         <font-awesome-icon class="icon organization" :icon="['far', 'building']" size="lg"/>
         <span>{{ $t('commons.organization') }}</span>

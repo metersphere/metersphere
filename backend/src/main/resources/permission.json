@@ -240,6 +240,11 @@
       "resourceId": "ORGANIZATION_MESSAGE"
     },
     {
+      "id": "ORGANIZATION_OPERATING_LOG:READ",
+      "name": "查询操作日志",
+      "resourceId": "ORGANIZATION_OPERATING_LOG"
+    },
+    {
       "id": "WORKSPACE_USER:READ",
       "name": "查询成员",
       "resourceId": "WORKSPACE_USER"
@@ -313,6 +318,11 @@
       "id": "WORKSPACE_PROJECT_ENVIRONMENT:READ+EXPORT",
       "name": "导出环境",
       "resourceId": "WORKSPACE_PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "WORKSPACE_OPERATING_LOG:READ",
+      "name": "查询操作日志",
+      "resourceId": "WORKSPACE_OPERATING_LOG"
     },
     {
       "id": "WORKSPACE_TEMPLATE:READ",
@@ -413,6 +423,11 @@
       "id": "PROJECT_ENVIRONMENT:READ+EXPORT",
       "name": "导出环境",
       "resourceId": "PROJECT_ENVIRONMENT"
+    },
+    {
+      "id": "PROJECT_OPERATING_LOG:READ",
+      "name": "查询操作日志",
+      "resourceId": "PROJECT_OPERATING_LOG"
     },
     {
       "id": "PROJECT_TRACK_CASE:READ",
@@ -773,6 +788,10 @@
       "name": "消息设置"
     },
     {
+      "id": "ORGANIZATION_OPERATING_LOG",
+      "name": "操作日志"
+    },
+    {
       "id": "WORKSPACE_USER",
       "name": "成员"
     },
@@ -789,6 +808,10 @@
       "name": "环境设置"
     },
     {
+      "id": "WORKSPACE_OPERATING_LOG",
+      "name": "操作日志"
+    },
+    {
       "id": "PROJECT_USER",
       "name": "成员"
     },
@@ -799,6 +822,10 @@
     {
       "id": "PROJECT_ENVIRONMENT",
       "name": "环境设置"
+    },
+    {
+      "id": "PROJECT_OPERATING_LOG",
+      "name": "操作日志"
     },
     {
       "id": "PROJECT_TRACK_CASE",
