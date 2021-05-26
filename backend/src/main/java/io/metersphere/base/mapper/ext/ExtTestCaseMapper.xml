@@ -172,6 +172,10 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="moduleCount" resultType="java.lang.Integer">
+        select count(id) from test_case
+        <include refid="queryWhereCondition"/>
+    </select>
     <select id="listIds" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
         <if test="request.selectFields != null and request.selectFields.size() > 0">
@@ -324,20 +328,23 @@
                 or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.relevanceCreateTime >0">
-                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.createTime})
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
+                #{request.createTime})
             </if>
             <if test="request.createTime >0">
                 and test_case.create_time >= #{request.createTime}
             </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.projectId != null">
-                and test_case.project_id = #{request.projectId}
-            </if>
+            <choose>
+                <when test="request.nodeIds != null and request.nodeIds.size() > 0">
+                    and test_case.node_id in
+                    <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    and test_case.project_id = #{request.projectId}
+                </when>
+            </choose>
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)

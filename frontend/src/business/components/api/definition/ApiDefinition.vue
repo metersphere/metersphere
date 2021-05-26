@@ -454,6 +454,7 @@ export default {
     },
     refresh(data) {
       this.$refs.apiList[0].initTable(data);
+      this.$refs.nodeTree.list();
     },
     setTabTitle(data) {
       for (let index in this.apiTabs) {

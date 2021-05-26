@@ -147,8 +147,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             nodeIds = this.nodeList(testCaseNodes, node.getId(), nodeIds);
             nodeIds.add(node.getId());
             request.setNodeIds(nodeIds);
-            int num = this.getCaseNum(request);
-            node.setCaseNum(num);
+            node.setCaseNum(extTestCaseMapper.moduleCount(request));
         }
         return getNodeTrees(testCaseNodes);
     }
@@ -162,17 +161,7 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 nodeList(testCaseNodes, node.getId(), list);
             }
         }
-        /*if(null==list||list.size()==0){
-            list.add(pid);
-        }*/
         return list;
-    }
-
-
-    //获取模块下用例数
-    public int getCaseNum(QueryTestCaseRequest request) {
-        List<TestCaseDTO> list = extTestCaseMapper.list(request);
-        return list.size();
     }
 
     public int editNode(DragNodeRequest request) {

@@ -315,6 +315,7 @@ import MsEditApiScenario from "./scenario/EditApiScenario";
     refresh(data) {
       this.setTabTitle(data);
       this.$refs.apiScenarioList.search(data);
+      this.$refs.nodeTree.list();
     },
     refreshAll() {
       this.$refs.nodeTree.list();
