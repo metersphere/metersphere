@@ -203,6 +203,8 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'org_admin', 'ORGANIZATION_SERVICE:READ+EDIT', 'ORGANIZATION_SERVICE');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'org_admin', 'ORGANIZATION_GROUP:READ+DELETE', 'ORGANIZATION_GROUP');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'org_admin', 'ORGANIZATION_OPERATING_LOG:READ','ORGANIZATION_OPERATING_LOG');
 
 -- 组织成员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -215,6 +217,8 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'org_member', 'ORGANIZATION_MESSAGE:READ', 'ORGANIZATION_MESSAGE');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'org_member', 'ORGANIZATION_USER:READ', 'ORGANIZATION_USER');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'org_member', 'ORGANIZATION_OPERATING_LOG:READ','ORGANIZATION_OPERATING_LOG');
 
 -- 工作空间管理员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -257,6 +261,8 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_admin', 'WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE', 'WORKSPACE_PROJECT_ENVIRONMENT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_admin', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_OPERATING_LOG');
 
 
 -- 工作空间成员
@@ -268,6 +274,8 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_member', 'WORKSPACE_PROJECT_ENVIRONMENT:READ', 'WORKSPACE_PROJECT_ENVIRONMENT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'ws_member', 'WORKSPACE_PROJECT_MANAGER:READ', 'WORKSPACE_PROJECT_MANAGER');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'ws_member', 'WORKSPACE_OPERATING_LOG:READ', 'WORKSPACE_OPERATING_LOG');
 
 -- 项目管理员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -406,6 +414,8 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_ENVIRONMENT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_TRACK_CASE:READ+COPY', 'PROJECT_TRACK_CASE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_OPERATING_LOG');
 
 -- 项目成员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -540,6 +550,8 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_SCENARIO:READ+RUN', 'PROJECT_API_SCENARIO');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_OPERATING_LOG');
 
 -- 只读用户
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -564,3 +576,5 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'read_only', 'PROJECT_USER:READ', 'PROJECT_USER');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'read_only', 'PROJECT_MANAGER:READ', 'PROJECT_MANAGER');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'read_only', 'PROJECT_OPERATING_LOG:READ', 'PROJECT_OPERATING_LOG');
