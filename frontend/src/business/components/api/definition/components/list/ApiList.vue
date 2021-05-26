@@ -496,7 +496,7 @@ export default {
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.genProtocalFilter(this.condition.protocol);
-          this.total = response.data.size;
+          this.total = response.data.listObject.length;
           this.tableData = response.data.listObject;
           this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
