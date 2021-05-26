@@ -63,7 +63,7 @@
         infoVisible: false,
         loading: false,
         details: [],
-        linkDatas: ["prerequisite", "steps", "remark", "request", "response", "scenarioDefinition", "loadConfiguration", "advancedConfiguration"],
+        linkDatas: ["prerequisite", "steps", "remark", "request", "response", "scenarioDefinition","tags", "loadConfiguration", "advancedConfiguration"],
       }
     },
     methods: {

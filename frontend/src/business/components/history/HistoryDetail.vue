@@ -11,27 +11,9 @@
       </div>
       <div style="overflow: auto">
         <p class="tip">{{ this.$t('report.test_log_details') }} </p>
-        <el-row style="background:#F8F8F8">
-          <el-col :span="12">
-            {{$t('operating_log.before_change')}}
-          </el-col>
-          <el-col :span="12">
-            {{$t('operating_log.after_change')}}
-          </el-col>
-        </el-row>
         <el-row>
-          <el-col :span="12">
-            <div style="width: 400px;overflow: auto">
-              <pre v-if="formatData.indexOf(detail.columnName)!==-1">{{ detail.originalValue }}</pre>
-              <div v-else>{{ detail.originalValue }}</div>
-            </div>
-          </el-col>
-          <el-col :span="12">
-            <div style="width: 400px;overflow: auto">
-              <pre v-if="formatData.indexOf(detail.columnName)!==-1">{{ detail.newValue }}</pre>
-              <div v-else>{{ detail.newValue }}</div>
-            </div>
-          </el-col>
+          <pre v-html="getDiff(detail.originalValue,detail.newValue)"></pre>
+          <!--</el-col>-->
         </el-row>
       </div>
     </div>
@@ -39,6 +21,8 @@
 </template>
 
 <script>
+  const jsondiffpatch = require('jsondiffpatch');
+  const formattersHtml = jsondiffpatch.formatters.html;
   export default {
     name: "MsHistoryDetail",
     components: {},
@@ -49,10 +33,14 @@
       return {
         infoVisible: false,
         detail: {},
-        formatData:["loadConfiguration","advancedConfiguration","config","variables","tags","customFields","steps","scenarioDefinition","request","response"],
+        formatData: ["loadConfiguration", "advancedConfiguration", "config", "variables", "tags", "customFields", "steps", "scenarioDefinition", "request", "response"],
       }
     },
     methods: {
+      getDiff(v1, v2) {
+        let delta = jsondiffpatch.diff(v1, v2);
+        return formattersHtml.format(delta, v1);
+      },
       handleClose() {
         this.infoVisible = false;
       },
@@ -68,6 +56,8 @@
 </script>
 
 <style scoped>
+  @import "~jsondiffpatch/dist/formatters-styles/html.css";
+  @import "~jsondiffpatch/dist/formatters-styles/annotated.css";
 
   .tip {
     padding: 3px 5px;
