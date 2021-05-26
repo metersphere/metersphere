@@ -426,6 +426,7 @@ export default {
       this.search();
     },
     search(projectId) {
+      this.$emit('refreshTree');
       this.selectRows = new Set();
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
@@ -492,6 +493,7 @@ export default {
         });
       }
       getLabel(this, API_SCENARIO_LIST);
+
     },
     checkTableRowIsSelect() {
       //如果默认全选的话，则选中应该选中的行

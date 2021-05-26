@@ -312,6 +312,8 @@ export default {
     case_template: 'Test Case Template',
     default_template: 'Default Template',
     system_template: 'System Template',
+    option_check: 'Please add option values',
+    option_value_check: 'Please fill in the full option values',
   },
   workspace: {
     create: 'Create Workspace',
@@ -817,7 +819,7 @@ export default {
       wait_controller: "Wait controller",
       if_controller: "If controller",
       loop_controller: "Loop Controller",
-      transcation_controller: "Transcation controller",
+      transcation_controller:"Transcation controller",
       scenario_import: "Scenario import",
       customize_script: "Customize script",
       customize_req: "Customize req",
@@ -1830,6 +1832,5 @@ export default {
     after_change: "After change",
     share: "Share",
     change_history: "Change history",
-    change_content: "Change content",
   }
 };

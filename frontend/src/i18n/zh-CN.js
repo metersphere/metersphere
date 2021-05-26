@@ -313,6 +313,8 @@ export default {
     case_template: '测试用例模板',
     default_template: '默认模板',
     system_template: '系统模板',
+    option_check: '请添加选项值',
+    option_value_check: '请填写完整选项值',
   },
   workspace: {
     create: '创建工作空间',
@@ -1837,6 +1839,5 @@ export default {
     after_change: "变更后",
     share: "分享",
     change_history: "变更历史",
-    change_content: "变更内容",
   }
 };

@@ -143,9 +143,13 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.workspaceId = getCurrentWorkspaceId();
-          for (const item of this.form.options) {
+          if (['select','multipleSelect','radio','checkbox'].indexOf(param.type) > -1 &&  param.options.length < 1) {
+            this.$warning(this.$t('custom_field.option_check'));
+            return;
+          }
+          for (const item of param.options) {
             if (!item.text || !item.value) {
-              this.$warning('请填写完整选项值');
+              this.$warning(this.$t('custom_field.option_value_check'));
               return;
             }
           }

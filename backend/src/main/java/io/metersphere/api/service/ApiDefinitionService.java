@@ -114,7 +114,7 @@ public class ApiDefinitionService {
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         calculateResult(resList, request.getProjectId());
         ApiDefinitionRequest finalRequest = request;
-        List<ApiDefinitionResult> resListFilters = new ArrayList<>();
+       /* List<ApiDefinitionResult> resListFilters = new ArrayList<>();
         if (finalRequest.getFilters().size() > 1) {
             if (null != finalRequest.getFilters().get("case_status")) {
                 resListFilters = resList.stream()
@@ -123,7 +123,7 @@ public class ApiDefinitionService {
                 return resListFilters;
             }
 
-        }
+        }*/
 
 
         return resList;
