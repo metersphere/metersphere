@@ -32,6 +32,20 @@
           :key="index">
         </el-table-column>
         <el-table-column
+          v-if="item.id == 'createUser'"
+          prop="creator"
+          :label="$t('commons.create_user')"
+          show-overflow-tooltip
+          :key="index">
+          <template slot-scope="scope">
+            <span
+              :value="item.creator"
+            >
+              {{ scope.row.createUser }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column
           v-if="item.id == 'status'"
           prop="status"
           column-key="status"
@@ -252,6 +266,7 @@ export default {
   },
   data() {
     return {
+      createUser: "",
       type: TEST_PLAN_LIST,
       headerItems: Test_Plan_List,
       tableLabel: [],
@@ -322,6 +337,10 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
           item.passRate = item.passRate + '%';
+          this.$get("user/info/" + item.creator, response => {
+            let name = response.data.name;
+            item.createUser = name;
+          });
         });
       });
       getLabel(this, TEST_PLAN_LIST);

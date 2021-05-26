@@ -45,29 +45,38 @@
             show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-            v-if="item.id === 'num' && customNum"
-            prop="customNum"
-            sortable="custom"
-            :label="$t('commons.id')"
-            :key="index"
-            min-width="80"
-            show-overflow-tooltip>
+          v-if="item.id === 'num' && customNum"
+          prop="customNum"
+          sortable="custom"
+          :label="$t('commons.id')"
+          :key="index"
+          min-width="80"
+          show-overflow-tooltip>
         </el-table-column>
         <el-table-column
-            v-if="item.id == 'name'"
-            prop="name"
-            :label="$t('commons.name')"
-            show-overflow-tooltip
-            :key="index"
-            min-width="120"
+          v-if="item.id == 'name'"
+          prop="name"
+          :label="$t('commons.name')"
+          show-overflow-tooltip
+          :key="index"
+          min-width="120"
         >
         </el-table-column>
         <el-table-column
-            v-if="item.id == 'priority'"
-            prop="priority"
-            :filters="priorityFilters"
-            column-key="priority"
-            sortable="custom"
+          v-if="item.id == 'createUser'"
+          prop="createName"
+          :label="$t('commons.create_user')"
+          show-overflow-tooltip
+          :key="index"
+          min-width="120"
+        >
+        </el-table-column>
+        <el-table-column
+          v-if="item.id == 'priority'"
+          prop="priority"
+          :filters="priorityFilters"
+          column-key="priority"
+          sortable="custom"
             min-width="120px"
             :label="$t('test_track.case.priority')"
             show-overflow-tooltip

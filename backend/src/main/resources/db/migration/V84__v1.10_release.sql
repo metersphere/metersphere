@@ -133,4 +133,15 @@ DROP PROCEDURE IF EXISTS test_cursor;
 
 
 -- 修改 test_case type字段为为非必填
-ALTER TABLE test_case MODIFY COLUMN `type` varchar(25) NULL COMMENT 'Test case type';
+ALTER TABLE test_case
+    MODIFY COLUMN `type` varchar(25) NULL COMMENT 'Test case type';
+
+-- 表头修改（测试计划，测试用例添加创建人）
+update system_header
+set props='[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"createUser","label":"创建人"},{"id":"priority","label":"用例等级"},{"id":"reviewStatus","label":"评审状态"},{"id":"tags","label":"标签"},{"id":"nodePath","label":"所属模块"},{"id":"updateTime","label":"更新时间"}]'
+where type = 'test_plan_list';
+
+
+update system_header
+set props='[{"id":"name","label":"名称"},{"id":"userName","label":"负责人"},{"id":"createUser","label":"创建人"},{"id":"status","label":"当前状态"},{"id":"stage","label":"测试阶段"},{"id":"testRate","label":"测试进度"},{"id":"projectName","label":"所属项目"},{"id":"plannedStartTime","label":"计划开始"},{"id":"plannedEndTime","label":"计划结束"},{"id":"actualStartTime","label":"实际开始"},{"id":"actualEndTime","label":"实际结束"},{"id":"tags","label":"标签"},{"id":"executionTimes","label":"执行次数"},{"id":"passRate","label":"通过率"}]';
+

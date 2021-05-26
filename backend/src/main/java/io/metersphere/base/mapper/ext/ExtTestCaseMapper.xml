@@ -161,6 +161,25 @@
             </foreach>
         </if>
         <if test="request.selectFields == null or request.selectFields.size() == 0">
+            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+            test_case.other_test_name, test_case.review_status, test_case.tags,
+            test_case.demand_id, test_case.demand_name, test_case.follow_people, test_case.`status`,
+            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName
+        </if>
+        from test_case left join user u on test_case.create_user=u.id
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+    <select id="listIds" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        <if test="request.selectFields != null and request.selectFields.size() > 0">
+            <foreach collection="request.selectFields" item="field" separator=",">
+                ${field}
+            </foreach>
+        </if>
+        <if test="request.selectFields == null or request.selectFields.size() == 0">
             <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
         </if>
         from test_case

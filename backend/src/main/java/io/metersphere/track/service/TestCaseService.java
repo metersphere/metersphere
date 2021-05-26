@@ -1103,7 +1103,7 @@ public class TestCaseService {
         selectFields.add("id");
         selectFields.add("name");
         request.setSelectFields(selectFields);
-        return extTestCaseMapper.list(request);
+        return extTestCaseMapper.listIds(request);
     }
 
     public void minderEdit(TestCaseMinderEditRequest request) {
