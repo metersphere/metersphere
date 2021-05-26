@@ -1,7 +1,6 @@
 <template>
   <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
-<!--    <test-case-rich-text :disabled="disabled" :content="data[prop]" @updateRichText="updateData"/>-->
-    <mavon-editor :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
+    <mavon-editor v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
                   :subfield="disabled ? false : true" :toolbars="toolbars"  @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
 </template>
@@ -51,10 +50,15 @@ export default {
       }
     }
   },
+  computed: {
+    active() {
+      if (this.data[this.prop] !== undefined) {
+        return true;
+      }
+      return false;
+    }
+  },
   methods: {
-    updateData(value) {
-      this.data[this.prop] = value;
-    },
     imgAdd(pos, file){
       let param = {
         id: getUUID().substring(0, 8)
