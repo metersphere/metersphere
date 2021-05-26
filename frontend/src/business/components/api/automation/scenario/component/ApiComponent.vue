@@ -310,6 +310,9 @@
         for (let i in arr) {
           arr[i].disabled = true;
           arr[i].index = Number(i) + 1;
+          if (!arr[i].resourceId) {
+            arr[i].resourceId = getUUID();
+          }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
@@ -317,6 +320,9 @@
       },
       sort() {
         for (let i in this.request.hashTree) {
+          if (!this.request.hashTree[i].resourceId) {
+            this.request.hashTree[i].resourceId = getUUID();
+          }
           this.request.hashTree[i].disabled = true;
           this.request.hashTree[i].index = Number(i) + 1;
           if (this.request.hashTree[i].hashTree != undefined && this.request.hashTree[i].hashTree.length > 0) {
@@ -368,7 +374,7 @@
         /*触发执行操作*/
         this.reportId = getUUID();
       },
-      errorRefresh(){
+      errorRefresh() {
         this.loading = false;
       },
       runRefresh(data) {

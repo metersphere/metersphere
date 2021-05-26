@@ -651,6 +651,9 @@
       recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
+          if (!arr[i].resourceId) {
+            arr[i].resourceId = getUUID();
+          }
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
@@ -677,6 +680,9 @@
         for (let i in this.scenarioDefinition) {
           // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
+          if (!this.scenarioDefinition[i].resourceId) {
+            this.scenarioDefinition[i].resourceId = getUUID();
+          }
           // 设置循环控制
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {

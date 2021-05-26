@@ -1,6 +1,7 @@
 package io.metersphere.log.utils;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
@@ -59,7 +60,7 @@ public class ReflexObjectUtil {
                             column.setDepthDff(true);
                             if (val != null) {
                                 try {
-                                    if (f.getName().equals("loadConfiguration")) {
+                                    if (ReflexObjectUtil.isJsonArray(val.toString())) {
                                         val = "{\"" + "压力配置" + "\":" + val.toString() + "}";
                                     }
                                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -82,6 +83,18 @@ public class ReflexObjectUtil {
         return columnList;
     }
 
+    public static boolean isJsonArray(String content) {
+        try {
+            JSONArray array = JSON.parseArray(content);
+            if (array != null && array.size() > 0) {
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     public static void order(List<String> orderRegulation, List<DetailColumn> targetList) {
         Collections.sort(targetList, ((o1, o2) -> {
             int io1 = orderRegulation.indexOf(o1.getColumnName());
@@ -98,6 +111,15 @@ public class ReflexObjectUtil {
                 List<DetailColumn> newColumns = newObj.getColumns();
                 for (int i = 0; i < originalColumns.size(); i++) {
                     if (!StringUtils.equals(JSON.toJSONString(originalColumns.get(i).getOriginalValue()), JSON.toJSONString(newColumns.get(i).getOriginalValue()))) {
+                        if (originalColumns.get(i).getColumnName().equals("tags")) {
+                            if ((originalColumns.get(i).getOriginalValue() == null || StringUtils.isEmpty(originalColumns.get(i).getOriginalValue().toString()))
+                                    && StringUtils.equals("[]", newColumns.get(i).getOriginalValue().toString())) {
+                                continue;
+                            } else if ((newColumns.get(i).getOriginalValue() == null || StringUtils.isEmpty(newColumns.get(i).getOriginalValue().toString()))
+                                    && StringUtils.equals("[]", originalColumns.get(i).getOriginalValue().toString())) {
+                                continue;
+                            }
+                        }
                         // 深度对比
                         if (originalColumns.get(i).isDepthDff() && originalColumns.get(i).getOriginalValue() != null && newColumns.get(i).getOriginalValue() != null) {
                             ObjectMapper mapper = new ObjectMapper();
@@ -123,13 +145,13 @@ public class ReflexObjectUtil {
                             }
                             StringBuilder newValue = new StringBuilder();
                             if (addBuff != null && addBuff.toString().length() > 0) {
-                                newValue.append("添加：").append(addBuff).append("\n");
+                                newValue.append("添加：\n").append(addBuff).append("\n");
                             }
                             if (removeBuff != null && removeBuff.toString().length() > 0) {
-                                newValue.append("移除：").append(removeBuff).append("\n");
+                                newValue.append("移除：\n").append(removeBuff).append("\n");
                             }
                             if (repBuff != null && repBuff.toString().length() > 0) {
-                                newValue.append("修改：").append(repBuff).append("\n");
+                                newValue.append("修改：\n").append(repBuff).append("\n");
                             }
                             DetailColumn column = new DetailColumn();
                             BeanUtils.copyBean(column, originalColumns.get(i));
