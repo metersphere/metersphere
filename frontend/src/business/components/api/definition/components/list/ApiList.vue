@@ -142,7 +142,6 @@
             :label="$t('api_test.definition.api_case_status')"
             show-overflow-tooltip
             :key="index"
-            :filter-method="filterHandler"
           />
 
           <ms-table-column
@@ -299,7 +298,7 @@ export default {
           exec: this.handleCopy,
           icon: "el-icon-document-copy",
           type: "primary",
-          permissions: ['PROJECT_API_DEFINITION:READ+COPY']
+         //permissions: ['PROJECT_API_DEFINITION:READ+COPY']
         },
       ],
       tableTrashOperatorButtons: [
@@ -497,7 +496,7 @@ export default {
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.genProtocalFilter(this.condition.protocol);
-          this.total = response.data.itemCount;
+          this.total = response.data.size;
           this.tableData = response.data.listObject;
           this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
@@ -818,10 +817,6 @@ export default {
     open() {
       this.$refs.searchBar.open();
     },
-    filterHandler(value, row, column) {
-      const property = column['property'];
-      return row[property] === value;
-    }
   },
 };
 </script>
