@@ -782,6 +782,7 @@ public class TestCaseService {
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
+        boolean isUseCustomId = projectService.useCustomNum(request.getProjectId());
         QueryTestCaseRequest condition = request.getCondition();
         List<OrderRequest> orderList = new ArrayList<>();
         if (condition != null) {
@@ -802,7 +803,11 @@ public class TestCaseService {
             data.setName(t.getName());
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
-            data.setCustomNum(t.getCustomNum());
+            if(isUseCustomId){
+                data.setCustomNum(t.getCustomNum());
+            }else{
+                data.setCustomNum(String.valueOf(t.getNum()));
+            }
             if (StringUtils.isBlank(t.getStepModel())) {
                 data.setStepModel(TestCaseConstants.StepModel.STEP.name());
             } else {
