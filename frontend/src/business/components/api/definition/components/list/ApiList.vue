@@ -128,7 +128,6 @@
           <ms-table-column
             v-if="item.id == 'caseTotal'"
             prop="caseTotal"
-            sortable
             width="140px"
             :label="$t('api_test.definition.api_case_number')"
             show-overflow-tooltip
@@ -137,7 +136,6 @@
           <ms-table-column
             v-if="item.id == 'caseStatus'"
             prop="caseStatus"
-            :filters="caseStatusFilters"
             width="130px"
             :label="$t('api_test.definition.api_case_status')"
             show-overflow-tooltip
@@ -147,7 +145,6 @@
           <ms-table-column
             v-if="item.id == 'casePassingRate'"
             width="150px"
-            sortable
             prop="casePassingRate"
             :label="$t('api_test.definition.api_case_passing_rate')"
             show-overflow-tooltip
@@ -496,7 +493,7 @@ export default {
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.genProtocalFilter(this.condition.protocol);
-          this.total = response.data.listObject.length;
+          this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
           this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
@@ -514,6 +511,7 @@ export default {
         });
       }
       getLabel(this, API_LIST);
+      this.$emit("refreshTree");
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {

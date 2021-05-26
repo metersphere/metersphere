@@ -38,6 +38,7 @@
               <ms-api-list
                 v-if="activeDom==='left'"
                 @runTest="runTest"
+                @refreshTree="refreshTree"
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
@@ -52,6 +53,7 @@
                 @editApi="editApi"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
+                @refreshTable="refresh"
                 ref="apiList"/>
               <!--测试用例列表-->
               <api-case-simple-list
@@ -454,6 +456,9 @@ export default {
     },
     refresh(data) {
       this.$refs.apiList[0].initTable(data);
+      this.$refs.nodeTree.list();
+    },
+    refreshTree() {
       this.$refs.nodeTree.list();
     },
     setTabTitle(data) {

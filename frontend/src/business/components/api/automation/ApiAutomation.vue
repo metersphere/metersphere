@@ -20,6 +20,7 @@
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
+            @refreshTree="refreshTree"
             :module-tree="nodeTree"
             :module-options="moduleOptions"
             :select-node-ids="selectNodeIds"
@@ -308,25 +309,28 @@ import MsEditApiScenario from "./scenario/EditApiScenario";
     selectModule(data) {
       this.currentModule = data;
     },
-    saveScenario(data) {
-      this.setTabLabel(data);
-      this.$refs.apiScenarioList.search(data);
-    },
-    refresh(data) {
-      this.setTabTitle(data);
-      this.$refs.apiScenarioList.search(data);
-      this.$refs.nodeTree.list();
-    },
-    refreshAll() {
-      this.$refs.nodeTree.list();
-      this.$refs.apiScenarioList.search();
-    },
-    setTabTitle(data) {
-      for (let index in this.tabs) {
-        let tab = this.tabs[index];
-        if (tab.name === this.activeName) {
-          tab.label = data.name;
-          break;
+      saveScenario(data) {
+        this.setTabLabel(data);
+        this.$refs.apiScenarioList.search(data);
+      },
+      refresh(data) {
+        this.setTabTitle(data);
+        this.$refs.apiScenarioList.search(data);
+        this.$refs.nodeTree.list();
+      },
+      refreshTree() {
+        this.$refs.nodeTree.list();
+      },
+      refreshAll() {
+        this.$refs.nodeTree.list();
+        this.$refs.apiScenarioList.search();
+      },
+      setTabTitle(data) {
+        for (let index in this.tabs) {
+          let tab = this.tabs[index];
+          if (tab.name === this.activeName) {
+            tab.label = data.name;
+            break;
         }
       }
     },

@@ -148,7 +148,7 @@ export default {
         "name": this.allLabel,
         "level": 0,
         "children": this.treeNodes,
-        "caseNum": num
+        "caseNum": num > 0 ? num : ""
       });
       if (this.expandedNode.length === 0) {
         this.expandedNode.push("root");
