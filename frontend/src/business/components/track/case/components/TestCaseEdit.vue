@@ -367,7 +367,20 @@
           }
         }
       },
-
+      setDefaultValue() {
+        if (!this.form.prerequisite) {
+          this.form.prerequisite = "";
+        }
+        if (!this.form.stepDescription) {
+          this.form.stepDescription = "";
+        }
+        if (!this.form.expectedResult) {
+          this.form.expectedResult = "";
+        }
+        if (!this.form.remark) {
+          this.form.remark = "";
+        }
+      },
       handleCommand(e) {
         if (e === "ADD_AND_CREATE") {
           this.$refs['caseFrom'].validate((valid) => {
@@ -524,6 +537,7 @@
         this.form.module = testCase.nodeId;
         //设置自定义熟悉默认值
         parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
+        this.setDefaultValue();
         // 重新渲染，显示自定义字段的必填校验
         this.reloadForm();
       },
