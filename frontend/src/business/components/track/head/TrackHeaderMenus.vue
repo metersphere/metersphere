@@ -22,11 +22,11 @@
             {{ $t('test_track.plan.test_plan') }}
           </el-menu-item>
 
-          <el-menu-item :index="'/track/issue'">
+          <el-menu-item :index="'/track/issue'" popper-class="submenu">
             {{ $t("缺陷管理") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/track/testPlan/reportList'">
+          <el-menu-item :index="'/track/testPlan/reportList'" popper-class="submenu">
             {{ $t("commons.report") }}
           </el-menu-item>
         </el-menu>
@@ -84,7 +84,7 @@ export default {
         }
       },
       pathName: '',
-    }
+    };
   },
   watch: {
     '$route': {
@@ -130,7 +130,7 @@ export default {
   },
   beforeDestroy() {
   }
-}
+};
 
 </script>
 
