@@ -115,6 +115,7 @@
         }
         this.formatTree(array, this.fullTreeNodes);
         this.sort(this.fullTreeNodes);
+        console.log("fullTreeNodes:"+JSON.stringify(this.fullTreeNodes));
         this.$emit('refresh', resMap);
       },
       formatTree(array, tree) {

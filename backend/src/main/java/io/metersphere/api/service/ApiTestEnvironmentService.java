@@ -86,8 +86,25 @@ public class ApiTestEnvironmentService {
         request.setCreateUser(SessionUtils.getUserId());
         checkEnvironmentExist(request);
         FileUtils.createFiles(request.getUploadIds(), sslFiles, FileUtils.BODY_FILE_DIR + "/ssl");
+        //检查Config，判断isMock参数是否给True
+        request = this.updateConfig(request,false);
         apiTestEnvironmentMapper.insert(request);
         return request.getId();
+    }
+
+    private ApiTestEnvironmentDTO updateConfig(ApiTestEnvironmentDTO request, boolean isMock) {
+        if(StringUtils.isNotEmpty(request.getConfig())){
+            try{
+                JSONObject configObj = JSONObject.parseObject(request.getConfig());
+                if(configObj.containsKey("httpConfig")){
+                    JSONObject httpObj = configObj.getJSONObject("httpConfig");
+                    httpObj.put("isMock",isMock);
+                }
+                request.setConfig(configObj.toJSONString());
+            }catch (Exception e){
+            }
+        }
+        return request;
     }
 
     public void update(ApiTestEnvironmentDTO apiTestEnvironment,List<MultipartFile> sslFiles) {
