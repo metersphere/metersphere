@@ -90,10 +90,12 @@ public class TestResult {
                         if (StringUtils.isNotEmpty(subItem.getName()) && subItem.getName().indexOf(SEPARATOR) != -1) {
                             String array[] = subItem.getName().split(SEPARATOR);
                             subItem.setName(array[0]);
-                            if (StringUtils.isNotEmpty(subItem.getScenario())) {
-                                List<String> id_names = JSON.parseObject(subItem.getScenario(), List.class);
-                                this.setStatus(id_names, subItem.getError() > 0);
-                            }
+                            try{
+                                if (StringUtils.isNotEmpty(subItem.getScenario())) {
+                                    List<String> id_names = JSON.parseObject(subItem.getScenario(), List.class);
+                                    this.setStatus(id_names, subItem.getError() > 0);
+                                }
+                            }catch (Exception e){}
                         }
                     });
                 }

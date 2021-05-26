@@ -43,7 +43,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                 // 在第一行 第1列创建一个批注
                 Comment comment1 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 0, 0, (short) 3, 1));
                 // 输入批注信息
-                comment1.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order")));
+                comment1.setString(new XSSFRichTextString(Translator.get("do_not_modify_header_order")+"，"+Translator.get("id_required")));
 
                 // 在第一行 第3列创建一个批注
                 Comment comment2 = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, (short) 2, 0, (short) 3, 1));

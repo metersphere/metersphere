@@ -160,7 +160,7 @@ public class TestCaseController {
         return testCaseService.testCaseImport(file, projectId, userId, importType,request);
     }
 
-    @PostMapping("/importIgnoreError/{projectId}/{userId}")
+    @PostMapping("/importIgnoreError/{projectId}/{userId}/{importType}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
