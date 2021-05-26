@@ -10,15 +10,18 @@
               @select="handleSelect"
               :height="screenHeight"
               ref="testPlanReportTable"
-              row-key="id" class="test-content adjust-table ms-select-all"
-      @filter-change="filter" @sort-change="sort" >
+              row-key="id"
+              class="test-content adjust-table ms-select-all-fixed"
+              @filter-change="filter" @sort-change="sort">
 
       <el-table-column width="50" type="selection"/>
-      <ms-table-select-all
-        :page-size="pageSize>total?total:pageSize"
-        :total="total"
-        @selectPageAll="isSelectDataAll(false)"
-        @selectAll="isSelectDataAll(true)"/>
+
+      <ms-table-header-select-popover v-show="total>0"
+                                      :page-size="pageSize > total ? total : pageSize"
+                                      :total="total"
+                                      :select-data-counts="selectDataCounts"
+                                      @selectPageAll="isSelectDataAll(false)"
+                                      @selectAll="isSelectDataAll(true)"/>
 
       <el-table-column width="30" :resizable="false" align="center">
         <template v-slot:default="scope">
@@ -26,9 +29,12 @@
         </template>
       </el-table-column>
 
-      <el-table-column min-width="300" prop="name" :label="$t('test_track.report.list.name')" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="testPlanName" min-width="150" sortable :label="$t('test_track.report.list.test_plan')" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="creator" :label="$t('test_track.report.list.creator')" show-overflow-tooltip></el-table-column>
+      <el-table-column min-width="300" prop="name" :label="$t('test_track.report.list.name')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="testPlanName" min-width="150" sortable :label="$t('test_track.report.list.test_plan')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="creator" :label="$t('test_track.report.list.creator')"
+                       show-overflow-tooltip></el-table-column>
       <el-table-column prop="createTime" sortable :label="$t('test_track.report.list.create_time' )" show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -81,10 +87,12 @@ import {
   initCondition,
   setUnSelectIds, toggleAllSelection,
 } from "@/common/js/tableUtils";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 
 export default {
   name: "TestPlanReportList",
   components: {
+    MsTableHeaderSelectPopover,
     TestPlanReportView,
     MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
     ReportTriggerModeItem, MsTag,
@@ -102,7 +110,7 @@ export default {
       pageSize: 10,
       isTestManagerOrTestUser: false,
       selectRows: new Set(),
-      screenHeight: document.documentElement.clientHeight - 296,//屏幕高度
+      screenHeight: 'calc(100vh - 295px)', //屏幕高度
       total: 0,
       tableData: [],
       statusFilters: [
@@ -264,11 +272,11 @@ export default {
   color: #1E90FF;
 }
 
-.ms-select-all >>> th:first-child {
-  margin-top: 20px;
-}
+/*.ms-select-all >>> th:first-child {*/
+/*  margin-top: 20px;*/
+/*}*/
 
-.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
-  top: -2px;
-}
+/*.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {*/
+/*  top: -2px;*/
+/*}*/
 </style>

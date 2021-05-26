@@ -16,6 +16,7 @@
         :page-size.sync="page.pageSize"
         :operators="operators"
         :show-select-all="false"
+        :screen-height="screenHeight"
         @handlePageChange="getIssues"
         @refresh="getIssues">
 
@@ -104,6 +105,7 @@ export default {
   data() {
     return {
       page: getPageInfo(),
+      screenHeight: 'calc(100vh - 310px)',
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
