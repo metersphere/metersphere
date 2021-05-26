@@ -29,7 +29,7 @@
 
               <el-col :span="4">
                 <el-form-item :label="$t('commons.project')" prop="project">
-                  <el-select size="small" v-model="condition.projectId" clearable>
+                  <el-select size="small" v-model="condition.projectId" @change="initTableData" clearable>
                     <el-option v-for="o in items" :key="o.id" :label="$t(o.label)" :value="o.id"/>
                   </el-select>
                 </el-form-item>
@@ -37,7 +37,7 @@
 
               <el-col :span="4">
                 <el-form-item :label="$t('operating_log.type')" prop="type">
-                  <el-select size="small" v-model="condition.operType" clearable>
+                  <el-select size="small" v-model="condition.operType" clearable @change="initTableData">
                     <el-option v-for="o in LOG_TYPE" :key="o.id" :label="$t(o.label)" :value="o.id"/>
                   </el-select>
                 </el-form-item>
@@ -165,9 +165,39 @@
         ])
       }
     },
-    created() {
-      this.initTableData();
-      this.initProject();
+    mounted() {
+      switch (this.$route.name) {
+        case "system":
+          this.initProject("/project/listAll");
+          break;
+        case "organization":
+          this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+          break;
+        case "workspace":
+          this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+          break;
+        case "project":
+          this.getProject();
+          break;
+      }
+    },
+    watch: {
+      '$route'(to, from) {
+        switch (to.name) {
+          case "system":
+            this.initProject("/project/listAll");
+            break;
+          case "organization":
+            this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+            break;
+          case "workspace":
+            this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+            break;
+          case "project":
+            this.getProject();
+            break;
+        }
+      }
     },
     methods: {
       initTableData() {
@@ -179,22 +209,38 @@
           this.result.loading = false;
         })
       },
+
       reset() {
-        this.condition = {};
+        let projectIds = this.condition.projectIds;
+        this.condition = {projectIds: projectIds};
+        this.initTableData();
       },
-      initProject() {
-        if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-          this.result = this.$get("/project/listAll", response => {
-            let projects = response.data;
-            if (projects) {
-              this.items = [];
-              projects.forEach(item => {
-                let data = {id: item.id, label: item.name};
-                this.items.push(data);
-              })
-            }
-          })
-        }
+      initProject(url) {
+        this.condition = {};
+        this.result = this.$get(url, response => {
+          let projects = response.data;
+          let projectIds = [];
+          if (projects) {
+            this.items = [];
+            projects.forEach(item => {
+              let data = {id: item.id, label: item.name};
+              this.items.push(data);
+              projectIds.push(item.id);
+            })
+          }
+          this.condition.projectIds = projectIds;
+          this.initTableData();
+        })
+      },
+      getProject() {
+        this.condition.projectIds = [];
+        this.result = this.$get("/project/get/" + this.$store.state.projectId, response => {
+          let project = response.data;
+          this.items = [{id: project.id, label: project.name}];
+          this.condition.projectIds = [project.id];
+          this.condition.projectId = project.id;
+          this.initTableData();
+        })
       },
       getType(type) {
         return this.LOG_TYPE_MAP.get(type);

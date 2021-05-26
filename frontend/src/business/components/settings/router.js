@@ -129,10 +129,28 @@ export default {
       meta: {project: true, title: 'api_test.environment.environment_config', permissions: ['PROJECT_ENVIRONMENT:READ']}
     },
     {
-      path: 'operatingLog',
+      path: 'operatingLog/system',
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
+      name:'system',
       meta: {system: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
+    },
+    {
+      path: 'operatingLog/organization',
+      component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
+      name:'organization',
+      meta: {organization: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
+    },
+    {
+      path: 'operatingLog/workspace',
+      component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
+      name:'workspace',
+      meta: {workspace: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
+    },
+    {
+      path: 'operatingLog/project',
+      name:'project',
+      component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
+      meta: {project: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
     }
-
   ]
 };
