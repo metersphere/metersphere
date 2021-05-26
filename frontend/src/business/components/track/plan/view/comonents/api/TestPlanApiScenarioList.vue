@@ -205,12 +205,14 @@ export default {
       ...API_SCENARIO_FILTERS,
       buttons: [
         {
-          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
+          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
         },
         {
-          name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
+          name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute, permission: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
         },
-        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit}
+        {
+          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, permission: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
+        }
       ],
       selectRows: new Set(),
       typeArr: [

@@ -515,6 +515,21 @@
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE",
+      "name": "批量取消关联用例",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN",
+      "name": "批量执行用例",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT",
+      "name": "批量编辑用例",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
       "id": "PROJECT_API_DEFINITION:READ",
       "name": "查询接口",
       "resourceId": "PROJECT_API_DEFINITION"
