@@ -5,7 +5,7 @@
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
                            :title="$t('commons.test')"
-                           v-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
+                           :create-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
 

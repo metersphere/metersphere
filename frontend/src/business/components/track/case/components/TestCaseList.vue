@@ -131,7 +131,8 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator v-permission="['PROJECT_TRACK_CASE:READ+EDIT','PROJECT_TRACK_CASE:READ+DELETE']"
+          <ms-table-operator :edit-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
+                             :delete-permission="['PROJECT_TRACK_CASE:READ+DELETE']"
                              @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
             <template v-slot:middle>
