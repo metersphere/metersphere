@@ -230,8 +230,6 @@ export default {
       this.result = this.$post(this.deletePath, data, () => {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
-        // 发送广播，刷新 head 上的最新列表
-        PerformanceEvent.$emit(LIST_CHANGE);
       });
     },
     sort(column) {

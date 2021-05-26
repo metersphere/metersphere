@@ -206,8 +206,6 @@ export default {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;
             this.$router.push('/track/plan/view/' + response.data);
-            // 发送广播，刷新 head 上的最新列表
-            TrackEvent.$emit(LIST_CHANGE);
           });
         } else {
           return false;
@@ -233,8 +231,6 @@ export default {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;
             this.$emit("refresh");
-            // 发送广播，刷新 head 上的最新列表
-            TrackEvent.$emit(LIST_CHANGE);
           });
         } else {
           return false;

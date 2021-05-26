@@ -11,7 +11,7 @@
             {{ $t('commons.test') }}
           </el-menu-item>
           <el-menu-item :index="'/performance/report/all'" v-permission="['PROJECT_PERFORMANCE_REPORT:READ']">
-            {{ $t('commons.test') }}
+            {{ $t('commons.report') }}
           </el-menu-item>
         </el-menu>
       </el-col>

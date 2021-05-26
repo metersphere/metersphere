@@ -399,8 +399,6 @@ export default {
       this.$post('/test/plan/delete/' + testPlanId, {}, () => {
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
       });
     },
     intoPlan(row, event, column) {
