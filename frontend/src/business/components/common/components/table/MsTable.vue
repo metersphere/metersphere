@@ -168,6 +168,7 @@ export default {
       _handleSelectAll(this, selection, this.data, this.selectRows);
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
@@ -185,6 +186,7 @@ export default {
       this.condition.unSelectIds = [];
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     headerDragend(newWidth, oldWidth, column, event) {
       // let finalWidth = newWidth;

@@ -89,7 +89,10 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (int i = 0; i < hashTree.size(); i++) {
                 JSONObject object = (JSONObject) hashTree.get(i);
-                object.put("referenced", "Copy");
+                String referenced = object.getString("referenced");
+                if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
+                    object.put("referenced", "Copy");
+                }
                 if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
                     setCopy(object.getJSONArray("hashTree"));
                 }
