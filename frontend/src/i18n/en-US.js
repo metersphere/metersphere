@@ -312,6 +312,8 @@ export default {
     case_template: 'Test Case Template',
     default_template: 'Default Template',
     system_template: 'System Template',
+    option_check: 'Please add option values',
+    option_value_check: 'Please fill in the full option values',
   },
   workspace: {
     create: 'Create Workspace',

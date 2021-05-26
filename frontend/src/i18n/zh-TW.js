@@ -313,6 +313,8 @@ export default {
     case_template: '測試用例模板',
     default_template: '默認模板',
     system_template: '系統模板',
+    option_check: '請添加選項值',
+    option_value_check: '請填寫完整選項值',
   },
   workspace: {
     create: '創建工作空間',
