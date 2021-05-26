@@ -9,7 +9,8 @@
     <el-submenu index="1" popper-class="org-ws-submenu"
                 v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
                 'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
-                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ']">
+                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
+                'WORKSPACE_USER:READ']">
       <template v-slot:title>{{ $t('commons.organization') }}:
         <span class="org-ws-name" :title="currentOrganizationName">
           {{ currentOrganizationName }}
@@ -60,15 +61,8 @@
 </template>
 
 <script>
-import {
-  PROJECT_ID,
-  ROLE_ORG_ADMIN,
-  ROLE_TEST_MANAGER,
-  ROLE_TEST_USER,
-  ROLE_TEST_VIEWER,
-  WORKSPACE_ID
-} from '../../../../common/js/constants';
-import {getCurrentUser, hasRoles, saveLocalStorage} from "../../../../common/js/utils";
+import {WORKSPACE_ID} from '../../../../common/js/constants';
+import {getCurrentUser, saveLocalStorage} from "../../../../common/js/utils";
 
 export default {
   name: "MsHeaderOrgWs",
