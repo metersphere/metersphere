@@ -848,20 +848,22 @@
                 if (!sign) {
                   return;
                 }
-                this.editScenario().then(() => {
-                  this.debugData = {
-                    id: this.currentScenario.id,
-                    name: this.currentScenario.name,
-                    type: "scenario",
-                    variables: this.currentScenario.variables,
-                    referenced: 'Created',
-                    enableCookieShare: this.enableCookieShare,
-                    headers: this.currentScenario.headers,
-                    environmentMap: this.projectEnvMap,
-                    hashTree: this.scenarioDefinition
-                  };
-                  this.reportId = getUUID().substring(0, 8);
-                })
+                //调试时不再保存
+                this.debugData = {
+                  id: this.currentScenario.id,
+                  name: this.currentScenario.name,
+                  type: "scenario",
+                  variables: this.currentScenario.variables,
+                  referenced: 'Created',
+                  enableCookieShare: this.enableCookieShare,
+                  headers: this.currentScenario.headers,
+                  environmentMap: this.projectEnvMap,
+                  hashTree: this.scenarioDefinition
+                };
+                this.reportId = getUUID().substring(0, 8);
+                // this.editScenario().then(() => {
+                //
+                // })
               })
 
             })
