@@ -16,6 +16,7 @@
     </div>
     <div>
       <el-input
+        v-permission="['PROJECT_TRACK_REVIEW:READ+COMMENT']"
         ref="test"
         type="textarea"
         :placeholder="$t('test_track.comment.send_comment')"

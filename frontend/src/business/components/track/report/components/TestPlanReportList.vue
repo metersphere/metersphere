@@ -56,7 +56,7 @@
         <template v-slot:default="scope">
           <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
             @exec="openReport(scope.row.id)"/>
-          <ms-table-operator-button type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
+          <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']" type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
                                     @exec="handleDelete(scope.row)"/>
         </template>
       </el-table-column>
@@ -124,7 +124,7 @@ export default {
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']},
       ],
       selectDataCounts: 0,
     }
