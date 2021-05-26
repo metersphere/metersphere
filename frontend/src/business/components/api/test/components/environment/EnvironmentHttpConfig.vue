@@ -184,7 +184,7 @@
         }
       },
       selectRow(row) {
-        this.condition = {};
+        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
         if (row) {
           this.httpConfig.socket = row.socket;
           this.httpConfig.protocol = row.protocol;
