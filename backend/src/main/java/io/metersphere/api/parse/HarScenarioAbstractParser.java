@@ -65,6 +65,8 @@ public abstract class HarScenarioAbstractParser<T> extends ApiImportAbstractPars
         HarPostData content = requestBody.postData;
         if (!StringUtils.equalsIgnoreCase("GET", requestBody.method) && requestBody.postData == null) {
             return;
+        }else if(requestBody.postData == null){
+            return;
         }
         String contentType = content.mimeType;
         if (StringUtils.isEmpty(contentType)) {
