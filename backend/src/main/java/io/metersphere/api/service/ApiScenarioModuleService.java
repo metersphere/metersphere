@@ -92,15 +92,11 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             scenarioNodes = this.nodeList(nodes, node.getId(), scenarioNodes);
             scenarioNodes.add(node.getId());
             request.setModuleIds(scenarioNodes);
-            int num = this.getCaseNum(request);
-            node.setCaseNum(num);
+            node.setCaseNum(extApiScenarioMapper.listModule(request));
         });
         return getNodeTrees(nodes);
     }
 
-    private int getCaseNum(ApiScenarioRequest request) {
-        return extApiScenarioMapper.list(request).size();
-    }
 
     public static List<String> nodeList(List<ApiScenarioModuleDTO> nodes, String pid, List<String> list) {
         for (ApiScenarioModuleDTO node : nodes) {

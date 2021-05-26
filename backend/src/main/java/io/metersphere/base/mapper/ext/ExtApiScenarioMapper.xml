@@ -132,8 +132,13 @@
         </if>
 
     </sql>
+    <select id="listModule" resultType="java.lang.Integer">
+        select count(id) from api_scenario
+        <include refid="queryWhereCondition"/>
+    </select>
     <select id="list" resultMap="BaseResultMap">
-        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num, api_scenario.custom_num,
+        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
+        api_scenario.custom_num,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
@@ -165,9 +170,6 @@
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>
-            <if test="request.projectId != null">
-                AND project.id = #{request.projectId}
-            </if>
             <if test="request.id != null">
                 AND api_scenario.id = #{request.id}
             </if>
@@ -189,12 +191,17 @@
                     #{itemId}
                 </foreach>
             </if>
-            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-                AND api_scenario.api_scenario_module_id in
-                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
+            <choose>
+                <when test="request.moduleIds != null and request.moduleIds.size() > 0">
+                    AND api_scenario.api_scenario_module_id in
+                    <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    AND project.id = #{request.projectId}
+                </when>
+            </choose>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
