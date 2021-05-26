@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header v-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
+      <ms-table-header :create-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
                        :create-tip="$t('test_track.review.create_review')"
                        :title="$t('test_track.review.test_review')"/>
@@ -95,7 +95,8 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator v-permission="['PROJECT_TRACK_REVIEW:READ+EDIT', 'PROJECT_TRACK_REVIEW:READ+DELETE']"
+          <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
+                             :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
                              @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
           </ms-table-operator>
