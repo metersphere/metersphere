@@ -1,7 +1,6 @@
 package io.metersphere.service;
 
 import io.metersphere.base.domain.Group;
-import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.*;
@@ -33,38 +32,20 @@ public class CheckPermissionService {
     @Resource
     private ExtTestCaseReviewMapper extTestCaseReviewMapper;
 
-
-//    public void checkReadOnlyUser() {
-//        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-//        Set<String> collect = Objects.requireNonNull(SessionUtils.getUser()).getUserRoles().stream()
-//                .filter(ur ->
-//                        StringUtils.equals(ur.getRoleId(), RoleConstants.TEST_VIEWER))
-//                .map(UserRole::getSourceId)
-//                .filter(sourceId -> StringUtils.equals(currentWorkspaceId, sourceId))
-//                .collect(Collectors.toSet());
-//        if (CollectionUtils.isNotEmpty(collect)) {
-//            throw new RuntimeException(Translator.get("check_owner_read_only"));
-//        }
-//    }
-
     public void checkProjectOwner(String projectId) {
-        Set<String> workspaceIds = getUserRelatedWorkspaceIds();
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        if (project == null) {
+        Set<String> projectIds = getUserRelatedProjectIds();
+        if (CollectionUtils.isEmpty(projectIds)) {
             return;
         }
-        if (CollectionUtils.isEmpty(workspaceIds)) {
-            return;
-        }
-        if (!workspaceIds.contains(project.getWorkspaceId())) {
+        if (!projectIds.contains(projectId)) {
             throw new RuntimeException(Translator.get("check_owner_project"));
         }
     }
 
-    private Set<String> getUserRelatedWorkspaceIds() {
+    private Set<String> getUserRelatedProjectIds() {
         List<String> groupIds = Objects.requireNonNull(SessionUtils.getUser()).getGroups()
                 .stream()
-                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.WORKSPACE))
+                .filter(g -> StringUtils.equals(g.getType(), UserGroupType.PROJECT))
                 .map(Group::getId)
                 .collect(Collectors.toList());
         return Objects.requireNonNull(SessionUtils.getUser()).getUserGroups().stream()
@@ -78,7 +59,7 @@ public class CheckPermissionService {
         if (StringUtils.equals("other", testId)) {
             return;
         }
-        Set<String> workspaceIds = getUserRelatedWorkspaceIds();
+        Set<String> workspaceIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(workspaceIds)) {
             return;
         }
@@ -95,7 +76,7 @@ public class CheckPermissionService {
         if (StringUtils.equals("other", testId)) {
             return;
         }
-        Set<String> workspaceIds = getUserRelatedWorkspaceIds();
+        Set<String> workspaceIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(workspaceIds)) {
             return;
         }
@@ -107,7 +88,7 @@ public class CheckPermissionService {
     }
 
     public void checkTestCaseOwner(String caseId) {
-        Set<String> workspaceIds = getUserRelatedWorkspaceIds();
+        Set<String> workspaceIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(workspaceIds)) {
             return;
         }
@@ -119,7 +100,7 @@ public class CheckPermissionService {
     }
 
     public void checkTestPlanOwner(String planId) {
-        Set<String> workspaceIds = getUserRelatedWorkspaceIds();
+        Set<String> workspaceIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(workspaceIds)) {
             return;
         }
@@ -130,7 +111,7 @@ public class CheckPermissionService {
     }
 
     public void checkTestReviewOwner(String reviewId) {
-        Set<String> workspaceIds = getUserRelatedWorkspaceIds();
+        Set<String> workspaceIds = getUserRelatedProjectIds();
         if (CollectionUtils.isEmpty(workspaceIds)) {
             return;
         }
