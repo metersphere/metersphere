@@ -118,8 +118,8 @@ export default {
       });
     },
     del(row) {
-      if (row.id === "admin") {
-        this.$warning("系统管理员不支持删除！");
+      if (row.system) {
+        this.$warning("系统用户组不支持删除！");
         return ;
       }
       this.$refs.deleteConfirm.open(row);
