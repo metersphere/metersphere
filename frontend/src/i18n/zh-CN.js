@@ -64,6 +64,7 @@ export default {
     email: '邮箱',
     phone: '电话',
     role: '角色',
+    group: '用户组',
     personal_info: '个人信息',
     api_keys: 'API Keys',
     quota: '配额管理',

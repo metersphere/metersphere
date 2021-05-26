@@ -27,7 +27,7 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="roles" :label="$t('commons.role')" width="140">
+        <el-table-column prop="roles" :label="$t('commons.group')" width="140">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.groups"/>
           </template>
@@ -73,7 +73,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item :label="$t('commons.role')" prop="groupIds">
+        <el-form-item :label="$t('commons.group')" prop="groupIds">
           <el-select v-model="form.groupIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
             <el-option
               v-for="item in form.groups"

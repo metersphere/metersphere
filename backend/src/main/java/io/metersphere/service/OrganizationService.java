@@ -108,10 +108,10 @@ public class OrganizationService {
             workspaceService.deleteWorkspace(workspaceId);
         }
 
-        // delete organization member
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andSourceIdEqualTo(organizationId);
-        userRoleMapper.deleteByExample(userRoleExample);
+        // delete user group
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andSourceIdEqualTo(organizationId);
+        userGroupMapper.deleteByExample(userGroupExample);
 
         // delete org
         organizationMapper.deleteByPrimaryKey(organizationId);
