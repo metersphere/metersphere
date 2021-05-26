@@ -12,7 +12,7 @@ public class TestCaseReference {
         testCaseColumns.put("createUser", "创建人");
         testCaseColumns.put("nodePath", "用例模块");
         testCaseColumns.put("type", "用例类型");
-        testCaseColumns.put("principal", "责任人");
+        testCaseColumns.put("maintainer", "责任人");
         testCaseColumns.put("priority", "用例等级");
         testCaseColumns.put("method", "请求类型");
         testCaseColumns.put("prerequisite", "前置条件");

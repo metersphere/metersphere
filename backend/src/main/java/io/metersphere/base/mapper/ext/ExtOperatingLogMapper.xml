@@ -24,6 +24,8 @@
             <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
                 #{projectId}
             </foreach>
+            or t.project_id is null
+            or t.project_id = ""
             <if test="request.operUser != null and request.operUser != ''">
                 and t.oper_user like #{request.operUser, jdbcType=VARCHAR}
                 or t1.NAME like  #{request.operUser, jdbcType=VARCHAR}

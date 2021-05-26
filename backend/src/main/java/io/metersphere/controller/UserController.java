@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.PageUtils;
@@ -26,7 +25,6 @@ import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -105,7 +103,7 @@ public class UserController {
     }
 
     @PostMapping("/special/ws/member/add")
-    @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = WorkspaceService.class)
+    @MsAuditLog(module = "workspace_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.userIds,#request.workspaceId)", msClass = UserService.class)
     public void addMemberByAdmin(@RequestBody AddMemberRequest request) {
         userService.addMember(request);
     }
@@ -117,7 +115,7 @@ public class UserController {
     }
 
     @PostMapping("/special/org/member/add")
-    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = OrganizationService.class)
+    @MsAuditLog(module = "organization_member", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.userIds,#request.organizationId)", msClass = UserService.class)
     public void addOrganizationMemberByAdmin(@RequestBody AddOrgMemberRequest request) {
         userService.addOrganizationMember(request);
     }

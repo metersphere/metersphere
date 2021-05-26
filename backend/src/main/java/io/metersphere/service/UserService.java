@@ -1136,6 +1136,46 @@ public class UserService {
         return null;
     }
 
+    public String getLogDetails(List<String> ids, String id) {
+        if (!CollectionUtils.isEmpty(ids)) {
+            UserExample example = new UserExample();
+            example.createCriteria().andIdIn(ids);
+            List<User> users = userMapper.selectByExample(example);
+            List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
+
+            StringBuilder nameBuilder = new StringBuilder();
+            nameBuilder.append(String.join(",", names)).append("\n");
+            for (String userId : ids) {
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (CollectionUtils.isNotEmpty(userGroups)) {
+                    List<String> groupIds = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+                    GroupExample groupExample = new GroupExample();
+                    groupExample.createCriteria().andIdIn(groupIds);
+                    List<Group> groups = groupMapper.selectByExample(groupExample);
+                    if (CollectionUtils.isNotEmpty(groups)) {
+                        List<String> strings = groups.stream().map(Group::getName).collect(Collectors.toList());
+                        nameBuilder.append("用户组：").append(String.join(",", strings));
+                    }
+                }
+            }
+            List<DetailColumn> columns = new LinkedList<>();
+
+            DetailColumn detailColumn = new DetailColumn();
+            detailColumn.setId(UUID.randomUUID().toString());
+            detailColumn.setColumnTitle("成员：");
+            detailColumn.setColumnName("roles");
+            detailColumn.setOriginalValue(nameBuilder.toString());
+            columns.add(detailColumn);
+
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, nameBuilder.toString(), null, columns);
+            return JSON.toJSONString(details);
+
+        }
+        return null;
+    }
+
     private String getRoles(String userId) {
         List<Map<String, Object>> maps = userRoleService.getUserGroup(userId);
         List<String> colNames = new LinkedList<>();
