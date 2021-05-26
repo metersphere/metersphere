@@ -3,7 +3,7 @@
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
       <el-col :span="9">
-        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
+        <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active="pathName">
           <el-menu-item :index="'/performance/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
@@ -46,14 +46,25 @@ export default {
   },
   data() {
     return {
-      currentProject: ''
+      currentProject: '',
+      pathName: '',
     };
   },
   methods: {},
-  mounted() {
+  watch: {
+    '$route': {
+      immediate: true,
+      handler(to, from) {
+        if (to.params && to.params.testId) {
+          this.pathName = '/performance/test/all';
+        } else if (to.params && to.params.reportId) {
+          this.pathName = '/performance/report/all';
+        } else {
+          this.pathName = to.path;
+        }
+      }
+    }
   },
-  beforeDestroy() {
-  }
 };
 
 </script>
