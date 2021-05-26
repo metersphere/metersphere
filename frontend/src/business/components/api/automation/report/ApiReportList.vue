@@ -181,8 +181,6 @@ export default {
             this.result = this.$post("/api/scenario/report/delete", {id: report.id}, () => {
               this.$success(this.$t('commons.delete_success'));
               this.search();
-              // 发送广播，刷新 head 上的最新列表
-              ApiEvent.$emit(LIST_CHANGE);
             });
           }
         }
@@ -239,8 +237,6 @@ export default {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));
               this.search();
-              // 发送广播，刷新 head 上的最新列表
-              ApiEvent.$emit(LIST_CHANGE);
             });
           }
         }

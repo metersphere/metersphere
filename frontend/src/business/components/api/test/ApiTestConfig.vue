@@ -217,8 +217,6 @@ export default {
               path: '/api/test/edit?id=' + this.test.id
             })
           }
-          // 发送广播，刷新 head 上的最新列表
-          ApiEvent.$emit(LIST_CHANGE);
         })
       },
       runTest() {
@@ -238,8 +236,6 @@ export default {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
           this.runTest();
-          // 发送广播，刷新 head 上的最新列表
-          ApiEvent.$emit(LIST_CHANGE);
         })
       },
       getBodyUploadFiles() {

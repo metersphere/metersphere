@@ -264,8 +264,6 @@ export default {
       this.result = this.$get('/performance/stop/' + this.reportId + '/' + forceStop, () => {
         this.$success(this.$t('report.test_stop_success'));
         if (forceStop) {
-          // 发送广播，刷新 head 上的最新列表
-          PerformanceEvent.$emit(LIST_CHANGE);
           this.$router.push('/performance/report/all');
           this.websocket.close();
         } else {
