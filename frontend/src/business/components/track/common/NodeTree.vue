@@ -38,6 +38,7 @@
             v-if="data.id !== 'root' && data.name !=='默认模块'"
             class="item"
             effect="dark"
+            v-permission="updatePermission"
             :open-delay="200"
             :content="$t('test_track.module.rename')"
             placement="top">
@@ -45,6 +46,7 @@
           </el-tooltip>
           <el-tooltip
             v-if="data.name ==='默认模块' && data.level !==1"
+            v-permission="updatePermission"
             class="item"
             effect="dark"
             :open-delay="200"
@@ -56,6 +58,7 @@
             class="item"
             effect="dark"
             :open-delay="200"
+            v-permission="addPermission"
             :content="$t('test_track.module.add_submodule')"
             placement="top">
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
@@ -65,6 +68,7 @@
             v-if="data.name ==='默认模块' && data.level !==1"
             class="item" effect="dark"
             :open-delay="200"
+            v-permission="deletePermission"
             :content="$t('commons.delete')"
             placement="top">
             <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
@@ -75,6 +79,7 @@
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
+            v-permission="deletePermission"
             placement="top">
             <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
           </el-tooltip>
@@ -99,7 +104,7 @@ export default {
         children: "children",
         label: "label"
       },
-      extendTreeNodes: []
+      extendTreeNodes: [],
     };
   },
   props: {
@@ -122,6 +127,9 @@ export default {
         return 50;
       }
     },
+    updatePermission: Array,
+    addPermission: Array,
+    deletePermission: Array
   },
   watch: {
     treeNodes() {

@@ -249,6 +249,7 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "TestPlanList",
@@ -366,6 +367,9 @@ export default {
       this.$emit('testPlanEdit', testPlan);
     },
     statusChange(data) {
+      if (!hasPermission('PROJECT_TRACK_PLAN:READ+EDIT')) {
+        return;
+      }
       let oldStatus = data.item.status;
       let newStatus = data.status;
       let param = {};

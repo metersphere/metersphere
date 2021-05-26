@@ -74,8 +74,8 @@
         </el-tab-pane>
         <el-tab-pane name="add">
           <template v-slot:label>
-            <el-dropdown @command="handleCommand">
-              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
+            <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
+              <el-button type="primary" plain icon="el-icon-plus" size="mini" />
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
                   {{ $t('test_track.case.create') }}

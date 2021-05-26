@@ -13,6 +13,9 @@
       @drag="drag"
       @remove="remove"
       @refresh="list"
+      :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
+      :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
+      :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
       @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
