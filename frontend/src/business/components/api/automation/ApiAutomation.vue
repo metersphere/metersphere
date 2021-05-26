@@ -73,7 +73,7 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-import {checkoutTestManagerOrTestUser, getCurrentUser, getUUID} from "@/common/js/utils";
+import {getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
 import MsEditApiScenario from "./scenario/EditApiScenario";
 
@@ -100,7 +100,7 @@ import MsEditApiScenario from "./scenario/EditApiScenario";
         return redirectParam;
       },
       isReadOnly() {
-        return !checkoutTestManagerOrTestUser();
+        return false;
       },
       projectId() {
         return this.$store.state.projectId

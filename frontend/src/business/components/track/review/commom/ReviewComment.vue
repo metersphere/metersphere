@@ -39,7 +39,6 @@
 
 <script>
 import ReviewCommentItem from "./ReviewCommentItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 
 export default {
   name: "ReviewComment",
@@ -58,7 +57,7 @@ export default {
     };
   },
   created() {
-    this.isReadOnly = !checkoutTestManagerOrTestUser();
+    this.isReadOnly = false;
   },
   methods: {
     sendComment() {

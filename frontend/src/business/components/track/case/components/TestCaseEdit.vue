@@ -121,7 +121,6 @@
   import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
   import {
-    checkoutTestManagerOrTestUser,
     getCurrentUser,
     getNodePath,
     handleCtrlSEvent,
@@ -281,9 +280,6 @@
       }
     },
     mounted() {
-      if (!checkoutTestManagerOrTestUser()) {
-        this.readOnly = true;
-      }
       this.getSelectOptions();
       if (this.type === 'edit' || this.type === 'copy') {
         this.open(this.currentTestCaseInfo)

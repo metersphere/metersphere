@@ -23,7 +23,6 @@
 <script>
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import OverviewCompareCard from "@/business/components/performance/report/components/OverviewCompareCard";
 import MsChart from "@/business/components/common/chart/MsChart";
 import LoadCompareCard from "@/business/components/performance/report/components/LoadCompareCard";
@@ -37,7 +36,7 @@ export default {
   },
   computed: {
     isReadOnly() {
-      return !checkoutTestManagerOrTestUser();
+      return false;
     }
   },
   data() {

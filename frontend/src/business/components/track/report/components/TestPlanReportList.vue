@@ -66,7 +66,6 @@ import MsTablePagination from '../../../../components/common/pagination/TablePag
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import MsTableOperator from "../../../common/components/MsTableOperator";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import {TEST_PLAN_REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import TestPlanReportView from "@/business/components/track/report/components/TestPlanReportView";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
@@ -134,7 +133,7 @@ export default {
     if (!this.projectId) {
       this.projectId = this.$store.state.projectId;
     }
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
     this.initTableData();
   },
   methods: {

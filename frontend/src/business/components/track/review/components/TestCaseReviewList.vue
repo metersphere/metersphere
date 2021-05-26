@@ -120,7 +120,7 @@ import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
-import {checkoutTestManagerOrTestUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
 import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
@@ -172,7 +172,7 @@ export default {
     }
   },
   created() {
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
     this.initTableData();
   },
   computed: {

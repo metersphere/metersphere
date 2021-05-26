@@ -237,7 +237,6 @@ import MsTableOperatorButton from "../../../common/components/MsTableOperatorBut
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
@@ -309,7 +308,7 @@ export default {
     if (!this.projectId) {
       this.projectId = this.$store.state.projectId;
     }
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
     this.initTableData();
   },
   methods: {
@@ -339,10 +338,12 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
           item.passRate = item.passRate + '%';
-          this.$get("user/info/" + item.creator, response => {
-            let name = response.data.name;
-            item.createUser = name;
-          });
+          if (item.creator) {
+            this.$get("user/info/" + item.creator, response => {
+              let name = response.data.name;
+              item.createUser = name;
+            });
+          }
         });
       });
       getLabel(this, TEST_PLAN_LIST);
