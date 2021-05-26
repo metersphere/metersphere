@@ -15,6 +15,7 @@
       :data="tableData"
       @filter-change="filter"
       @sort-change="sort"
+      :height="screenHeight"
       @row-click="intoPlan">
       <template v-for="(item, index) in tableLabel">
         <el-table-column
@@ -282,6 +283,7 @@ export default {
       isTestManagerOrTestUser: false,
       total: 0,
       tableData: [],
+      screenHeight: 'calc(100vh - 295px)',
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
