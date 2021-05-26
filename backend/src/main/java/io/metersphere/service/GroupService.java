@@ -119,8 +119,11 @@ public class GroupService {
     }
 
     public void deleteGroup(String id) {
-        if (StringUtils.equals(id, "admin")) {
-            MSException.throwException("系统管理员无法删除！");
+        Group group = groupMapper.selectByPrimaryKey(id);
+        if (group != null) {
+            if (BooleanUtils.isTrue(group.getSystem())) {
+                MSException.throwException("系统用户组不支持删除！");
+            }
         }
         groupMapper.deleteByPrimaryKey(id);
         UserGroupPermissionExample example = new UserGroupPermissionExample();

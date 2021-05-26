@@ -18,6 +18,11 @@ export default {
       meta: {system: true, title: 'commons.organization', permissions: ['SYSTEM_ORGANIZATION:READ']}
     },
     {
+      path: 'systemworkspace',
+      component: () => import('@/business/components/settings/system/SystemWorkspace'),
+      meta: {system: true, title: 'commons.workspace', permissions: ['SYSTEM_WORKSPACE:READ']}
+    },
+    {
       path: 'usergroup',
       component: () => import('@/business/components/settings/system/group/UserGroup'),
       meta: {system: true, title: '用户组与权限', permissions: ['SYSTEM_GROUP:READ', 'ORGANIZATION_GROUP:READ']}
@@ -46,11 +51,6 @@ export default {
         title: 'test_track.plan_view.report_template',
         permissions: ['WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE']
       }
-    },
-    {
-      path: 'systemworkspace',
-      component: () => import('@/business/components/settings/system/SystemWorkspace'),
-      meta: {system: true, title: 'commons.workspace', permissions: ['SYSTEM_WORKSPACE:READ']}
     },
     {
       path: 'testresourcepool',
