@@ -83,7 +83,7 @@
 
 <script>
 
-import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
+import {exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import {Message} from "element-ui";
 import MsPerformanceReportExport from "@/business/components/performance/report/PerformanceReportExport";

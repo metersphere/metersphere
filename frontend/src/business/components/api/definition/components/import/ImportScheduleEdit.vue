@@ -39,7 +39,6 @@
 
 <script>
 import {
-  checkoutTestManagerOrTestUser,
   getCurrentProjectID,
   getCurrentUser,
   listenGoBack,
@@ -225,7 +224,7 @@ export default {
   },
   computed: {
     isTesterPermission() {
-      return checkoutTestManagerOrTestUser();
+      return true;
     }
   }
 }

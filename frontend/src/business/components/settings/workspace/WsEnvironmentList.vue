@@ -110,7 +110,7 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import ProjectSwitch from "@/business/components/common/head/ProjectSwitch";
   import SearchList from "@/business/components/common/head/SearchList";
-  import {checkoutTestManagerOrTestUser, downloadFile} from "@/common/js/utils";
+  import {downloadFile} from "@/common/js/utils";
   import EnvironmentImport from "@/business/components/settings/project/EnvironmentImport";
 
   export default {
@@ -150,7 +150,6 @@
       }
     },
     created() {
-      this.isTesterPermission = checkoutTestManagerOrTestUser();
 
     },
 

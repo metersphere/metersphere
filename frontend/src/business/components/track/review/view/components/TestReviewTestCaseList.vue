@@ -201,7 +201,7 @@ import MsTableButton from "../../../../common/components/MsTableButton";
 import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
 import BatchEdit from "../../../case/components/BatchEdit";
 import MsTablePagination from '../../../../common/pagination/TablePagination';
-import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../../../common/js/utils";
+import {hasRoles} from "../../../../../../common/js/utils";
 import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TEST_CASE_REVIEW_CASE_LIST} from "../../../../../../common/js/constants";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
@@ -311,7 +311,7 @@ export default {
   },
   mounted() {
     this.refreshTableAndReview();
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
   },
   methods: {
     customHeader() {
@@ -402,9 +402,6 @@ export default {
     },
     handleEdit(testCase, index) {
       this.isReadOnly = false;
-      if (!checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
       this.$refs.testReviewTestCaseEdit.openTestCaseEdit(testCase);
     },
     handleDelete(testCase) {

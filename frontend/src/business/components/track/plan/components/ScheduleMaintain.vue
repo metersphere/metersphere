@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
@@ -370,7 +370,7 @@ export default {
   },
   computed: {
     isTesterPermission() {
-      return checkoutTestManagerOrTestUser();
+      return true;
     }
   }
 };

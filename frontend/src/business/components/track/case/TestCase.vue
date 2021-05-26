@@ -104,7 +104,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, getUUID} from "../../../../common/js/utils";
+import {getUUID} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -275,9 +275,6 @@ export default {
       let path = route.path;
       if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
         this.testCaseReadOnly = false;
-        if (!checkoutTestManagerOrTestUser()) {
-          this.testCaseReadOnly = true;
-        }
         let caseId = this.$route.params.caseId;
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));

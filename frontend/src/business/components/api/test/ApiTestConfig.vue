@@ -77,7 +77,7 @@ import MsApiScenarioConfig from "./components/ApiScenarioConfig";
 import {Scenario, Test} from "./model/ScenarioModel"
 import MsApiReportStatus from "../report/ApiReportStatus";
 import MsApiReportDialog from "./ApiReportDialog";
-import {checkoutTestManagerOrTestUser, downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import ApiImport from "./components/import/ApiImport";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
@@ -121,7 +121,7 @@ export default {
 
     methods: {
       init() {
-        this.isReadOnly = !checkoutTestManagerOrTestUser();
+        this.isReadOnly = false;
 
         if (this.id) {
           this.create = false;

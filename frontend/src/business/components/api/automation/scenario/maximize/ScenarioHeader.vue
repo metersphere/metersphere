@@ -30,7 +30,7 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
+  import {exportPdf} from "@/common/js/utils";
   import html2canvas from 'html2canvas';
   import EnvPopover from "../../scenario/EnvPopover";
 

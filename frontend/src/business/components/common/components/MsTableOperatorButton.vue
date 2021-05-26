@@ -27,8 +27,6 @@
 <script>
   import MsTableButton from "./MsTableButton";
   import MsTipButton from "./MsTipButton";
-  import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
-  import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
   export default {
     name: "MsTableOperatorButton",
     components: {MsTipButton, MsTableButton},

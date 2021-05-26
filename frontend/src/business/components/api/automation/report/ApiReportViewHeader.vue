@@ -19,7 +19,6 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 
   export default {
     name: "MsApiReportViewHeader",
@@ -38,9 +37,7 @@
       }
     },
     created() {
-      if (!checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
+
     },
     methods: {
       handleExport(name) {
