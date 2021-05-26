@@ -256,9 +256,9 @@
         SELECT COUNT(1)
         FROM test_case, project
         WHERE test_case.project_id = project.id
-        <if test="workspaceIds != null and workspaceIds.size() > 0">
-            AND project.workspace_id IN
-            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project.id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>
