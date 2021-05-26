@@ -12,6 +12,7 @@
       class="adjust-table"
       :data="tableData"
       @filter-change="filter"
+      :height="screenHeight"
       @sort-change="sort"
       @row-click="intoReview">
       <template v-for="(item, index) in tableLabel">
@@ -155,6 +156,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      screenHeight: 'calc(100vh - 295px)',
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
