@@ -181,12 +181,13 @@ public class ApiDefinitionService {
         }
     }
 
-    public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public ApiDefinitionWithBLOBs create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
             request.setMethod("dubbo://");
         }
-        createTest(request);
+        ApiDefinitionWithBLOBs returnModel = createTest(request);
         FileUtils.createBodyFiles(request.getRequest().getId(), bodyFiles);
+        return returnModel;
     }
 
     public ApiDefinitionWithBLOBs update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
@@ -315,7 +316,7 @@ public class ApiDefinitionService {
         return test;
     }
 
-    private ApiDefinition createTest(SaveApiDefinitionRequest request) {
+    private ApiDefinitionWithBLOBs createTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
