@@ -83,7 +83,6 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import ShowMoreBtn from "../../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
 

@@ -241,7 +241,6 @@ import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
 import {TEST_PLAN_LIST} from "@/common/js/constants";
 import {Test_Plan_List} from "@/business/components/common/model/JsonData";

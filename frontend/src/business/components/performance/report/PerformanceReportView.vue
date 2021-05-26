@@ -133,7 +133,6 @@ import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
-import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 
 
 export default {
