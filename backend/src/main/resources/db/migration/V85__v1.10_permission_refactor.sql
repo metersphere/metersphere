@@ -406,6 +406,13 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ', 'PROJECT_ENVIRONMENT');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_admin', 'PROJECT_TRACK_CASE:READ+COPY', 'PROJECT_TRACK_CASE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN', 'PROJECT_TRACK_PLAN');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE','PROJECT_TRACK_PLAN');
+
 
 -- 项目成员
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
@@ -540,6 +547,12 @@ INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_API_SCENARIO:READ+RUN', 'PROJECT_API_SCENARIO');
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
 VALUES (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN', 'PROJECT_TRACK_PLAN');
+insert into metersphere_dev.user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE','PROJECT_TRACK_PLAN');
 
 -- 只读用户
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)

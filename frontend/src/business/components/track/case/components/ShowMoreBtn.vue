@@ -6,7 +6,7 @@
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
-        <el-dropdown-item v-for="(btn,index) in buttons" :key="index" @click.native.stop="click(btn)">
+        <el-dropdown-item v-for="(btn,index) in buttons" v-permission="btn.permission ? btn.permission: []" :key="index" @click.native.stop="click(btn)">
           {{btn.name}}
         </el-dropdown-item>
       </el-dropdown-menu>
