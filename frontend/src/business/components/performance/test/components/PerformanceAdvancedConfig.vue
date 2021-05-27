@@ -214,6 +214,7 @@
 <script>
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import EditMonitor from "@/business/components/performance/test/components/EditMonitor";
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "PerformanceAdvancedConfig",
@@ -238,20 +239,18 @@ export default {
         {start: 30001, end: 60000, granularity: 600},
         {start: 60001, end: 180000, granularity: 1800},
         {start: 180001, end: 360000, granularity: 3600},
-      ]
+      ],
+      readOnly: false,
     };
   },
   props: {
-    readOnly: {
-      type: Boolean,
-      default: false
-    },
     testId: String,
   },
   mounted() {
     if (this.testId) {
       this.getAdvancedConfig();
     }
+    this.readOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
   },
   watch: {
     testId() {

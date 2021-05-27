@@ -16,17 +16,17 @@
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
-              <el-button :disabled="report.status !== 'Running' || testDeleted" type="primary" plain
+              <el-button :disabled="isReadOnly || report.status !== 'Running' || testDeleted" type="primary" plain
                          size="mini"
                          @click="dialogFormVisible=true">
                 {{ $t('report.test_stop_now') }}
               </el-button>
-              <el-button :disabled="report.status !== 'Completed' || testDeleted" type="success" plain
+              <el-button :disabled="isReadOnly || report.status !== 'Completed' || testDeleted" type="success" plain
                          size="mini"
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <el-button type="info" plain size="mini" @click="handleExport(reportName)">
+              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
@@ -127,7 +127,7 @@ import MsPerformancePressureConfig from "./components/PerformancePressureConfig"
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
-import {exportPdf} from "@/common/js/utils";
+import {exportPdf, hasPermission} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
@@ -165,6 +165,7 @@ export default {
       minutes: '0',
       seconds: '0',
       title: 'Logging',
+      isReadOnly: false,
       report: {},
       websocket: null,
       dialogFormVisible: false,
@@ -410,6 +411,7 @@ export default {
     }
   },
   created() {
+    this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE');
     this.reportId = this.$route.path.split('/')[4];
     this.getReport(this.reportId);
     this.getPoolType(this.reportId);

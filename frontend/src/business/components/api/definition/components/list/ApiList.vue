@@ -10,7 +10,7 @@
 
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
-                :batch-operators="trashEnable ? trashButtons : buttons" :screenHeight="screenHeight"
+                :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
                 :operators="tableOperatorButtons" operator-width="200px"
                 @refresh="initTable"
                 @openCustomHeader="customHeader"
@@ -362,7 +362,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
+      screenHeight: 'calc(100vh - 310px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
     };

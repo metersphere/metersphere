@@ -190,6 +190,7 @@
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {hasPermission} from "@/common/js/utils";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
@@ -228,10 +229,6 @@ export default {
     },
     testId: {
       type: String
-    },
-    isReadOnly: {
-      type: Boolean,
-      default: false
     }
   },
   data() {
@@ -253,6 +250,7 @@ export default {
       serializeThreadGroups: false,
       autoStop: false,
       autoStopDelay: 30,
+      isReadOnly: false,
     };
   },
   mounted() {
@@ -263,6 +261,7 @@ export default {
     }
     this.resourcePool = this.test.testResourcePoolId;
     this.getResourcePools();
+    this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
   },
   watch: {
     test(n) {
