@@ -55,9 +55,7 @@ public class ReflexObjectUtil {
                             column.setDepthDff(true);
                             if (val != null) {
                                 try {
-                                    if (f.getName().equals("loadConfiguration")) {
-                                        val = "{\"" + "压力配置" + "\":" + val.toString() + "}";
-                                    }
+                                    // 格式化
                                     Gson gson = new GsonBuilder().setPrettyPrinting().create();
                                     JsonObject jsonObject = gson.fromJson(val.toString(), JsonObject.class);
                                     column.setOriginalValue(gson.toJson(jsonObject));
@@ -114,6 +112,9 @@ public class ReflexObjectUtil {
                                     && StringUtils.equals("[]", originalColumns.get(i).getOriginalValue().toString())) {
                                 continue;
                             }
+                        }
+                        if (StringUtils.isEmpty(JSON.toJSONString(originalColumns.get(i).getOriginalValue())) && StringUtils.isEmpty(JSON.toJSONString(newColumns.get(i).getOriginalValue()))) {
+                            continue;
                         }
                         // 深度对比
                         DetailColumn column = new DetailColumn();

@@ -355,9 +355,14 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
+            let ids = [];
             this.selectRows.forEach(row => {
-              this._handleDeleteNoMsg(row);
+              ids.push(row.id);
             });
+            this.result = this.$post("/performance/report/batch/delete",{ids:ids}, () => {
+              this.initTableData();
+            });
+
             this.$success(this.$t('commons.delete_success'));
           }
         },
