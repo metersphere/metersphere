@@ -4,7 +4,9 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
   if (selection.length > 0) {
     if (selection.length === 1) {
       selection.hashTree = [];
-      selectRows.add(selection[0]);
+      tableData.forEach(item => {
+        component.$set(item, "showMore", true);
+      });
     } else {
       tableData.forEach(item => {
         item.hashTree = [];
