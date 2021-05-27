@@ -35,7 +35,7 @@
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch active-text="JSON-SCHEMA" v-model="body.format" active-value="JSON-SCHEMA"/>
+        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA"/>
       </div>
       <ms-json-code-edit v-if="body.format==='JSON-SCHEMA'" :body="body" ref="jsonCodeEdit"/>
       <ms-code-edit v-else-if="codeEditActive" :read-only="isReadOnly" height="400px" :data.sync="body.raw" :modes="modes" :mode="'json'" ref="codeEdit"/>
@@ -105,11 +105,14 @@
         codeEditActive: true
       };
     },
-    watch: {
-      'body.format'(oldValue, newValue) {
-        if (!oldValue) {
-          return;
-        }
+    methods: {
+      reloadCodeEdit() {
+        this.codeEditActive = false;
+        this.$nextTick(() => {
+          this.codeEditActive = true;
+        });
+      },
+      formatChange() {
         const MsConvert = new Convert();
         if (this.body.format === 'JSON-SCHEMA') {
           this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
@@ -121,14 +124,6 @@
             });
           }
         }
-      }
-    },
-    methods: {
-      reloadCodeEdit() {
-        this.codeEditActive = false;
-        this.$nextTick(() => {
-          this.codeEditActive = true;
-        });
       },
       modeChange(mode) {
         switch (this.body.type) {
