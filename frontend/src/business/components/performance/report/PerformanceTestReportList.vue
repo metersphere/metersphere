@@ -103,10 +103,13 @@
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
               <ms-table-operator-button :tip="$t('test_track.module.rename')" icon="el-icon-edit"
+                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ+DELETE']"
                                         @exec="handleRename(scope.row)" type="success"/>
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
+                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ']"
                                         @exec="handleView(scope.row)" type="primary"/>
               <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-s-operation"
+                                        v-permission="['PROJECT_PERFORMANCE_REPORT:READ']"
                                         @exec="handleDiff(scope.row)" type="warning"/>
               <ms-table-operator-button :tip="$t('api_report.delete')"
                                         v-permission="['PROJECT_PERFORMANCE_REPORT:READ+DELETE']"
@@ -359,7 +362,7 @@ export default {
             this.selectRows.forEach(row => {
               ids.push(row.id);
             });
-            this.result = this.$post("/performance/report/batch/delete",{ids:ids}, () => {
+            this.result = this.$post("/performance/report/batch/delete", {ids: ids}, () => {
               this.initTableData();
             });
 
