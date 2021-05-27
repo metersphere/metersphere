@@ -279,7 +279,8 @@
         return SYSTEM_FIELD_NAME_MAP;
       },
       readOnly() {
-        return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+        return !hasPermission('PROJECT_TRACK_CASE:READ+CREATE') &&
+          !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
       }
     },
     mounted() {
