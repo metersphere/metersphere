@@ -428,6 +428,10 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE', 'PROJECT_TRACK_PLAN');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+CREATE', 'PROJECT_ENVIRONMENT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT');
 
 
 -- 项目成员
@@ -573,6 +577,10 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE', 'PROJECT_TRACK_PLAN');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_ENVIRONMENT:READ+CREATE', 'PROJECT_ENVIRONMENT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_ENVIRONMENT:READ+DELETE', 'PROJECT_ENVIRONMENT');
 
 -- 只读用户
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
