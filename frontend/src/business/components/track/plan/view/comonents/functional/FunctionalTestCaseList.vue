@@ -266,7 +266,7 @@ import {
   TokenKey,
   WORKSPACE_ID
 } from "@/common/js/constants";
-import {hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
@@ -682,7 +682,7 @@ export default {
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.valueArr.executor = response.data;
         this.executorFilters = response.data.map(u => {
           return {text: u.name, value: u.id};

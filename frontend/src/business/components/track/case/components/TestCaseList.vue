@@ -199,6 +199,7 @@ import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseList",
@@ -648,7 +649,7 @@ export default {
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.valueArr.maintainer = response.data;
       });
     },

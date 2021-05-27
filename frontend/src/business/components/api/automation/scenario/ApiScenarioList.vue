@@ -188,7 +188,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getUUID, strMapToObj} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -588,7 +588,7 @@ export default {
     },
     getPrincipalOptions(option) {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         option.push(...response.data);
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
