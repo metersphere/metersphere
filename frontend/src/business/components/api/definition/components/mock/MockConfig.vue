@@ -38,11 +38,14 @@
           </el-table-column>
           <el-table-column fixed="right" min-width="100" align="center" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
-                                        @exec="copyExpect(scope.row)"
-                                        />
-              <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-delete" @exec="removeExpect(scope.row)"
-              />
+              <div>
+                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
+                                          @exec="copyExpect(scope.row)"
+                />
+                <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-delete"
+                                          @exec="removeExpect(scope.row)"
+                />
+              </div>
             </template>
           </el-table-column>
         </el-table>

@@ -23,10 +23,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
           <template v-slot:default="{row}">
-            <ms-table-operator-button :tip="$t('commons.update')" icon="el-icon-edit"
-                                      type="primary" @exec="edit(row)"/>
-            <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                      icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            <div>
+              <ms-table-operator-button :tip="$t('commons.update')" icon="el-icon-edit"
+                                        type="primary" @exec="edit(row)"/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')"
+                                        icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>

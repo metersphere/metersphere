@@ -120,13 +120,16 @@
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
-                                      :tip="$t('api_test.run')"
-                                      icon="el-icon-video-play"
-                                      @exec="singleRun(scope.row)"/>
-            <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
-                                      :tip="$t('test_track.plan_view.cancel_relevance')"
-                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+            <div>
+
+              <ms-table-operator-button class="run-button" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
+                                        :tip="$t('api_test.run')"
+                                        icon="el-icon-video-play"
+                                        @exec="singleRun(scope.row)"/>
+              <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
+                                        :tip="$t('test_track.plan_view.cancel_relevance')"
+                                        icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
 

@@ -35,9 +35,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['WORKSPACE_USER:READ+EDIT']"
-                               :delete-permission="['WORKSPACE_USER:READ+DELETE']"
-                               :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <div>
+              <ms-table-operator :edit-permission="['WORKSPACE_USER:READ+EDIT']"
+                                 :delete-permission="['WORKSPACE_USER:READ+DELETE']"
+                                 :tip2="$t('commons.remove')" @editClick="edit(scope.row)"
+                                 @deleteClick="del(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>

@@ -54,10 +54,13 @@
       </el-table-column>
       <el-table-column min-width="150" :label="$t('commons.operating')">
         <template v-slot:default="scope">
-          <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
-            @exec="openReport(scope.row.id)"/>
-          <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']" type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
-                                    @exec="handleDelete(scope.row)"/>
+          <div>
+            <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
+                                      @exec="openReport(scope.row.id)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']" type="danger"
+                                      :tip="$t('commons.delete')" icon="el-icon-delete"
+                                      @exec="handleDelete(scope.row)"/>
+          </div>
         </template>
       </el-table-column>
     </el-table>

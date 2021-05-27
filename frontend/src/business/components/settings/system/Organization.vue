@@ -21,9 +21,11 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['SYSTEM_ORGANIZATION:READ+EDIT']"
-                               :delete-permission="['SYSTEM_ORGANIZATION:READ+DELETE']"
-              @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            <div>
+              <ms-table-operator :edit-permission="['SYSTEM_ORGANIZATION:READ+EDIT']"
+                                 :delete-permission="['SYSTEM_ORGANIZATION:READ+DELETE']"
+                                 @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -49,8 +51,10 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)"
-                               @deleteClick="delMember(scope.row)"/>
+            <div>
+              <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)"
+                                 @deleteClick="delMember(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>

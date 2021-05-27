@@ -39,9 +39,11 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['SYSTEM_TEST_POOL:READ+EDIT']"
-                               :delete-permission="['SYSTEM_TEST_POOL:READ+DELETE']"
-              @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <div>
+              <ms-table-operator :edit-permission="['SYSTEM_TEST_POOL:READ+EDIT']"
+                                 :delete-permission="['SYSTEM_TEST_POOL:READ+DELETE']"
+                                 @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
