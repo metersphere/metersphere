@@ -5,14 +5,12 @@ import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.ParamConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MailInfo;
 import io.metersphere.service.SystemParameterService;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -68,7 +66,7 @@ public class SystemParameterController {
     }
 
     @PostMapping("/save/ldap")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "LDAP设置")
+    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails()", content = "#msClass.getLogDetails()", msClass = SystemParameterService.class)
     public void saveLdap(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveLdap(systemParameter);
     }

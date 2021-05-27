@@ -18,6 +18,7 @@ public class SystemReference {
     public static Map<String, String> jarColumns = new LinkedHashMap<>();
     public static Map<String, String> environmentColumns = new LinkedHashMap<>();
     public static Map<String, String> licenseColumns = new LinkedHashMap<>();
+    public static Map<String, String> ldapColumns = new LinkedHashMap<>();
 
     static {
 
@@ -35,6 +36,7 @@ public class SystemReference {
         jarColumns.clear();
         environmentColumns.clear();
         licenseColumns.clear();
+        ldapColumns.clear();
 
         userColumns.put("name", "用户名称");
         userColumns.put("createUser", "创建人");
@@ -116,6 +118,14 @@ public class SystemReference {
         licenseColumns.put("count", "icense版本");
         licenseColumns.put("licenseVersion", "授权数量");
         licenseColumns.put("status", "状态");
+
+        ldapColumns.put("url", "LDAP地址");
+        ldapColumns.put("dn", "绑定DN");
+        ldapColumns.put("password", "密码");
+        ldapColumns.put("ou", "用户OU");
+        ldapColumns.put("filter", "用户过滤器");
+        ldapColumns.put("mapping", "LDAP属性映射");
+        ldapColumns.put("open", "启用LDAP认证");
 
     }
 }

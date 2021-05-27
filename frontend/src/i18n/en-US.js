@@ -1832,5 +1832,6 @@ export default {
     after_change: "After change",
     share: "Share",
     change_history: "Change history",
+    change_content: "Change content"
   }
 };
