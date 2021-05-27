@@ -37,10 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,12 +92,18 @@ public class ProjectService {
             MSException.throwException(Translator.get("project_name_already_exists"));
         }
         project.setId(UUID.randomUUID().toString());
+
+
+        long allCount = projectMapper.countByExample(null);
+        String systemId = String.valueOf(100001+allCount);
+
         long createTime = System.currentTimeMillis();
         project.setCreateTime(createTime);
         project.setUpdateTime(createTime);
         // set workspace id
         project.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         project.setCreateUser(SessionUtils.getUserId());
+        project.setSystemId(systemId);
         projectMapper.insertSelective(project);
         return project;
     }
