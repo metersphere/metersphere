@@ -230,7 +230,7 @@ export default {
   data() {
     return {
       type: TEST_CASE_LIST,
-      screenHeight: 'calc(100vh - 322px)',
+      screenHeight: 'calc(100vh - 310px)',
       headerItems: Track_Test_Case,
       tableLabel: [],
       result: {},
