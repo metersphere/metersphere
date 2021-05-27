@@ -1,3 +1,7 @@
+update user_role
+set source_id = 'system'
+where role_id = 'admin';
+
 CREATE TABLE IF NOT EXISTS `group`
 (
     `id`          VARCHAR(64) COLLATE utf8mb4_bin NOT NULL,
@@ -423,7 +427,7 @@ values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN', 'PROJ
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE', 'PROJECT_TRACK_PLAN');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE','PROJECT_TRACK_PLAN');
+values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE', 'PROJECT_TRACK_PLAN');
 
 
 -- 项目成员
@@ -568,7 +572,7 @@ values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN', 'PRO
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE', 'PROJECT_TRACK_PLAN');
 insert into user_group_permission (id, group_id, permission_id, module_id)
-values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE','PROJECT_TRACK_PLAN');
+values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE', 'PROJECT_TRACK_PLAN');
 
 -- 只读用户
 INSERT INTO user_group_permission (id, group_id, permission_id, module_id)
