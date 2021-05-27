@@ -362,7 +362,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 310px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 320px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
     };

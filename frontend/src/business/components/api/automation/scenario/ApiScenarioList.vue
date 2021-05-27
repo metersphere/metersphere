@@ -283,7 +283,7 @@ export default {
       type: API_SCENARIO_LIST,
       headerItems: Api_Scenario_List,
       tableLabel: [],
-      screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
+      screenHeight: 'calc(100vh - 275px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
