@@ -182,7 +182,7 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
 import {API_LIST, PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -557,7 +557,7 @@ export default {
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.valueArr.userId = response.data;
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};

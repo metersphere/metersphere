@@ -49,10 +49,10 @@ public class ApiTestEnvironmentController {
      */
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
-        List<String> projectIds = environmentRequest.getProjectIds();
-        for (String projectId : projectIds) {
-            checkPermissionService.checkProjectOwner(projectId);
-        }
+//        List<String> projectIds = environmentRequest.getProjectIds();
+//        for (String projectId : projectIds) {
+//            checkPermissionService.checkProjectOwner(projectId);
+//        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiTestEnvironmentService.listByConditions(environmentRequest));
     }

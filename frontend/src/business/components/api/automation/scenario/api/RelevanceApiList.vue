@@ -171,6 +171,7 @@
   import TableSelectCountBar from "./TableSelectCountBar";
   import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
   import {API_LIST, WORKSPACE_ID} from "@/common/js/constants";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "RelevanceApiList",
@@ -406,7 +407,7 @@
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
           this.valueArr.userId = response.data;
           this.userFilters = response.data.map(u => {
             return {text: u.name, value: u.id};

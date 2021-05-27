@@ -90,7 +90,7 @@
 
 <script>
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 export default {
   name: "CustomFiledComponent",
   components: {MsTableColumn},
@@ -107,7 +107,7 @@ export default {
   },
   mounted() {
     if (this.data.type === 'member' || this.data.type === 'multipleMember') {
-      this.$post('/user/ws/member/tester/list', {workspaceId: getCurrentWorkspaceId()}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.memberOptions = response.data;
       });
     }
