@@ -249,7 +249,7 @@ export default {
         {
           name: this.$t('api_test.definition.request.batch_move'),
           handleClick: this.handleBatchMove,
-          permissions: ['PROJECT_API_DEFINITION:READ+BATCH_MOVE']
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         }
       ],
       trashButtons: [
