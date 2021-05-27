@@ -717,7 +717,9 @@ public class TestPlanService {
             for (Project project : projects) {
                 stringBuilder.append(project.getName()).append("、");
             }
-            projectName = stringBuilder.substring(0, stringBuilder.length() - 1);
+            if (StringUtils.isNotBlank(stringBuilder)) {
+                projectName = stringBuilder.substring(0, stringBuilder.length() - 1);
+            }
         }
 
         return projectName;
