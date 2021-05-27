@@ -82,8 +82,8 @@ export default {
   },
   props: {
     screenHeight: {
-      type: String,
-      default: '400',
+      type: Number,
+      default: 400,
     },
     selectNodeIds: {
       type: Array,
