@@ -1202,6 +1202,12 @@ public class UserService {
                 if (CollectionUtils.isNotEmpty(workspaces)) {
                     names = workspaces.stream().map(Workspace::getName).collect(Collectors.toList());
                 }
+                ProjectExample projectExample = new ProjectExample();
+                projectExample.createCriteria().andIdIn((List<String>) map.get("ids"));
+                List<Project> projects = projectMapper.selectByExample(projectExample);
+                if (CollectionUtils.isNotEmpty(projects)) {
+                    names = projects.stream().map(Project::getName).collect(Collectors.toList());
+                }
                 StringBuilder nameBuff = new StringBuilder();
                 Group group = groupMapper.selectByPrimaryKey(id);
                 if (group != null && CollectionUtils.isNotEmpty(names)) {
@@ -1210,7 +1216,7 @@ public class UserService {
                 colNames.add(nameBuff.toString());
             }
         }
-        return String.join("\n", colNames);
+        return String.join(",", colNames);
     }
 
     public String getLogDetails(UserBatchProcessRequest request) {
