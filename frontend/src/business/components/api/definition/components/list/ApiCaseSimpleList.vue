@@ -105,10 +105,13 @@
             <ms-table-operator-button class="run-button"
                                       :tip="$t('api_test.automation.execute')"
                                       icon="el-icon-video-play"
+                                      v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                                       @exec="runTestCase(scope.row)"/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
+                                      v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
                                       />
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"
+                                      v-permission="['PROJECT_API_DEFINITION:READ+DELETE_CASE']"
                                       type="danger"/>
             <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment"
                                            @createPerformance="createPerformance" :row="scope.row"/>
