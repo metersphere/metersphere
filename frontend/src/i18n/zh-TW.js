@@ -1551,6 +1551,7 @@ export default {
       create_issue: "創建缺陷",
       add_issue: "添加缺陷",
       issue_list: "缺陷列表",
+      issue_manage: "缺陷管理",
       search_name: "根據標題搜索",
       platform_tip: "在系統設置-組織-服務集成中集成缺陷管理平臺可以自動提交缺陷到指定缺陷管理平臺",
       input_title: "請輸入標題",

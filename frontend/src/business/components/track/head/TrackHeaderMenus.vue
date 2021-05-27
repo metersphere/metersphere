@@ -23,7 +23,7 @@
           </el-menu-item>
 
           <el-menu-item :index="'/track/issue'">
-            {{ $t("缺陷管理") }}
+            {{ $t("test_track.issue.issue_manage") }}
           </el-menu-item>
 
           <el-menu-item :index="'/track/testPlan/reportList'">
