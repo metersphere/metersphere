@@ -1,5 +1,5 @@
 <template>
-  <el-main v-loading="result.loading" class="environment-edit">
+  <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
     <el-form :model="environment" :rules="rules" ref="environment">
 
       <span>{{$t('api_test.environment.name')}}</span>
