@@ -53,13 +53,18 @@
         <el-table-column prop="source" :label="$t('user.source')"/>
         <el-table-column :label="$t('commons.operating')" min-width="120px">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['SYSTEM_USER:READ+EDIT']" :delete-permission="['SYSTEM_USER:READ+DELETE']"
-                               @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
-              <template v-slot:behind>
-                <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
-                                          v-permission="['SYSTEM_USER:READ+EDIT_PASSWORD']" type="success" @exec="editPassword(scope.row)" v-if="scope.row.isLocalUser"/>
-              </template>
-            </ms-table-operator>
+            <div>
+
+              <ms-table-operator :edit-permission="['SYSTEM_USER:READ+EDIT']"
+                                 :delete-permission="['SYSTEM_USER:READ+DELETE']"
+                                 @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+                <template v-slot:behind>
+                  <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
+                                            v-permission="['SYSTEM_USER:READ+EDIT_PASSWORD']" type="success"
+                                            @exec="editPassword(scope.row)" v-if="scope.row.isLocalUser"/>
+                </template>
+              </ms-table-operator>
+            </div>
           </template>
         </el-table-column>
       </el-table>

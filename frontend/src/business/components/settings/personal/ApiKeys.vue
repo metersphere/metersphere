@@ -51,8 +51,10 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
-                                      type="danger" @exec="deleteApiKey(scope.row)"/>
+            <div>
+              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        type="danger" @exec="deleteApiKey(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>

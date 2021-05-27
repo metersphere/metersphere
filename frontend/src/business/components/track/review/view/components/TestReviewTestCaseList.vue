@@ -156,12 +156,14 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator-button v-permission="['PROJECT_TRACK_CASE:READ+EDIT']" :tip="$t('commons.edit')"
-                                    icon="el-icon-edit"
-                                    @exec="handleEdit(scope.row)"/>
-          <ms-table-operator-button v-permission="['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']"
-                                    :tip="$t('test_track.plan_view.cancel_relevance')"
-                                    icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+          <div>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_CASE:READ+EDIT']" :tip="$t('commons.edit')"
+                                      icon="el-icon-edit"
+                                      @exec="handleEdit(scope.row)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']"
+                                      :tip="$t('test_track.plan_view.cancel_relevance')"
+                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+          </div>
         </template>
       </el-table-column>
     </el-table>
