@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {WORKSPACE_ID} from "@/common/js/constants";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
@@ -152,7 +152,7 @@ export default {
 
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.userOptions = response.data;
       });
     },

@@ -102,7 +102,7 @@
 
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
@@ -233,7 +233,7 @@ export default {
     },
     setReviewerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.result = this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.result = this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
         this.reviewerOptions = response.data;
       });
     },
