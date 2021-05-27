@@ -5,8 +5,11 @@
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px">
-          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s" v-tester>{{ $t('commons.save') }}</el-button>
-          <el-button type="primary" size="small" @click="runTest" v-tester>{{ $t('commons.test') }}</el-button>
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="httpForm.id">
+            {{ $t('operating_log.change_history') }}
+          </el-link>
+          <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
+          <el-button type="primary" size="small" @click="runTest">{{ $t('commons.test') }}</el-button>
         </div>
         <br/>
         <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
@@ -107,6 +110,9 @@
       <!-- 响应内容-->
       <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
       <ms-response-text :response="response"></ms-response-text>
+
+      <ms-change-history ref="changeHistory"/>
+
     </el-card>
   </div>
 </template>
@@ -121,10 +127,11 @@
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
+  import MsChangeHistory from "../../../../history/ChangeHistory";
 
   export default {
     name: "MsAddCompleteHttpApi",
-    components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree},
+    components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree,MsChangeHistory},
     data() {
       let validateURL = (rule, value, callback) => {
         if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
@@ -224,6 +231,9 @@
       }
     },
     methods: {
+      openHis(){
+        this.$refs.changeHistory.open(this.httpForm.id);
+      },
       runTest() {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {

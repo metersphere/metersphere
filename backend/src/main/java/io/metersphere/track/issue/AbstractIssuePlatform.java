@@ -1,5 +1,6 @@
 package io.metersphere.track.issue;
 
+import com.alibaba.fastjson.JSONArray;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
@@ -11,6 +12,7 @@ import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -28,7 +30,9 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class AbstractIssuePlatform implements IssuesPlatform {
@@ -162,8 +166,27 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setPlatform(issuesRequest.getPlatform());
         issues.setProjectId(issuesRequest.getProjectId());
         issues.setCustomFields(issuesRequest.getCustomFields());
+        issues.setCreator(issuesRequest.getCreator());
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
+        issues.setNum(getNextNum(issuesRequest.getProjectId()));
+        issues.setResourceId(issuesRequest.getResourceId());
         issuesMapper.insert(issues);
+    }
+
+    protected int getNextNum(String projectId) {
+        Issues issue = extIssuesMapper.getNextNum(projectId);
+        if (issue == null || issue.getNum() == null) {
+            return 100001;
+        } else {
+            return Optional.of(issue.getNum() + 1).orElse(100001);
+        }
+    }
+
+    protected List<CustomFieldItemDTO> getCustomFields(String customFieldsStr) {
+        if (StringUtils.isNotBlank(customFieldsStr)) {
+            return JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
+        }
+        return new ArrayList<>();
     }
 }

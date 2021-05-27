@@ -31,7 +31,7 @@
             </el-dialog>
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
-            <schedule-task-notification :is-tester-permission="isTesterPermission" :test-id="testId"
+            <schedule-task-notification :test-id="testId"
                                         :schedule-receiver-options="scheduleReceiverOptions"/>
           </el-tab-pane>
         </el-tabs>
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
@@ -115,11 +115,9 @@ export default {
         organizationId: this.currentUser().lastOrganizationId
       };
 
-      if (this.isTesterPermission) {
-        this.result = this.$post('user/org/member/list/all', param, response => {
-          this.scheduleReceiverOptions = response.data
-        });
-      }
+      this.result = this.$post('user/org/member/list/all', param, response => {
+        this.scheduleReceiverOptions = response.data
+      });
 
     },
     /* handleClick() {
@@ -196,7 +194,7 @@ export default {
   },
   computed: {
     isTesterPermission() {
-      return checkoutTestManagerOrTestUser();
+      return false;
     }
   }
 }

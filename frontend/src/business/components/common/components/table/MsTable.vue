@@ -26,7 +26,7 @@
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-          <show-more-btn :is-show="scope.row.showMore" :buttons="batchOperators" :size="selectDataCounts" v-tester/>
+          <show-more-btn :is-show="scope.row.showMore" :buttons="batchOperators" :size="selectDataCounts"/>
         </template>
       </el-table-column>
 
@@ -77,6 +77,7 @@ export default {
     return {
       selectDataCounts: 0,
       selectRows: new Set(),
+      selectIds: []
     };
   },
   props: {
@@ -159,11 +160,6 @@ export default {
       this.selectDataCounts = 0;
     },
   },
-  computed: {
-    selectIds() {
-      return Array.from(this.selectRows).map(o => o.id);
-    }
-  },
   methods: {
     openCustomHeader() {
       this.$emit("openCustomHeader");
@@ -172,11 +168,13 @@ export default {
       _handleSelectAll(this, selection, this.data, this.selectRows);
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
@@ -188,6 +186,7 @@ export default {
       this.condition.unSelectIds = [];
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     headerDragend(newWidth, oldWidth, column, event) {
       // let finalWidth = newWidth;
@@ -235,23 +234,24 @@ export default {
       this.$emit('pageChange');
     },
     clear() {
-      this.selectRows.clear();
-      this.selectDataCounts = 0;
+      this.clearSelectRows();
     },
     checkTableRowIsSelect() {
       checkTableRowIsSelect(this, this.condition, this.data, this.$refs.table, this.selectRows);
     },
     clearSelection() {
-      this.selectRows = new Set();
-      if (this.$refs.table) {
-        this.$refs.table.clearSelection();
-      }
+      this.clearSelectRows();
     },
     getSelectRows() {
       return this.selectRows;
     },
     clearSelectRows() {
-      this.selectRows = new Set();
+      this.selectRows.clear();
+      this.selectIds = [];
+      this.selectDataCounts = 0;
+      if (this.$refs.table) {
+        this.$refs.table.clearSelection();
+      }
     },
   }
 };

@@ -6,7 +6,7 @@
       border
       style="width: 100%"
     >
-      <el-table-column label="Requests" fixed min-width="150" align="center">
+      <el-table-column label="Requests" min-width="150" align="center">
         <el-table-column
           prop="label"
           label="Label"
@@ -19,7 +19,7 @@
                       placeholder="请输入 Label 搜索"
                       size="mini"
                       class="search_input"
-                      style="width: 250px; margin-left: 5px"
+                      style="width: 100px; margin-left: 5px"
                       v-if="column.showSearch"
                       clearable
                       @clear="filterLabel"

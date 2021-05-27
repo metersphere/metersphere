@@ -2,16 +2,21 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :show-create="false" :condition.sync="condition"
+                         @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.project')">
           <template v-slot:button>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-box"
+            <ms-table-button icon="el-icon-box"
                              :content="$t('api_test.jar_config.title')" @click="openJarConfig"/>
           </template>
         </ms-table-header>
       </template>
-      <el-table border class="adjust-table" :data="items" style="width: 100%" @sort-change="sort">
-        <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
+      <el-table border class="adjust-table" :data="items" style="width: 100%"
+                @sort-change="sort"
+                @filter-change="filter"
+                :height="screenHeight"
+      >
+        <el-table-column prop="name" :label="$t('commons.name')" min-width="100" show-overflow-tooltip/>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
           <template v-slot:default="scope">
             <pre>{{ scope.row.description }}</pre>
@@ -19,32 +24,51 @@
         </el-table-column>
         <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
         <el-table-column
-          sortable
-          prop="createTime"
-          :label="$t('commons.create_time')"
+          prop="createUser"
+          :label="$t('commons.create_user')"
+          :filters="userFilters"
+          column-key="create_user"
           show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createUserName }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column min-width="100"
+                         sortable
+                         prop="createTime"
+                         :label="$t('commons.create_time')"
+                         show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          sortable
-          prop="updateTime"
-          :label="$t('commons.update_time')"
-          show-overflow-tooltip>
+        <el-table-column min-width="100"
+                         sortable
+                         prop="updateTime"
+                         :label="$t('commons.update_time')"
+                         show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('commons.operating')">
+        <el-table-column :label="$t('commons.operating')" width="180">
           <template v-slot:default="scope">
-            <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
-                               @deleteClick="handleDelete(scope.row)">
+            <ms-table-operator
+              :edit-permission="['PROJECT_MANAGER:READ+EDIT']"
+              :delete-permission="['PROJECT_MANAGER:READ+DELETE']"
+              @editClick="edit(scope.row)"
+              :show-delete="false"
+              @deleteClick="handleDelete(scope.row)">
               <template v-slot:behind>
-                <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
-                                          type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                <ms-table-operator-button :is-tester-permission="true" :tip="$t('load_test.other_resource')" icon="el-icon-files"
-                                          type="success" @exec="openFiles(scope.row)"/>
+                <ms-table-operator-button
+                  v-permission="['PROJECT_MANAGER:READ+EDIT']"
+                  :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
+                  type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                <ms-table-operator-button
+                  v-permission="['PROJECT_MANAGER:READ+EDIT']"
+                  :tip="$t('load_test.other_resource')"
+                  icon="el-icon-files"
+                  type="success" @exec="openFiles(scope.row)"/>
               </template>
             </ms-table-operator>
           </template>
@@ -54,7 +78,8 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close @close="handleClose">
+    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
+               @close="handleClose">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="140px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -117,7 +142,13 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentWorkspaceId,
+  listenGoBack,
+  removeGoBackListener
+} from "@/common/js/utils";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
@@ -127,9 +158,10 @@ import TemplateComponent from "../../track/plan/view/comonents/report/TemplateCo
 import {PROJECT_ID} from "@/common/js/constants";
 import MsJarConfig from "../../api/test/components/jar/JarConfig";
 import MsTableButton from "../../common/components/MsTableButton";
-import {_sort} from "@/common/js/tableUtils";
+import {_filter, _sort} from "@/common/js/tableUtils";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
 import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
+import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "MsProject",
@@ -151,7 +183,7 @@ export default {
       result: {},
       btnTips: this.$t('project.create'),
       title: this.$t('project.create'),
-      condition: {},
+      condition: {components: PROJECT_CONFIGS},
       items: [],
       tapd: false,
       jira: false,
@@ -160,6 +192,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      userFilters: [],
       rules: {
         name: [
           {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
@@ -171,7 +204,8 @@ export default {
         // caseTemplateId: [{required: true}],
         // issueTemplateId: [{required: true}],
       },
-    }
+      screenHeight: 'calc(100vh - 255px)',
+    };
   },
   props: {
     baseUrl: {
@@ -185,6 +219,7 @@ export default {
       this.$router.replace('/setting/project/all');
     }
     this.list();
+    this.getMaintainerOptions();
   },
   activated() {
     this.list();
@@ -198,6 +233,14 @@ export default {
     this.createVisible = false;
   },
   methods: {
+    getMaintainerOptions() {
+      let workspaceId = getCurrentWorkspaceId();
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
+    },
     create() {
       let workspaceId = this.currentUser.lastWorkspaceId;
       this.getOptions();
@@ -300,15 +343,20 @@ export default {
       this.list();
     },
     list() {
+      this.condition.projectId = getCurrentProjectID();
       let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
       this.result = this.$post(url, this.condition, (response) => {
         let data = response.data;
         this.items = data.listObject;
         this.total = data.itemCount;
-      })
+      });
     },
     sort(column) {
       _sort(column, this.condition);
+      this.list();
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
       this.list();
     },
     openEnvironmentConfig(project) {
@@ -316,12 +364,12 @@ export default {
     },
   },
   created() {
-    document.addEventListener('keydown', this.handleEvent)
+    document.addEventListener('keydown', this.handleEvent);
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.handleEvent);
   }
-}
+};
 </script>
 
 <style scoped>

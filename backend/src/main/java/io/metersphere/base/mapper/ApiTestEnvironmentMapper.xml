@@ -9,6 +9,7 @@
     <result column="socket" jdbcType="VARCHAR" property="socket" />
     <result column="domain" jdbcType="VARCHAR" property="domain" />
     <result column="port" jdbcType="INTEGER" property="port" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs">
     <result column="variables" jdbcType="LONGVARCHAR" property="variables" />
@@ -75,7 +76,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, project_id, protocol, socket, `domain`, port
+    id, `name`, project_id, protocol, socket, `domain`, port, create_user
   </sql>
   <sql id="Blob_Column_List">
     `variables`, headers, config, `hosts`
@@ -131,12 +132,14 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs">
     insert into api_test_environment (id, `name`, project_id, 
       protocol, socket, `domain`, 
-      port, `variables`, headers, 
-      config, `hosts`)
+      port, create_user, `variables`, 
+      headers, config, `hosts`
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{protocol,jdbcType=VARCHAR}, #{socket,jdbcType=VARCHAR}, #{domain,jdbcType=VARCHAR}, 
-      #{port,jdbcType=INTEGER}, #{variables,jdbcType=LONGVARCHAR}, #{headers,jdbcType=LONGVARCHAR}, 
-      #{config,jdbcType=LONGVARCHAR}, #{hosts,jdbcType=LONGVARCHAR})
+      #{port,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{variables,jdbcType=LONGVARCHAR}, 
+      #{headers,jdbcType=LONGVARCHAR}, #{config,jdbcType=LONGVARCHAR}, #{hosts,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs">
     insert into api_test_environment
@@ -161,6 +164,9 @@
       </if>
       <if test="port != null">
         port,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="variables != null">
         `variables`,
@@ -196,6 +202,9 @@
       </if>
       <if test="port != null">
         #{port,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="variables != null">
         #{variables,jdbcType=LONGVARCHAR},
@@ -241,6 +250,9 @@
       <if test="record.port != null">
         port = #{record.port,jdbcType=INTEGER},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.variables != null">
         `variables` = #{record.variables,jdbcType=LONGVARCHAR},
       </if>
@@ -267,6 +279,7 @@
       socket = #{record.socket,jdbcType=VARCHAR},
       `domain` = #{record.domain,jdbcType=VARCHAR},
       port = #{record.port,jdbcType=INTEGER},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       `variables` = #{record.variables,jdbcType=LONGVARCHAR},
       headers = #{record.headers,jdbcType=LONGVARCHAR},
       config = #{record.config,jdbcType=LONGVARCHAR},
@@ -283,7 +296,8 @@
       protocol = #{record.protocol,jdbcType=VARCHAR},
       socket = #{record.socket,jdbcType=VARCHAR},
       `domain` = #{record.domain,jdbcType=VARCHAR},
-      port = #{record.port,jdbcType=INTEGER}
+      port = #{record.port,jdbcType=INTEGER},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -309,6 +323,9 @@
       <if test="port != null">
         port = #{port,jdbcType=INTEGER},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="variables != null">
         `variables` = #{variables,jdbcType=LONGVARCHAR},
       </if>
@@ -332,6 +349,7 @@
       socket = #{socket,jdbcType=VARCHAR},
       `domain` = #{domain,jdbcType=VARCHAR},
       port = #{port,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
       `variables` = #{variables,jdbcType=LONGVARCHAR},
       headers = #{headers,jdbcType=LONGVARCHAR},
       config = #{config,jdbcType=LONGVARCHAR},
@@ -345,7 +363,8 @@
       protocol = #{protocol,jdbcType=VARCHAR},
       socket = #{socket,jdbcType=VARCHAR},
       `domain` = #{domain,jdbcType=VARCHAR},
-      port = #{port,jdbcType=INTEGER}
+      port = #{port,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

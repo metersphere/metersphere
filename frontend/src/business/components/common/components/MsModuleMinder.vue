@@ -14,6 +14,7 @@
       :default-mold="defaultMode"
       @afterMount="$emit('afterMount')"
       @moldChange="handleMoldChange"
+      :disabled="disabled"
       @save="save"
     />
   </div>
@@ -63,7 +64,8 @@ export default {
     },
     tagDisableCheck: Function,
     tagEditCheck: Function,
-    priorityDisableCheck: Function
+    priorityDisableCheck: Function,
+    disabled: Boolean
   },
   data() {
     return {
@@ -237,5 +239,9 @@ export default {
 
 .full-screen .fulls-screen-btn {
   right: 30px;
+}
+
+/deep/ *[disabled] {
+  opacity: 0.7 !important;
 }
 </style>

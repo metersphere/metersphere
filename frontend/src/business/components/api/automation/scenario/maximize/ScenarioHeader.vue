@@ -30,7 +30,7 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
+  import {exportPdf} from "@/common/js/utils";
   import html2canvas from 'html2canvas';
   import EnvPopover from "../../scenario/EnvPopover";
 
@@ -52,6 +52,11 @@
         envResult: {
           loading: false
         }
+      }
+    },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
       }
     },
     mounted() {
@@ -124,6 +129,7 @@
         return new Promise((resolve) => {
           this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
             if (res.data) {
+              res.data.projectIds.push(this.projectId);
               this.$emit("update:projectIds", new Set(res.data.projectIds));
               this.$emit("update:isFullUrl", res.data.fullUrl);
             }

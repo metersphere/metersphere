@@ -58,8 +58,6 @@ Vue.directive('roles', roles);
 
 Vue.directive('xpack', xpack);
 
-Vue.directive('tester', tester);
-
 Vue.directive('modules', modules);
 
 //支持左右拖拽

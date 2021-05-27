@@ -20,6 +20,7 @@
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
+            @refreshTree="refreshTree"
             :module-tree="nodeTree"
             :module-options="moduleOptions"
             :select-node-ids="selectNodeIds"
@@ -41,17 +42,21 @@
           :name="item.name"
           closable>
           <div class="ms-api-scenario-div">
-            <ms-edit-api-scenario @refresh="refresh" @openScenario="editScenario" @closePage="closePage" :currentScenario="item.currentScenario"
+            <ms-edit-api-scenario @refresh="refresh" @openScenario="editScenario" @closePage="closePage"
+                                  :currentScenario="item.currentScenario"
                                   :custom-num="customNum" :moduleOptions="moduleOptions" ref="autoScenarioConfig"/>
           </div>
         </el-tab-pane>
 
         <el-tab-pane name="add">
           <template v-slot:label>
-            <el-dropdown @command="handleCommand" v-tester>
-              <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
+            <el-dropdown @command="handleCommand">
+              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="ADD">{{ $t('api_test.automation.add_scenario') }}</el-dropdown-item>
+                <el-dropdown-item command="ADD"
+                                  v-permission="['PROJECT_API_SCENARIO:READ+CREATE']">
+                  {{ $t('api_test.automation.add_scenario') }}
+                </el-dropdown-item>
                 <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -65,13 +70,13 @@
 
 <script>
 
-  import MsContainer from "@/business/components/common/components/MsContainer";
-  import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
-  import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-  import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-  import {getUUID, downloadFile, checkoutTestManagerOrTestUser, getCurrentUser} from "@/common/js/utils";
-  import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
-  import MsEditApiScenario from "./scenario/EditApiScenario";
+import MsContainer from "@/business/components/common/components/MsContainer";
+import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
+import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
+import {getCurrentUser, getUUID} from "@/common/js/utils";
+import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
+import MsEditApiScenario from "./scenario/EditApiScenario";
 
   export default {
     name: "ApiAutomation",
@@ -96,7 +101,7 @@
         return redirectParam;
       },
       isReadOnly() {
-        return !checkoutTestManagerOrTestUser();
+        return false;
       },
       projectId() {
         return this.$store.state.projectId
@@ -167,7 +172,10 @@
                   this.$refs.nodeTree.list();
                 }
                 let row = data.listObject[0];
-                row.tags = JSON.parse(row.tags);
+                if (row.tags.length > 0) {
+                  row.tags = JSON.parse(row.tags);
+                }
+
                 this.editScenario(row);
               }
             });
@@ -225,82 +233,82 @@
             currentScenario.modulePath = this.currentModulePath;
           }
 
-          if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-            currentScenario.apiScenarioModuleId = this.selectNodeIds[0];
-            this.getPath(this.selectNodeIds[0], this.moduleOptions);
-            currentScenario.modulePath = this.currentModulePath;
-          }
-          this.tabs.push({label: label, name: name, currentScenario: currentScenario});
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          currentScenario.apiScenarioModuleId = this.selectNodeIds[0];
+          this.getPath(this.selectNodeIds[0], this.moduleOptions);
+          currentScenario.modulePath = this.currentModulePath;
         }
-        if (tab.name === 'edit') {
-          let label = this.$t('api_test.automation.add_scenario');
-          let name = getUUID().substring(0, 8);
-          this.activeName = name;
-          label = tab.currentScenario.name;
-          this.tabs.push({label: label, name: name, currentScenario: tab.currentScenario});
-        }
-        if (this.$refs && this.$refs.autoScenarioConfig) {
-          this.$refs.autoScenarioConfig.forEach(item => {
-            item.removeListener();
-          });  //  删除所有tab的 ctrl + s 监听
-          this.addListener();
-        }
-      },
-      addListener() {
-        let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
-        if (index != -1) {   //  为当前选中的tab添加监听
-          this.$nextTick(() => {
-            this.$refs.autoScenarioConfig[index].addListener();
-          });
-        }
-      },
-      handleTabClose() {
-        this.tabs = [];
+        this.tabs.push({label: label, name: name, currentScenario: currentScenario});
+      }
+      if (tab.name === 'edit') {
+        let label = this.$t('api_test.automation.add_scenario');
+        let name = getUUID().substring(0, 8);
+        this.activeName = name;
+        label = tab.currentScenario.name;
+        this.tabs.push({label: label, name: name, currentScenario: tab.currentScenario});
+      }
+      if (this.$refs && this.$refs.autoScenarioConfig) {
+        this.$refs.autoScenarioConfig.forEach(item => {
+          item.removeListener();
+        });  //  删除所有tab的 ctrl + s 监听
+        this.addListener();
+      }
+    },
+    addListener() {
+      let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
+      if (index != -1) {   //  为当前选中的tab添加监听
+        this.$nextTick(() => {
+          this.$refs.autoScenarioConfig[index].addListener();
+        });
+      }
+    },
+    handleTabClose() {
+      this.tabs = [];
+      this.activeName = "default";
+      this.refresh();
+    },
+    handleCommand(e) {
+      switch (e) {
+        case "ADD":
+          this.addTab({name: 'add'});
+          break;
+        case "CLOSE_ALL":
+          this.handleTabClose();
+          break;
+        default:
+          this.addTab({name: 'add'});
+          break;
+      }
+    },
+    closePage(targetName) {
+      this.tabs = this.tabs.filter(tab => tab.label !== targetName);
+      if (this.tabs.length > 0) {
+        this.activeName = this.tabs[this.tabs.length - 1].name;
+        this.addListener(); //  自动切换当前标签时，也添加监听
+      } else {
         this.activeName = "default";
-        this.refresh();
-      },
-      handleCommand(e) {
-        switch (e) {
-          case "ADD":
-            this.addTab({name: 'add'});
-            break;
-          case "CLOSE_ALL":
-            this.handleTabClose();
-            break;
-          default:
-            this.addTab({name: 'add'});
-            break;
+      }
+    },
+    removeTab(targetName) {
+      this.tabs = this.tabs.filter(tab => tab.name !== targetName);
+      if (this.tabs.length > 0) {
+        this.activeName = this.tabs[this.tabs.length - 1].name;
+        this.addListener(); //  自动切换当前标签时，也添加监听
+      } else {
+        this.activeName = "default";
+      }
+    },
+    setTabLabel(data) {
+      for (const tab of this.tabs) {
+        if (tab.name === this.activeName) {
+          tab.label = data.name;
+          break;
         }
-      },
-      closePage(targetName) {
-        this.tabs = this.tabs.filter(tab => tab.label !== targetName);
-        if (this.tabs.length > 0) {
-          this.activeName = this.tabs[this.tabs.length - 1].name;
-          this.addListener(); //  自动切换当前标签时，也添加监听
-        } else {
-          this.activeName = "default"
-        }
-      },
-      removeTab(targetName) {
-        this.tabs = this.tabs.filter(tab => tab.name !== targetName);
-        if (this.tabs.length > 0) {
-          this.activeName = this.tabs[this.tabs.length - 1].name;
-          this.addListener(); //  自动切换当前标签时，也添加监听
-        } else {
-          this.activeName = "default"
-        }
-      },
-      setTabLabel(data) {
-        for (const tab of this.tabs) {
-          if (tab.name === this.activeName) {
-            tab.label = data.name;
-            break;
-          }
-        }
-      },
-      selectModule(data) {
-        this.currentModule = data;
-      },
+      }
+    },
+    selectModule(data) {
+      this.currentModule = data;
+    },
       saveScenario(data) {
         this.setTabLabel(data);
         this.$refs.apiScenarioList.search(data);
@@ -308,6 +316,10 @@
       refresh(data) {
         this.setTabTitle(data);
         this.$refs.apiScenarioList.search(data);
+        this.$refs.nodeTree.list();
+      },
+      refreshTree() {
+        this.$refs.nodeTree.list();
       },
       refreshAll() {
         this.$refs.nodeTree.list();
@@ -319,42 +331,43 @@
           if (tab.name === this.activeName) {
             tab.label = data.name;
             break;
-          }
         }
-      },
-      editScenario(row) {
-        this.addTab({name: 'edit', currentScenario: row});
-      },
-
-      nodeChange(node, nodeIds, pNodes) {
-        this.selectNodeIds = nodeIds;
-      },
-      setModuleOptions(data) {
-        this.moduleOptions = data;
-      },
-      setNodeTree(data) {
-        this.nodeTree = data;
-      },
-      changeSelectDataRangeAll(tableType) {
-        this.$route.params.dataSelectRange = 'all';
-      },
-      enableTrash(data) {
-        this.trashEnable = data;
-      },
-      getProject() {
-        this.$get("/project/get/" + this.projectId, result => {
-          let data = result.data;
-          if (data) {
-            this.customNum = data.scenarioCustomNum;
-          }
-        })
       }
+    },
+    editScenario(row) {
+      this.addTab({name: 'edit', currentScenario: row});
+    },
+
+    nodeChange(node, nodeIds, pNodes) {
+      this.selectNodeIds = nodeIds;
+    },
+    setModuleOptions(data) {
+      this.moduleOptions = data;
+    },
+    setNodeTree(data) {
+      this.nodeTree = data;
+    },
+    changeSelectDataRangeAll(tableType) {
+      this.$route.params.dataSelectRange = 'all';
+    },
+    enableTrash(data) {
+      this.activeName = "default";
+      this.trashEnable = data;
+    },
+    getProject() {
+      this.$get("/project/get/" + this.projectId, result => {
+        let data = result.data;
+        if (data) {
+          this.customNum = data.scenarioCustomNum;
+        }
+      });
     }
   }
+};
 </script>
 
 <style scoped>
-  /deep/ .el-tabs__header {
-    margin: 0 0 0px;
-  }
+/deep/ .el-tabs__header {
+  margin: 0 0 0px;
+}
 </style>

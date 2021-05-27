@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class ApiTestImportRequest {
     private String name;
+    private String id;
     private String moduleId;
     private String modulePath;
     private String environmentId;

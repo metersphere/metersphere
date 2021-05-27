@@ -31,9 +31,10 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.id == 'num'" prop="num" sortable="custom" label="ID"  min-width="80" show-overflow-tooltip
+          <el-table-column v-if="item.id == 'num'" prop="num" sortable="custom" label="ID" min-width="80"
+                           show-overflow-tooltip
                            :key="index"/>
-          <el-table-column v-if="item.id == 'name'" prop="name" sortable="custom"  min-width="120"
+          <el-table-column v-if="item.id == 'name'" prop="name" sortable="custom" min-width="120"
                            :label="$t('api_test.definition.api_name')" show-overflow-tooltip :key="index"/>
 
           <el-table-column
@@ -89,7 +90,8 @@
             :label="$t('commons.tag')"
             :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -113,16 +115,18 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column fixed="right"  min-width="100" v-if="!isReadOnly" :label="$t('commons.operating')" >
+        <el-table-column fixed="right" min-width="100" v-if="!isReadOnly" :label="$t('commons.operating')">
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
+            <ms-table-operator-button class="run-button" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
+                                      :tip="$t('api_test.run')"
                                       icon="el-icon-video-play"
-                                      @exec="singleRun(scope.row)" v-tester/>
-            <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
-                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)" v-tester/>
+                                      @exec="singleRun(scope.row)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
+                                      :tip="$t('test_track.plan_view.cancel_relevance')"
+                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
 
@@ -173,16 +177,15 @@ import ThreadGroup from "../../../../../api/definition/components/jmeter/compone
 import {TEST_PLAN_API_CASE, WORKSPACE_ID} from "@/common/js/constants";
 import {
   _filter,
+  _handleSelect,
   _handleSelectAll,
   _sort,
-  getLabel,
-  _handleSelect,
-  initCondition,
-  setUnSelectIds,
-  getSelectDataCounts,
-  toggleAllSelection,
   buildBatchParam,
-  checkTableRowIsSelect
+  checkTableRowIsSelect, deepClone,
+  getLabel,
+  getSelectDataCounts,
+  setUnSelectIds,
+  toggleAllSelection
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Api_Case} from "@/business/components/common/model/JsonData";
@@ -227,9 +230,9 @@ export default {
       deletePath: "/test/case/delete",
       selectRows: new Set(),
       buttons: [
-        {name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch},
-        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute},
-        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit}
+        {name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']},
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']},
+        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']}
       ],
       typeArr: [
         {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
@@ -261,7 +264,7 @@ export default {
       userFilters: [],
       projectIds: [],
       projectList: []
-    }
+    };
   },
   props: {
     currentProtocol: String,
@@ -285,7 +288,7 @@ export default {
     model: {
       type: String,
       default() {
-        'api'
+        'api';
       }
     },
     planId: String,
@@ -298,7 +301,7 @@ export default {
 
   },
   activated() {
-    this.status = 'default'
+    this.status = 'default';
   },
   watch: {
     selectNodeIds() {
@@ -318,27 +321,28 @@ export default {
   computed: {
     // 测试计划关联测试列表
     isRelevanceModel() {
-      return this.model === 'relevance'
+      return this.model === 'relevance';
     },
     // 测试计划接口用例列表
     isPlanModel() {
-      return this.model === 'plan'
+      return this.model === 'plan';
     },
     // 接口定义用例列表
     isApiModel() {
-      return this.model === 'api'
+      return this.model === 'api';
     },
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.valueArr.userId = response.data;
         this.userFilters = response.data.map(u => {
-          return {text: u.name, value: u.id}
+          return {text: u.name, value: u.id};
         });
       });
     },
@@ -376,8 +380,8 @@ export default {
             setTimeout(this.$refs.table.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.table,this.selectRows);
-          })
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.selectRows);
+          });
         });
       }
       if (this.planId) {
@@ -395,8 +399,8 @@ export default {
             setTimeout(this.$refs.table.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.table,this.selectRows);
-          })
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.selectRows);
+          });
         });
       }
       getLabel(this, TEST_PLAN_API_CASE);
@@ -447,7 +451,7 @@ export default {
             let param = buildBatchParam(this);
             param.ids = Array.from(this.selectRows).map(row => row.id);
             if (this.reviewId) {
-              param.testCaseReviewId = this.reviewId
+              param.testCaseReviewId = this.reviewId;
               this.$post('/test/case/review/api/case/batch/delete', param, () => {
                 this.selectRows.clear();
                 this.initTable();
@@ -464,22 +468,22 @@ export default {
                 this.$success(this.$t('test_track.cancel_relevance_success'));
               });
             }
-            }
           }
-        });
-      },
-      getResult(data) {
-        if (RESULT_MAP.get(data)) {
-          return RESULT_MAP.get(data);
-        } else {
-          return RESULT_MAP.get("default");
         }
-      },
-      runRefresh(data) {
-        this.rowLoading = "";
-        this.$success(this.$t('schedule.event_success'));
-        this.initTable();
-      },
+      });
+    },
+    getResult(data) {
+      if (RESULT_MAP.get(data)) {
+        return RESULT_MAP.get(data);
+      } else {
+        return RESULT_MAP.get("default");
+      }
+    },
+    runRefresh(data) {
+      this.rowLoading = "";
+      this.$success(this.$t('schedule.event_success'));
+      this.initTable();
+    },
     singleRun(row) {
       this.runData = [];
       this.rowLoading = row.id;
@@ -567,11 +571,11 @@ export default {
         // 批量修改其它
       }
     },
-    orderBySelectRows(rows){
+    orderBySelectRows(rows) {
       let selectIds = Array.from(rows).map(row => row.id);
       let array = [];
-      for(let i in this.tableData){
-        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+      for (let i in this.tableData) {
+        if (selectIds.indexOf(this.tableData[i].id) !== -1) {
           array.push(this.tableData[i]);
         }
       }
@@ -580,7 +584,7 @@ export default {
     handleBatchExecute() {
       this.getData().then(() => {
         if (this.runData && this.runData.length > 0) {
-          this.$refs.runMode.open();
+          this.$refs.runMode.open('API');
         }
       });
     },
@@ -597,7 +601,14 @@ export default {
           threadGroup.hashTree.push(item);
           testPlan.hashTree.push(threadGroup);
         });
-        let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
+        let reqObj = {
+          id: getUUID().substring(0, 8),
+          testElement: testPlan,
+          type: 'API_PLAN',
+          reportId: "run",
+          projectId: projectId,
+          config: config
+        };
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
@@ -610,7 +621,13 @@ export default {
         this.runData.forEach(item => {
           threadGroup.hashTree.push(item);
         });
-        let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
+        let reqObj = {
+          id: getUUID().substring(0, 8),
+          testElement: testPlan,
+          type: 'API_PLAN',
+          reportId: "run",
+          projectId: projectId
+        };
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
@@ -673,7 +690,7 @@ export default {
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
   },
-}
+};
 </script>
 
 <style scoped>

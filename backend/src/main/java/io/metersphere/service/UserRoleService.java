@@ -1,8 +1,7 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.Role;
-import io.metersphere.base.domain.UserRole;
-import io.metersphere.base.domain.UserRoleExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.UserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import org.apache.commons.lang3.StringUtils;
@@ -24,6 +23,8 @@ public class UserRoleService {
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
     private UserRoleMapper userRoleMapper;
+    @Resource
+    private UserGroupMapper userGroupMapper;
 
     public List<Role> getOrganizationMemberRoles(String orgId, String userId) {
         return extUserRoleMapper.getOrganizationMemberRoles(orgId, userId);
@@ -48,6 +49,30 @@ public class UserRoleService {
             map.put("ids", new ArrayList<>());
             for (int j = 0; j < userRoles.size(); j++) {
                 String role = userRoles.get(j).getRoleId();
+                if (StringUtils.equals(role, collect.get(i))) {
+                    List ids = (List) map.get("ids");
+                    ids.add(userRoles.get(j).getSourceId());
+                }
+            }
+            list.add(map);
+        }
+        return list;
+    }
+    public List<Map<String, Object>> getUserGroup(String userId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        UserGroupExample userRoleExample = new UserGroupExample();
+        userRoleExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userRoles = userGroupMapper.selectByExample(userRoleExample);
+        List<String> collect = userRoles.stream()
+                .map(userRole -> userRole.getGroupId())
+                .distinct()
+                .collect(Collectors.toList());
+        for (int i = 0; i < collect.size(); i++) {
+            Map<String, Object> map = new HashMap<>(2);
+            map.put("id", collect.get(i));
+            map.put("ids", new ArrayList<>());
+            for (int j = 0; j < userRoles.size(); j++) {
+                String role = userRoles.get(j).getGroupId();
                 if (StringUtils.equals(role, collect.get(i))) {
                     List ids = (List) map.get("ids");
                     ids.add(userRoles.get(j).getSourceId());

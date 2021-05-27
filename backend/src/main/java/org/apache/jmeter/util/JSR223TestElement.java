@@ -234,8 +234,13 @@ public abstract class JSR223TestElement extends ScriptingTestElement
                         synchronized (compiledScriptsCache) {
                             compiledScript = compiledScriptsCache.get(this.scriptMd5);
                             if (compiledScript == null) {
-                                compiledScript = ((Compilable) scriptEngine).compile(getScript());
-                                compiledScriptsCache.put(this.scriptMd5, compiledScript);
+                                try {
+                                    compiledScript = ((Compilable) scriptEngine).compile(getScript());
+                                    compiledScriptsCache.put(this.scriptMd5, compiledScript);
+                                } catch (IllegalArgumentException e) {
+                                    LogUtil.error(e.getMessage(), e);
+                                    return new Object();
+                                }
                             }
                         }
                     }

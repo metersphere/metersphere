@@ -2,10 +2,12 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="list" @create="create"
+        <ms-table-header :create-permission="['ORGANIZATION_WORKSPACE:READ+CREATE']" :condition.sync="condition" @search="list" @create="create"
                          :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
-      <el-table border class="adjust-table" :data="items" style="width: 100%">
+      <el-table border class="adjust-table" :data="items" style="width: 100%"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
@@ -17,7 +19,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+            <ms-table-operator :edit-permission="['ORGANIZATION_WORKSPACE:READ+EDIT']"
+                               :delete-permission="['ORGANIZATION_WORKSPACE:READ+DELETE']"
+              @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -66,9 +70,9 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column :label="$t('commons.role')" width="120">
+        <el-table-column label="用户组" width="120">
           <template v-slot:default="scope">
-            <ms-roles-tag :roles="scope.row.roles" type="success"/>
+            <ms-roles-tag :roles="scope.row.groups" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -106,13 +110,13 @@
             </template>
           </el-autocomplete>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+        <el-form-item label="用户组" prop="groupIds">
+          <el-select v-model="memberForm.groupIds" multiple placeholder="请选择用户组"
                      class="select-width">
             <el-option
-              v-for="item in memberForm.roles"
+              v-for="item in memberForm.groups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -142,13 +146,13 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="memberForm.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
-          <el-select v-model="memberForm.roleIds" multiple :placeholder="$t('role.please_choose_role')"
+        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
+          <el-select v-model="memberForm.groupIds" multiple placeholder="请选择用户组"
                      class="select-width">
             <el-option
-              v-for="item in memberForm.allroles"
+              v-for="item in memberForm.allgroups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -169,7 +173,7 @@
 <script>
   import MsCreateBox from "../CreateBox";
   import {Message} from "element-ui";
-  import {DEFAULT} from "../../../../common/js/constants";
+  import {DEFAULT, GROUP_ORGANIZATION, GROUP_WORKSPACE} from "../../../../common/js/constants";
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableHeader from "../../common/components/MsTableHeader";
   import MsRolesTag from "../../common/components/MsRolesTag";
@@ -265,37 +269,53 @@
       list() {
         let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
         let lastOrganizationId = this.currentUser.lastOrganizationId;
-        let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
-        if (userRole.length > 0) {
-          let isOrg_admin = false;
-          userRole.forEach(row=>{
-            if(row.roleId === "org_admin" ){
-              isOrg_admin = true;
-              return;
+        // let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
+        // if (userRole.length > 0) {
+        //   let isOrg_admin = false;
+        //   userRole.forEach(row=>{
+        //     if(row.roleId === "org_admin" ){
+        //       isOrg_admin = true;
+        //       return;
+        //     }
+        //   });
+        //   if (isOrg_admin) {
+        //     this.result = this.$post(url, this.condition, response => {
+        //       let data = response.data;
+        //       this.items = data.listObject;
+        //       for (let i = 0; i < this.items.length; i++) {
+        //         let param = {
+        //           name: '',
+        //           workspaceId: this.items[i].id
+        //         }
+        //         let path = "user/ws/member/list/all";
+        //         this.$post(path, param, res => {
+        //           let member = res.data;
+        //           this.$set(this.items[i], "memberSize", member.length);
+        //         })
+        //       }
+        //       this.total = data.itemCount;
+        //     });
+        //   } else {
+        //     this.items = [];
+        //     this.total = 0;
+        //   }
+        this.result = this.$post(url, this.condition, response => {
+          let data = response.data;
+          this.items = data.listObject;
+          for (let i = 0; i < this.items.length; i++) {
+            let param = {
+              name: '',
+              workspaceId: this.items[i].id
             }
-          });
-          if (isOrg_admin) {
-            this.result = this.$post(url, this.condition, response => {
-              let data = response.data;
-              this.items = data.listObject;
-              for (let i = 0; i < this.items.length; i++) {
-                let param = {
-                  name: '',
-                  workspaceId: this.items[i].id
-                }
-                let path = "user/ws/member/list/all";
-                this.$post(path, param, res => {
-                  let member = res.data;
-                  this.$set(this.items[i], "memberSize", member.length);
-                })
-              }
-              this.total = data.itemCount;
-            });
-          } else {
-            this.items = [];
-            this.total = 0;
+            let path = "user/ws/member/list/all";
+            this.$post(path, param, res => {
+              let member = res.data;
+              this.$set(this.items[i], "memberSize", member.length);
+            })
           }
-        }
+          this.total = data.itemCount;
+        });
+        // }
 
       },
       addMember() {
@@ -304,8 +324,8 @@
         this.result = this.$get('/user/list/', response => {
           this.userList = response.data;
         });
-        this.result = this.$get('/role/list/test', response => {
-          this.$set(this.memberForm, "roles", response.data);
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+          this.$set(this.memberForm, "groups", response.data);
         })
         listenGoBack(this.close);
       },
@@ -317,16 +337,17 @@
           name: '',
           workspaceId: row.id
         };
+        this.wsId = row.id;
         let path = "/user/ws/member/list";
         this.result = this.$post(this.buildPagePath(path), param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
-          let url = "/userrole/list/ws/" + row.id;
+          let url = "/user/group/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
-              let roles = response.data;
-              this.$set(this.memberLineData[i], "roles", roles);
+              let groups = response.data;
+              this.$set(this.memberLineData[i], "groups", groups);
             })
           }
           this.dialogTotal = data.itemCount;
@@ -341,12 +362,12 @@
         this.result = this.$post(this.buildPagePath(path), param, res => {
           let data = res.data;
           this.memberLineData = data.listObject;
-          let url = "/userrole/list/ws/" + row.id;
+          let url = "/user/group/list/ws/" + row.id;
           // 填充角色信息
           for (let i = 0; i < this.memberLineData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
-              let roles = response.data;
-              this.$set(this.memberLineData[i], "roles", roles);
+              let groups = response.data;
+              this.$set(this.memberLineData[i], "groups", groups);
             })
           }
           this.dialogTotal = data.itemCount;
@@ -371,7 +392,7 @@
             userIds.push(userId);
             let param = {
               userIds: userIds,
-              roleIds: this.memberForm.roleIds,
+              groupIds: this.memberForm.groupIds,
               workspaceId: this.currentWorkspaceRow.id
             };
             this.result = this.$post("user/ws/member/add", param, () => {
@@ -387,12 +408,12 @@
       editMember(row) {
         this.dialogWsMemberUpdateVisible = true;
         this.memberForm = Object.assign({}, row);
-        let roleIds = this.memberForm.roles.map(r => r.id);
-        this.result = this.$get('/role/list/test', response => {
-          this.$set(this.memberForm, "allroles", response.data);
+        let groupIds = this.memberForm.groups.map(r => r.id);
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+          this.$set(this.memberForm, "allgroups", response.data);
         })
         // 编辑时填充角色信息
-        this.$set(this.memberForm, 'roleIds', roleIds);
+        this.$set(this.memberForm, 'groupIds', groupIds);
         listenGoBack(this.close);
       },
       delMember(row) {
@@ -415,7 +436,7 @@
           name: this.memberForm.name,
           email: this.memberForm.email,
           phone: this.memberForm.phone,
-          roleIds: this.memberForm.roleIds,
+          groupIds: this.memberForm.groupIds,
           workspaceId: this.currentWorkspaceRow.id
         }
         this.$refs[formName].validate((valid) => {
@@ -473,6 +494,7 @@
         dialogTotal: 0,
         memberLineData: [],
         memberForm: {},
+        screenHeight: 'calc(100vh - 255px)',
         form: {
           // name: "",
           // description: ""
@@ -496,11 +518,12 @@
           userIds: [
             {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
-          roleIds: [
+          groupIds: [
             {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
           ]
         },
         currentWorkspaceRow: {},
+        wsId: ""
       }
     }
   }

@@ -14,12 +14,12 @@ import javax.validation.constraints.Pattern;
 @ColumnWidth(15)
 public class TestCaseExcelDataUs extends TestCaseExcelData {
 
-    @ExcelProperty("ID")
-    @NotRequired
-    private Integer num;
+//    @ExcelProperty("ID")
+//    @NotRequired
+//    private Integer num;
 
     @ColumnWidth(50)
-    @ExcelProperty("Custom ID")
+    @ExcelProperty("ID")
     @NotRequired
     private String customNum;
 
@@ -34,11 +34,6 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @ColumnWidth(30)
     @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
     private String nodePath;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("Type")
-    @Pattern(regexp = "(^functional$)|(^performance$)|(^api$)", message = "{test_case_type_validate}")
-    private String type;
 
     @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("Maintainer")

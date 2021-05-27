@@ -199,7 +199,7 @@ export default {
         for(let i in this.scenario.environment.config.httpConfig.conditions) {
           if (this.scenario.environment.config.httpConfig.conditions[i]) {
             let item = this.scenario.environment.config.httpConfig.conditions[i];
-            if (item && item.type === 'NONE') {
+            if (item.type === 'NONE') {
               url = item.protocol + '://' + item.socket + (this.request.path ? this.request.path : '');
             }
           }

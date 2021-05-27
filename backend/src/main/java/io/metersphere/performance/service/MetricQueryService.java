@@ -6,12 +6,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
-import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
-import io.metersphere.commons.constants.SystemParam;
+import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -32,7 +30,6 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -46,9 +43,7 @@ public class MetricQueryService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
-    private LoadTestMapper loadTestMapper;
-    @Resource
-    private ReportService reportService;
+    private PerformanceReportService performanceReportService;
     @Resource
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
@@ -58,7 +53,7 @@ public class MetricQueryService {
 
 
     public List<MetricData> queryMetricData(MetricRequest metricRequest) {
-        String host = systemParameterService.getValue(SystemParam.PROMETHEUS_HOST);
+        String host = systemParameterService.getValue(ParamConstants.BASE.PROMETHEUS_HOST.getValue());
         prometheusHost = StringUtils.isNotBlank(host) ? host : "http://ms-prometheus:9090";
         List<MetricData> metricDataList = new ArrayList<>();
         long endTime = metricRequest.getEndTime();
@@ -163,9 +158,7 @@ public class MetricQueryService {
     public List<MetricData> queryMetric(String reportId) {
         List<String> instances = new ArrayList<>();
         LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
-        String testId = report.getTestId();
-        LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
-        String poolId = loadTestWithBLOBs.getTestResourcePoolId();
+        String poolId = report.getTestResourcePoolId();
         List<TestResource> resourceList = testResourceService.getTestResourceList(poolId);
         // 默认监控资源池下的节点
         if (CollectionUtils.isNotEmpty(resourceList)) {
@@ -177,7 +170,7 @@ public class MetricQueryService {
                 }
             });
         }
-        String advancedConfiguration = loadTestWithBLOBs.getAdvancedConfiguration();
+        String advancedConfiguration = report.getAdvancedConfiguration();
         JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
         JSONArray monitorParams = jsonObject.getJSONArray("monitorParams");
         if (monitorParams == null) {
@@ -197,18 +190,14 @@ public class MetricQueryService {
             getRequest(instance, list);
         });
 
-        ReportTimeInfo reportTimeInfo = reportService.getReportTimeInfo(reportId);
+        ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
         MetricRequest metricRequest = new MetricRequest();
         metricRequest.setMetricDataQueries(list);
         try {
-            SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-            Date startTime = df.parse(reportTimeInfo.getStartTime());
-            Date endTime = df.parse(reportTimeInfo.getEndTime());
-            metricRequest.setStartTime(startTime.getTime());
-            metricRequest.setEndTime(endTime.getTime());
+            metricRequest.setStartTime(reportTimeInfo.getStartTime());
+            metricRequest.setEndTime(reportTimeInfo.getEndTime());
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            e.printStackTrace();
         }
 
         return queryMetricData(metricRequest);
@@ -250,9 +239,7 @@ public class MetricQueryService {
         });
 
         LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
-        String testId = report.getTestId();
-        LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
-        String advancedConfiguration = loadTestWithBLOBs.getAdvancedConfiguration();
+        String advancedConfiguration = report.getAdvancedConfiguration();
         JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
         JSONArray monitorParams = jsonObject.getJSONArray("monitorParams");
         if (monitorParams == null) {
@@ -282,7 +269,7 @@ public class MetricQueryService {
                 granularity = data.getGranularity();
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage() ,e);
+            LogUtil.error(e.getMessage(), e);
         }
         return granularity;
     }

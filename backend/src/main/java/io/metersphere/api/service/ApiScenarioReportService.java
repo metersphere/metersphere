@@ -24,6 +24,10 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -322,8 +326,12 @@ public class ApiScenarioReportService {
      */
     private void updateScenarioStatus(String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
-            List<String> list = new ArrayList<>();
-            list.add(reportId);
+            List<String> list = new LinkedList<>();
+            try {
+                list = JSON.parseObject(reportId, List.class);
+            } catch (Exception e) {
+                list.add(reportId);
+            }
             ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
             scenarioReportExample.createCriteria().andIdIn(list);
             List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
@@ -332,7 +340,7 @@ public class ApiScenarioReportService {
             if (CollectionUtils.isNotEmpty(reportList)) {
                 reportList.forEach(report -> {
                     report.setUpdateTime(System.currentTimeMillis());
-                    String status = "Success";
+                    String status = "Error";
                     report.setStatus(status);
                     scenarioReportMapper.updateByPrimaryKeySelective(report);
                     // 把上一条调试的数据内容清空
@@ -626,5 +634,27 @@ public class ApiScenarioReportService {
         } else {
             return new ArrayList<>(0);
         }
+    }
+
+    public String getLogDetails(String id) {
+        ApiScenarioReport bloBs = apiScenarioReportMapper.selectByPrimaryKey(id);
+        if (bloBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(bloBs, ModuleReference.moduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), bloBs.getProjectId(), bloBs.getName(), bloBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(ids)) {
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(example);
+            List<String> names = reportList.stream().map(ApiScenarioReport::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), reportList.get(0).getProjectId(), String.join(",", names), reportList.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

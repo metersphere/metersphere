@@ -102,16 +102,19 @@
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true"
+            <ms-table-operator-button class="run-button"
                                       :tip="$t('api_test.automation.execute')"
                                       icon="el-icon-video-play"
+                                      v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                                       @exec="runTestCase(scope.row)"/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
-                                      v-tester/>
+                                      v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
+                                      />
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"
-                                      type="danger" v-tester/>
+                                      v-permission="['PROJECT_API_DEFINITION:READ+DELETE_CASE']"
+                                      type="danger"/>
             <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment"
-                                           @createPerformance="createPerformance" :row="scope.row" v-tester/>
+                                           @createPerformance="createPerformance" :row="scope.row"/>
           </template>
         </el-table-column>
 
@@ -164,7 +167,7 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _handleSelect, _handleSelectAll, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import {Api_Case_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -232,7 +235,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
+      screenHeight: 'calc(100vh - 320px)',//屏幕高度
       environmentId: undefined,
       selectAll: false,
       unSelection: [],
@@ -314,7 +317,8 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     initTable() {
       if (this.$refs.caseTable) {

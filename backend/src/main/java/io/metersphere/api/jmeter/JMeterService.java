@@ -311,7 +311,8 @@ public class JMeterService {
         List<Object> jarFiles = getJar();
 
         // 获取可以执行的资源池
-        TestResource testResource = resourcePoolCalculation.getPool();
+        String resourcePoolId = config.getResourcePoolId();
+        TestResource testResource = resourcePoolCalculation.getPool(resourcePoolId);
 
         String configuration = testResource.getConfiguration();
         NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);

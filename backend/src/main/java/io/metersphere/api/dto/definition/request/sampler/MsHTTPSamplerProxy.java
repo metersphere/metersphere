@@ -198,11 +198,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         compatible(config);
 
+        HttpConfig httpConfig = null;
         try {
             if (config.isEffective(this.getProjectId())) {
-                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
+                httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
                 if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
+                }
+                if(StringUtils.isEmpty(httpConfig.getProtocol())){
+                    MSException.throwException(this.getName() +"接口，对应的环境无协议，请完善环境信息");
+                }
+                if (StringUtils.isEmpty(this.useEnvironment)) {
+                    this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
@@ -229,36 +236,40 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setPath(urlObject.getPath());
+                        sampler.setPath(URLDecoder.decode(urlObject.getPath(), "UTF-8"));
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
                 } else {
-                    //1.9 增加对Mock环境的判断
-                    if (this.isMockEnvironment()) {
-                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
-                    } else {
-                        if (httpConfig.isMock()) {
-                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
-                        } else {
-                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-                        }
+                    if (!isCustomizeReq() || isRefEnvironment) {
+                        if (isNeedAddMockUrl(url)) {
+                            //1.9 增加对Mock环境的判断
+                            if (this.isMockEnvironment()) {
+                                url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                            } else {
+                                if (httpConfig.isMock()) {
+                                    url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                                } else {
+                                    url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                                }
 
+                            }
+                        }
+                        URL urlObject = new URL(url);
+                        String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                        if (StringUtils.isNotBlank(this.getPath())) {
+                            envPath += this.getPath();
+                        }
+                        if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                            sampler.setDomain(URLDecoder.decode(httpConfig.getDomain(), "UTF-8"));
+                            sampler.setProtocol(httpConfig.getProtocol());
+                        } else {
+                            sampler.setDomain("");
+                            sampler.setProtocol("");
+                        }
+                        sampler.setPort(httpConfig.getPort());
+                        sampler.setPath(URLDecoder.decode(envPath, "UTF-8"));
                     }
-                    URL urlObject = new URL(url);
-                    String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                    if (StringUtils.isNotBlank(this.getPath())) {
-                        envPath += this.getPath();
-                    }
-                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
-                        sampler.setDomain(httpConfig.getDomain());
-                        sampler.setProtocol(httpConfig.getProtocol());
-                    } else {
-                        sampler.setDomain("");
-                        sampler.setProtocol("");
-                    }
-                    sampler.setPort(httpConfig.getPort());
-                    sampler.setPath(envPath);
                 }
                 String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
@@ -267,7 +278,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     String path = getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8"));
-                    if (HTTPConstants.DELETE.equals(this.getMethod())) {
+                    if (HTTPConstants.DELETE.equals(this.getMethod()) && !path.startsWith("${")) {
                         if (!path.startsWith("/")) {
                             path = "/" + path;
                         }
@@ -278,7 +289,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         }
                         path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
-                    sampler.setProperty("HTTPSampler.path", path);
+                    sampler.setProperty("HTTPSampler.path", URLDecoder.decode(path, "UTF-8"));
                 }
             } else {
                 String url = this.getUrl();
@@ -289,7 +300,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url.replaceAll(this.getPort(), "10990");
                 }
                 if (url == null) {
-                    MSException.throwException("请填写请求地址");
+                    MSException.throwException("请重新选择环境");
                 }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
@@ -333,13 +344,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.headers)) {
             setHeader(httpSamplerTree, this.headers);
         }
-
-        // 通用请求Headers
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders())) {
+        // 新版本符合条件 HTTP 请求头
+        if (httpConfig != null && CollectionUtils.isNotEmpty(httpConfig.getHeaders())) {
             if (!this.isCustomizeReq() || this.isRefEnvironment) {
                 // 如果不是自定义请求,或者引用环境则添加环境请求头
-                setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
+                setHeader(httpSamplerTree, httpConfig.getHeaders());
             }
         }
 
@@ -352,7 +361,58 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
-            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
+            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()), httpConfig);
+        }
+
+        if (this.authManager != null) {
+            this.authManager.setAuth(tree, this.authManager, sampler);
+        }
+
+        // 加载SSL认证
+        if (config != null && config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getSslConfig() != null) {
+            if (CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getSslConfig().getFiles())) {
+                MsKeyStore msKeyStore = config.getKeyStoreMap().get(this.getProjectId());
+                CommandService commandService = CommonBeanFactory.getBean(CommandService.class);
+                if (msKeyStore == null) {
+                    msKeyStore = new MsKeyStore();
+                    if (config.getConfig().get(this.getProjectId()).getSslConfig().getFiles().size() == 1) {
+                        // 加载认证文件
+                        KeyStoreFile file = config.getConfig().get(this.getProjectId()).getSslConfig().getFiles().get(0);
+                        msKeyStore.setPath(FileUtils.BODY_FILE_DIR + "/ssl/" + file.getId() + "_" + file.getName());
+                        msKeyStore.setPassword(file.getPassword());
+                    } else {
+                        // 合并多个认证文件
+                        msKeyStore.setPath(FileUtils.BODY_FILE_DIR + "/ssl/tmp." + this.getId() + ".jks");
+                        msKeyStore.setPassword("ms123...");
+                        commandService.mergeKeyStore(msKeyStore.getPath(), config.getConfig().get(this.getProjectId()).getSslConfig());
+                    }
+                }
+                if (StringUtils.isEmpty(this.alias)) {
+                    this.alias = config.getConfig().get(this.getProjectId()).getSslConfig().getDefaultAlias();
+                }
+
+                if (StringUtils.isNotEmpty(this.alias)) {
+                    String aliasVar = UUID.randomUUID().toString();
+                    this.addArguments(httpSamplerTree, aliasVar, this.alias.trim());
+                    // 校验 keystore
+                    commandService.checkKeyStore(msKeyStore.getPassword(), msKeyStore.getPath());
+
+                    KeystoreConfig keystoreConfig = new KeystoreConfig();
+                    keystoreConfig.setEnabled(true);
+                    keystoreConfig.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "-KeyStore" : "KeyStore");
+                    keystoreConfig.setProperty(TestElement.TEST_CLASS, KeystoreConfig.class.getName());
+                    keystoreConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    keystoreConfig.setProperty("clientCertAliasVarName", aliasVar);
+                    keystoreConfig.setProperty("endIndex", -1);
+                    keystoreConfig.setProperty("preload", true);
+                    keystoreConfig.setProperty("startIndex", 0);
+                    keystoreConfig.setProperty("MS-KEYSTORE-FILE-PATH", msKeyStore.getPath());
+                    keystoreConfig.setProperty("MS-KEYSTORE-FILE-PASSWORD", msKeyStore.getPassword());
+                    httpSamplerTree.add(keystoreConfig);
+
+                    config.getKeyStoreMap().put(this.getProjectId(), new MsKeyStore(msKeyStore.getPath(), msKeyStore.getPassword()));
+                }
+            }
         }
 
         if (this.authManager != null) {
@@ -407,10 +467,23 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
+                el.setUseEnviroment(useEnvironment);
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
 
+    }
+
+    /**
+     * 自定义请求如果是完整url时不拼接mock信息
+     * @param url
+     * @return
+     */
+    private boolean isNeedAddMockUrl(String url) {
+        if (isCustomizeReq() && (url.startsWith("http://") || url.startsWith("https://"))) {
+            return false;
+        }
+       return true;
     }
 
     // 兼容旧数据
@@ -420,6 +493,27 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 this.isRefEnvironment = false;
             } else {
                 this.isRefEnvironment = true;
+            }
+        }
+
+        // 数据兼容处理
+        if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
+            // 1.8 之后 当前正常数据
+        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+            // 1.8 前后 混合数据
+            this.setProjectId(getParentProjectId());
+        } else {
+            // 1.8 之前 数据
+            if (config.getConfig() != null) {
+                if (!config.getConfig().containsKey(RunModeConstants.HIS_PRO_ID.toString())) {
+                    // 测试计划执行
+                    Iterator<String> it = config.getConfig().keySet().iterator();
+                    if (it.hasNext()) {
+                        this.setProjectId(it.next());
+                    }
+                } else {
+                    this.setProjectId(RunModeConstants.HIS_PRO_ID.toString());
+                }
             }
         }
 
@@ -443,6 +537,20 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
         }
+    }
+
+    private boolean isUrl() {
+        // 自定义字段没有引用环境则非url
+        if (this.isCustomizeReq()) {
+            if (this.isRefEnvironment) {
+                return false;
+            }
+            return true;
+        }
+        if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isUrl() {
@@ -559,7 +667,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
      * @param httpConfig
      * @return
      */
-    private HttpConfig getHttpConfig(HttpConfig httpConfig, HashTree tree) {
+    private HttpConfig getHttpConfig(HttpConfig httpConfig) {
         boolean isNext = true;
         if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
             for (HttpConfigCondition item : httpConfig.getConditions()) {
@@ -609,13 +717,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
         }
-        // HTTP 环境中请求头
-        if (httpConfig != null && CollectionUtils.isNotEmpty(httpConfig.getHeaders())) {
-            if (!this.isCustomizeReq() || this.isRefEnvironment) {
-                // 如果不是自定义请求,或者引用环境则添加环境请求头
-                setHeader(tree, httpConfig.getHeaders());
-            }
-        }
         return httpConfig;
     }
 
@@ -655,6 +756,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
+    }
+
+    public static List<MsHTTPSamplerProxy> findHttpSampleFromHashTree(MsTestElement hashTree) {
+       return findFromHashTreeByType(hashTree, MsHTTPSamplerProxy.class, null);
     }
 }
 

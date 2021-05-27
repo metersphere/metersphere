@@ -12,31 +12,30 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-menu-item v-show="isNewVersion" :index="'/api/definition'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/definition'" v-permission="['PROJECT_API_DEFINITION:READ']">
             {{ $t("i18n.definition") }}
           </el-menu-item>
 
-          <el-menu-item v-show="isNewVersion" :index="'/api/automation'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/automation'" v-permission="['PROJECT_API_SCENARIO:READ']">
             {{ $t("i18n.automation") }}
           </el-menu-item>
 
-          <el-menu-item v-show="isNewVersion" :index="'/api/automation/report'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/automation/report'"
+                        v-permission="['PROJECT_API_REPORT:READ']">
             {{ $t("i18n.report") }}
           </el-menu-item>
 
-          <el-submenu v-show="isOldVersion"
-                      v-permission="['test_manager','test_user','test_viewer']" index="4">
+          <el-submenu v-show="isOldVersion" index="4">
             <template v-slot:title>{{ $t('commons.test') }}</template>
             <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider class="menu-divider"/>
             <ms-show-all :index="'/api/test/list/all'"/>
             <el-menu-item :index="apiTestProjectPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/test/create'"
+            <ms-create-button :index="'/api/test/create'"
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
-          <el-submenu v-show="isOldVersion"
-                      v-permission="['test_manager','test_user','test_viewer']" index="5">
+          <el-submenu v-show="isOldVersion" index="5">
             <template v-slot:title>{{ $t('commons.report') }}</template>
             <ms-recent-list ref="reportRecent" :options="reportRecent"/>
             <el-divider class="menu-divider"/>
@@ -44,8 +43,7 @@
           </el-submenu>
 
 
-          <el-menu-item v-show="isOldVersion"
-                        v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
+          <el-menu-item v-show="isOldVersion" :index="'/api/monitor/view'">
             {{ $t('commons.monitor') }}
           </el-menu-item>
         </el-menu>
@@ -61,7 +59,6 @@ import MsRecentList from "../../common/head/RecentList";
 import MsShowAll from "../../common/head/ShowAll";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsCreateTest from "../../common/head/CreateTest";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 import {mapGetters} from "vuex";
@@ -78,7 +75,7 @@ export default {
           return '/api/test/edit/' + item.id;
         },
         router: function (item) {
-          return {path: '/api/test/edit', query: {id: item.id}}
+          return {path: '/api/test/edit', query: {id: item.id}};
         }
       },
       reportRecent: {
@@ -93,7 +90,7 @@ export default {
       isRouterAlive: true,
       apiTestProjectPath: '',
       currentProject: ''
-    }
+    };
   },
   computed: {
     ...mapGetters([
@@ -102,12 +99,6 @@ export default {
     ])
   },
   methods: {
-    registerEvents() {
-      ApiEvent.$on(LIST_CHANGE, () => {
-        this.$refs.testRecent.recent();
-        this.$refs.reportRecent.recent();
-      });
-    },
     reload() {
       this.isRouterAlive = false;
       this.$nextTick(function () {
@@ -116,12 +107,12 @@ export default {
     },
   },
   mounted() {
-    this.registerEvents();
+
   },
   beforeDestroy() {
-    ApiEvent.$off(LIST_CHANGE);
+
   }
-}
+};
 
 </script>
 

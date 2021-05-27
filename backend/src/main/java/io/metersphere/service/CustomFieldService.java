@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.CustomField;
@@ -9,13 +10,14 @@ import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
 import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryCustomFieldRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
@@ -54,6 +56,7 @@ public class CustomFieldService {
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
         customField.setGlobal(false);
+        customField.setCreateUser(SessionUtils.getUserId());
         customFieldMapper.insert(customField);
         return customField.getId();
     }
@@ -61,6 +64,7 @@ public class CustomFieldService {
     /**
      * 系统字段默认是查询的 workspace_id 为 null 的系统字段
      * 如果创建了对应工作空间的系统字段，则过滤掉重复的 workspace_id 为 null 的系统字段
+     *
      * @param request
      * @return
      */
@@ -119,13 +123,15 @@ public class CustomFieldService {
                 .collect(Collectors.toMap(CustomField::getId, item -> item));
 
         List<CustomFieldDao> result = new ArrayList<>();
-        customFields.forEach((item) -> {
-            CustomFieldDao customFieldDao = new CustomFieldDao();
-            CustomField customField = fieldMap.get(item.getFieldId());
-            BeanUtils.copyBean(customFieldDao, customField);
-            BeanUtils.copyBean(customFieldDao, item);
-            result.add(customFieldDao);
-        });
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            customFields.forEach((item) -> {
+                CustomFieldDao customFieldDao = new CustomFieldDao();
+                CustomField customField = fieldMap.get(item.getFieldId());
+                BeanUtils.copyBean(customFieldDao, customField);
+                BeanUtils.copyBean(customFieldDao, item);
+                result.add(customFieldDao);
+            });
+        }
         return result;
     }
 
@@ -190,4 +196,13 @@ public class CustomFieldService {
         }
     }
 
+    public String getLogDetails(String id) {
+        CustomField customField = customFieldMapper.selectByPrimaryKey(id);
+        if (customField != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(customField, SystemReference.fieldColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(customField.getId()), null, customField.getName(), customField.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

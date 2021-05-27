@@ -24,6 +24,7 @@ public class Body {
     private List<KeyValue> kvs;
     private List<KeyValue> binary;
     private Object jsonSchema;
+    private String tmpFilePath;
 
     public final static String KV = "KeyValue";
     public final static String FORM_DATA = "Form Data";
@@ -80,19 +81,17 @@ public class Body {
     }
 
     private void parseJonBodyMock() {
-        try {
-            if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
-                if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
-                        && "JSON-SCHEMA".equals(this.format)) {
-                    this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
-                } else {    //  json 文本也支持 mock 参数
+        if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
+            if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
+                    && "JSON-SCHEMA".equals(this.format)) {
+                this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
+            } else {    //  json 文本也支持 mock 参数
+                try {
                     JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
                     jsonMockParse(jsonObject);
                     this.raw = JSONObject.toJSONString(jsonObject);
-                }
+                } catch (Exception e) {}
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -129,7 +128,15 @@ public class Body {
         if (files != null) {
             files.forEach(file -> {
                 String paramName = keyValue.getName() == null ? requestId : keyValue.getName();
-                String path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
+                String path = null;
+                if (StringUtils.isNotBlank(file.getId())) {
+                    // 旧数据
+                    path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
+                } else if (StringUtils.isNotBlank(this.tmpFilePath)) {
+                    path = FileUtils.BODY_FILE_DIR + '/' + this.tmpFilePath + '/' + file.getName();
+                } else {
+                    path = FileUtils.BODY_FILE_DIR + '/' + requestId + '/' + file.getName();
+                }
                 String mimetype = keyValue.getContentType();
                 list.add(new HTTPFileArg(path, paramName, mimetype));
             });
@@ -163,5 +170,4 @@ public class Body {
         this.binary = new ArrayList<>();
         this.binary.add(new KeyValue());
     }
-
 }

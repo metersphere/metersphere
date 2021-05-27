@@ -4,9 +4,11 @@
       <h4>{{ $t('load_test.scenario_list') }}</h4>
     </el-row>
     <el-row type="flex" justify="start" align="middle">
-      <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
+      <ms-table-button icon="el-icon-circle-plus-outline"
+                       :disabled="isReadOnly"
                        :content="$t('load_test.load_exist_jmx')" @click="loadJMX()"/>
-      <ms-table-button :is-tester-permission="true" icon="el-icon-share"
+      <ms-table-button icon="el-icon-share"
+                       :disabled="isReadOnly"
                        @click="loadApiAutomation()"
                        :content="$t('load_test.load_api_automation_jmx')"/>
     </el-row>
@@ -24,14 +26,19 @@
                      inactive-color="#DCDFE6"
                      active-value="true"
                      inactive-value="false"
-                     :disabled="threadGroupDisable(row)"
+                     :disabled="isReadOnly || threadGroupDisable(row)"
           />
         </template>
       </el-table-column>
       <el-table-column
         :label="$t('load_test.thread_group')">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small"
+          <span v-if="row.tgType === 'PostThreadGroup' || row.tgType === 'SetupThreadGroup'">
+            {{ row.tgType }}
+          </span>
+          <el-select v-else v-model="row.tgType"
+                     :disabled="isReadOnly"
+                     :placeholder="$t('commons.please_select')" size="small"
                      @change="tgTypeChange(row)">
             <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
                        :value="tg.testclass"></el-option>
@@ -55,7 +62,8 @@
     </el-row>
     <el-row type="flex" justify="start" align="middle">
 
-      <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
+      <ms-table-button icon="el-icon-circle-plus-outline"
+                       :disabled="isReadOnly"
                        :content="$t('load_test.load_exist_file')" @click="loadFile()"/>
     </el-row>
     <el-table class="basic-config" :data="tableData">
@@ -118,6 +126,7 @@ import MsDialogFooter from "@/business/components/common/components/MsDialogFoot
 import ExistFiles from "@/business/components/performance/test/components/ExistFiles";
 import ExistScenarios from "@/business/components/performance/test/components/ExistScenarios";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "PerformanceBasicConfig",
@@ -126,14 +135,11 @@ export default {
     test: {
       type: Object
     },
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    }
   },
   data() {
     return {
       result: {},
+      isReadOnly: false,
       projectLoadingResult: {},
       getFileMetadataPath: "/performance/file/metadata",
       getFileMetadataById: "/performance/file/getMetadataById",
@@ -171,13 +177,14 @@ export default {
   },
   created() {
     if (this.test.id) {
-      this.getFileMetadata(this.test)
+      this.getFileMetadata(this.test);
     }
+    this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
   },
   watch: {
     test() {
       if (this.test.id) {
-        this.getFileMetadata(this.test)
+        this.getFileMetadata(this.test);
       }
     }
   },
@@ -199,7 +206,7 @@ export default {
         this.tableData.map(f => {
           f.size = (f.size / 1024).toFixed(2) + ' KB';
         });
-      })
+      });
     },
     selectAttachFileById(metadataIdArr) {
       this.metadataIdList = metadataIdArr;
@@ -214,7 +221,7 @@ export default {
               f.size = (f.size / 1024).toFixed(2) + ' KB';
             });
           }
-        })
+        });
       }
     },
     handleDownload(file) {
@@ -238,10 +245,10 @@ export default {
           aTag.download = file.name;
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
+          navigator.msSaveBlob(blob, this.filename);
         }
       }).catch(e => {
         Message.error({message: e.message, showClose: true});
@@ -325,7 +332,7 @@ export default {
         return false;
       }
 
-      if (this.threadGroups.filter(tg => tg.attributes.enabled == 'true').length === 0) {
+      if (this.threadGroups.filter(tg => tg.enabled == 'true').length === 0) {
         this.$error(this.$t('load_test.threadgroup_at_least_one'));
         return false;
       }
@@ -357,7 +364,7 @@ export default {
       this.$refs.existScenarios.handleImport();
     },
   },
-}
+};
 </script>
 
 <style scoped>

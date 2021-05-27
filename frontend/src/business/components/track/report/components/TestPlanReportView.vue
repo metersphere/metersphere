@@ -41,7 +41,7 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, exportPdf, jsonToMap, mapToJson} from "@/common/js/utils";
+  import {exportPdf, jsonToMap, mapToJson} from "@/common/js/utils";
   import BaseInfoComponent
     from "@/business/components/track/plan/view/comonents/report/TemplateComponent/BaseInfoComponent";
   import TestResultChartComponent
@@ -93,7 +93,7 @@
       }
     },
     mounted() {
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+      this.isTestManagerOrTestUser = true;
     },
     watch: {
       reportComponents() {

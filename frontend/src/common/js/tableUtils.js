@@ -136,6 +136,9 @@ export function _sort(column, condition) {
       hasProp = true;
     }
   });
+  if (column.prop === 'case_passing_rate' || column.prop === 'case_total') {
+    hasProp = true;
+  }
   if (!hasProp) {
     condition.orders.push({name: column.prop, type: column.order});
   }
@@ -192,3 +195,23 @@ export function deepClone(source) {
   return targetObj;
 }
 
+export function getPageInfo() {
+  return {
+    total: 0,
+    pageSize: 10,
+    currentPage: 1,
+    result: {},
+    data: [],
+    condition: {},
+  }
+}
+
+export function buildPagePath(path, page) {
+  return path + "/" + page.currentPage + "/" + page.pageSize;
+}
+
+export function getPageDate(response, page) {
+  let data = response.data;
+  page.total = data.itemCount;
+  page.data = data.listObject;
+}

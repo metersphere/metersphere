@@ -13,10 +13,7 @@
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
-            <ms-tag v-if="scope.row.level == 'P1'" type="warning" effect="plain" content="P1"/>
-            <ms-tag v-if="scope.row.level == 'P2'" type="success" effect="plain" content="P2"/>
-            <ms-tag v-if="scope.row.level == 'P3'" type="danger" effect="plain" content="P3"/>
+            <priority-table-item :value="scope.row.level" ref="level"/>
           </template>
 
         </el-table-column>
@@ -58,10 +55,11 @@ import {_handleSelect, _handleSelectAll} from "@/common/js/tableUtils";
 import MsTag from "@/business/components/common/components/MsTag";
 import EnvPopover from "@/business/components/track/common/EnvPopover";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 
 export default {
   name: "ReviewRelevanceScenarioList",
-  components: {MsTablePagination, EnvPopover, MsTag},
+  components: {PriorityTableItem, MsTablePagination, EnvPopover, MsTag},
   props: {
     referenced: {
       type: Boolean,

@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssueTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtIssueTemplateMapper;
@@ -7,11 +8,16 @@ import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateIssueTemplateRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -41,20 +47,23 @@ public class IssueTemplateService extends TemplateBaseService {
     @Resource
     ProjectService projectService;
 
-    public void add(UpdateIssueTemplateRequest request) {
+    public String add(UpdateIssueTemplateRequest request) {
         checkExist(request);
         IssueTemplate template = new IssueTemplate();
         BeanUtils.copyBean(template, request);
         template.setId(UUID.randomUUID().toString());
         template.setCreateTime(System.currentTimeMillis());
         template.setUpdateTime(System.currentTimeMillis());
+        template.setCreateUser(SessionUtils.getUserId());
         if (template.getSystem() == null) {
             template.setSystem(false);
         }
+        request.setId(template.getId());
         template.setGlobal(false);
         issueTemplateMapper.insert(template);
         customFieldTemplateService.create(request.getCustomFields(), template.getId(),
                 TemplateConstants.FieldTemplateScene.ISSUE.name());
+        return template.getId();
     }
 
     public List<IssueTemplate> list(BaseQueryRequest request) {
@@ -70,8 +79,10 @@ public class IssueTemplateService extends TemplateBaseService {
 
     public void update(UpdateIssueTemplateRequest request) {
         if (request.getGlobal() != null && request.getGlobal()) {
+            String originId = request.getId();
             // 如果是全局字段，则创建对应工作空间字段
-            add(request);
+            String id = add(request);
+            projectService.updateIssueTemplate(originId, id);
         } else {
             checkExist(request);
             customFieldTemplateService.deleteByTemplateId(request.getId());
@@ -209,5 +220,15 @@ public class IssueTemplateService extends TemplateBaseService {
         List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(issueTemplate.getId());
         issueTemplateDao.setCustomFields(result);
         return issueTemplateDao;
+    }
+
+    public String getLogDetails(String id) {
+        IssueTemplate templateWithBLOBs = issueTemplateMapper.selectByPrimaryKey(id);
+        if (templateWithBLOBs != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(templateWithBLOBs, SystemReference.issueFieldColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(templateWithBLOBs.getId()), null, templateWithBLOBs.getName(), templateWithBLOBs.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

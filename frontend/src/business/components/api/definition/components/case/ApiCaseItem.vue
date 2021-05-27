@@ -1,5 +1,5 @@
 <template>
-  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
+  <el-card v-loading="result.loading" style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
     <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
         <el-col :span="3">
@@ -28,8 +28,10 @@
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
                 <span>{{ apiCase.id ? apiCase.name : '' }}</span>
-              <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
+              <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)"/>
             </span>
+
+            <el-link type="primary" style="margin-left: 10px" @click="openHis(apiCase)" v-if="apiCase.id">{{$t('operating_log.change_history')}}</el-link>
           </span>
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
             <!--<span>-->
@@ -62,12 +64,12 @@
         <el-col :span="4">
           <span @click.stop>
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
+                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle/>
             <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
         </el-col>
 
@@ -110,11 +112,14 @@
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
-        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester v-if="type!=='detail'">
+        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
+                   v-if="type!=='detail'">
           {{ $t('commons.save') }}
         </el-button>
       </div>
     </el-collapse-transition>
+    <ms-change-history ref="changeHistory"/>
+
   </el-card>
 
 </template>
@@ -141,6 +146,7 @@
   const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
   const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
   import {API_METHOD_COLOUR} from "../../model/JsonData";
+  import MsChangeHistory from "../../../../history/ChangeHistory";
 
   export default {
     name: "ApiCaseItem",
@@ -159,6 +165,7 @@
       MsRequestResultTail,
       MsJmxStep,
       ShowMoreBtn,
+      MsChangeHistory,
       "esbDefinition": esbDefinition.default,
       "esbDefinitionResponse": esbDefinitionResponse.default
     },
@@ -214,6 +221,9 @@
     },
     watch: {},
     methods: {
+      openHis(row){
+        this.$refs.changeHistory.open(row.id);
+      },
       handleRunBatch() {
         this.$emit('batchRun');
       },
@@ -249,6 +259,7 @@
       },
       copyCase(data) {
         let uuid = getUUID();
+        data.request.id = uuid;
         let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: data.request, uuid: uuid};
         this.$emit('copyCase', obj);
       },
@@ -299,6 +310,7 @@
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {
           if (row) {
             this.api.saved = false;
+            row.apiDefinitionId = data.id;
             this.saveCase(row);
           }
         });
@@ -318,6 +330,7 @@
         if (tmp.id) {
           url = "/api/testcase/update";
         } else {
+          tmp.id = tmp.request.id;
           tmp.request.path = this.api.path;
           if (tmp.request.protocol != "dubbo://" && tmp.request.protocol != "DUBBO") {
             tmp.request.method = this.api.method;
@@ -334,14 +347,14 @@
         if (tmp.tags instanceof Array) {
           tmp.tags = JSON.stringify(tmp.tags);
         }
-        this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
+        this.result = this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
           let data = response.data;
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
           if (!row.message) {
+            this.$success(this.$t('commons.save_success'));
             if (!hideAlert) {
-              this.$success(this.$t('commons.save_success'));
               this.$emit('refresh');
             }
           }

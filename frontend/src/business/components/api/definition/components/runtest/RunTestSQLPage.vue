@@ -226,13 +226,15 @@ export default {
         this.getEnvironments();
       },
       getResult() {
-        let url = "/api/definition/report/getReport/" + this.api.id;
-        this.$get(url, response => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
+        if (this.api.id) {
+          let url = "/api/definition/report/getReport/" + this.api.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.responseData = data;
+            }
+          });
+        }
       }
     },
     created() {

@@ -4,7 +4,8 @@
       <review-comment-item v-for="(comment,index) in comments"
                            :key="index"
                            :comment="comment"
-                           @refresh="refresh"/>
+                           @refresh="refresh"
+                           :review-status="reviewStatus"/>
       <div v-if="comments.length === 0" style="text-align: center">
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
         <span style="font-size: 15px; color: #8a8b8d;">
@@ -15,9 +16,11 @@
     </div>
     <div>
       <el-input
+        v-permission="['PROJECT_TRACK_REVIEW:READ+COMMENT']"
+        ref="test"
         type="textarea"
         :placeholder="$t('test_track.comment.send_comment')"
-        v-model="textarea"
+        v-model.trim="textarea"
         maxlength="180"
         show-word-limt
         resize="none"
@@ -26,7 +29,9 @@
         :disabled="isReadOnly"
       >
       </el-input>
-      <el-button type="primary" size="mini" class="send-btn" @click="sendComment" :disabled="isReadOnly">
+      <el-button type="primary" size="mini" class="send-btn"
+                 v-permission="['PROJECT_TRACK_REVIEW:READ+COMMENT']"
+                 @click="sendComment" :disabled="isReadOnly">
         {{ $t('test_track.comment.send') }}
       </el-button>
     </div>
@@ -35,7 +40,6 @@
 
 <script>
 import ReviewCommentItem from "./ReviewCommentItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 
 export default {
   name: "ReviewComment",
@@ -43,24 +47,25 @@ export default {
   props: {
     caseId: String,
     comments: Array,
-    reviewId:String,
+    reviewId: String,
+    reviewStatus: String,
   },
   data() {
     return {
       result: {},
       textarea: '',
       isReadOnly: false
-    }
+    };
   },
   created() {
-    this.isReadOnly = !checkoutTestManagerOrTestUser();
+    this.isReadOnly = false;
   },
   methods: {
     sendComment() {
       let comment = {};
       comment.caseId = this.caseId;
       comment.description = this.textarea;
-      comment.reviewId=this.reviewId;
+      comment.reviewId = this.reviewId;
       if (!this.textarea) {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
@@ -71,11 +76,14 @@ export default {
         this.textarea = '';
       });
     },
+    inputLight() {
+      this.$refs.test.focus();
+    },
     refresh() {
       this.$emit('getComments');
     },
   }
-}
+};
 </script>
 
 <style scoped>

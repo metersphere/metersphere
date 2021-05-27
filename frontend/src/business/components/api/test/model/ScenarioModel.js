@@ -12,6 +12,7 @@ import {
   HTTPsamplerFiles,
   HTTPSamplerProxy,
   IfController as JMXIfController,
+  TransactionController as JMXTransactionController,
   JDBCDataSource,
   JDBCSampler,
   JSONPathAssertion,
@@ -380,7 +381,7 @@ export class HttpRequest extends Request {
           }
         }
         let url = null;
-        if (environment && this.environment.config.httpConfig
+        if (environment && environment.config && environment.config.httpConfig
           && environment.config.httpConfig.conditions && environment.config.httpConfig.conditions.length > 0) {
           environment.config.httpConfig.conditions.forEach(item => {
             if (item.type === 'NONE') {
@@ -976,6 +977,35 @@ export class IfController extends Controller {
   }
 
   getLabel() {
+    if (this.isValid()) {
+      let label = this.variable;
+      if (this.operator) label += " " + this.operator;
+      if (this.value) label += " " + this.value;
+      return label;
+    }
+    return "";
+  }
+}
+
+export class TransactionController extends Controller {
+  constructor(options = {}) {
+    super("TransactionController", options);
+    this.type = "TransactionController";
+    this.variable;
+    this.operator;
+    this.value;
+    this.hashTree = [];
+    this.set(options);
+  }
+
+  isValid() {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
+      return !!this.variable && !!this.operator;
+    }
+    return !!this.variable && !!this.operator && !!this.value;
+  }
+
+  label() {
     if (this.isValid()) {
       let label = this.variable;
       if (this.operator) label += " " + this.operator;

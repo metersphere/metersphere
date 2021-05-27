@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-tabs type="border-card" :stretch="true">
+    <el-tabs>
       <el-tab-pane v-for="(item,index) in instances" :key="index" :label="item" class="logging-content">
         <el-row>
           <el-col :span="12">
@@ -47,15 +47,21 @@ export default {
   },
   methods: {
     getResource() {
-      this.result = this.$get("/metric/query/resource/" + this.report.id, data => {
-        this.instances = data.data;
-      });
+      this.result = this.$get("/metric/query/resource/" + this.report.id)
+        .then(response => {
+          this.instances = response.data.data;
+        })
+        .catch(() => {
+        });
 
-      this.$get("/metric/query/" + this.report.id, result => {
-        if (result) {
-          this.data = result.data;
-        }
-      });
+      this.$get("/metric/query/" + this.report.id)
+        .then(result => {
+          if (result) {
+            this.data = result.data.data;
+          }
+        })
+        .catch(() => {
+        });
     },
     getCpuOption(id) {
       let xAxis = [];
@@ -153,7 +159,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '流量(MB/s)'
+          name: '流量(kb/s)'
         },
         series: [{
           data: yAxis,
@@ -188,7 +194,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: '流量(MB/s)'
+          name: '流量(kb/s)'
         },
         series: [{
           data: yAxis,

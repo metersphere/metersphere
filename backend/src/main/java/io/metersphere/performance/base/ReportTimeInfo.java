@@ -4,9 +4,7 @@ import lombok.Data;
 
 @Data
 public class ReportTimeInfo {
-
-    private String duration;
-    private String startTime;
-    private String endTime;
-
+    private long duration;
+    private long startTime;
+    private long endTime;
 }

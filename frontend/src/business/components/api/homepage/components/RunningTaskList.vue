@@ -57,7 +57,6 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 export default {
   name: "MsRunningTaskList",
@@ -79,7 +78,7 @@ export default {
 
   computed:{
     isReadOnly(){
-      return !checkoutTestManagerOrTestUser();
+      return false;
     },
     projectId() {
       return this.$store.state.projectId

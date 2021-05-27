@@ -19,7 +19,7 @@
 
       <el-table-column :label="$t('commons.operating')" min-width="100">
         <template v-slot:default="scope">
-          <ms-table-operator-button :isTesterPermission="true" :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="handleDelete(scope.row.id)"/>
+          <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="handleDelete(scope.row.id)"/>
         </template>
       </el-table-column>
 

@@ -100,7 +100,8 @@ export function buildCustomFields(data, param, template) {
         let customField = {
           id: item.id,
           name: item.name,
-          value: item.defaultValue
+          value: item.defaultValue,
+          customData: item.customData,
         };
         customFields.push(customField);
       }

@@ -23,7 +23,26 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     //已经保存的用户ID
     List<String> savedUserId;
 
-    public UserDataListener(Class clazz,Map<String, String> workspaceNameMap,Map<String, String> orgNameMap) {
+    private List<String> ids;
+    private List<String> names;
+
+    public void setIds(List<String> ids) {
+        this.ids = ids;
+    }
+
+    public void setNames(List<String> names) {
+        this.names = names;
+    }
+
+    public List<String> getIds() {
+        return this.ids;
+    }
+
+    public List<String> getNames() {
+        return this.names;
+    }
+
+    public UserDataListener(Class clazz, Map<String, String> workspaceNameMap, Map<String, String> orgNameMap) {
         this.clazz = clazz;
         this.workspaceNameMap = workspaceNameMap;
         this.orgNameMap = orgNameMap;
@@ -67,7 +86,7 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     public void saveData() {
         //检查有无重复数据
         String checkRepeatDataResult = this.checkRepeatIdAndEmail(list);
-        if(!StringUtils.isEmpty(checkRepeatDataResult)){
+        if (!StringUtils.isEmpty(checkRepeatDataResult)) {
             MSException.throwException(checkRepeatDataResult);
         }
 
@@ -77,9 +96,12 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
         }
         Collections.reverse(list);
         List<UserRequest> result = list.stream().map(item -> this.convert2UserRequest(item)).collect(Collectors.toList());
-
+        List<String> ids = new LinkedList<>();
+        List<String> names = new LinkedList<>();
         for (UserRequest userRequest : result) {
             String id = userRequest.getId();
+            ids.add(id);
+            names.add(userRequest.getName());
             if (savedUserId.contains(id)) {
                 //已经在数据库内的，走更新逻辑
                 userService.updateUserRole(userRequest);
@@ -88,6 +110,8 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
                 userService.insert(userRequest);
             }
         }
+        this.setIds(ids);
+        this.setNames(names);
     }
 
     /**
@@ -216,9 +240,10 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
 
     /**
      * 封装用户权限数据格式
-     * @param roleName  权限名称
-     * @param roleIdList    对应的权限ID
-     * @return  保存用户时，对应的数据权限的数据格式
+     *
+     * @param roleName   权限名称
+     * @param roleIdList 对应的权限ID
+     * @return 保存用户时，对应的数据权限的数据格式
      */
     private Map<String, Object> genRoleMap(String roleName, List<String> roleIdList) {
         Map<String, Object> roleMap = new HashMap<>();
@@ -232,16 +257,17 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
 
     /**
      * 检查是否有重复的ID和Email
+     *
      * @param list
      * @return
      */
-    private String checkRepeatIdAndEmail(List<UserExcelData> list){
+    private String checkRepeatIdAndEmail(List<UserExcelData> list) {
         String checkRepeatIdResult = new String();
 
         List<String> allIdList = new ArrayList<>();
         List<String> allEmailList = new ArrayList<>();
 
-        for (UserExcelData data: list) {
+        for (UserExcelData data : list) {
             allIdList.add(data.getId());
             allEmailList.add(data.getEmail());
         }
@@ -251,10 +277,10 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
                 .filter(entry -> entry.getValue() > 1) // 过滤出元素出现次数大于 1 的 entry
                 .map(entry -> entry.getKey()) // 获得 entry 的键（重复元素）对应的 Stream
                 .collect(Collectors.toList());
-        if(!repeatIdList.isEmpty()){
+        if (!repeatIdList.isEmpty()) {
             checkRepeatIdResult += Translator.get("user_import_id_is_repeat") + "：";
-            for (String repeatID:repeatIdList) {
-                checkRepeatIdResult += repeatID+";";
+            for (String repeatID : repeatIdList) {
+                checkRepeatIdResult += repeatID + ";";
             }
         }
 
@@ -264,10 +290,10 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
                 .filter(entry -> entry.getValue() > 1) // 过滤出元素出现次数大于 1 的 entry
                 .map(entry -> entry.getKey()) // 获得 entry 的键（重复元素）对应的 Stream
                 .collect(Collectors.toList());
-        if(!repeatEmailList.isEmpty()){
+        if (!repeatEmailList.isEmpty()) {
             checkRepeatIdResult += Translator.get("user_import_email_is_repeat") + "：";
-            for (String repeatEmail:repeatEmailList) {
-                checkRepeatIdResult += repeatEmail+";";
+            for (String repeatEmail : repeatEmailList) {
+                checkRepeatIdResult += repeatEmail + ";";
             }
         }
 

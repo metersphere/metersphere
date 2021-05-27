@@ -7,7 +7,9 @@
             <i class="el-icon-arrow-down el-icon--right"/>
           </el-button>
           <el-dropdown-menu slot="dropdown">
-            <el-dropdown-item v-for="(item, index) in commands" :key="index" @click.native.stop="click(item)">
+            <el-dropdown-item v-for="(item, index) in commands" :key="index" @click.native.stop="click(item)"
+                              v-permission="item.permissions"
+            >
              <span class="tip-font" v-if="!item.children">
                {{ item.label }}
              </span>

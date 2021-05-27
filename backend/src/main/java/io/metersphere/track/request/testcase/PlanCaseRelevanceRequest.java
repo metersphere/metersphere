@@ -14,6 +14,8 @@ public class PlanCaseRelevanceRequest {
      */
     private String planId;
 
+    private List<String> ids;
+
     /**
      * 当选择关联全部用例时把加载条件送到后台，从后台查询
      */

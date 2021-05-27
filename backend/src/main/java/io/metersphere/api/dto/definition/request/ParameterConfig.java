@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.ScriptEngineUtils;
 import lombok.Data;
 import org.apache.jmeter.config.Arguments;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,9 @@ public class ParameterConfig {
      * 项目ID，支持单接口执行
      */
     private String projectId;
+
+    private List<String> csvFilePaths = new ArrayList<>();
+
 
     public boolean isEffective(String projectId) {
         if (this.config != null && this.config.get(projectId) != null) {

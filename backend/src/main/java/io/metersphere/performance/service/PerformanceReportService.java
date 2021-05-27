@@ -11,18 +11,24 @@ import io.metersphere.commons.constants.ReportKeys;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.controller.request.DeleteReportRequest;
+import io.metersphere.performance.controller.request.RenameReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
+import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.FileService;
 import io.metersphere.service.TestResourceService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -34,12 +40,15 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ReportService {
+public class PerformanceReportService {
 
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
@@ -136,7 +145,8 @@ public class ReportService {
         example.createCriteria().andReportIdEqualTo(id).andReportKeyEqualTo(reportKey.name());
         List<LoadTestReportResult> loadTestReportResults = loadTestReportResultMapper.selectByExampleWithBLOBs(example);
         if (loadTestReportResults.size() == 0) {
-            MSException.throwException("get report result error.");
+            LogUtil.warn("get report result error");
+            return "";
         }
         return loadTestReportResults.get(0).getReportValue();
     }
@@ -168,7 +178,25 @@ public class ReportService {
     public ReportTimeInfo getReportTimeInfo(String id) {
         checkReportStatus(id);
         String content = getContent(id, ReportKeys.TimeInfo);
-        return JSON.parseObject(content, ReportTimeInfo.class);
+        try {
+            return JSON.parseObject(content, ReportTimeInfo.class);
+        } catch (Exception e) {
+            // 兼容字符串和数字
+            ReportTimeInfo reportTimeInfo = new ReportTimeInfo();
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            String startTime = jsonObject.getString("startTime");
+            String endTime = jsonObject.getString("endTime");
+            String duration = jsonObject.getString("duration");
+
+            SimpleDateFormat df = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            try {
+                reportTimeInfo.setStartTime(df.parse(startTime).getTime());
+                reportTimeInfo.setEndTime(df.parse(endTime).getTime());
+                reportTimeInfo.setDuration(Long.parseLong(duration));
+            } catch (Exception parseException) {
+            }
+            return reportTimeInfo;
+        }
     }
 
     public List<ChartsData> getLoadChartData(String id) {
@@ -318,15 +346,48 @@ public class ReportService {
 
     public String getPoolTypeByReportId(String reportId) {
         LoadTestReportWithBLOBs report = getReport(reportId);
-        String testId = report.getTestId();
-        LoadTestWithBLOBs test = loadTestMapper.selectByPrimaryKey(testId);
-        if (test != null) {
-            String poolId = test.getTestResourcePoolId();
-            TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
-            if (testResourcePool != null) {
-                return testResourcePool.getType();
-            }
+        String poolId = report.getTestResourcePoolId();
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
+        if (testResourcePool != null) {
+            return testResourcePool.getType();
         }
         return "";
+    }
+
+    public LoadTestExportJmx getJmxContent(String reportId) {
+        LoadTestReportWithBLOBs loadTestReportWithBLOBs = loadTestReportMapper.selectByPrimaryKey(reportId);
+        if (loadTestReportWithBLOBs == null) {
+            return null;
+        }
+        return new LoadTestExportJmx(loadTestReportWithBLOBs.getTestName(), loadTestReportWithBLOBs.getJmxContent());
+    }
+
+    public void renameReport(RenameReportRequest request) {
+        LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
+        record.setId(request.getId());
+        record.setName(request.getName());
+        loadTestReportMapper.updateByPrimaryKeySelective(record);
+    }
+
+    public String getLogDetails(String id) {
+        LoadTestReportWithBLOBs loadTest = loadTestReportMapper.selectByPrimaryKey(id);
+        if (loadTest != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(loadTest, PerformanceReference.reportColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(loadTest.getId()), loadTest.getProjectId(), loadTest.getName(), null, columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andIdIn(ids);
+        List<LoadTestReport> loadTests = loadTestReportMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(loadTests)) {
+            List<String> names = loadTests.stream().map(LoadTestReport::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), loadTests.get(0).getProjectId(), String.join(",", names), null, new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

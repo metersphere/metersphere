@@ -10,6 +10,7 @@ import java.util.Map;
 @Setter
 public class RelevanceScenarioRequest {
 
+    private List<String> ids;
     /**
      * 环境和项目对应关系
      */

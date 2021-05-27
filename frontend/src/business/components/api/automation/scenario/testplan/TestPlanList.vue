@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition"
+      <ms-table-header :condition.sync="condition"
                        @search="initTableData" :showCreate="false"
                        :title="$t('test_track.plan.test_plan')">
       </ms-table-header>
@@ -144,12 +144,10 @@ import MsTableOperatorButton from "../../../../common/components/MsTableOperator
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../../../track/common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../../../track/common/tableItems/plan/PlanStageTableItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import TestReportTemplateList from "../../../../track/plan/view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-components";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import EnvPopover from "@/business/components/track/common/EnvPopover";
@@ -207,7 +205,7 @@ export default {
     },
     created() {
       this.projectId = this.$route.params.projectId;
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+      this.isTestManagerOrTestUser = true;
       this.initTableData();
       this.setScenarioSelectRows(this.row);
       this.getWsProjects();
@@ -306,8 +304,6 @@ export default {
         this.$post('/test/plan/delete/' + testPlanId, {}, () => {
           this.initTableData();
           this.$success(this.$t('commons.delete_success'));
-          // 发送广播，刷新 head 上的最新列表
-          TrackEvent.$emit(LIST_CHANGE);
         });
       },
       intoPlan(row, event, column) {

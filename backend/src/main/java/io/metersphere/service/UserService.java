@@ -1,9 +1,11 @@
 package io.metersphere.service;
 
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.*;
@@ -22,18 +24,23 @@ import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
-import io.metersphere.dto.OrganizationMemberDTO;
-import io.metersphere.dto.UserDTO;
-import io.metersphere.dto.UserRoleDTO;
-import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.dto.*;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.UserDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -42,10 +49,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -75,6 +82,20 @@ public class UserService {
     private WorkspaceService workspaceService;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+    @Resource
+    private UserGroupPermissionMapper userGroupPermissionMapper;
+    @Resource
+    private GroupMapper groupMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private UserRoleService userRoleService;
+    @Resource
+    private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -98,11 +119,50 @@ public class UserService {
         } else {
             createUser(user);
         }
-        List<Map<String, Object>> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            insertUserRole(roles, user.getId());
+//        List<Map<String, Object>> roles = user.getRoles();
+//        if (!roles.isEmpty()) {
+//            insertUserRole(roles, user.getId());
+//        }
+        List<Map<String, Object>> groups = user.getGroups();
+        if (!groups.isEmpty()) {
+            insertUserGroup(groups, user.getId());
         }
         return getUserDTO(user.getId());
+    }
+
+    public void insertUserGroup(List<Map<String, Object>> groups, String userId) {
+        for (Map<String, Object> map : groups) {
+            String idType = (String) map.get("type");
+            String[] arr = idType.split("\\+");
+            String groupId = arr[0];
+            String type = arr[1];
+            if (StringUtils.equals(type, UserGroupType.SYSTEM)) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(groupId);
+                userGroup.setSourceId("system");
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
+            } else {
+                List<String> ids = (List<String>) map.get("ids");
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+                for (String id : ids) {
+                    UserGroup userGroup = new UserGroup();
+                    userGroup.setId(UUID.randomUUID().toString());
+                    userGroup.setUserId(userId);
+                    userGroup.setGroupId(groupId);
+                    userGroup.setSourceId(id);
+                    userGroup.setCreateTime(System.currentTimeMillis());
+                    userGroup.setUpdateTime(System.currentTimeMillis());
+                    mapper.insertSelective(userGroup);
+                }
+                sqlSession.flushStatements();
+            }
+
+        }
     }
 
     public User selectUser(String userId, String email) {
@@ -172,6 +232,7 @@ public class UserService {
         User user = new User();
         BeanUtils.copyProperties(userRequest, user);
         user.setCreateTime(System.currentTimeMillis());
+        user.setCreateUser(SessionUtils.getUserId());
         user.setUpdateTime(System.currentTimeMillis());
         // 默认1:启用状态
         user.setStatus(UserStatus.NORMAL);
@@ -222,10 +283,42 @@ public class UserService {
         }
         UserDTO userDTO = new UserDTO();
         BeanUtils.copyProperties(user, userDTO);
-        UserRoleDTO userRole = getUserRole(userId);
-        userDTO.setUserRoles(Optional.ofNullable(userRole.getUserRoles()).orElse(new ArrayList<>()));
-        userDTO.setRoles(Optional.ofNullable(userRole.getRoles()).orElse(new ArrayList<>()));
+//        UserRoleDTO userRole = getUserRole(userId);
+//        userDTO.setUserRoles(Optional.ofNullable(userRole.getUserRoles()).orElse(new ArrayList<>()));
+//        userDTO.setRoles(Optional.ofNullable(userRole.getRoles()).orElse(new ArrayList<>()));
+        UserGroupPermissionDTO dto = getUserGroupPermission(userId);
+        userDTO.setUserGroups(dto.getUserGroups());
+        userDTO.setGroups(dto.getGroups());
+        userDTO.setGroupPermissions(dto.getList());
         return userDTO;
+    }
+
+    private UserGroupPermissionDTO getUserGroupPermission(String userId) {
+        UserGroupPermissionDTO permissionDTO = new UserGroupPermissionDTO();
+        List<GroupResourceDTO> list = new ArrayList<>();
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        if (CollectionUtils.isEmpty(userGroups)) {
+            return permissionDTO;
+        }
+        permissionDTO.setUserGroups(userGroups);
+        List<String> groupList = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andIdIn(groupList);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        permissionDTO.setGroups(groups);
+        for (Group gp : groups) {
+            GroupResourceDTO dto = new GroupResourceDTO();
+            dto.setGroup(gp);
+            UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
+            userGroupPermissionExample.createCriteria().andGroupIdEqualTo(gp.getId());
+            List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
+            dto.setUserGroupPermissions(userGroupPermissions);
+            list.add(dto);
+        }
+        permissionDTO.setList(list);
+        return permissionDTO;
     }
 
     public UserDTO getLoginUser(String userId, List<String> list) {
@@ -299,6 +392,10 @@ public class UserService {
         example.createCriteria().andUserIdEqualTo(userId);
         userRoleMapper.deleteByExample(example);
 
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        userGroupMapper.deleteByExample(userGroupExample);
+
         userMapper.deleteByPrimaryKey(userId);
     }
 
@@ -307,7 +404,13 @@ public class UserService {
         UserRoleExample userRoleExample = new UserRoleExample();
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+
+//        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(list)) {
             if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
                 user.setLastOrganizationId("");
@@ -316,10 +419,13 @@ public class UserService {
             }
         }
 
-        userRoleMapper.deleteByExample(userRoleExample);
-        List<Map<String, Object>> roles = user.getRoles();
-        if (!roles.isEmpty()) {
-            insertUserRole(roles, user.getId());
+        userGroupMapper.deleteByExample(userGroupExample);
+//        userRoleMapper.deleteByExample(userRoleExample);
+//        List<Map<String, Object>> roles = user.getRoles();
+        List<Map<String, Object>> groups = user.getGroups();
+        if (!groups.isEmpty()) {
+            insertUserGroup(groups, user.getId());
+//            insertUserRole(roles, user.getId());
         }
 
         UserExample example = new UserExample();
@@ -364,14 +470,27 @@ public class UserService {
             List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(sourceId);
             if (workspaces.size() > 0) {
                 user.setLastWorkspaceId(workspaces.get(0).getId());
+                List<Project> projects = getProjectListByWsAndUserId(workspaces.get(0).getId());
+                if (projects.size() > 0) {
+                    user.setLastProjectId(projects.get(0).getId());
+                } else {
+                    user.setLastProjectId("");
+                }
             } else {
                 user.setLastWorkspaceId("");
+                user.setLastProjectId("");
             }
         }
         if (StringUtils.equals("workspace", sign)) {
             Workspace workspace = workspaceMapper.selectByPrimaryKey(sourceId);
             user.setLastOrganizationId(workspace.getOrganizationId());
             user.setLastWorkspaceId(sourceId);
+            List<Project> projects = getProjectListByWsAndUserId(sourceId);
+            if (projects.size() > 0) {
+                user.setLastProjectId(projects.get(0).getId());
+            } else {
+                user.setLastProjectId("");
+            }
         }
         BeanUtils.copyProperties(user, newUser);
         // 切换工作空间或组织之后更新 session 里的 user
@@ -379,32 +498,54 @@ public class UserService {
         userMapper.updateByPrimaryKeySelective(newUser);
     }
 
+    private List<Project> getProjectListByWsAndUserId(String workspaceId) {
+        String useId = SessionUtils.getUser().getId();
+        ProjectExample projectExample = new ProjectExample();
+        projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Project> projects = projectMapper.selectByExample(projectExample);
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(useId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<Project> projectList = new ArrayList<>();
+        userGroups.forEach(userGroup -> {
+            projects.forEach(project -> {
+                if (StringUtils.equals(userGroup.getSourceId(), project.getId())) {
+                    if (!projectList.contains(project)) {
+                        projectList.add(project);
+                    }
+                }
+            });
+        });
+        return projectList;
+    }
+
     public UserDTO getUserInfo(String userId) {
         return getUserDTO(userId);
     }
 
     public List<User> getMemberList(QueryMemberRequest request) {
-        return extUserRoleMapper.getMemberList(request);
+        return extUserGroupMapper.getMemberList(request);
     }
 
     public void addMember(AddMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                UserRoleExample userRoleExample = new UserRoleExample();
-                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
-                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-                if (userRoles.size() > 0) {
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getWorkspaceId());
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (userGroups.size() > 0) {
                     MSException.throwException(Translator.get("user_already_exists"));
                 } else {
-                    for (String roleId : request.getRoleIds()) {
-                        UserRole userRole = new UserRole();
-                        userRole.setRoleId(roleId);
-                        userRole.setSourceId(request.getWorkspaceId());
-                        userRole.setUserId(userId);
-                        userRole.setId(UUID.randomUUID().toString());
-                        userRole.setUpdateTime(System.currentTimeMillis());
-                        userRole.setCreateTime(System.currentTimeMillis());
-                        userRoleMapper.insertSelective(userRole);
+                    for (String groupId : request.getGroupIds()) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(request.getWorkspaceId());
+                        userGroup.setUserId(userId);
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroupMapper.insertSelective(userGroup);
                     }
                 }
             }
@@ -412,10 +553,22 @@ public class UserService {
     }
 
     public void deleteMember(String workspaceId, String userId) {
-        UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andRoleIdLike("%test%")
-                .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
+//        UserRoleExample example = new UserRoleExample();
+//        example.createCriteria().andRoleIdLike("%test%")
+//                .andUserIdEqualTo(userId).andSourceIdEqualTo(workspaceId);
 
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.WORKSPACE);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return;
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                .andSourceIdEqualTo(workspaceId)
+                .andGroupIdIn(groupIds);
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(workspaceId, user.getLastWorkspaceId())) {
             user.setLastWorkspaceId("");
@@ -423,27 +576,40 @@ public class UserService {
             userMapper.updateByPrimaryKeySelective(user);
         }
 
-        userRoleMapper.deleteByExample(example);
+        userGroupMapper.deleteByExample(userGroupExample);
     }
 
     public void addOrganizationMember(AddOrgMemberRequest request) {
         if (!CollectionUtils.isEmpty(request.getUserIds())) {
             for (String userId : request.getUserIds()) {
-                UserRoleExample userRoleExample = new UserRoleExample();
-                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
-                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-                if (userRoles.size() > 0) {
+//                UserRoleExample userRoleExample = new UserRoleExample();
+//                userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
+//                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getOrganizationId());
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (userGroups.size() > 0) {
                     MSException.throwException(Translator.get("user_already_exists") + ": " + userId);
                 } else {
-                    for (String roleId : request.getRoleIds()) {
-                        UserRole userRole = new UserRole();
-                        userRole.setId(UUID.randomUUID().toString());
-                        userRole.setRoleId(roleId);
-                        userRole.setSourceId(request.getOrganizationId());
-                        userRole.setUserId(userId);
-                        userRole.setUpdateTime(System.currentTimeMillis());
-                        userRole.setCreateTime(System.currentTimeMillis());
-                        userRoleMapper.insertSelective(userRole);
+//                    for (String roleId : request.getRoleIds()) {
+//                        UserRole userRole = new UserRole();
+//                        userRole.setId(UUID.randomUUID().toString());
+//                        userRole.setRoleId(roleId);
+//                        userRole.setSourceId(request.getOrganizationId());
+//                        userRole.setUserId(userId);
+//                        userRole.setUpdateTime(System.currentTimeMillis());
+//                        userRole.setCreateTime(System.currentTimeMillis());
+//                        userRoleMapper.insertSelective(userRole);
+//                    }
+                    for (String groupId : request.getGroupIds()) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUserId(userId);
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(request.getOrganizationId());
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        userGroupMapper.insertSelective(userGroup);
                     }
                 }
             }
@@ -452,11 +618,22 @@ public class UserService {
 
     public void delOrganizationMember(String organizationId, String userId) {
 
-        List<String> resourceIds = workspaceService.getWorkspaceIdsOrgId(organizationId);
-        resourceIds.add(organizationId);
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.ORGANIZATION);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
 
-        UserRoleExample userRoleExample = new UserRoleExample();
-        userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(resourceIds);
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return;
+        }
+
+//        UserRoleExample userRoleExample = new UserRoleExample();
+//        userRoleExample.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(resourceIds);
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                .andGroupIdIn(groupIds)
+                .andSourceIdEqualTo(organizationId);
 
         User user = userMapper.selectByPrimaryKey(userId);
         if (StringUtils.equals(organizationId, user.getLastOrganizationId())) {
@@ -465,11 +642,12 @@ public class UserService {
             userMapper.updateByPrimaryKeySelective(user);
         }
 
-        userRoleMapper.deleteByExample(userRoleExample);
+//        userRoleMapper.deleteByExample(userRoleExample);
+        userGroupMapper.deleteByExample(userGroupExample);
     }
 
     public List<User> getOrgMemberList(QueryOrgMemberRequest request) {
-        return extUserRoleMapper.getOrgMemberList(request);
+        return extUserGroupMapper.getOrgMemberList(request);
     }
 
     public boolean checkUserPassword(String userId, String password) {
@@ -583,19 +761,32 @@ public class UserService {
             subject.login(token);
             if (subject.isAuthenticated()) {
                 UserDTO user = (UserDTO) subject.getSession().getAttribute(ATTR_USER);
+                autoSwitch(user);
                 // 自动选中组织，工作空间
-                if (StringUtils.isEmpty(user.getLastOrganizationId())) {
-                    List<UserRole> userRoles = user.getUserRoles();
-                    List<UserRole> test = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("test")).collect(Collectors.toList());
-                    List<UserRole> org = userRoles.stream().filter(ur -> ur.getRoleId().startsWith("org")).collect(Collectors.toList());
-                    if (test.size() > 0) {
-                        String wsId = test.get(0).getSourceId();
-                        switchUserRole("workspace", wsId);
-                    } else if (org.size() > 0) {
-                        String orgId = org.get(0).getSourceId();
-                        switchUserRole("organization", orgId);
-                    }
-                }
+//                if (StringUtils.isEmpty(user.getLastOrganizationId())) {
+//                    List<String> orgIds = user.getGroups()
+//                            .stream()
+//                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
+//                            .map(Group::getId)
+//                            .collect(Collectors.toList());
+//                    List<String> testIds = user.getGroups()
+//                            .stream()
+//                            .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
+//                            .map(Group::getId)
+//                            .collect(Collectors.toList());
+//                    List<UserGroup> userGroups = user.getUserGroups();
+//                    List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+//                            .collect(Collectors.toList());
+//                    List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
+//                            .collect(Collectors.toList());
+//                    if (test.size() > 0) {
+//                        String wsId = test.get(0).getSourceId();
+//                        switchUserRole("workspace", wsId);
+//                    } else if (org.size() > 0) {
+//                        String orgId = org.get(0).getSourceId();
+//                        switchUserRole("organization", orgId);
+//                    }
+//                }
                 // 返回 userDTO
                 return ResultHolder.success(subject.getSession().getAttribute("user"));
             } else {
@@ -614,6 +805,63 @@ public class UserService {
         } catch (UnauthorizedException e) {
             throw new UnauthorizedException(Translator.get("not_authorized") + e.getMessage());
         }
+    }
+
+    private void autoSwitch(UserDTO user) {
+        if (StringUtils.isNotBlank(user.getLastProjectId())) {
+            List<UserGroup> projectUserGroups = user.getUserGroups().stream()
+                    .filter(ug -> StringUtils.equals(user.getLastProjectId(), ug.getSourceId()))
+                    .collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(projectUserGroups)) {
+                return;
+            }
+        }
+        List<UserGroup> userGroups = user.getUserGroups();
+        List<String> projectGroupIds = user.getGroups()
+                .stream().filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.PROJECT))
+                .map(Group::getId)
+                .collect(Collectors.toList());
+        List<UserGroup> project = userGroups.stream().filter(ug -> projectGroupIds.contains(ug.getGroupId()))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(project)) {
+            // 项目用户组为空切换工作空间
+            List<String> orgIds = user.getGroups()
+                    .stream()
+                    .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.ORGANIZATION))
+                    .map(Group::getId)
+                    .collect(Collectors.toList());
+            List<String> testIds = user.getGroups()
+                    .stream()
+                    .filter(ug -> StringUtils.equals(ug.getType(), UserGroupType.WORKSPACE))
+                    .map(Group::getId)
+                    .collect(Collectors.toList());
+            List<UserGroup> org = userGroups.stream().filter(ug -> orgIds.contains(ug.getGroupId()))
+                    .collect(Collectors.toList());
+            List<UserGroup> test = userGroups.stream().filter(ug -> testIds.contains(ug.getGroupId()))
+                    .collect(Collectors.toList());
+            if (test.size() > 0) {
+                String wsId = test.get(0).getSourceId();
+                switchUserRole("workspace", wsId);
+            } else if (org.size() > 0) {
+                String orgId = org.get(0).getSourceId();
+                switchUserRole("organization", orgId);
+            }
+        } else {
+            UserGroup userGroup = project.stream().filter(p -> StringUtils.isNotBlank(p.getSourceId()))
+                    .collect(Collectors.toList()).get(0);
+            String projectId = userGroup.getSourceId();
+            Project p = projectMapper.selectByPrimaryKey(projectId);
+            String wsId = p.getWorkspaceId();
+            Workspace workspace = workspaceMapper.selectByPrimaryKey(wsId);
+            String orgId = workspace.getOrganizationId();
+            user.setId(user.getId());
+            user.setLastProjectId(projectId);
+            user.setLastWorkspaceId(wsId);
+            user.setLastOrganizationId(orgId);
+            updateUser(user);
+            SecurityUtils.getSubject().getSession().setAttribute(ATTR_USER, user);
+        }
+
     }
 
     public List<User> searchUser(String condition) {
@@ -646,7 +894,7 @@ public class UserService {
             UserExcelData data = new UserExcelData();
             data.setId("user_id_" + i);
             data.setName(Translator.get("user") + i);
-            data.setPassword(Translator.get("required")+";"+Translator.get("password_format_is_incorrect"));
+            data.setPassword(Translator.get("required") + ";" + Translator.get("password_format_is_incorrect"));
             data.setEmail(Translator.get("required"));
             String workspace = "";
             for (int workspaceIndex = 1; workspaceIndex <= i; workspaceIndex++) {
@@ -674,7 +922,7 @@ public class UserService {
         return list;
     }
 
-    public ExcelResponse userImport(MultipartFile multipartFile, String userId) {
+    public ExcelResponse userImport(MultipartFile multipartFile, String userId, HttpServletRequest request) {
 
         ExcelResponse excelResponse = new ExcelResponse();
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
@@ -698,6 +946,10 @@ public class UserService {
             }
             EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap);
             EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+            if (CollectionUtils.isNotEmpty(((UserDataListener) easyExcelListener).getNames())) {
+                request.setAttribute("ms-req-title", String.join(",", ((UserDataListener) easyExcelListener).getNames()));
+                request.setAttribute("ms-req-source-id", JSON.toJSONString(((UserDataListener) easyExcelListener).getIds()));
+            }
             errList = easyExcelListener.getErrList();
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -754,11 +1006,11 @@ public class UserService {
 
         if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             List<String> userIdList = new ArrayList<>();
-            if(StringUtils.isEmpty(request.getOrganizationId())){
+            if (StringUtils.isEmpty(request.getOrganizationId())) {
                 userIdList = extUserMapper.selectIdsByQuery(request.getCondition());
-            }else{
+            } else {
                 //组织->成员 页面发起的请求
-                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(),request.getCondition());
+                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(), request.getCondition());
             }
 
             return userIdList;
@@ -846,5 +1098,207 @@ public class UserService {
                 userMapper.updateByPrimaryKeySelective(user);
             }
         }
+    }
+
+    public Set<String> getUserPermission(String userId) {
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> groupId = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+        UserGroupPermissionExample userGroupPermissionExample = new UserGroupPermissionExample();
+        userGroupPermissionExample.createCriteria().andGroupIdIn(groupId);
+        List<UserGroupPermission> userGroupPermissions = userGroupPermissionMapper.selectByExample(userGroupPermissionExample);
+        return userGroupPermissions.stream().map(UserGroupPermission::getPermissionId).collect(Collectors.toSet());
+    }
+
+    public UserGroupPermissionDTO getUserGroup(String userId) {
+        UserGroupPermissionDTO userGroupPermissionDTO = new UserGroupPermissionDTO();
+        //
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId);
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+
+        if (CollectionUtils.isEmpty(userGroups)) {
+            return userGroupPermissionDTO;
+        }
+        // 设置 user_role
+        userGroupPermissionDTO.setUserGroups(userGroups);
+
+        List<String> groupId = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andIdIn(groupId);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+        userGroupPermissionDTO.setGroups(groups);
+        return userGroupPermissionDTO;
+    }
+
+    public String getLogDetails(String id) {
+        User user = userMapper.selectByPrimaryKey(id);
+        if (user != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.userColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(user.getId()), null, user.getName(), user.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids, String id) {
+        if (!CollectionUtils.isEmpty(ids)) {
+            UserExample example = new UserExample();
+            example.createCriteria().andIdIn(ids);
+            List<User> users = userMapper.selectByExample(example);
+            List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
+
+            StringBuilder nameBuilder = new StringBuilder();
+            nameBuilder.append(String.join(",", names)).append("\n");
+            for (String userId : ids) {
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (CollectionUtils.isNotEmpty(userGroups)) {
+                    List<String> groupIds = userGroups.stream().map(UserGroup::getGroupId).collect(Collectors.toList());
+                    GroupExample groupExample = new GroupExample();
+                    groupExample.createCriteria().andIdIn(groupIds);
+                    List<Group> groups = groupMapper.selectByExample(groupExample);
+                    if (CollectionUtils.isNotEmpty(groups)) {
+                        List<String> strings = groups.stream().map(Group::getName).collect(Collectors.toList());
+                        nameBuilder.append("用户组：").append(String.join(",", strings));
+                    }
+                }
+            }
+            List<DetailColumn> columns = new LinkedList<>();
+
+            DetailColumn detailColumn = new DetailColumn();
+            detailColumn.setId(UUID.randomUUID().toString());
+            detailColumn.setColumnTitle("成员：");
+            detailColumn.setColumnName("roles");
+            detailColumn.setOriginalValue(nameBuilder.toString());
+            columns.add(detailColumn);
+
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), null, nameBuilder.toString(), null, columns);
+            return JSON.toJSONString(details);
+
+        }
+        return null;
+    }
+
+    private String getRoles(String userId) {
+        List<Map<String, Object>> maps = userRoleService.getUserGroup(userId);
+        List<String> colNames = new LinkedList<>();
+        if (CollectionUtils.isNotEmpty(maps)) {
+            for (Map<String, Object> map : maps) {
+                String id = map.get("id").toString();
+                OrganizationExample example = new OrganizationExample();
+                example.createCriteria().andIdIn((List<String>) map.get("ids"));
+                List<Organization> list = organizationMapper.selectByExample(example);
+                List<String> names = new LinkedList<>();
+                if (CollectionUtils.isNotEmpty(list)) {
+                    names = list.stream().map(Organization::getName).collect(Collectors.toList());
+                }
+                WorkspaceExample workspaceExample = new WorkspaceExample();
+                workspaceExample.createCriteria().andIdIn((List<String>) map.get("ids"));
+                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+                if (CollectionUtils.isNotEmpty(workspaces)) {
+                    names = workspaces.stream().map(Workspace::getName).collect(Collectors.toList());
+                }
+                StringBuilder nameBuff = new StringBuilder();
+                Group group = groupMapper.selectByPrimaryKey(id);
+                if (group != null && CollectionUtils.isNotEmpty(names)) {
+                    nameBuff.append(group.getName()).append(names);
+                }
+                colNames.add(nameBuff.toString());
+            }
+        }
+        return String.join("\n", colNames);
+    }
+
+    public String getLogDetails(UserBatchProcessRequest request) {
+        List<String> userIdList = this.selectIdByUserRequest(request);
+        UserExample example = new UserExample();
+        example.createCriteria().andIdIn(userIdList);
+        List<User> users = userMapper.selectByExample(example);
+        if (users != null) {
+            List<String> names = users.stream().map(User::getName).collect(Collectors.toList());
+            String roles = "\n" + "成员角色：\n" + this.getRoles(users.get(0).getId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(userIdList), null, String.join(",", names) + roles, null, new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(UserRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
+        if (user != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(user, SystemReference.userColumns);
+            for (DetailColumn column : columns) {
+                if (column.getColumnName().equals("status") && column.getOriginalValue() != null && StringUtils.isNotEmpty(column.getOriginalValue().toString())) {
+                    if (column.getOriginalValue().equals("0")) {
+                        column.setOriginalValue("未激活");
+                    } else {
+                        column.setOriginalValue("已激活");
+                    }
+                }
+            }
+            DetailColumn detailColumn = new DetailColumn();
+            detailColumn.setId(UUID.randomUUID().toString());
+            detailColumn.setColumnTitle("角色权限");
+            detailColumn.setColumnName("roles");
+            detailColumn.setOriginalValue(this.getRoles(request.getId()));
+            columns.add(detailColumn);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(user.getId()), null, user.getName(), user.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public List<User> getProjectMemberList(QueryMemberRequest request) {
+        return extUserGroupMapper.getProjectMemberList(request);
+    }
+
+    public void addProjectMember(AddMemberRequest request) {
+        if (!CollectionUtils.isEmpty(request.getUserIds())) {
+            for (String userId : request.getUserIds()) {
+                UserGroupExample userGroupExample = new UserGroupExample();
+                userGroupExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(request.getProjectId());
+                List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                if (userGroups.size() > 0) {
+                    MSException.throwException(Translator.get("user_already_exists"));
+                } else {
+                    for (String groupId : request.getGroupIds()) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(request.getProjectId());
+                        userGroup.setUserId(userId);
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroupMapper.insertSelective(userGroup);
+                    }
+                }
+            }
+        }
+    }
+
+    public void deleteProjectMember(String projectId, String userId) {
+        GroupExample groupExample = new GroupExample();
+        groupExample.createCriteria().andTypeEqualTo(UserGroupType.PROJECT);
+        List<Group> groups = groupMapper.selectByExample(groupExample);
+
+        List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(groupIds)) {
+            return;
+        }
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                .andSourceIdEqualTo(projectId)
+                .andGroupIdIn(groupIds);
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (StringUtils.equals(projectId, user.getLastProjectId())) {
+            user.setLastProjectId("");
+            userMapper.updateByPrimaryKeySelective(user);
+        }
+
+        userGroupMapper.deleteByExample(userGroupExample);
     }
 }

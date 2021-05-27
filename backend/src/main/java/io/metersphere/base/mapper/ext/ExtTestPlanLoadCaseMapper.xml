@@ -70,7 +70,12 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                tplc.${order.name} ${order.type}
+                <if test="order.name == 'num'">
+                    lt.${order.name} ${order.type}
+                </if>
+                <if test="order.name != 'num'">
+                    tplc.${order.name} ${order.type}
+                </if>
             </foreach>
         </if>
     </select>

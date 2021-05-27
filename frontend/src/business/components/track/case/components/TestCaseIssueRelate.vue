@@ -1,22 +1,27 @@
 <template>
   <div>
-    <el-button class="add-btn" :disabled="readOnly" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
-    <el-tooltip class="item" effect="dark"
+    <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']" :disabled="readOnly" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
+    <el-button class="add-btn" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"  :disabled="readOnly" type="primary" size="mini" @click="relateIssue">{{ $t('test_track.case.relate_issue') }}</el-button>
+    <el-tooltip class="item" v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"  effect="dark"
                 :content="$t('test_track.issue.platform_tip')"
                 placement="right">
       <i class="el-icon-info"/>
     </el-tooltip>
 
     <ms-table
-      v-loading="result.loading"
+      v-loading="page.result.loading"
       :show-select-all="false"
-      :data="issues"
+      :data="page.data"
       :enable-selection="false"
       @refresh="getIssues">
 
       <ms-table-column
         :label="$t('test_track.issue.id')"
-        prop="id">
+        prop="id" v-if="false">
+      </ms-table-column>
+      <ms-table-column
+        :label="$t('test_track.issue.id')"
+        prop="num">
       </ms-table-column>
 
       <ms-table-column
@@ -44,14 +49,14 @@
           <el-tooltip :content="$t('test_track.issue.close')"
                       placement="top" :enterable="false">
             <el-button type="danger" icon="el-icon-circle-close" size="mini"
-                       circle v-if="scope.row.platform === 'Local'"
+                       circle :disabled="scope.row.platform !== 'Local'"
                        @click="closeIssue(scope.row)"
             />
           </el-tooltip>
           <el-tooltip :content="$t('test_track.issue.delete')"
                       placement="top" :enterable="false">
             <el-button type="danger" icon="el-icon-delete" size="mini"
-                       circle v-if="scope.row.platform === 'Local'"
+                       circle :disabled="scope.row.platform !== 'Local'"
                        @click="deleteIssue(scope.row)"
             />
           </el-tooltip>
@@ -60,7 +65,8 @@
 
     </ms-table>
 
-    <test-plan-issue-edit :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
+    <test-plan-issue-edit :plan-id="planId" :case-id="caseId" @refresh="getIssues" ref="issueEdit"/>
+    <IssueRelateList :case-id="caseId"  @refresh="getIssues" ref="issueRelate"/>
   </div>
 </template>
 
@@ -70,16 +76,20 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
+import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";
+import {getIssuesByCaseId} from "@/network/Issue";
 export default {
   name: "TestCaseIssueRelate",
-  components: {IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
+  components: {IssueRelateList, IssueDescriptionTableItem, MsTableColumn, MsTable, TestPlanIssueEdit},
   data() {
     return {
-      issues: [],
-      result: {},
+      page: {
+        data: [],
+        result: {},
+      },
     }
   },
-  props: ['caseId', 'readOnly'],
+  props: ['caseId', 'readOnly','planId'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
@@ -87,11 +97,7 @@ export default {
   },
   methods: {
     getIssues() {
-      if (this.caseId) {
-        this.result = this.$get("/issues/get/" + this.caseId, (response) => {
-          this.issues = response.data;
-        });
-      }
+      this.page.result = getIssuesByCaseId(this.caseId, this.page);
     },
     appIssue() {
       if (!this.caseId) {
@@ -100,18 +106,25 @@ export default {
       }
       this.$refs.issueEdit.open();
     },
+    relateIssue() {
+      if (!this.caseId) {
+        this.$warning(this.$t('api_test.automation.save_case_info'));
+        return;
+      }
+      this.$refs.issueRelate.open();
+    },
     closeIssue(row) {
       if (row.status === 'closed') {
         this.$success(this.$t('test_track.issue.close_success'));
       } else {
-        this.result = this.$get("/issues/close/" + row.id, () => {
+        this.page.result = this.$get("/issues/close/" + row.id, () => {
           this.getIssues();
           this.$success(this.$t('test_track.issue.close_success'));
         });
       }
     },
     deleteIssue(row) {
-      this.result = this.$post("/issues/delete", {id: row.id, caseId: this.caseId}, () => {
+      this.page.result = this.$post("/issues/delete", {id: row.id, caseId: this.caseId}, () => {
         this.getIssues();
         this.$success(this.$t('commons.delete_success'));
       })

@@ -29,7 +29,7 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.id == 'num'" prop="num" min-width="80" label="ID" show-overflow-tooltip :key="index"/>
+          <el-table-column v-if="item.id == 'num'" prop="num" sortable min-width="80" label="ID" show-overflow-tooltip :key="index"/>
           <el-table-column
               v-if="item.id == 'caseName'"
               prop="caseName"
@@ -117,11 +117,14 @@
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
+            <ms-table-operator-button class="run-button"
+                                      v-permission="['PROJECT_PERFORMANCE_TEST:READ+RUN']"
+                                      :tip="$t('api_test.run')"
                                       icon="el-icon-video-play"
-                                      @exec="run(scope.row)" v-tester/>
-            <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
-                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)" v-tester/>
+                                      @exec="run(scope.row)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
+                                      :tip="$t('test_track.plan_view.cancel_relevance')"
+                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -155,7 +158,7 @@ import {
   buildBatchParam,
   initCondition,
   toggleAllSelection,
-  checkTableRowIsSelect
+  checkTableRowIsSelect, deepClone
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TAPD, TEST_CASE_LIST, TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
@@ -196,10 +199,10 @@ export default {
       screenHeight: 'calc(100vh - 330px)',//屏幕高度
       buttons: [
         {
-          name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch
+          name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
         },
         {
-          name: this.$t('test_track.plan.load_case.batch_exec_cases'), handleClick: this.handleRunBatch
+          name: this.$t('test_track.plan.load_case.batch_exec_cases'), handleClick: this.handleRunBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_RUN']
         }
       ],
       statusFilters: [
@@ -293,7 +296,8 @@ export default {
     },
 
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     initTable() {
       this.autoCheckStatus();

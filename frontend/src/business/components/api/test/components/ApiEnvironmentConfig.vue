@@ -70,6 +70,8 @@
         }
       },
       copyEnvironment(environment) {
+        //点击复制的时候先选择改行，否则会出现解析错误
+        this.environmentSelected(environment);
         this.currentEnvironment = environment;
         if (!environment.id) {
           this.$warning(this.$t('commons.please_save'));

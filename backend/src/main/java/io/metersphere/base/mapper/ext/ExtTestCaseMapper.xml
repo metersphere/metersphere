@@ -116,8 +116,9 @@
     </sql>
 
     <select id="getTestCaseByNotInPlan" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
-        as test_case
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,
+        test_case.num, test_case.custom_num, test_case.priority, test_case.tags, test_case.create_time, test_case.update_time
+        from test_case as test_case
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         <include refid="notInQueryWhereCondition"></include>
         and T2.case_id is null
@@ -125,7 +126,7 @@
     </select>
 
     <select id="getTestCaseNames" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status,test_case.num,test_case.custom_num
         from test_case
         <where>
             <if test="request.combine != null">
@@ -153,6 +154,29 @@
     </select>
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
+        select
+        <if test="request.selectFields != null and request.selectFields.size() > 0">
+            <foreach collection="request.selectFields" item="field" separator=",">
+                ${field}
+            </foreach>
+        </if>
+        <if test="request.selectFields == null or request.selectFields.size() == 0">
+            test_case.id, test_case.node_id, test_case.node_path, test_case.project_id, test_case.`name`,
+            test_case.`type`, test_case.maintainer, test_case.priority, test_case.`method`,
+            test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
+            test_case.other_test_name, test_case.review_status, test_case.tags,
+            test_case.demand_id, test_case.demand_name, test_case.follow_people, test_case.`status`,
+            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName
+        </if>
+        from test_case left join user u on test_case.create_user=u.id
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+    <select id="moduleCount" resultType="java.lang.Integer">
+        select count(id) from test_case
+        <include refid="queryWhereCondition"/>
+    </select>
+    <select id="listIds" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
@@ -236,9 +260,9 @@
         SELECT COUNT(1)
         FROM test_case, project
         WHERE test_case.project_id = project.id
-        <if test="workspaceIds != null and workspaceIds.size() > 0">
-            AND project.workspace_id IN
-            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project.id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>
@@ -304,20 +328,23 @@
                 or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.relevanceCreateTime >0">
-                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.createTime})
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
+                #{request.createTime})
             </if>
             <if test="request.createTime >0">
                 and test_case.create_time >= #{request.createTime}
             </if>
-            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
-                and test_case.node_id in
-                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.projectId != null">
-                and test_case.project_id = #{request.projectId}
-            </if>
+            <choose>
+                <when test="request.nodeIds != null and request.nodeIds.size() > 0">
+                    and test_case.node_id in
+                    <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                        #{nodeId}
+                    </foreach>
+                </when>
+                <when test="request.projectId != null">
+                    and test_case.project_id = #{request.projectId}
+                </when>
+            </choose>
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
@@ -437,5 +464,12 @@
                 #{id}
             </foreach>
         </where>
+    </select>
+    <select id="selectRelateIdsByQuery" resultType="java.lang.String">
+        select test_case.id as id
+        from test_case as test_case
+        left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
+        <include refid="notInQueryWhereCondition"/>
+        and T2.case_id is null
     </select>
 </mapper>

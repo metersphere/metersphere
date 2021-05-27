@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition" :show-create="false"
+      <ms-table-header :condition.sync="condition" :show-create="false"
                        @search="initTableData"
                        :title="$t('test_track.report.name')"/>
     </template>
@@ -10,25 +10,31 @@
               @select="handleSelect"
               :height="screenHeight"
               ref="testPlanReportTable"
-              row-key="id" class="test-content adjust-table ms-select-all"
-      @filter-change="filter" @sort-change="sort" >
+              row-key="id"
+              class="test-content adjust-table ms-select-all-fixed"
+              @filter-change="filter" @sort-change="sort">
 
       <el-table-column width="50" type="selection"/>
-      <ms-table-select-all
-        :page-size="pageSize>total?total:pageSize"
-        :total="total"
-        @selectPageAll="isSelectDataAll(false)"
-        @selectAll="isSelectDataAll(true)"/>
+
+      <ms-table-header-select-popover v-show="total>0"
+                                      :page-size="pageSize > total ? total : pageSize"
+                                      :total="total"
+                                      :select-data-counts="selectDataCounts"
+                                      @selectPageAll="isSelectDataAll(false)"
+                                      @selectAll="isSelectDataAll(true)"/>
 
       <el-table-column width="30" :resizable="false" align="center">
         <template v-slot:default="scope">
-          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
+          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
         </template>
       </el-table-column>
 
-      <el-table-column min-width="300" prop="name" :label="$t('test_track.report.list.name')" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="testPlanName" min-width="150" sortable :label="$t('test_track.report.list.test_plan')" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="creator" :label="$t('test_track.report.list.creator')" show-overflow-tooltip></el-table-column>
+      <el-table-column min-width="300" prop="name" :label="$t('test_track.report.list.name')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="testPlanName" min-width="150" sortable :label="$t('test_track.report.list.test_plan')"
+                       show-overflow-tooltip></el-table-column>
+      <el-table-column prop="creator" :label="$t('test_track.report.list.creator')"
+                       show-overflow-tooltip></el-table-column>
       <el-table-column prop="createTime" sortable :label="$t('test_track.report.list.create_time' )" show-overflow-tooltip>
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -50,8 +56,8 @@
         <template v-slot:default="scope">
           <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
             @exec="openReport(scope.row.id)"/>
-          <ms-table-operator-button type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
-            @exec="handleDelete(scope.row)" v-tester/>
+          <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']" type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                    @exec="handleDelete(scope.row)"/>
         </template>
       </el-table-column>
     </el-table>
@@ -66,7 +72,6 @@ import MsTablePagination from '../../../../components/common/pagination/TablePag
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import MsTableOperator from "../../../common/components/MsTableOperator";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import {TEST_PLAN_REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import TestPlanReportView from "@/business/components/track/report/components/TestPlanReportView";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
@@ -82,10 +87,12 @@ import {
   initCondition,
   setUnSelectIds, toggleAllSelection,
 } from "@/common/js/tableUtils";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 
 export default {
   name: "TestPlanReportList",
   components: {
+    MsTableHeaderSelectPopover,
     TestPlanReportView,
     MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
     ReportTriggerModeItem, MsTag,
@@ -103,7 +110,7 @@ export default {
       pageSize: 10,
       isTestManagerOrTestUser: false,
       selectRows: new Set(),
-      screenHeight: document.documentElement.clientHeight - 296,//屏幕高度
+      screenHeight: 'calc(100vh - 295px)', //屏幕高度
       total: 0,
       tableData: [],
       statusFilters: [
@@ -117,7 +124,7 @@ export default {
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']},
       ],
       selectDataCounts: 0,
     }
@@ -134,7 +141,7 @@ export default {
     if (!this.projectId) {
       this.projectId = this.$store.state.projectId;
     }
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
     this.initTableData();
   },
   methods: {
@@ -265,11 +272,11 @@ export default {
   color: #1E90FF;
 }
 
-.ms-select-all >>> th:first-child {
-  margin-top: 20px;
-}
+/*.ms-select-all >>> th:first-child {*/
+/*  margin-top: 20px;*/
+/*}*/
 
-.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
-  top: -2px;
-}
+/*.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {*/
+/*  top: -2px;*/
+/*}*/
 </style>

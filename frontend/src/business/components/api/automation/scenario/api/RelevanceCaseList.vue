@@ -99,51 +99,6 @@
           </ms-table-column>
         </template>
       </ms-table>
-      <!--      <el-table v-loading="result.loading"-->
-      <!--                border-->
-      <!--                :data="tableData"-->
-      <!--                row-key="id"-->
-      <!--                class="test-content adjust-table"-->
-      <!--                @select-all="handleSelectAll"-->
-      <!--                @filter-change="filter"-->
-      <!--                @sort-change="sort"-->
-      <!--                @select="handleSelect" ref="table">-->
-      <!--        <el-table-column reserve-selection type="selection"/>-->
-
-      <!--        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="priority"-->
-      <!--          :filters="priorityFilters"-->
-      <!--          column-key="priority"-->
-      <!--          :label="$t('test_track.case.priority')"-->
-      <!--          show-overflow-tooltip>-->
-      <!--          <template v-slot:default="scope">-->
-      <!--            <priority-table-item :value="scope.row.priority"/>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="path"-->
-      <!--          :label="$t('api_test.definition.api_path')"-->
-      <!--          show-overflow-tooltip/>-->
-
-      <!--        <el-table-column-->
-      <!--          prop="createUser"-->
-      <!--          :label="'创建人'"-->
-      <!--          show-overflow-tooltip/>-->
-
-      <!--        <el-table-column-->
-      <!--          sortable="custom"-->
-      <!--          width="160"-->
-      <!--          :label="$t('api_test.definition.api_last_time')"-->
-      <!--          prop="updateTime">-->
-      <!--          <template v-slot:default="scope">-->
-      <!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-
-      <!--      </el-table>-->
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container>
@@ -211,7 +166,7 @@ export default {
           priority: CASE_PRIORITY,
         },
         methodColorMap: new Map(API_METHOD_COLOUR),
-        screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
+        screenHeight: 'calc(100vh - 400px)',//屏幕高度
         tableData: [],
         currentPage: 1,
         pageSize: 10,
@@ -289,7 +244,11 @@ export default {
       this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
-
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
+        });
         this.$nextTick(function () {
           if (this.$refs.table) {
             this.$refs.table.doLayout();
@@ -298,28 +257,32 @@ export default {
         });
       });
       getLabel(this, API_CASE_LIST);
-      },
-
-      showExecResult(row) {
-        this.visible = false;
-        this.$emit('showExecResult', row);
-      },
-      filter(filters) {
-        _filter(filters, this.condition);
-        this.initTable();
-      },
-      sort(column) {
-        // 每次只对一个字段排序
-        if (this.condition.orders) {
-          this.condition.orders = [];
-        }
-        _sort(column, this.condition);
-        this.initTable();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      handleTestCase(testCase) {
+    },
+    clear() {
+      if (this.$refs.table) {
+        this.$refs.table.clear();
+      }
+    },
+    showExecResult(row) {
+      this.visible = false;
+      this.$emit('showExecResult', row);
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.initTable();
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
+    },
+    buildPagePath(path) {
+      return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
+    handleTestCase(testCase) {
         this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
           let api = response.data;
           let selectApi = api;

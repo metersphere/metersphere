@@ -19,6 +19,7 @@
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="original_state" jdbcType="VARCHAR" property="originalState" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -85,7 +86,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
-    module_id, user_id, create_time, update_time, protocol, `path`, num, tags, original_state
+    module_id, user_id, create_time, update_time, protocol, `path`, num, tags, original_state, 
+    create_user
   </sql>
   <sql id="Blob_Column_List">
     description, request, response
@@ -144,15 +146,17 @@
       schedule, `status`, module_id, 
       user_id, create_time, update_time, 
       protocol, `path`, num, 
-      tags, original_state, description, 
-      request, response)
+      tags, original_state, create_user, 
+      description, request, response
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
       #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
-      #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
+      #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -207,6 +211,9 @@
       </if>
       <if test="originalState != null">
         original_state,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="description != null">
         description,
@@ -269,6 +276,9 @@
       </if>
       <if test="originalState != null">
         #{originalState,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -341,6 +351,9 @@
       <if test="record.originalState != null">
         original_state = #{record.originalState,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -374,6 +387,7 @@
       num = #{record.num,jdbcType=INTEGER},
       tags = #{record.tags,jdbcType=VARCHAR},
       original_state = #{record.originalState,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR}
@@ -399,7 +413,8 @@
       `path` = #{record.path,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       tags = #{record.tags,jdbcType=VARCHAR},
-      original_state = #{record.originalState,jdbcType=VARCHAR}
+      original_state = #{record.originalState,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -455,6 +470,9 @@
       <if test="originalState != null">
         original_state = #{originalState,jdbcType=VARCHAR},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -485,6 +503,7 @@
       num = #{num,jdbcType=INTEGER},
       tags = #{tags,jdbcType=VARCHAR},
       original_state = #{originalState,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR}
@@ -507,7 +526,8 @@
       `path` = #{path,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       tags = #{tags,jdbcType=VARCHAR},
-      original_state = #{originalState,jdbcType=VARCHAR}
+      original_state = #{originalState,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

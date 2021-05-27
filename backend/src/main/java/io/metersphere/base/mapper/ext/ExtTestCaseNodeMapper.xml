@@ -24,8 +24,14 @@
         from test_case_node
         where id = #{id}
     </select>
+    <select id="getNodes" resultType="java.lang.String">
+        select id
+        from test_case_node
+        where parent_id = #{parentId}
+    </select>
     <update id="updatePos">
-        update test_case_node set pos = #{pos}
+        update test_case_node
+        set pos = #{pos}
         where id = #{id}
     </update>
 </mapper>

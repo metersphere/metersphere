@@ -46,6 +46,14 @@
               value: 'props.get("variable_name")',
             },
             {
+              title: this.$t('api_test.request.processor.code_template_set_global_variable'),
+              value: 'props.put("variable_name", "variable_value")',
+            },
+            {
+              title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
+              value: 'vars.put(${__metersphere_env_id}+"key","value")',
+            },
+            {
               title: this.$t('api_test.request.processor.code_add_report_length'),
               value: 'String report = ctx.getCurrentSampler().getRequestData();\n' +
                 'if(report!=null){\n' +
@@ -54,10 +62,6 @@
                 '    report = reportlengthStr+report;\n' +
                 '    ctx.getCurrentSampler().setRequestData(report);\n' +
                 '}',
-            },
-            {
-              title: this.$t('api_test.request.processor.code_template_set_global_variable'),
-              value: 'props.put("variable_name", "variable_value")',
             },
             {
               title: this.$t('api_test.request.processor.code_template_get_response_header'),

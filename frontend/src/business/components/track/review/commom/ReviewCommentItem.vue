@@ -10,6 +10,14 @@
       <span style="color: #8a8b8d; margin-left: 8px; font-size: 12px">
         {{ comment.createTime | timestampFormatDate }}
       </span>
+      <span>
+        <el-button v-if="reviewStatus === 'UnPass'" type="danger" size="mini" round>
+         {{ $t('test_track.review.un_pass') }}
+         </el-button>
+         <el-button v-if="reviewStatus === 'Pass'" type="success" size="mini">
+                        {{ $t('test_track.review.pass') }}
+         </el-button>
+      </span>
       <span class="comment-delete">
         <el-link icon="el-icon-edit" style="font-size: 9px;margin-right: 6px;" @click="openEdit" :disabled="readOnly"/>
         <el-link icon="el-icon-close" @click="deleteComment" :disabled="readOnly"/>
@@ -54,7 +62,8 @@ export default {
     readOnly: {
       type: Boolean,
       default: false
-    }
+    },
+    reviewStatus: String,
   },
   data() {
     return {
@@ -143,5 +152,9 @@ pre {
   float: right;
   margin-right: 5px;
   cursor: pointer;
+}
+
+/deep/ .el-button--mini, .el-button--mini.is-round {
+  padding: 4px 9px;
 }
 </style>

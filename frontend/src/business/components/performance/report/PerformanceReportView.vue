@@ -8,28 +8,33 @@
               <el-breadcrumb separator-class="el-icon-arrow-right">
                 <el-breadcrumb-item :to="{ path: '/performance/test/' + this.projectId }">{{ projectName }}
                 </el-breadcrumb-item>
-                <el-breadcrumb-item :to="{ path: '/performance/test/edit/' + this.testId }">{{ testName }}
+                <el-breadcrumb-item v-if="!testDeleted" :to="{ path: '/performance/test/edit/' + this.testId }">
+                  {{ testName }}
                 </el-breadcrumb-item>
+                <el-breadcrumb-item v-else>{{ testName }}</el-breadcrumb-item>
                 <el-breadcrumb-item>{{ reportName }}</el-breadcrumb-item>
               </el-breadcrumb>
             </el-row>
             <el-row class="ms-report-view-btns">
-              <el-button :disabled="isReadOnly || report.status !== 'Running'" type="primary" plain size="mini"
+              <el-button :disabled="isReadOnly || report.status !== 'Running' || testDeleted" type="primary" plain
+                         size="mini"
                          @click="dialogFormVisible=true">
                 {{ $t('report.test_stop_now') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="success" plain size="mini"
+              <el-button :disabled="isReadOnly || report.status !== 'Completed' || testDeleted" type="success" plain
+                         size="mini"
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain size="mini"
+              <el-button :disabled="report.status !== 'Completed'" type="default" plain
+                         size="mini"
                          @click="compareReports()">
                 {{ $t('report.compare') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
+              <el-button type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
             </el-row>
@@ -38,16 +43,23 @@
             <span class="ms-report-time-desc">
               {{ $t('report.test_duration', [this.minutes, this.seconds]) }}
             </span>
-            <span class="ms-report-time-desc">
-              {{ $t('report.test_start_time') }}：{{ startTime }}
+            <span class="ms-report-time-desc" v-if="startTime !== '0'">
+              {{ $t('report.test_start_time') }}：{{ startTime | timestampFormatDate }}
             </span>
-            <span class="ms-report-time-desc">
-              {{ $t('report.test_end_time') }}：{{ endTime }}
+            <span class="ms-report-time-desc" v-else>
+              {{ $t('report.test_start_time') }}：-
+            </span>
+            <span class="ms-report-time-desc" v-if="report.status === 'Completed' && endTime !== '0'">
+              {{ $t('report.test_end_time') }}：{{ endTime | timestampFormatDate }}
+            </span>
+            <span class="ms-report-time-desc" v-else>
+              {{ $t('report.test_end_time') }}：-
             </span>
           </el-col>
           <el-col :span="2">
             <el-select v-model="refreshTime"
                        size="mini"
+                       :disabled="report.status === 'Completed' || report.status === 'Error'"
                        @change="refresh"
                        style="width: 100%;">
               <template slot="prefix">
@@ -65,7 +77,7 @@
 
         <el-divider/>
         <div ref="resume">
-          <el-tabs v-model="active" type="border-card" :stretch="true">
+          <el-tabs v-model="active">
             <el-tab-pane :label="$t('load_test.pressure_config')">
               <ms-performance-pressure-config :is-read-only="true" :report="report"/>
             </el-tab-pane>
@@ -115,7 +127,7 @@ import MsPerformancePressureConfig from "./components/PerformancePressureConfig"
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 
-import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
+import {exportPdf, hasPermission} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
@@ -153,8 +165,8 @@ export default {
       minutes: '0',
       seconds: '0',
       title: 'Logging',
-      report: {},
       isReadOnly: false,
+      report: {},
       websocket: null,
       dialogFormVisible: false,
       reportExportVisible: false,
@@ -170,7 +182,8 @@ export default {
         {value: '60', label: '1m'},
         {value: '300', label: '5m'}
       ],
-      poolType: ""
+      poolType: "",
+      testDeleted: false,
     };
   },
   methods: {
@@ -252,6 +265,7 @@ export default {
         this.$success(this.$t('report.test_stop_success'));
         if (forceStop) {
           this.$router.push('/performance/report/all');
+          this.websocket.close();
         } else {
           this.report.status = 'Completed';
         }
@@ -267,6 +281,7 @@ export default {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});
+          this.clearData();
         });
       }).catch(() => {
       });
@@ -366,6 +381,11 @@ export default {
           if (this.status === "Completed" || this.status === "Running") {
             this.initReportTimeInfo();
           }
+
+          this.$get('/performance/get/' + data.testId)
+            .then(() => this.testDeleted = false)
+            .catch(() => this.testDeleted = true);
+
           this.initBreadcrumb();
           this.initWebSocket();
         } else {
@@ -387,14 +407,11 @@ export default {
         if (data) {
           this.poolType = data;
         }
-      })
+      });
     }
   },
   created() {
-    this.isReadOnly = false;
-    if (!checkoutTestManagerOrTestUser()) {
-      this.isReadOnly = true;
-    }
+    this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE');
     this.reportId = this.$route.path.split('/')[4];
     this.getReport(this.reportId);
     this.getPoolType(this.reportId);
@@ -402,10 +419,6 @@ export default {
   watch: {
     '$route'(to) {
       if (to.name === "perReportView") {
-        this.isReadOnly = false;
-        if (!checkoutTestManagerOrTestUser()) {
-          this.isReadOnly = true;
-        }
         this.reportId = to.path.split('/')[4];
         this.getReport(this.reportId);
         this.initBreadcrumb((response) => {

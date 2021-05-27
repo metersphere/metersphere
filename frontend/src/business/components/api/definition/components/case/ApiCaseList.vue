@@ -190,6 +190,7 @@
       apiCaseClose() {
         this.apiCaseList = [];
         this.visible = false;
+        this.$emit('refresh');
       },
       refreshModule() {
         this.$emit('refreshModule');
@@ -324,6 +325,7 @@
             request.hashTree.push(request.backScript);
           }
           let uuid = getUUID();
+          request.id = uuid;
           let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid};
           obj.request = request;
           this.apiCaseList.unshift(obj);

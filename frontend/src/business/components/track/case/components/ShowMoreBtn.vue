@@ -6,7 +6,7 @@
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
-        <el-dropdown-item v-for="(btn,index) in buttons" :key="index" @click.native.stop="click(btn)">
+        <el-dropdown-item v-for="(btn,index) in buttons" :disabled="isDisable(btn)" :key="index" @click.native.stop="click(btn)">
           {{btn.name}}
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -15,6 +15,8 @@
 </template>
 
 <script>
+  import {hasPermissions} from "@/common/js/utils";
+
   export default {
     name: "ShowMoreBtn",
     props: {
@@ -36,6 +38,12 @@
         if (btn.handleClick instanceof Function) {
           btn.handleClick();
         }
+      },
+      isDisable(item) {
+        if (item.permissions && item.permissions.length > 0) {
+          return !hasPermissions(...item.permissions);
+        }
+        return false;
       }
     }
   }

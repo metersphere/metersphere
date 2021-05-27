@@ -16,5 +16,7 @@ public class Organization implements Serializable {
 
     private Long updateTime;
 
+    private String createUser;
+
     private static final long serialVersionUID = 1L;
 }

@@ -77,10 +77,9 @@ import MsApiScenarioConfig from "./components/ApiScenarioConfig";
 import {Scenario, Test} from "./model/ScenarioModel"
 import MsApiReportStatus from "../report/ApiReportStatus";
 import MsApiReportDialog from "./ApiReportDialog";
-import {checkoutTestManagerOrTestUser, downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import ApiImport from "./components/import/ApiImport";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsJarConfig from "./components/jar/JarConfig";
@@ -121,7 +120,7 @@ export default {
 
     methods: {
       init() {
-        this.isReadOnly = !checkoutTestManagerOrTestUser();
+        this.isReadOnly = false;
 
         if (this.id) {
           this.create = false;
@@ -217,8 +216,6 @@ export default {
               path: '/api/test/edit?id=' + this.test.id
             })
           }
-          // 发送广播，刷新 head 上的最新列表
-          ApiEvent.$emit(LIST_CHANGE);
         })
       },
       runTest() {
@@ -238,8 +235,6 @@ export default {
         this.save(() => {
           this.$success(this.$t('commons.save_success'));
           this.runTest();
-          // 发送广播，刷新 head 上的最新列表
-          ApiEvent.$emit(LIST_CHANGE);
         })
       },
       getBodyUploadFiles() {

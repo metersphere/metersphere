@@ -3,9 +3,10 @@
     <div>
       <slot name="header">
         <el-link class="add-text" :underline="false" :disabled="disable"  @click="add">
-          <i class="el-icon-plus">添加选项</i>
+          <i class="el-icon-plus">{{$t('custom_field.add_option')}}</i>
         </el-link>
       </slot>
+      <ms-instructions-icon size="13" v-if="isKv" :content="$t('选项值用于对接Jira等平台提交缺陷时，对应字段的属性值')"/>
     </div>
 
     <draggable :list="data" handle=".handle" class="list-group">
@@ -16,15 +17,31 @@
 
         <el-input size="mini" type="text"
                   class="text-item"
-                  v-if="editIndex === idx"
-                  @blur="handleEdit(element)"
-                  v-model="element.value"/>
-        <span class="text-item" v-else>
+                  :placeholder="$t('custom_field.field_text')"
+                  v-if="editIndex === idx && isKv"
+                  @blur="handleTextEdit(element)"
+                  v-model="element.text"/>
+        <span class="text-item" v-else-if="isKv">
           <span v-if="element.system">
-             {{$t(element.text)}}
+             ({{$t(element.text)}})
           </span>
           <span v-else>
              {{element.text}}
+          </span>
+        </span>
+
+        <el-input size="mini" type="value"
+                  class="text-item"
+                  :placeholder="$t('custom_field.field_value')"
+                  v-if="editIndex === idx"
+                  @blur="handleValueEdit(element)"
+                  v-model="element.value"/>
+        <span class="text-item" v-else>
+          <span v-if="element.system">
+             {{$t(element.value)}}
+          </span>
+          <span v-else>
+             {{ (element.value && isKv ? '(' : '') + element.value + (element.value && isKv ? ')' : '')}}
           </span>
         </span>
         <i class="operator-icon" v-for="(item, index) in operators"
@@ -41,9 +58,11 @@
 
 <script>
 import draggable from "vuedraggable";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 export default {
   name: "MsSingleHandleDrag",
   components: {
+    MsInstructionsIcon,
     draggable
   },
   data() {
@@ -53,6 +72,7 @@ export default {
   },
   props: {
     disable: Boolean,
+    isKv: Boolean,
     data: {
       type: Array,
       default() {
@@ -99,9 +119,19 @@ export default {
       this.data.push(item);
       this.editIndex = this.data.length - 1;
     },
-    handleEdit(element) {
-      this.editIndex = -1;
-      element.text = element.value;
+    handleTextEdit(element) {
+      if (!this.isKv) {
+        element.text = element.value;
+        this.editIndex = -1;
+      }
+    },
+    handleValueEdit(element) {
+      if (!this.isKv) {
+        element.text = element.value;
+      }
+      if (element.value && element.text) {
+        this.editIndex = -1;
+      }
     },
     isSystem(element) {
       if (element.system) {
@@ -144,5 +174,9 @@ export default {
 .add-text:hover {
   font-size: 13px;
   font-weight: bold;
+}
+
+.instructions-icon {
+  margin-left: 5px;
 }
 </style>

@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class Workspace implements Serializable {
@@ -17,6 +16,8 @@ public class Workspace implements Serializable {
     private Long createTime;
 
     private Long updateTime;
+
+    private String createUser;
 
     private static final long serialVersionUID = 1L;
 }

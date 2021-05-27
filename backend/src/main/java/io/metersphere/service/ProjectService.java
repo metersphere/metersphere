@@ -1,20 +1,29 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
+import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
+import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.performance.request.DeleteTestPlanRequest;
 import io.metersphere.performance.request.QueryProjectFileRequest;
+import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
@@ -29,6 +38,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -45,6 +55,8 @@ public class ProjectService {
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
+    private LoadTestReportMapper loadTestReportMapper;
+    @Resource
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
@@ -60,6 +72,14 @@ public class ProjectService {
     private ApiTestFileMapper apiTestFileMapper;
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private PerformanceReportService performanceReportService;
+    @Resource
+    private UserGroupMapper userGroupMapper;
+    @Resource
+    private ExtOrganizationMapper extOrganizationMapper;
+    @Resource
+    private ExtUserGroupMapper extUserGroupMapper;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -78,6 +98,7 @@ public class ProjectService {
         project.setUpdateTime(createTime);
         // set workspace id
         project.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        project.setCreateUser(SessionUtils.getUserId());
         projectMapper.insertSelective(project);
         return project;
     }
@@ -90,6 +111,14 @@ public class ProjectService {
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
+    public List<ProjectDTO> getSwitchProject(ProjectRequest request) {
+        if (StringUtils.isNotBlank(request.getName())) {
+            request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
+        }
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extProjectMapper.getSwitchProject(request);
+    }
+
     public List<Project> getProjectByIds(List<String> ids) {
         if (!CollectionUtils.isEmpty(ids)) {
             ProjectExample example = new ProjectExample();
@@ -100,7 +129,47 @@ public class ProjectService {
     }
 
     public void deleteProject(String projectId) {
-        // delete test
+        // 删除项目下 性能测试 相关
+        deleteLoadTestResourcesByProjectId(projectId);
+
+        // 删除项目下 测试跟踪 相关
+        deleteTrackResourceByProjectId(projectId);
+
+        // 删除项目下 接口测试 相关
+        deleteAPIResourceByProjectId(projectId);
+
+        // User Group
+        deleteProjectUserGroup(projectId);
+
+        // delete project
+        projectMapper.deleteByPrimaryKey(projectId);
+    }
+
+    private void deleteProjectUserGroup(String projectId) {
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andSourceIdEqualTo(projectId);
+        userGroupMapper.deleteByExample(userGroupExample);
+    }
+
+    public void updateIssueTemplate(String originId, String templateId) {
+        Project project = new Project();
+        project.setIssueTemplateId(templateId);
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andIssueTemplateIdEqualTo(originId);
+        projectMapper.updateByExampleSelective(project, example);
+    }
+
+    public void updateCaseTemplate(String originId, String templateId) {
+        Project project = new Project();
+        project.setCaseTemplateId(templateId);
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andCaseTemplateIdEqualTo(originId);
+        projectMapper.updateByExampleSelective(project, example);
+    }
+
+    private void deleteLoadTestResourcesByProjectId(String projectId) {
         LoadTestExample loadTestExample = new LoadTestExample();
         loadTestExample.createCriteria().andProjectIdEqualTo(projectId);
         List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
@@ -110,15 +179,15 @@ public class ProjectService {
             deleteTestPlanRequest.setId(loadTestId);
             deleteTestPlanRequest.setForceDelete(true);
             performanceTestService.delete(deleteTestPlanRequest);
+            LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
+            loadTestReportExample.createCriteria().andTestIdEqualTo(loadTestId);
+            List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(loadTestReportExample);
+            if (!loadTestReports.isEmpty()) {
+                List<String> reportIdList = loadTestReports.stream().map(LoadTestReport::getId).collect(Collectors.toList());
+                // delete load_test_report
+                reportIdList.forEach(reportId -> performanceReportService.deleteReport(reportId));
+            }
         });
-
-        // 删除项目下 测试跟踪 相关
-        deleteTrackResourceByProjectId(projectId);
-
-        // 删除项目下 接口测试 相关
-        deleteAPIResourceByProjectId(projectId);
-        // delete project
-        projectMapper.deleteByPrimaryKey(projectId);
     }
 
     private void deleteTrackResourceByProjectId(String projectId) {
@@ -187,6 +256,21 @@ public class ProjectService {
         return projectMapper.selectByPrimaryKey(id);
     }
 
+    public boolean useCustomNum(String projectId) {
+        Project project = this.getProjectById(projectId);
+        if (project != null) {
+            Boolean customNum = project.getCustomNum();
+            // 未开启自定义ID
+            if (!customNum) {
+                return false;
+            } else {
+                return true;
+            }
+        } else {
+            return false;
+        }
+    }
+
     public List<Project> getByCaseTemplateId(String templateId) {
         ProjectExample example = new ProjectExample();
         example.createCriteria()
@@ -217,7 +301,7 @@ public class ProjectService {
         return result;
     }
 
-    public FileMetadata updateFile( String fileId, MultipartFile file) {
+    public FileMetadata updateFile(String fileId, MultipartFile file) {
         QueryProjectFileRequest request = new QueryProjectFileRequest();
         request.setName(file.getOriginalFilename());
         FileMetadata fileMetadata = fileService.getFileMetadataById(fileId);
@@ -265,4 +349,70 @@ public class ProjectService {
         fileService.deleteFileById(fileId);
     }
 
+    public String getLogDetails(String id) {
+        Project project = projectMapper.selectByPrimaryKey(id);
+        if (project != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(project, SystemReference.projectColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(project.getId()), project.getId(), project.getName(), project.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        } else {
+            FileMetadata fileMetadata = fileService.getFileMetadataById(id);
+            if (fileMetadata != null) {
+                List<DetailColumn> columns = ReflexObjectUtil.getColumns(fileMetadata, SystemReference.projectColumns);
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(fileMetadata.getId()), fileMetadata.getProjectId(), fileMetadata.getName(), null, columns);
+                return JSON.toJSONString(details);
+            }
+        }
+        return null;
+    }
+
+    public void updateMember(WorkspaceMemberDTO memberDTO) {
+        String projectId = memberDTO.getProjectId();
+        String userId = memberDTO.getId();
+        // 已有角色
+        List<Group> memberGroups = extUserGroupMapper.getProjectMemberGroups(projectId, userId);
+        // 修改后的角色
+        List<String> groups = memberDTO.getGroupIds();
+        List<String> allGroupIds = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
+        // 更新用户时添加了角色
+        for (int i = 0; i < groups.size(); i++) {
+            if (checkSourceRole(projectId, userId, groups.get(i)) == 0) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(groups.get(i));
+                userGroup.setSourceId(projectId);
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                userGroupMapper.insertSelective(userGroup);
+            }
+        }
+        allGroupIds.removeAll(groups);
+        if (allGroupIds.size() > 0) {
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample.createCriteria().andUserIdEqualTo(userId)
+                    .andSourceIdEqualTo(projectId)
+                    .andGroupIdIn(allGroupIds);
+            userGroupMapper.deleteByExample(userGroupExample);
+        }
+    }
+
+    public String getLogDetails(WorkspaceMemberDTO memberDTO) {
+        String userId = memberDTO.getId();
+        // 已有角色
+        List<DetailColumn> columns = new LinkedList<>();
+        // 已有角色
+        List<Group> memberGroups = extUserGroupMapper.getProjectMemberGroups(memberDTO.getProjectId(), userId);
+        List<String> names = memberGroups.stream().map(Group::getName).collect(Collectors.toList());
+        List<String> ids = memberGroups.stream().map(Group::getId).collect(Collectors.toList());
+        DetailColumn column = new DetailColumn("成员角色", "userRoles", String.join(",", names), null);
+        columns.add(column);
+        OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), memberDTO.getProjectId(), "用户 " + userId + " 修改角色为：" + String.join(",", names), null, columns);
+        return JSON.toJSONString(details);
+
+    }
+
+    public Integer checkSourceRole(String workspaceId, String userId, String roleId) {
+        return extOrganizationMapper.checkSourceRole(workspaceId, userId, roleId);
+    }
 }

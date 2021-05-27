@@ -12,6 +12,8 @@ import java.util.Map;
 @Setter
 public class ApiScenarioBatchRequest extends ApiScenarioWithBLOBs {
     private List<String> ids;
+    private String id;
+    private String name;
     private String projectId;
     private String environmentId;
 

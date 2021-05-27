@@ -32,7 +32,7 @@
       </template>
     </ms-table-column>
 
-<!--    <field-custom-data-table-item :scene="scene"/>-->
+    <field-custom-data-table-item :scene="scene"/>
 
     <ms-table-column
       :label="$t('api_test.definition.document.table_coloum.is_required')"
@@ -97,6 +97,7 @@ export default {
       },
     },
     scene: String,
+    platform: String,
     templateContainIds: Set
   },
   watch: {

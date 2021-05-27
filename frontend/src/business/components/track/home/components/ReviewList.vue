@@ -4,9 +4,9 @@
       <span class="title">
         用例评审
       </span>
-      <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
+      <ms-table-button v-if="!showMyCreator" icon="el-icon-view"
                        :content="$t('test_track.review.my_create')" @click="searchMyCreator" style="float: right"/>
-      <ms-table-button :is-tester-permission="true" v-if="showMyCreator" icon="el-icon-view"
+      <ms-table-button v-if="showMyCreator" icon="el-icon-view"
                        :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator" style="float: right"/>
     </div>
     <el-table

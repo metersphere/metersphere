@@ -3,7 +3,7 @@
     <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
       <template v-slot:append>
         <el-dropdown v-if="!isReadOnly" size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
-                     v-tester
+
                      @command="handleCommand">
           <el-button icon="el-icon-folder-add" @click="addScenario"></el-button>
           <el-dropdown-menu slot="dropdown">

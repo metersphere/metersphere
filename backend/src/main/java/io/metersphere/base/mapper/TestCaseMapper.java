@@ -4,6 +4,8 @@ import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseExample;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import java.util.List;
+
+import io.metersphere.controller.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 public interface TestCaseMapper {
@@ -34,4 +36,6 @@ public interface TestCaseMapper {
     int updateByPrimaryKeyWithBLOBs(TestCaseWithBLOBs record);
 
     int updateByPrimaryKey(TestCase record);
+
+    List<String> selectIdsByQuery(BaseQueryRequest query);
 }

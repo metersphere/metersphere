@@ -11,6 +11,7 @@
     <result column="pass_rate" jdbcType="VARCHAR" property="passRate" />
     <result column="last_result" jdbcType="VARCHAR" property="lastResult" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanApiScenario">
     <result column="environment" jdbcType="LONGVARCHAR" property="environment" />
@@ -75,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, api_scenario_id, `status`, create_time, update_time, pass_rate, 
-    last_result, report_id
+    last_result, report_id, create_user
   </sql>
   <sql id="Blob_Column_List">
     environment
@@ -132,11 +133,11 @@
     insert into test_plan_api_scenario (id, test_plan_id, api_scenario_id, 
       `status`, create_time, update_time, 
       pass_rate, last_result, report_id, 
-      environment)
+      create_user, environment)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
-      #{environment,jdbcType=LONGVARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{environment,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     insert into test_plan_api_scenario
@@ -167,6 +168,9 @@
       </if>
       <if test="reportId != null">
         report_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="environment != null">
         environment,
@@ -199,6 +203,9 @@
       </if>
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="environment != null">
         #{environment,jdbcType=LONGVARCHAR},
@@ -241,6 +248,9 @@
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.environment != null">
         environment = #{record.environment,jdbcType=LONGVARCHAR},
       </if>
@@ -260,6 +270,7 @@
       pass_rate = #{record.passRate,jdbcType=VARCHAR},
       last_result = #{record.lastResult,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       environment = #{record.environment,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -275,7 +286,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       pass_rate = #{record.passRate,jdbcType=VARCHAR},
       last_result = #{record.lastResult,jdbcType=VARCHAR},
-      report_id = #{record.reportId,jdbcType=VARCHAR}
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -307,6 +319,9 @@
       <if test="reportId != null">
         report_id = #{reportId,jdbcType=VARCHAR},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="environment != null">
         environment = #{environment,jdbcType=LONGVARCHAR},
       </if>
@@ -323,6 +338,7 @@
       pass_rate = #{passRate,jdbcType=VARCHAR},
       last_result = #{lastResult,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       environment = #{environment,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -335,7 +351,8 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       pass_rate = #{passRate,jdbcType=VARCHAR},
       last_result = #{lastResult,jdbcType=VARCHAR},
-      report_id = #{reportId,jdbcType=VARCHAR}
+      report_id = #{reportId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

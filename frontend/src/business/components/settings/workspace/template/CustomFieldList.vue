@@ -2,7 +2,7 @@
   <el-card>
 
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="getCustomFields" @create="handleCreate"
+      <ms-table-header :condition.sync="condition" @search="getCustomFields" @create="handleCreate"
                        :create-tip="$t('custom_field.create')" :title="$t('custom_field.name')"/>
     </template>
 

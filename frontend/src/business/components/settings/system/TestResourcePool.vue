@@ -2,11 +2,13 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="$t('test_resource_pool.create_resource_pool')"
                          :title="$t('commons.test_resource_pool')"/>
       </template>
-      <el-table border class="adjust-table" :data="items" style="width: 100%">
+      <el-table border class="adjust-table" :data="items" style="width: 100%"
+                :height="screenHeight"
+      >
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">
@@ -37,7 +39,9 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <ms-table-operator :edit-permission="['SYSTEM_TEST_POOL:READ+EDIT']"
+                               :delete-permission="['SYSTEM_TEST_POOL:READ+DELETE']"
+              @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
           </template>
         </el-table-column>
       </el-table>
@@ -53,7 +57,7 @@
       :destroy-on-close="true"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="130px" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
                ref="testResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -203,6 +207,7 @@ export default {
       pageSize: 10,
       total: 0,
       form: {},
+      screenHeight: 'calc(100vh - 255px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
         name: [

@@ -41,7 +41,6 @@ import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
 @RestController
 @RequestMapping(value = "/api")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class APITestController {
     @Resource
     private APITestService apiTestService;
@@ -159,7 +158,6 @@ public class APITestController {
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ApiTest testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiTestService.apiTestImport(file, request);
     }

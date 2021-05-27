@@ -132,6 +132,7 @@ public class MsScenario extends MsTestElement {
                     ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
                     if (environment != null && environment.getConfig() != null) {
                         EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                        env.setApiEnvironmentid(environment.getId());
                         envConfig.put(projectId, env);
                         if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
                             this.setMockEnvironment(true);

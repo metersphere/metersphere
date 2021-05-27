@@ -18,6 +18,10 @@ public interface ExtTestCaseMapper {
 
     List<TestCaseDTO> list(@Param("request") QueryTestCaseRequest request);
 
+    int moduleCount(@Param("request") QueryTestCaseRequest request);
+
+    List<TestCaseDTO> listIds(@Param("request") QueryTestCaseRequest request);
+
     List<TestCaseDTO> listByMethod(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> listByTestCaseIds(@Param("request") TestCaseBatchRequest request);
@@ -52,10 +56,10 @@ public interface ExtTestCaseMapper {
      * 检查某工作空间下是否有某用例
      *
      * @param caseId
-     * @param workspaceIds
+     * @param projectIds
      * @return TestCase ID
      */
-    int checkIsHave(@Param("caseId") String caseId, @Param("workspaceIds") Set<String> workspaceIds);
+    int checkIsHave(@Param("caseId") String caseId, @Param("projectIds") Set<String> projectIds);
 
     List<String> selectIds(@Param("request") BaseQueryRequest condition);
 
@@ -90,4 +94,6 @@ public interface ExtTestCaseMapper {
     List<TestCaseDTO> getTestCaseByIds(@Param("ids")List<String> ids);
 
     void updateTestCaseCustomNumByProjectId(@Param("projectId") String projectId);
+
+    List<String> selectRelateIdsByQuery(@Param("request") BaseQueryRequest query);
 }

@@ -13,5 +13,6 @@ import java.util.Map;
 public class UserRequest extends User {
 
     private List<Map<String, Object>> roles = new ArrayList<>();
+    private List<Map<String, Object>> groups = new ArrayList<>();
 
 }

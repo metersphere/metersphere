@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
+import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
@@ -48,10 +49,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
@@ -71,6 +69,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = MsJDBCSampler.class, name = "JDBCSampler"),
         @JsonSubTypes.Type(value = MsConstantTimer.class, name = "ConstantTimer"),
         @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
+        @JsonSubTypes.Type(value = MsTransactionController.class, name = "TransactionController"),
         @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
         @JsonSubTypes.Type(value = MsLoopController.class, name = "LoopController"),
         @JsonSubTypes.Type(value = MsJmeterElement.class, name = "JmeterElement"),
@@ -78,7 +77,7 @@ import java.util.stream.Collectors;
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, MsAuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class,MsTransactionController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;
@@ -108,7 +107,8 @@ public abstract class MsTestElement {
     private String projectId;
     @JSONField(ordinal = 13)
     private boolean isMockEnvironment;
-
+    @JSONField(ordinal = 14)
+    private String useEnviroment;
     private MsTestElement parent;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
@@ -284,6 +284,15 @@ public abstract class MsTestElement {
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
                     return "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
+            }else if(MsTestElementConstants.TransactionController.name().equals(parent.getType())){
+                MsTransactionController transactionController = (MsTransactionController)parent;
+                if(StringUtils.isNotEmpty(transactionController.getName())){
+                    return transactionController.getName();
+                }else if(StringUtils.isNotEmpty(transactionController.getLabelName())){
+                    return transactionController.getLabelName();
+                }else {
+                    return "TransactionController";
+                }
             }
             // 获取全路径以备后面使用
             String fullPath = getFullPath(parent, new String());
@@ -306,6 +315,25 @@ public abstract class MsTestElement {
             }
             return false;
         }
+    }
+
+    public static <T> List<T> findFromHashTreeByType(MsTestElement hashTree, Class<T> clazz, List<T> requests) {
+        if (requests == null) {
+            requests = new ArrayList<>();
+        }
+        if (clazz.isInstance(hashTree)) {
+            requests.add((T) hashTree);
+        } else {
+            if (hashTree != null) {
+                LinkedList<MsTestElement> childHashTree = hashTree.getHashTree();
+                if (CollectionUtils.isNotEmpty(childHashTree)) {
+                    for (MsTestElement item : childHashTree) {
+                        findFromHashTreeByType(item, clazz, requests);
+                    }
+                }
+            }
+        }
+        return requests;
     }
 }
 

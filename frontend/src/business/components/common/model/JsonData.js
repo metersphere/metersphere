@@ -9,6 +9,7 @@ export const Track_Test_Case = [
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
+  {id: 'createUser', label: i18n.t('commons.create_user')},
 ]
 //用例评审-测试用例
 export const Test_Case_Review = [
@@ -33,9 +34,10 @@ export const Test_Plan_List = [
   {id: 'plannedEndTime', label: i18n.t('test_track.plan.planned_end_time')},
   {id: 'actualStartTime', label: i18n.t('test_track.plan.actual_start_time')},
   {id: 'actualEndTime', label: i18n.t('test_track.plan.actual_end_time')},
-  {id:'tags',label:i18n.t('commons.tag')},
-  {id:'executionTimes',label:i18n.t('commons.execution_times')},
-  {id:'passRate',label:i18n.t('commons.pass_rate')}
+  {id: 'tags', label: i18n.t('commons.tag')},
+  {id: 'executionTimes', label: i18n.t('commons.execution_times')},
+  {id: 'passRate', label: i18n.t('commons.pass_rate')},
+  {id: 'createUser', label: i18n.t('commons.create_user')},
 ]
 //接口定义-api列表
 export const Api_List = [
@@ -97,7 +99,6 @@ export const Test_Plan_Function_Test_Case = [
   {id: 'priority', label: i18n.t('test_track.case.priority')},
   {id: 'type', label: i18n.t('test_track.case.type')},
   {id: 'tags', label: i18n.t('commons.tag')},
-  {id: 'method', label: i18n.t('test_track.case.method')},
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
   {id: 'projectName', label: i18n.t('test_track.review.review_project')},
   {id: 'issuesContent', label: i18n.t('test_track.issue.issue')},

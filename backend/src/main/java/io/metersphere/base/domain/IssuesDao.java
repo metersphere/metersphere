@@ -9,4 +9,5 @@ public class IssuesDao extends IssuesWithBLOBs {
     private String model;
     private String projectName;
     private String creatorName;
+    private String resourceName;
 }

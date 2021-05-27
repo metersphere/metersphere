@@ -1,5 +1,5 @@
 <template>
-  <el-main v-loading="result.loading" class="container">
+  <el-main v-loading="result.loading" class="container" :style="isPlan ? '' : 'height: calc(100vh - 62px)'">
     <el-scrollbar>
       <el-form :model="form" :rules="rules" label-position="right" label-width="140px" ref="form">
 
@@ -87,7 +87,7 @@ import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/cust
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentUserId} from "@/common/js/utils";
 
 export default {
   name: "IssueEditDetail",
@@ -141,7 +141,8 @@ export default {
         return false;
       }
     },
-    caseId: String
+    caseId: String,
+    planId: String
   },
   computed: {
     isSystem() {
@@ -200,6 +201,9 @@ export default {
         } else {
           //copy
           this.url = 'issues/add';
+          if (!this.form.creator) {
+            this.form.creator = getCurrentUserId();
+          }
           this.form.title = data.title + '_copy';
         }
       } else {
@@ -208,6 +212,9 @@ export default {
           description: this.issueTemplate.content
         }
         this.url = 'issues/add';
+        if (!this.form.creator) {
+          this.form.creator = getCurrentUserId();
+        }
       }
       if (!this.form.creator) {
         this.form.creator = getCurrentUserId();
@@ -251,6 +258,9 @@ export default {
       } else {
         param.testCaseIds = Array.from(this.testCaseContainIds);
       }
+      if (this.planId) {
+        param.resourceId = this.planId;
+      }
       return param;
     },
     _save() {
@@ -279,9 +289,6 @@ export default {
 
 <style scoped>
 
-.container {
-  height: calc(100vh - 62px);
-}
 
 .filed-list {
   margin-top: 30px;

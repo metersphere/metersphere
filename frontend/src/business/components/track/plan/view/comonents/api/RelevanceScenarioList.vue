@@ -16,16 +16,18 @@
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect">
         <el-table-column type="selection"/>
-
+        <el-table-column v-if="!customNum" prop="num" label="ID"
+                         show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column v-if="customNum" prop="customNum" label="ID"
+                         show-overflow-tooltip>
+        </el-table-column>
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip/>
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
-            <ms-tag v-if="scope.row.level == 'P1'" type="warning" effect="plain" content="P1"/>
-            <ms-tag v-if="scope.row.level == 'P2'" type="success" effect="plain" content="P2"/>
-            <ms-tag v-if="scope.row.level == 'P3'" type="danger" effect="plain" content="P3"/>
+            <priority-table-item :value="scope.row.level" ref="level"/>
           </template>
 
         </el-table-column>
@@ -69,10 +71,12 @@
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
+  import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 
   export default {
     name: "RelevanceScenarioList",
     components: {
+      PriorityTableItem,
       EnvPopover,
       TestPlanScenarioListHeader,
       MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},
@@ -102,7 +106,8 @@
         projectEnvMap: new Map(),
         projectList: [],
         projectIds: new Set(),
-        map: new Map()
+        map: new Map(),
+        customNum: false
       }
     },
     watch: {
@@ -123,6 +128,7 @@
         if (!this.projectId) {
           return;
         }
+        this.getProject(this.projectId);
         this.selectRows = new Set();
         this.loading = true;
 
@@ -150,6 +156,9 @@
           });
         });
       },
+      clear() {
+        this.selectRows.clear();
+      },
       handleSelectAll(selection) {
         _handleSelectAll(this, selection, this.tableData, this.selectRows);
         this.initProjectIds();
@@ -165,6 +174,16 @@
         this.$get("/project/listAll", res => {
           this.projectList = res.data;
         })
+      },
+      getProject(projectId) {
+        if (projectId) {
+          this.$get("/project/get/" + projectId, result => {
+            let data = result.data;
+            if (data) {
+              this.customNum = data.scenarioCustomNum;
+            }
+          });
+        }
       },
       initProjectIds() {
         this.projectIds.clear();

@@ -18,9 +18,9 @@ import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public abstract class AbstractEngine implements Engine {
     protected String JMETER_IMAGE;
@@ -105,23 +105,34 @@ public abstract class AbstractEngine implements Engine {
         Integer s = 0;
         String loadConfiguration = t.getLoadConfiguration();
         JSONArray jsonArray = JSON.parseArray(loadConfiguration);
+
+        Iterator<Object> iterator = jsonArray.iterator();
+        outer:
+        while (iterator.hasNext()) {
+            Object next = iterator.next();
+            if (next instanceof List) {
+                List<Object> o = (List<Object>) next;
+                for (Object o1 : o) {
+                    if (StringUtils.equals(JSONObject.parseObject(o1.toString()).getString("deleted"), "true")) {
+                        iterator.remove();
+                        continue outer;
+                    }
+                }
+                for (Object o1 : o) {
+                    if (StringUtils.equals(JSONObject.parseObject(o1.toString()).getString("enabled"), "false")) {
+                        iterator.remove();
+                        continue outer;
+                    }
+                }
+            }
+        }
+
         for (int i = 0; i < jsonArray.size(); i++) {
             if (jsonArray.get(i) instanceof List) {
                 JSONArray o = jsonArray.getJSONArray(i);
-                List<JSONObject> enabledConfig = o.stream()
-                        .filter(b -> {
-                            JSONObject c = JSON.parseObject(b.toString());
-                            if (StringUtils.equals(c.getString("deleted"), "true")) {
-                                return false;
-                            }
-                            return !StringUtils.equals(c.getString("enabled"), "false");
-                        })
-                        .map(b -> JSON.parseObject(b.toString()))
-                        .collect(Collectors.toList());
-
-                for (JSONObject b : enabledConfig) {
-                    if (StringUtils.equals(b.getString("key"), "TargetLevel")) {
-                        s += b.getInteger("value");
+                for (int j = 0; j < o.size(); j++) {
+                    if (StringUtils.equals(o.getJSONObject(j).getString("key"), "TargetLevel")) {
+                        s += o.getJSONObject(j).getInteger("value");
                         break;
                     }
                 }

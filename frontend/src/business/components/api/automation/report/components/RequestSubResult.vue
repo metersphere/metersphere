@@ -5,13 +5,17 @@
       <el-row :gutter="10" type="flex" align="middle" class="info">
         <el-col :span="6" v-if="indexNumber!=undefined">
           <div class="method">
-            <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
-              <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+
+            <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+              <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
+                <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+              </div>
+              <div class="el-step__icon is-text ms-api-col-create" v-else>
+                <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+              </div>
+              <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
+              {{ request.name }}
             </div>
-            <div class="el-step__icon is-text ms-api-col-create" v-else>
-              <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
-            </div>
-            {{ request.name }}
           </div>
         </el-col>
         <el-col :span="2">
@@ -21,7 +25,11 @@
         </el-col>
         <el-col :span="6">
           <div class="url">
-            {{ request.url }}
+            <el-tooltip :content="request.url " style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
+              <div>
+                {{ request.url }}
+              </div>
+            </el-tooltip>
           </div>
         </el-col>
         <el-col :span="5">
@@ -45,6 +53,13 @@
         </el-col>
       </el-row>
     </div>
+      <el-collapse-transition>
+        <div v-show="isActive" style="width: 99%">
+          <ms-request-sub-result-tail :scenario-name="scenarioName"
+                                  :request-type="requestType" v-if="isActive"
+                                  :request="request"/>
+        </div>
+      </el-collapse-transition>
   </div>
 </template>
 
@@ -53,10 +68,13 @@
   import MsAssertionResults from "./AssertionResults";
   import MsRequestText from "./RequestText";
   import MsResponseText from "./ResponseText";
+  import MsRequestSubResultTail from "./RequestSubResultTail";
 
   export default {
-    name: "MsRequestResult",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric},
+    name: "MsRequestSubResult",
+    components: {
+      MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric,MsRequestSubResultTail
+    },
     props: {
       request: Object,
       scenarioName: String,
@@ -149,4 +167,7 @@
     border-top: 1px solid #e8eaec;
   }
 
+  .icon.is-active {
+    transform: rotate(90deg);
+  }
 </style>

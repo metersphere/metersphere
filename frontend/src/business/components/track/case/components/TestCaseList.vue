@@ -2,24 +2,24 @@
 
   <div class="card-container" v-loading="result.loading">
 
-    <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+    <ms-table-header :condition.sync="condition" @search="initTableData"
                      :tip="$t('commons.search_by_name_or_id')" title="" :show-create="false"/>
     <el-table
-      border
-      :data="tableData"
-      @sort-change="sort"
-      @filter-change="filter"
-      @select-all="handleSelectAll"
-      @select="handleSelect"
-      @header-dragend="headerDragend"
-      @cell-mouse-enter="showPopover"
-      :height="screenHeight"
-      row-key="id"
-      class="test-content adjust-table ms-select-all-fixed"
-      ref="table" @row-click="handleEdit">
+        border
+        :data="tableData"
+        @sort-change="sort"
+        @filter-change="filter"
+        @select-all="handleSelectAll"
+        @select="handleSelect"
+        @header-dragend="headerDragend"
+        @cell-mouse-enter="showPopover"
+        :height="screenHeight"
+        row-key="id"
+        class="test-content adjust-table ms-select-all-fixed"
+        ref="table" @row-click="handleEdit">
       <el-table-column
-        width="50"
-        type="selection"/>
+          width="50"
+          type="selection"/>
 
       <ms-table-header-select-popover v-show="total>0"
                                       :page-size="pageSize > total ? total : pageSize"
@@ -36,13 +36,13 @@
       <template v-for="(item, index) in tableLabel">
 
         <el-table-column
-          v-if="item.id === 'num' && !customNum"
-          prop="num"
-          sortable="custom"
-          :label="$t('commons.id')"
-          :key="index"
-          min-width="80"
-          show-overflow-tooltip>
+            v-if="item.id === 'num' && !customNum"
+            prop="num"
+            sortable="custom"
+            :label="$t('commons.id')"
+            :key="index"
+            min-width="80"
+            show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           v-if="item.id === 'num' && customNum"
@@ -63,32 +63,41 @@
         >
         </el-table-column>
         <el-table-column
+          v-if="item.id == 'createUser'"
+          prop="createUser"
+          :label="$t('commons.create_user')"
+          show-overflow-tooltip
+          :key="index"
+          min-width="120"
+        >
+        </el-table-column>
+        <el-table-column
           v-if="item.id == 'priority'"
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
           sortable="custom"
-          min-width="120px"
-          :label="$t('test_track.case.priority')"
-          show-overflow-tooltip
-          :key="index">
+            min-width="120px"
+            :label="$t('test_track.case.priority')"
+            show-overflow-tooltip
+            :key="index">
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.priority"/>
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.id=='reviewStatus'"
-          column-key="reviewStatus"
-          min-width="100px"
-          :label="$t('test_track.case.status')"
-          :key="index">
+            v-if="item.id=='reviewStatus'"
+            column-key="reviewStatus"
+            min-width="100px"
+            :label="$t('test_track.case.status')"
+            :key="index">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <review-status :value="scope.row.reviewStatus"/>
             </span>
           </template>
         </el-table-column>
-        <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" min-width="80"  :key="index">
+        <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" min-width="80" :key="index">
           <template v-slot:default="scope">
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
@@ -96,22 +105,22 @@
         </el-table-column>
 
         <el-table-column
-          v-if="item.id=='nodePath'"
-          prop="nodePath"
-          :label="$t('test_track.case.module')"
-          min-width="150px"
-          show-overflow-tooltip
-          :key="index">
+            v-if="item.id=='nodePath'"
+            prop="nodePath"
+            :label="$t('test_track.case.module')"
+            min-width="150px"
+            show-overflow-tooltip
+            :key="index">
         </el-table-column>
 
         <el-table-column
-          v-if="item.id=='updateTime'"
-          prop="updateTime"
-          sortable="custom"
-          :label="$t('commons.update_time')"
-          min-width="150px"
-          show-overflow-tooltip
-          :key="index">
+            v-if="item.id=='updateTime'"
+            prop="updateTime"
+            sortable="custom"
+            :label="$t('commons.update_time')"
+            min-width="150px"
+            show-overflow-tooltip
+            :key="index">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -122,10 +131,13 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
+          <ms-table-operator :edit-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
+                             :delete-permission="['PROJECT_TRACK_CASE:READ+DELETE']"
+                             @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
             <template v-slot:middle>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')"
+              <ms-table-operator-button v-permission="['PROJECT_TRACK_CASE:READ+COPY']"
+                                        :tip="$t('commons.copy')"
                                         icon="el-icon-document-copy"
                                         type="success" @exec="handleCopy(scope.row)"/>
             </template>
@@ -175,7 +187,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
-  buildBatchParam,
+  buildBatchParam, deepClone,
   getLabel,
   getSelectDataCounts,
   initCondition,
@@ -218,7 +230,7 @@ export default {
   data() {
     return {
       type: TEST_CASE_LIST,
-      screenHeight: document.documentElement.clientHeight-310,
+      screenHeight: 'calc(100vh - 310px)',
       headerItems: Track_Test_Case,
       tableLabel: [],
       result: {},
@@ -259,11 +271,17 @@ export default {
       showMore: false,
       buttons: [
         {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
+          name: this.$t('test_track.case.batch_edit_case'),
+          handleClick: this.handleBatchEdit,
+          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         }, {
-          name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
+          name: this.$t('test_track.case.batch_move_case'),
+          handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         }, {
-          name: this.$t('test_track.case.batch_delete_case'), handleClick: this.handleDeleteBatch
+          name: this.$t('test_track.case.batch_delete_case'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
         }
       ],
       typeArr: [
@@ -293,7 +311,7 @@ export default {
       currentCaseId: null,
       selectDataCounts: 0,
       selectDataRange: "all"
-    }
+    };
   },
   props: {
     treeNodes: {
@@ -310,19 +328,23 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return this.$store.state.projectId;
     },
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
-    }
+    },
+
+
   },
   created: function () {
     this.$emit('setCondition', this.condition);
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     this.initTableData();
+    let redirectParam = this.$route.query.dataSelectRange;
+    this.checkRedirectEditPage(redirectParam);
 
   },
   activated() {
@@ -340,8 +362,18 @@ export default {
     }
   },
   methods: {
+    checkRedirectEditPage(redirectParam) {
+      if (redirectParam != null) {
+        this.$get('test/case/get/' + redirectParam, response => {
+          let testCase = response.data;
+          testCase.label = "redirect";
+          this.$emit('testCaseEdit', testCase);
+        });
+      }
+    },
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
     getSelectDataRange() {
       let dataRange = this.$route.params.dataSelectRange;
@@ -410,14 +442,14 @@ export default {
           })*/
           this.tableData.forEach((item) => {
             item.tags = JSON.parse(item.tags);
-          })
+          });
 
           this.$nextTick(() => {
             if (this.$refs.table) {
               setTimeout(this.$refs.table.doLayout, 200);
             }
             this.checkTableRowIsSelect();
-          })
+          });
         });
       }
     },
@@ -441,7 +473,7 @@ export default {
               this.selectRows.delete(row);
             }
           }
-        })
+        });
       }
     },
     search() {
@@ -462,7 +494,7 @@ export default {
     handleCopy(testCase) {
       this.$get('test/case/get/' + testCase.id, response => {
         let testCase = response.data;
-        testCase.name = 'copy_' + testCase.name
+        testCase.name = 'copy_' + testCase.name;
         this.$emit('testCaseCopy', testCase);
       });
     },
@@ -471,6 +503,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
+            this.$emit('refreshTable');
             this._handleDelete(testCase);
           }
         }
@@ -498,6 +531,7 @@ export default {
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
+
       });
     },
     refresh() {
@@ -556,7 +590,7 @@ export default {
           aTag.download = filename;
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           navigator.msSaveBlob(blob, filename);
         }
@@ -651,7 +685,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>
