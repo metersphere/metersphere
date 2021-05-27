@@ -19,11 +19,18 @@ VALUES ('test_viewer', 'Viewer', NULL, NULL, unix_timestamp() * 1000, unix_times
 INSERT INTO organization (id, name, description, create_time, update_time)
 VALUES (uuid(), '默认组织', '系统默认创建的组织', unix_timestamp() * 1000, unix_timestamp() * 1000);
 INSERT INTO workspace (id, organization_id, name, description, create_time, update_time)
-VALUES (uuid(), (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认工作空间', '系统默认创建的工作空间', unix_timestamp() * 1000, unix_timestamp() * 1000);
+VALUES (uuid(), (SELECT id FROM organization WHERE name LIKE '默认组织'), '默认工作空间', '系统默认创建的工作空间', unix_timestamp() * 1000,
+        unix_timestamp() * 1000);
+INSERT INTO project (id, workspace_id, name, description, create_time, update_time)
+VALUES (uuid(), (SELECT id FROM workspace WHERE name LIKE '默认工作空间'), '默认项目', '系统默认创建的项目', unix_timestamp() * 1000,
+        unix_timestamp() * 1000);
+
 INSERT INTO user_role (id, user_id, role_id, source_id, create_time, update_time)
-VALUES (uuid(), 'admin', 'org_admin', (SELECT id FROM organization WHERE name LIKE '默认组织'), unix_timestamp() * 1000, unix_timestamp() * 1000);
+VALUES (uuid(), 'admin', 'org_admin', (SELECT id FROM organization WHERE name LIKE '默认组织'), unix_timestamp() * 1000,
+        unix_timestamp() * 1000);
 INSERT INTO user_role (id, user_id, role_id, source_id, create_time, update_time)
-VALUES (uuid(), 'admin', 'test_manager', (SELECT id FROM workspace WHERE name LIKE '默认工作空间'), unix_timestamp() * 1000, unix_timestamp() * 1000);
+VALUES (uuid(), 'admin', 'test_manager', (SELECT id FROM workspace WHERE name LIKE '默认工作空间'), unix_timestamp() * 1000,
+        unix_timestamp() * 1000);
 
 INSERT INTO test_resource_pool (id, name, type, description, status, create_time, update_time)
 VALUES (uuid(), 'LOCAL', 'NODE', '系统默认创建的本地资源池', 'VALID', unix_timestamp() * 1000, unix_timestamp() * 1000);
