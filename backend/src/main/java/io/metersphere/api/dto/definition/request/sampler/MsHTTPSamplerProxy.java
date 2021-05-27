@@ -242,16 +242,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     }
                 } else {
                     if (!isCustomizeReq() || isRefEnvironment) {
-                        //1.9 增加对Mock环境的判断
-                        if (this.isMockEnvironment()) {
-                            url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
-                        } else {
-                            if (httpConfig.isMock()) {
+                        if (isNeedAddMockUrl(url)) {
+                            //1.9 增加对Mock环境的判断
+                            if (this.isMockEnvironment()) {
                                 url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
                             } else {
-                                url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
-                            }
+                                if (httpConfig.isMock()) {
+                                    url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                                } else {
+                                    url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                                }
 
+                            }
                         }
                         URL urlObject = new URL(url);
                         String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
@@ -419,6 +421,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
+    }
+
+    /**
+     * 自定义请求如果是完整url时不拼接mock信息
+     * @param url
+     * @return
+     */
+    private boolean isNeedAddMockUrl(String url) {
+        if (isCustomizeReq() && (url.startsWith("http://") || url.startsWith("https://"))) {
+            return false;
+        }
+       return true;
     }
 
     // 兼容旧数据
