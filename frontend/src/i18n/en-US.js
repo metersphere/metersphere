@@ -1085,7 +1085,7 @@ export default {
       swagger_url_import: "Import using URL",
       timing_synchronization: "Timing synchronization",
       next_synchronization_time: "Next synchronization time",
-      ms_env_import_file_limit: "It supports JSON format files exported through metersphere",
+      ms_env_import_file_limit: "It only supports JSON format files exported through metersphere",
       file_exceed_limit: "The number of files exceeds the limit",
     },
     home_page: {
@@ -1371,7 +1371,8 @@ export default {
         continue_upload: "Upload continue",
       },
       export: {
-        export: "Export cases"
+        export: "Export cases",
+        export_tip: "Switch to Interface List and check Use Case Export"
       }
     },
     plan: {
@@ -1544,6 +1545,7 @@ export default {
     },
     issue: {
       issue: "Issue",
+      issue_management: "Issue Management",
       issue_resource: "Issue source",
       create_issue: "Create Issue",
       add_issue: "Add Issue",

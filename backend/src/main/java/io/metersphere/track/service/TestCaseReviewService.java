@@ -566,7 +566,9 @@ public class TestCaseReviewService {
                     stringBuilder.append(userMap.get(id)).append("、");
                 }
             }
-            name = stringBuilder.substring(0, stringBuilder.length() - 1);
+            if (StringUtils.isNotBlank(stringBuilder)) {
+                name = stringBuilder.substring(0, stringBuilder.length() - 1);
+            }
         }
         return name;
     }

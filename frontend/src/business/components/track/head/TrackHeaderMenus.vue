@@ -23,7 +23,7 @@
           </el-menu-item>
 
           <el-menu-item :index="'/track/issue'" popper-class="submenu">
-            {{ $t("缺陷管理") }}
+            {{ $t('test_track.issue.issue_management') }}
           </el-menu-item>
 
           <el-menu-item :index="'/track/testPlan/reportList'" popper-class="submenu">

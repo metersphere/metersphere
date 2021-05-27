@@ -257,7 +257,7 @@ export default {
     },
     exportTestCase() {
       if (this.activeDom !== 'left') {
-        this.$warning('请切换成接口列表导出！');
+        this.$warning(this.$t('test_track.case.export.export_tip'));
         return;
       }
       this.$refs.testCaseList.exportTestCase();
