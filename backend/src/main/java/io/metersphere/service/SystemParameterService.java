@@ -307,4 +307,25 @@ public class SystemParameterService {
         }
         return null;
     }
+
+    public String getMailLogDetails() {
+        MailInfo mailInfo = this.mailInfo(ParamConstants.Classify.MAIL.getValue());
+        if (mailInfo != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(mailInfo, SystemReference.mailColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(mailInfo.getAccount()), null, "邮件设置", null, columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getBaseLogDetails() {
+        BaseSystemConfigDTO configDTO = this.getBaseInfo();
+        if (configDTO != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(configDTO, SystemReference.baseColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(configDTO.getUrl()), null, "基本配置", null, columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
 }

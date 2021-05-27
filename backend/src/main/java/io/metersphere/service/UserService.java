@@ -1171,7 +1171,7 @@ public class UserService {
 
             DetailColumn detailColumn = new DetailColumn();
             detailColumn.setId(UUID.randomUUID().toString());
-            detailColumn.setColumnTitle("成员：");
+            detailColumn.setColumnTitle("成员");
             detailColumn.setColumnName("roles");
             detailColumn.setOriginalValue(nameBuilder.toString());
             columns.add(detailColumn);
