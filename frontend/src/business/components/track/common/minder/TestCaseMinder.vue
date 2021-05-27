@@ -135,6 +135,11 @@ name: "TestCaseMinder",
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
         priority: 'P' + (data.priority ? data.priority - 1 : 0),
+        prerequisite: "",
+        remark: "",
+        stepDescription: "",
+        expectedResult: "",
+        steps: "[]"
       };
       if (data.changed) isChange = true;
       let steps = [];
