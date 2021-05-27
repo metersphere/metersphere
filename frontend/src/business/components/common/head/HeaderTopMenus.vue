@@ -24,7 +24,7 @@
     </el-menu-item>
     <el-menu-item index="/report"
                   v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']"
-                  v-if="check('reportStat')">
+                  v-if="isReport && check('reportStat')">
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 
