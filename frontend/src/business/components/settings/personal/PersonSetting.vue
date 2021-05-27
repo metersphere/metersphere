@@ -22,10 +22,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
-                                      type="primary" @exec="edit(scope.row)"/>
-            <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="isLocalUser"
-                                      type="success" @exec="editPassword(scope.row)"/>
+            <div>
+              <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
+                                        type="primary" @exec="edit(scope.row)"/>
+              <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="isLocalUser"
+                                        type="success" @exec="editPassword(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>

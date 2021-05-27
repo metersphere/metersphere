@@ -41,7 +41,9 @@
           <header-label-operate @exec="openCustomHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operators :buttons="operators" :row="scope.row" :index="scope.$index"/>
+          <div>
+            <ms-table-operators :buttons="operators" :row="scope.row" :index="scope.$index"/>
+          </div>
         </template>
       </el-table-column>
     </el-table>

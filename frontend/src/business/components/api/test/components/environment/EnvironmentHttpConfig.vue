@@ -69,10 +69,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
           <template v-slot:default="{row}">
-            <ms-table-operator-button :tip="$t('api_test.automation.copy')"
-                                      icon="el-icon-document-copy" @exec="copy(row)"/>
-            <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                      icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            <div>
+              <ms-table-operator-button :tip="$t('api_test.automation.copy')"
+                                        icon="el-icon-document-copy" @exec="copy(row)"/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')"
+                                        icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>

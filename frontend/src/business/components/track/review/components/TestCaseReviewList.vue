@@ -95,11 +95,15 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
-                             :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
-                             @editClick="handleEdit(scope.row)"
-                             @deleteClick="handleDelete(scope.row)">
-          </ms-table-operator>
+          <div>
+
+            <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
+                               :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
+                               @editClick="handleEdit(scope.row)"
+                               @deleteClick="handleDelete(scope.row)">
+            </ms-table-operator>
+          </div>
+
         </template>
       </el-table-column>
       <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
