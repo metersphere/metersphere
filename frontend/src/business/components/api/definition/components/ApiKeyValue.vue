@@ -42,7 +42,7 @@
               :fetch-suggestions="funcSearch"
               highlight-first-item
               show-word-limit>
-              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
+              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
             </el-autocomplete>
           </div>
         </el-col>
@@ -52,7 +52,7 @@
         </el-col>
       </el-row>
     </div>
-    <ms-api-variable-advance ref="variableAdvance"/>
+    <ms-api-variable-advance ref="variableAdvance" :current-item="currentItem"/>
   </div>
 </template>
 
@@ -88,7 +88,8 @@
       return {
         keyValues: [],
         loading: false,
-        isSelectAll: true
+        isSelectAll: true,
+        currentItem: null,
       }
     },
     computed: {
@@ -109,7 +110,8 @@
       }
     },
     methods: {
-      advanced() {
+      advanced(item) {
+        this.currentItem = item;
         this.$refs.variableAdvance.open();
       },
       funcFilter(queryString) {
