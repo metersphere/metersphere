@@ -17,35 +17,29 @@
         <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
           <el-table :data="detail.details.columns">
             <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')" width="150px" show-overflow-tooltip/>
-            <!--<el-table-column prop="originalValue" :label="$t('operating_log.before_change')" width="400px">-->
-              <!--<template v-slot:default="scope">-->
-                <!--<span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.originalValue | timestampFormatDate }}</span>-->
-                <!--<div v-else>{{ scope.row.originalValue }}</div>-->
-              <!--</template>-->
-            <!--</el-table-column>-->
             <el-table-column prop="newValue" :label="$t('operating_log.change_content')">
               <template v-slot:default="scope">
                 <span v-if="timeDates.indexOf(scope.row.columnName)!==-1">{{ scope.row.newValue | timestampFormatDate }}</span>
-                <pre v-html="getDiff(scope.row.originalValue,scope.row.newValue)" v-else></pre>
+                <div v-html="getDiff(scope.row.originalValue,scope.row.newValue)" v-else></div>
               </template>
             </el-table-column>
           </el-table>
         </div>
       </div>
       <div v-else-if="detail && (detail.operType ==='DELETE' || detail.details === null || (detail.details && detail.details.columns && detail.details.columns.length === 0))">
-        <pre style="overflow: auto">{{detail.operTitle}} </pre>
+        <div>{{detail.operTitle}}</div>
         <span style="color: #409EFF">{{getType(detail.operType)}} </span>
         <span style="color: #409EFF"> {{$t('api_test.home_page.detail_card.success')}}</span>
       </div>
       <div v-else>
         <div v-if="detail && detail.details && detail.details.columns" style="overflow: auto">
           <span v-for="n in detail.details.columns" :key="n.id">
-            <pre v-if="timeDates.indexOf(n.columnName)!==-1">
+            <div v-if="timeDates.indexOf(n.columnName)!==-1">
               {{n.columnTitle}}：{{ n.originalValue | timestampFormatDate }}
-            </pre>
-            <pre style="overflow: auto" v-else>
+            </div>
+            <div style="overflow: auto" v-else>
               {{n.columnTitle}}：{{n.originalValue}}
-            </pre>
+            </div>
           </span>
         </div>
       </div>

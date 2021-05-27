@@ -867,7 +867,7 @@ public class TestPlanService {
         String returnStr = null;
         for (Map.Entry<String, Map<String, String>> entry : testPlanScenarioIdMap.entrySet()) {
 //            String testPlanId = entry.getKey();
-            Map<String,String> scenarioMap = entry.getValue();
+            Map<String, String> scenarioMap = entry.getValue();
 
             RunScenarioRequest request = new RunScenarioRequest();
             request.setReportId(planScenarioExecuteRequest.getReportId());
@@ -894,12 +894,12 @@ public class TestPlanService {
                     if (request.getIds().size() > count) {
                         MSException.throwException("并发数量过大，请重新选择！");
                     }
-                    returnStr =  apiAutomationService.modeRun(request);
+                    returnStr = apiAutomationService.modeRun(request);
                 } else {
-                    returnStr =  apiAutomationService.modeRun(request);
+                    returnStr = apiAutomationService.modeRun(request);
                 }
             } else {
-                returnStr =  apiAutomationService.excute(request);
+                returnStr = apiAutomationService.excute(request);
             }
         }
         return returnStr;
@@ -922,7 +922,7 @@ public class TestPlanService {
             Map<String, String> planScenarioIdMap = entry.getValue();
 
             try {
-                returnId = this.generateHashTreeByScenarioList(testPlan,planScenarioIdMap,request);
+                returnId = this.generateHashTreeByScenarioList(testPlan, planScenarioIdMap, request);
             } catch (Exception ex) {
                 MSException.throwException(ex.getMessage());
             }
@@ -936,7 +936,7 @@ public class TestPlanService {
         return returnId;
     }
 
-    private String generateHashTreeByScenarioList(MsTestPlan testPlan, Map<String, String> planScenarioIdMap,SchedulePlanScenarioExecuteRequest request) throws Exception {
+    private String generateHashTreeByScenarioList(MsTestPlan testPlan, Map<String, String> planScenarioIdMap, SchedulePlanScenarioExecuteRequest request) throws Exception {
         String returnId = "";
         boolean isFirst = true;
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(new ArrayList<>(planScenarioIdMap.keySet()));
@@ -997,11 +997,11 @@ public class TestPlanService {
         return returnId;
     }
 
-    public void run(String testPlanID, String projectID, String userId, String triggerMode,String apiRunConfig) {
+    public void run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
         Map<String, String> planScenarioIdMap;
         Map<String, String> apiTestCaseIdMap;
         Map<String, String> performanceIdMap;
-        if(StringUtils.isEmpty(apiRunConfig)){
+        if (StringUtils.isEmpty(apiRunConfig)) {
             apiRunConfig = "{\"mode\":\"parallel\",\"reportType\":\"iddReport\",\"onSampleError\":true,\"runWithinResourcePool\":true,\"resourcePoolId\":\"29773f4f-55e4-4bce-ad3d-b531b4eb59c2\"}";
         }
         planScenarioIdMap = new LinkedHashMap<>();
@@ -1146,20 +1146,11 @@ public class TestPlanService {
     }
 
     public String getLogDetails(PlanCaseRelevanceRequest request) {
-        List<String> testCaseIds = request.getTestCaseIds();
-        List<String> names = null;
-        if (testCaseIds.get(0).equals("all")) {
-            List<TestCase> testCases = extTestCaseMapper.getTestCaseByNotInReview(request.getRequest());
-            if (!testCases.isEmpty()) {
-                names = testCases.stream().map(TestCase::getName).collect(Collectors.toList());
-                testCaseIds = testCases.stream().map(testCase -> testCase.getId()).collect(Collectors.toList());
-            }
-        } else {
-            TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andIdIn(testCaseIds);
-            List<TestCase> cases = testCaseMapper.selectByExample(example);
-            names = cases.stream().map(TestCase::getName).collect(Collectors.toList());
-        }
+        List<String> testCaseIds = request.getIds();
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdIn(testCaseIds);
+        List<TestCase> cases = testCaseMapper.selectByExample(example);
+        List<String> names = cases.stream().map(TestCase::getName).collect(Collectors.toList());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         if (testPlan != null) {
             List<DetailColumn> columns = new LinkedList<>();
