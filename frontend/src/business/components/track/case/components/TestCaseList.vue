@@ -276,7 +276,8 @@ export default {
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         }, {
           name: this.$t('test_track.case.batch_move_case'),
-          handleClick: this.handleBatchMove
+          handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         }, {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatch,

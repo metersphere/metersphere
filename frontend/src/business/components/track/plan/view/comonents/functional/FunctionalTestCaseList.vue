@@ -360,10 +360,12 @@ export default {
       showMore: false,
       buttons: [
         {
-          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, permission: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
+          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit,
+          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
         },
         {
-          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
+          name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
         }
       ],
       typeArr: [

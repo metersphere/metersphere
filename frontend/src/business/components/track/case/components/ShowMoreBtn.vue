@@ -40,10 +40,10 @@
         }
       },
       isDisable(item) {
-        if (item.permission && item.permission.length > 0) {
-          return !hasPermissions(item.permission);
+        if (item.permissions && item.permissions.length > 0) {
+          return !hasPermissions(...item.permissions);
         }
-        return true;
+        return false;
       }
     }
   }
