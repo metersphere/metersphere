@@ -5,4 +5,9 @@
     <select id="email" resultType="string">
        select param_value from system_parameter where param_key=#{smtp.account}
     </select>
+
+    <update id="saveBaseurl">
+        update system_parameter set param_value = #{baseurl,jdbcType=VARCHAR}
+        where param_key = 'base.url' and (param_value like 'http://localhost%' or param_value = '' or param_value is null)
+    </update>
 </mapper>

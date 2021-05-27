@@ -328,4 +328,7 @@ public class SystemParameterService {
         return null;
     }
 
+    public void saveBaseurl(String baseurl) {
+        extSystemParameterMapper.saveBaseurl(baseurl);
+    }
 }
