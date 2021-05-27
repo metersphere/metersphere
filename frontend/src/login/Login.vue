@@ -19,7 +19,9 @@
                 <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
                   <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
                   <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
-                  <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
+                  <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }}
+                    {{ auth.name }}
+                  </el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item prop="username">
@@ -88,13 +90,20 @@ export default {
       loginTitle: this.$t("commons.welcome"),
       authSources: [],
       loginUrl: 'signin',
-    }
+    };
   },
   beforeCreate() {
     this.$get('/system/theme', res => {
       this.color = res.data ? res.data : PRIMARY_COLOR;
       document.body.style.setProperty('--primary_color', this.color);
-    })
+    });
+    // 保存当前站点url
+    this.$get('/system/save/baseurl?baseurl=' + window.location.origin)
+      .then(() => {
+      })
+      .catch(() => {
+      });
+
     this.result = this.$get("/isLogin").then(response => {
 
       if (display.default !== undefined) {
@@ -118,17 +127,17 @@ export default {
     });
     this.$get("/ldap/open", response => {
       this.openLdap = response.data;
-      if (this.openLdap){
+      if (this.openLdap) {
         this.form.authenticate = 'LDAP';
       }
-    })
+    });
   },
   created: function () {
     // 主页添加键盘事件,注意,不能直接在焦点事件上添加回车
     document.addEventListener("keydown", this.watchEnter);
     //
     if (license.default) {
-      license.default.valid(this)
+      license.default.valid(this);
     }
   },
 
@@ -187,10 +196,10 @@ export default {
         this.$get("language", response => {
           language = response.data;
           localStorage.setItem(DEFAULT_LANGUAGE, language);
-          window.location.href = "/"
-        })
+          window.location.href = "/";
+        });
       } else {
-        window.location.href = "/"
+        window.location.href = "/";
       }
     },
     redirectAuth(authId) {
@@ -199,7 +208,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
