@@ -178,18 +178,18 @@
                   <status-table-item :value="scope.row.status"/>
                 </span>
                 <el-dropdown-menu slot="dropdown" chang>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Pass'}">
+                  <el-dropdown-item :disabled="!hasEditPermission" :command="{id: scope.row.id, status: 'Pass'}">
                     {{ $t('test_track.plan_view.pass') }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                  <el-dropdown-item :disabled="!hasEditPermission"
                                     :command="{id: scope.row.id, status: 'Failure'}">
                     {{ $t('test_track.plan_view.failure') }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                  <el-dropdown-item :disabled="!hasEditPermission"
                                     :command="{id: scope.row.id, status: 'Blocking'}">
                     {{ $t('test_track.plan_view.blocking') }}
                   </el-dropdown-item>
-                  <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Skip'}">
+                  <el-dropdown-item :disabled="!hasEditPermission" :command="{id: scope.row.id, status: 'Skip'}">
                     {{ $t('test_track.plan_view.skip') }}
                   </el-dropdown-item>
                 </el-dropdown-menu>
@@ -264,7 +264,7 @@ import {
   TokenKey,
   WORKSPACE_ID
 } from "@/common/js/constants";
-import {hasRoles} from "@/common/js/utils";
+import {hasPermission} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
@@ -331,7 +331,7 @@ export default {
       selectRows: new Set(),
       testPlan: {},
       isReadOnly: false,
-      isTestManagerOrTestUser: false,
+      hasEditPermission: false,
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -419,7 +419,7 @@ export default {
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
     });
     this.refreshTableAndPlan();
-    this.isTestManagerOrTestUser = true;
+    this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.getMaintainerOptions();
   },
   beforeDestroy() {
@@ -494,7 +494,7 @@ export default {
       });
     },
     showDetail(row, event, column) {
-      this.isReadOnly = !this.isTestManagerOrTestUser;
+      this.isReadOnly = !this.hasEditPermission;
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
     },
     refresh() {

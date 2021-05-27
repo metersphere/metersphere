@@ -61,18 +61,18 @@
                 <plan-status-table-item :value="scope.row.status"/>
               </span>
               <el-dropdown-menu slot="dropdown" chang>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{item: scope.row, status: 'Prepare'}">
+                <el-dropdown-item :disabled="!hasEditPermission" :command="{item: scope.row, status: 'Prepare'}">
                   {{ $t('test_track.plan.plan_status_prepare') }}
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                <el-dropdown-item :disabled="!hasEditPermission"
                                   :command="{item: scope.row, status: 'Underway'}">
                   {{ $t('test_track.plan.plan_status_running') }}
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                <el-dropdown-item :disabled="!hasEditPermission"
                                   :command="{item: scope.row, status: 'Finished'}">
                   {{ $t('test_track.plan.plan_status_finished') }}
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                <el-dropdown-item :disabled="!hasEditPermission"
                                   :command="{item: scope.row, status: 'Completed'}">
                   {{ $t('test_track.plan.plan_status_completed') }}
                 </el-dropdown-item>
@@ -280,7 +280,7 @@ export default {
       },
       currentPage: 1,
       pageSize: 10,
-      isTestManagerOrTestUser: false,
+      hasEditPermission: false,
       total: 0,
       tableData: [],
       screenHeight: 'calc(100vh - 295px)',
@@ -309,7 +309,7 @@ export default {
     if (!this.projectId) {
       this.projectId = this.$store.state.projectId;
     }
-    this.isTestManagerOrTestUser = true;
+    this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.initTableData();
   },
   methods: {
