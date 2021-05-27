@@ -1087,7 +1087,7 @@ export default {
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",
       next_synchronization_time: "下次同步時間",
-      ms_env_import_file_limit: "支持通過MeterSphere導出的json格式文件",
+      ms_env_import_file_limit: "僅支持通過MeterSphere導出的json格式文件",
       file_exceed_limit: "文件數量超出限制",
 
 
@@ -1375,7 +1375,8 @@ export default {
         continue_upload: "繼續上傳",
       },
       export: {
-        export: "導出用例"
+        export: "導出用例",
+        export_tip: "請切換成接口列表勾選用例導出！"
       }
     },
     plan: {
@@ -1549,6 +1550,7 @@ export default {
     },
     issue: {
       issue: "缺陷",
+      issue_management: "缺陷管理",
       issue_resource: "缺陷來源",
       create_issue: "創建缺陷",
       add_issue: "添加缺陷",
