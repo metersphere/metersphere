@@ -24,7 +24,7 @@ public class SystemParameterController {
     private SystemParameterService SystemParameterService;
 
     @PostMapping("/edit/email")
-    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置",beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
+    @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, title = "邮件设置", beforeEvent = "#msClass.getMailLogDetails()", content = "#msClass.getMailLogDetails()", msClass = SystemParameterService.class)
     public void editMail(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.editMail(systemParameter);
     }
@@ -63,6 +63,11 @@ public class SystemParameterController {
     @MsAuditLog(module = "system_parameter_setting", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getBaseLogDetails()", content = "#msClass.getBaseLogDetails()", msClass = SystemParameterService.class)
     public void saveBaseInfo(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveBaseInfo(systemParameter);
+    }
+
+    @GetMapping("/save/baseurl")
+    public void saveBaseurl(@RequestParam("baseurl") String baseurl) {
+        SystemParameterService.saveBaseurl(baseurl);
     }
 
     @PostMapping("/save/ldap")
