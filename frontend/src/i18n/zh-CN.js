@@ -1839,5 +1839,6 @@ export default {
     after_change: "变更后",
     share: "分享",
     change_history: "变更历史",
+    change_content: "变更内容"
   }
 };
