@@ -253,7 +253,7 @@
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
-  import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
+  import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent, getCurrentProjectID} from "@/common/js/utils";
   import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
@@ -784,7 +784,7 @@
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
           this.maintainerOptions = response.data;
         });
       },

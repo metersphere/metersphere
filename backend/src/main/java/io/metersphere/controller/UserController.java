@@ -278,11 +278,11 @@ public class UserController {
     }
 
     /**
-     * 组织成员列表不分页
+     * 组织下所有相关人员
      */
     @PostMapping("/org/member/list/all")
     public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
-        return userService.getOrgMemberList(request);
+        return userService.getOrgAllMember(request);
     }
 
     @GetMapping("/besideorg/list/{orgId}")
@@ -312,6 +312,11 @@ public class UserController {
     @PostMapping("/ws/member/tester/list")
     public List<User> getTestManagerAndTestUserList(@RequestBody QueryMemberRequest request) {
         return userService.getTestManagerAndTestUserList(request);
+    }
+
+    @PostMapping("/project/member/tester/list")
+    public List<User> getProjectMember(@RequestBody QueryMemberRequest request) {
+        return userService.getProjectMember(request);
     }
 
     @GetMapping("/search/{condition}")
