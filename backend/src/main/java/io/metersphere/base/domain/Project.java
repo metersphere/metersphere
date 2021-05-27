@@ -35,5 +35,7 @@ public class Project implements Serializable {
 
     private String createUser;
 
+    private String systemId;
+
     private static final long serialVersionUID = 1L;
 }
