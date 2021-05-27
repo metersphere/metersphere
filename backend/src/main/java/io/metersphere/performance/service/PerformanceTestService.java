@@ -619,6 +619,11 @@ public class PerformanceTestService {
     public String getLogDetails(String id) {
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(id);
         if (loadTest != null) {
+            String loadConfiguration = loadTest.getLoadConfiguration();
+            if (StringUtils.isNotEmpty(loadConfiguration)) {
+                loadConfiguration = "{\"" + "压力配置" + "\":" + loadConfiguration + "}";
+            }
+            loadTest.setLoadConfiguration(loadConfiguration);
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(loadTest, PerformanceReference.performanceColumns);
             OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(loadTest.getId()), loadTest.getProjectId(), loadTest.getName(), loadTest.getCreateUser(), columns);
             return JSON.toJSONString(details);
