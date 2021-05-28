@@ -418,4 +418,19 @@ public class ProjectService {
     public Integer checkSourceRole(String workspaceId, String userId, String roleId) {
         return extOrganizationMapper.checkSourceRole(workspaceId, userId, roleId);
     }
+
+    public String getSystemIdByProjectId(String projectId) {
+        return extProjectMapper.getSystemIdByProjectId(projectId);
+    }
+
+    public Project findBySystemId(String systemId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andSystemIdEqualTo(systemId);
+        List<Project> returnList = projectMapper.selectByExample(example);
+        if(CollectionUtils.isEmpty(returnList)){
+            return null;
+        }else {
+            return returnList.get(0);
+        }
+    }
 }
