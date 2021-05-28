@@ -47,6 +47,7 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -1657,6 +1658,19 @@ public class ApiAutomationService {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
                     ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true).getXml());
+                    //扫描需要哪些文件
+                    JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getName(), true);
+                    if(MapUtils.isNotEmpty(dto.getAttachFiles())){
+                        List<String> fileList = new ArrayList<>();
+                        for (String fileName: dto.getAttachFiles().values()) {
+                            if(!fileList.contains(fileName)){
+                                fileList.add(fileName);
+                            }
+                        }
+                        if(!fileList.isEmpty()){
+                            scenrioExportJmx.setFiles(fileList);
+                        }
+                    }
                     resList.add(scenrioExportJmx);
                 }
             }
