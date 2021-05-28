@@ -31,6 +31,12 @@
         </template>
       </el-table-column>
       <el-table-column
+        label="CSVDataSet">
+        <template v-slot:default="scope">
+          <span v-for="f in scope.row.csvFiles" :key="f">{{ f }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         :label="$t('load_test.thread_group')">
         <template v-slot:default="{row}">
           <span v-if="row.tgType === 'PostThreadGroup' || row.tgType === 'SetupThreadGroup'">
