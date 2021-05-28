@@ -448,8 +448,14 @@ public class PerformanceTestService {
         checkQuota(request, true);
         // copy test
         LoadTestWithBLOBs copy = loadTestMapper.selectByPrimaryKey(request.getId());
+        String copyName = copy.getName() + " Copy";
+
+        if (StringUtils.length(copyName) > 30) {
+            MSException.throwException(Translator.get("load_test_name_length"));
+        }
+
         copy.setId(UUID.randomUUID().toString());
-        copy.setName(copy.getName() + " Copy");
+        copy.setName(copyName);
         copy.setCreateTime(System.currentTimeMillis());
         copy.setUpdateTime(System.currentTimeMillis());
         copy.setStatus(APITestStatus.Saved.name());
