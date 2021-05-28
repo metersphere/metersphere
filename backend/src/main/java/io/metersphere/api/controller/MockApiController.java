@@ -2,7 +2,9 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.MockConfigService;
+import io.metersphere.base.domain.Project;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
+import io.metersphere.service.ProjectService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -21,53 +23,60 @@ public class MockApiController {
     @Resource
     private MockConfigService mockConfigService;
     @Resource
-    private ApiDefinitionService apiDefinitionService;
+    private ProjectService projectService;
 
-    @PostMapping("/{projectId}/**")
+    @PostMapping("/{projectSystemId}/**")
     @NoResultHolder
-    public String postRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("POST", projectId, request, response);
+    public String postRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("POST", project, request, response);
         return returnStr;
     }
 
-    @GetMapping("/{projectId}/**")
+    @GetMapping("/{projectSystemId}/**")
     @NoResultHolder
-    public String getRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("GET", projectId, request, response);
+    public String getRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("GET", project, request, response);
         return returnStr;
     }
 
-    @PutMapping("/{projectId}/**")
+    @PutMapping("/{projectSystemId}/**")
     @NoResultHolder
-    public String putRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("PUT", projectId, request, response);
+    public String putRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("PUT", project, request, response);
         return returnStr;
     }
 
-    @PatchMapping("/{projectId}/**")
+    @PatchMapping("/{projectSystemId}/**")
     @NoResultHolder
-    public String patchRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("PATCH", projectId, request, response);
+    public String patchRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        String returnStr = mockConfigService.checkReturnWithMockExpectByBodyParam("PATCH", project, request, response);
         return returnStr;
     }
 
-    @DeleteMapping("/{projectId}/**")
+    @DeleteMapping("/{projectSystemId}/**")
     @NoResultHolder
-    public String deleteRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("DELETE", projectId, request, response);
+    public String deleteRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("DELETE", project, request, response);
         return returnStr;
     }
 
-    @RequestMapping(value = "/{projectId}/**", method = RequestMethod.OPTIONS)
+    @RequestMapping(value = "/{projectSystemId}/**", method = RequestMethod.OPTIONS)
     @NoResultHolder
-    public String optionsRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("OPTIONS", projectId, request, response);
+    public String optionsRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        String returnStr = mockConfigService.checkReturnWithMockExpectByUrlParam("OPTIONS", project, request, response);
         return returnStr;
     }
 
-    @RequestMapping(value = "/{projectId}/**", method = RequestMethod.HEAD)
+    @RequestMapping(value = "/{projectSystemId}/**", method = RequestMethod.HEAD)
     @NoResultHolder
-    public void headRequest(@PathVariable String projectId, HttpServletRequest request, HttpServletResponse response) {
-        mockConfigService.checkReturnWithMockExpectByUrlParam("HEAD", projectId, request, response);
+    public void headRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
+        Project project = projectService.findBySystemId(projectSystemId);
+        mockConfigService.checkReturnWithMockExpectByUrlParam("HEAD", project, request, response);
     }
 }

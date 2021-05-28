@@ -194,7 +194,7 @@
     computed: {
       getUrlPrefix() {
         if (this.httpForm.path == null) {
-          return this.mockBaseUrl + "/mock/" + this.projectId;
+          return this.mockBaseUrl;
         } else {
           let path = this.httpForm.path;
           let prefix = "";
@@ -227,7 +227,7 @@
             }
           }
 
-          return this.mockBaseUrl + "/mock/" + this.projectId + path + prefix;
+          return this.mockBaseUrl + path + prefix;
         }
       }
     },
