@@ -413,8 +413,8 @@ public class UserService {
 //        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(list)) {
             if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
-                user.setLastOrganizationId("");
-                user.setLastWorkspaceId("");
+                user.setLastOrganizationId(null);
+                user.setLastWorkspaceId(null);
                 userMapper.updateByPrimaryKeySelective(user);
             }
         }
@@ -859,7 +859,7 @@ public class UserService {
             user.setLastWorkspaceId(wsId);
             user.setLastOrganizationId(orgId);
             updateUser(user);
-            SecurityUtils.getSubject().getSession().setAttribute(ATTR_USER, user);
+            SessionUtils.putUser(SessionUser.fromUser(user));
         }
 
     }
