@@ -711,56 +711,66 @@ public class MockConfigService {
         return this.assemblyMockConfingResponse(configList);
     }
 
-    public String checkReturnWithMockExpectByBodyParam(String method, String projectId, HttpServletRequest
+    public String checkReturnWithMockExpectByBodyParam(String method, Project project, HttpServletRequest
             request, HttpServletResponse response) {
         String returnStr = "";
-        String urlSuffix = this.getUrlSuffix(projectId, request);
-        List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(projectId, method, urlSuffix, urlSuffix);
-        JSONObject paramMap = this.getPostParamMap(request);
-
-        List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
-        MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
         boolean isMatch = false;
-        if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-            MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
-            if (finalExpectConfig != null) {
-                isMatch = true;
-                returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
+        List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
+        if(project!=null){
+            String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
+            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, urlSuffix);
+            JSONObject paramMap = this.getPostParamMap(request);
+
+            List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
+            MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
+
+            if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
+                MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
+                if (finalExpectConfig != null) {
+                    isMatch = true;
+                    returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
+                }
             }
         }
+
         if (!isMatch) {
             returnStr = this.updateHttpServletResponse(aualifiedApiList, response);
         }
         return returnStr;
     }
 
-    public String checkReturnWithMockExpectByUrlParam(String get, String projectId, HttpServletRequest
+    public String checkReturnWithMockExpectByUrlParam(String method, Project project, HttpServletRequest
             request, HttpServletResponse response) {
         String returnStr = "";
-        String urlSuffix = this.getUrlSuffix(projectId, request);
-        List<ApiDefinitionWithBLOBs> aualifiedApiList = apiDefinitionService.preparedUrl(projectId, "GET", null, urlSuffix);
-
-        /**
-         * GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：
-         *  api1: /api/{name}   参数 name = "ABC"
-         *  api2: /api/{testParam} 参数 testParam = "ABC"
-         *
-         *  匹配预期Mock的逻辑为： 循环apiId进行筛选，直到筛选到预期Mock。如果筛选不到，则取Api的响应模版来进行返回
-         */
         boolean isMatch = false;
-        for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-            JSONObject paramMap = this.getGetParamMap(urlSuffix, api, request);
+        List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
+        if(project != null){
+            String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
+            aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, null, urlSuffix);
 
-            MockConfigResponse mockConfigData = this.findByApiId(api.getId());
-            if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-                MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
-                if (finalExpectConfig != null) {
-                    returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
-                    isMatch = true;
-                    break;
+            /**
+             * GET/DELETE 这种通过url穿参数的接口，在接口路径相同的情况下可能会出现这样的情况：
+             *  api1: /api/{name}   参数 name = "ABC"
+             *  api2: /api/{testParam} 参数 testParam = "ABC"
+             *
+             *  匹配预期Mock的逻辑为： 循环apiId进行筛选，直到筛选到预期Mock。如果筛选不到，则取Api的响应模版来进行返回
+             */
+
+            for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
+                JSONObject paramMap = this.getGetParamMap(urlSuffix, api, request);
+
+                MockConfigResponse mockConfigData = this.findByApiId(api.getId());
+                if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
+                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
+                    if (finalExpectConfig != null) {
+                        returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
+                        isMatch = true;
+                        break;
+                    }
                 }
             }
         }
+
         if (!isMatch) {
             returnStr = this.updateHttpServletResponse(aualifiedApiList, response);
         }

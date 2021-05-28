@@ -15,4 +15,7 @@ public interface ExtProjectMapper {
     int removeIssuePlatform(@Param("platform") String platform, @Param("orgId") String orgId);
 
     List<ProjectDTO> getSwitchProject(@Param("proRequest") ProjectRequest request);
+
+    String getSystemIdByProjectId(String projectId);
+
 }
