@@ -591,6 +591,8 @@
             } else {
               this.$emit("caseEdit", param);
             }
+            // 保存用例后刷新附件
+            this.$refs.otherInfo.getFileMetaData(this.form.id);
           });
         }
       },
