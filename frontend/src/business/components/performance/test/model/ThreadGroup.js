@@ -1,6 +1,6 @@
 import {xml2json} from "xml-js";
 
-let travel = function (elements, threadGroups) {
+let travel = function (elements, threadGroups, relateFiles) {
   if (!elements) {
     return;
   }
@@ -16,22 +16,43 @@ let travel = function (elements, threadGroups) {
       case "com.octoperf.jmeter.OctoPerfThreadGroup":
         threadGroups.push(element);
         break;
+      case "CSVDataSet":
+        relateFiles.push(element);
+        break;
       default:
         break;
     }
-    travel(element.elements, threadGroups);
+    travel(element.elements, threadGroups, relateFiles);
   }
 };
 
 export function findThreadGroup(jmxContent, handler) {
   let jmxJson = JSON.parse(xml2json(jmxContent));
-  let threadGroups = [];
-  travel(jmxJson.elements, threadGroups);
+  let threadGroups = [], relateFiles = [];
+  travel(jmxJson.elements, threadGroups, relateFiles);
+
+  let csvFiles = [];
+  relateFiles.forEach(f => {
+    f.elements.forEach(e => {
+      if (e.attributes.name === 'filename') {
+        let filename = e.elements[0].text;
+        if (filename.lastIndexOf('\\') > -1) {
+          let split = filename.split('\\');
+          filename = split[split.length - 1];
+        } else {
+          let split = filename.split('/');
+          filename = split[split.length - 1];
+        }
+        csvFiles.push(filename);
+      }
+    });
+  });
   threadGroups.forEach(tg => {
     tg.deleted = 'false';
     tg.handler = handler;
     tg.enabled = tg.attributes.enabled;
     tg.tgType = tg.name;
+    tg.csvFiles = csvFiles;
     if (tg.name === 'SetupThreadGroup' || tg.name === 'PostThreadGroup') {
       tg.threadType = 'ITERATION';
       tg.threadNumber = 1;
