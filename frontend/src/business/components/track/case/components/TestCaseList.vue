@@ -287,8 +287,6 @@ export default {
       ],
       typeArr: [
         {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'type', name: this.$t('test_track.case.type')},
-        {id: 'method', name: this.$t('test_track.case.method')},
         {id: 'maintainer', name: this.$t('test_track.case.maintainer')},
       ],
       valueArr: {
