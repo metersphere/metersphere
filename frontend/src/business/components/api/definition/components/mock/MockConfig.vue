@@ -42,7 +42,7 @@
                 <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
                                           @exec="copyExpect(scope.row)"
                 />
-                <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-delete"
+                <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
                                           @exec="removeExpect(scope.row)"
                 />
               </div>
