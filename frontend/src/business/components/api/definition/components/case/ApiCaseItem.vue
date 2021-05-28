@@ -221,7 +221,7 @@
     },
     watch: {},
     methods: {
-      openHis(row){
+      openHis(row) {
         this.$refs.changeHistory.open(row.id);
       },
       handleRunBatch() {
@@ -258,10 +258,13 @@
         this.$emit('singleRun', data);
       },
       copyCase(data) {
-        let uuid = getUUID();
-        data.request.id = uuid;
-        let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: data.request, uuid: uuid};
-        this.$emit('copyCase', obj);
+        if (data && data.request) {
+          let uuid = getUUID();
+          let request = JSON.parse(JSON.stringify(data.request));
+          request.id = uuid;
+          let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: request, uuid: uuid};
+          this.$emit('copyCase', obj);
+        }
       },
       selectTestCase(item, $event) {
         if (!item.id || !this.loaded) {
