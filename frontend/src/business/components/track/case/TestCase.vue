@@ -72,10 +72,10 @@
             </test-case-edit>
           </div>
         </el-tab-pane>
-        <el-tab-pane name="add">
+        <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
           <template v-slot:label>
             <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
-              <el-button type="primary" plain icon="el-icon-plus" size="mini" />
+              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
                   {{ $t('test_track.case.create') }}
@@ -105,7 +105,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getUUID} from "../../../../common/js/utils";
+import {getUUID, hasPermission} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -190,6 +190,7 @@ export default {
     }
   },
   methods: {
+    hasPermission,
     handleCommand(e) {
       switch (e) {
         case "ADD":
