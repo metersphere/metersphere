@@ -70,6 +70,8 @@
                ref="createOrganization">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
+          <!-- 阻止Enter关闭dialog -->
+          <el-input v-show="false"/>
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off" type="textarea"/>
