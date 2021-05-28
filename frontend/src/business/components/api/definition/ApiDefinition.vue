@@ -120,7 +120,7 @@
             </div>
           </el-tab-pane>
 
-          <el-tab-pane name="add">
+          <el-tab-pane name="add" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
             <template v-slot:label>
               <el-dropdown @command="handleCommand">
                 <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
@@ -160,7 +160,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentUser, getUUID} from "@/common/js/utils";
+import {getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -281,6 +281,7 @@ export default {
   },
 
   methods: {
+    hasPermission,
     getPath(id, arr) {
       if (id === null) {
         return null;
