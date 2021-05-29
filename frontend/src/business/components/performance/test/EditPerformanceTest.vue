@@ -34,12 +34,12 @@
 
 
         <el-tabs class="testplan-config" v-model="active">
-          <el-tab-pane :label="$t('load_test.basic_config')">
+          <el-tab-pane :label="$t('load_test.basic_config')" class="advanced-config">
             <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
                                       @tgTypeChange="tgTypeChange"
                                       @fileChange="fileChange"/>
           </el-tab-pane>
-          <el-tab-pane :label="$t('load_test.pressure_config')">
+          <el-tab-pane :label="$t('load_test.pressure_config')" class="advanced-config">
             <performance-pressure-config :is-read-only="isReadOnly" :test="test" :test-id="testId"
                                          @fileChange="fileChange"
                                          ref="pressureConfig" @changeActive="changeTabActive"/>
@@ -354,7 +354,7 @@ export default {
 }
 
 .advanced-config {
-  height: calc(100vh - 280px);
+  height: calc(100vh - 265px);
   overflow: auto;
 }
 </style>
