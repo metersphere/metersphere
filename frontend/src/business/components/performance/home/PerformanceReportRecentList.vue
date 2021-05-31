@@ -44,12 +44,16 @@ export default {
       tableData: []
     };
   },
-
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     search() {
       let condition = {
         workspaceId: getCurrentWorkspaceId(),
-        projectId: getCurrentProjectID(),
+        projectId: this.projectId,
       };
       this.result = this.$post("/performance/report/recent/5", condition, response => {
         this.tableData = response.data;
