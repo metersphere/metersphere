@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import {PHONE_REGEX} from "@/common/js/regex";
+import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 import {GROUP_ORGANIZATION, GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 
 export default {
@@ -159,7 +159,7 @@ export default {
           {required: true, message: this.$t('user.input_email'), trigger: 'blur'},
           {
             required: true,
-            pattern: /^[a-zA-Z0-9_._-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
+            pattern: EMAIL_REGEX,
             message: this.$t('user.email_format_is_incorrect'),
             trigger: 'blur'
           }
