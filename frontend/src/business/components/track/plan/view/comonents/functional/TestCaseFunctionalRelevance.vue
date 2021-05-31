@@ -9,6 +9,7 @@
 
     <template v-slot:aside>
       <node-tree class="node-tree"
+                 :is-display="openType"
                  v-loading="result.loading"
                  @nodeSelectEvent="nodeChange"
                  :tree-nodes="treeNodes"
@@ -119,6 +120,7 @@ export default {
   },
   data() {
     return {
+      openType: 'relevance',
       result: {},
       treeNodes: [],
       selectNodeIds: [],

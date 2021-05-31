@@ -4,6 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
+      :is-display="openType"
       v-loading="result.loading"
       :tree-nodes="data"
       :allLabel="$t('commons.all_module_title')"
@@ -82,6 +83,7 @@
     },
     data() {
       return {
+        openType: 'relevance',
         result: {},
         condition: {
           filterText: "",

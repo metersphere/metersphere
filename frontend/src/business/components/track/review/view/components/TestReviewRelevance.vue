@@ -14,6 +14,7 @@
             :title="$t('test_track.switch_project')"
             @dataChange="changeProject"/>
           <node-tree class="node-tree"
+                     :is-display="openType"
                      :all-label="$t('commons.all_label.review')"
                      v-loading="result.loading"
                      @nodeSelectEvent="nodeChange"
@@ -129,6 +130,7 @@ export default {
     },
     data() {
       return {
+        openType: 'relevance',
         checked: true,
         result: {},
         currentProject: {},
