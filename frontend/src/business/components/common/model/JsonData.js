@@ -10,6 +10,7 @@ export const Track_Test_Case = [
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
   {id: 'createUser', label: i18n.t('commons.create_user')},
+  {id: 'maintainer', label: i18n.t('custom_field.case_maintainer')},
 ]
 //用例评审-测试用例
 export const Test_Case_Review = [
@@ -91,6 +92,7 @@ export const Test_Case_Review_Case_List = [
   {id: 'reviewerName', label: i18n.t('test_track.review.reviewer')},
   {id: 'reviewStatus', label: i18n.t('test_track.case.status')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
+  {id: 'maintainer', label: i18n.t('custom_field.case_maintainer')},
 ]
 //测试计划-功能用例
 export const Test_Plan_Function_Test_Case = [
@@ -117,6 +119,8 @@ export const Test_Plan_Api_Case = [
   {id: 'custom', label: i18n.t('api_test.definition.api_last_time')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'execResult', label: '执行状态'},
+  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')}
+
 ]
 //测试计划-性能用例
 export const Test_Plan_Load_Case = [
@@ -140,5 +144,7 @@ export const Test_Plan_Scenario_Case = [
   {id: 'stepTotal', label: i18n.t('api_test.automation.success')},
   {id: 'lastResult', label: i18n.t('api_test.automation.fail')},
   {id: 'passRate', label: i18n.t('api_test.automation.passing_rate')},
+  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')}
+
 ]
 
