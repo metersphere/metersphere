@@ -6,7 +6,7 @@
     <div v-loading="result.loading">
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"/>
+          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')" :disabled="type === 'Edit'"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')"/>
