@@ -109,13 +109,27 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
             if (this.isExpectNull()) {
                 throw new IllegalStateException(String.format("Value expected to be null, but found '%s'", value));
             } else {
-                String msg;
+                String msg = "";
                 if (this.isUseRegex()) {
                     msg = "Value expected to match regexp '%s', but it did not match: '%s'";
+                } else if (StringUtils.isNotEmpty(getOption()) && !this.isEquals(value)) {
+                    switch (getOption()) {
+                        case "CONTAINS":
+                            msg = "Value contains to be '%s', but found '%s'";
+                            break;
+                        case "NOT_CONTAINS":
+                            msg = "Value not contains to be '%s', but found '%s'";
+                            break;
+                        case "EQUALS":
+                            msg = "Value equals to be '%s', but found '%s'";
+                            break;
+                        case "NOT_EQUALS":
+                            msg = "Value not equals to be '%s', but found '%s'";
+                            break;
+                    }
                 } else {
                     msg = "Value expected to be '%s', but found '%s'";
                 }
-
                 throw new IllegalStateException(String.format(msg, this.getExpectedValue(), objectToString(value)));
             }
         }
