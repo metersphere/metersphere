@@ -470,6 +470,9 @@ export default {
       add_user_role_batch: '批量添加角色',
     }
   },
+  group: {
+    add: '添加用户组',
+  },
   role: {
     please_choose_role: '请选择角色',
     admin: '系统管理员',
