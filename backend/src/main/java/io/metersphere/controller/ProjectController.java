@@ -114,13 +114,13 @@ public class ProjectController {
 
     @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
-    public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
+    public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return projectService.uploadFiles(projectId, files);
     }
 
     @PostMapping(value = "/update/file/{fileId}", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "project_file_management", type = OperLogConstants.IMPORT, content = "#msClass.getLogDetails(#fileId)", msClass = ProjectService.class)
-    public FileMetadata updateFile(@PathVariable String fileId, @RequestPart(value = "file") MultipartFile file) {
+    public FileMetadata updateFile(@PathVariable String fileId, @RequestPart(value = "file", required = false) MultipartFile file) {
         return projectService.updateFile(fileId, file);
     }
 

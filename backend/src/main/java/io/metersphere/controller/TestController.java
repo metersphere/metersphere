@@ -18,8 +18,8 @@ public class TestController {
 
 
     @PostMapping(value = "/upload", consumes = {"multipart/form-data"})
-    public Object testUpload(@RequestPart(value = "id") String id, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles
-                             , @RequestPart(value = "user") User user, @RequestParam(value = "name") String name) {
+    public Object testUpload(@RequestPart(value = "id") String id, @RequestPart(value = "file", required = false) MultipartFile file, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles
+            , @RequestPart(value = "user") User user, @RequestParam(value = "name") String name) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("file", file.getOriginalFilename());
