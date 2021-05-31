@@ -16,7 +16,8 @@
           label="功能菜单"
           width="180">
           <template v-slot:default="scope">
-            <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
+            <span v-if="scope.row.type !== 'PROJECT'">{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
+            <span v-else>{{_computedMenuName(scope.row.resource)}}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -44,7 +45,7 @@
 <script>
 import GroupOperator from "@/business/components/settings/system/group/GroupOperator";
 import GroupPermission from "@/business/components/settings/system/group/GroupPermission";
-import {USER_GROUP_SCOPE} from "@/common/js/table-constants";
+import {PROJECT_GROUP_SCOPE, USER_GROUP_SCOPE} from "@/common/js/table-constants";
 
 export default {
   name: "EditPermission",
@@ -83,23 +84,37 @@ export default {
         let data = result.data;
         if (data) {
           this.tableData = data.permissions;
-          for (let i = 0; i < this.tableData.length; i++) {
-            if (i === 0) {
-              this.spanArr.push(1);
-              this.pos = 0
-            } else {
-              // 判断当前元素与上一个元素是否相同
-              if (this.tableData[i].type === this.tableData[i - 1].type) {
-                this.spanArr[this.pos] += 1;
-                this.spanArr.push(0);
-              } else {
-                this.spanArr.push(1);
-                this.pos = i;
-              }
-            }
-          }
+          this._getUniteMenu();
         }
       })
+    },
+    _getUniteMenu() {
+      let menu = ['TRACK', 'API', 'PERFORMANCE'];
+      for (let i = 0; i < this.tableData.length; i++) {
+        if (i === 0) {
+          this.spanArr.push(1);
+          this.pos = 0
+        } else {
+          // 判断当前元素与上一个元素是否相同
+          let sign = false;
+          if (this.tableData[i].type !== 'PROJECT') {
+            sign = this.tableData[i].type === this.tableData[i - 1].type;
+          } else {
+            sign = !menu.includes(this.tableData[i].resource.id.split('_')[1]) ?
+              true : this.tableData[i].resource.id.split('_')[1] === this.tableData[i - 1].resource.id.split('_')[1]
+          }
+          if (sign) {
+            this.spanArr[this.pos] += 1;
+            this.spanArr.push(0);
+          } else {
+            this.spanArr.push(1);
+            this.pos = i;
+          }
+        }
+      }
+    },
+    _computedMenuName(resource) {
+      return PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] ? PROJECT_GROUP_SCOPE[resource.id.split('_')[1]] : '项目';
     },
     onSubmit() {
       let param = {};
