@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card">
         <template v-slot:header>
-          <ms-table-header :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
+          <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
                            :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"
                            :tip="$t('issue.search_name')" :have-search="false"/>
         </template>
@@ -118,7 +118,8 @@ export default {
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
-          isDisable: this.btnDisable
+          isDisable: this.btnDisable,
+          permissions: ['PROJECT_TRACK_ISSUE:READ+EDIT']
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
@@ -126,7 +127,8 @@ export default {
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
-          isDisable: this.btnDisable
+          isDisable: this.btnDisable,
+          permissions: ['PROJECT_TRACK_ISSUE:READ+DELETE']
         }
       ],
     };
