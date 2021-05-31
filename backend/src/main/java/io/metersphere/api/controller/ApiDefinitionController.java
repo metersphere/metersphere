@@ -97,7 +97,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
-    public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.create(request, bodyFiles);
     }
@@ -105,7 +105,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
-    public ApiDefinitionWithBLOBs update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public ApiDefinitionWithBLOBs update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.update(request, bodyFiles);
     }
@@ -166,13 +166,13 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "api_definition", type = OperLogConstants.DEBUG, title = "#request.name", project = "#request.projectId")
-    public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public String runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return apiDefinitionService.run(request, bodyFiles);
     }
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
-    public String run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public String run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         request.setReportId(null);
         return apiDefinitionService.run(request, bodyFiles);
     }
