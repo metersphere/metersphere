@@ -4,6 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
+      :is-display="openType"
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
@@ -59,6 +60,7 @@
     },
     data() {
       return {
+        openType: 'relevance',
         result: {},
         condition: {
           protocol: OPTIONS[0].value,

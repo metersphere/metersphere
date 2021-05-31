@@ -30,7 +30,7 @@
           <i class="el-icon-folder"/>
         </span>
         <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
-        <span class="node-title">
+        <span class="node-title" v-if="isDisplay!=='relevance'">
           <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
@@ -108,6 +108,9 @@ export default {
     };
   },
   props: {
+    isDisplay: {
+      type: String,
+    },
     type: {
       type: String,
       default: "view"
@@ -138,6 +141,9 @@ export default {
     filterText(val) {
       this.filter(val);
     }
+  },
+  created() {
+    console.log(this.isDisplay);
   },
   computed: {
     disabled() {
