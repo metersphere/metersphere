@@ -756,6 +756,7 @@ export default {
         batch_move: "Batch move",
         path_valid_info: "The request path is invalid",
         other_config: "Other Config",
+        cert_alias: "Certificate Alias",
         message_template: "Message Template",
         tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
         esb_table: {

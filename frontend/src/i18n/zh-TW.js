@@ -756,6 +756,7 @@ export default {
         batch_move: "批量移動",
         path_valid_info: "請求路徑無效",
         other_config: "其他設置",
+        cert_alias: "證書別名",
         message_template: "報文模版",
         tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
         esb_table: {
