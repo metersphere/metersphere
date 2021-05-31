@@ -52,8 +52,18 @@
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')" min-width="100px"
+          <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
+                           min-width="100px"
                            show-overflow-tooltip :key="index"/>
+          <el-table-column
+            v-if="item.id == 'maintainer'"
+            prop="principal"
+            :label="$t('custom_field.case_maintainer')"
+            show-overflow-tooltip
+            :key="index"
+            min-width="120"
+          >
+          </el-table-column>
           <el-table-column v-if="item.id == 'updateTime'"
                            prop="updateTime"
                            min-width="120px"
@@ -63,7 +73,8 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')" min-width="80px"
+          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
+                           min-width="80px"
                            show-overflow-tooltip :key="index"/>
           <el-table-column v-if="item.id == 'lastResult'" prop="lastResult" min-width="100px"
                            :filters="RESULT_FILTERS"
