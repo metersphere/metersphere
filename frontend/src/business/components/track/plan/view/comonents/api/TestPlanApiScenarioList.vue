@@ -99,7 +99,7 @@
           <template v-slot:default="{row}">
             <div>
               <ms-table-operator-button class="run-button"
-                                        v-permission="['PROJECT_API_SCENARIO:READ+RUN']"
+                                        v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"
                                         :tip="$t('api_test.run')"
                                         icon="el-icon-video-play"
                                         @exec="execute(row)"/>

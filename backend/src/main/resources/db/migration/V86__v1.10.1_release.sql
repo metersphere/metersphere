@@ -135,6 +135,9 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'read_only', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_ISSUE');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'read_only', 'PROJECT_TRACK_REPORT:READ', 'PROJECT_TRACK_REPORT');
+
+delete from user_group_permission where permission_id = 'PROJECT_TRACK_PLAN:READ+REPORT_DELETE';
+
 -- 接口定义添加用例总数，用例状态，用例通过率字段
 alter table api_definition
     add case_total varchar(100) null;

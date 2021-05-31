@@ -26,7 +26,7 @@
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
+              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)" v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
