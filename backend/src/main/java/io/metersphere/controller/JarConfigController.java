@@ -47,7 +47,7 @@ public class JarConfigController {
 
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "project_project_jar", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = JarConfigService.class)
-    public String add(@RequestPart("request") JarConfig request, @RequestPart(value = "file") MultipartFile file) {
+    public String add(@RequestPart("request") JarConfig request, @RequestPart(value = "file", required = false) MultipartFile file) {
         return JarConfigService.add(request, file);
     }
 

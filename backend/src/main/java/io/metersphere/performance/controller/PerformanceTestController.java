@@ -79,7 +79,7 @@ public class PerformanceTestController {
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,
-            @RequestPart(value = "file") List<MultipartFile> files
+            @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
         request.setId(UUID.randomUUID().toString());
         checkPermissionService.checkProjectOwner(request.getProjectId());
