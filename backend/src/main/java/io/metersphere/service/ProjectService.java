@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -37,7 +38,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -93,7 +97,7 @@ public class ProjectService {
 
 
         long allCount = projectMapper.countByExample(null);
-        String systemId = String.valueOf(100001+allCount);
+        String systemId = String.valueOf(100001 + allCount);
 
         long createTime = System.currentTimeMillis();
         project.setCreateTime(createTime);
@@ -103,6 +107,17 @@ public class ProjectService {
         project.setCreateUser(SessionUtils.getUserId());
         project.setSystemId(systemId);
         projectMapper.insertSelective(project);
+
+        // 创建项目为当前用户添加用户组
+        UserGroup userGroup = new UserGroup();
+        userGroup.setId(UUID.randomUUID().toString());
+        userGroup.setUserId(SessionUtils.getUserId());
+        userGroup.setCreateTime(System.currentTimeMillis());
+        userGroup.setUpdateTime(System.currentTimeMillis());
+        userGroup.setGroupId(UserGroupConstants.PROJECT_ADMIN);
+        userGroup.setSourceId(project.getId());
+        userGroupMapper.insert(userGroup);
+
         return project;
     }
 
@@ -427,9 +442,9 @@ public class ProjectService {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andSystemIdEqualTo(systemId);
         List<Project> returnList = projectMapper.selectByExample(example);
-        if(CollectionUtils.isEmpty(returnList)){
+        if (CollectionUtils.isEmpty(returnList)) {
             return null;
-        }else {
+        } else {
             return returnList.get(0);
         }
     }
