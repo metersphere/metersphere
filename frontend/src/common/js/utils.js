@@ -197,8 +197,7 @@ export function getCurrentUserId() {
 }
 
 export function getCurrentProjectID() {
-  let user = getCurrentUser();
-  return user.lastProjectId;
+  return localStorage.getItem(PROJECT_ID);
 }
 
 export function enableModules(...modules) {
