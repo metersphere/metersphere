@@ -10,4 +10,5 @@ public class TestPlanApiCaseDTO extends ApiTestCaseDTO {
     private String environmentId;
     private String caseId;
     private String execResult;
+    private String userId;
 }

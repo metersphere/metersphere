@@ -99,9 +99,10 @@
     <select id="list" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
         select test_case_review_test_case.id as id, test_case_review_test_case.reviewer,
         test_case_review_test_case.update_time, test_case_review_test_case.review_id as reviewId,
-        test_case.id as caseId, test_case.name, test_case.priority,  test_case.test_id as testId,
-        test_case.type, test_case.node_path, test_case.method, if(project.custom_num = 0, cast(test_case.num as char), test_case.custom_num) as customNum, test_case.review_status,
-        test_case.remark as remark,  test_case.steps as steps, test_case.node_id as nodeId,
+        test_case.id as caseId, test_case.name, test_case.priority, test_case.test_id as testId,
+        test_case.type, test_case.node_path, test_case.method, if(project.custom_num = 0, cast(test_case.num as char),
+        test_case.custom_num) as customNum, test_case.review_status,
+        test_case.remark as remark, test_case.maintainer, test_case.steps as steps, test_case.node_id as nodeId,
         test_case_node.name as model,
         project.name as projectName
         from test_case_review_test_case

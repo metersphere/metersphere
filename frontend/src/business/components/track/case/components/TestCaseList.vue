@@ -72,6 +72,15 @@
         >
         </el-table-column>
         <el-table-column
+          v-if="item.id == 'maintainer'"
+          prop="maintainer"
+          :label="$t('custom_field.case_maintainer')"
+          show-overflow-tooltip
+          :key="index"
+          min-width="120"
+        >
+        </el-table-column>
+        <el-table-column
           v-if="item.id == 'priority'"
           prop="priority"
           :filters="priorityFilters"
