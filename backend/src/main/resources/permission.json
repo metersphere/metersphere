@@ -374,21 +374,11 @@
       "name": "查询项目",
       "resourceId": "PROJECT_MANAGER"
     },
-//    {
-//      "id": "PROJECT_MANAGER:READ+CREATE",
-//      "name": "创建项目",
-//      "resourceId": "PROJECT_MANAGER"
-//    },
     {
       "id": "PROJECT_MANAGER:READ+EDIT",
       "name": "编辑项目",
       "resourceId": "PROJECT_MANAGER"
     },
-//    {
-//      "id": "PROJECT_MANAGER:READ+DELETE",
-//      "name": "删除项目",
-//      "resourceId": "PROJECT_MANAGER"
-//    },
     {
       "id": "PROJECT_ENVIRONMENT:READ",
       "name": "查询环境",
@@ -532,11 +522,6 @@
     {
       "id": "PROJECT_TRACK_PLAN:READ+RUN",
       "name": "执行测试计划",
-      "resourceId": "PROJECT_TRACK_PLAN"
-    },
-    {
-      "id": "PROJECT_TRACK_PLAN:READ+REPORT_DELETE",
-      "name": "删除测试计划报告",
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
