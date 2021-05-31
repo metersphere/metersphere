@@ -176,6 +176,12 @@
         select count(id) from test_case
         <include refid="queryWhereCondition"/>
     </select>
+
+    <select id="moduleCountByCollection" resultType="java.util.Map">
+        select node_id AS moduleId,count(id) AS countNum from test_case
+        <include refid="queryWhereCondition"/>
+        GROUP BY node_id
+    </select>
     <select id="listIds" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
         <if test="request.selectFields != null and request.selectFields.size() > 0">
