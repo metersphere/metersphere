@@ -82,6 +82,59 @@ values ('test_case_list',
 insert into system_header (type, props)
 values ('test_plan_scenario_case',
         '[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"level","label":"用例等级"},{"id":"tagNames","label":"标签"},{"id":"userId","label":"创建人"},{"id":"updateTime","label":"最后更新时间"},{"id":"stepTotal","label":"通过"},{"id":"lastResult","label":"失败"},{"id":"passRate","label":"通过率"}]');
+
+
+
+-- 初始化权限
+-- project_admin
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+RUN', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_ISSUE:READ+CREATE', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_ISSUE:READ+EDIT', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_ISSUE:READ+DELETE', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_REPORT:READ', 'PROJECT_TRACK_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_REPORT:READ+DELETE', 'PROJECT_TRACK_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_TRACK_REPORT:READ+EXPORT', 'PROJECT_TRACK_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_API_REPORT:READ+EXPORT', 'PROJECT_API_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_PERFORMANCE_REPORT:READ+EXPORT', 'PROJECT_PERFORMANCE_REPORT');
+
+-- project_member
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_PLAN:READ+RUN', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_ISSUE:READ+CREATE', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_ISSUE:READ+EDIT', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_ISSUE:READ+DELETE', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_REPORT:READ', 'PROJECT_TRACK_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_REPORT:READ+DELETE', 'PROJECT_TRACK_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_TRACK_REPORT:READ+EXPORT', 'PROJECT_TRACK_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_API_REPORT:READ+EXPORT', 'PROJECT_API_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_PERFORMANCE_REPORT:READ+EXPORT', 'PROJECT_PERFORMANCE_REPORT');
+
+-- read_only
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'read_only', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_ISSUE');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'read_only', 'PROJECT_TRACK_REPORT:READ', 'PROJECT_TRACK_REPORT');
 -- 接口定义添加用例总数，用例状态，用例通过率字段
 alter table api_definition
     add case_total varchar(100) null;
