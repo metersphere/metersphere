@@ -858,11 +858,11 @@
     },
     {
       "id": "PROJECT_PERFORMANCE_TEST",
-      "name": "性能测试"
+      "name": "测试"
     },
     {
       "id": "PROJECT_PERFORMANCE_REPORT",
-      "name": "性能测试报告"
+      "name": "报告"
     }
   ]
 }
