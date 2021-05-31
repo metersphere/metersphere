@@ -113,19 +113,6 @@ public class ApiDefinitionService {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         calculateResult(resList, request.getProjectId());
-        ApiDefinitionRequest finalRequest = request;
-       /* List<ApiDefinitionResult> resListFilters = new ArrayList<>();
-        if (finalRequest.getFilters().size() > 1) {
-            if (null != finalRequest.getFilters().get("case_status")) {
-                resListFilters = resList.stream()
-                        .filter((ApiDefinitionResult b) -> finalRequest.getFilters().get("case_status").contains(b.getCaseStatus()))
-                        .collect(Collectors.toList());
-                return resListFilters;
-            }
-
-        }*/
-
-
         return resList;
     }
 
@@ -884,6 +871,7 @@ public class ApiDefinitionService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
         calculateResult(resList, request.getProjectId());
+        resList = extApiDefinitionMapper.list(request);
         return resList;
     }
 
@@ -911,6 +899,7 @@ public class ApiDefinitionService {
                     res.setCaseStatus("-");
                 }
 
+                apiDefinitionMapper.updateByPrimaryKey(res);
                 if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
                     esbApiParamService.handleApiEsbParams(res);
                 }

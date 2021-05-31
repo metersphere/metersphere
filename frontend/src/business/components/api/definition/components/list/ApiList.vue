@@ -128,6 +128,7 @@
           <ms-table-column
             v-if="item.id == 'caseTotal'"
             prop="caseTotal"
+            sortable="custom"
             width="140px"
             :label="$t('api_test.definition.api_case_number')"
             show-overflow-tooltip
@@ -136,6 +137,7 @@
           <ms-table-column
             v-if="item.id == 'caseStatus'"
             prop="caseStatus"
+            :filters="caseStatusFilters"
             width="130px"
             :label="$t('api_test.definition.api_case_status')"
             show-overflow-tooltip
@@ -146,6 +148,7 @@
             v-if="item.id == 'casePassingRate'"
             width="150px"
             prop="casePassingRate"
+            sortable="custom"
             :label="$t('api_test.definition.api_case_passing_rate')"
             show-overflow-tooltip
             :key="index"/>
