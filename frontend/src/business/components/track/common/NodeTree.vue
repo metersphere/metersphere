@@ -142,9 +142,6 @@ export default {
       this.filter(val);
     }
   },
-  created() {
-    console.log(this.isDisplay);
-  },
   computed: {
     disabled() {
       return this.type !== 'edit';
