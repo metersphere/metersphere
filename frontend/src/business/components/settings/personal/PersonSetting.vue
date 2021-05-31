@@ -88,7 +88,7 @@ import {TokenKey} from "../../../../common/js/constants";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-import {PHONE_REGEX} from "@/common/js/regex";
+import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 
 export default {
   name: "MsPersonSetting",
@@ -126,7 +126,7 @@ export default {
           {required: true, message: this.$t('member.input_email'), trigger: 'blur'},
           {
             required: true,
-            pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
+            pattern: EMAIL_REGEX,
             message: this.$t('member.email_format_is_incorrect'),
             trigger: 'blur'
           }
