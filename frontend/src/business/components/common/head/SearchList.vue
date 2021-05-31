@@ -67,20 +67,6 @@ export default {
       this.result = this.$post("/project/list/related",{userId: getCurrentUserId()}, response => {
         this.items = response.data;
         this.searchArray = response.data;
-        let userLastProjectId = getCurrentUser().lastProjectId;
-        if (userLastProjectId) {
-          // id 是否存在
-          if (this.searchArray.length > 0 && this.searchArray.map(p => p.id).indexOf(userLastProjectId) !== -1) {
-            let projectId = localStorage.getItem(PROJECT_ID);
-            if (!projectId || projectId != userLastProjectId) {
-              localStorage.setItem(PROJECT_ID, userLastProjectId);
-              this.$store.commit('setProjectId', userLastProjectId);
-              window.location.reload();
-            } else {
-              this.$store.commit('setProjectId', projectId);
-            }
-          }
-        }
         let projectId = getCurrentProjectID();
         if (projectId) {
           // 保存的 projectId 在当前项目列表是否存在; 切换工作空间后
