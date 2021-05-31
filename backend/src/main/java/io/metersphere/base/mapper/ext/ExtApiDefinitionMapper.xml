@@ -492,6 +492,12 @@
         <include refid="queryWhereCondition"/>
     </select>
 
+    <select id="moduleCountByCollection" resultType="java.util.Map">
+        select module_id AS moduleId,count(id) AS countNum from api_definition
+        <include refid="queryWhereCondition"/>
+        GROUP BY module_id
+    </select>
+
     <sql id="filter">
         <if test="request.filters != null and request.filters.size() > 0">
             <foreach collection="request.filters.entrySet()" index="key" item="values">
