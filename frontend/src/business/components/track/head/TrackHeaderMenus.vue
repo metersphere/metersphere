@@ -22,7 +22,7 @@
             {{ $t('test_track.plan.test_plan') }}
           </el-menu-item>
 
-          <el-menu-item :index="'/track/issue'" popper-class="submenu">
+          <el-menu-item :index="'/track/issue'" popper-class="submenu" v-permission="['PROJECT_TRACK_ISSUE:READ']">
             {{ $t('test_track.issue.issue_management') }}
           </el-menu-item>
 
