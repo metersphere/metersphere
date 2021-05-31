@@ -129,20 +129,20 @@ public class TestCaseController {
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+    public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         request.setId(UUID.randomUUID().toString());
         return testCaseService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+    public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.edit(request, files);
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.editTestCase(request, files);
     }
 
