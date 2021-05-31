@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
@@ -75,6 +76,15 @@ public class WorkspaceService {
             workspace.setUpdateTime(currentTime);
             workspace.setCreateUser(SessionUtils.getUserId());
             workspaceMapper.insertSelective(workspace);
+            // 创建工作空间为当前用户添加用户组
+            UserGroup userGroup = new UserGroup();
+            userGroup.setId(UUID.randomUUID().toString());
+            userGroup.setUserId(SessionUtils.getUserId());
+            userGroup.setCreateTime(System.currentTimeMillis());
+            userGroup.setUpdateTime(System.currentTimeMillis());
+            userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
+            userGroup.setSourceId(workspace.getId());
+            userGroupMapper.insert(userGroup);
         } else {
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);
@@ -260,6 +270,17 @@ public class WorkspaceService {
         workspace.setUpdateTime(System.currentTimeMillis());
         workspace.setCreateUser(SessionUtils.getUserId());
         workspaceMapper.insertSelective(workspace);
+
+        // 创建工作空间为当前用户添加用户组
+        UserGroup userGroup = new UserGroup();
+        userGroup.setId(UUID.randomUUID().toString());
+        userGroup.setUserId(SessionUtils.getUserId());
+        userGroup.setCreateTime(System.currentTimeMillis());
+        userGroup.setUpdateTime(System.currentTimeMillis());
+        userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
+        userGroup.setSourceId(workspace.getId());
+        userGroupMapper.insert(userGroup);
+
         return workspace;
     }
 
