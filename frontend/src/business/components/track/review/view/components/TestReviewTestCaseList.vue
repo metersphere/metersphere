@@ -78,26 +78,34 @@
         </el-table-column>
 
         <el-table-column
-            v-if="item.id == 'type'"
-            prop="type"
-            :filters="typeFilters"
-            column-key="type"
-            min-width="100"
-            :label="$t('test_track.case.type')"
-            show-overflow-tooltip
-            :key="index">
+          v-if="item.id == 'type'"
+          prop="type"
+          :filters="typeFilters"
+          column-key="type"
+          min-width="100"
+          :label="$t('test_track.case.type')"
+          show-overflow-tooltip
+          :key="index">
           <template v-slot:default="scope">
             <type-table-item :value="scope.row.type"/>
           </template>
         </el-table-column>
-
         <el-table-column
-            v-if="item.id=='nodePath'"
-            prop="nodePath"
-            min-width="180"
-            :label="$t('test_track.case.module')"
-            show-overflow-tooltip
-            :key="index"
+          v-if="item.id == 'maintainer'"
+          prop="maintainer"
+          :label="$t('custom_field.case_maintainer')"
+          show-overflow-tooltip
+          :key="index"
+          min-width="120"
+        >
+        </el-table-column>
+        <el-table-column
+          v-if="item.id=='nodePath'"
+          prop="nodePath"
+          min-width="180"
+          :label="$t('test_track.case.module')"
+          show-overflow-tooltip
+          :key="index"
         >
         </el-table-column>
 
