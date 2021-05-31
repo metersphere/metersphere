@@ -72,3 +72,10 @@ values ('test_case_list',
 insert into system_header (type, props)
 values ('test_plan_scenario_case',
         '[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"level","label":"用例等级"},{"id":"tagNames","label":"标签"},{"id":"userId","label":"创建人"},{"id":"updateTime","label":"最后更新时间"},{"id":"stepTotal","label":"通过"},{"id":"lastResult","label":"失败"},{"id":"passRate","label":"通过率"}]');
+-- 接口定义添加用例总数，用例状态，用例通过率字段
+alter table api_definition
+    add case_total varchar(100) null;
+alter table api_definition
+    add case_status varchar(100) null;
+alter table api_definition
+    add case_passing_rate varchar(100) null;

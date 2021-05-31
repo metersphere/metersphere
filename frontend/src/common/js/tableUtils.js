@@ -138,9 +138,9 @@ export function _sort(column, condition) {
       hasProp = true;
     }
   });
-  if (column.prop === 'case_passing_rate' || column.prop === 'case_total') {
+ /* if (column.prop === 'case_passing_rate' || column.prop === 'case_total') {
     hasProp = true;
-  }
+  }*/
   if (!hasProp) {
     condition.orders.push({name: column.prop, type: column.order});
   }
