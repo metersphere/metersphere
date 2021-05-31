@@ -103,7 +103,6 @@ public class ProjectController {
     @GetMapping("/delete/{projectId}")
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#projectId)", msClass = ProjectService.class)
     public void deleteProject(@PathVariable(value = "projectId") String projectId) {
-        checkPermissionService.checkProjectOwner(projectId);
         projectService.deleteProject(projectId);
     }
 
