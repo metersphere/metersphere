@@ -9,6 +9,7 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ExtApiScenarioMapper {
     List<ApiScenarioDTO> list(@Param("request") ApiScenarioRequest request);
@@ -48,4 +49,6 @@ public interface ExtApiScenarioMapper {
     void updateCustomNumByProjectId(@Param("projectId") String projectId);
 
     List<ApiScenarioWithBLOBs> listWithIds(@Param("ids") List<String> ids);
+
+    List<Map<String, Object>> listModuleByCollection(@Param("request") ApiScenarioRequest request);
 }
