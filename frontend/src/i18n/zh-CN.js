@@ -955,6 +955,7 @@ export default {
       connect_timeout: "连接超时",
       response_timeout: "响应超时",
       follow_redirects: "跟随重定向",
+      cert_alias: "证书别名",
       do_multipart_post: "对 POST 使用 multipart/form-data",
       body_upload_limit_size: "上传文件大小不能超过 500 MB!",
       condition: "条件",
