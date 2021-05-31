@@ -472,6 +472,9 @@ export default {
       add_user_role_batch: 'Batch add user role',
     }
   },
+  group: {
+    add: 'Add User Group',
+  },
   role: {
     please_choose_role: 'Please Choose Role',
     admin: 'Admin',
