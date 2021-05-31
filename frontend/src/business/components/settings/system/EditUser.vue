@@ -93,7 +93,7 @@
         <el-form-item>
           <template>
             <el-button type="success" style="width: 100%;" @click="addGroup('createUserForm')" :disabled="btnAddRole">
-              {{ $t('role.add') }}
+              {{ $t('group.add') }}
             </el-button>
           </template>
         </el-form-item>

@@ -219,7 +219,7 @@
             </template>
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds">
+        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'blur'}">
           <el-select v-model="memberForm.groupIds" multiple placeholder="请选择用户组" style="width: 100%">
             <el-option
               v-for="item in memberForm.groups"
