@@ -488,7 +488,7 @@
                             <followSymlinks>false</followSymlinks>
                         </fileset>
                         <fileset>
-                            <directory>src/main/resources/templates</directory>
+                            <directory>src/main/resources/public</directory>
                             <includes>
                                 <include>**</include>
                             </includes>
@@ -537,7 +537,7 @@
                                         <exclude name="*.html"/>
                                     </fileset>
                                 </move>
-                                <move todir="src/main/resources/templates">
+                                <move todir="src/main/resources/public">
                                     <fileset dir="../frontend/dist">
                                         <include name="*.html"/>
                                     </fileset>
