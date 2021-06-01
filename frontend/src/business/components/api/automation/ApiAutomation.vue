@@ -74,7 +74,7 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-import {getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
 import MsEditApiScenario from "./scenario/EditApiScenario";
 
@@ -104,7 +104,7 @@ export default {
       return false;
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   data() {
