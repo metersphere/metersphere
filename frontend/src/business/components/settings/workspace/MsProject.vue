@@ -262,6 +262,7 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
+  getCurrentOrganizationId,
   getCurrentProjectID,
   getCurrentUser,
   getCurrentWorkspaceId,
@@ -565,7 +566,7 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: this.projectId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.form, "allgroups", response.data);
       });
       // 编辑使填充角色信息
@@ -643,7 +644,7 @@ export default {
       });
       this.result = this.$post('/user/group/list', {
         type: GROUP_PROJECT,
-        resourceId: this.currentProjectId
+        resourceId: getCurrentOrganizationId()
       }, response => {
         this.$set(this.memberForm, "groups", response.data);
       });

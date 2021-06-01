@@ -200,6 +200,7 @@ import MsTableOperator from "../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
+  getCurrentOrganizationId,
   getCurrentUser,
   getCurrentWorkspaceId,
   listenGoBack,
@@ -348,7 +349,7 @@ export default {
       this.result = this.$get('/user/list/', response => {
         this.userList = response.data;
       });
-      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.memberForm, "groups", response.data);
       });
       listenGoBack(this.close);
@@ -433,7 +434,7 @@ export default {
       this.dialogWsMemberUpdateVisible = true;
       this.memberForm = Object.assign({}, row);
       let groupIds = this.memberForm.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.memberForm, "allgroups", response.data);
       });
       // 编辑时填充角色信息
