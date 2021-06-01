@@ -2,7 +2,8 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_WORKSPACE:READ+CREATE']" :condition.sync="condition" @search="list" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_WORKSPACE:READ+CREATE']" :condition.sync="condition"
+                         @search="list" @create="create"
                          :create-tip="$t('workspace.create')" :title="$t('commons.workspace')"/>
       </template>
       <!-- workspace table -->
@@ -24,7 +25,9 @@
             <div>
               <ms-table-operator :edit-permission="['SYSTEM_WORKSPACE:READ+EDIT']"
                                  :delete-permission="['SYSTEM_WORKSPACE:READ+DELETE']"
-                                 @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+                                 :show-delete="workspaceId !== scope.row.id"
+                                 @editClick="edit(scope.row)"
+                                 @deleteClick="handleDelete(scope.row)"/>
             </div>
           </template>
         </el-table-column>
@@ -206,371 +209,378 @@
 </template>
 
 <script>
-  import MsCreateBox from "../CreateBox";
-  import {Message} from "element-ui";
-  import MsTablePagination from "../../common/pagination/TablePagination";
-  import MsTableHeader from "../../common/components/MsTableHeader";
-  import MsRolesTag from "../../common/components/MsRolesTag";
-  import MsTableOperator from "../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-  import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {
-    getCurrentUser,
-    getCurrentWorkspaceId, listenGoBack,
-    refreshSessionAndCookies, removeGoBackListener
-  } from "@/common/js/utils";
-  import {DEFAULT, GROUP_ORGANIZATION, GROUP_WORKSPACE, WORKSPACE} from "@/common/js/constants";
-  import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+import MsCreateBox from "../CreateBox";
+import {Message} from "element-ui";
+import MsTablePagination from "../../common/pagination/TablePagination";
+import MsTableHeader from "../../common/components/MsTableHeader";
+import MsRolesTag from "../../common/components/MsRolesTag";
+import MsTableOperator from "../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+import MsDialogFooter from "../../common/components/MsDialogFooter";
+import {
+  getCurrentUser,
+  getCurrentWorkspaceId,
+  listenGoBack,
+  refreshSessionAndCookies,
+  removeGoBackListener
+} from "@/common/js/utils";
+import {DEFAULT, GROUP_WORKSPACE, WORKSPACE} from "@/common/js/constants";
+import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 
-  export default {
-    name: "MsSystemWorkspace",
-    components: {
-      MsDeleteConfirm,
-      MsCreateBox,
-      MsTablePagination,
-      MsTableHeader,
-      MsRolesTag,
-      MsTableOperator,
-      MsDialogFooter,
-      MsTableOperatorButton
+export default {
+  name: "MsSystemWorkspace",
+  components: {
+    MsDeleteConfirm,
+    MsCreateBox,
+    MsTablePagination,
+    MsTableHeader,
+    MsRolesTag,
+    MsTableOperator,
+    MsDialogFooter,
+    MsTableOperatorButton
+  },
+  activated() {
+    this.list();
+  },
+  methods: {
+    create() {
+      this.dialogWsAddVisible = true;
+      this.form = {};
+      this.$get("/organization/list", response => {
+        this.$set(this.form, "orgList", response.data);
+      });
+      listenGoBack(this.close);
     },
-    activated() {
-      this.list();
+    dataFilter(val) {
+      if (val) {
+        this.memberForm.userList = this.memberForm.copyUserList.filter((item) => {
+          if (!!~item.id.indexOf(val) || !!~item.id.toUpperCase().indexOf(val.toUpperCase())) {
+            return true;
+          }
+        });
+      } else {
+        this.memberForm.userList = this.memberForm.copyUserList;
+      }
     },
-    methods: {
-      create() {
-        this.dialogWsAddVisible = true;
-        this.form = {};
-        this.$get("/organization/list", response => {
-          this.$set(this.form, "orgList", response.data);
-        })
-        listenGoBack(this.close);
-      },
-      dataFilter(val) {
-        if (val) {
-          this.memberForm.userList = this.memberForm.copyUserList.filter((item) => {
-            if (!!~item.id.indexOf(val) || !!~item.id.toUpperCase().indexOf(val.toUpperCase())) {
-              return true
-            }
-          })
+    submit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let saveType = 'special/add';
+          if (this.form.id) {
+            saveType = 'update';
+          }
+          this.result = this.$post("/workspace/" + saveType, this.form, () => {
+            this.dialogWsAddVisible = false;
+            this.list();
+            Message.success(this.$t('commons.save_success'));
+          });
         } else {
-          this.memberForm.userList = this.memberForm.copyUserList;
+          return false;
         }
-      },
-      submit(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let saveType = 'special/add';
-            if (this.form.id) {
-              saveType = 'update'
-            }
-            this.result = this.$post("/workspace/" + saveType, this.form, () => {
-              this.dialogWsAddVisible = false;
-              this.list();
-              Message.success(this.$t('commons.save_success'));
-            });
-          } else {
-            return false;
-          }
-        });
-      },
-      addMember() {
-        this.dialogWsMemberAddVisible = true;
-        this.result = this.$get('/user/list/', response => {
-          this.$set(this.memberForm, "userList", response.data);
-          this.$set(this.memberForm, "copyUserList", response.data);
-        });
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
-          this.$set(this.memberForm, "groups", response.data);
-        })
+      });
+    },
+    addMember() {
+      this.dialogWsMemberAddVisible = true;
+      this.result = this.$get('/user/list/', response => {
+        this.$set(this.memberForm, "userList", response.data);
+        this.$set(this.memberForm, "copyUserList", response.data);
+      });
+      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+        this.$set(this.memberForm, "groups", response.data);
+      });
 
-        listenGoBack(this.handleClose);
-      },
-      cellClick(row) {
-        // 保存当前点击的组织信息到currentRow
-        this.currentWorkspaceRow = row;
-        this.dialogWsMemberVisible = true;
-        let param = {
-          name: '',
-          workspaceId: row.id
-        };
-        this.wsId = row.id;
-        let path = "/user/special/ws/member/list";
-        this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
-          let data = res.data;
-          this.memberLineData = data.listObject;
-          let url = "/user/group/list/ws/" + row.id;
-          // 填充角色信息
-          for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
-              let groups = response.data;
-              this.$set(this.memberLineData[i], "groups", groups);
-            })
-          }
-          this.dialogTotal = data.itemCount;
-        });
-        listenGoBack(this.closeWsMemberDialog);
-      },
-      dialogSearch() {
-        let row = this.currentWorkspaceRow;
-        this.dialogWsMemberVisible = true;
-        let param = this.dialogCondition;
-        this.$set(param, 'workspaceId', row.id);
-        let path = "/user/special/ws/member/list";
-        this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
-          let data = res.data;
-          this.memberLineData = data.listObject;
-          let url = "/userrole/list/ws/" + row.id;
-          // 填充角色信息
-          for (let i = 0; i < this.memberLineData.length; i++) {
-            this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
-              let groups = response.data;
-              this.$set(this.memberLineData[i], "groups", groups);
-            })
-          }
-          this.dialogTotal = data.itemCount;
-        });
-      },
-      edit(row) {
-        this.dialogWsUpdateVisible = true;
-        // copy user
-        this.form = Object.assign({}, row);
-        this.$get("/organization/list", response => {
-          this.$set(this.form, "orgList1", response.data);
-        })
-        listenGoBack(this.close);
-      },
-      close() {
-        this.dialogWsAddVisible = false;
-        this.dialogWsUpdateVisible = false;
-        removeGoBackListener(this.close);
-      },
-      updateWorkspace(updateForm) {
-        this.$refs[updateForm].validate(valid => {
-          if (valid) {
-            this.result = this.$post("/workspace/special/update", this.form, () => {
-              this.$success(this.$t('commons.modify_success'));
-              this.dialogWsUpdateVisible = false;
-              this.list();
-            });
-          } else {
-            return false;
-          }
-        })
-      },
-      handleClose() {
-        this.memberForm = {};
-        this.dialogWsMemberAddVisible = false;
-        this.dialogWsMemberUpdateVisible = false;
-        removeGoBackListener(this.handleClose);
-      },
-      closeWsMemberDialog() {
-        this.memberLineData = [];
-        this.list();
-        removeGoBackListener(this.closeWsMemberDialog);
-        this.dialogWsMemberVisible = false;
-      },
-      list() {
-        let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
-        this.result = this.$post(url, this.condition, response => {
-          let data = response.data;
-          this.items = data.listObject;
-          for (let i = 0; i < this.items.length; i++) {
-            let param = {
-              name: '',
-              workspaceId: this.items[i].id
-            }
-            let path = "user/special/ws/member/list/all";
-            this.$post(path, param, res => {
-              let member = res.data;
-              this.$set(this.items[i], "memberSize", member.length);
-            })
-          }
-          this.total = data.itemCount;
-        });
-      },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let param = {
-              userIds: this.memberForm.userIds,
-              groupIds: this.memberForm.groupIds,
-              workspaceId: this.currentWorkspaceRow.id
-            };
-            this.result = this.$post("user/special/ws/member/add", param, () => {
-              this.cellClick(this.currentWorkspaceRow);
-              this.dialogWsMemberAddVisible = false;
-            })
-          } else {
-            return false;
-          }
-        });
-      },
-      editMember(row) {
-        this.dialogWsMemberUpdateVisible = true;
-        this.memberForm = Object.assign({}, row);
-        // console.log(this.memberForm)
-        let groupIds = this.memberForm.groups.map(r => r.id);
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
-          this.$set(this.memberForm, "allgroups", response.data);
-        })
-        // console.log(this.memberForm)
-        // 编辑时填充角色信息
-        this.$set(this.memberForm, 'groupIds', groupIds);
-        listenGoBack(this.handleClose);
-      },
-      handleDelete(workspace) {
-        this.$refs.deleteConfirm.open(workspace);
-      },
-      _handleDelete(workspace) {
-        this.$confirm(this.$t('workspace.delete_confirm'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.$get('/workspace/special/delete/' + workspace.id, () => {
-            let lastWorkspaceId = getCurrentWorkspaceId();
-            let sourceId = workspace.id;
-            if (lastWorkspaceId === sourceId) {
-              let sign = DEFAULT;
-              refreshSessionAndCookies(sign, sourceId);
-            }
-            Message.success(this.$t('commons.delete_success'));
+      listenGoBack(this.handleClose);
+    },
+    cellClick(row) {
+      // 保存当前点击的组织信息到currentRow
+      this.currentWorkspaceRow = row;
+      this.dialogWsMemberVisible = true;
+      let param = {
+        name: '',
+        workspaceId: row.id
+      };
+      this.wsId = row.id;
+      let path = "/user/special/ws/member/list";
+      this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
+        let data = res.data;
+        this.memberLineData = data.listObject;
+        let url = "/user/group/list/ws/" + row.id;
+        // 填充角色信息
+        for (let i = 0; i < this.memberLineData.length; i++) {
+          this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
+            let groups = response.data;
+            this.$set(this.memberLineData[i], "groups", groups);
+          });
+        }
+        this.dialogTotal = data.itemCount;
+      });
+      listenGoBack(this.closeWsMemberDialog);
+    },
+    dialogSearch() {
+      let row = this.currentWorkspaceRow;
+      this.dialogWsMemberVisible = true;
+      let param = this.dialogCondition;
+      this.$set(param, 'workspaceId', row.id);
+      let path = "/user/special/ws/member/list";
+      this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
+        let data = res.data;
+        this.memberLineData = data.listObject;
+        let url = "/userrole/list/ws/" + row.id;
+        // 填充角色信息
+        for (let i = 0; i < this.memberLineData.length; i++) {
+          this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
+            let groups = response.data;
+            this.$set(this.memberLineData[i], "groups", groups);
+          });
+        }
+        this.dialogTotal = data.itemCount;
+      });
+    },
+    edit(row) {
+      this.dialogWsUpdateVisible = true;
+      // copy user
+      this.form = Object.assign({}, row);
+      this.$get("/organization/list", response => {
+        this.$set(this.form, "orgList1", response.data);
+      });
+      listenGoBack(this.close);
+    },
+    close() {
+      this.dialogWsAddVisible = false;
+      this.dialogWsUpdateVisible = false;
+      removeGoBackListener(this.close);
+    },
+    updateWorkspace(updateForm) {
+      this.$refs[updateForm].validate(valid => {
+        if (valid) {
+          this.result = this.$post("/workspace/special/update", this.form, () => {
+            this.$success(this.$t('commons.modify_success'));
+            this.dialogWsUpdateVisible = false;
             this.list();
           });
-        }).catch(() => {
-          this.$message({
-            type: 'info',
-            message: this.$t('commons.delete_cancelled')
+        } else {
+          return false;
+        }
+      });
+    },
+    handleClose() {
+      this.memberForm = {};
+      this.dialogWsMemberAddVisible = false;
+      this.dialogWsMemberUpdateVisible = false;
+      removeGoBackListener(this.handleClose);
+    },
+    closeWsMemberDialog() {
+      this.memberLineData = [];
+      this.list();
+      removeGoBackListener(this.closeWsMemberDialog);
+      this.dialogWsMemberVisible = false;
+    },
+    list() {
+      let url = '/workspace/list/all/' + this.currentPage + '/' + this.pageSize;
+      this.result = this.$post(url, this.condition, response => {
+        let data = response.data;
+        this.items = data.listObject;
+        for (let i = 0; i < this.items.length; i++) {
+          let param = {
+            name: '',
+            workspaceId: this.items[i].id
+          };
+          let path = "user/special/ws/member/list/all";
+          this.$post(path, param, res => {
+            let member = res.data;
+            this.$set(this.items[i], "memberSize", member.length);
           });
+        }
+        this.total = data.itemCount;
+      });
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let param = {
+            userIds: this.memberForm.userIds,
+            groupIds: this.memberForm.groupIds,
+            workspaceId: this.currentWorkspaceRow.id
+          };
+          this.result = this.$post("user/special/ws/member/add", param, () => {
+            this.cellClick(this.currentWorkspaceRow);
+            this.dialogWsMemberAddVisible = false;
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+    editMember(row) {
+      this.dialogWsMemberUpdateVisible = true;
+      this.memberForm = Object.assign({}, row);
+      // console.log(this.memberForm)
+      let groupIds = this.memberForm.groups.map(r => r.id);
+      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+        this.$set(this.memberForm, "allgroups", response.data);
+      });
+      // console.log(this.memberForm)
+      // 编辑时填充角色信息
+      this.$set(this.memberForm, 'groupIds', groupIds);
+      listenGoBack(this.handleClose);
+    },
+    handleDelete(workspace) {
+      this.$refs.deleteConfirm.open(workspace);
+    },
+    _handleDelete(workspace) {
+      this.$confirm(this.$t('workspace.delete_confirm'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.$get('/workspace/special/delete/' + workspace.id, () => {
+          let lastWorkspaceId = getCurrentWorkspaceId();
+          let sourceId = workspace.id;
+          if (lastWorkspaceId === sourceId) {
+            let sign = DEFAULT;
+            refreshSessionAndCookies(sign, sourceId);
+          }
+          Message.success(this.$t('commons.delete_success'));
+          this.list();
         });
-      },
-      delMember(row) {
-        this.$confirm(this.$t('member.remove_member'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          cancelButtonText: this.$t('commons.cancel'),
-          type: 'warning'
-        }).then(() => {
-          this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
-            let sourceId = this.currentWorkspaceRow.id;
-            let userId = row.id;
-            let user = getCurrentUser();
-            if (user.id === userId) {
-              let sign = WORKSPACE;
-              refreshSessionAndCookies(sign, sourceId);
-            }
-            this.$success(this.$t('commons.remove_success'));
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: this.$t('commons.delete_cancelled')
+        });
+      });
+    },
+    delMember(row) {
+      this.$confirm(this.$t('member.remove_member'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.result = this.$get('/user/special/ws/member/delete/' + this.currentWorkspaceRow.id + '/' + encodeURIComponent(row.id), () => {
+          let sourceId = this.currentWorkspaceRow.id;
+          let userId = row.id;
+          let user = getCurrentUser();
+          if (user.id === userId) {
+            let sign = WORKSPACE;
+            refreshSessionAndCookies(sign, sourceId);
+          }
+          this.$success(this.$t('commons.remove_success'));
+          this.cellClick(this.currentWorkspaceRow);
+        });
+      }).catch(() => {
+        this.$info(this.$t('commons.remove_cancel'));
+      });
+    },
+    updateWorkspaceMember(formName) {
+      let param = {
+        id: this.memberForm.id,
+        name: this.memberForm.name,
+        email: this.memberForm.email,
+        phone: this.memberForm.phone,
+        groupIds: this.memberForm.groupIds,
+        workspaceId: this.currentWorkspaceRow.id
+      };
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.result = this.$post("/workspace/member/update", param, () => {
+            this.$success(this.$t('commons.modify_success'));
+            this.dialogWsMemberUpdateVisible = false;
             this.cellClick(this.currentWorkspaceRow);
           });
-        }).catch(() => {
-          this.$info(this.$t('commons.remove_cancel'));
-        });
-      },
-      updateWorkspaceMember(formName) {
-        let param = {
-          id: this.memberForm.id,
-          name: this.memberForm.name,
-          email: this.memberForm.email,
-          phone: this.memberForm.phone,
-          groupIds: this.memberForm.groupIds,
-          workspaceId: this.currentWorkspaceRow.id
         }
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            this.result = this.$post("/workspace/member/update", param, () => {
-              this.$success(this.$t('commons.modify_success'));
-              this.dialogWsMemberUpdateVisible = false;
-              this.cellClick(this.currentWorkspaceRow);
-            });
-          }
-        });
-      },
+      });
     },
-    data() {
-      return {
-        result: {},
-        dialogWsAddVisible: false,
-        dialogWsUpdateVisible: false,
-        dialogWsMemberVisible: false,
-        dialogWsMemberAddVisible: false,
-        dialogWsMemberUpdateVisible: false,
-        condition: {},
-        dialogCondition: {},
-        items: [],
-        currentPage: 1,
-        pageSize: 10,
-        total: 0,
-        dialogCurrentPage: 1,
-        dialogPageSize: 10,
-        dialogTotal: 0,
-        memberLineData: [],
-        memberForm: {},
-        screenHeight: 'calc(100vh - 255px)',
-        form: {
-          // name: "",
-          // description: ""
-        },
-        rules: {
-          name: [
-            {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
-            {min: 2, max: 25, message: this.$t('commons.input_limit', [2, 25]), trigger: 'blur'},
-            {
-              required: true,
-              pattern: /^(?!-)(?!.*?-$)[a-zA-Z0-9\u4e00-\u9fa5-]+$/,
-              message: this.$t('workspace.special_characters_are_not_supported'),
-              trigger: 'blur'
-            }
-          ],
-          description: [
-            {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
-          ],
-          organizationId: [
-            {required: true, message: this.$t('organization.select_organization'), trigger: ['blur']}
-          ]
-        },
-        wsMemberRule: {
-          userIds: [
-            {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
-          ],
-          roleIds: [
-            {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
-          ]
-        },
-        currentWorkspaceRow: {},
-        wsId: ""
-      }
+  },
+  computed: {
+    workspaceId() {
+      return getCurrentWorkspaceId();
     }
+  },
+  data() {
+    return {
+      result: {},
+      dialogWsAddVisible: false,
+      dialogWsUpdateVisible: false,
+      dialogWsMemberVisible: false,
+      dialogWsMemberAddVisible: false,
+      dialogWsMemberUpdateVisible: false,
+      condition: {},
+      dialogCondition: {},
+      items: [],
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      dialogCurrentPage: 1,
+      dialogPageSize: 10,
+      dialogTotal: 0,
+      memberLineData: [],
+      memberForm: {},
+      screenHeight: 'calc(100vh - 255px)',
+      form: {
+        // name: "",
+        // description: ""
+      },
+      rules: {
+        name: [
+          {required: true, message: this.$t('workspace.input_name'), trigger: 'blur'},
+          {min: 2, max: 25, message: this.$t('commons.input_limit', [2, 25]), trigger: 'blur'},
+          {
+            required: true,
+            pattern: /^(?!-)(?!.*?-$)[a-zA-Z0-9\u4e00-\u9fa5-]+$/,
+            message: this.$t('workspace.special_characters_are_not_supported'),
+            trigger: 'blur'
+          }
+        ],
+        description: [
+          {max: 50, message: this.$t('commons.input_limit', [0, 50]), trigger: 'blur'}
+        ],
+        organizationId: [
+          {required: true, message: this.$t('organization.select_organization'), trigger: ['blur']}
+        ]
+      },
+      wsMemberRule: {
+        userIds: [
+          {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
+        ],
+        roleIds: [
+          {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
+        ]
+      },
+      currentWorkspaceRow: {},
+      wsId: ""
+    };
   }
+};
 </script>
 
 <style scoped>
 
-  .el-table__row:hover .edit {
-    opacity: 1;
-  }
+.el-table__row:hover .edit {
+  opacity: 1;
+}
 
-  .member-size {
-    text-decoration: underline;
-    cursor: pointer;
-  }
+.member-size {
+  text-decoration: underline;
+  cursor: pointer;
+}
 
-  .ws-member-id {
-    float: left;
-  }
+.ws-member-id {
+  float: left;
+}
 
-  .ws-member-email {
-    float: right;
-    color: #8492a6;
-    font-size: 13px;
-  }
+.ws-member-email {
+  float: right;
+  color: #8492a6;
+  font-size: 13px;
+}
 
-  .select-width {
-    width: 100%;
-  }
+.select-width {
+  width: 100%;
+}
 
-  .dialog-css >>> .el-dialog__header {
-    padding: 0;
-  }
+.dialog-css >>> .el-dialog__header {
+  padding: 0;
+}
 
 </style>
 
