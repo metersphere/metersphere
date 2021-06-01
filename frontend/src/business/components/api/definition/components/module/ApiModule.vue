@@ -4,7 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-      :is-display="openType"
+      :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
@@ -82,7 +82,8 @@
       showOperator: Boolean,
       planId: String,
       relevanceProjectId: String,
-      reviewId: String
+      reviewId: String,
+      pageSource:String,
     },
     computed: {
       isPlanModel() {
@@ -97,6 +98,13 @@
       projectId() {
         return getCurrentProjectID();
       },
+      getIsRelevance(){
+        if(this.pageSource !== 'definition'){
+          return this.openType;
+        }else {
+          return "definition";
+        }
+      }
     },
     mounted() {
       this.initProtocol();
