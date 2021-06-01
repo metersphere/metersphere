@@ -55,6 +55,8 @@
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
                 @refreshTable="refresh"
+                :init-api-table-opretion="initApiTableOpretion"
+                @updateInitApiTableOpretion="updateInitApiTableOpretion"
                 ref="apiList"/>
               <!--测试用例列表-->
               <api-case-simple-list
@@ -242,6 +244,8 @@ export default {
       syncTabs: [],
       nodeTree: [],
       currentModulePath: "",
+      //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
+      initApiTableOpretion: 'init',
     };
   },
   created() {
@@ -458,7 +462,7 @@ export default {
     },
     refresh(data) {
       this.$refs.apiList[0].initTable(data);
-      this.$refs.nodeTree.list();
+      //this.$refs.nodeTree.list();
     },
     refreshTree() {
       this.$refs.nodeTree.list();
@@ -489,9 +493,11 @@ export default {
       this.debug(row);
     },
     nodeChange(node, nodeIds, pNodes) {
+      this.initApiTableOpretion = "selectNodeIds";
       this.selectNodeIds = nodeIds;
     },
     handleProtocolChange(protocol) {
+      this.initApiTableOpretion = "currentProtocol";
       this.currentProtocol = protocol;
     },
     setModuleOptions(data) {
@@ -504,7 +510,11 @@ export default {
       this.$route.params.dataSelectRange = 'all';
     },
     enableTrash(data) {
+      this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
+    },
+    updateInitApiTableOpretion(param){
+      this.initApiTableOpretion = param;
     }
   }
 };
