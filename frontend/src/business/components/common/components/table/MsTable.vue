@@ -12,7 +12,7 @@
       class="test-content adjust-table ms-table"
       :class="{'ms-select-all-fixed':showSelectAll}"
       :height="screenHeight"
-      v-loading="result.loading"
+      v-loading="tableIsLoading"
       ref="table" @row-click="handleRowClick">
 
       <el-table-column v-if="enableSelection" width="50" type="selection"/>
@@ -80,7 +80,6 @@ export default {
     return {
       selectDataCounts: 0,
       selectRows: new Set(),
-      result: {},
       selectIds: []
     };
   },
@@ -151,6 +150,12 @@ export default {
       type: Boolean,
       default() {
         return true;
+      }
+    },
+    tableIsLoading:{
+      type:Boolean,
+      default() {
+        return false;
       }
     }
   },
