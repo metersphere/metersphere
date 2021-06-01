@@ -35,6 +35,15 @@
             <group-permission :permissions="scope.row.permissions" :selected.sync="tableData"/>
           </template>
         </el-table-column>
+        <el-table-column
+          width="50px"
+          label="全选">
+          <template v-slot:default="scope">
+            <div style="text-align: center;">
+              <el-checkbox @change="handleSelectAll($event, scope.row.permissions)"/>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <el-button type="primary" @click="onSubmit" size="small" style="margin-top: 10px;margin-left: 5px;">确定</el-button>
@@ -142,6 +151,9 @@ export default {
         }
       }
     },
+    handleSelectAll(check, permissions) {
+      permissions.map(p => p.checked = check);
+    }
   }
 }
 </script>
