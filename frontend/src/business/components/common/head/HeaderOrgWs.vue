@@ -129,7 +129,6 @@ export default {
           let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
           if (workspace.length > 0) {
             this.currentWorkspaceName = workspace[0].name;
-            localStorage.setItem(WORKSPACE_ID, workspace[0].id);
           }
         }
       });

@@ -125,7 +125,7 @@
 
 import {WORKSPACE_ID} from '@/common/js/constants';
 import TestPlanStatusButton from "../common/TestPlanStatusButton";
-import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
@@ -196,7 +196,7 @@ export default {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-          param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          param.workspaceId = getCurrentWorkspaceId();
           if (this.form.tags instanceof Array) {
             this.form.tags = JSON.stringify(this.form.tags);
           }
@@ -221,7 +221,7 @@ export default {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-          param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          param.workspaceId = getCurrentWorkspaceId();
           if (this.form.tags instanceof Array) {
             this.form.tags = JSON.stringify(this.form.tags);
           }
@@ -248,7 +248,6 @@ export default {
       return true;
     },
     setPrincipalOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
         this.principalOptions = response.data;
       });
