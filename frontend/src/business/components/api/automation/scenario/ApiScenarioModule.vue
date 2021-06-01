@@ -4,7 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
-      :is-display="openType"
+      :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
       :allLabel="$t('commons.all_module_title')"
@@ -69,7 +69,8 @@
       },
       showOperator: Boolean,
       relevanceProjectId: String,
-      planId: String
+      planId: String,
+      pageSource:String,
     },
     computed: {
       isPlanModel() {
@@ -81,6 +82,13 @@
       projectId() {
         return getCurrentProjectID();
       },
+      getIsRelevance(){
+        if(this.pageSource !== 'scenario'){
+          return this.openType;
+        }else {
+          return "scenario";
+        }
+      }
     },
     data() {
       return {
