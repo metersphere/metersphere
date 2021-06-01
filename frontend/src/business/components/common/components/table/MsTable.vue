@@ -12,6 +12,7 @@
       class="test-content adjust-table ms-table"
       :class="{'ms-select-all-fixed':showSelectAll}"
       :height="screenHeight"
+      v-loading="result.loading"
       ref="table" @row-click="handleRowClick">
 
       <el-table-column v-if="enableSelection" width="50" type="selection"/>
@@ -79,6 +80,7 @@ export default {
     return {
       selectDataCounts: 0,
       selectRows: new Set(),
+      result: {},
       selectIds: []
     };
   },

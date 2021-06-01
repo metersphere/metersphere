@@ -275,7 +275,8 @@ export default {
     customNum: {
       type: Boolean,
       default: false
-    }
+    },
+    initApiTableOpretion: String,
   },
   data() {
     return {
@@ -426,7 +427,9 @@ export default {
       this.search();
     },
     search(projectId) {
-      this.$emit('refreshTree');
+      if(this.needRefreshModule()){
+        this.$emit('refreshTree');
+      }
       this.selectRows = new Set();
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
@@ -866,6 +869,14 @@ export default {
     },
     getConditions() {
       return this.condition;
+    },
+    needRefreshModule(){
+      if(this.initApiTableOpretion === '0'){
+        return true;
+      }else {
+        this.$emit('updateInitApiTableOpretion','0');
+        return false;
+      }
     }
   }
 };
