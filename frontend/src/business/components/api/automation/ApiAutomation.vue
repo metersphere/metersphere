@@ -33,6 +33,8 @@
             @edit="editScenario"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             :custom-num="customNum"
+            :init-api-table-opretion="initApiTableOpretion"
+            @updateInitApiTableOpretion="updateInitApiTableOpretion"
             ref="apiScenarioList"/>
         </el-tab-pane>
 
@@ -123,7 +125,9 @@ export default {
       selectNodeIds: [],
       nodeTree: [],
       currentModulePath: "",
-      customNum: false
+      customNum: false,
+      //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
+      initApiTableOpretion: 'init',
     };
   },
   mounted() {
@@ -341,6 +345,7 @@ export default {
     },
 
     nodeChange(node, nodeIds, pNodes) {
+      this.initApiTableOpretion = "nodeChange";
       this.selectNodeIds = nodeIds;
     },
     setModuleOptions(data) {
@@ -354,6 +359,7 @@ export default {
     },
     enableTrash(data) {
       this.activeName = "default";
+      this.initApiTableOpretion = "enableTrash";
       this.trashEnable = data;
     },
     getProject() {
@@ -363,6 +369,9 @@ export default {
           this.customNum = data.scenarioCustomNum;
         }
       });
+    },
+    updateInitApiTableOpretion(param){
+      this.initApiTableOpretion = param;
     }
   }
 };

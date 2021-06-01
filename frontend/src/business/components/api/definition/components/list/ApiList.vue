@@ -375,6 +375,7 @@ export default {
     selectNodeIds: Array,
     isSelectThisWeek: String,
     activeDom: String,
+    initApiTableOpretion: String,
     visible: {
       type: Boolean,
       default: false,
@@ -410,7 +411,7 @@ export default {
     },
     selectRows() {
       return this.$refs.apiDefinitionTable.getSelectRows();
-    }
+    },
   },
   created: function () {
     if (this.trashEnable) {
@@ -514,7 +515,9 @@ export default {
         });
       }
       getLabel(this, API_LIST);
-      this.$emit("refreshTree");
+      if(this.needRefreshModule()){
+        this.$emit("refreshTree");
+      }
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {
@@ -817,6 +820,14 @@ export default {
     open() {
       this.$refs.searchBar.open();
     },
+    needRefreshModule(){
+      if(this.initApiTableOpretion === '0'){
+        return true;
+      }else {
+        this.$emit('updateInitApiTableOpretion','0');
+        return false;
+      }
+    }
   },
 };
 </script>
