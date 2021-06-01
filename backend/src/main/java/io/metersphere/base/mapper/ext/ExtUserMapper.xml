@@ -102,4 +102,9 @@
         from user
         <include refid="queryWhereCondition"/>
     </select>
+
+    <update id="updateLastProjectIdIfNull">
+        update user set last_project_id = #{projectId} where id = #{userId}
+        and (last_project_id is null or last_project_id = '')
+    </update>
 </mapper>

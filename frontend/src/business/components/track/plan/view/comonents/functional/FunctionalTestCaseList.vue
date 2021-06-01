@@ -681,7 +681,6 @@ export default {
       this.$refs.batchEdit.open();
     },
     getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.valueArr.executor = response.data;
         this.executorFilters = response.data.map(u => {

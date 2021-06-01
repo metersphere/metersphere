@@ -241,11 +241,12 @@ export default {
           this.$post("/workspace/" + saveType, this.form, () => {
             this.dialogWsAddVisible = false;
             this.dialogWsUpdateVisible = false;
-            this.list();
             if (saveType == 'add') {
               Message.success(this.$t('commons.save_success'));
+              window.location.reload();
             } else if (saveType == 'update') {
               Message.success(this.$t('commons.modify_success'));
+              this.list();
             }
           });
         } else {
