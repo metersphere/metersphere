@@ -40,7 +40,7 @@
   import MsApiReportExport from "./ApiReportExport";
   import MsApiReportViewHeader from "./ApiReportViewHeader";
   import {RequestFactory} from "../../definition/model/ApiTestModel";
-  import {windowPrint,getUUID} from "@/common/js/utils";
+  import {windowPrint, getUUID, getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "MsApiReport",
@@ -310,7 +310,7 @@
         return "Running" !== this.report.status;
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     }
   }

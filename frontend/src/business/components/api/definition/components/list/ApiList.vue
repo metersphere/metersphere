@@ -406,7 +406,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     selectRows() {
       return this.$refs.apiDefinitionTable.getSelectRows();

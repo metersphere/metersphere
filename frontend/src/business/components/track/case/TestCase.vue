@@ -105,7 +105,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -177,7 +177,7 @@ export default {
     },
 
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;

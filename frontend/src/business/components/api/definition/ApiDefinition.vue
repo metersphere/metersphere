@@ -160,7 +160,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -185,7 +185,7 @@ export default {
       return false;
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   components: {

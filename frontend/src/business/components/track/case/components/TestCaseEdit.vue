@@ -271,7 +271,7 @@
     },
     computed: {
       projectIds() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
       moduleOptions() {
         return this.$store.state.testCaseModuleOptions;

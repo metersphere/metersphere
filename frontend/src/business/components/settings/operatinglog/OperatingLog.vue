@@ -339,13 +339,13 @@
       },
       getProject() {
         this.condition.projectIds = [];
-        this.result = this.$get("/project/get/" + this.$store.state.projectId, response => {
+        this.result = this.$get("/project/get/" + getCurrentProjectID(), response => {
           let project = response.data;
           this.items = [{id: project.id, label: project.name}];
           this.condition.projectIds = [project.id];
           this.condition.projectId = project.id;
           this.initTableData();
-        })
+        });
       },
       getType(type) {
         return this.LOG_TYPE_MAP.get(type);

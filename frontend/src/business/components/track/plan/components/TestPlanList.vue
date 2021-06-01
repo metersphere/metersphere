@@ -252,7 +252,7 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
 
 export default {
   name: "TestPlanList",
@@ -310,7 +310,7 @@ export default {
   created() {
     this.projectId = this.$route.params.projectId;
     if (!this.projectId) {
-      this.projectId = this.$store.state.projectId;
+      this.projectId = getCurrentProjectID();
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
     this.initTableData();

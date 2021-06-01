@@ -99,6 +99,7 @@ import {getIssues} from "@/network/Issue";
 import {getPageInfo} from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "CustomFieldList",
@@ -153,7 +154,7 @@ export default {
       return SYSTEM_FIELD_NAME_MAP;
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
   methods: {

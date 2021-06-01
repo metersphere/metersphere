@@ -17,6 +17,7 @@ import TemplateComponentEditHeader
   from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
+import {getCurrentProjectID} from "@/common/js/utils";
 export default {
   name: "TestPlanIssueEdit",
   components: {MsEditDialog, IssueEditDetail, TemplateComponentEditHeader},
@@ -27,7 +28,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
   props: ['caseId', 'planId'],

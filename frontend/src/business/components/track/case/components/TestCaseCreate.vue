@@ -99,7 +99,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
