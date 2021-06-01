@@ -23,7 +23,9 @@
             <div>
               <ms-table-operator :edit-permission="['ORGANIZATION_WORKSPACE:READ+EDIT']"
                                  :delete-permission="['ORGANIZATION_WORKSPACE:READ+DELETE']"
-                                 @editClick="edit(scope.row)" @deleteClick="handleDelete(scope.row)"/>
+                                 :show-delete="workspaceId !== scope.row.id"
+                                 @editClick="edit(scope.row)"
+                                 @deleteClick="handleDelete(scope.row)"/>
             </div>
           </template>
         </el-table-column>
@@ -224,6 +226,9 @@ export default {
   computed: {
     currentUser: () => {
       return getCurrentUser();
+    },
+    workspaceId() {
+      return getCurrentWorkspaceId();
     }
   },
   methods: {
