@@ -84,7 +84,7 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import EditMember from "@/business/components/settings/project/EditMember";
 import {GROUP_PROJECT, GROUP_WORKSPACE} from "@/common/js/constants";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "Member",
@@ -143,7 +143,7 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: this.projectId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.form, "allgroups", response.data);
       })
       // 编辑使填充角色信息
