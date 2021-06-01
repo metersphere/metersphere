@@ -153,6 +153,7 @@
           let operator = this.assertion.operator;
           let value = this.assertion.value || "";
           let desc = "${" + variable + "} " + operator + " '" + value + "'";
+          let msgScript = "\" + value + \" " + operator + " '" + value + "'";
           let script = "value = vars.get(\"" + variable + "\");\n"
           switch (this.assertion.operator) {
             case "==":
@@ -169,24 +170,28 @@
               break;
             case ">":
               desc = "${" + variable + "} " + operator + " " + value;
+              msgScript = "\" + value + \" " + operator + " " + value;
               script += "number = Integer.parseInt(value);\n" +
                 "result = number > " + value + ";\n";
               break;
             case "<":
               desc = "${" + variable + "} " + operator + " " + value;
+              msgScript = "\" + value + \" " + operator + " " + value;
               script += "number = Integer.parseInt(value);\n" +
                 "result = number < " + value + ";\n";
               break;
             case "is empty":
-              desc = "${" + variable + "} " + operator
+              desc = "${" + variable + "} " + operator;
+              msgScript = "\" + value + \" " + operator;
               script += "result = value == void || value.length() == 0;\n";
               break;
             case "is not empty":
-              desc = "${" + variable + "} " + operator
+              desc = "${" + variable + "} " + operator;
+              msgScript = "\" + value + \" " + operator;
               script += "result = value != void && value.length() > 0;\n";
               break;
           }
-          let msg = (operator != "is empty" && operator != "is not empty") ? "assertion [" + desc + "]: false;" : "value " + operator
+          let msg = (operator !== "is empty" && operator !== "is not empty") ? "assertion [" + msgScript + "]: false;" : "value " + operator
           script += "if (!result){\n" +
             "\tmsg = \"" + msg + "\";\n" +
             "\tAssertionResult.setFailureMessage(msg);\n" +
