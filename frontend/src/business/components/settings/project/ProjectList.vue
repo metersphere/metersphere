@@ -7,6 +7,7 @@
                          :create-tip="btnTips" :title="$t('commons.project')">
           <template v-slot:button>
             <ms-table-button icon="el-icon-box"
+                             v-permission="['PROJECT_MANAGER:READ+EDIT']"
                              :content="$t('api_test.jar_config.title')" @click="openJarConfig"/>
           </template>
         </ms-table-header>
