@@ -285,7 +285,7 @@ export default {
         this.$set(this.memberForm, "userList", response.data);
         this.$set(this.memberForm, "copyUserList", response.data);
       });
-      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.orgId}, response => {
         this.$set(this.memberForm, "groups", response.data);
       });
 
@@ -299,7 +299,7 @@ export default {
         name: '',
         workspaceId: row.id
       };
-      this.wsId = row.id;
+      this.orgId = row.organizationId;
       let path = "/user/special/ws/member/list";
       this.result = this.$post(path + "/" + this.dialogCurrentPage + "/" + this.dialogPageSize, param, res => {
         let data = res.data;
@@ -416,7 +416,7 @@ export default {
       this.memberForm = Object.assign({}, row);
       // console.log(this.memberForm)
       let groupIds = this.memberForm.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.wsId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.orgId}, response => {
         this.$set(this.memberForm, "allgroups", response.data);
       });
       // console.log(this.memberForm)
@@ -547,7 +547,7 @@ export default {
         ]
       },
       currentWorkspaceRow: {},
-      wsId: ""
+      orgId: ""
     };
   }
 };

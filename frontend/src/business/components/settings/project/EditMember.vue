@@ -43,7 +43,7 @@
 
 <script>
 import {GROUP_PROJECT} from "@/common/js/constants";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "EditMember",
@@ -100,7 +100,7 @@ export default {
         this.dialogVisible = true;
         this.userList = response.data;
       })
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: this.projectId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.form, "groups", response.data);
       })
     },

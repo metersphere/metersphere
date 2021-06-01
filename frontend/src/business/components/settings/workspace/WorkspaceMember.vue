@@ -271,7 +271,7 @@
         this.updateVisible = true;
         this.form = Object.assign({}, row);
         let groupIds = this.form.groups.map(r => r.id);
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.currentUser().lastWorkspaceId}, response => {
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
           this.$set(this.form, "allgroups", response.data);
         })
         // 编辑使填充角色信息
@@ -316,7 +316,7 @@
           this.createVisible = true;
           this.userList = response.data;
         })
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.currentUser().lastWorkspaceId}, response => {
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
           this.$set(this.form, "groups", response.data);
         })
         listenGoBack(this.handleClose);
