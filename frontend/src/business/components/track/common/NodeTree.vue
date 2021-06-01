@@ -30,7 +30,7 @@
           <i class="el-icon-folder"/>
         </span>
         <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
-        <span class="node-title" v-if="isDisplay!=='relevance'">
+        <span class="count-title" v-if="isDisplay!=='relevance'">
           <span style="color: #6C317C">{{ data.caseNum }}</span>
         </span>
         <span v-if="!disabled" class="node-operate child">
@@ -417,6 +417,14 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
   flex: 1 1 auto;
+  padding: 0px 5px;
+  overflow: hidden;
+}
+
+.count-title {
+  width: auto;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   padding: 0px 5px;
   overflow: hidden;
 }

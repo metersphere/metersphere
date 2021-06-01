@@ -14,6 +14,7 @@
           @setNodeTree="setNodeTree"
           @enableTrash="enableTrash"
           :type="'edit'"
+          page-source="definition"
           ref="nodeTree"/>
       </ms-aside-container>
 

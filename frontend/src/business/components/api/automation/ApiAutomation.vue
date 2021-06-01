@@ -12,6 +12,7 @@
         @exportAPI="exportAPI"
         @exportJmx="exportJmx"
         @refreshAll="refreshAll"
+        page-source="scenario"
         :type="'edit'"
         ref="nodeTree"/>
     </ms-aside-container>
