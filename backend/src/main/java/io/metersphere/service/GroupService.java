@@ -126,6 +126,11 @@ public class GroupService {
             }
         }
         groupMapper.deleteByPrimaryKey(id);
+
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andGroupIdEqualTo(id);
+        userGroupMapper.deleteByExample(userGroupExample);
+
         UserGroupPermissionExample example = new UserGroupPermissionExample();
         example.createCriteria().andGroupIdEqualTo(id);
         userGroupPermissionMapper.deleteByExample(example);

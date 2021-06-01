@@ -35,7 +35,7 @@
 
 
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
-               @close="handleClose">
+               @close="handleClose" v-loading="dialogResult.loading">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -103,6 +103,7 @@ export default {
     return {
       condition: {},
       result: {},
+      dialogResult: {},
       tableData: [],
       screenHeight: 'calc(100vh - 255px)',
       currentPage: 1,
@@ -143,7 +144,7 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
+      this.dialogResult = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.form, "allgroups", response.data);
       })
       // 编辑使填充角色信息
