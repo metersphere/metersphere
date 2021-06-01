@@ -14,6 +14,7 @@
                 :operators="tableOperatorButtons" operator-width="200px"
                 @refresh="initTable"
                 @openCustomHeader="customHeader"
+                :table-is-loading="this.result.loading"
                 ref="apiDefinitionTable"
       >
         <template v-for="(item, index) in tableLabel">
