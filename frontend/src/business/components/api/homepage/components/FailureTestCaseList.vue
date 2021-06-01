@@ -42,6 +42,7 @@
 
 <script>
 import MsTag from "@/business/components/common/components/MsTag";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "MsFailureTestCaseList",
@@ -59,7 +60,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {

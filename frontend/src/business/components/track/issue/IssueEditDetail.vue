@@ -76,7 +76,7 @@ import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/cust
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentUserId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
 
 export default {
   name: "IssueEditDetail",
@@ -140,7 +140,7 @@ export default {
       return SYSTEM_FIELD_NAME_MAP;
     },
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     }
   },
   methods: {

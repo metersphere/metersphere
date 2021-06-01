@@ -43,6 +43,7 @@ import TestCaseImport from "@/business/components/track/case/components/TestCase
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseNodeTree",
@@ -100,7 +101,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {

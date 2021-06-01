@@ -39,6 +39,7 @@ import ApiImport from "../import/ApiImport";
 import ModuleTrashButton from "./ModuleTrashButton";
 import TemplateComponent from "../../../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "ApiModuleHeader",
@@ -117,7 +118,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   methods: {

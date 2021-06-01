@@ -61,6 +61,7 @@ import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDe
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {getPageInfo} from "@/common/js/tableUtils";
+import {getCurrentProjectID} from "@/common/js/utils";
 export default {
   name: "IssueRelateList",
   components: {MsTablePagination, IssueDescriptionTableItem, MsTableColumn, MsTable, MsEditDialog},
@@ -75,7 +76,7 @@ export default {
       return ISSUE_STATUS_MAP;
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
   props: ['caseId'],

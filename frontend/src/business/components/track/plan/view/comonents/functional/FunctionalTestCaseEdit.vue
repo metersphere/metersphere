@@ -122,7 +122,7 @@ import ApiTestDetail from "../test/ApiTestDetail";
 import ApiTestResult from "../test/ApiTestResult";
 import PerformanceTestDetail from "../test/PerformanceTestDetail";
 import PerformanceTestResult from "../test/PerformanceTestResult";
-import {getUUID, hasPermission, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
@@ -199,7 +199,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
