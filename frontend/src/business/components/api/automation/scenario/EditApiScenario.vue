@@ -501,7 +501,7 @@
         return buttons.filter(btn => btn.show);
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {

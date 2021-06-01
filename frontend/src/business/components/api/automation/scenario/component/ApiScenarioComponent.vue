@@ -71,7 +71,7 @@
             this.scenario.projectId = response.data.projectId;
             const pro = this.projectList.find(p => p.id === response.data.projectId);
             if (!pro) {
-              this.scenario.projectId = this.$store.state.projectId;
+              this.scenario.projectId = getCurrentProjectID();
             }
             if (this.scenario.hashTree) {
               this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
@@ -103,7 +103,7 @@
         return false;
       },
       projectId() {
-        return this.$store.state.projectId;
+        return getCurrentProjectID();
       },
     },
     methods: {
@@ -148,13 +148,13 @@
       },
       calcProjectId(projectId, parentId) {
         if (!projectId) {
-          return parentId ? parentId : this.$store.state.projectId;
+          return parentId ? parentId : getCurrentProjectID();
         } else {
           const project = this.projectList.find(p => p.id === projectId);
           if (project) {
             return projectId;
           }
-          return parentId ? parentId : this.$store.state.projectId;
+          return parentId ? parentId : getCurrentProjectID();
         }
       },
       getProjectName(id) {

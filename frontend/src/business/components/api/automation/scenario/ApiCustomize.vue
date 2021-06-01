@@ -26,7 +26,7 @@
   import MsDebugJdbcPage from "../../definition/components/debug/DebugJdbcPage";
   import MsDebugTcpPage from "../../definition/components/debug/DebugTcpPage";
   import MsDebugDubboPage from "../../definition/components/debug/DebugDubboPage";
-  import {getUUID} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
   export default {
     name: "ApiCustomize",
@@ -68,7 +68,7 @@
           this.request.method = row.method;
         }
         this.request.resourceId = getUUID();
-        this.request.projectId = this.$store.state.projectId;
+        this.request.projectId = getCurrentProjectID();
         let obj = {};
         Object.assign(obj, this.request);
         this.$emit('addCustomizeApi', obj);

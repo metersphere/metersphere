@@ -30,8 +30,8 @@
 </template>
 
 <script>
-  import {exportPdf} from "@/common/js/utils";
-  import html2canvas from 'html2canvas';
+import {exportPdf, getCurrentProjectID} from "@/common/js/utils";
+import html2canvas from 'html2canvas';
   import EnvPopover from "../../scenario/EnvPopover";
 
   export default {
@@ -56,7 +56,7 @@
     },
     computed: {
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       }
     },
     mounted() {

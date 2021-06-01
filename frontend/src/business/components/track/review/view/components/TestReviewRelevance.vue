@@ -108,6 +108,7 @@ import ReviewStatus from "@/business/components/track/case/components/ReviewStat
 import elTableInfiniteScroll from 'el-table-infinite-scroll';
 import SelectMenu from "../../../common/SelectMenu";
 import {_filter} from "@/common/js/tableUtils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 
 export default {
@@ -316,7 +317,7 @@ export default {
             let data = res.data;
             if (data) {
               this.projects = data;
-              const index = data.findIndex(d => d.id === this.$store.state.projectId);
+              const index = data.findIndex(d => d.id === getCurrentProjectID());
               if (index !== -1) {
                 this.projectId = data[index].id;
                 this.projectName = data[index].name;

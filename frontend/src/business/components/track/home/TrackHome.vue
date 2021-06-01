@@ -80,6 +80,7 @@ import BugCountCard from "@/business/components/track/home/components/BugCountCa
 import ReviewList from "@/business/components/track/home/components/ReviewList";
 import MsRunningTaskList from "@/business/components/api/homepage/components/RunningTaskList";
 import MsFailureTestCaseList from "@/business/components/api/homepage/components/FailureTestCaseList";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 require('echarts/lib/component/legend');
 export default {
@@ -111,14 +112,14 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {
     checkTipsType() {
       let random = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
       this.tipsType = random + "";
-      
+
       let today = new Date();
       let month = today.getMonth();
       if (9 > month > 4) {

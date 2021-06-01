@@ -50,6 +50,7 @@ import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
 import FunctionalTestCaseList from "./FunctionalTestCaseList";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestPlanMinder from "@/business/components/track/common/minder/TestPlanMinder";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestPlanFunctional",
@@ -81,7 +82,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   activated() {

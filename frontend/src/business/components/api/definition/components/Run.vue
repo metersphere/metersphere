@@ -2,8 +2,8 @@
   <span></span>
 </template>
 <script>
-  import {getBodyUploadFiles, strMapToObj} from "@/common/js/utils";
-  import ThreadGroup from "./jmeter/components/thread-group";
+import {getBodyUploadFiles, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import ThreadGroup from "./jmeter/components/thread-group";
   import TestPlan from "./jmeter/components/test-plan";
 
   export default {
@@ -58,10 +58,10 @@
         }
       },
       run() {
-        let projectId = this.$store.state.projectId;
+        let projectId = getCurrentProjectID();
         // 如果envMap不存在，是单接口调用
         if (!this.envMap || this.envMap.size === 0) {
-          projectId = this.$store.state.projectId;
+          projectId = getCurrentProjectID();
         } else {
           // 场景步骤下接口调用
           if (this.runData.projectId) {

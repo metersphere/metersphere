@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
 
 export default {
@@ -65,7 +65,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {

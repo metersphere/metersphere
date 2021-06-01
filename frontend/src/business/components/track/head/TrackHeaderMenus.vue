@@ -43,6 +43,7 @@ import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TrackHeaderMenus",
@@ -76,7 +77,7 @@ export default {
       },
       planRecent: {
         title: this.$t('test_track.recent_plan'),
-        url: this.$store.state.projectId === '' ? "/test/plan/recent/5/" + undefined : "/test/plan/recent/5/" + this.$store.state.projectId,
+        url: getCurrentProjectID() === '' ? "/test/plan/recent/5/" + undefined : "/test/plan/recent/5/" + getCurrentProjectID(),
         index: function (item) {
           return '/track/plan/view/' + item.id;
         },

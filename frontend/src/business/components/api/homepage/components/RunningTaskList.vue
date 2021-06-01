@@ -58,6 +58,7 @@
 
 <script>
 import MsTag from "@/business/components/common/components/MsTag";
+import {getCurrentProjectID} from "@/common/js/utils";
 export default {
   name: "MsRunningTaskList",
   components: {
@@ -81,7 +82,7 @@ export default {
       return false;
     },
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
 

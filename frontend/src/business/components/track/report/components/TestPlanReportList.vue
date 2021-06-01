@@ -91,6 +91,7 @@ import {
   setUnSelectIds, toggleAllSelection,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestPlanReportList",
@@ -142,7 +143,7 @@ export default {
   created() {
     this.projectId = this.$route.params.projectId;
     if (!this.projectId) {
-      this.projectId = this.$store.state.projectId;
+      this.projectId = getCurrentProjectID();
     }
     this.isTestManagerOrTestUser = true;
     this.initTableData();
