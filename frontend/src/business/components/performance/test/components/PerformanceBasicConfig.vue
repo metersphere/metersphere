@@ -33,7 +33,10 @@
       <el-table-column
         label="CSVDataSet">
         <template v-slot:default="scope">
-          <span v-for="f in scope.row.csvFiles" :key="f">{{ f }}</span>
+          <ms-tag v-for="(f, index) in scope.row.csvFiles"
+                  :key="index"
+                  effect="light"
+                  :content="f"/>
         </template>
       </el-table-column>
       <el-table-column
@@ -133,10 +136,14 @@ import ExistFiles from "@/business/components/performance/test/components/ExistF
 import ExistScenarios from "@/business/components/performance/test/components/ExistScenarios";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import {hasPermission} from "@/common/js/utils";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "PerformanceBasicConfig",
-  components: {ExistScenarios, ExistFiles, MsDialogFooter, MsTableOperatorButton, MsTablePagination, MsTableButton},
+  components: {
+    MsTag,
+    ExistScenarios, ExistFiles, MsDialogFooter, MsTableOperatorButton, MsTablePagination, MsTableButton
+  },
   props: {
     test: {
       type: Object
