@@ -97,7 +97,7 @@
 
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener,hasLicense} from "@/common/js/utils";
+  import {listenGoBack, removeGoBackListener, hasLicense, getCurrentProjectID} from "@/common/js/utils";
   import ScheduleImport from "@/business/components/api/definition/components/import/ImportScheduleEdit";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
@@ -258,7 +258,7 @@
         return this.model === 'scenario';
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {

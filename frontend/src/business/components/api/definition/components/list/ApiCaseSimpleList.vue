@@ -160,7 +160,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -313,7 +313,7 @@ export default {
       return this.model === 'api';
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     selectRows() {
       return this.$refs.caseTable.getSelectRows();

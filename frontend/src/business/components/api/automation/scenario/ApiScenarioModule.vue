@@ -48,6 +48,7 @@
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
   import ApiImport from "./common/ScenarioImport";
   import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: 'MsApiScenarioModule',
@@ -78,7 +79,7 @@
         return this.relevanceProjectId ? true : false;
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     data() {

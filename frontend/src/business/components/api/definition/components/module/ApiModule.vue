@@ -48,6 +48,7 @@
   import MsNodeTree from "../../../../track/common/NodeTree";
   import ApiModuleHeader from "./ApiModuleHeader";
   import {buildNodePath, buildTree} from "../../model/NodeTree";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: 'MsApiModule',
@@ -94,7 +95,7 @@
         return this.reviewId ? true : false;
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     mounted() {

@@ -601,7 +601,7 @@ export default {
     },
     handleRunBatch(config) {
       let testPlan = new TestPlan();
-      let projectId = this.$store.state.projectId;
+      let projectId = getCurrentProjectID();
       if (config.mode === 'serial') {
         testPlan.serializeThreadgroups = true;
         testPlan.hashTree = [];
@@ -672,7 +672,7 @@ export default {
     },
     getProjectId() {
       if (!this.isRelevanceModel) {
-        return this.$store.state.projectId;
+        return getCurrentProjectID();
       } else {
         return this.currentCaseProjectId;
       }

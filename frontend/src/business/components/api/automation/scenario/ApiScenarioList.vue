@@ -413,7 +413,7 @@ export default {
       return "Running" !== this.report.status;
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   methods: {
