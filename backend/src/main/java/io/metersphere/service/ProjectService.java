@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -81,6 +82,8 @@ public class ProjectService {
     private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -117,6 +120,9 @@ public class ProjectService {
         userGroup.setGroupId(UserGroupConstants.PROJECT_ADMIN);
         userGroup.setSourceId(project.getId());
         userGroupMapper.insert(userGroup);
+
+        // 创建新项目检查当前用户 last_project_id
+        extUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
 
         return project;
     }

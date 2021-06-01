@@ -16,6 +16,7 @@
 <script>
     import TestcaseTemplateItem from "./report/TestcaseTemplateItem";
     import {WORKSPACE_ID} from "../../../../../../common/js/constants";
+    import {getCurrentWorkspaceId} from "@/common/js/utils";
     export default {
       name: "TestReportTemplateList",
       components: {TestcaseTemplateItem},
@@ -30,7 +31,7 @@
         initData() {
           let condition = {};
           condition.queryDefault = true;
-          condition.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          condition.workspaceId = getCurrentWorkspaceId();
           this.result = this.$post('/case/report/template/list', condition, response => {
             this.templates = response.data;
           });
