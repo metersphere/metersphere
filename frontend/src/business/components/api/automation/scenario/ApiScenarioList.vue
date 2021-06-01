@@ -587,7 +587,6 @@ export default {
 
     },
     getPrincipalOptions(option) {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         option.push(...response.data);
         this.userFilters = response.data.map(u => {

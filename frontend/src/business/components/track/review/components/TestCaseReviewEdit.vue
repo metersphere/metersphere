@@ -232,7 +232,6 @@ export default {
       });
     },
     setReviewerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.result = this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
         this.reviewerOptions = response.data;
       });

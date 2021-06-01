@@ -39,7 +39,6 @@
       },
       methods: {
         setMaintainerOptions() {
-          let workspaceId = localStorage.getItem(WORKSPACE_ID);
           this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
             this.executorOptions = response.data;
           });

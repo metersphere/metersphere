@@ -559,7 +559,6 @@ export default {
       }
     },
     getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.valueArr.userId = response.data;
         this.userFilters = response.data.map(u => {
