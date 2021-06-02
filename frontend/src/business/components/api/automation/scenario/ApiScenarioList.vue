@@ -16,6 +16,8 @@
         field-key="API_SCENARIO"
         operator-width="200"
         @refresh="search(projectId)"
+        @callBackSelectAll="callBackSelectAll"
+        @callBackSelect="callBackSelect"
         ref="scenarioTable">
 
         <span v-for="(item) in fields" :key="item.key">
@@ -812,6 +814,12 @@ export default {
         this.$emit('updateInitApiTableOpretion','0');
         return false;
       }
+    },
+    callBackSelectAll(selection){
+      this.$emit('selection', selection);
+    },
+    callBackSelect(selection){
+      this.$emit('selection', selection);
     }
   }
 };
