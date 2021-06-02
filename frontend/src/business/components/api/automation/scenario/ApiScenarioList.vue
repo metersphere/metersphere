@@ -7,6 +7,7 @@
       <ms-table
         :data="tableData"
         :height="screenHeight"
+        :screen-height="screenHeight"
         :condition="condition"
         :page-size="pageSize"
         :operators="operators"
