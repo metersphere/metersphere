@@ -235,8 +235,8 @@ export function getCustomTableHeader(key) {
     let fields = [];
     for (let i = 0; i < fieldStr.length; i++) {
       let fieldKey = fieldStr[i];
-      for (const index in fieldSetting) {
-        let item = fieldSetting[index];
+      for (let j = 0; j < fieldSetting.length; j++) {
+        let item = fieldSetting[j];
         if (item.key === fieldKey) {
           fields.push(item);
           break;
