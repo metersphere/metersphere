@@ -7,7 +7,7 @@
       </template>
 
       <el-table :data="groups" border class="adjust-table" style="width: 100%"
-                :height="screenHeight">
+                :height="screenHeight" @sort-change="sort">
         <el-table-column prop="name" :label="$t('commons.name')"/>
         <el-table-column prop="type" label="所属类型">
           <template v-slot="scope">
@@ -15,12 +15,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="scopeName" label="应用范围"/>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="updateTime" :label="$t('commons.update_time')">
+        <el-table-column prop="updateTime" :label="$t('commons.update_time')" sortable>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -64,6 +64,7 @@ import EditUserGroup from "@/business/components/settings/system/group/EditUserG
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import EditPermission from "@/business/components/settings/system/group/EditPermission";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
+import {_sort} from "@/common/js/tableUtils";
 
 export default {
   name: "UserGroup",
@@ -133,6 +134,14 @@ export default {
     },
     setPermission(row) {
       this.$refs.editPermission.open(row);
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initData();
     },
   }
 };
