@@ -135,12 +135,12 @@ public class ProjectService {
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
-    public List<ProjectDTO> getSwitchProject(ProjectRequest request) {
+    public List<ProjectDTO> getUserProject(ProjectRequest request) {
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extProjectMapper.getSwitchProject(request);
+        return extProjectMapper.getUserProject(request);
     }
 
     public List<Project> getProjectByIds(List<String> ids) {
