@@ -618,7 +618,6 @@
       buildParam() {
         let param = {};
         Object.assign(param, this.form);
-        console.log(param);
         param.steps = JSON.stringify(this.form.steps);
         param.nodeId = this.form.module;
         param.nodePath = getNodePath(this.form.module, this.moduleOptions);
@@ -668,7 +667,6 @@
          }*/
         let formData = new FormData();
         //let url = '/test/case/' + type;
-        console.log(this.$refs.otherInfo);
         if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
           this.$refs.otherInfo.uploadList.forEach(f => {
             formData.append("file", f);
