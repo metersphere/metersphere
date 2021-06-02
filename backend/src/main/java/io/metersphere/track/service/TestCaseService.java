@@ -966,9 +966,7 @@ public class TestCaseService {
     }
 
     public String save(EditTestCaseRequest request, List<MultipartFile> files) {
-        if (files == null) {
-            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
-        }
+
 
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
         //插入测试与用例关系表
@@ -996,14 +994,16 @@ public class TestCaseService {
             });
         }
 
+        if (files != null) {
+            files.forEach(file -> {
+                final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
+                TestCaseFile testCaseFile = new TestCaseFile();
+                testCaseFile.setCaseId(testCaseWithBLOBs.getId());
+                testCaseFile.setFileId(fileMetadata.getId());
+                testCaseFileMapper.insert(testCaseFile);
+            });
+        }
 
-        files.forEach(file -> {
-            final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
-            TestCaseFile testCaseFile = new TestCaseFile();
-            testCaseFile.setCaseId(testCaseWithBLOBs.getId());
-            testCaseFile.setFileId(fileMetadata.getId());
-            testCaseFileMapper.insert(testCaseFile);
-        });
         return testCaseWithBLOBs.getId();
     }
 
