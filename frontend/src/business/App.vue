@@ -106,12 +106,27 @@ export default {
     initSessionTimer() {
       this.$get('/system/timeout')
         .then(response => {
+          let timeout = response.data.data;
+          this.initTimer(timeout);
           window.addEventListener('click', () => {
-            this.currentTime(response.data.data);
+            this.currentTime(timeout);
           });
         })
         .catch(() => {
         });
+    },
+    initTimer(timeout) {
+      setTimeout(() => {
+        this.$get("/isLogin")
+          .then(response => {
+            if (!response.data.success) {
+              this.$refs.headerUser.logout();
+            }
+          })
+          .catch(() => {
+            window.location.href = "/login";
+          });
+      }, 1000 * (timeout + 10));
     },
     currentTime(timeout) { // 超时退出
       if (timer) {
