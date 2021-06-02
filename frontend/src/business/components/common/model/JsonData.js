@@ -54,33 +54,8 @@ export const Api_List = [
   {id: 'casePassingRate', label: i18n.t('api_test.definition.api_case_passing_rate')},
   {id: 'status', label: i18n.t('api_test.definition.api_status')}
 ]
-//接口定义-case列表
-export const Api_Case_List = [
-  {id: 'num', label: "ID"},
-  {id: 'name', label: i18n.t('test_track.case.name')},
-  {id: 'priority', label: i18n.t('test_track.case.priority')},
-  {id: 'path', label: 'API'+i18n.t('api_test.definition.api_path')},
-  {id: 'casePath', label: i18n.t('api_test.definition.request.case')+i18n.t('api_test.definition.api_path')},
-  {id: 'tags', label: i18n.t('commons.tag')},
-  {id: 'createUser', label: "创建人"},
-  {id: 'updateTime', label: i18n.t('api_test.definition.api_last_time')},
-]
-//接口自动化-场景列表
-export const Api_Scenario_List = [
-  {id: 'num', label: "ID"},
-  {id: 'name', label: i18n.t('api_report.scenario_name')},
-  {id: 'level', label: i18n.t('api_test.automation.case_level')},
-  {id: 'status', label: i18n.t('test_track.plan.plan_status')},
-  {id: 'tags', label: i18n.t('commons.tag')},
-  {id: 'userId', label: i18n.t('api_test.automation.creator')},
-  {id: 'principal', label: i18n.t('api_test.definition.api_principal')},
-  {id: 'updateTime', label: i18n.t('api_test.definition.api_last_time')},
-  {id: 'stepTotal', label: i18n.t('api_test.automation.step')},
-  {id: 'lastResult', label: i18n.t('api_test.automation.last_result')},
-  {id: 'passRate', label: i18n.t('api_test.automation.passing_rate')},
 
 
-]
 //测试评审-测试用例
 export const Test_Case_Review_Case_List = [
   {id: 'num', label: i18n.t('commons.id')},

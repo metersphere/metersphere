@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tableActive">
     <el-table
       border
       :data="data"
@@ -10,7 +10,7 @@
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
       class="test-content adjust-table ms-table"
-      :class="{'ms-select-all-fixed':showSelectAll}"
+      :class="{'ms-select-all-fixed': showSelectAll}"
       :height="screenHeight"
       v-loading="tableIsLoading"
       ref="table" @row-click="handleRowClick">
@@ -23,7 +23,8 @@
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
-      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="40"
+      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="30"
+                       fixed="left"
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
@@ -39,15 +40,24 @@
         fixed="right"
         :label="$t('commons.operating')">
         <template slot="header">
-          <header-label-operate @exec="openCustomHeader"/>
+          <header-label-operate v-if="fieldKey" @exec="openCustomHeader"/>
         </template>
         <template v-slot:default="scope">
           <div>
+            <slot name="opt-before" :row="scope.row"></slot>
             <ms-table-operators :buttons="operators" :row="scope.row" :index="scope.$index"/>
+            <slot name="opt-behind" :row="scope.row"></slot>
           </div>
         </template>
       </el-table-column>
     </el-table>
+
+    <ms-custom-table-header
+      v-if="fieldKey"
+      @reload="reloadTable"
+      :type="fieldKey"
+      ref="customTableHeader"/>
+
   </div>
 </template>
 
@@ -59,7 +69,7 @@ import {
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection,
-  checkTableRowIsSelect,
+  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {TEST_CASE_LIST} from "@/common/js/constants";
@@ -69,10 +79,24 @@ import MsTableColumn from "@/business/components/common/components/table/Ms-tabl
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
 
+/**
+ * 参考 ApiList
+ *
+ * 添加自定义表头步骤：
+ *   设置 fieldKey,
+ *   设置 fields,
+ *   ms-table-column 外层加循环，并设置 field
+ *   （操作按钮使用 Mstable 里的操作逻辑，要自定义可以使用插画槽 opt-before，opt-behind）
+ * 记住列宽步骤：
+ *   设置 fieldKey,
+ *   ms-table-column 设置 fields-width
+ */
 export default {
   name: "MsTable",
   components: {
+    MsCustomTableHeader,
     HeaderLabelOperate,
     MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover, HeaderCustom
   },
@@ -80,7 +104,8 @@ export default {
     return {
       selectDataCounts: 0,
       selectRows: new Set(),
-      selectIds: []
+      selectIds: [],
+      tableActive: true
     };
   },
   props: {
@@ -157,7 +182,9 @@ export default {
       default() {
         return false;
       }
-    }
+    },
+    fields: Array,
+    fieldKey: String,
   },
   mounted() {
     getLabel(this, TEST_CASE_LIST);
@@ -170,11 +197,8 @@ export default {
     },
   },
   methods: {
-    openCustomHeader() {
-      this.$emit("openCustomHeader");
-    },
     handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.data, this.selectRows);
+      _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
@@ -198,12 +222,8 @@ export default {
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     headerDragend(newWidth, oldWidth, column, event) {
-      // let finalWidth = newWidth;
-      // if (column.minWidth > finalWidth) {
-      //   finalWidth = column.minWidth;
-      // }
-      // column.width = finalWidth;
-      // column.realWidth = finalWidth;
+      // 保存列宽
+      saveCustomTableWidth(this.fieldKey, column.columnKey, newWidth);
     },
     showPopover(row, column, cell) {
       if (column.property === 'name') {
@@ -257,11 +277,23 @@ export default {
     clearSelectRows() {
       this.selectRows.clear();
       this.selectIds = [];
+      this.condition.selectAll = false;
+      this.condition.unSelectIds = [];
       this.selectDataCounts = 0;
       if (this.$refs.table) {
         this.$refs.table.clearSelection();
       }
     },
+    openCustomHeader() {
+      this.$refs.customTableHeader.open(this.fields);
+    },
+    reloadTable() {
+      this.$emit('update:fields', getCustomTableHeader(this.fieldKey));
+      this.tableActive = false;
+      this.$nextTick(() => {
+        this.tableActive = true;
+      });
+    }
   }
 };
 </script>

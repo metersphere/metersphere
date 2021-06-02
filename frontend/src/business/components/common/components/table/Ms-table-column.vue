@@ -1,8 +1,8 @@
 <template>
   <el-table-column
-      v-if="fields.has(prop) || fields.size < 1"
+      v-if="!field || field.id === prop"
       :min-width="minWidth"
-      :width="width"
+      :width="fieldsWidth ? fieldsWidth[prop] : width"
       :fixed="fixed"
       :filters="filters"
       :prop="prop"
@@ -42,12 +42,15 @@ export default {
         return false;
       }
     },
-    fields: {
-      type: Set,
+    // 判断是否显示自定义列
+    field: {
+      type: Object,
       default() {
-        return new Set();
+        return null;
       }
     },
+    // 保存自定义列宽
+    fieldsWidth: Object
   }
 };
 </script>
