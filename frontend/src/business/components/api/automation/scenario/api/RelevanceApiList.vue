@@ -16,134 +16,81 @@
                 operator-width="170px"
                 @refresh="initTable"
                 ref="apitable">
-        <template v-for="(item, index) in tableLabel">
-          <ms-table-column
-            v-if="item.id == 'num'"
-            prop="num"
-            label="ID"
-            show-overflow-tooltip
-            min-width="80px"
-            sortable=true
-            :key="index">
-            <template slot-scope="scope">
-              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
-              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
-                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
-              </el-tooltip>
-            </template>
-          </ms-table-column>
-          <ms-table-column
-            v-if="item.id == 'name'"
-            prop="name"
-            :label="$t('api_test.definition.api_name')"
-            show-overflow-tooltip
-            sortable="custom"
-            width="120px"
-            :key="index"/>
-          <ms-table-column
-            v-if="item.id == 'status'"
-            prop="status"
-            column-key="status"
-            sortable="custom"
-            :filters="statusFilters"
-            :label="$t('api_test.definition.api_status')"
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope">
-            <span class="el-dropdown-link">
-              <api-status :value="scope.row.status"/>
-            </span>
-            </template>
-          </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'method'"
-            prop="method"
-            sortable="custom"
-            column-key="method"
-            :filters="methodFilters"
-            :label="$t('api_test.definition.api_type')"
-            show-overflow-tooltip
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope">
-              <el-tag size="mini"
-                      :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
-                      class="api-el-tag">
-                {{ scope.row.method }}
-              </el-tag>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="num"
+          label="ID"
+          min-width="80px"
+          sortable>
+          <template slot-scope="scope">
+            <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
+            <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+            <el-tooltip v-else content="编辑">
+              <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </ms-table-column>
+        <ms-table-column
+          prop="name"
+          :label="$t('api_test.definition.api_name')"
+          sortable
+          width="120px"/>
 
-          <ms-table-column
-            v-if="item.id == 'userName'"
-            prop="userName"
-            sortable="custom"
-            :filters="userFilters"
-            column-key="user_id"
-            :label="$t('api_test.definition.api_principal')"
-            show-overflow-tooltip
-            width="100px"
-            :key="index"/>
+        <ms-table-column
+          prop="method"
+          sortable="custom"
+          column-key="method"
+          :filters="methodFilters"
+          :label="$t('api_test.definition.api_type')"
+          width="120px">
+          <template v-slot:default="scope">
+            <el-tag size="mini"
+                    :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
+                    class="api-el-tag">
+              {{ scope.row.method }}
+            </el-tag>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'path'"
-            prop="path"
-            width="120px"
-            :label="$t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          prop="userName"
+          sortable="custom"
+          :filters="userFilters"
+          column-key="user_id"
+          :label="$t('api_test.definition.api_principal')"
+          width="100px"/>
 
-          <ms-table-column
-            v-if="item.id == 'tags'"
-            prop="tags"
-            :label="$t('commons.tag')"
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                      :show-tooltip="true" :content="itemName"
-                      style="margin-left: 0px; margin-right: 2px"/>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="path"
+          width="120px"
+          :label="$t('api_test.definition.api_path')"/>
 
-          <ms-table-column
-            v-if="item.id == 'updateTime'"
-            width="160"
-            :label="$t('api_test.definition.api_last_time')"
-            sortable="custom"
-            prop="updateTime"
-            :key="index">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="tags"
+          :label="$t('commons.tag')"
+          width="120px">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :show-tooltip="true" :content="itemName"
+                    style="margin-left: 0px; margin-right: 2px"/>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'caseTotal'"
-            prop="caseTotal"
-            width="80px"
-            :label="$t('api_test.definition.api_case_number')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          width="160"
+          :label="$t('api_test.definition.api_last_time')"
+          sortable="custom"
+          prop="updateTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'caseStatus'"
-            prop="caseStatus"
-            width="80px"
-            :label="$t('api_test.definition.api_case_status')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          prop="caseTotal"
+          width="80px"
+          :label="$t('api_test.definition.api_case_number')"/>
 
-          <ms-table-column
-            v-if="item.id == 'casePassingRate'"
-            width="100px"
-            prop="casePassingRate"
-            :label="$t('api_test.definition.api_case_passing_rate')"
-            show-overflow-tooltip
-            :key="index"/>
-        </template>
       </ms-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
@@ -169,8 +116,8 @@
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
   import TableSelectCountBar from "./TableSelectCountBar";
-  import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
-  import {API_LIST, WORKSPACE_ID} from "@/common/js/constants";
+  import {_filter, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
+  import {WORKSPACE_ID} from "@/common/js/constants";
   import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
@@ -194,7 +141,6 @@
       return {
         condition: {},
         selectCase: {},
-        tableLabel: [],
         result: {},
         moduleId: "",
         deletePath: "/test/case/delete",
@@ -328,8 +274,6 @@
             }
           });
         });
-        //添加自定义列的查询
-        getLabel(this, API_LIST);
       },
 
       showExecResult(row) {

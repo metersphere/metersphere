@@ -1,5 +1,5 @@
 <template>
-  <el-table-column v-if="isShow" width="1" :resizable="false" align="center">
+  <el-table-column v-if="isShow" width="1" :resizable="false" fixed="left" align="center">
     <el-popover slot="header" placement="right" trigger="click" style="margin-right: 0px;">
       <el-link
         :class="{'selected-link': selectDataCounts === total}"
@@ -21,7 +21,7 @@
           </span>
       </el-link>
 
-      <i class="el-icon-arrow-down" slot="reference"></i>
+      <i class="el-icon-arrow-down table-select-icon" slot="reference"></i>
     </el-popover>
   </el-table-column>
 </template>

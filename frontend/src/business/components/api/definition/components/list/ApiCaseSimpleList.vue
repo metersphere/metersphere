@@ -9,68 +9,70 @@
                 v-model="condition.name"/>
 
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-                :total="total" enableSelection
-                :batch-operators="buttons" :screenHeight="screenHeight"
+                :total="total"
+                :operators="operators"
+                :batch-operators="buttons"
+                :screenHeight="screenHeight"
+                :fields.sync="fields"
+                field-key="API_CASE"
                 operator-width="170px"
                 @refresh="initTable"
                 ref="caseTable"
       >
-        <template v-for="(item, index) in tableLabel">
+        <span v-for="(item) in fields" :key="item.key">
 
           <ms-table-column
-              v-if="item.id == 'num'"
               prop="num"
               label="ID"
-              show-overflow-tooltip
-              width="80px"
-              sortable=true
-              :key="index">
+              :field="item"
+              :fields-width="fieldsWidth"
+              min-width="80px"
+              sortable>
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
               <el-tooltip v-else content="编辑">
-                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+                <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
           </ms-table-column>
 
-          <ms-table-column v-if="item.id == 'name'" prop="name" width="160px" :label="$t('test_track.case.name')"
-                           show-overflow-tooltip :key="index"/>
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="name"
+            min-width="160px"
+            :label="$t('test_track.case.name')"/>
 
           <ms-table-column
-              v-if="item.id == 'priority'"
               prop="priority"
               :filters="priorityFilters"
-              column-key="priority"
-              width="120px"
-              :label="$t('test_track.case.priority')"
-              show-overflow-tooltip
-              :key="index">
+              :field="item"
+              :fields-width="fieldsWidth"
+              min-width="120px"
+              :label="$t('test_track.case.priority')">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </ms-table-column>
 
           <ms-table-column
-              v-if="item.id == 'path'"
               sortable="custom"
               prop="path"
-              width="180px"
-              :label="'API'+ $t('api_test.definition.api_path')"
-              show-overflow-tooltip
-              :key="index"/>
+              min-width="180px"
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="'API'+ $t('api_test.definition.api_path')"/>
 
           <ms-table-column
-              v-if="item.id == 'casePath'"
               sortable="custom"
               prop="casePath"
-              width="180px"
-              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"
-              show-overflow-tooltip
-              :key="index"/>
+              min-width="180px"
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
 
-          <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')"
-                           :key="index">
+          <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
@@ -78,54 +80,32 @@
           </ms-table-column>
 
           <ms-table-column
-              v-if="item.id=='createUser'"
               prop="createUser"
-              :label="'创建人'"
-              show-overflow-tooltip
-              :key="index"/>
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="'创建人'"/>
 
           <ms-table-column
-              v-if="item.id=='updateTime'"
               sortable="updateTime"
-              width="160px"
+              min-width="160px"
+              :field="item"
+              :fields-width="fieldsWidth"
               :label="$t('api_test.definition.api_last_time')"
-              prop="updateTime"
-              :key="index">
+              prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </ms-table-column>
+        </span>
+
+        <template v-slot:opt-behind="scope">
+          <ms-api-case-table-extend-btns @showCaseRef="showCaseRef"
+                                         @showEnvironment="showEnvironment"
+                                         @createPerformance="createPerformance" :row="scope.row"/>
         </template>
-        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="160"
-                         align="center">
-          <template slot="header">
-            <header-label-operate @exec="customHeader"/>
-          </template>
-          <template v-slot:default="scope">
-            <div>
-              <ms-table-operator-button class="run-button"
-                                        :tip="$t('api_test.automation.execute')"
-                                        icon="el-icon-video-play"
-                                        v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
-                                        @exec="runTestCase(scope.row)"/>
-              <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
-                                        v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']"
-              />
-              <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
-                                        @exec="handleDelete(scope.row)"
-                                        v-permission="['PROJECT_API_DEFINITION:READ+DELETE_CASE']"
-                                        type="danger"/>
-              <ms-api-case-table-extend-btns @showCaseRef="showCaseRef"
-                                             @showEnvironment="showEnvironment"
-                                             @createPerformance="createPerformance" :row="scope.row"/>
-            </div>
-          </template>
-        </el-table-column>
 
       </ms-table>
 
-      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
-                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </div>
@@ -171,17 +151,19 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
+import {
+  _filter,
+  _sort,
+  getCustomTableHeader,
+  getCustomTableWidth,
+} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
-import {Api_Case_List} from "@/business/components/common/model/JsonData";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
     HeaderLabelOperate,
-    HeaderCustom,
     MsTableHeaderSelectPopover,
     MsSetEnvironment,
     ApiCaseList,
@@ -204,8 +186,8 @@ export default {
   data() {
     return {
       type: API_CASE_LIST,
-      headerItems: Api_Case_List,
-      tableLabel: [],
+      fields: getCustomTableHeader('API_CASE'),
+      fieldsWidth: getCustomTableWidth('API_CASE'),
       condition: {
         components: API_CASE_CONFIGS
       },
@@ -218,6 +200,27 @@ export default {
       buttons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
         {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+      ],
+      operators: [
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.runTestCase,
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
+        {
+          tip: this.$t('commons.edit'),
+          icon: "el-icon-edit",
+          exec: this.handleTestCase,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
+        },
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.handleDelete,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
       ],
       typeArr: [
         {id: 'priority', name: this.$t('test_track.case.priority')},
@@ -321,8 +324,7 @@ export default {
   },
   methods: {
     customHeader() {
-      const list = deepClone(this.tableLabel);
-      this.$refs.headerCustom.open(list);
+      this.$refs.caseTable.openCustomHeader();
     },
     initTable() {
       if (this.$refs.caseTable) {
@@ -381,8 +383,6 @@ export default {
           })
         });
       }
-      getLabel(this, API_CASE_LIST);
-
     },
 
     open() {

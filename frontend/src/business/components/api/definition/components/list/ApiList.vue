@@ -13,20 +13,20 @@
                 :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
                 :operators="tableOperatorButtons" operator-width="200px"
                 @refresh="initTable"
-                @openCustomHeader="customHeader"
+                :fields.sync="fields"
                 :table-is-loading="this.result.loading"
-                ref="apiDefinitionTable"
-      >
-        <template v-for="(item, index) in tableLabel">
+                field-key="API_DEFINITION"
+                ref="apiDefinitionTable">
+
+        <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
-            v-if="item.id == 'num'"
-            prop="num"
-            label="ID"
-            show-overflow-tooltip
-            min-width="80px"
-            sortable=true
-            :key="index"
-          >
+               prop="num"
+               label="ID"
+               :field="item"
+               min-width="100px"
+               :fields-width="fieldsWidth"
+               sortable>
+
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
@@ -38,125 +38,112 @@
               </el-tooltip>
             </template>
           </ms-table-column>
-          <ms-table-column
-            v-if="item.id == 'name'"
-            prop="name"
-            :label="$t('api_test.definition.api_name')"
-            show-overflow-tooltip
-            sortable="custom"
-            width="120px"
-            :key="index"/>
-          <ms-table-column
-            v-if="item.id == 'status'"
-            prop="status"
-            column-key="status"
-            sortable="custom"
-            :filters="statusFilters"
-            :label="$t('api_test.definition.api_status')"
-            width="120px"
-            :key="index"
-          >
-            <template v-slot:default="scope">
-            <span class="el-dropdown-link">
-              <api-status :value="scope.row.status"/>
-            </span>
-            </template>
-          </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'method'"
-            prop="method"
-            sortable="custom"
-            column-key="method"
-            :filters="methodFilters"
-            :label="$t('api_test.definition.api_type')"
-            show-overflow-tooltip
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope" class="request-method">
-              <el-tag size="mini"
-                      :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
-                      class="api-el-tag">
-                {{ scope.row.method }}
-              </el-tag>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="name"
+          :label="$t('api_test.definition.api_name')"
+          sortable="custom"
+          :fields-width="fieldsWidth"
+          min-width="120"
+          :field="item"/>
 
-          <ms-table-column
-            v-if="item.id == 'userName'"
-            prop="userName"
-            sortable="custom"
-            :filters="userFilters"
-            column-key="user_id"
-            :label="$t('api_test.definition.api_principal')"
-            show-overflow-tooltip
-            width="145px"
-            :key="index"/>
+        <ms-table-column
+          prop="status"
+          sortable="custom"
+          :filters="statusFilters"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="120px"
+          :label="$t('api_test.definition.api_status')">
 
-          <ms-table-column
-            v-if="item.id == 'path'"
-            prop="path"
-            width="120px"
-            :label="$t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+          <template v-slot:default="scope">
+          <span class="el-dropdown-link">
+            <api-status :value="scope.row.status"/>
+          </span>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'tags'"
-            prop="tags"
-            :label="$t('commons.tag')"
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                      :show-tooltip="true" :content="itemName"
-                      style="margin-left: 0px; margin-right: 2px"/>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="method"
+          sortable="custom"
+          :field="item"
+          :filters="methodFilters"
+          :fields-width="fieldsWidth"
+          min-width="120px"
+          :label="$t('api_test.definition.api_type')">
+          <template v-slot:default="scope" class="request-method">
+            <el-tag size="mini"
+                    :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
+                    class="api-el-tag">
+              {{ scope.row.method }}
+            </el-tag>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'updateTime'"
-            width="200"
-            :label="$t('api_test.definition.api_last_time')"
-            sortable="custom"
-            prop="updateTime"
-            :key="index">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="userName"
+          sortable="custom"
+          :filters="userFilters"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('api_test.definition.api_principal')"/>\
+        <ms-table-column
+          prop="path"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('api_test.definition.api_path')"/>
 
-          <ms-table-column
-            v-if="item.id == 'caseTotal'"
-            prop="caseTotal"
-            sortable="custom"
-            width="140px"
-            :label="$t('api_test.definition.api_case_number')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          prop="tags"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :show-tooltip="true" :content="itemName"
+                    style="margin-left: 0px; margin-right: 2px"/>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'caseStatus'"
-            prop="caseStatus"
-            :filters="caseStatusFilters"
-            width="130px"
-            :label="$t('api_test.definition.api_case_status')"
-            show-overflow-tooltip
-            :key="index"
-          />
+        <ms-table-column
+          :label="$t('api_test.definition.api_last_time')"
+          :field="item"
+          :fields-width="fieldsWidth"
+          sortable="custom"
+          min-width="140px"
+          prop="updateTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'casePassingRate'"
-            width="150px"
-            prop="casePassingRate"
-            sortable="custom"
-            :label="$t('api_test.definition.api_case_passing_rate')"
-            show-overflow-tooltip
-            :key="index"/>
-        </template>
+        <ms-table-column
+          prop="caseTotal"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          sortable
+          :label="$t('api_test.definition.api_case_number')"/>
+
+        <ms-table-column
+          :field="item"
+          prop="caseStatus"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('api_test.definition.api_case_status')"/>
+
+        <ms-table-column
+          prop="casePassingRate"
+          :field="item"
+          min-width="120px"
+          sortable
+          :fields-width="fieldsWidth"
+          :label="$t('api_test.definition.api_case_passing_rate')"/>
+        </span>
       </ms-table>
-      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
-                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </div>
@@ -183,7 +170,6 @@ import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsBottomContainer from "../BottomContainer";
-import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
@@ -194,9 +180,10 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
-import {_filter, _sort, buildBatchParam, getLabel, initCondition, deepClone} from "@/common/js/tableUtils";
-import {Api_List} from "@/business/components/common/model/JsonData";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import {
+  initCondition,
+  getCustomTableHeader, getCustomTableWidth, buildBatchParam
+} from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
@@ -206,7 +193,6 @@ export default {
   name: "ApiList",
   components: {
     HeaderLabelOperate,
-    HeaderCustom,
     CaseBatchMove,
     ApiStatus,
     MsTableHeaderSelectPopover,
@@ -219,7 +205,6 @@ export default {
     MsApiCaseList,
     MsContainer,
     MsBottomContainer,
-    ShowMoreBtn,
     MsBatchEdit,
     MsTipButton,
     MsTableAdvSearchBar,
@@ -229,8 +214,8 @@ export default {
   data() {
     return {
       type: API_LIST,
-      headerItems: Api_List,
-      tableLabel: [],
+      fields: getCustomTableHeader('API_DEFINITION'),
+      fieldsWidth: getCustomTableWidth('API_DEFINITION'),
       condition: {
         components: API_DEFINITION_CONFIGS
       },
@@ -452,10 +437,6 @@ export default {
     }
   },
   methods: {
-    customHeader() {
-      const list = deepClone(this.tableLabel);
-      this.$refs.headerCustom.open(list);
-    },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
@@ -515,7 +496,6 @@ export default {
           });
         });
       }
-      getLabel(this, API_LIST);
       if(this.needRefreshModule()){
         this.$emit("refreshTree");
       }
@@ -797,18 +777,6 @@ export default {
       } catch (e) {
         console.log(e);
       }
-    },
-    sort(column) {
-      // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      this.initTable();
-    },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.initTable();
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;

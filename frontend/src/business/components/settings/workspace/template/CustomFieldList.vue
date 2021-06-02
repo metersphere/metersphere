@@ -13,13 +13,19 @@
       :total="total"
       :page-size.sync="pageSize"
       :operators="operators"
+      :fields.sync="fields"
+      :enable-selection="false"
+      field-key="CUSTOM_FIELD"
       :screen-height="tableHeight"
       @handlePageChange="getCustomFields"
       @refresh="getCustomFields">
 
+      <div v-for="(item) in fields" :key="item.key">
+
         <ms-table-column
+          :field="item"
+          :fields-width="fieldsWidth"
           :label="$t('commons.name')"
-          :fields="fields"
           prop="name">
           <template v-slot="scope">
             <span v-if="scope.row.system">
@@ -33,8 +39,9 @@
 
         <ms-table-column
           :label="$t('custom_field.scene')"
-          :fields="fields"
+          :field="item"
           :filters="sceneFilters"
+          :fields-width="fieldsWidth"
           prop="scene">
           <template v-slot="scope">
             <span>{{ sceneMap[scope.row.scene] }}</span>
@@ -42,9 +49,10 @@
         </ms-table-column>
 
         <ms-table-column
+          :field="item"
           :label="$t('custom_field.attribute_type')"
-          :fields="fields"
           :filters="fieldFilters"
+          :fields-width="fieldsWidth"
           prop="type">
           <template v-slot="scope">
             <span>{{ fieldTypeMap[scope.row.type] }}</span>
@@ -53,7 +61,8 @@
 
         <ms-table-column
           :label="$t('custom_field.system_field')"
-          :fields="fields"
+          :field="item"
+          :fields-width="fieldsWidth"
           prop="system">
           <template v-slot="scope">
             <span v-if="scope.row.system">
@@ -67,14 +76,16 @@
 
         <ms-table-column
           :label="$t('commons.remark')"
-          :fields="fields"
+          :field="item"
+          :fields-width="fieldsWidth"
           prop="remark">
         </ms-table-column>
 
         <ms-table-column
           sortable
           :label="$t('commons.create_time')"
-          :fields="fields"
+          :field="item"
+          :fields-width="fieldsWidth"
           prop="createTime">
           <template v-slot="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -84,12 +95,15 @@
         <ms-table-column
           sortable
           :label="$t('commons.update_time')"
-          :fields="fields"
+          :field="item"
+          :fields-width="fieldsWidth"
           prop="updateTime">
           <template v-slot="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </ms-table-column>
+
+      </div>
 
     </ms-table>
 
@@ -107,7 +121,6 @@
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {getCurrentWorkspaceId, getDefaultTableHeight} from "@/common/js/utils";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
-import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
@@ -119,9 +132,15 @@ import {
   SCENE_MAP, SYSTEM_FIELD_NAME_MAP
 } from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import {getCustomTableHeader, getCustomTableWidth} from "@/common/js/tableUtils";
+import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
+
 export default {
   name: "CustomFieldList",
   components: {
+    MsCustomTableHeader,
+    HeaderCustom,
     MsTableHeader,
     MsTablePagination, CustomFieldEdit, MsTableButton, MsTableOperators, MsTableColumn, MsTable},
   data() {
@@ -132,6 +151,8 @@ export default {
       pageSize: 10,
       currentPage: 1,
       result: {},
+      fields: getCustomTableHeader('CUSTOM_FIELD'),
+      fieldsWidth: getCustomTableWidth('CUSTOM_FIELD'),
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
@@ -152,9 +173,6 @@ export default {
     this.getCustomFields();
   },
   computed: {
-    fields() {
-      return CUSTOM_FIELD_LIST;
-    },
     fieldFilters() {
       return CUSTOM_FIELD_TYPE_OPTION;
     },
