@@ -112,10 +112,16 @@ export default {
       })
     },
     edit() {
-      this.$post("/user/group/edit", this.form, () => {
-        this.$success(this.$t('commons.modify_success'));
-        this.$emit("refresh")
-        this.dialogVisible = false;
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          this.$post("/user/group/edit", this.form, () => {
+            this.$success(this.$t('commons.modify_success'));
+            this.$emit("refresh")
+            this.dialogVisible = false;
+          })
+        } else {
+          return false;
+        }
       })
     },
     open(row, type, title) {
