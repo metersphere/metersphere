@@ -45,6 +45,7 @@
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsBasisParameters from "../request/tcp/TcpBasisParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
+import {hasLicense} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
@@ -82,9 +83,12 @@ export default {
     }
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
-      if(this.methodTypes.length == 1){
-        this.methodTypes.push("ESB");
+      if(hasLicense()){
+        if(this.methodTypes.length == 1){
+          this.methodTypes.push("ESB");
+        }
       }
+
     }
   },
   watch: {
