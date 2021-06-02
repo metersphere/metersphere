@@ -6,7 +6,7 @@
         <!--操作按钮-->
         <div class="ms-opt-btn">
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">{{$t('operating_log.change_history')}}</el-link>
-          <ms-table-button v-if="type!='add'"
+          <ms-table-button v-if="this.path!='/test/case/add'"
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.save')"
@@ -173,6 +173,7 @@
     },
     data() {
       return {
+        path: "/test/case/add",
         testCaseTemplate: {},
         // sysList: [],//一级选择框的数据
         options: REVIEW_STATUS,
@@ -501,17 +502,33 @@
         });
       },
       getTestCase(index) {
+        let id = "";
         this.showInputTag = false;
         let testCase = this.testCases[index];
-        this.result = this.$get('/test/case/get/' + testCase.id, response => {
+        if (typeof (index) == "undefined") {
+          id = this.currentTestCaseInfo.id;
+
+        } else {
+          id = testCase.id;
+        }
+        this.result = this.$get('/test/case/get/' + id, response => {
+          if (response.data) {
+            this.path = "/test/case/edit";
+            if (this.currentTestCaseInfo.isCopy) {
+              this.path = "/test/case/add";
+            }
+          } else {
+            this.path = "/test/case/add";
+          }
           let testCase = response.data;
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
           this.reload();
           this.$nextTick(() => {
-            this.showInputTag = true
+            this.showInputTag = true;
           });
+
         });
       },
       async setFormData(testCase) {
@@ -578,12 +595,14 @@
           let option = this.getOption(param);
           this.result = this.$request(option, (response) => {
             this.$success(this.$t('commons.save_success'));
-            this.operationType = "edit"
+            this.path = "/test/case/edit";
+            // this.operationType = "edit"
             this.form.id = response.id;
-            this.$emit("refreshTestCase",)
-            this.tableType = 'edit';
+            this.$emit("refreshTestCase",);
+            //this.tableType = 'edit';
             this.$emit("refresh", this.form);
-            this.form.id = response.data
+            this.form.id = response.data;
+
             if (this.type === 'add' || this.type === 'copy') {
               param.id = response.data;
               this.$emit("caseCreate", param);
@@ -599,15 +618,16 @@
       buildParam() {
         let param = {};
         Object.assign(param, this.form);
+        console.log(param);
         param.steps = JSON.stringify(this.form.steps);
         param.nodeId = this.form.module;
         param.nodePath = getNodePath(this.form.module, this.moduleOptions);
         if (this.projectId) {
           param.projectId = this.projectId;
         }
-        if (this.type === 'copy') {
-          param.num = "";
-        }
+        /*  if (this.type === 'copy') {
+            param.num = "";
+          }*/
         param.name = param.name.trim();
 
         if (this.form.tags instanceof Array) {
@@ -638,17 +658,17 @@
         }
       },
       getOption(param) {
-        let type = {}
-        if (this.tableType === 'edit') {
-          type = 'edit'
-        } else if (this.type === 'copy') {
-          type = 'add'
-        } else {
-          type = this.type
-        }
+        /* let type = {}
+         if (this.tableType === 'edit') {
+           type = 'edit'
+         } else if (this.type === 'copy') {
+           type = 'add'
+         } else {
+           type = this.type
+         }*/
         let formData = new FormData();
-        let url = '/test/case/' + type;
-
+        //let url = '/test/case/' + type;
+        console.log(this.$refs.otherInfo);
         if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
           this.$refs.otherInfo.uploadList.forEach(f => {
             formData.append("file", f);
@@ -673,10 +693,9 @@
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
         }));
-
         return {
           method: 'POST',
-          url: url,
+          url: this.path,
           data: formData,
           headers: {
             'Content-Type': undefined
