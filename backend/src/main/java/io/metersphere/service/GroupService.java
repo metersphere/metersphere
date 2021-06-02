@@ -13,10 +13,7 @@ import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.dto.*;
@@ -114,7 +111,7 @@ public class GroupService {
         Group group = new Group();
         request.setScopeId(null);
         BeanUtils.copyBean(group, request);
-        group.setCreateTime(System.currentTimeMillis());
+        group.setUpdateTime(System.currentTimeMillis());
         groupMapper.updateByPrimaryKeySelective(group);
     }
 
@@ -311,6 +308,7 @@ public class GroupService {
         types = map.get(groupType);
         request.setTypes(types);
         request.setScopes(scopes);
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);
         return PageUtils.setPageInfo(page, groups);
     }
