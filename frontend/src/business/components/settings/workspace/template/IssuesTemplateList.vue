@@ -15,6 +15,7 @@
       :page-size.sync="pageSize"
       :operators="operators"
       :screen-height="tableHeight"
+      :enable-selection="false"
       @handlePageChange="initTableData"
       @refresh="initTableData">
 

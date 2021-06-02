@@ -212,7 +212,7 @@ textarea {
   overflow: visible;
 }
 
-.ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
+.ms-select-all-fixed th:nth-child(2) .table-select-icon {
   position: absolute;
   display: inline-block;
   top: -9px;
