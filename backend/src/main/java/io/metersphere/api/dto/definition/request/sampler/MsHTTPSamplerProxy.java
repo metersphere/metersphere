@@ -294,7 +294,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         sampler.setPath(url);
                     }
                     if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                        url.replaceAll(this.getPort(), "10990");
+                        url = url.replaceAll(this.getPort(), "10990");
                     }
                     try {
                         URL urlObject = new URL(url);
