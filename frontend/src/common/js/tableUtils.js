@@ -1,4 +1,5 @@
 import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils";
+import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -19,6 +20,9 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
     tableData.forEach(item => {
       component.$set(item, "showMore", false);
     });
+    if (condition) {
+      condition.selectAll = false;
+    }
   }
   if (selectRows.size < 1 && condition) {
     condition.selectAll = false;
@@ -216,4 +220,72 @@ export function getPageDate(response, page) {
   let data = response.data;
   page.total = data.itemCount;
   page.data = data.listObject;
+}
+
+/**
+ * 获取自定义表头
+ * 如果 localStorage 没有，获取默认表头
+ * @param key
+ * @returns {[]|*}
+ */
+export function getCustomTableHeader(key) {
+  let fieldSetting = CUSTOM_TABLE_HEADER[key];
+  let fieldStr = localStorage.getItem(key);
+  if (fieldStr !== null) {
+    let fields = [];
+    for (let i = 0; i < fieldStr.length; i++) {
+      let fieldKey = fieldStr[i];
+      for (const index in fieldSetting) {
+        let item = fieldSetting[index];
+        if (item.key === fieldKey) {
+          fields.push(item);
+          break;
+        }
+      }
+    }
+    return fields;
+  }
+  return fieldSetting;
+}
+
+/**
+ * 将自定义表头存在 localStorage
+ * 格式简化，减小占用
+ * @param key
+ * @param fields
+ */
+export function saveCustomTableHeader(key, fields) {
+  let result = '';
+  if (fields) {
+    fields.forEach(item => {
+      result += item.key;
+    });
+  }
+  localStorage.setItem(key, result);
+}
+
+/**
+ * 获取对应表格的列宽
+ * @param key
+ * @returns {{}|any}
+ */
+export function getCustomTableWidth(key) {
+  let fieldStr = localStorage.getItem(key + '_WITH');
+  if (fieldStr !== null) {
+    let fields = JSON.parse(fieldStr);
+    return fields;
+  }
+  return {};
+}
+
+/**
+ * 存储表格的列宽
+ * @param key
+ * @param fieldKey
+ * @param colWith
+ */
+export function saveCustomTableWidth(key, fieldKey, colWith) {
+  let fields = getCustomTableWidth(key);
+  fields[fieldKey] = colWith + '';
+  localStorage.setItem(key + '_WITH', JSON.stringify(fields));
 }

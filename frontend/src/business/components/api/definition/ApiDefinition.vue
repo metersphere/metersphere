@@ -171,7 +171,6 @@ import ApiDocumentsPage from "@/business/components/api/definition/components/li
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import {getLabel} from "@/common/js/tableUtils";
-import {API_CASE_LIST, API_LIST} from "@/common/js/constants";
 
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
 
@@ -252,12 +251,6 @@ export default {
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
-    }
-    if (this.activeDom === 'left') {
-      getLabel(this, API_LIST);
-    } else if (this.activeDom === 'right') {
-      getLabel(this, API_CASE_LIST);
-
     }
   },
   watch: {

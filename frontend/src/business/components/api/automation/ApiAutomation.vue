@@ -174,11 +174,11 @@ export default {
             let data = response.data;
             if (data != null) {
               //如果树未加载
-              if (JSON.stringify(this.moduleOptions) === '{}') {
+              if (this.moduleOptions && JSON.stringify(this.moduleOptions) === '{}') {
                 this.$refs.nodeTree.list();
               }
               let row = data.listObject[0];
-              if (row.tags.length > 0) {
+              if (row.tags && row.tags.length > 0) {
                 row.tags = JSON.parse(row.tags);
               }
 

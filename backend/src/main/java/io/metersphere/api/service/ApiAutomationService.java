@@ -527,7 +527,9 @@ public class ApiAutomationService {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         JSONObject element = JSON.parseObject(definition);
         try {
-            return objectMapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {});
+            if (element != null) {
+                return objectMapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {});
+            }
         } catch (JsonProcessingException e) {
             LogUtil.error(e.getMessage(), e);
         }
@@ -1703,10 +1705,12 @@ public class ApiAutomationService {
                 ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
                 String definition = scenario.getScenarioDefinition();
                 JSONObject object = JSON.parseObject(definition);
-                object.put("environmentMap", newEnvMap);
-                String newDefinition = JSON.toJSONString(object);
-                scenario.setScenarioDefinition(newDefinition);
-                apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+                if (object != null) {
+                    object.put("environmentMap", newEnvMap);
+                    String newDefinition = JSON.toJSONString(object);
+                    scenario.setScenarioDefinition(newDefinition);
+                    apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+                }
             }
         });
     }
