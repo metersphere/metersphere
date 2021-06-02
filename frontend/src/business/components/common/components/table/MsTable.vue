@@ -202,12 +202,16 @@ export default {
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
+      //有的组件需要回调父组件的函数，做下一步处理
+      this.$emit('callBackSelectAll',selection);
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
       setUnSelectIds(this.data, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
+      //有的组件需要回调父组件的函数，做下一步处理
+      this.$emit('callBackSelect',selection);
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
