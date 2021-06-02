@@ -7,7 +7,7 @@
   >
     <div>
       <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
-      <el-radio-group v-model="runConfig.mode">
+      <el-radio-group v-model="runConfig.mode" @change="changeMode">
         <el-radio label="serial">{{ $t("run_mode.serial") }}</el-radio>
         <el-radio label="parallel">{{ $t("run_mode.parallel") }}</el-radio>
       </el-radio-group>
@@ -39,8 +39,28 @@
           </div>
         </el-col>
       </el-row>
-
     </div>
+    <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
+      <el-row>
+        <el-col :span="6">
+          <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
+        </el-col>
+        <el-col :span="18">
+            <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+              {{ $t('run_mode.run_with_resource_pool') }}
+            </el-checkbox>
+            <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
+              <el-option
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+        </el-col>
+      </el-row>
+    </div>
+
     <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport' && runConfig.mode==='serial'">
       <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
       <el-input
@@ -80,6 +100,10 @@ export default {
     open() {
       this.runModeVisible = true;
       this.getResourcePools();
+    },
+    changeMode() {
+      this.runConfig.runWithinResourcePool = false;
+      this.runConfig.resourcePoolId = null;
     },
     close() {
       this.runConfig = {
