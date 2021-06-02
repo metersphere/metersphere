@@ -8,7 +8,7 @@
                    :allow-drop="allowDrop"
                    :default-checked-keys="selectedKeys"
                    :default-transfer="defaultTransfer"
-                   :mode='mode' height='540px' filter openAll/>
+                   :mode='mode' filter openAll/>
     <template v-slot:footer>
       <ms-dialog-footer @cancel="close" @confirm="saveHeader"/>
     </template>
@@ -97,6 +97,8 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+.wl-transfer .transfer-main {
+  height: calc(100% - 73px) !important;
+}
 </style>
