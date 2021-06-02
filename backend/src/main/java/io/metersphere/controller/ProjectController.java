@@ -88,15 +88,14 @@ public class ProjectController {
     }
 
     /**
-     * 切换项目
-     *
-     * @param request
-     * @return
+     * 在工作空间下与用户有关的项目
+     * @param request userId
+     * @return List<ProjectDTO>
      */
     @PostMapping("/list/related")
-    public List<ProjectDTO> getSwitchProject(@RequestBody ProjectRequest request) {
+    public List<ProjectDTO> getUserProject(@RequestBody ProjectRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        return projectService.getSwitchProject(request);
+        return projectService.getUserProject(request);
     }
 
 
