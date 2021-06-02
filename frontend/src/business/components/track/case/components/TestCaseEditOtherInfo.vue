@@ -137,6 +137,9 @@ export default {
     updateRemark(text) {
       this.form.remark = text;
     },
+    reset() {
+      this.tabActiveName = "remark";
+    },
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;

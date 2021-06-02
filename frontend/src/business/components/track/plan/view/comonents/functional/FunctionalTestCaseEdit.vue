@@ -27,7 +27,10 @@
                     </el-col>
 
                     <el-col class="head-right" :span="20">
-                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true)" :list="testCases"/>
+                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true, true)" :list="testCases"/>
+                      <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
+                        {{$t('test_track.save')}} & 下一条
+                      </el-button>
                     </el-col>
 
                   </el-row>
@@ -186,7 +189,7 @@ export default {
       formLabelWidth: "100px",
       isCustomFiledActive: false,
       otherInfoActive: true,
-      isReadOnly: false
+      isReadOnly: false,
     };
   },
   props: {
@@ -266,7 +269,7 @@ export default {
         }
       };
     },
-    saveCase(next) {
+    saveCase(next, noTip) {
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
@@ -292,7 +295,9 @@ export default {
         this.$request(option, (response) => {
 
         });
-        this.$success(this.$t('commons.save_success'));
+        if (!noTip) {
+          this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
+        }
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
         if (next && this.index < this.testCases.length - 1) {
@@ -389,6 +394,9 @@ export default {
           this.testCaseTemplate = template;
           initFuc(testCase);
         });
+      if (this.$refs.otherInfo) {
+        this.$refs.otherInfo.reset();
+      }
     },
     testRun(reportId) {
       this.testCase.reportId = reportId;
@@ -530,5 +538,9 @@ p {
 .issues-popover {
   height: 550px;
   overflow: auto;
+}
+
+.save-btn {
+  margin-left: 10px;
 }
 </style>
