@@ -343,6 +343,7 @@
             this.result = this.$post("user/ws/member/add", param, () => {
               this.$success(this.$t('commons.save_success'));
               this.initTableData();
+              this.selectRows.clear();
               this.createVisible = false;
             })
           }
