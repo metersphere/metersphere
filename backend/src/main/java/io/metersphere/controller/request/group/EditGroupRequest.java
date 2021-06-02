@@ -1,6 +1,7 @@
 package io.metersphere.controller.request.group;
 
 import io.metersphere.base.domain.Group;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.dto.GroupPermission;
 import lombok.Getter;
 import lombok.Setter;
@@ -24,5 +25,5 @@ public class EditGroupRequest extends Group {
 
     private List<GroupPermission> permissions;
     private String userGroupId;
-
+    private List<OrderRequest> orders;
 }
