@@ -145,7 +145,7 @@
           <el-table-column prop="name" :label="$t('commons.username')"/>
           <el-table-column prop="email" :label="$t('commons.email')"/>
           <el-table-column prop="phone" :label="$t('commons.phone')"/>
-          <el-table-column label="用户组" width="120">
+          <el-table-column label="用户组" width="150">
             <template v-slot:default="scope">
               <ms-roles-tag :roles="scope.row.groups" type="success"/>
             </template>
