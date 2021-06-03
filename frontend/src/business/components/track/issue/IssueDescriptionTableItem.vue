@@ -1,7 +1,9 @@
 <template>
   <ms-table-column
     :label="$t('test_track.issue.description')"
-    prop="description">
+    prop="description"
+    :field="field"
+    :fields-width="fieldsWidth">
     <template v-slot:default="scope">
       <el-popover
         placement="right"
@@ -20,6 +22,7 @@
 <script>
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import {getCustomTableWidth} from "@/common/js/tableUtils";
 export default {
   name: "IssueDescriptionTableItem",
   components: {MsTableColumn},
@@ -27,7 +30,11 @@ export default {
     return {
       editor: ClassicEditor,
       readConfig: {toolbar: []},
-    }
+    };
+  },
+  props: {
+    field: Object,
+    fieldsWidth: Object
   }
 }
 </script>
