@@ -112,6 +112,8 @@ public class PerformanceReportService {
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
+            loadTest.setStatus(PerformanceTestStatus.Saved.name());
+            loadTestMapper.updateByPrimaryKeySelective(loadTest);
         }
 
         // delete load_test_report_result
