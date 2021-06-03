@@ -107,6 +107,8 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_admin', 'PROJECT_API_REPORT:READ+EXPORT', 'PROJECT_API_REPORT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_admin', 'PROJECT_PERFORMANCE_REPORT:READ+EXPORT', 'PROJECT_PERFORMANCE_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_admin', 'PROJECT_API_DEFINITION:READ+COPY_API', 'PROJECT_API_DEFINITION');
 
 -- project_member
 insert into user_group_permission (id, group_id, permission_id, module_id)
@@ -129,6 +131,8 @@ insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_member', 'PROJECT_API_REPORT:READ+EXPORT', 'PROJECT_API_REPORT');
 insert into user_group_permission (id, group_id, permission_id, module_id)
 values (uuid(), 'project_member', 'PROJECT_PERFORMANCE_REPORT:READ+EXPORT', 'PROJECT_PERFORMANCE_REPORT');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (uuid(), 'project_member', 'PROJECT_API_DEFINITION:READ+COPY_API', 'PROJECT_API_DEFINITION');
 
 -- read_only
 insert into user_group_permission (id, group_id, permission_id, module_id)
