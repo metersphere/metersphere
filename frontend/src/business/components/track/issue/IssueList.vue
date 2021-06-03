@@ -11,6 +11,7 @@
         <ms-table
           v-loading="page.result.loading"
           :data="page.data"
+          :enableSelection="false"
           :condition="page.condition"
           :total="page.total"
           :page-size.sync="page.pageSize"
@@ -18,23 +19,35 @@
           :show-select-all="false"
           :screen-height="screenHeight"
           @handlePageChange="getIssues"
-          @refresh="getIssues">
-
+          :fields.sync="fields"
+          field-key="ISSUE_LIST"
+          @refresh="getIssues"
+        >
+    <span v-for="(item) in fields" :key="item.key">
+<!--          <ms-table-column
+           :label="$t('test_track.issue.id')"
+           prop="id"
+           :field="item"
+           :fields-width="fieldsWidth"
+           v-if="false">
+          </ms-table-column>-->
           <ms-table-column
             :label="$t('test_track.issue.id')"
-            prop="id" v-if="false">
-          </ms-table-column>
-          <ms-table-column
-            :label="$t('test_track.issue.id')"
-            prop="num">
+            prop="num"
+            :field="item"
+            :fields-width="fieldsWidth">
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
             :label="$t('test_track.issue.title')"
             prop="title">
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
             :label="$t('test_track.issue.status')"
             prop="status">
             <template v-slot="scope">
@@ -43,16 +56,22 @@
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
             :label="$t('test_track.issue.platform')"
             prop="platform">
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
             :label="$t('custom_field.issue_creator')"
             prop="creatorName">
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
             :label="$t('test_track.issue.issue_resource')"
             prop="resourceName">
             <template v-slot="scope">
@@ -65,8 +84,8 @@
             </template>
           </ms-table-column>
 
-          <issue-description-table-item/>
-
+          <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
+        </span>
         </ms-table>
 
         <ms-table-pagination :change="getIssues" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
@@ -96,7 +115,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/components/track/issue/IssueEdit";
 import {getIssues} from "@/network/Issue";
-import {getPageInfo} from "@/common/js/tableUtils";
+import {getCustomTableHeader, getCustomTableWidth, getPageInfo} from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import {getCurrentProjectID} from "@/common/js/utils";
@@ -114,6 +133,8 @@ export default {
   data() {
     return {
       page: getPageInfo(),
+      fields: getCustomTableHeader('ISSUE_LIST'),
+      fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
       screenHeight: 'calc(100vh - 290px)',
       operators: [
         {
