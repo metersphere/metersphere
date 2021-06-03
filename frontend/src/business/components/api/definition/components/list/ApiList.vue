@@ -284,7 +284,7 @@ export default {
           exec: this.handleCopy,
           icon: "el-icon-document-copy",
           type: "primary",
-          permissions: ['PROJECT_API_DEFINITION:READ+COPY']
+          permissions: ['PROJECT_API_DEFINITION:READ+COPY_API']
         },
       ],
       tableTrashOperatorButtons: [
