@@ -16,7 +16,7 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @PostMapping("save/message/task")
-    @MsAuditLog(module = "organization_message_settings", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
+    @MsAuditLog(module = "organization_message_settings", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
     public void saveMessage(@RequestBody MessageDetail messageDetail) {
         noticeService.saveMessageTask(messageDetail);
     }
