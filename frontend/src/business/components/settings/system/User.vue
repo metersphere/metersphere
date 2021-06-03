@@ -29,7 +29,7 @@
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.name')" width="200"/>
 
-        <el-table-column :label="$t('commons.group')" width="140">
+        <el-table-column :label="$t('commons.group')" width="150">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.roles"/>
           </template>
