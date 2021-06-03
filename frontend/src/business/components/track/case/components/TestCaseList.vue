@@ -511,7 +511,6 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.$emit('refreshTable');
             this._handleDelete(testCase);
           }
         }
@@ -537,9 +536,9 @@ export default {
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
+        this.$emit('refreshTable');
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
-
       });
     },
     refresh() {

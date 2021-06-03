@@ -389,10 +389,11 @@
             if (!valid) {
               this.saveCase();
             } else {
-              this.saveCase();
-              let tab = {}
-              tab.name = 'add'
-              this.$emit('addTab', tab)
+              this.saveCase(function(t) {
+                let tab = {};
+                tab.name = 'add';
+                t.$emit('addTab', tab);
+              });
             }
           })
         } else {
@@ -571,7 +572,7 @@
         removeGoBackListener(this.close);
         this.dialogFormVisible = false;
       },
-      saveCase() {
+      saveCase(callback) {
         let isValidate = true;
         this.$refs['caseFrom'].validate((valid) => {
           if (!valid) {
@@ -586,10 +587,10 @@
           }
         });
         if (isValidate) {
-          this._saveCase();
+          this._saveCase(callback);
         }
       },
-      _saveCase() {
+      _saveCase(callback) {
         let param = this.buildParam();
         if (this.validate(param)) {
           let option = this.getOption(param);
@@ -609,6 +610,10 @@
               this.close();
             } else {
               this.$emit("caseEdit", param);
+            }
+
+            if (callback) {
+              callback(this);
             }
             // 保存用例后刷新附件
             this.$refs.otherInfo.getFileMetaData(this.form.id);
