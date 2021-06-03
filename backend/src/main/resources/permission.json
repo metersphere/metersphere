@@ -595,6 +595,11 @@
       "resourceId": "PROJECT_API_DEFINITION"
     },
     {
+      "id": "PROJECT_API_DEFINITION:READ+COPY_API",
+      "name": "复制接口",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
       "id": "PROJECT_API_DEFINITION:READ+CREATE_CASE",
       "name": "添加用例",
       "resourceId": "PROJECT_API_DEFINITION"
