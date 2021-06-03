@@ -296,11 +296,12 @@ export default {
     nodeChange(node) {
       this.activeName = "default";
     },
-    refreshTable() {
+    refreshTable(data) {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
       this.$refs.nodeTree.list();
+      this.setTable(data);
     },
     editTestCase(testCase) {
       this.type = "edit";
@@ -345,15 +346,16 @@ export default {
     refresh(data) {
       this.$store.commit('setTestCaseSelectNode', {});
       this.$store.commit('setTestCaseSelectNodeIds', []);
-      this.refreshTable();
-      this.setTable(data);
+      this.refreshTable(data);
     },
     setTable(data) {
-      for (let index in this.tabs) {
-        let tab = this.tabs[index];
-        if (tab.name === this.activeName) {
-          tab.label = data.name;
-          break;
+      if (data) {
+        for (let index in this.tabs) {
+          let tab = this.tabs[index];
+          if (tab.name === this.activeName) {
+            tab.label = data.name;
+            break;
+          }
         }
       }
     },
