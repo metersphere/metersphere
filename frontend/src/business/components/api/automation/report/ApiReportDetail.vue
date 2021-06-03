@@ -122,6 +122,17 @@
           let key = item.name;
           let nodeArray = key.split('^@~@^');
           let children = tree;
+
+          //运行场景中如果连续将1个场景引入多次，会出现运行结果合并的情况。
+          //为了解决这种问题，在转hashTree的时候给场景放了个新ID，前台加载解析的时候也要做处理
+          let scenarioId = "";
+          if(item.scenario !== null){
+            let scenarioArr = JSON.parse(item.scenario);
+            if(scenarioArr.length>1){
+              let scenarioIdArr = scenarioArr[0].split("_");
+              scenarioId = scenarioIdArr[0];
+            }
+          }
           // 循环构建子节点
           for (let i in nodeArray) {
             if (!nodeArray[i]) {
@@ -142,12 +153,34 @@
             let isExist = false;
             for (let j in children) {
               if (children[j].label === node.label) {
-                if (i !== nodeArray.length - 1 && !children[j].children) {
-                  children[j].children = [];
+
+                let idIsPath = true;
+                //判断ID是否匹配  目前发现问题的只有重复场景，而重复场景是在第二个节点开始合并的。所以这里暂时只判断第二个场景问题。
+                //如果出现了其他问题，则需要检查其他问题的数据结构。暂时采用具体问题具体分析的策略
+                if(i === nodeArray.length-2){
+                  idIsPath = false;
+                  let childId = "";
+                  if(children[j].value != null && children[j].value.scenario !== null){
+                    let scenarioArr = JSON.parse(children[j].value.scenario);
+                    if(scenarioArr.length>1){
+                      let childArr = scenarioArr[0].split("_");
+                      childId = childArr[0];
+                    }
+                  }
+                  if(scenarioId === ""){
+                    idIsPath = true;
+                  }else if(scenarioId === childId){
+                    idIsPath = true;
+                  }
                 }
-                children = (i === nodeArray.length - 1 ? children : children[j].children);
-                isExist = true;
-                break;
+                if(idIsPath){
+                  if (i !== nodeArray.length - 1 && !children[j].children) {
+                    children[j].children = [];
+                  }
+                  children = (i === nodeArray.length - 1 ? children : children[j].children);
+                  isExist = true;
+                  break;
+                }
               }
             }
             if (!isExist) {

@@ -155,6 +155,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
+//            if(result instanceof SampleResult){
+//                if(testResult.getTotal()>0){
+//                    testResult.setTotal(testResult.getTotal()-1);
+//                }
+//            }
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
             if(StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)){
                 String evnStr = result.getResponseDataAsString();
