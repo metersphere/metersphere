@@ -29,7 +29,7 @@
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.name')" width="200"/>
 
-        <el-table-column :label="$t('commons.group')" width="120">
+        <el-table-column :label="$t('commons.group')" width="140">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.roles"/>
           </template>
@@ -73,262 +73,6 @@
                            :total="total"/>
     </el-card>
 
-    <!--Create user-->
-<!--    <el-dialog :close-on-click-modal="false" :title="$t('user.create')" :visible.sync="createVisible" width="35%"-->
-<!--               @closed="handleClose"-->
-<!--               :destroy-on-close="true">-->
-<!--      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">-->
-<!--        <el-form-item label="ID" prop="id">-->
-<!--          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.username')" prop="name">-->
-<!--          <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.email')" prop="email">-->
-<!--          <el-input v-model="form.email" autocomplete="off" :placeholder="$t('user.input_email')"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.phone')" prop="phone">-->
-<!--          <el-input v-model="form.phone" autocomplete="off" :placeholder="$t('user.input_phone')"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.password')" prop="password" style="margin-bottom: 29px">-->
-<!--          <el-input v-model="form.password" autocomplete="new-password" show-password-->
-<!--                    :placeholder="$t('user.input_password')"/>-->
-<!--        </el-form-item>-->
-<!--        <div v-for="(role, index) in form.roles" :key="index">-->
-<!--          <el-form-item :label="$t('commons.role')+index"-->
-<!--                        :prop="'roles.' + index + '.id'"-->
-<!--                        :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}"-->
-<!--          >-->
-<!--            <el-select filterable v-model="role.id" :placeholder="$t('role.please_choose_role')">-->
-<!--              <el-option-->
-<!--                v-for="item in activeRole(role)"-->
-<!--                :key="item.id"-->
-<!--                :label="$t('role.' + item.id)"-->
-<!--                :value="item.id"-->
-<!--              >-->
-<!--                {{ $t('role.' + item.id) }}-->
-<!--              </el-option>-->
-<!--            </el-select>-->
-<!--            <el-button @click.prevent="removeRole(role)" style="margin-left: 20px;" v-if="form.roles.length > 1">-->
-<!--              {{ $t('commons.delete') }}-->
-<!--            </el-button>-->
-<!--          </el-form-item>-->
-<!--          <div v-if="role.id === 'org_admin'">-->
-<!--            <el-form-item :label="$t('organization.select_organization')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.orgList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id === 'org_member'">-->
-<!--            <el-form-item :label="$t('organization.select_organization')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.orgList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id === 'test_manager'">-->
-<!--            <el-form-item :label="$t('workspace.select')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.wsList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id ==='test_user'">-->
-<!--            <el-form-item :label="$t('workspace.select')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.wsList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id ==='test_viewer'">-->
-<!--            <el-form-item :label="$t('workspace.select')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.wsList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--        </div>-->
-
-<!--        <el-form-item>-->
-<!--          <template>-->
-<!--            <el-button type="success" style="width: 100%;" @click="addRole('createUserForm')" :disabled="btnAddRole">-->
-<!--              {{ $t('role.add') }}-->
-<!--            </el-button>-->
-<!--          </template>-->
-<!--        </el-form-item>-->
-<!--      </el-form>-->
-<!--      <template v-slot:footer>-->
-<!--        <ms-dialog-footer-->
-<!--          @cancel="createVisible = false"-->
-<!--          @confirm="createUser('createUserForm')"/>-->
-<!--      </template>-->
-<!--    </el-dialog>-->
-
-    <!--Modify user information in system settings-->
-<!--    <el-dialog :close-on-click-modal="false" :title="$t('user.modify')" :visible.sync="updateVisible" width="35%"-->
-<!--               :destroy-on-close="true"-->
-<!--               @close="handleClose" v-loading="result.loading">-->
-<!--      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="updateUserForm">-->
-<!--        <el-form-item label="ID" prop="id">-->
-<!--          <el-input v-model="form.id" autocomplete="off" :disabled="true"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.username')" prop="name">-->
-<!--          <el-input v-model="form.name" autocomplete="off"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.email')" prop="email">-->
-<!--          <el-input v-model="form.email" autocomplete="off" :disabled="form.source === 'LDAP'"/>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item :label="$t('commons.phone')" prop="phone">-->
-<!--          <el-input v-model="form.phone" autocomplete="off"/>-->
-<!--        </el-form-item>-->
-<!--        <div v-for="(role, index) in form.roles" :key="index">-->
-<!--          <el-form-item :label="$t('commons.role')+index"-->
-<!--                        :prop="'roles.' + index + '.id'"-->
-<!--                        :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}"-->
-<!--          >-->
-<!--            <el-select filterable v-model="role.id" :placeholder="$t('role.please_choose_role')" :disabled="!!role.id">-->
-<!--              <el-option-->
-<!--                v-for="item in activeRole(role)"-->
-<!--                :key="item.id"-->
-<!--                :label="$t('role.' + item.id)"-->
-<!--                :value="item.id">-->
-<!--              </el-option>-->
-<!--            </el-select>-->
-<!--            <el-button @click.prevent="removeRole(role)" style="margin-left: 20px;" v-if="form.roles.length > 1">-->
-<!--              {{ $t('commons.delete') }}-->
-<!--            </el-button>-->
-<!--          </el-form-item>-->
-<!--          <div v-if="role.id === 'org_admin'">-->
-<!--            <el-form-item :label="$t('organization.select_organization')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.orgList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id === 'org_member'">-->
-<!--            <el-form-item :label="$t('organization.select_organization')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('organization.select_organization'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('organization.select_organization')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.orgList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id === 'test_manager'">-->
-<!--            <el-form-item :label="$t('workspace.select')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.wsList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id ==='test_user'">-->
-<!--            <el-form-item :label="$t('workspace.select')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.wsList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--          <div v-if="role.id ==='test_viewer'">-->
-<!--            <el-form-item :label="$t('workspace.select')"-->
-<!--                          :prop="'roles.' + index + '.ids'"-->
-<!--                          :rules="{required: true, message: $t('workspace.select'), trigger: 'change'}"-->
-<!--            >-->
-<!--              <el-select filterable v-model="role.ids" :placeholder="$t('workspace.select')" multiple>-->
-<!--                <el-option-->
-<!--                  v-for="item in form.wsList"-->
-<!--                  :key="item.id"-->
-<!--                  :label="item.name"-->
-<!--                  :value="item.id">-->
-<!--                </el-option>-->
-<!--              </el-select>-->
-<!--            </el-form-item>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--        <el-form-item>-->
-<!--          <template>-->
-<!--            <el-button type="success" style="width: 100%;" @click="addRole('updateUserForm')" :disabled="btnAddRole">-->
-<!--              {{ $t('role.add') }}-->
-<!--            </el-button>-->
-<!--          </template>-->
-<!--        </el-form-item>-->
-<!--      </el-form>-->
-<!--      <template v-slot:footer>-->
-<!--        <ms-dialog-footer-->
-<!--          @cancel="updateVisible = false"-->
-<!--          @confirm="updateUser('updateUserForm')"/>-->
-<!--      </template>-->
-<!--    </el-dialog>-->
     <!--Changing user password in system settings-->
     <el-dialog :close-on-click-modal="false" :title="$t('member.edit_password')" :visible.sync="editPasswordVisible"
                width="30%"
@@ -521,32 +265,12 @@ export default {
   activated() {
     this.currentUserId = getCurrentUser().id;
     this.search();
-    // this.getAllRole();
   },
   methods: {
     create() {
-      // this.createVisible = true;
-      // this.getOrgList();
-      // this.getWsList();
-      // listenGoBack(this.handleClose);
       this.$refs.editUser.open("Add", "创建用户");
     },
     edit(row) {
-      // this.updateVisible = true;
-      // this.form = Object.assign({}, row);
-      // this.$get("/organization/list", response => {
-      //   this.$set(this.form, "orgList", response.data);
-      // });
-      // this.$get("/workspace/list", response => {
-      //   this.$set(this.form, "wsList", response.data);
-      // });
-      // if (row.id) {
-      //   this.$get('/userrole/all/' + encodeURIComponent(row.id), response => {
-      //     let data = response.data;
-      //     this.$set(this.form, "roles", data);
-      //   });
-      // }
-      // listenGoBack(this.handleClose);
       this.$refs.editUser.open("Edit", "修改用户", row);
     },
     editPassword(row) {
@@ -609,25 +333,18 @@ export default {
       })
     },
     search() {
-      // if (!hasRole(ROLE_ADMIN)) {
-      //   return;
-      // }
       this.selectRows = new Set();
       // this.condition.selectAll = false;
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-        // let url = "/user/special/user/role";
         let url = "/user/special/user/group";
         for (let i = 0; i < this.tableData.length; i++) {
           if (this.tableData[i].id) {
             this.$get(url + '/' + encodeURIComponent(this.tableData[i].id), result => {
               let data = result.data;
-              // let roles = data.roles;
               let groups = data.groups;
-              // let userRoles = result.userRoles;
-              // this.$set(this.tableData[i], "roles", roles);
               this.$set(this.tableData[i], "roles", groups);
               this.$set(this.tableData[i], "isLocalUser", this.tableData[i].source === 'LOCAL');
             });
@@ -694,11 +411,6 @@ export default {
         this.$set(this.form, "wsList", response.data);
       })
     },
-    getAllRole() {
-      this.$get("/role/all", response => {
-        this.userRole = response.data;
-      })
-    },
     importUserDialogOpen(){
       this.$refs.userImportDialog.open();
     },
@@ -719,32 +431,6 @@ export default {
         } else {
           return false;
         }
-      })
-    },
-    removeRole(item) {
-      let index = this.form.roles.indexOf(item);
-      if (index !== -1) {
-        this.form.roles.splice(index, 1)
-      }
-      if (this.form.roles.length < this.userRole.length) {
-        this.btnAddRole = false;
-      }
-    },
-    activeRole(roleInfo) {
-      return this.userRole.filter(function (role) {
-        let value = true;
-        if (!roleInfo.selects) {
-          return true;
-        }
-        if (roleInfo.selects.length === 0) {
-          value = true;
-        }
-        for (let i = 0; i < roleInfo.selects.length; i++) {
-          if (role.id === roleInfo.selects[i]) {
-            value = false;
-          }
-        }
-        return value;
       })
     },
     initWorkspaceBatchProcessDataStruct(isShow){
