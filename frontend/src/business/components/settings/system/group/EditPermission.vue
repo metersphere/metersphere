@@ -52,15 +52,11 @@
 </template>
 
 <script>
-import GroupOperator from "@/business/components/settings/system/group/GroupOperator";
 import GroupPermission from "@/business/components/settings/system/group/GroupPermission";
 import {PROJECT_GROUP_SCOPE, USER_GROUP_SCOPE} from "@/common/js/table-constants";
 
 export default {
   name: "EditPermission",
-  component: {
-    GroupPermission,
-  },
   data() {
     return {
       dialogVisible: false,
@@ -73,7 +69,6 @@ export default {
   },
   components: {
     GroupPermission,
-    GroupOperator
   },
   computed: {
     userGroupType() {
