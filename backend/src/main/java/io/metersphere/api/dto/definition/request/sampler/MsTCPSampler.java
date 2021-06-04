@@ -20,6 +20,7 @@ import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ScriptEngineUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -35,10 +36,13 @@ import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -82,6 +86,9 @@ public class MsTCPSampler extends MsTestElement {
     private String protocol = "TCP";
     @JSONField(ordinal = 39)
     private String projectId;
+    @JSONField(ordinal = 40)
+    private String connectEncoding;
+
 
     /**
      * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
@@ -195,7 +202,21 @@ public class MsTCPSampler extends MsTestElement {
         tcpSampler.setCloseConnection(String.valueOf(this.isCloseConnection()));
         tcpSampler.setSoLinger(this.getSoLinger());
         tcpSampler.setEolByte(this.getEolByte());
-        tcpSampler.setRequestData(this.getRequest());
+
+        String value = this.getRequest();
+        if(StringUtils.isNotEmpty(this.getConnectEncoding())){
+            if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
+                value = new String(value.getBytes(),StandardCharsets.UTF_8);
+            }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
+                try {
+                    value = new String(value.getBytes(),"GBK");
+                }catch (Exception e){
+                }
+
+            }
+        }
+        tcpSampler.setRequestData(value);
+
         tcpSampler.setProperty(ConfigTestElement.USERNAME, this.getUsername());
         tcpSampler.setProperty(ConfigTestElement.PASSWORD, this.getPassword());
         return tcpSampler;
@@ -213,7 +234,19 @@ public class MsTCPSampler extends MsTestElement {
         if (CollectionUtils.isNotEmpty(this.parameters)) {
             this.parameters.forEach(item -> {
                 names.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getName()));
-                threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getValue()));
+                String value = item.getValue();
+                value = this.formatMockValue(value);
+                if(StringUtils.isNotEmpty(this.getConnectEncoding())){
+                    if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
+                        value = new String(value.getBytes(),StandardCharsets.UTF_8);
+                    }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
+                        try {
+                            value = new String(value.getBytes(),"GBK");
+                        }catch (Exception e){
+                        }
+                    }
+                }
+                threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), value));
             });
         }
         userParameters.setNames(new CollectionProperty(UserParameters.NAMES, names));
@@ -222,7 +255,29 @@ public class MsTCPSampler extends MsTestElement {
         userParameters.setThreadLists(new CollectionProperty(UserParameters.THREAD_VALUES, collectionPropertyList));
         tree.add(userParameters);
     }
+    private String formatMockValue(String value) {
 
+        String patten = ">@[^>@]+</?";
+        Pattern r = Pattern.compile(patten);
+        try{
+            Matcher m = r.matcher(value);
+            while (m.find()){
+                String findStr = m.group();
+                if(findStr.length() > 3){
+                    findStr = findStr.substring(1,findStr.length()-2);
+                    String replaceStr = ScriptEngineUtils.calculate(findStr);
+                    if(StringUtils.equals(findStr,replaceStr)){
+                        replaceStr = "";
+                    }
+                    value = value.replace(">"+findStr+"</",">"+replaceStr+"</");
+                    m  = r.matcher(value);
+                }
+            }
+        }catch (Exception e){
+
+        }
+        return value;
+    }
     private ConfigTestElement tcpConfig() {
         ConfigTestElement configTestElement = new ConfigTestElement();
         configTestElement.setEnabled(true);

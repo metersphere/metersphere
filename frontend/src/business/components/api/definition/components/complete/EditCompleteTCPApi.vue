@@ -69,7 +69,12 @@ export default {
     return {
       validated: false,
       apiProtocol: "TCP",
-      methodTypes:["TCP"],
+      methodTypes:[
+        {
+          'key':"TCP",
+          'value':this.$t('api_test.request.tcp.general_format'),
+        }
+      ],
       showXpackCompnent:false,
     }
   },
@@ -85,7 +90,10 @@ export default {
       this.showXpackCompnent = true;
       if(hasLicense()){
         if(this.methodTypes.length == 1){
-          this.methodTypes.push("ESB");
+          let esbMethodType = {};
+          esbMethodType.key = "ESB";
+          esbMethodType.value="ESB";
+          this.methodTypes.push(esbMethodType);
         }
       }
 
