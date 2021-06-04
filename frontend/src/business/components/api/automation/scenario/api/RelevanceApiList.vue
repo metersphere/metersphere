@@ -41,7 +41,7 @@
           sortable="custom"
           column-key="method"
           :filters="methodFilters"
-          :label="$t('api_test.definition.api_type')"
+          :label="getApiRequestTypeName"
           width="120px">
           <template v-slot:default="scope">
             <el-tag size="mini"
@@ -227,6 +227,13 @@
           return this.$refs.apitable.getSelectRows();
         } else {
           return new Set();
+        }
+      },
+      getApiRequestTypeName(){
+        if(this.currentProtocol === 'TCP'){
+          return this.$t('api_test.definition.api_agreement');
+        }else{
+          return this.$t('api_test.definition.api_type');
         }
       }
     },

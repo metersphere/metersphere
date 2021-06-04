@@ -682,6 +682,7 @@ export default {
       api_name: "接口名稱",
       api_status: "接口狀態",
       api_type: "請求類型",
+      api_agreement: "協議/方法",
       api_path: "路徑",
       api_principal: "負責人",
       api_last_time: "最後更新時間",
@@ -1052,6 +1053,7 @@ export default {
         variable_names: "按列存儲",
       },
       tcp: {
+        general_format: "通用格式",
         server: "服務器名或IP",
         port: "端口",
         connect: "連接(ms)",
