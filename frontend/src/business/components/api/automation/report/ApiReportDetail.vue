@@ -134,7 +134,7 @@
             }
           }
           // 循环构建子节点
-          for (let i in nodeArray) {
+          for (let i = 0;i < nodeArray.length;i++) {
             if (!nodeArray[i]) {
               continue;
             }
