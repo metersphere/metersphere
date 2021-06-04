@@ -621,7 +621,15 @@ export default {
     load_api_automation_jmx: '引用接口自動化場景',
     project_file_exist: "項目中已存在該文件，請直接引用",
     report: {
-      diff: "對比"
+      diff: "對比",
+      ActiveThreadsChart: '用戶數',
+      TransactionsChart: '請求/事務數',
+      ErrorsChart: '錯誤',
+      ResponseTimeChart: '響應時間',
+      ResponseTimePercentilesChart: '響應時間百分比',
+      ResponseCodeChart: '響應碼',
+      LatencyChart: '延遲時間',
+      BytesThroughputChart: '字節數',
     },
     project_file_update_type_error: '更新的文件類型必須一致',
   },
