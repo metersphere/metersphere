@@ -185,10 +185,7 @@ export default {
               }
             });
           }
-          // 特殊情况 response time
-          if (reportKey === 'ResponseTimeChart') {
-            data = data.filter(d => d.yAxis > -1);
-          }
+
           // prefix
           data.forEach(item => {
             item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
