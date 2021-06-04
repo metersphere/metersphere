@@ -1,9 +1,14 @@
 <template>
-  <div v-loading="result.loading">
-    <el-tabs @tab-click="selectTab">
-      <el-tab-pane v-for="item in resource" :key="item.resourceId" :label="item.resourceName" class="logging-content">
-        <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)" infinite-scroll-disabled="disabled">
-          <li class="infinite-list-item" v-for="(log, index) in logContent[item.resourceId]" :key="index">
+  <div>
+    <el-tabs @tab-click="selectTab" v-model="active">
+      <el-tab-pane v-for="item in resource"
+                   :key="item.resourceId"
+                   :label="item.resourceName"
+                   v-loading="result.loading"
+                   class="logging-content">
+        <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)">
+          <li class="infinite-list-item" v-for="(log, index) in logContent[item.resourceId]"
+              :key="item.resourceId+index">
             {{ log.content }}
           </li>
         </ul>
@@ -14,31 +19,36 @@
 </template>
 
 <script>
+
 export default {
   name: "LogDetails",
   data() {
     return {
+      active: '0',
       resource: [],
       logContent: {},
       result: {},
       id: '',
-      page: 1,
+      page: {},
       pageCount: 5,
       loading: false,
+      init: false,
+      logStatus: {}
     };
   },
-
-  computed: {
-    disabled() {
-      return this.loading || this.page > this.pageCount;
-    }
-  },
-
   methods: {
     getResource() {
+      this.init = true;
+      this.active = '0';
       this.result = this.$get("/performance/report/log/resource/" + this.id, data => {
         this.resource = data.data;
-        this.page = 1;
+        if (!this.resource || this.resource.length === 0) {
+          this.init = false;
+        }
+        this.page = data.data.map(item => item.resourceId).reduce((result, curr) => {
+          result[curr] = 1;
+          return result;
+        }, {});
         this.logContent = data.data.map(item => item.resourceId).reduce((result, curr) => {
           result[curr] = [];
           return result;
@@ -46,22 +56,28 @@ export default {
       });
     },
     load(resourceId) {
-      if (this.loading || this.page > this.pageCount) return;
+      if (this.loading || this.page[resourceId] > this.pageCount) {
+        return;
+      }
+      this.logStatus[resourceId] = true;
       this.loading = true;
-      let url = "/performance/report/log/" + this.id + "/" + resourceId + "/" + this.page;
+      let url = "/performance/report/log/" + this.id + "/" + resourceId + "/" + this.page[resourceId];
       this.$get(url, res => {
         let data = res.data;
         data.listObject.forEach(log => {
           this.logContent[resourceId].push(log);
         });
-        this.page++;
+        this.page[resourceId]++;
         this.loading = false;
       });
     },
     selectTab(tab) {
       let resourceId = tab.$vnode.key;
+      if (this.logStatus[resourceId]) {
+        return;
+      }
       this.loading = false;
-      this.page = 1;
+      this.page[resourceId] = 1;
       this.logContent[resourceId] = [];
       this.load(resourceId);
     },
@@ -87,16 +103,29 @@ export default {
           navigator.msSaveBlob(blob, filename);
         }
       });
-    }
+    },
+  },
+  created() {
+    this.id = this.$route.path.split('/')[4];
+    this.getResource();
   },
   watch: {
+    '$route'(to) {
+      if (to.name === "perReportView") {
+        this.id = to.path.split('/')[4];
+        this.init = false;
+        this.getResource();
+      }
+    },
     report: {
       handler(val) {
-        if (!val.status || !val.id) {
+        if (!val.status || !val.id || !this.id) {
+          return;
+        }
+        if (this.init) {
           return;
         }
         let status = val.status;
-        this.id = val.id;
         if (status === "Completed" || status === "Running") {
           this.getResource();
         } else {
