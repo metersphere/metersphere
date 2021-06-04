@@ -3,7 +3,9 @@
     <el-tabs @tab-click="selectTab">
       <el-tab-pane v-for="item in resource" :key="item.resourceId" :label="item.resourceName" class="logging-content">
         <ul class="infinite-list" v-infinite-scroll="load(item.resourceId)" infinite-scroll-disabled="disabled">
-          <li class="infinite-list-item" v-for="(log, index) in logContent" :key="index">{{ log.content }}</li>
+          <li class="infinite-list-item" v-for="(log, index) in logContent[item.resourceId]" :key="index">
+            {{ log.content }}
+          </li>
         </ul>
         <el-link type="primary" @click="downloadLogFile(item)">{{ $t('load_test.download_log_file') }}</el-link>
       </el-tab-pane>
@@ -17,13 +19,13 @@ export default {
   data() {
     return {
       resource: [],
-      logContent: [],
+      logContent: {},
       result: {},
       id: '',
       page: 1,
       pageCount: 5,
       loading: false,
-    }
+    };
   },
 
   computed: {
@@ -37,8 +39,11 @@ export default {
       this.result = this.$get("/performance/report/log/resource/" + this.id, data => {
         this.resource = data.data;
         this.page = 1;
-        this.logContent = [];
-      })
+        this.logContent = data.data.map(item => item.resourceId).reduce((result, curr) => {
+          result[curr] = [];
+          return result;
+        }, {});
+      });
     },
     load(resourceId) {
       if (this.loading || this.page > this.pageCount) return;
@@ -47,17 +52,17 @@ export default {
       this.$get(url, res => {
         let data = res.data;
         data.listObject.forEach(log => {
-          this.logContent.push(log);
-        })
+          this.logContent[resourceId].push(log);
+        });
         this.page++;
         this.loading = false;
-      })
+      });
     },
     selectTab(tab) {
       let resourceId = tab.$vnode.key;
       this.loading = false;
       this.page = 1;
-      this.logContent = [];
+      this.logContent[resourceId] = [];
       this.load(resourceId);
     },
     downloadLogFile(item) {
@@ -67,7 +72,7 @@ export default {
         responseType: 'blob'
       };
       this.result = this.$request(config).then(response => {
-        const filename = 'jmeter.log'
+        const filename = 'jmeter.log';
         const blob = new Blob([response.data]);
         if ("download" in document.createElement("a")) {
           // 非IE下载
@@ -76,7 +81,7 @@ export default {
           aTag.download = filename;
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
           navigator.msSaveBlob(blob, filename);
@@ -102,7 +107,7 @@ export default {
     }
   },
   props: ['report']
-}
+};
 </script>
 
 <style scoped>
