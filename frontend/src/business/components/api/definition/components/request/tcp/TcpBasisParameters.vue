@@ -73,12 +73,12 @@
                   </el-col>
                 </el-row>
                 <el-row :gutter="10" style="margin-left: 30px">
-                  <el-col :span="9">
+                  <el-col :span="6">
                     <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
                       <el-checkbox v-model="request.reUseConnection"/>
                     </el-form-item>
                   </el-col>
-                  <el-col :span="9">
+                  <el-col :span="6">
                     <el-form-item :label="$t('api_test.request.tcp.close_connection')">
                       <el-checkbox v-model="request.closeConnection"/>
                     </el-form-item>
@@ -86,6 +86,13 @@
                   <el-col :span="6">
                     <el-form-item :label="$t('api_test.request.tcp.no_delay')">
                       <el-checkbox v-model="request.nodelay"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item label="Connect encoding">
+                      <el-select v-model="request.connectEncoding" style="width: 100px" size="small">
+                        <el-option v-for="item in connectEncodingArr" :key="item.key" :label="item.value" :value="item.key"/>
+                      </el-select>
                     </el-form-item>
                   </el-col>
                 </el-row>
@@ -158,6 +165,16 @@
         isReloadData: false,
         options: API_STATUS,
         currentProjectId: "",
+        connectEncodingArr:[
+          {
+            'key':'UTF-8',
+            'value':'UTF-8',
+          },
+          {
+            'key':'GBK',
+            'value':'GBK',
+          },
+        ],
         rules: {
           classname: [{required: true, message: "请选择TCPClient", trigger: 'change'}],
           server: [{required: true, message: this.$t('api_test.request.tcp.server_cannot_be_empty'), trigger: 'blur'}],
@@ -173,6 +190,9 @@
       }
       if (!this.request.tcpPreProcessor) {
         this.$set(this.request, 'tcpPreProcessor', new JSR223PreProcessor())
+      }
+      if(!this.request.connectEncoding){
+        this.request.connectEncoding = "UTF-8";
       }
       this.getEnvironments();
     },
