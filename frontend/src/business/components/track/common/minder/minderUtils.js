@@ -1,4 +1,5 @@
 import i18n from "@/i18n/i18n";
+import {getTestCasesForMinder} from "@/network/testCase";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -222,7 +223,7 @@ function getNodeData(text, resource, isDisable) {
  * @param result
  */
 export function appendCaseNodes(parent, testCases, param, setParamCallback) {
-  wipeTmp(parent);
+  clearChildren(parent);
   if (testCases) {
     for (let i = 0; i < testCases.length; i++) {
       appendCase(parent, testCases[i], param.isDisable, setParamCallback);
@@ -235,17 +236,17 @@ export function appendCaseNodes(parent, testCases, param, setParamCallback) {
 }
 
 /**
- * 去掉临时节点
+ * 去掉已有节点
  * @param parent
  */
-function wipeTmp(node) {
+function clearChildren(node) {
   let children = node.children;
   if (children) {
     for (let i = 0; i < children.length; i++) {
       let item = children[i];
-      if (item.data.type === 'tmp') {
+      if (item.data.type !== 'node') {
         window.minder.removeNode(item);
-        break;
+        i--;
       }
     }
   }
@@ -333,4 +334,24 @@ export function priorityDisableCheck() {
     }
   }
   return false;
+}
+
+export function handleAfterSave(pNode, param) {
+  let children = pNode.children;
+  if (children) {
+    for (let i = 0; i < children.length; i++) {
+      let item = children[i];
+      if (item.data.id === null || (item.data.id && item.data.id.length < 20)) {
+        pNode.data.loaded = false;
+        loadNode(pNode, param, getTestCasesForMinder);
+        return;
+      }
+      if (item.data.changed) {
+        item.data.changed = false;
+      }
+      if (item.data.type === 'node') {
+        handleAfterSave(item, param);
+      }
+    }
+  }
 }
