@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :visible.sync="dialogVisible" width="65%"
-             title="设置权限"
+             :title="$t('group.set_permission')"
              :destroy-on-close="true"
              v-loading="result.loading"
              top="5%"
@@ -13,7 +13,7 @@
         style="width: 100%">
         <el-table-column
           prop="type"
-          label="功能菜单"
+          :label="$t('group.functional_menu')"
           width="180">
           <template v-slot:default="scope">
             <span v-if="scope.row.type !== 'PROJECT'">{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
@@ -22,7 +22,7 @@
         </el-table-column>
         <el-table-column
           prop="resource"
-          label="操作对象"
+          :label="$t('group.operation_object')"
           width="180">
           <template v-slot:default="scope">
             {{scope.row.resource.name}}
@@ -30,14 +30,14 @@
         </el-table-column>
         <el-table-column
           prop="permissions"
-          label="权限">
+          :label="$t('group.permission')">
           <template v-slot:default="scope">
             <group-permission :permissions="scope.row.permissions" :selected.sync="tableData"/>
           </template>
         </el-table-column>
         <el-table-column
           width="50px"
-          label="全选">
+          :label="$t('group.check_all')">
           <template v-slot:default="scope">
             <div style="text-align: center;">
               <el-checkbox @change="handleSelectAll($event, scope.row.permissions)"/>
@@ -46,8 +46,8 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-button type="primary" @click="onSubmit" size="small" style="margin-top: 10px;margin-left: 5px;">确定</el-button>
-    <el-button @click="cancel" size="small">取消</el-button>
+    <el-button type="primary" @click="onSubmit" size="small" style="margin-top: 10px;margin-left: 5px;">{{ $t('commons.confirm') }}</el-button>
+    <el-button @click="cancel" size="small">{{ $t('commons.cancel') }}</el-button>
   </el-dialog>
 </template>
 
