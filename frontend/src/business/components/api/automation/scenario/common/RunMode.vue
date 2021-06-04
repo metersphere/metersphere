@@ -1,9 +1,9 @@
 <template>
   <el-dialog
-      destroy-on-close
-      :title="$t('load_test.runtime_config')"
-      width="450px"
-      :visible.sync="runModeVisible"
+    destroy-on-close
+    :title="$t('load_test.runtime_config')"
+    width="450px"
+    :visible.sync="runModeVisible"
   >
     <div>
       <span class="ms-mode-span">{{ $t("run_mode.title") }}：</span>
@@ -30,10 +30,10 @@
             </el-checkbox>
             <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId" size="mini">
               <el-option
-                  v-for="item in resourcePools"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
+                v-for="item in resourcePools"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
               </el-option>
             </el-select>
           </div>
@@ -46,6 +46,13 @@
           <span class="ms-mode-span">{{ $t("run_mode.other_config") }}：</span>
         </el-col>
         <el-col :span="18">
+          <div>
+            <el-radio-group v-model="runConfig.reportType">
+              <el-radio label="iddReport">{{ $t("run_mode.idd_report") }}</el-radio>
+              <el-radio label="setReport">{{ $t("run_mode.set_report") }}</el-radio>
+            </el-radio-group>
+          </div>
+          <div style="padding-top: 10px">
             <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
               {{ $t('run_mode.run_with_resource_pool') }}
             </el-checkbox>
@@ -57,18 +64,18 @@
                 :value="item.id">
               </el-option>
             </el-select>
+          </div>
         </el-col>
       </el-row>
     </div>
 
-    <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport' && runConfig.mode==='serial'">
+    <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
       <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
       <el-input
-          v-model="runConfig.reportName"
-          :placeholder="$t('commons.input_content')"
-          size="small"
-          style="width: 200px"
-      />
+        v-model="runConfig.reportName"
+        :placeholder="$t('commons.input_content')"
+        size="small"
+        style="width: 300px"/>
     </div>
     <template v-slot:footer>
       <ms-dialog-footer @cancel="close" @confirm="handleRunBatch"/>
@@ -104,6 +111,8 @@ export default {
     changeMode() {
       this.runConfig.runWithinResourcePool = false;
       this.runConfig.resourcePoolId = null;
+      this.runConfig.reportType = "iddReport";
+      this.runConfig.reportName = "";
     },
     close() {
       this.runConfig = {
