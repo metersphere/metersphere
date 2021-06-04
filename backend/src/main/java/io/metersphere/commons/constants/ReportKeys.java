@@ -6,7 +6,7 @@ public enum ReportKeys {
     ResponseTimePercentilesChart,
     ConnectTimeChart,
     BytesThroughputChart,
-    DistributedActiveThreads,
+    ActiveThreadsChart,
     HitsChart,
     LatencyChart,
     ResponseCodeChart,
