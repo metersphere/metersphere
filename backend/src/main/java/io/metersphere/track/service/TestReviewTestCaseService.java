@@ -340,4 +340,8 @@ public class TestReviewTestCaseService {
         }
         return null;
     }
+
+    public List<TestReviewCaseDTO> listForMinder(QueryCaseReviewRequest request) {
+        return extTestReviewCaseMapper.listForMinder(request);
+    }
 }
