@@ -11,6 +11,8 @@ import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.jmeter.MessageCache;
+import io.metersphere.api.jmeter.ReportCounter;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -68,7 +70,7 @@ public class ApiScenarioReportService {
                 return updateSchedulePlanCase(result, runMode);
             } else {
                 updateScenarioStatus(result.getTestId());
-                return updateScenario(result, runMode);
+                return updateScenario(result);
             }
         }
         return null;
@@ -430,13 +432,10 @@ public class ApiScenarioReportService {
         }
     }
 
-
-    public ApiScenarioReport updateScenario(TestResult result, String runMode) {
+    public ApiScenarioReport updateScenario(TestResult result) {
         ApiScenarioReport lastReport = null;
         StringBuilder scenarioIds = new StringBuilder();
         StringBuilder scenarioNames = new StringBuilder();
-        String projectId = null;
-        String userId = null;
         TestResult fullResult = createTestResult(result);
         List<String> reportIds = new LinkedList<>();
         for (ScenarioResult item : result.getScenarios()) {
@@ -446,38 +445,45 @@ public class ApiScenarioReportService {
                 startTime = item.getRequestResults().get(0).getStartTime();
             }
             ApiScenarioReport report = editReport(item, startTime);
-            TestResult newResult = createTestResult(result.getTestId(), item);
-            item.setName(report.getScenarioName());
-            newResult.addScenario(item);
-            fullResult.addScenario(item);
-            projectId = report.getProjectId();
-            userId = report.getUserId();
-            scenarioIds.append(item.getName()).append(",");
-            scenarioNames.append(report.getName()).append(",");
-            // 报告详情内容
-            ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-            detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
-            detail.setReportId(report.getId());
-            detail.setProjectId(report.getProjectId());
-            apiScenarioReportDetailMapper.insert(detail);
-            // 更新场景状态
-            ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
-            if (scenario != null) {
-                if (item.getError() > 0) {
-                    scenario.setLastResult("Fail");
-                } else {
-                    scenario.setLastResult("Success");
+            if (report != null) {
+                // 合并并行报告
+                TestResult newResult = createTestResult(result.getTestId(), item);
+                item.setName(report.getScenarioName());
+                newResult.addScenario(item);
+                fullResult.addScenario(item);
+                scenarioIds.append(item.getName()).append(",");
+                scenarioNames.append(report.getName()).append(",");
+                // 报告详情内容
+                ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
+                detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
+                detail.setReportId(report.getId());
+                detail.setProjectId(report.getProjectId());
+                apiScenarioReportDetailMapper.insert(detail);
+                // 更新场景状态
+                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
+                if (scenario != null) {
+                    if (item.getError() > 0) {
+                        scenario.setLastResult("Fail");
+                    } else {
+                        scenario.setLastResult("Success");
+                    }
+                    String passRate = new DecimalFormat("0%").format((float) item.getSuccess() / (item.getSuccess() + item.getError()));
+                    scenario.setPassRate(passRate);
+                    scenario.setReportId(report.getId());
+                    apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
-                String passRate = new DecimalFormat("0%").format((float) item.getSuccess() / (item.getSuccess() + item.getError()));
-                scenario.setPassRate(passRate);
-                scenario.setReportId(report.getId());
-                apiScenarioMapper.updateByPrimaryKey(scenario);
+                lastReport = report;
             }
-            lastReport = report;
             reportIds.add(report.getId());
+            if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
+                Object obj = MessageCache.cache.get(report.getScenarioId());
+                if (obj != null) {
+                    ReportCounter counter = (ReportCounter) obj;
+                    counter.setNumber(counter.getNumber() + 1);
+                    MessageCache.cache.put(report.getScenarioId(), counter);
+                }
+            }
         }
-        // 合并生成一份报告
-        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
         return lastReport;
     }
 
