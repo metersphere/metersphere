@@ -452,6 +452,9 @@
         <include refid="io.metersphere.base.mapper.TestCaseMapper.Blob_Column_List"/>
         from test_case
         <include refid="queryWhereCondition"/>
+        <if test="request.nodeId != null">
+            and test_case.node_id = #{request.nodeId}
+        </if>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getTestCaseByNotInIssue" resultType="io.metersphere.track.dto.TestCaseDTO">

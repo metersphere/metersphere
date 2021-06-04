@@ -532,7 +532,8 @@
         from test_plan_test_case pc
         inner join test_case t on pc.case_id = t.id
         <where>
-            pc.plan_id = #{planId}
+            pc.plan_id = #{request.planId}
+            and t.node_id = #{request.nodeId}
         </where>
         order by pc.update_time desc;
     </select>

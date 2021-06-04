@@ -62,6 +62,13 @@ public class TestCaseController {
         return testCaseService.listTestCase(request);
     }
 
+    @PostMapping("/list")
+    @RequiresPermissions("PROJECT_TRACK_CASE:READ")
+    public List<TestCaseDTO> list(@RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkProjectOwner(request.getProjectId());
+        return testCaseService.listTestCase(request);
+    }
+
     @PostMapping("/list/minder")
     public List<TestCaseWithBLOBs> listDetail(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
@@ -89,11 +96,6 @@ public class TestCaseController {
         request.setWorkspaceId(currentWorkspaceId);
         request.setUserId(SessionUtils.getUserId());
         return testCaseService.recentTestPlans(request, count);
-    }
-
-    @PostMapping("/list")
-    public List<TestCase> getTestCaseByNodeId(@RequestBody List<String> nodeIds) {
-        return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
     @PostMapping("/relate/{goPage}/{pageSize}")
