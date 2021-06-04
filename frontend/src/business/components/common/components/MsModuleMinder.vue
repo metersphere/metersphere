@@ -23,7 +23,6 @@
 <script>
 
 import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
-import {listenNodeSelected} from "@/business/components/track/common/minder/minderUtils";
 export default {
   name: "MsModuleMinder",
   components: {MsFullScreenButton},
@@ -33,12 +32,6 @@ export default {
       type: Array,
       default() {
         return []
-      }
-    },
-    dataMap: {
-      type: Map,
-      default() {
-        return new Map();
       }
     },
     tags: {
@@ -65,7 +58,8 @@ export default {
     tagDisableCheck: Function,
     tagEditCheck: Function,
     priorityDisableCheck: Function,
-    disabled: Boolean
+    disabled: Boolean,
+    ignoreNum: Boolean
   },
   data() {
     return {
@@ -100,18 +94,14 @@ export default {
         this.defaultMode = Number.parseInt(model);
       }
     }
-  },
-  watch: {
-    dataMap() {
-      this.$nextTick(() => {
-        if (this.selectNode && this.selectNode.data) {
-          this.handleNodeSelect(this.selectNode);
-        } else {
-          this.parse(this.importJson.root, this.treeNodes);
-        }
-        this.reload();
-      })
-    }
+    this.$nextTick(() => {
+      if (this.selectNode && this.selectNode.data) {
+        this.handleNodeSelect(this.selectNode);
+      } else {
+        this.parse(this.importJson.root, this.treeNodes);
+      }
+      this.reload();
+    });
   },
   methods: {
     handleMoldChange(index) {
@@ -125,24 +115,21 @@ export default {
     },
     parse(root, children) {
       root.children = [];
-      if (root.data.id ===  'root') {
-        // nodeId 为空的用例
-        let rootChildData = this.dataMap.get("");
-        if (rootChildData) {
-          rootChildData.forEach((dataNode) => {
-            root.children.push(dataNode);
-          })
-        }
+      if (!children) {
+        children = [];
       }
-      // 添加数据节点
-      let dataNodes = this.dataMap.get(root.data.id);
-      if (dataNodes) {
-        dataNodes.forEach((dataNode) => {
-          root.children.push(dataNode);
-        })
+      let caseNum = root.data.caseNum;
+      if (children.length < 1 && (this.ignoreNum || caseNum && caseNum > 0)) {
+        root.children.push({
+          data: {
+            text: '',
+            type: 'tmp',
+            expandState:"collapse"
+          },
+        });
       }
 
-      if (children == null || children.length < 1) {
+      if (children.length < 1) {
         return;
       }
 
@@ -153,6 +140,7 @@ export default {
             id: item.id,
             disable: true,
             type: 'node',
+            caseNum: item.caseNum,
             path: root.data.path + "/" + item.name,
             expandState:"collapse"
           },
@@ -168,10 +156,7 @@ export default {
       this.isActive = false;
       this.$nextTick(() => {
         this.isActive = true;
-      })
-      this.$nextTick(() => {
-        listenNodeSelected();
-      })
+      });
     },
     setJsonImport(data) {
       this.importJson = data;

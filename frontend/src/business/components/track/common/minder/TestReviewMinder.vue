@@ -8,6 +8,7 @@
     minder-key="testReview"
     :select-node="selectNode"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
+    :ignore-num="true"
     @afterMount="handleAfterMount"
     @save="save"
     ref="minder"
@@ -16,7 +17,13 @@
 
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
-import {getTestCaseDataMap, tagBatch} from "@/business/components/track/common/minder/minderUtils";
+import {
+  handleExpandToLevel, listenBeforeExecCommand,
+  listenNodeSelected,
+  loadSelectNodes,
+  tagBatch
+} from "@/business/components/track/common/minder/minderUtils";
+import {getReviewCasesForMinder} from "@/network/testCase";
 export default {
 name: "TestReviewMinder",
   components: {MsModuleMinder},
@@ -24,7 +31,7 @@ name: "TestReviewMinder",
     return{
       dataMap: new Map(),
       tags: [this.$t('test_track.plan_view.pass'), this.$t('test_track.plan_view.not_pass')],
-      result: {}
+      result: {loading: false}
     }
   },
   props: {
@@ -46,16 +53,13 @@ name: "TestReviewMinder",
         this.$refs.minder.setJsonImport(importJson);
       }
     }
-    this.$nextTick(() => {
-      this.getTestCases();
-    })
+
   },
   watch: {
     selectNode() {
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
-      // this.getTestCases();
     }
   },
   computed: {
@@ -68,27 +72,41 @@ name: "TestReviewMinder",
   },
   methods: {
     handleAfterMount() {
+      listenNodeSelected(() => {
+        let param = {
+          request: {
+            reviewId: this.reviewId,
+          },
+          result: this.result,
+          isDisable: true
+        }
+        loadSelectNodes(param,  getReviewCasesForMinder, this.setParamCallback);
+      });
+      listenBeforeExecCommand((even) => {
+        if (even.commandName === 'expandtolevel') {
+          let level = Number.parseInt(even.commandArgs);
+          let param = {
+            request: {
+              reviewId: this.reviewId,
+            },
+            result: this.result,
+            isDisable: true
+          }
+          handleExpandToLevel(level, even.minder.getRoot(), param, getReviewCasesForMinder, this.setParamCallback);
+        }
+      });
+
       tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
     },
-    getTestCases() {
-      if (this.projectId) {
-        let param = {
-          reviewId: this.reviewId,
-          nodeIds: this.selectNodeIds
-        };
-        this.result = this.$post('/test/review/case/list/all', param, response => {
-          this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
-            if (item.reviewStatus === 'Pass') {
-              data.resource.push(this.$t('test_track.plan_view.pass'));
-            } else if (item.reviewStatus === 'UnPass') {
-              data.resource.push(this.$t('test_track.plan_view.not_pass'));
-            } else {
-              data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
-            }
-            data.caseId = item.caseId;
-          });
-        });
+    setParamCallback(data, item) {
+      if (item.reviewStatus === 'Pass') {
+        data.resource.push(this.$t('test_track.plan_view.pass'));
+      } else if (item.reviewStatus === 'UnPass') {
+        data.resource.push(this.$t('test_track.plan_view.not_pass'));
+      } else {
+        data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
       }
+      data.caseId = item.caseId;
     },
     save(data) {
       let saveCases = [];

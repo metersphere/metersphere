@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -13,8 +12,6 @@ import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
 import io.metersphere.track.service.TestPlanTestCaseService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -43,11 +40,9 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.listByPlanId(request);
     }
 
-    @GetMapping("/list/minder/{planId}")
-    public List<TestPlanCaseDTO> listForMinder(@PathVariable String planId) {
-        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
-        request.setPlanId(planId);
-        return testPlanTestCaseService.listForMinder(planId);
+    @PostMapping("/list/minder")
+    public List<TestPlanCaseDTO> listForMinder(@RequestBody QueryTestPlanCaseRequest request) {
+        return testPlanTestCaseService.listForMinder(request);
     }
 
     @GetMapping("/list/node/{planId}/{nodePaths}")

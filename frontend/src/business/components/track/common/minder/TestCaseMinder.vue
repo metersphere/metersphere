@@ -2,12 +2,12 @@
   <ms-module-minder
     v-loading="result.loading"
     :tree-nodes="treeNodes"
-    :data-map="dataMap"
     :tags="tags"
     minder-key="testCase"
     :select-node="selectNode"
     :distinct-tags="tags"
     :tag-edit-check="tagEditCheck()"
+    @afterMount="handleAfterMount"
     :priority-disable-check="priorityDisableCheck()"
     :disabled="disabled"
     @save="save"
@@ -18,11 +18,15 @@
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
-  appendChild,
-  getTestCaseDataMap,
-  parseCase, priorityDisableCheck, tagEditCheck, updateNode
+  handleExpandToLevel, handleTestCaseAdd, handTestCaeEdit,
+  listenBeforeExecCommand,
+  listenNodeSelected,
+  loadSelectNodes,
+  priorityDisableCheck,
+  tagEditCheck,
 } from "@/business/components/track/common/minder/minderUtils";
 import {getNodePath, hasPermission} from "@/common/js/utils";
+import {getTestCasesForMinder} from "@/network/testCase";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -31,7 +35,8 @@ name: "TestCaseMinder",
       testCase: [],
       dataMap: new Map(),
       tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark')],
-      result: {}
+      result: {loading: false},
+      needRefresh: false
     }
   },
   props: {
@@ -63,7 +68,6 @@ name: "TestCaseMinder",
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
-      // this.getTestCases();
     }
   },
   mounted() {
@@ -73,22 +77,32 @@ name: "TestCaseMinder",
         this.$refs.minder.setJsonImport(importJson);
       }
     }
-    this.$nextTick(() => {
-      this.getTestCases();
-    })
   },
   methods: {
-    getTestCases() {
-      if (this.projectId) {
-        // let param = {
-        //   projectId: this.projectId,
-        //   nodeIds: this.selectNodeIds
-        // }
-        this.result = this.$post('/test/case/list/minder', this.condition,response => {
-          this.testCase = response.data;
-          this.dataMap = getTestCaseDataMap(this.testCase);
-        });
-      }
+    handleAfterMount() {
+      listenNodeSelected(() => {
+        let param = {
+          request: {
+            projectId: this.projectId,
+          },
+          result: this.result,
+          isDisable: false
+        }
+        loadSelectNodes(param,  getTestCasesForMinder);
+      });
+      listenBeforeExecCommand((even) => {
+        if (even.commandName === 'expandtolevel') {
+          let level = Number.parseInt(even.commandArgs);
+          let param = {
+            request: {
+              projectId: this.projectId,
+            },
+            result: this.result,
+            isDisable: false
+          }
+          handleExpandToLevel(level, even.minder.getRoot(), param, getTestCasesForMinder);
+        }
+      });
     },
     save(data) {
       let saveCases = [];
@@ -101,7 +115,6 @@ name: "TestCaseMinder",
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
-        this.getTestCases();
       });
     },
     buildSaveCase(root, saveCases, deleteCases, parent) {
@@ -190,20 +203,26 @@ name: "TestCaseMinder",
     priorityDisableCheck() {
       return priorityDisableCheck;
     },
+    // 打开脑图之后，添加新增或修改tab页时，同步修改脑图
     addCase(data, type) {
-      let nodeData = parseCase(data, new Map());
-      let minder = window.minder;
-      let jsonImport = minder.exportJson();
       if (type === 'edit') {
-        updateNode(jsonImport.root, nodeData);
+        handTestCaeEdit(data);
       } else {
-        appendChild(data.nodeId, jsonImport.root, nodeData);
+        handleTestCaseAdd(data.nodeId, data);
       }
-      this.$refs.minder.setJsonImport(jsonImport);
+      this.needRefresh = true;
     },
     refresh() {
-      if (this.$refs.minder) {
-        this.$refs.minder.reload();
+      // 切换tab页，如果没有修改用例，不刷新脑图
+      if (this.needRefresh) {
+        let jsonImport = window.minder.exportJson();
+        this.$refs.minder.setJsonImport(jsonImport);
+        this.$nextTick(() => {
+          if (this.$refs.minder) {
+            this.$refs.minder.reload();
+          }
+        });
+        this.needRefresh = false;
       }
     }
   }

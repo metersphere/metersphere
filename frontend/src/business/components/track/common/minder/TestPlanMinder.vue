@@ -8,6 +8,7 @@
     minder-key="testPlan"
     :select-node="selectNode"
     :distinct-tags="[...tags, this.$t('test_track.plan.plan_status_prepare')]"
+    :ignore-num="true"
     @afterMount="handleAfterMount"
     @save="save"
     ref="minder"
@@ -17,16 +18,17 @@
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
-  getTestCaseDataMap,
+  handleExpandToLevel, listenBeforeExecCommand, listenNodeSelected, loadSelectNodes,
   tagBatch,
 } from "@/business/components/track/common/minder/minderUtils";
+import {getPlanCasesForMinder} from "@/network/testCase";
 export default {
 name: "TestPlanMinder",
   components: {MsModuleMinder},
   data() {
     return{
       dataMap: new Map(),
-      result: {},
+      result: {loading: false},
       tags: [this.$t('test_track.plan_view.pass'), this.$t('test_track.plan_view.failure'), this.$t('test_track.plan_view.blocking'), this.$t('test_track.plan_view.skip')],
     }
   },
@@ -57,39 +59,49 @@ name: "TestPlanMinder",
         this.$refs.minder.setJsonImport(importJson);
       }
     }
-    this.$nextTick(() => {
-      this.getTestCases();
-    })
   },
   watch: {
     selectNode() {
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
-      // this.getTestCases();
     }
   },
   methods: {
     handleAfterMount() {
+      listenNodeSelected(() => {
+        let param = {
+          request: {planId: this.planId},
+          result: this.result,
+          isDisable: true
+        }
+        loadSelectNodes(param,  getPlanCasesForMinder, this.setParamCallback);
+      });
+      listenBeforeExecCommand((even) => {
+        if (even.commandName === 'expandtolevel') {
+          let level = Number.parseInt(even.commandArgs);
+          let param = {
+            request: {planId: this.planId},
+            result: this.result,
+            isDisable: true
+          }
+          handleExpandToLevel(level, even.minder.getRoot(), param, getPlanCasesForMinder, this.setParamCallback);
+        }
+      });
+
       tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
     },
-    getTestCases() {
-      if (this.projectId) {
-        this.result = this.$get('/test/plan/case/list/minder/' + this.planId, response => {
-          this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
-            if (item.status === 'Pass') {
-              data.resource.push(this.$t('test_track.plan_view.pass'));
-            } else if (item.status === 'Failure') {
-              data.resource.push(this.$t('test_track.plan_view.failure'));
-            } else if (item.status === 'Blocking') {
-              data.resource.push(this.$t('test_track.plan_view.blocking'));
-            } else if (item.status === 'Skip') {
-              data.resource.push(this.$t('test_track.plan_view.skip'));
-            } else {
-              data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
-            }
-          });
-        });
+    setParamCallback(data, item) {
+      if (item.status === 'Pass') {
+        data.resource.push(this.$t('test_track.plan_view.pass'));
+      } else if (item.status === 'Failure') {
+        data.resource.push(this.$t('test_track.plan_view.failure'));
+      } else if (item.status === 'Blocking') {
+        data.resource.push(this.$t('test_track.plan_view.blocking'));
+      } else if (item.status === 'Skip') {
+        data.resource.push(this.$t('test_track.plan_view.skip'));
+      } else {
+        data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
       }
     },
     save(data) {
