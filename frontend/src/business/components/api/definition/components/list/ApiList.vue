@@ -70,7 +70,7 @@
           :filters="methodFilters"
           :fields-width="fieldsWidth"
           min-width="120px"
-          :label="$t('api_test.definition.api_type')">
+          :label="getApiRequestTypeName">
           <template v-slot:default="scope" class="request-method">
             <el-tag size="mini"
                     :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
@@ -398,6 +398,13 @@ export default {
     selectRows() {
       return this.$refs.apiDefinitionTable.getSelectRows();
     },
+    getApiRequestTypeName(){
+      if(this.currentProtocol === 'TCP'){
+        return this.$t('api_test.definition.api_agreement');
+      }else{
+        return this.$t('api_test.definition.api_type');
+      }
+    }
   },
   created: function () {
     if (this.trashEnable) {
@@ -444,6 +451,12 @@ export default {
       if (this.$refs.apiDefinitionTable) {
         this.$refs.apiDefinitionTable.clearSelectRows();
       }
+      //关闭案例弹窗
+      if(this.$refs.caseList){
+        this.$refs.caseList.handleClose();
+      }
+
+
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
       this.condition.moduleIds = this.selectNodeIds;

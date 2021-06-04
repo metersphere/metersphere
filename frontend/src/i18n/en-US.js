@@ -682,6 +682,7 @@ export default {
       api_name: "Api name",
       api_status: "Api status",
       api_type: "Api type",
+      api_agreement: "Method",
       api_path: "Api path",
       api_principal: "Api principal",
       api_last_time: "Last update time",
@@ -1050,6 +1051,7 @@ export default {
         variable_names: "Variable names",
       },
       tcp: {
+        general_format: "General",
         server: "Server Name or IP",
         port: "Port Number",
         connect: "Connect(ms)",
