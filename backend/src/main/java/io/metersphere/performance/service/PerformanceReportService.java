@@ -392,4 +392,14 @@ public class PerformanceReportService {
         }
         return null;
     }
+
+    public List<ChartsData> getReportChart(String reportKey, String reportId) {
+        checkReportStatus(reportId);
+        try {
+            String content = getContent(reportId, ReportKeys.valueOf(reportKey));
+            return JSON.parseArray(content, ChartsData.class);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
 }

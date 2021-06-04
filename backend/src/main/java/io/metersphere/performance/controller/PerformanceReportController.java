@@ -68,6 +68,11 @@ public class PerformanceReportController {
         return performanceReportService.getReportErrors(reportId);
     }
 
+    @GetMapping("/content/{reportKey}/{reportId}")
+    public List<ChartsData> getReportChart(@PathVariable String reportKey, @PathVariable String reportId) {
+        return performanceReportService.getReportChart(reportKey, reportId);
+    }
+
     @GetMapping("/content/errors_top5/{reportId}")
     public List<ErrorsTop5> getReportErrorsTop5(@PathVariable String reportId) {
         return performanceReportService.getReportErrorsTOP5(reportId);

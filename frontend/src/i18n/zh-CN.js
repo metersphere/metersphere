@@ -621,7 +621,15 @@ export default {
     load_api_automation_jmx: '引用接口自动化场景',
     project_file_exist: "项目中已存在该文件，请直接引用",
     report: {
-      diff: "对比"
+      diff: "对比",
+      ActiveThreadsChart: '用户数',
+      TransactionsChart: '请求/事务数',
+      ErrorsChart: '错误',
+      ResponseTimeChart: '响应时间',
+      ResponseTimePercentilesChart: '响应时间百分比',
+      ResponseCodeChart: '响应码',
+      LatencyChart: '延迟时间',
+      BytesThroughputChart: '字节数',
     },
     project_file_update_type_error: '更新的文件类型必须一致',
   },
