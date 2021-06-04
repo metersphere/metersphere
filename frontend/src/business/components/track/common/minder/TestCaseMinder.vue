@@ -18,6 +18,7 @@
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
+  handleAfterSave,
   handleExpandToLevel, handleTestCaseAdd, handTestCaeEdit,
   listenBeforeExecCommand,
   listenNodeSelected,
@@ -81,28 +82,23 @@ name: "TestCaseMinder",
   methods: {
     handleAfterMount() {
       listenNodeSelected(() => {
-        let param = {
-          request: {
-            projectId: this.projectId,
-          },
-          result: this.result,
-          isDisable: false
-        }
-        loadSelectNodes(param,  getTestCasesForMinder);
+        loadSelectNodes(this.getParam(),  getTestCasesForMinder);
       });
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
           let level = Number.parseInt(even.commandArgs);
-          let param = {
-            request: {
-              projectId: this.projectId,
-            },
-            result: this.result,
-            isDisable: false
-          }
-          handleExpandToLevel(level, even.minder.getRoot(), param, getTestCasesForMinder);
+          handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getTestCasesForMinder);
         }
       });
+    },
+    getParam() {
+      return {
+        request: {
+          projectId: this.projectId,
+        },
+        result: this.result,
+        isDisable: false
+      }
     },
     save(data) {
       let saveCases = [];
@@ -115,6 +111,7 @@ name: "TestCaseMinder",
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
+        handleAfterSave(window.minder.getRoot(), this.getParam());
       });
     },
     buildSaveCase(root, saveCases, deleteCases, parent) {
@@ -126,10 +123,15 @@ name: "TestCaseMinder",
         if (deleteChild && deleteChild.length > 0) {
           deleteCases.push(...deleteChild);
         }
+        if (data.type !== 'node') {
+          let tip = '用例(' + data.text + ')未添加用例标签！';
+          this.$error(tip)
+          throw new Error(tip);
+        }
         if (root.children) {
           root.children.forEach((childNode) => {
             this.buildSaveCase(childNode, saveCases, deleteCases, root.data);
-          })
+          });
         }
       }
     },
