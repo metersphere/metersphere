@@ -31,6 +31,8 @@
            :fields-width="fieldsWidth"
            v-if="false">
           </ms-table-column>-->
+        <ms-table-column width="1">
+        </ms-table-column>
           <ms-table-column
             :label="$t('test_track.issue.id')"
             prop="num"
