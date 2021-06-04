@@ -3,18 +3,18 @@
     <el-card>
       <template v-slot:header>
         <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']" :condition.sync="condition" @search="initData" @create="create"
-                         create-tip="创建用户组" title="用户组与权限" :have-search="false"/>
+                         :create-tip="$t('group.create')" :title="$t('group.group_permission')" :have-search="false"/>
       </template>
 
       <el-table :data="groups" border class="adjust-table" style="width: 100%"
                 :height="screenHeight" @sort-change="sort">
         <el-table-column prop="name" :label="$t('commons.name')"/>
-        <el-table-column prop="type" label="所属类型">
+        <el-table-column prop="type" :label="$t('group.type')">
           <template v-slot="scope">
             <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="scopeName" label="应用范围"/>
+        <el-table-column prop="scopeName" :label="$t('group.scope')"/>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -25,8 +25,8 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="creator" label="操作人"/>
-        <el-table-column prop="description" label="描述"/>
+        <el-table-column prop="creator" :label="$t('group.operator')"/>
+        <el-table-column prop="description" :label="$t('group.description')"/>
         <el-table-column :label="$t('commons.operating')" min-width="120">
           <template v-slot:default="scope">
             <div>
@@ -37,7 +37,7 @@
                   <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
                   <ms-table-operator-button
                     v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION', 'ORGANIZATION_GROUP:READ+SETTING_PERMISSION']"
-                    tip="设置权限" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
+                    :tip="$t('group.set_permission')" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
                 </template>
               </ms-table-operator>
             </div>
@@ -51,7 +51,7 @@
 
     <edit-user-group ref="editUserGroup" @refresh="initData"/>
     <edit-permission ref="editPermission"/>
-    <ms-delete-confirm title="删除用户组" @delete="_handleDel" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('group.delete')" @delete="_handleDel" ref="deleteConfirm"/>
   </div>
 </template>
 
@@ -107,14 +107,14 @@ export default {
       });
     },
     create() {
-      this.$refs.editUserGroup.open({}, 'create', '创建用户组');
+      this.$refs.editUserGroup.open({}, 'create', this.$t('group.create'));
     },
     edit(row) {
       if (row.id === "admin") {
-        this.$warning("系统管理员不支持编辑！");
+        this.$warning(this.$t('group.admin_not_allow_edit'));
         return ;
       }
-      this.$refs.editUserGroup.open(row, 'edit', '编辑用户组');
+      this.$refs.editUserGroup.open(row, 'edit', this.$t('group.edit'));
     },
     _handleDel(row) {
       this.result = this.$get("/user/group/delete/" + row.id, () => {
@@ -124,7 +124,7 @@ export default {
     },
     del(row) {
       if (row.system) {
-        this.$warning("系统用户组不支持删除！");
+        this.$warning(this.$t('group.admin_not_allow_delete'));
         return ;
       }
       this.$refs.deleteConfirm.open(row);
