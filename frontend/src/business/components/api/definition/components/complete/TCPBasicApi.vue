@@ -8,7 +8,7 @@
             <!--            <el-input class="ms-http-input" size="small" v-model="basicForm.name"/>-->
             <el-input v-model="basicForm.name" class="ms-http-input" size="small">
               <el-select v-model="basicForm.method" slot="prepend" style="width: 100px" size="small" @change="methodChange">
-                <el-option v-for="item in methodTypes" :key="item" :label="item" :value="item"/>
+                <el-option v-for="item in methodTypes" :key="item.key" :label="item.value" :value="item.key"/>
               </el-select>
             </el-input>
 
@@ -16,20 +16,6 @@
         </el-col>
         <el-col :span="12">
           <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-            <!--<el-select class="ms-http-input" size="small" v-model="basicForm.moduleId" style="width: 100%" @change="reload">-->
-            <!--<div v-if="moduleOptions.length>0">-->
-            <!--<el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>-->
-            <!--</div>-->
-            <!--<div v-else>-->
-            <!--<el-option :key="0" :value="''">-->
-            <!--<div style="margin-left: 40px">-->
-            <!--<span style="font-size: 14px;color: #606266;font-weight: 48.93">{{ $t('api_test.definition.select_comp.no_data') }},-->
-            <!--</span>-->
-            <!--<el-link type="primary" @click="createModules">{{ $t('api_test.definition.select_comp.add_data') }}</el-link>-->
-            <!--</div>-->
-            <!--</el-option>-->
-            <!--</div>-->
-            <!--</el-select>-->
             <ms-select-tree size="small" :data="moduleOptions" :defaultKey="basicForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
 
           </el-form-item>
