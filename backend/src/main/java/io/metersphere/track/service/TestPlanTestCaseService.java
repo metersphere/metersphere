@@ -48,8 +48,6 @@ public class TestPlanTestCaseService {
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
-    private TestCaseTestMapper testCaseTestMapper;
-    @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
@@ -209,8 +207,8 @@ public class TestPlanTestCaseService {
         return extTestPlanTestCaseMapper.updateTestCaseStates(ids, reportStatus);
     }
 
-    public List<TestPlanCaseDTO> listForMinder(String planId) {
-        return extTestPlanTestCaseMapper.listForMinder(planId);
+    public List<TestPlanCaseDTO> listForMinder(QueryTestPlanCaseRequest request) {
+        return extTestPlanTestCaseMapper.listForMinder(request);
     }
 
     public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {

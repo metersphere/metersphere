@@ -48,7 +48,7 @@ public interface ExtTestPlanTestCaseMapper {
 
     List<String> getExecResultByPlanId(String planId);
 
-    List<TestPlanCaseDTO> listForMinder(@Param("planId") String planId);
+    List<TestPlanCaseDTO> listForMinder(@Param("request") QueryTestPlanCaseRequest request);
 
     List<TestCaseTestDTO> listTestCaseTest(@Param("caseId") String caseId);
 
