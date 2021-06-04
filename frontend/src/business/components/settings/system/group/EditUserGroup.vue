@@ -5,36 +5,36 @@
     <el-form ref="form" :model="form" label-width="auto" size="small" :rules="rules">
       <el-row>
         <el-col :span="11">
-          <el-form-item label="名称" prop="name">
+          <el-form-item :label="$t('commons.name')" prop="name">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="11" :offset="2">
-          <el-form-item label="所属类型" prop="type">
-            <el-select v-model="form.type" placeholder="请选择所属类型" style="width: 100%" @change="changeGroup" :disabled="dialogType === 'edit'">
-              <el-option label="系统" value="SYSTEM"></el-option>
-              <el-option label="组织" value="ORGANIZATION"></el-option>
-              <el-option label="工作空间" value="WORKSPACE"></el-option>
-              <el-option label="项目" value="PROJECT"></el-option>
+          <el-form-item :label="$t('group.type')" prop="type">
+            <el-select v-model="form.type" :placeholder="$t('group.select_type')" style="width: 100%" @change="changeGroup" :disabled="dialogType === 'edit'">
+              <el-option :label="$t('group.system')" value="SYSTEM"></el-option>
+              <el-option :label="$t('group.organization')" value="ORGANIZATION"></el-option>
+              <el-option :label="$t('group.workspace')" value="WORKSPACE"></el-option>
+              <el-option :label="$t('group.project')" value="PROJECT"></el-option>
             </el-select>
           </el-form-item>
         </el-col>
       </el-row>
-      <el-form-item label="描述" prop="description">
+      <el-form-item :label="$t('group.description')" prop="description">
         <el-input type="textarea" v-model="form.description"></el-input>
       </el-form-item>
-      <el-form-item label="全局用户组">
+      <el-form-item :label="$t('group.global_group')">
         <el-switch v-model="form.global" :disabled="dialogType === 'edit' || form.type === 'SYSTEM'" @change="change(form.global)"></el-switch>
       </el-form-item>
 
-      <el-form-item label="所属组织" v-if="show" prop="scopeId">
-        <el-select v-model="form.scopeId" placeholder="请选择所属组织" style="width: 100%;" :disabled="dialogType === 'edit'" clearable>
+      <el-form-item :label="$t('group.belong_organization')" v-if="show" prop="scopeId">
+        <el-select v-model="form.scopeId" :placeholder="$t('group.select_belong_organization')" style="width: 100%;" :disabled="dialogType === 'edit'" clearable>
           <el-option v-for="item in organizations" :key="item.id" :label="item.name" :value="item.id"/>
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">确定</el-button>
-        <el-button @click="cancel">取消</el-button>
+        <el-button type="primary" @click="onSubmit">{{ $t('commons.confirm') }}</el-button>
+        <el-button @click="cancel">{{ $t('commons.cancel') }}</el-button>
       </el-form-item>
     </el-form>
   </el-dialog>
@@ -54,31 +54,31 @@ export default {
       },
       rules: {
         name: [
-          {required: true, message: '请输入名称', trigger: 'blur'},
+          {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
           {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'},
         ],
         type: [
-          {required: true, message: '请选择所属类型', trigger: 'blur'},
+          {required: true, message:  this.$t('group.select_type'), trigger: 'blur'},
         ],
         description: [
           {min: 2, max: 90, message: this.$t('commons.input_limit', [2, 90]), trigger: 'blur'},
         ],
         scopeId: [
-          {required: true, message: '请选择所属组织', trigger: 'blur'},
+          {required: true, message: this.$t('group.select_belong_organization'), trigger: 'blur'},
         ]
       },
       dialogType: '',
       isSystem: false,
       show: true,
       organizations: [],
-      title: '创建用户组'
+      title: this.$t('group.create')
     }
   },
   props: {
     dialogTitle: {
       type: String,
       default() {
-        return "创建用户组"
+        return this.$t('group.create')
       }
     }
   },
