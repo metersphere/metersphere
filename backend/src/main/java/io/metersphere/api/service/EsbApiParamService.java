@@ -39,11 +39,9 @@ public class EsbApiParamService {
 
     public EsbApiParamsWithBLOBs createEsbApiParam(String resourceId, String esbDataStruct, String backedEsbDataStrcut, String backedScript) {
         EsbApiParamsWithBLOBs model = null;
-
         EsbApiParamsExample example = new EsbApiParamsExample();
         example.createCriteria().andResourceIdEqualTo(resourceId);
         List<EsbApiParamsWithBLOBs> list = esbApiParamsMapper.selectByExampleWithBLOBs(example);
-
         if (list.isEmpty()) {
             String uuid = UUID.randomUUID().toString();
             model = new EsbApiParamsWithBLOBs();
