@@ -26,8 +26,7 @@
 </template>
 
 <script>
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, hasRoles} from "@/common/js/utils";
-import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@/common/js/constants";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, saveLocalStorage} from "@/common/js/utils";
 import {mapGetters} from "vuex";
 
 export default {
@@ -39,14 +38,14 @@ export default {
   created() {
     this.init();
   },
+  inject: [
+    'reload'
+  ],
   computed: {
     ...mapGetters([
       'isNewVersion',
       'isOldVersion',
     ]),
-    currentProjectId() {
-      return localStorage.getItem(PROJECT_ID)
-    }
   },
   data() {
     return {
@@ -55,6 +54,7 @@ export default {
       searchArray: [],
       searchString: '',
       userId: getCurrentUser().id,
+      currentProjectId: getCurrentProjectID(),
     }
   },
   watch: {
@@ -64,7 +64,7 @@ export default {
   },
   methods: {
     init: function () {
-      this.result = this.$post("/project/list/related",{userId: getCurrentUserId()}, response => {
+      this.result = this.$post("/project/list/related", {userId: getCurrentUserId()}, response => {
         this.items = response.data;
         this.searchArray = response.data;
         let projectId = getCurrentProjectID();
@@ -94,22 +94,12 @@ export default {
       if (projectId === currentProjectId) {
         return;
       }
-      this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
-        localStorage.setItem(PROJECT_ID, projectId);
-        this.$store.commit('setProjectId', projectId);
-        let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
-        if (path === '/api') {
-          if (this.isNewVersion) {
-            path = "/api/home";
-          } else if (this.isOldVersion) {
-            path = "/api/home_obsolete";
-          } else {
-            path = '/';
-          }
-        }
-        this.$router.push(path).then(() => {
-          window.location.reload()
-        }).catch(err => err);
+      this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, (response) => {
+        saveLocalStorage(response);
+        this.currentProjectId = projectId;
+        // 刷新路由
+        this.reload();
+
         this.changeProjectName(projectId);
       });
     },

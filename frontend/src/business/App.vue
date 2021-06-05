@@ -19,7 +19,7 @@
       </el-col>
     </el-row>
 
-    <ms-view/>
+    <ms-view v-if="isShow"/>
 
     <theme/>
   </el-col>
@@ -52,6 +52,7 @@ export default {
       logoId: '_blank',
       color: '',
       sessionTimer: null,
+      isShow: true,
     };
   },
   created() {
@@ -102,6 +103,12 @@ export default {
       window.location.href = "/login";
     });
   },
+  // 提供可注入子组件属性
+  provide() {
+    return {
+      reload: this.reload
+    }
+  },
   methods: {
     initSessionTimer() {
       this.$get('/system/timeout')
@@ -137,6 +144,15 @@ export default {
         this.$refs.headerUser.logout();
       }, 1000 * timeout);
     },
+    reload() {
+      // 先隐藏
+      this.isShow = false
+
+      // $nextTick() 将回调延迟到下次 DOM 更新循环之后执行
+      this.$nextTick(() => {
+        this.isShow = true
+      })
+    }
   },
   components: {
     MsLanguageSwitch,
