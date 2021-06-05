@@ -5,7 +5,7 @@
         <component :is="licenseHeader"></component>
       </el-col>
     </el-row>
-    <el-row id="header-top" type="flex" justify="space-between" align="middle">
+    <el-row id="header-top" type="flex" justify="space-between" align="middle" v-if="isMenuShow">
       <el-col :span="12">
         <img :src="'/display/file/logo'" class="logo" alt="">
         <ms-top-menus :color="color"/>
@@ -53,6 +53,7 @@ export default {
       color: '',
       sessionTimer: null,
       isShow: true,
+      isMenuShow: true,
     };
   },
   created() {
@@ -106,7 +107,8 @@ export default {
   // 提供可注入子组件属性
   provide() {
     return {
-      reload: this.reload
+      reload: this.reload,
+      reloadTopMenus: this.reloadTopMenus,
     }
   },
   methods: {
@@ -147,10 +149,15 @@ export default {
     reload() {
       // 先隐藏
       this.isShow = false
-
-      // $nextTick() 将回调延迟到下次 DOM 更新循环之后执行
       this.$nextTick(() => {
         this.isShow = true
+      })
+    },
+    reloadTopMenus() {
+      // 先隐藏
+      this.isMenuShow = false
+      this.$nextTick(() => {
+        this.isMenuShow = true
       })
     }
   },
