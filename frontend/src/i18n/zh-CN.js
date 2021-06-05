@@ -645,6 +645,8 @@ export default {
     project_file_exist: "项目中已存在该文件，请直接引用",
     report: {
       diff: "对比",
+      set_default: '恢复默认',
+      unselect_all: '取消所有',
       ActiveThreadsChart: '用户数',
       TransactionsChart: '请求/事务数',
       ErrorsChart: '错误',
