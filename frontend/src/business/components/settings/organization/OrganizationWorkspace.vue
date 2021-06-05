@@ -232,6 +232,9 @@ export default {
       return getCurrentWorkspaceId();
     }
   },
+  inject: [
+    'reload'
+  ],
   methods: {
     create() {
       this.dialogWsAddVisible = true;
@@ -249,7 +252,7 @@ export default {
             this.dialogWsUpdateVisible = false;
             if (saveType == 'add') {
               Message.success(this.$t('commons.save_success'));
-              window.location.reload();
+              this.reload();
             } else if (saveType == 'update') {
               Message.success(this.$t('commons.modify_success'));
               this.list();

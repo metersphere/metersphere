@@ -142,13 +142,16 @@ export default {
     UserCascader,
     ShowMoreBtn
   },
+  inject: [
+    'reload'
+  ],
   data() {
     const validateConfirmPwd = (rule, value, callback) => {
-      if(value === ''){
+      if (value === '') {
         callback(new Error(this.$t('user.input_password')));
-      }else if((value !== this.ruleForm.newpassword)){
+      } else if ((value !== this.ruleForm.newpassword)) {
         callback(new Error(this.$t('member.inconsistent_passwords')));
-      }else{
+      } else {
         callback();
       }
     };
@@ -325,7 +328,7 @@ export default {
             this.$success(this.$t('commons.modify_success'));
             this.editPasswordVisible = false;
             this.search();
-            window.location.reload();
+            this.reload();
           });
         } else {
           return false;
