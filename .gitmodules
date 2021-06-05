@@ -1,6 +1,8 @@
 [submodule "backend/src/main/java/io/metersphere/xpack"]
 	path = backend/src/main/java/io/metersphere/xpack
 	url = git@github.com:metersphere/xpack-backend.git
+	branch = master
 [submodule "frontend/src/business/components/xpack"]
 	path = frontend/src/business/components/xpack
 	url = git@github.com:metersphere/xpack-frontend.git
+	branch = master
