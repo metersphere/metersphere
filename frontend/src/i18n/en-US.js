@@ -647,6 +647,8 @@ export default {
     project_file_update_type_error: 'Updated file types must be consistent',
     report: {
       diff: "Compare",
+      set_default: 'Set to Default',
+      unselect_all: 'Unselect All',
       ActiveThreadsChart: 'Users',
       TransactionsChart: 'Requests/Transactions',
       ErrorsChart: 'Error',

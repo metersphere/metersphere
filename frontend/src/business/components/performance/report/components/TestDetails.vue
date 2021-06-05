@@ -2,6 +2,11 @@
   <div>
     <el-row>
       <el-col :span="6">
+        <div style="padding-bottom: 5px;">
+          <el-link type="primary" @click="resetDefault()">{{ $t('load_test.report.set_default') }}</el-link>
+          &nbsp;/&nbsp;
+          <el-link type="danger" @click="unselectAll()">{{ $t('load_test.report.unselect_all') }}</el-link>
+        </div>
         <el-collapse v-model="activeNames" class="test-detail">
           <el-collapse-item :title="$t('load_test.report.ActiveThreadsChart')" name="users">
             <el-checkbox-group v-model="checkList['ActiveThreadsChart']"
@@ -179,7 +184,30 @@ export default {
     };
   },
   methods: {
+    resetDefault() {
+      this.chartData = [];
+      this.checkList['ActiveThreadsChart'] = ['ALL'];
+      this.checkList['TransactionsChart'] = ['ALL'];
+      this.checkList['ResponseTimeChart'] = ['ALL'];
+      this.getTotalChart();
+    },
+    unselectAll() {
+      this.chartData = [];
+      this.totalOption = {};
+      for (const name in this.checkList) {
+        this.checkList[name] = [];
+      }
+    },
     handleChecked(name) {
+      // let minus = this.checkOptions[name].filter((v) => {
+      //   return this.checkList[name].indexOf(v) === -1;
+      // })
+      // let groupName = this.$t('load_test.report.' + name) + ': ';
+      // for (const m of minus) {
+      //   this.chartData = this.chartData.filter(c => c.groupName !== groupName + m);
+      // }
+      // this.totalOption = this.generateOption(this.baseOption, this.chartData);
+      // this.getChart(name, this.checkList[name]);
       this.getTotalChart();
     },
     initTableData() {
@@ -189,17 +217,14 @@ export default {
         this.getCheckOptions(name);
       }
 
-      this.checkList['ActiveThreadsChart'] = ['ALL'];
-      this.checkList['TransactionsChart'] = ['ALL'];
-      this.checkList['ResponseTimeChart'] = ['ALL'];
-
-      this.getTotalChart();
+      this.resetDefault();
     },
     getCheckOptions(reportKey) {
       this.$get("/performance/report/content/" + reportKey + "/" + this.id)
         .then(res => {
           let data = res.data.data;
-          if (!data) {
+          if (!data || data.length === 0) {
+            this.init = false;
             return;
           }
           let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
@@ -217,12 +242,12 @@ export default {
       }
     },
     getChart(reportKey, checkList) {
+      if (!checkList || checkList.length === 0) {
+        return;
+      }
       this.$get("/performance/report/content/" + reportKey + "/" + this.id)
         .then(res => {
           let data = res.data.data;
-          if (!data || data.length === 0) {
-            this.init = false;
-          }
           if (checkList) {
             data = data.filter(item => {
               if (checkList.indexOf('ALL') > -1) {
