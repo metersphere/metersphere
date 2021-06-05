@@ -77,6 +77,9 @@ export default {
     MsMainContainer,
     MsChangeHistory
   },
+  inject: [
+    'reload'
+  ],
   data() {
     return {
       result: {},
@@ -107,7 +110,7 @@ export default {
     '$route'(to) {
       // 如果是创建测试
       if (to.name === 'createPerTest') {
-        window.location.reload();
+        this.reload();
         return;
       }
 

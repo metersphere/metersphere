@@ -120,6 +120,9 @@ export default {
     scenarios: Array,
     isReadOnly: Boolean,
   },
+  inject: [
+    'reload'
+  ],
   data() {
     return {
       loadFileVisible: false,
@@ -321,7 +324,7 @@ export default {
         this.getProjectFiles();
         // 刷新页面上的线程组
         if (this.tableData.filter(f => f.id === this.currentRow.id).length > 0) {
-          window.location.reload();
+          this.reload();
         }
         this.currentRow = null;
       });

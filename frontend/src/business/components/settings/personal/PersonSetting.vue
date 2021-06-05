@@ -93,6 +93,9 @@ import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 export default {
   name: "MsPersonSetting",
   components: {MsDialogFooter, MsTableOperatorButton},
+  inject: [
+    'reload'
+  ],
   data() {
     return {
       result: {},
@@ -192,7 +195,7 @@ export default {
             localStorage.setItem(TokenKey, JSON.stringify(response.data));
             this.updateVisible = false;
             this.initTableData();
-            window.location.reload();
+            this.reload();
           });
         } else {
           return false;
@@ -210,7 +213,7 @@ export default {
             this.$success(this.$t('commons.modify_success'));
             this.editPasswordVisible = false;
             this.initTableData();
-            window.location.reload();
+            this.reload();
           });
         } else {
           return false;
