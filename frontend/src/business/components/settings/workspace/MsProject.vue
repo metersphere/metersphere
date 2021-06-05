@@ -298,6 +298,9 @@ export default {
     MsMainContainer, MsRolesTag,
     MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
   },
+  inject: [
+    'reload'
+  ],
   data() {
     return {
       createVisible: false,
@@ -431,7 +434,7 @@ export default {
             this.createVisible = false;
             Message.success(this.$t('commons.save_success'));
             if (saveType === 'add') {
-              window.location.reload();
+              this.reload();
             } else {
               this.list();
             }
