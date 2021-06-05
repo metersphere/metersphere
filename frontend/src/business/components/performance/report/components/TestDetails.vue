@@ -15,6 +15,7 @@
                           v-for="name in checkOptions['ActiveThreadsChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -26,6 +27,7 @@
                           v-for="name in checkOptions['TransactionsChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -37,6 +39,7 @@
                           v-for="name in checkOptions['ResponseTimeChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -49,6 +52,7 @@
                           v-for="name in checkOptions['ResponseTimePercentilesChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -60,6 +64,7 @@
                           v-for="name in checkOptions['ResponseCodeChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -71,6 +76,7 @@
                           v-for="name in checkOptions['LatencyChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -83,6 +89,7 @@
                           v-for="name in checkOptions['BytesThroughputChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -94,6 +101,7 @@
                           v-for="name in checkOptions['ErrorsChart']"
                           :key="name"
                           :content="name"
+                          :disabled="name.length < minLength"
                           placement="top">
                 <el-checkbox :label="name"/>
               </el-tooltip>
@@ -130,6 +138,7 @@ export default {
   data() {
     return {
       activeNames: 'users',
+      minLength: 35,
       loadOption: {},
       resOption: {},
       totalOption: {},
