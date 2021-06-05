@@ -362,11 +362,11 @@ export default {
 <style scoped>
 .chart-config {
   width: 100%;
-  height: 450px;
+  height: 445px;
 }
 
 .test-detail {
-  height: calc(100vh - 320px);
+  height: calc(100vh - 345px);
   overflow: auto;
 }
 </style>
