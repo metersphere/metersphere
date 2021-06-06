@@ -119,6 +119,7 @@
 <script>
 import MsChart from "@/business/components/common/chart/MsChart";
 
+const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
 
 const CHART_MAP = [
   'ActiveThreadsChart',
@@ -154,6 +155,7 @@ export default {
       },
       init: false,
       baseOption: {
+        color: color,
         title: {
           text: 'Test Details',
           left: 'center',
