@@ -291,10 +291,14 @@ export default {
 
       this.$nextTick(function () {
         setTimeout(() => {
-          html2canvas(document.getElementById('performanceReportExport'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
+          let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog'];
+          let promises = [];
+          ids.forEach(id => {
+            let promise = html2canvas(document.getElementById(id), {scale: 2});
+            promises.push(promise);
+          });
+          Promise.all(promises).then(function (canvas) {
+            exportPdf(name, canvas);
             reset();
           });
         }, 1000);
