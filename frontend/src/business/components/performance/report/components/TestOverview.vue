@@ -79,6 +79,8 @@
 <script>
 import MsChart from "@/business/components/common/chart/MsChart";
 
+const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+
 export default {
   name: "TestOverview",
   components: {MsChart},
@@ -138,6 +140,7 @@ export default {
         yAxisIndex1List = this._unique(yAxisIndex1List);
 
         let loadOption = {
+          color: color,
           title: {
             text: 'Load',
             left: 'center',
@@ -217,6 +220,7 @@ export default {
         yAxisIndex1List = this._unique(yAxisIndex1List);
 
         let resOption = {
+          color: color,
           title: {
             text: 'Response Time',
             left: 'center',
@@ -298,6 +302,7 @@ export default {
         yAxisIndex0List = this._unique(yAxisIndex0List);
 
         let errorOption = {
+          color: color,
           title: {
             text: 'Errors',
             left: 'center',
@@ -369,6 +374,7 @@ export default {
         yAxisIndex0List = this._unique(yAxisIndex0List);
 
         let resCodeOption = {
+          color: color,
           title: {
             text: 'Response code',
             left: 'center',
