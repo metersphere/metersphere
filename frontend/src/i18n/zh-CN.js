@@ -655,6 +655,7 @@ export default {
       ResponseCodeChart: '响应码',
       LatencyChart: '延迟时间',
       BytesThroughputChart: '字节数',
+      Network: '网络',
     },
     project_file_update_type_error: '更新的文件类型必须一致',
   },
