@@ -338,6 +338,10 @@ export function exportPdf(name, canvasList) {
       let blankHeight = a4Height - currentHeight;
 
       if (leftHeight > blankHeight) {
+        if (blankHeight < 200) {
+          pdf.addPage();
+          currentHeight = 0;
+        }
         //页面偏移
         let position = 0;
         while (leftHeight > 0) {
@@ -348,10 +352,10 @@ export function exportPdf(name, canvasList) {
           leftHeight -= occupation;
           position -= occupation;
           //避免添加空白页
-          if (leftHeight > 0) {
-            pdf.addPage();
-            currentHeight = 0;
-          }
+          // if (leftHeight > 0) {
+          // pdf.addPage();
+          // currentHeight = 0;
+          // }
         }
       } else {
         pdf.addImage(pageData, 'JPEG', 0, currentHeight, imgWidth, imgHeight);
