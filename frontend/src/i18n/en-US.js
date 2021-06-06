@@ -657,6 +657,7 @@ export default {
       ResponseCodeChart: 'Response Code',
       LatencyChart: 'Latency',
       BytesThroughputChart: 'Bytes',
+      Network: 'Network',
     },
   },
   api_test: {
