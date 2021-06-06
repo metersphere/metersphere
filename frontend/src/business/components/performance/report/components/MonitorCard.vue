@@ -28,6 +28,8 @@
 
 import MsChart from "@/business/components/common/chart/MsChart";
 
+const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+
 export default {
   name: "MonitorCard",
   props: ['report'],
@@ -73,6 +75,7 @@ export default {
         }
       });
       let option = {
+        color: color,
         title: {
           left: 'center',
           text: 'CPU使用率',
@@ -108,6 +111,7 @@ export default {
         }
       });
       let option = {
+        color: color,
         title: {
           left: 'center',
           text: '磁盘使用率',
@@ -143,6 +147,7 @@ export default {
         }
       });
       let option = {
+        color: color,
         title: {
           left: 'center',
           text: '入口流量',
@@ -178,6 +183,7 @@ export default {
         }
       });
       let option = {
+        color: color,
         title: {
           left: 'center',
           text: '出口流量',
@@ -213,6 +219,7 @@ export default {
         }
       });
       let option = {
+        color: color,
         title: {
           left: 'center',
           text: '内存使用率',
