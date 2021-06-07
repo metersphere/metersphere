@@ -694,6 +694,7 @@ public class ApiTestCaseService {
     public List<ApiTestCaseInfo> findApiTestCaseBLOBs(ApiTestCaseRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
+            request.setIds(null);
             ids = this.idSimple(request);
             ids.removeAll(request.getUnSelectIds());
             request.setIds(ids);
