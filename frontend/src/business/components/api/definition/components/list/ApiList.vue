@@ -418,11 +418,13 @@ export default {
       this.currentPage = 1;
       this.condition.moduleIds = [];
       this.condition.moduleIds.push(this.selectNodeIds);
+      this.closeCaseModel();
       this.initTable();
     },
     currentProtocol() {
       this.currentPage = 1;
       initCondition(this.condition, false);
+      this.closeCaseModel();
       this.initTable();
     },
     trashEnable() {
@@ -435,12 +437,19 @@ export default {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
       initCondition(this.condition, false);
+      this.closeCaseModel();
       this.initTable();
     }
   },
   methods: {
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
+    },
+    closeCaseModel(){
+      //关闭案例弹窗
+      if(this.$refs.caseList){
+        this.$refs.caseList.handleClose();
+      }
     },
     initTable() {
       if (this.$refs.apiDefinitionTable) {
