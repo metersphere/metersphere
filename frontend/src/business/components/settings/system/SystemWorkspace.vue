@@ -242,6 +242,9 @@ export default {
   activated() {
     this.list();
   },
+  inject: [
+    'reloadTopMenus',
+  ],
   methods: {
     create() {
       this.dialogWsAddVisible = true;
@@ -271,7 +274,7 @@ export default {
           }
           this.result = this.$post("/workspace/" + saveType, this.form, () => {
             this.dialogWsAddVisible = false;
-            this.list();
+            this.reloadTopMenus();
             Message.success(this.$t('commons.save_success'));
           });
         } else {
