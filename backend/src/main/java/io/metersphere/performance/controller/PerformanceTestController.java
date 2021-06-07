@@ -130,7 +130,7 @@ public class PerformanceTestController {
     public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
                                                      @PathVariable int goPage, @PathVariable int pageSize,
                                                      @RequestBody QueryProjectFileRequest request) {
-        checkPermissionService.checkProjectOwner(projectId);
+//        checkPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType, request));
     }
