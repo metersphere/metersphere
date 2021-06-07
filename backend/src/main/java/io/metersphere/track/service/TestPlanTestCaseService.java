@@ -62,7 +62,13 @@ public class TestPlanTestCaseService {
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
+        List<TestPlanCaseDTO> list = new ArrayList<>();
+        try {
+            list = extTestPlanTestCaseMapper.list(request);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         Map<String, String> userMap = userService.getMemberList(queryMemberRequest)

@@ -15,6 +15,7 @@
                                         :page-size="pageSize>total?total:pageSize"
                                         :total="total"
                                         :select-data-counts="selectDataCounts"
+                                        :table-data-count-in-page="tableData.length"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
