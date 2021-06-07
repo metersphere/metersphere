@@ -25,7 +25,6 @@
                  :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
     <el-table
-        :key="updata"
         ref="table"
         class="test-content adjust-table ms-select-all-fixed"
         border
@@ -314,7 +313,6 @@ export default {
   },
   data() {
     return {
-      updata: false,
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
       screenHeight: 'calc(100vh - 330px)',
@@ -408,12 +406,6 @@ export default {
     selectNodeIds() {
       this.condition.selectAll = false;
       this.search();
-    },
-    tableLabel: {
-      handler(newVal) {
-        this.updata = !this.updata;
-      },
-      deep: true
     }
   },
   mounted() {
