@@ -168,6 +168,7 @@ public class ApiScenarioReportService {
         testResult.setPassAssertions(result.getPassAssertions());
         testResult.setSuccess(result.getSuccess());
         testResult.setTotalAssertions(result.getTotalAssertions());
+        testResult.setConsole(result.getConsole());
         return testResult;
     }
 
@@ -409,6 +410,7 @@ public class ApiScenarioReportService {
                     testResult.setScenarioTotal(testResult.getScenarioTotal() + scenarioResult.getScenarioTotal());
                     testResult.setScenarioSuccess(testResult.getScenarioSuccess() + scenarioResult.getScenarioSuccess());
                     testResult.setScenarioError(testResult.getScenarioError() + scenarioResult.getScenarioError());
+                    testResult.setConsole(scenarioResult.getConsole());
                 } catch (Exception e) {
                     LogUtil.error(e.getMessage());
                 }
@@ -434,10 +436,6 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport updateScenario(TestResult result) {
         ApiScenarioReport lastReport = null;
-        StringBuilder scenarioIds = new StringBuilder();
-        StringBuilder scenarioNames = new StringBuilder();
-        TestResult fullResult = createTestResult(result);
-        List<String> reportIds = new LinkedList<>();
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
             long startTime = System.currentTimeMillis();
@@ -448,11 +446,9 @@ public class ApiScenarioReportService {
             if (report != null) {
                 // 合并并行报告
                 TestResult newResult = createTestResult(result.getTestId(), item);
+                newResult.setConsole(result.getConsole());
                 item.setName(report.getScenarioName());
                 newResult.addScenario(item);
-                fullResult.addScenario(item);
-                scenarioIds.append(item.getName()).append(",");
-                scenarioNames.append(report.getName()).append(",");
                 // 报告详情内容
                 ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
                 detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
@@ -474,7 +470,6 @@ public class ApiScenarioReportService {
                 }
                 lastReport = report;
             }
-            reportIds.add(report.getId());
             if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
                 Object obj = MessageCache.cache.get(report.getScenarioId());
                 if (obj != null) {

@@ -9,13 +9,13 @@
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" v-on:requestResult="requestResult"/>
+                  <ms-scenario-results :treeData="fullTreeNodes" :console="content.console" v-on:requestResult="requestResult"/>
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :treeData="failsTreeNodes"/>
+                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="failsTreeNodes"/>
                 </el-tab-pane>
               </el-tabs>
             </div>
