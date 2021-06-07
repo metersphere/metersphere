@@ -33,6 +33,7 @@
                            :environment="environment"
                            :is-case-edit="isCaseEdit"
                            :api="api"
+                           :runResult="runResult"
                            :api-case="item" :index="index" ref="apiCaseItem"/>
           </div>
         </el-main>
@@ -86,6 +87,7 @@ export default {
       batchLoadingIds: [],
       singleLoading: false,
       singleRunId: "",
+      runResult: {},
       runData: [],
       selectdCases: [],
       reportId: "",
@@ -208,6 +210,7 @@ export default {
       // 批量更新最后执行环境
       let obj = {envId: this.environment, show: true};
       this.batchEdit(obj);
+      this.runResult = {testId: getUUID()};
       this.$success(this.$t('organization.integration.successful_operation'));
     },
     errorRefresh() {
@@ -434,7 +437,7 @@ export default {
           this.$success(this.$t('commons.save_success'));
         }
         this.selectdCases = [];
-        this.getApiTest();
+        //this.getApiTest();
       });
     },
   }
