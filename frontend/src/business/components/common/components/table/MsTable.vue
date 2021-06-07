@@ -19,6 +19,7 @@
 
       <ms-table-header-select-popover v-if="enableSelection && showSelectAll" ref="selectPopover"
                                       :page-size="pageSize > total ? total : pageSize"
+                                      :table-data-count-in-page="data.length"
                                       :total="total"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
@@ -188,8 +189,6 @@ export default {
   },
   mounted() {
     getLabel(this, TEST_CASE_LIST);
-  },
-  created() {
   },
   watch: {
     selectNodeIds() {
