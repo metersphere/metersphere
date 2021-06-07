@@ -97,6 +97,8 @@ export default {
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, (response) => {
         saveLocalStorage(response);
         this.currentProjectId = projectId;
+
+        this.$EventBus.$emit('projectChange');
         // 刷新路由
         this.reload();
 
