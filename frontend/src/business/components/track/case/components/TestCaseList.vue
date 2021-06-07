@@ -65,7 +65,7 @@
         </el-table-column>
         <el-table-column
           v-if="item.id == 'createUser'"
-          prop="createUser"
+          prop="createName"
           :label="$t('commons.create_user')"
           show-overflow-tooltip
           :key="index"
