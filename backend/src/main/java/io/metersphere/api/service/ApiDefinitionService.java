@@ -600,6 +600,7 @@ public class ApiDefinitionService {
             if (result.getName().indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
                 result.setName(result.getName().substring(0, result.getName().indexOf(DelimiterConstants.SEPARATOR.toString())));
             }
+            result.getResponseResult().setConsole(res.getConsole());
             cache.put(res.getTestId(), result);
         } else {
             MSException.throwException(Translator.get("test_not_found"));
