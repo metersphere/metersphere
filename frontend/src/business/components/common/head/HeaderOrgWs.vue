@@ -61,8 +61,7 @@
 </template>
 
 <script>
-import {WORKSPACE_ID} from '../../../../common/js/constants';
-import {getCurrentUser, saveLocalStorage} from "../../../../common/js/utils";
+import {getCurrentUser, saveLocalStorage} from "@/common/js/utils";
 
 export default {
   name: "MsHeaderOrgWs",
@@ -71,7 +70,7 @@ export default {
     this.getCurrentUserInfo();
   },
   inject: [
-    'reloadTopMenus'
+    'reloadTopMenus',
   ],
   data() {
     return {

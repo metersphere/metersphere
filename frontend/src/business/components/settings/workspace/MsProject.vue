@@ -299,7 +299,7 @@ export default {
     MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
   },
   inject: [
-    'reload'
+    'reloadTopMenus'
   ],
   data() {
     return {
@@ -434,7 +434,7 @@ export default {
             this.createVisible = false;
             Message.success(this.$t('commons.save_success'));
             if (saveType === 'add') {
-              this.reload();
+              this.reloadTopMenus();
             } else {
               this.list();
             }
