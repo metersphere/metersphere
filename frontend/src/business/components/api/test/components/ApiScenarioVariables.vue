@@ -11,12 +11,17 @@
         </el-col>
 
         <el-col>
-          <ms-api-variable-input :show-copy="showCopy" :show-variable="showVariable" :is-read-only="isReadOnly" v-model="item.name" size="small" maxlength="200" @change="change"
+          <ms-api-variable-input :show-copy="showCopy" :show-variable="showVariable" :is-read-only="isReadOnly"
+                                 v-model="item.name" size="small" maxlength="200" @change="change"
                                  :placeholder="$t('api_test.variable_name')" show-word-limit/>
         </el-col>
         <el-col>
           <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
                     :placeholder="$t('api_test.value')" show-word-limit/>
+        </el-col>
+        <el-col>
+          <el-input :disabled="isReadOnly" v-model="item.remark" size="small" @change="change"
+                    :placeholder="$t('commons.remark')" show-word-limit/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
