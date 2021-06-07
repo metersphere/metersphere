@@ -734,6 +734,7 @@ export class KeyValue extends BaseConfig {
     this.enable = undefined;
     this.uuid = undefined;
     this.contentType = undefined;
+    this.remark = undefined;
     this.set(options);
   }
 
