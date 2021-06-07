@@ -545,7 +545,8 @@
             <if test="request.name != null">
                 and (api_definition.name like CONCAT('%', #{request.name},'%')
                 or api_definition.tags like CONCAT('%', #{request.name},'%')
-                or api_definition.num like CONCAT('%', #{request.name},'%'))
+                or api_definition.num like CONCAT('%', #{request.name},'%')
+                or api_definition.path like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.protocol != null">
                 AND api_definition.protocol = #{request.protocol}
