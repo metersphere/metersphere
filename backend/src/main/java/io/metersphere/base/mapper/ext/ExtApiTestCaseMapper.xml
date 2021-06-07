@@ -409,12 +409,12 @@
                 </foreach>
             </if>
         </where>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
-            </foreach>
-        </if>
+<!--        <if test="request.orders != null and request.orders.size() > 0">-->
+<!--            order by-->
+<!--            <foreach collection="request.orders" separator="," item="order">-->
+<!--                ${order.name} ${order.type}-->
+<!--            </foreach>-->
+<!--        </if>-->
     </select>
     <select id="selectIdsNotExistsInPlan" resultType="java.lang.String">
         select c.id
