@@ -107,7 +107,7 @@
           <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
-          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
+          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
@@ -192,6 +192,7 @@
       }
     },
     props: {
+      runResult:{},
       apiCase: {
         type: Object,
         default() {
