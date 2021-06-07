@@ -509,15 +509,15 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-table__fixed-right {
-  height: 100% !important;
-}
+/*/deep/ .el-table__fixed-right {*/
+/*  height: 100% !important;*/
+/*}*/
 
-/deep/ .el-table__fixed {
-  height: 110px !important;
-}
+/*/deep/ .el-table__fixed {*/
+/*  height: 110px !important;*/
+/*}*/
 
-/deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
-  top: -5px;
-}
+/*/deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {*/
+/*  top: -5px;*/
+/*}*/
 </style>
