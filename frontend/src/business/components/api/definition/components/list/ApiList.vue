@@ -28,11 +28,6 @@
                sortable>
 
             <template slot-scope="scope">
-              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
-              <!--<span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
-              <!--<el-tooltip v-else content="编辑">-->
-              <!--<a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>-->
-              <!--</el-tooltip>-->
               <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
@@ -451,11 +446,6 @@ export default {
       if (this.$refs.apiDefinitionTable) {
         this.$refs.apiDefinitionTable.clearSelectRows();
       }
-      //关闭案例弹窗
-      if(this.$refs.caseList){
-        this.$refs.caseList.handleClose();
-      }
-
 
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
