@@ -456,7 +456,7 @@ export default {
       });
     },
     handleDeleteBatch() {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+      this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
