@@ -29,4 +29,6 @@ public interface ExtUserMapper {
     List<String> selectIdsByQuery(@Param("request") UserRequest request);
 
     void updateLastProjectIdIfNull(@Param("projectId") String projectId, @Param("userId") String userId);
+
+    void updateLastWorkspaceIdIfNull(@Param("workspaceId") String workspaceId, @Param("userId") String userId);
 }
