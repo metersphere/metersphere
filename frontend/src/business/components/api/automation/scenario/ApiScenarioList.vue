@@ -135,7 +135,7 @@
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
                 {{ $t('api_test.automation.success') }}
               </el-link>
-              <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
+              <el-link type="danger" @click="showReport(row)" v-else-if="row.lastResult === 'Fail'">
                 {{ $t('api_test.automation.fail') }}
               </el-link>
             </template>
