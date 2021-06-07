@@ -107,4 +107,9 @@
         update user set last_project_id = #{projectId} where id = #{userId}
         and (last_project_id is null or last_project_id = '')
     </update>
+
+    <update id="updateLastWorkspaceIdIfNull">
+        update user set last_workspace_id = #{workspaceId} where id = #{userId}
+        and (last_workspace_id is null or last_workspace_id = '')
+    </update>
 </mapper>

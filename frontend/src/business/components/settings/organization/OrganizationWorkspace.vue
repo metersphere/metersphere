@@ -233,7 +233,7 @@ export default {
     }
   },
   inject: [
-    'reload'
+    'reloadTopMenus',
   ],
   methods: {
     create() {
@@ -252,7 +252,7 @@ export default {
             this.dialogWsUpdateVisible = false;
             if (saveType == 'add') {
               Message.success(this.$t('commons.save_success'));
-              this.reload();
+              this.reloadTopMenus();
             } else if (saveType == 'update') {
               Message.success(this.$t('commons.modify_success'));
               this.list();

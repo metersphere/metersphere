@@ -2,11 +2,11 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
-import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
-import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
-import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
+import io.metersphere.base.mapper.GroupMapper;
+import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.UserGroupMapper;
+import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
@@ -42,8 +42,6 @@ public class WorkspaceService {
     @Resource
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
-    private UserRoleMapper userRoleMapper;
-    @Resource
     private GroupMapper groupMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
@@ -52,11 +50,11 @@ public class WorkspaceService {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private UserService userService;
-    @Resource
     private UserGroupMapper userGroupMapper;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -85,6 +83,8 @@ public class WorkspaceService {
             userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
             userGroup.setSourceId(workspace.getId());
             userGroupMapper.insert(userGroup);
+            // 新项目创建新工作空间时设置
+            extUserMapper.updateLastWorkspaceIdIfNull(workspace.getId(), SessionUtils.getUserId());
         } else {
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);

@@ -227,6 +227,9 @@ export default {
       return getCurrentOrganizationId();
     }
   },
+  inject: [
+    'reloadTopMenus',
+  ],
   data() {
     return {
       queryPath: '/organization/list',
@@ -384,7 +387,7 @@ export default {
             refreshSessionAndCookies(DEFAULT, sourceId);
           }
           this.$success(this.$t('commons.delete_success'));
-          this.initTableData();
+          this.reloadTopMenus();
         });
       }).catch(() => {
         this.$message({
@@ -418,7 +421,7 @@ export default {
         if (valid) {
           this.result = this.$post(this.createPath, this.form, () => {
             this.$success(this.$t('commons.save_success'));
-            this.initTableData();
+            this.reloadTopMenus();
             this.dialogOrgAddVisible = false;
           });
         } else {

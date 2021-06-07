@@ -109,7 +109,7 @@ export default {
     return {
       reload: this.reload,
       reloadTopMenus: this.reloadTopMenus,
-    }
+    };
   },
   methods: {
     initSessionTimer() {
@@ -148,17 +148,29 @@ export default {
     },
     reload() {
       // 先隐藏
-      this.isShow = false
+      this.isShow = false;
       this.$nextTick(() => {
-        this.isShow = true
-      })
+        this.isShow = true;
+      });
     },
     reloadTopMenus() {
-      // 先隐藏
-      this.isMenuShow = false
-      this.$nextTick(() => {
-        this.isMenuShow = true
-      })
+      this.$get("/isLogin").then(response => {
+        if (response.data.success) {
+          this.$setLang(response.data.data.language);
+          saveLocalStorage(response.data);
+          // 先隐藏
+          this.isMenuShow = false;
+          this.isShow = false;
+          this.$nextTick(() => {
+            this.isShow = true;
+            this.isMenuShow = true;
+          });
+        } else {
+          window.location.href = "/login";
+        }
+      }).catch(() => {
+        window.location.href = "/login";
+      });
     }
   },
   components: {
