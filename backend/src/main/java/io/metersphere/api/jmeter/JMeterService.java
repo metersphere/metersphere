@@ -5,6 +5,7 @@ import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
+import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -33,6 +34,7 @@ import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -335,6 +337,11 @@ public class JMeterService {
 
         String uri = String.format(BASE_URL + "/jmeter/api/run", nodeIp, port);
         try {
+            File file = new File(FileUtils.BODY_FILE_DIR + "/tmp");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(testId);
             runRequest.setDebug(isDebug);
@@ -343,6 +350,12 @@ public class JMeterService {
             runRequest.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
             runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
             MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+            if (CollectionUtils.isEmpty(multipartFiles)) {
+                multipartFiles.add(new FileSystemResource(file));
+            }
+            if (CollectionUtils.isEmpty(jarFiles)) {
+                jarFiles.add(new FileSystemResource(file));
+            }
             postParameters.put("files", multipartFiles);
             postParameters.put("jarFiles", jarFiles);
             postParameters.add("request", JSON.toJSONString(runRequest));
@@ -352,13 +365,11 @@ public class JMeterService {
             headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(postParameters, headers);
 
-            String result = restTemplate.postForObject(uri, request, String.class);
-            // 删除零时压缩文件
-            /*if (CollectionUtils.isNotEmpty(jarFiles)) {
-                ByteArrayResource resource = (ByteArrayResource) jarFiles.get(0);
-                CompressUtils.deleteFile(resource.getFile().getPath());
-            }*/
-            if (result == null || !StringUtils.equals("SUCCESS", result)) {
+            ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
+            if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                // 清理零时报告
+                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+                apiScenarioReportService.delete(testId);
                 MSException.throwException("执行失败：" + result);
             }
         } catch (Exception e) {

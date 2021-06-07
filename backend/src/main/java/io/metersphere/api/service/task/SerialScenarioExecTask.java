@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.concurrent.Callable;
@@ -33,7 +34,11 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
-            jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
+            if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+                jMeterService.runTest(id, hashTree, request.getRunMode(), false, request.getConfig());
+            } else {
+                jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
+            }
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
             while (index < 200) {
