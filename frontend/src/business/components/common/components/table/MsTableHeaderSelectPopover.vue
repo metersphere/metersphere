@@ -17,7 +17,7 @@
         @click.native.stop="click('selectPageAll')"
         ref="selectPageAllLink">
           <span :style="selectPageFontColor">
-            {{ $t('api_test.batch_menus.select_show_data', [pageSize]) }}
+            {{ $t('api_test.batch_menus.select_show_data', [tableDataCountInPage]) }}
           </span>
       </el-link>
 
@@ -38,6 +38,12 @@
           }
         },
         pageSize: {
+          type: Number,
+          default() {
+            return 10;
+          }
+        },
+        tableDataCountInPage: {
           type: Number,
           default() {
             return 10;
@@ -65,11 +71,14 @@
       },
       watch: {
         // selectDataCounts() {
-        //   this.reload();
+        //   alert(JSON.stringify(this.total));
         // },
         // total() {
-        //   this.reload();
+        //   alert(JSON.stringify(this.total));
         // }
+      },
+      created() {
+        // console.info("------->"+this.pageSize+":"+this.total);
       },
       methods: {
         click(even) {
