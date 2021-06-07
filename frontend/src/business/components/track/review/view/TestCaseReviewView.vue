@@ -83,6 +83,13 @@ export default {
       return `var(--primary_color)`
     }
   },
+  created() {
+    this.$EventBus.$on('projectChange', () => {
+      if (this.$route.name === 'testCaseReviewView') {
+        this.$router.push('/track/review/all');
+      }
+    });
+  },
   mounted() {
     this.initData();
     this.openTestCaseEdit(this.$route.path);

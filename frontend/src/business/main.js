@@ -76,7 +76,10 @@ Vue.directive('preventReClick', {
       }
     })
   }
-})
+});
+
+// 添加全局事件总线
+Vue.prototype.$EventBus = new Vue();
 
 new Vue({
   el: '#app',

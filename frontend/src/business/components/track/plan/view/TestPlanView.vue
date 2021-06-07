@@ -86,6 +86,13 @@ export default {
       this.getTestPlans();
     }
   },
+  created() {
+    this.$EventBus.$on('projectChange', () => {
+      if (this.$route.name === 'planView') {
+        this.$router.push('/track/plan/all');
+      }
+    });
+  },
   mounted() {
     this.getTestPlans();
   },
