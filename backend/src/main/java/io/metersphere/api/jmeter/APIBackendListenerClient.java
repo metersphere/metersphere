@@ -157,6 +157,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.setTestId(testId);
         testResult.setTotal(queue.size());
         testResult.setSetReportId(this.setReportId);
+        testResult.setConsole(getConsole());
 
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
@@ -475,8 +476,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 responseResult.getAssertions().add(responseAssertionResult);
             }
         }
-        responseResult.setConsole(getConsole());
-
         return requestResult;
     }
 
