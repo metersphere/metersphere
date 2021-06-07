@@ -35,7 +35,7 @@ public class ApiTestEnvironmentController {
 
     @GetMapping("/list/{projectId}")
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
-        checkPermissionService.checkProjectOwner(projectId);
+//        checkPermissionService.checkProjectOwner(projectId);
         return apiTestEnvironmentService.list(projectId);
     }
 
