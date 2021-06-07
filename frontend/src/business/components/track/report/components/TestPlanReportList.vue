@@ -20,6 +20,7 @@
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
                                       :select-data-counts="selectDataCounts"
+                                      :table-data-count-in-page="tableData.length"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
