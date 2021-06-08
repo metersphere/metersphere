@@ -1653,7 +1653,8 @@ export default {
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
     node_selector_invalid: 'nodeSelector 必须是有效的JSON',
-    pod_thread_limit: '单POD最大线程数'
+    pod_thread_limit: '单POD最大线程数',
+    usage: '用途',
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',
