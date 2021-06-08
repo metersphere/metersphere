@@ -52,6 +52,7 @@
                 v-for="item in resourcePools"
                 :key="item.id"
                 :label="item.name"
+                :disabled="!item.api"
                 :value="item.id">
               </el-option>
             </el-select>
@@ -112,7 +113,7 @@ export default {
     },
     getResourcePools() {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
-        this.resourcePools = response.data.filter(p => p.type === 'NODE');
+        this.resourcePools = response.data;
       });
     },
   },

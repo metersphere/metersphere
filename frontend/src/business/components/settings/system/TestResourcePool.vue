@@ -2,7 +2,8 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition"
+                         @search="search" @create="create"
                          :create-tip="$t('test_resource_pool.create_resource_pool')"
                          :title="$t('commons.test_resource_pool')"/>
       </template>
@@ -70,6 +71,10 @@
         <el-form-item :label="$t('commons.image')" prop="image">
           <el-input v-model="form.image"/>
         </el-form-item>
+        <el-form-item :label="$t('test_resource_pool.usage')" prop="image">
+          <el-checkbox :label="$t('commons.api')" v-model="form.api"></el-checkbox>
+          <el-checkbox :label="$t('commons.performance')" v-model="form.performance"></el-checkbox>
+        </el-form-item>
         <el-form-item label="JMeter HEAP" prop="HEAP">
           <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
         </el-form-item>
@@ -106,6 +111,13 @@
                 <el-form-item label="Namespace"
                               :rules="requiredRules">
                   <el-input v-model="item.namespace" type="text"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item label="API Image">
+                  <el-input v-model="item.apiImage" type="text"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -208,7 +220,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      form: {},
+      form: {performance: true, api: true},
       screenHeight: 'calc(100vh - 255px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
@@ -412,7 +424,7 @@ export default {
       });
     },
     closeFunc() {
-      this.form = {};
+      this.form = {performance: true, api: true};
       this.dialogVisible = false;
       removeGoBackListener(this.closeFunc);
     },
@@ -441,7 +453,7 @@ export default {
           } else {
             this.updatePoolStatus(row);
           }
-        })
+        });
       }
     },
     checkHaveTestUsePool(row) {
@@ -449,7 +461,7 @@ export default {
         this.$get('/testresourcepool/check/use/' + row.id, result => {
           this.updatePool = result.data;
           resolve();
-        })
+        });
       });
     },
     updatePoolStatus(row) {
