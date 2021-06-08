@@ -121,11 +121,18 @@ import MsChart from "@/business/components/common/chart/MsChart";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
 
+const groupBy = function (xs, key) {
+  return xs.reduce(function (rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+};
+
 const CHART_MAP = [
   'ActiveThreadsChart',
   'TransactionsChart',
-  'ResponseTimePercentilesChart',
   'ResponseTimeChart',
+  'ResponseTimePercentilesChart',
   'ResponseCodeChart',
   'ErrorsChart',
   'LatencyChart',
@@ -156,6 +163,9 @@ export default {
       init: false,
       baseOption: {
         color: color,
+        grid: {
+          // right: '35%' // 动态改这个值
+        },
         title: {
           text: 'Test Details',
           left: 'center',
@@ -167,7 +177,9 @@ export default {
         tooltip: {
           show: true,
           trigger: 'axis',
-          // extraCssText: 'z-index: 999;',
+          axisPointer: {
+            type: 'cross'
+          },
           confine: true,
           formatter: function (params, ticket, callback) {
             let result = "";
@@ -188,23 +200,33 @@ export default {
         },
         legend: {},
         xAxis: {},
-
+        yAxis: [],
         series: []
       },
-      chartData: [],
+      seriesData: [],
+      legend: [],
     };
   },
   methods: {
     resetDefault() {
-      this.chartData = [];
+      this.seriesData = [];
+
       this.checkList['ActiveThreadsChart'] = ['ALL'];
       this.checkList['TransactionsChart'] = ['ALL'];
       this.checkList['ResponseTimeChart'] = ['ALL'];
+      //
+      // this.checkList['ResponseTimePercentilesChart'] = ['ALL'];
+      // this.checkList['ErrorsChart'] = ['ALL'];
+      // this.checkList['LatencyChart'] = ['ALL'];
+      // this.checkList['BytesThroughputChart'] = ['ALL'];
+
       this.getTotalChart();
     },
     unselectAll() {
-      this.chartData = [];
+      this.seriesData = [];
       this.totalOption = {};
+      this.baseOption.yAxis = [];
+      this.legend = [];
       for (const name in this.checkList) {
         this.checkList[name] = [];
       }
@@ -245,11 +267,11 @@ export default {
     },
     getTotalChart() {
       this.totalOption = {};
-      this.chartData = [];
+      this.seriesData = [];
+      this.baseOption.yAxis = [];
+      this.legend = [];
       for (let name in this.checkList) {
-        if (this.checkList[name].length > 0) {
-          this.getChart(name, this.checkList[name]);
-        }
+        this.getChart(name, this.checkList[name]);
       }
     },
     getChart(reportKey, checkList) {
@@ -259,57 +281,81 @@ export default {
       this.$get("/performance/report/content/" + reportKey + "/" + this.id)
         .then(res => {
           let data = res.data.data;
-          if (checkList) {
-            data = data.filter(item => {
-              if (checkList.indexOf('ALL') > -1) {
-                return true;
-              }
-              if (checkList.indexOf(item.groupName) > -1) {
-                return true;
-              }
-            });
+          let allData = [];
+          let checkAllOption = checkList.indexOf('ALL') > -1;
+          if (checkAllOption) {
+            let result = groupBy(data, 'xAxis');
+            for (const xAxis in result) {
+              let yAxis = result[xAxis].map(a => a.yAxis).reduce((a, b) => a + b, 0) / result[xAxis].length;
+              allData.push({
+                groupName: 'ALL',
+                xAxis: xAxis,
+                yAxis: yAxis
+              });
+            }
           }
+
+          //
+          data = data.filter(item => {
+            if (checkList.indexOf(item.groupName) > -1) {
+              return true;
+            }
+          });
+
+          // 选中了all
+          data = data.concat(allData);
+
 
           // prefix
           data.forEach(item => {
             item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
           });
 
-          this.chartData = this.chartData.concat(data);
-
-          let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
+          let yAxisList = data.map(m => m.yAxis);
           let yAxisListMax = this._getChartMax(yAxisList);
-
-          this.baseOption.yAxis = [
-            {
-              name: 'Value',
+          if (this.baseOption.yAxis.length === 0) {
+            this.baseOption.yAxis.push({
+              name: this.$t('load_test.report.' + reportKey),
               type: 'value',
               min: 0,
-            }
-          ];
-
-          this.totalOption = this.generateOption(this.baseOption, this.chartData);
+              max: yAxisListMax,
+              position: 'left',
+            });
+          } else {
+            this.baseOption.yAxis.push({
+              name: this.$t('load_test.report.' + reportKey),
+              type: 'value',
+              min: 0,
+              max: yAxisListMax,
+              position: 'right',
+              nameRotate: 20,
+              offset: (this.baseOption.yAxis.length - 1) * 50,
+            });
+            this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
+          }
+          let yAxisIndex = this.baseOption.yAxis.length - 1;
+          this.totalOption = this.generateOption(this.baseOption, data, yAxisIndex);
         })
         .catch(() => {
           this.totalOption = {};
         });
     },
-    generateOption(option, data) {
+    generateOption(option, data, yAxisIndex) {
       let chartData = data;
-      let legend = [], series = {}, xAxis = [], seriesData = [];
+      let series = {}, xAxis = [];
       chartData.forEach(item => {
         if (!xAxis.includes(item.xAxis)) {
           xAxis.push(item.xAxis);
         }
         xAxis.sort();
         let name = item.groupName;
-        if (!legend.includes(name)) {
-          legend.push(name);
+        if (!this.legend.includes(name)) {
+          this.legend.push(name);
           series[name] = [];
         }
         series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
       });
-      this.$set(option.legend, "data", legend);
+      this.$set(option.legend, "data", this.legend);
       this.$set(option.legend, "type", "scroll");
       this.$set(option.legend, "bottom", "10px");
       this.$set(option.xAxis, "data", xAxis);
@@ -320,13 +366,14 @@ export default {
           name: name,
           type: 'line',
           data: d,
+          yAxisIndex: yAxisIndex,
           smooth: true,
           sampling: 'lttb',
           animation: !this.export,
         };
-        seriesData.push(items);
+        this.seriesData.push(items);
       }
-      this.$set(option, "series", seriesData);
+      this.$set(option, "series", this.seriesData);
       return option;
     },
     _getChartMax(arr) {
