@@ -33,6 +33,7 @@
         </template>
       </el-table-column>
 
+      <el-table-column width="1"/>
       <slot></slot>
 
       <el-table-column
@@ -255,8 +256,8 @@ export default {
     handleBatchMove() {
       this.$refs.testBatchMove.open(this.treeNodes, Array.from(this.selectRows).map(row => row.id), this.moduleOptions);
     },
-    handleRowClick() {
-      this.$emit("handleRowClick");
+    handleRowClick(row) {
+      this.$emit("handleRowClick", row);
     },
     handleRefresh() {
       this.clear();
