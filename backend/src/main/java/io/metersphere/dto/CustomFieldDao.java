@@ -12,4 +12,6 @@ public class CustomFieldDao extends CustomField {
     private String defaultValue;
 
     private String customData;
+
+    private String key;
 }
