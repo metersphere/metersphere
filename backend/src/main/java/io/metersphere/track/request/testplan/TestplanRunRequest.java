@@ -11,5 +11,10 @@ public class TestplanRunRequest {
     private String projectID;
     private String userId;
     private String triggerMode;
+    private String mode;
+    private String reportType;
+    private String onSampleError;
+    private String runWithinResourcePool;
+    private String resourcePoolId;
 }
 

@@ -1004,7 +1004,12 @@ public class TestPlanService {
         Map<String, String> apiTestCaseIdMap;
         Map<String, String> performanceIdMap;
         if (StringUtils.isEmpty(apiRunConfig)) {
-            apiRunConfig = "{\"mode\":\"parallel\",\"reportType\":\"iddReport\",\"onSampleError\":true,\"runWithinResourcePool\":true,\"resourcePoolId\":\"29773f4f-55e4-4bce-ad3d-b531b4eb59c2\"}";
+            apiRunConfig =
+                    "{\"mode\":\"parallel\"," +
+                            "\"reportType\":\"iddReport\"," +
+                            "\"onSampleError\":true," +
+                            "\"runWithinResourcePool\":true," +
+                            "\"resourcePoolId\":\"29773f4f-55e4-4bce-ad3d-b531b4eb59c2\"}";
         }
         planScenarioIdMap = new LinkedHashMap<>();
         apiTestCaseIdMap = new LinkedHashMap<>();
