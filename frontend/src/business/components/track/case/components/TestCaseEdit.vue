@@ -154,6 +154,7 @@
   import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
   import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
   import MsChangeHistory from "../../../history/ChangeHistory";
+  import {getTestTemplate} from "@/network/custom-field-template";
 
   export default {
     name: "TestCaseEdit",
@@ -311,7 +312,7 @@
     created() {
       this.projectId = this.projectIds;
       let initAddFuc = this.initAddFuc;
-      getTemplate('field/template/case/get/relate/', this)
+      getTestTemplate()
         .then((template) => {
           this.testCaseTemplate = template;
           initAddFuc();
