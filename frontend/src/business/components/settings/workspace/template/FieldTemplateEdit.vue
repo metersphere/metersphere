@@ -75,6 +75,7 @@ import CustomFieldFormList from "@/business/components/settings/workspace/templa
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import {getCurrentWorkspaceId} from "@/common/js/utils";
 import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
+import {generateTableHeaderKey, getCustomFieldsKeys} from "@/common/js/tableUtils";
 
 export default {
   name: "FieldTemplateEdit",
@@ -147,7 +148,11 @@ export default {
           param.workspaceId = getCurrentWorkspaceId();
           let customFields = this.relateFields;
           if (customFields) {
+            let keys = getCustomFieldsKeys(customFields);
             customFields.forEach(item => {
+              if (!item.key) {
+                item.key = generateTableHeaderKey(keys, customFields);
+              }
               item.defaultValue = JSON.stringify(item.defaultValue);
             });
           }

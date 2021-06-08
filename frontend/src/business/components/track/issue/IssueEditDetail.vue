@@ -77,6 +77,7 @@ import CustomFiledComponent from "@/business/components/settings/workspace/templ
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
 import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getIssueTemplate} from "@/network/custom-field-template";
 
 export default {
   name: "IssueEditDetail",
@@ -146,7 +147,7 @@ export default {
   methods: {
     open(data) {
       let initAddFuc = this.initEdit;
-      getTemplate('field/template/issue/get/relate/', this)
+      getIssueTemplate()
         .then((template) => {
           this.issueTemplate = template;
           this.getThirdPartyInfo();

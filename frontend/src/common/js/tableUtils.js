@@ -1,5 +1,7 @@
 import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils";
 import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
+import {updateCustomFieldTemplate} from "@/network/custom-field-template";
+import i18n from "@/i18n/i18n";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -201,14 +203,14 @@ export function deepClone(source) {
   return targetObj;
 }
 
-export function getPageInfo() {
+export function getPageInfo(condition) {
   return {
     total: 0,
     pageSize: 10,
     currentPage: 1,
     result: {},
     data: [],
-    condition: {},
+    condition: condition ? condition : {},
   }
 }
 
@@ -230,6 +232,10 @@ export function getPageDate(response, page) {
  */
 export function getCustomTableHeader(key) {
   let fieldSetting = CUSTOM_TABLE_HEADER[key];
+  return getCustomTableHeaderByFiledSetting(key, fieldSetting);
+}
+
+function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
   let fieldStr = localStorage.getItem(key);
   if (fieldStr !== null) {
     let fields = [];
@@ -246,6 +252,55 @@ export function getCustomTableHeader(key) {
     return fields;
   }
   return fieldSetting;
+}
+
+/**
+ * 获取带自定义字段的表头
+ * @param key
+ * @param customFields
+ * @returns {[]|*}
+ */
+export function getTableHeaderWithCustomFields(key, customFields) {
+  let fieldSetting = CUSTOM_TABLE_HEADER[key];
+  let keys = getCustomFieldsKeys(customFields);
+  customFields.forEach(item => {
+    if (!item.key) {
+      // 兼容旧版，更新key
+      item.key = generateTableHeaderKey(keys, customFields);
+      updateCustomFieldTemplate({id: item.id, key: item.key});
+    }
+    let field = {
+      id: item.name,
+      key: item.key,
+      label: item.name,
+      isCustom: true
+    }
+    fieldSetting.push(field);
+  });
+  return getCustomTableHeaderByFiledSetting(key, fieldSetting);
+}
+
+export function generateTableHeaderKey(keys) {
+  let customFieldKeys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let i = 0; i < customFieldKeys.length; i++) {
+    let key =  customFieldKeys[i];
+    if (keys.has(key)) {
+      continue;
+    }
+    keys.add(key);
+    return key;
+  }
+  return '';
+}
+
+export function getCustomFieldsKeys(customFields) {
+  let keys = new Set();
+  customFields.forEach(item => {
+    if (item.key) {
+      keys.add(item.key);
+    }
+  });
+  return keys;
 }
 
 /**
@@ -288,4 +343,37 @@ export function saveCustomTableWidth(key, fieldKey, colWith) {
   let fields = getCustomTableWidth(key);
   fields[fieldKey] = colWith + '';
   localStorage.setItem(key + '_WITH', JSON.stringify(fields));
+}
+
+/**
+ * 获取列表的自定义字段的显示值
+ * @param row
+ * @param field
+ * @param members
+ * @returns {VueI18n.TranslateResult|*}
+ */
+export function getCustomFieldValue(row, field, members) {
+  if (row.customFields) {
+    for (let i = 0; i < row.customFields.length; i++) {
+      let item = row.customFields[i];
+      if (item.name === field.name) {
+        if (field.type === 'member' || field.type === 'multipleMember') {
+          for (let j = 0; j < members.length; j++) {
+            let member = members[j];
+            if (member.id === item.value) {
+              return member.name;
+            }
+          }
+        } else if (['radio', 'select', 'multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+          for (let j = 0; j < field.options.length; j++) {
+            let option = field.options[j];
+            if (option.value === item.value) {
+              return field.system ? i18n.t(option.text) : option.text;
+            }
+          }
+        }
+        return item.value;
+      }
+    }
+  }
 }

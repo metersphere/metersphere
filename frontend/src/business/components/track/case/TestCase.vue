@@ -163,7 +163,14 @@ export default {
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
-    }
+    },
+    activeDom(newVal, oldVal) {
+      this.$nextTick(() => {
+        if (oldVal !== 'left' && newVal === 'left' && this.$refs.testCaseList) {
+          this.$refs.testCaseList.getTemplateField();
+        }
+      });
+    },
   },
   computed: {
     checkRedirectID: function () {
