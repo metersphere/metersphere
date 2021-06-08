@@ -22,6 +22,7 @@
           :fields.sync="fields"
           field-key="ISSUE_LIST"
           @refresh="getIssues"
+          ref="table"
         >
     <span v-for="(item) in fields" :key="item.key">
 <!--          <ms-table-column
@@ -87,6 +88,17 @@
           </ms-table-column>
 
           <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
+
+          <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           :label="field.name"
+                           :prop="field.name">
+              <template v-slot="scope">
+                {{getCustomFieldValue(scope.row, field)}}
+              </template>
+          </ms-table-column>
+
         </span>
         </ms-table>
 
@@ -117,13 +129,19 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/components/track/issue/IssueEdit";
 import {getIssues} from "@/network/Issue";
-import {getCustomTableHeader, getCustomTableWidth, getPageInfo} from "@/common/js/tableUtils";
+import {
+  getCustomFieldValue,
+  getCustomTableWidth,
+  getPageInfo, getTableHeaderWithCustomFields,
+} from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import {getCurrentProjectID} from "@/common/js/utils";
+import {getIssueTemplate} from "@/network/custom-field-template";
+import {getProjectMember} from "@/network/user";
 
 export default {
-  name: "CustomFieldList",
+  name: "IssueList",
   components: {
     MsMainContainer,
     MsContainer,
@@ -135,7 +153,7 @@ export default {
   data() {
     return {
       page: getPageInfo(),
-      fields: getCustomTableHeader('ISSUE_LIST'),
+      fields: [],
       fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
       screenHeight: 'calc(100vh - 290px)',
       operators: [
@@ -155,9 +173,20 @@ export default {
           permissions: ['PROJECT_TRACK_ISSUE:READ+DELETE']
         }
       ],
+      issueTemplate: {},
+      members: []
     };
   },
   activated() {
+    getProjectMember((data) => {
+      this.members = data;
+    });
+    getIssueTemplate()
+      .then((template) => {
+        this.issueTemplate = template;
+        this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields);
+        this.$refs.table.reloadTable();
+      });
     this.getIssues();
   },
   computed: {
@@ -181,6 +210,9 @@ export default {
     }
   },
   methods: {
+    getCustomFieldValue(row, field) {
+      return getCustomFieldValue(row, field, this.members);
+    },
     getIssues() {
       this.page.condition.projectId = this.projectId;
       this.page.result = getIssues(this.page);

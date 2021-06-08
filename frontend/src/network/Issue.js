@@ -5,6 +5,9 @@ export function buildIssues(page) {
   let data = page.data;
   for (let i = 0; i < data.length; i++) {
     if (data[i]) {
+      if (data[i].customFields) {
+        data[i].customFields = JSON.parse(data[i].customFields);
+      }
       if (data[i].platform !== 'Local') {
         page.result = buildPlatformIssue(data[i]);
       }
