@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -16,12 +17,15 @@ import io.metersphere.dto.WorkspaceMemberDTO;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ProjectService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/project")
@@ -83,12 +87,19 @@ public class ProjectController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        if (StringUtils.isBlank(request.getProjectId())) {
+            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            request.setFilters(new HashMap<String, List<String>>() {{
+                put("project_id", sourceIds);
+            }});
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, projectService.getProjectList(request));
     }
 
     /**
      * 在工作空间下与用户有关的项目
+     *
      * @param request userId
      * @return List<ProjectDTO>
      */

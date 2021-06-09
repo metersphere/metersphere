@@ -4,10 +4,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -17,12 +19,15 @@ import io.metersphere.performance.controller.request.RenameReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.service.PerformanceReportService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "performance/report")
@@ -34,13 +39,26 @@ public class PerformanceReportController {
     @PostMapping("/recent/{count}")
     @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
     public List<ReportDTO> recentProjects(@PathVariable int count, @RequestBody ReportRequest request) {
+        if (StringUtils.isBlank(request.getProjectId())) {
+            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            request.setFilters(new HashMap<String, List<String>>() {{
+                put("project_id", sourceIds);
+            }});
+        }
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return performanceReportService.getRecentReportList(request);
     }
 
     @PostMapping("/list/all/{goPage}/{pageSize}")
+    @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
     public Pager<List<ReportDTO>> getReportList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReportRequest request) {
+        if (StringUtils.isBlank(request.getProjectId())) {
+            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            request.setFilters(new HashMap<String, List<String>>() {{
+                put("project_id", sourceIds);
+            }});
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceReportService.getReportList(request));
     }
