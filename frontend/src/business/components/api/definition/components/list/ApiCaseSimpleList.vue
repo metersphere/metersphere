@@ -675,11 +675,4 @@ export default {
   top: -2px;
 }
 
-/deep/ .el-table__fixed {
-  height: 100% !important;
-}
-
-/deep/ .el-table__fixed-body-wrapper {
-  top: 60px !important;
-}
 </style>
