@@ -107,13 +107,18 @@
             <!-- 调试部分 -->
             <div class="ms-debug-div" @click="showAll">
               <el-row style="margin: 5px">
-                <el-col :span="6" class="ms-col-one ms-font">
+                <el-col :span="4" class="ms-col-one ms-font">
                   <el-tooltip placement="top" effect="light">
                     <template v-slot:content>
-                      <div>{{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}</div>
+                      <div>{{
+                          currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name
+                        }}
+                      </div>
                     </template>
                     <span class="scenario-name">
-                        {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
+                        {{
+                        currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name
+                      }}
                     </span>
                   </el-tooltip>
                 </el-col>
@@ -128,20 +133,27 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="5">
+                <el-col :span="4">
                   <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
                                :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                :project-list="projectList" ref="envPopover"/>
+                </el-col>
+                <el-col :span="2" class="ms-col-one ms-font">
+                  <el-checkbox v-model="enableContinues">{{ $t('commons.failure_continues') }}</el-checkbox>
                 </el-col>
                 <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
                              @click="runDebug">{{ $t('api_test.request.debug') }}
                   </el-button>
                   <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">
-                    <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh" v-prevent-re-click @click="getApiScenario"></el-button>
+                    <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
+                               v-prevent-re-click @click="getApiScenario"></el-button>
                   </el-tooltip>
-                  <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
+                  <el-tooltip class="item" effect="dark" :content="$t('commons.full_screen_editing')"
+                              placement="top-start">
+                    <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
+                  </el-tooltip>
                 </el-col>
               </el-row>
             </div>
@@ -304,6 +316,7 @@ export default {
   },
   data() {
     return {
+      enableContinues: false,
       props: {
         label: "label",
         children: "hashTree"
@@ -349,6 +362,7 @@ export default {
       debugData: {},
       reportId: "",
       enableCookieShare: false,
+
       globalOptions: {
         spacing: 30
       },
