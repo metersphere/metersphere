@@ -243,7 +243,7 @@
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
-      this.getResult();
+      //this.getResult();
     }
   }
 </script>
