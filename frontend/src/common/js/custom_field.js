@@ -86,6 +86,20 @@ export function buildCustomFields(data, param, template) {
       data.customFields = [];
     }
     let customFields = data.customFields;
+
+    // 去重操作
+    if (customFields) {
+      let nameSet = new Set();
+      for(let i = customFields.length - 1; i >= 0; i--){
+        let name = customFields[i].name;
+        if(nameSet.has(name)){
+          customFields.splice(i,1);
+        }
+        nameSet.add(name);
+      }
+
+    }
+
     template.customFields.forEach(item => {
       let hasField = false;
       for (const index in customFields) {
