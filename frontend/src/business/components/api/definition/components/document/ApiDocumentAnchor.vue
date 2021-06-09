@@ -104,7 +104,7 @@
                 </div>
                 <div v-else>
                   <el-table border :show-header="false"
-                            :data="getJsonArr(apiInfo.requestHead)" row-key="name" class="test-content document-table">
+                            :data="getJsonArr(apiInfo.requestHead)" class="test-content document-table">
                     <el-table-column prop="name"
                                      :label="$t('api_test.definition.document.table_coloum.name')"
                                      show-overflow-tooltip/>
@@ -126,7 +126,7 @@
                 </div>
                 <div v-else>
                   <el-table border
-                            :data="getJsonArr(apiInfo.urlParams)" row-key="name" class="test-content document-table">
+                            :data="getJsonArr(apiInfo.urlParams)" class="test-content document-table">
                     <el-table-column prop="name"
                                      :label="$t('api_test.definition.document.table_coloum.name')"
                                      min-width="120px"
@@ -157,7 +157,7 @@
               </div>
               <div>
                 <el-table border v-if="formParamTypes.includes(apiInfo.requestBodyParamType)"
-                          :data="getJsonArr(apiInfo.requestBodyFormData)" row-key="name"
+                          :data="getJsonArr(apiInfo.requestBodyFormData)"
                           class="test-content document-table">
                   <el-table-column prop="name"
                                    :label="$t('api_test.definition.document.table_coloum.name')"
@@ -224,7 +224,7 @@
               <div class="blackFontClass">
                 {{ $t('api_test.definition.document.response_head') }}:
                 <el-table border :show-header="false"
-                          :data="getJsonArr(apiInfo.responseHead)" row-key="name" class="test-content document-table">
+                          :data="getJsonArr(apiInfo.responseHead)" class="test-content document-table">
                   <el-table-column prop="name"
                                    :label="$t('api_test.definition.document.table_coloum.name')"
                                    show-overflow-tooltip/>
@@ -244,7 +244,7 @@
               </div>
               <div>
                 <el-table border v-if="formParamTypes.includes(apiInfo.responseBodyParamType)"
-                          :data="getJsonArr(apiInfo.responseBodyFormData)" row-key="id"
+                          :data="getJsonArr(apiInfo.responseBodyFormData)"
                           class="test-content document-table">
                   <el-table-column prop="name"
                                    :label="$t('api_test.definition.document.table_coloum.name')"
@@ -268,6 +268,9 @@
                                    min-width="120px"
                                    show-overflow-tooltip/>
                 </el-table>
+                <div v-else-if="apiInfo.responseBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
+                  <ms-json-code-edit :body="apiInfo.jsonSchemaResponseBody" ref="jsonCodeEdit"/>
+                </div>
                 <div v-else class="showDataDiv">
                   <br/>
                   <p style="margin: 0px 20px;"
@@ -282,7 +285,7 @@
               <div class="blackFontClass">
                 {{ $t('api_test.definition.document.response_code') }}:
                 <el-table border :show-header="false"
-                          :data="getJsonArr(apiInfo.responseCode)" row-key="name" class="test-content document-table">
+                          :data="getJsonArr(apiInfo.responseCode)" class="test-content document-table">
                   <el-table-column prop="name"
                                    :label="$t('api_test.definition.document.table_coloum.name')"
                                    show-overflow-tooltip/>
@@ -358,6 +361,7 @@ export default {
         requestBodyStrutureData: "",
         sharePopoverVisible:false,
         jsonSchemaBody: {},
+        JsonSchemaResponseBody:{},
         responseHead: "无",
         responseBody: "",
         responseBodyParamType: "无",
@@ -427,7 +431,7 @@ export default {
     },
     trashEnable() {
       this.initApiDocSimpleList();
-    }
+    },
   },
   methods: {
     formatRowData(dataType, data) {
@@ -660,7 +664,10 @@ export default {
     handleScroll(){
       if(!this.clickStepFlag){
         //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
-        let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
+        let apiDocDivScrollTop = 0;
+        if(this.$refs.apiDocInfoDiv&&this.$refs.apiDocInfoDiv.scrollTop){
+          apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
+        }
         let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
         let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
         let lastIndex = 0;
@@ -737,7 +744,9 @@ export default {
           }else{
             this.apiShowArray.shift();
             let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
-            this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
+            if(this.$refs.apiDocInfoDiv&&this.$refs.apiDocInfoDiv.scrollTop){
+              this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
+            }
           }
           this.apiStepIndex ++;
         }
@@ -756,7 +765,9 @@ export default {
         }
       }
       this.clickStepFlag = true;
-      this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
+      if(this.$refs.apiDocInfoDiv&&this.$refs.apiDocInfoDiv.scrollTop){
+        this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
+      }
     },
 
     //检查要展示的api信息节点，和上下个2个及以内的范围内数据有没有查询过。并赋值为showArray
