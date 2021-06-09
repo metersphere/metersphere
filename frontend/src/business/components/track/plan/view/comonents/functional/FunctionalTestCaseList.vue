@@ -156,11 +156,11 @@
         <!-- 责任人(创建该用例时所关联的责任人) -->
         <el-table-column
           v-if="item.id == 'maintainer'"
-          prop="maintainer"
+          prop="maintainerName"
           :filters="maintainerFilters"
           min-width="100px"
           :key="index"
-          column-key="maintainer"
+          column-key="maintainerName"
           :label="$t('api_test.definition.request.responsible')">
         </el-table-column>
 
@@ -455,6 +455,7 @@ export default {
         // param.nodeIds = this.selectNodeIds;
         this.condition.nodeIds = this.selectNodeIds;
       }
+      this.condition.projectId = getCurrentProjectID();
       if (this.planId) {
         this.result = this.$post(this.buildPagePath('/test/plan/case/list'), this.condition, response => {
           let data = response.data;

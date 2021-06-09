@@ -62,11 +62,12 @@ public class TestPlanTestCaseService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-        queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        Map<String, String> userMap = userService.getMemberList(queryMemberRequest)
+        queryMemberRequest.setProjectId(request.getProjectId());
+        Map<String, String> userMap = userService.getProjectMemberList(queryMemberRequest)
                 .stream().collect(Collectors.toMap(User::getId, User::getName));
         list.forEach(item -> {
             item.setExecutorName(userMap.get(item.getExecutor()));
+            item.setMaintainerName(userMap.get(item.getMaintainer()));
         });
         return list;
     }
