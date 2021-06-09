@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.mockconfig.response;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,8 @@ public class JsonSchemaReturnObj {
     private String title;
     private String type;
     private int maxLength = -1;
+    private JSONObject properties;
+    private JSONObject items;
 
     public String getMockValue() {
         if (mock == null) {
