@@ -7,7 +7,6 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -24,13 +23,10 @@ import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
