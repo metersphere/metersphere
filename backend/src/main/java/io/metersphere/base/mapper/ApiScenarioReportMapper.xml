@@ -14,6 +14,7 @@
     <result column="scenario_name" jdbcType="VARCHAR" property="scenarioName" />
     <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="actuator" jdbcType="VARCHAR" property="actuator" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReport">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -78,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, 
-    execute_type, scenario_name, scenario_id, create_user
+    execute_type, scenario_name, scenario_id, create_user, actuator
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -136,12 +137,12 @@
       create_time, update_time, `status`, 
       user_id, trigger_mode, execute_type, 
       scenario_name, scenario_id, create_user, 
-      description)
+      actuator, description)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{executeType,jdbcType=VARCHAR}, 
       #{scenarioName,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR})
+      #{actuator,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -181,6 +182,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="actuator != null">
+        actuator,
       </if>
       <if test="description != null">
         description,
@@ -222,6 +226,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="actuator != null">
+        #{actuator,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -273,6 +280,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.actuator != null">
+        actuator = #{record.actuator,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -295,6 +305,7 @@
       scenario_name = #{record.scenarioName,jdbcType=VARCHAR},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      actuator = #{record.actuator,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -313,7 +324,8 @@
       execute_type = #{record.executeType,jdbcType=VARCHAR},
       scenario_name = #{record.scenarioName,jdbcType=VARCHAR},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      actuator = #{record.actuator,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -354,6 +366,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="actuator != null">
+        actuator = #{actuator,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -373,6 +388,7 @@
       scenario_name = #{scenarioName,jdbcType=VARCHAR},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
+      actuator = #{actuator,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -388,7 +404,8 @@
       execute_type = #{executeType,jdbcType=VARCHAR},
       scenario_name = #{scenarioName,jdbcType=VARCHAR},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      actuator = #{actuator,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

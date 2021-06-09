@@ -79,15 +79,15 @@ public class MsKafkaListener {
             // 调试操作，不需要存储结果
             apiDefinitionService.addResult(testResult);
             if (!testResult.isDebug()) {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(),TriggerMode.DEBUG.name());
             }
         } else if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(),TriggerMode.DEBUG.name());
 
         } else if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(),TriggerMode.DEBUG.name());
             ApiDefinitionExecResult result = apiDefinitionService.getResultByJenkins(testResult.getTestId(), ApiRunMode.API_PLAN.name());
             if (result != null) {
                 report = new ApiTestReport();
@@ -109,7 +109,7 @@ public class MsKafkaListener {
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
             } else {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(),TriggerMode.DEBUG.name());
             }
         } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             // 执行报告不需要存储，由用户确认后在存储

@@ -156,6 +156,7 @@ export default {
     node_name_tip: "The name cannot contain'\\'",
     more_operator: "More operator",
     mock: "Mock settings",
+    task_center: "Task center",
     all_module_title: "All module",
     create_user: 'Creator',
     table: {

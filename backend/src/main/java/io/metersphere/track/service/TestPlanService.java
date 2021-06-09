@@ -990,7 +990,7 @@ public class TestPlanService {
             APIScenarioReportResult report = apiAutomationService.createScenarioReport(group.getName(),
                     planScenarioID + ":" + request.getTestPlanReportId(),
                     item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                    request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(),request.getConfig());
             apiScenarioReportMapper.insert(report);
             group.setHashTree(scenarios);
             testPlan.getHashTree().add(group);

@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface ApiDefinitionExecResultMapper {
     long countByExample(ApiDefinitionExecResultExample example);
@@ -33,6 +34,4 @@ public interface ApiDefinitionExecResultMapper {
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionExecResult record);
 
     int updateByPrimaryKey(ApiDefinitionExecResult record);
-
-    String  selectExecResult(String resourceId);
 }

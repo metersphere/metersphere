@@ -703,6 +703,146 @@ public class ApiDefinitionExecResultExample {
             addCriterion("`type` not between", value1, value2, "type");
             return (Criteria) this;
         }
+
+        public Criteria andActuatorIsNull() {
+            addCriterion("actuator is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorIsNotNull() {
+            addCriterion("actuator is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorEqualTo(String value) {
+            addCriterion("actuator =", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotEqualTo(String value) {
+            addCriterion("actuator <>", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorGreaterThan(String value) {
+            addCriterion("actuator >", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorGreaterThanOrEqualTo(String value) {
+            addCriterion("actuator >=", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorLessThan(String value) {
+            addCriterion("actuator <", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorLessThanOrEqualTo(String value) {
+            addCriterion("actuator <=", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorLike(String value) {
+            addCriterion("actuator like", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotLike(String value) {
+            addCriterion("actuator not like", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorIn(List<String> values) {
+            addCriterion("actuator in", values, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotIn(List<String> values) {
+            addCriterion("actuator not in", values, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorBetween(String value1, String value2) {
+            addCriterion("actuator between", value1, value2, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotBetween(String value1, String value2) {
+            addCriterion("actuator not between", value1, value2, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIsNull() {
+            addCriterion("trigger_mode is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIsNotNull() {
+            addCriterion("trigger_mode is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeEqualTo(String value) {
+            addCriterion("trigger_mode =", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotEqualTo(String value) {
+            addCriterion("trigger_mode <>", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeGreaterThan(String value) {
+            addCriterion("trigger_mode >", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeGreaterThanOrEqualTo(String value) {
+            addCriterion("trigger_mode >=", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLessThan(String value) {
+            addCriterion("trigger_mode <", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLessThanOrEqualTo(String value) {
+            addCriterion("trigger_mode <=", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeLike(String value) {
+            addCriterion("trigger_mode like", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotLike(String value) {
+            addCriterion("trigger_mode not like", value, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeIn(List<String> values) {
+            addCriterion("trigger_mode in", values, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotIn(List<String> values) {
+            addCriterion("trigger_mode not in", values, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeBetween(String value1, String value2) {
+            addCriterion("trigger_mode between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andTriggerModeNotBetween(String value1, String value2) {
+            addCriterion("trigger_mode not between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
