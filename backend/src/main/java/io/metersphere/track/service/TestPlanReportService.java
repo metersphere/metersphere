@@ -382,7 +382,7 @@ public class TestPlanReportService {
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
 
-                if (StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.SCHEDULE.name())) {
+                if (StringUtils.equals(report.getTriggerMode(), ReportTriggerMode.API.name()) || StringUtils.equals(report.getTriggerMode(), ReportTriggerMode.SCHEDULE.name())) {
                     //发送通知
                     sendMessage(report);
                 }
