@@ -10,7 +10,7 @@
       :data="functionalTestCases">
 
       <el-table-column
-        prop="num"
+        prop="customNum"
         :label="$t('commons.id')"
         show-overflow-tooltip>
       </el-table-column>
