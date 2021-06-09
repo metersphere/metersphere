@@ -100,6 +100,11 @@ public class WorkspaceController {
         return workspaceService.getWorkspaceListByOrgIdAndUserId(currentOrganizationId);
     }
 
+    @GetMapping("/list/orgworkspace/{orgId}")
+    public List<WorkspaceDTO> getWorkspaceListByOrgId(@PathVariable String orgId) {
+        return workspaceService.getWorkspaceIdsByOrgId(orgId);
+    }
+
     @PostMapping("/member/update")
     @MsAuditLog(module = "workspace_member", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#memberDTO)", content = "#msClass.getLogDetails(#memberDTO)", msClass = WorkspaceService.class)
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
