@@ -28,6 +28,7 @@ public class ApiDocumentInfoDTO {
 
     private String responseHead;
     private String responseBody;
+    private Object jsonSchemaResponseBody;
     private String responseBodyParamType;
     private String responseBodyFormData;
     private String responseBodyStrutureData;

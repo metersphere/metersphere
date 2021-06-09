@@ -257,10 +257,32 @@ public class ApiDocumentService {
                                 apiInfoDTO.setResponseBodyParamType(type);
                             }
                             if (StringUtils.equalsAny(type, "JSON", "XML", "Raw")) {
-                                if (bodyObj.containsKey("raw")) {
-                                    String raw = bodyObj.getString("raw");
-                                    apiInfoDTO.setResponseBodyStrutureData(raw);
+
+                                //判断是否是JsonSchema
+                                boolean isJsonSchema = false;
+                                if (bodyObj.containsKey("format")) {
+                                    String foramtValue = String.valueOf(bodyObj.get("format"));
+                                    if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
+                                        isJsonSchema = true;
+                                    }
                                 }
+                                if (isJsonSchema) {
+//                                    apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
+                                    apiInfoDTO.setResponseBodyParamType("JSON-SCHEMA");
+                                    apiInfoDTO.setJsonSchemaResponseBody(bodyObj);
+//                                    apiInfoDTO.setJsonSchemaBody(bodyObj);
+                                } else {
+                                    if (bodyObj.containsKey("raw")) {
+                                        String raw = bodyObj.getString("raw");
+                                        apiInfoDTO.setResponseBodyStrutureData(raw);
+                                        //转化jsonObje 或者 jsonArray
+                                        this.setPreviewData(previewJsonArray, raw);
+                                    }
+                                }
+//                                if (bodyObj.containsKey("raw")) {
+//                                    String raw = bodyObj.getString("raw");
+//                                    apiInfoDTO.setResponseBodyStrutureData(raw);
+//                                }
                             } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                                 if (bodyObj.containsKey("kvs")) {
                                     JSONArray bodyParamArr = new JSONArray();
