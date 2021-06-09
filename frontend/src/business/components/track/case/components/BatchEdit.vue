@@ -166,6 +166,11 @@
             return;
           }
         });
+        this.typeArr.forEach(item => {
+          if (item.id === val && item.uuid) {
+            this.$set(this.form, "id", item.uuid);
+          }
+        });
       },
       getWsProjects() {
         this.$get("/project/listAll", res => {

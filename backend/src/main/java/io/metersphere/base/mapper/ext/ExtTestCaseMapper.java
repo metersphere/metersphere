@@ -99,4 +99,6 @@ public interface ExtTestCaseMapper {
     List<String> selectRelateIdsByQuery(@Param("request") BaseQueryRequest query);
 
     List<Map<String, Object>> moduleCountByCollection(@Param("request")QueryTestCaseRequest request);
+
+    List<TestCaseWithBLOBs> getCustomFieldsByIds(@Param("ids") List<String> ids);
 }
