@@ -56,6 +56,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key == 'project_id'">
+                                AND p.id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
