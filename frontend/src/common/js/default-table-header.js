@@ -175,13 +175,12 @@ export const CUSTOM_TABLE_HEADER = {
   TRACK_TEST_CASE: [
     {id: 'num', key: '1', label: i18n.t('commons.id')},
     {id: 'name', key: '2', label: i18n.t('commons.name')},
-    {id: 'priority', key: '3', label: i18n.t('test_track.case.priority')},
-    {id: 'reviewStatus', key: '4', label: i18n.t('test_track.case.status')},
-    {id: 'tags', key: '5', label: i18n.t('commons.tag')},
-    {id: 'nodePath', key: '6', label: i18n.t('test_track.case.module')},
-    {id: 'updateTime', key: '7', label: i18n.t('commons.update_time')},
-    {id: 'createUser', key: '8', label: i18n.t('commons.create_user')},
-    {id: 'maintainer', key: '9', label: i18n.t('custom_field.case_maintainer')},
+    {id: 'reviewStatus', key: '3', label: i18n.t('test_track.case.status')},
+    {id: 'tags', key: '4', label: i18n.t('commons.tag')},
+    {id: 'nodePath', key: '5', label: i18n.t('test_track.case.module')},
+    {id: 'updateTime', key: '6', label: i18n.t('commons.update_time')},
+    {id: 'createUser', key: '7', label: i18n.t('commons.create_user')},
+    {id: 'maintainer', key: '8', label: i18n.t('custom_field.case_maintainer')},
   ],
   //缺陷列表
   ISSUE_LIST: [

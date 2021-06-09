@@ -51,16 +51,6 @@
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
-            :label="$t('test_track.issue.status')"
-            prop="status">
-            <template v-slot="scope">
-              <span>{{ issueStatusMap[scope.row.status] ? issueStatusMap[scope.row.status] : scope.row.status }}</span>
-            </template>
-          </ms-table-column>
-
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
             :label="$t('test_track.issue.platform')"
             prop="platform">
           </ms-table-column>
@@ -95,7 +85,12 @@
                            :label="field.name"
                            :prop="field.name">
               <template v-slot="scope">
-                {{getCustomFieldValue(scope.row, field)}}
+                <span v-if="field.name === '状态'">
+                  {{getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : issueStatusMap[scope.row.status]}}
+                </span>
+                <span v-else>
+                  {{getCustomFieldValue(scope.row, field)}}
+                </span>
               </template>
           </ms-table-column>
 

@@ -62,18 +62,6 @@
           min-width="120"/>
 
         <ms-table-column
-          prop="priority"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :filters="priorityFilters"
-          min-width="120px"
-          :label="$t('test_track.case.priority')">
-          <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.priority"/>
-          </template>
-        </ms-table-column>
-
-        <ms-table-column
           prop="reviewStatus"
           min-width="100px"
           :field="item"
@@ -95,6 +83,7 @@
           <template v-slot:default="scope">
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+            <span/>
           </template>
         </ms-table-column>
 
@@ -118,12 +107,19 @@
         </ms-table-column>
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
+                         :filters="field.name === '用例等级' ? priorityFilters : null"
                          :field="item"
                          :fields-width="fieldsWidth"
                          :label="field.name"
+                         :min-width="90"
                          :prop="field.name">
           <template v-slot="scope">
-            {{getCustomFieldValue(scope.row, field)}}
+            <span v-if="field.name === '用例等级'">
+                <priority-table-item :value="getCustomFieldValue(scope.row, field) ? getCustomFieldValue(scope.row, field) : scope.row.priority"/>
+            </span>
+            <span v-else>
+              {{getCustomFieldValue(scope.row, field)}}
+            </span>
           </template>
         </ms-table-column>
 
@@ -428,6 +424,7 @@ export default {
           this.condition.filters.reviewStatus = [this.selectDataRange];
           break;
       }
+      this.condition.filters.priority = this.condition.filters['用例等级'];
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.$emit('setCondition', this.condition);
@@ -437,11 +434,11 @@ export default {
           this.page.data = data.listObject;
           // this.selectIds.clear();
           this.$refs.table.clear();
-          /*this.tableData.forEach(item => {
-            if (item.tags && item.tags.length > 0) {
-              item.tags = JSON.parse(item.tags);
+          this.page.data.forEach(item => {
+            if (item.customFields) {
+              item.customFields = JSON.parse(item.customFields);
             }
-          })*/
+          });
           this.page.data.forEach((item) => {
             item.tags = JSON.parse(item.tags);
           });

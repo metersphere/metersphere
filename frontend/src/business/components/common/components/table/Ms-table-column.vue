@@ -25,7 +25,7 @@ export default {
     prop: String,
     label: String,
     width: String,
-    minWidth: String,
+    minWidth: [String, Number],
     fixed: String,
     // 排序列， 后端mapper处理filters
     filters: Array,
