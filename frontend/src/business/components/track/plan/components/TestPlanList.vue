@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading">
+  <el-card class="table-card" v-loading="cardResult.loading">
     <template v-slot:header>
       <ms-table-header :create-permission="['PROJECT_TRACK_PLAN:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testPlanCreate"
@@ -16,6 +16,7 @@
       @filter-change="filter"
       @sort-change="sort"
       :height="screenHeight"
+      v-loading="result.loading"
       @row-click="intoPlan">
       <template v-for="(item, index) in tableLabel">
         <el-table-column
@@ -34,17 +35,10 @@
         </el-table-column>
         <el-table-column
           v-if="item.id == 'createUser'"
-          prop="creator"
+          prop="createUser"
           :label="$t('commons.create_user')"
           show-overflow-tooltip
           :key="index">
-          <template slot-scope="scope">
-            <span
-              :value="item.creator"
-            >
-              {{ scope.row.createUser }}
-            </span>
-          </template>
         </el-table-column>
         <el-table-column
           v-if="item.id == 'status'"
@@ -275,6 +269,7 @@ export default {
       headerItems: Test_Plan_List,
       tableLabel: [],
       result: {},
+      cardResult: {},
       enableDeleteTip: false,
       queryPath: "/test/plan/list",
       deletePath: "/test/plan/delete",
@@ -333,7 +328,7 @@ export default {
       if (!this.projectId) {
         return;
       }
-      this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+      this.cardResult = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
@@ -342,12 +337,12 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
           item.passRate = item.passRate + '%';
-          if (item.creator) {
-            this.$get("user/info/" + item.creator, response => {
-              let name = response.data.name;
-              item.createUser = name;
-            });
-          }
+          // if (item.creator) {
+          //   this.$get("user/info/" + item.creator, response => {
+          //     let name = response.data.name;
+          //     item.createUser = name;
+          //   });
+          // }
         });
       });
       getLabel(this, TEST_PLAN_LIST);
