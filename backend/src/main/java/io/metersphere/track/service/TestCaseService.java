@@ -4,6 +4,7 @@ package io.metersphere.track.service;
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -877,13 +878,50 @@ public class TestCaseService {
         return list;
     }
 
-
+    /**
+     * 更新自定义字段
+     * @param request
+     */
     public void editTestCaseBath(TestCaseBatchRequest request) {
-        TestCaseExample example = this.getBatchExample(request);
-        TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-        BeanUtils.copyBean(testCase, request);
-        testCase.setUpdateTime(System.currentTimeMillis());
-        testCaseMapper.updateByExampleSelective(testCase, example);
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+
+        List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
+        testCases.forEach((testCase) -> {
+            String customFields = testCase.getCustomFields();
+            List<TestCaseBatchRequest.CustomFiledRequest> fields = null;
+            if (StringUtils.isBlank(customFields)) {
+                fields = new ArrayList<>();
+            } else {
+                fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
+            }
+
+            boolean hasField = false;
+            for (int i = 0; i < fields.size(); i++) {
+                TestCaseBatchRequest.CustomFiledRequest field = fields.get(i);
+                if (StringUtils.equals(request.getCustomField().getName(), field.getName())) {
+                    field.setValue(request.getCustomField().getValue());
+                    hasField = true;
+                    break;
+                }
+            }
+            if (!hasField) {
+                fields.add(request.getCustomField());
+            }
+            if (StringUtils.equals(request.getCustomField().getName(), "用例等级")) {
+                testCase.setPriority((String) request.getCustomField().getValue());
+            }
+            testCase.setCustomFields(JSONObject.toJSONString(fields));
+            testCase.setUpdateTime(System.currentTimeMillis());
+            testCase.setId(null);
+            testCaseMapper.updateByExampleSelective(testCase, example);
+        });
     }
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {

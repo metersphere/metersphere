@@ -482,4 +482,14 @@
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
     </select>
+    <select id="getCustomFieldsByIds" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
+        select id, custom_fields
+        from test_case
+        <where>
+            test_case.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
 </mapper>

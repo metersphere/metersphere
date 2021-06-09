@@ -377,3 +377,41 @@ export function getCustomFieldValue(row, field, members) {
     }
   }
 }
+
+/**
+ * 获取批量编辑的自定义字段选项
+ * @param customFields
+ * @param typeArr
+ * @param valueArr
+ * @param members
+ */
+export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, members) {
+
+  customFields.forEach(item => {
+    if (item.options) {
+      typeArr.push({
+        id: item.name,
+        name: item.name,
+        uuid: item.id
+      });
+
+      let options = [];
+      if (['multipleMember', 'member'].indexOf(item.type) > -1) {
+        members.forEach(member => {
+          options.push({
+            id: member.id,
+            name: member.name
+          });
+        });
+      } else {
+        item.options.forEach((option) => {
+          options.push({
+            id: option.value,
+            name: option.system ? i18n.t(option.text) : option.text
+          });
+        });
+      }
+      valueArr[item.name] = options;
+    }
+  });
+}

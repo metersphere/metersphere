@@ -161,7 +161,7 @@ import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
-  buildBatchParam, deepClone, getCustomFieldValue, getCustomTableWidth,
+  buildBatchParam, deepClone, getCustomFieldBatchEditOption, getCustomFieldValue, getCustomTableWidth,
   getPageInfo,
   getTableHeaderWithCustomFields,
   initCondition,
@@ -270,28 +270,8 @@ export default {
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
         }
       ],
-      typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'maintainer', name: this.$t('test_track.case.maintainer')},
-      ],
-      valueArr: {
-        priority: [
-          {name: 'P0', id: 'P0'},
-          {name: 'P1', id: 'P1'},
-          {name: 'P2', id: 'P2'},
-          {name: 'P3', id: 'P3'}
-        ],
-        type: [
-          {name: this.$t('commons.functional'), id: 'functional'},
-          {name: this.$t('commons.performance'), id: 'performance'},
-          {name: this.$t('commons.api'), id: 'api'}
-        ],
-        method: [
-          {name: this.$t('test_track.case.manual'), id: 'manual'},
-          {name: this.$t('test_track.case.auto'), id: 'auto'}
-        ],
-        maintainer: [],
-      },
+      typeArr: [],
+      valueArr: {},
       selectDataRange: "all",
       testCaseTemplate: {},
       members: [],
@@ -348,17 +328,20 @@ export default {
   },
   methods: {
     getTemplateField() {
-      this.page.result.loading = false;
-      getProjectMember((data) => {
+      this.page.result.loading = true;
+      let p1 = getProjectMember((data) => {
         this.members = data;
       });
-      getTestTemplate()
-        .then((template) => {
-          this.testCaseTemplate = template;
-          this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
-          this.page.result.loading = true;
-          this.$refs.table.reloadTable();
-        });
+      let p2 = getTestTemplate();
+      Promise.all([p1, p2]).then((data) => {
+        let template = data[1];
+        this.page.result.loading = true;
+        this.testCaseTemplate = template;
+        this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
+        this.page.result.loading = false;
+        this.$refs.table.reloadTable();
+        getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
+      });
     },
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
@@ -432,7 +415,6 @@ export default {
           let data = response.data;
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
-          // this.selectIds.clear();
           this.$refs.table.clear();
           this.page.data.forEach(item => {
             if (item.customFields) {
@@ -572,7 +554,8 @@ export default {
     batchEdit(form) {
       let ids = this.$refs.table.selectIds;
       let param = {};
-      param[form.type] = form.value;
+      param.customField = form;
+      param.customField.name = form.type;
       param.ids = ids;
       param.condition = this.condition;
       this.$post('/test/case/batch/edit', param, () => {
