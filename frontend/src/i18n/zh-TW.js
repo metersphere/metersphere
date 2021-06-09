@@ -1,5 +1,7 @@
 export default {
   commons: {
+    failure_continues: "失敗繼續",
+    full_screen_editing: "全屏編輯",
     yes: "是",
     no: "否",
     default: "默認值",

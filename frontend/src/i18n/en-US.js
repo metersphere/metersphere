@@ -1,5 +1,7 @@
 export default {
   commons: {
+    failure_continues: "Failure continues",
+    full_screen_editing: "Full screen editing",
     yes: "yes",
     no: "no",
     default: "default",
