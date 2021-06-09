@@ -110,6 +110,7 @@
       MsApiAssertions
     },
     props: {
+      method: String,
       request: {},
       response: {},
       showScript: {
@@ -144,7 +145,7 @@
         }
       };
       return {
-        activeName: "headers",
+        activeName: this.request.method === "POST" ? "body" : "parameters",
         rules: {
           name: [
             {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
@@ -187,6 +188,7 @@
         })
       },
       init() {
+
         if (!this.request.body) {
           this.request.body = new Body();
         }

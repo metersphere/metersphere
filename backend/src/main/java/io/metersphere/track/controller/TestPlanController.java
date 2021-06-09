@@ -160,6 +160,6 @@ public class TestPlanController {
         api.setMode(testplanRunRequest.getMode());
         api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
         String apiRunConfig = JSONObject.toJSONString(api);
-        testPlanService.run(testplanRunRequest.getTestPlanID(), testplanRunRequest.getProjectID(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
+        testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
 }
