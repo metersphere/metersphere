@@ -17,87 +17,66 @@
                 operator-width="170px"
                 ref="table"
       >
-        <template v-for="(item, index) in tableLabel">
 
-          <ms-table-column
-            v-if="item.id == 'num'"
-            prop="num"
-            label="ID"
-            show-overflow-tooltip
-            width="80px"
-            sortable=true
-            :key="index">
-            <template slot-scope="scope">
-              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
-              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
-                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
-              </el-tooltip>
-            </template>
-          </ms-table-column>
+      <ms-table-column
+          prop="num"
+          label="ID"
+          width="80px"
+          sortable=true>
+          <template slot-scope="scope">
+            <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
+            <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+            <el-tooltip v-else content="编辑">
+              <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column v-if="item.id == 'name'" prop="name" width="160px" :label="$t('test_track.case.name')"
-                           show-overflow-tooltip :key="index"/>
+        <ms-table-column prop="name" width="160px" :label="$t('test_track.case.name')"/>
 
-          <ms-table-column
-            v-if="item.id == 'priority'"
-            prop="priority"
-            :filters="priorityFilters"
-            column-key="priority"
-            width="120px"
-            :label="$t('test_track.case.priority')"
-            show-overflow-tooltip
-            :key="index">
-            <template v-slot:default="scope">
-              <priority-table-item :value="scope.row.priority"/>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="priority"
+          :filters="priorityFilters"
+          column-key="priority"
+          width="120px"
+          :label="$t('test_track.case.priority')">
+          <template v-slot:default="scope">
+            <priority-table-item :value="scope.row.priority"/>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'path'"
-            sortable="custom"
-            prop="path"
-            width="180px"
-            :label="'API'+ $t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          sortable="custom"
+          prop="path"
+          width="180px"
+          :label="'API'+ $t('api_test.definition.api_path')"/>
 
-          <ms-table-column
-            v-if="item.id == 'casePath'"
-            sortable="custom"
-            prop="casePath"
-            width="180px"
-            :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          sortable="custom"
+          prop="casePath"
+          width="180px"
+          :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
 
-          <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')"
-                           :key="index">
-            <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
-            </template>
-          </ms-table-column>
+        <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id=='createUser'"
-            prop="createUser"
-            :label="'创建人'"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          prop="createUser"
+          :label="'创建人'"/>
 
-          <ms-table-column
-            v-if="item.id=='updateTime'"
-            sortable="updateTime"
-            width="160px"
-            :label="$t('api_test.definition.api_last_time')"
-            prop="updateTime"
-            :key="index">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </ms-table-column>
-        </template>
+        <ms-table-column
+          sortable="updateTime"
+          width="160px"
+          :label="$t('api_test.definition.api_last_time')"
+          prop="updateTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
       </ms-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
@@ -121,12 +100,11 @@ import MsBottomContainer from "../../../definition/components/BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonData";
-import {getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "../../../definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import TableSelectCountBar from "./TableSelectCountBar";
-import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, buildBatchParam} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 
 export default {
@@ -152,7 +130,6 @@ export default {
         selectCase: {},
         result: {},
         moduleId: "",
-        tableLabel: [],
         typeArr: [
           {id: 'priority', name: this.$t('test_track.case.priority')},
         ],
@@ -256,7 +233,6 @@ export default {
           }
         });
       });
-      getLabel(this, API_CASE_LIST);
     },
     clear() {
       if (this.$refs.table) {
