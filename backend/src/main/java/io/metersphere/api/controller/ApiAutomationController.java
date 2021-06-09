@@ -14,7 +14,7 @@ import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -175,7 +175,7 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
-        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setTriggerMode(TriggerMode.MANUAL.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
@@ -184,7 +184,7 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
     public String runByJenkins(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setTriggerMode(ApiRunMode.API.name());
+        request.setTriggerMode(TriggerMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
@@ -193,7 +193,7 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setTriggerMode(TriggerMode.BATCH.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }

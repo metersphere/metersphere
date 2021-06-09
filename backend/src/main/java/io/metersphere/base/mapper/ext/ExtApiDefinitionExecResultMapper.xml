@@ -84,4 +84,7 @@
           ) showTable
         ORDER BY showTable.failureTimes DESC
     </select>
+    <select id="selectExecResult" resultType="java.lang.String">
+        select ader.status from api_definition_exec_result ader where ader.resource_id=#{resourceId}
+     </select>
 </mapper>

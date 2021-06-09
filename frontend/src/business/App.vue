@@ -15,6 +15,7 @@
         <!-- float right -->
         <ms-user ref="headerUser"/>
         <ms-language-switch :color="color"/>
+        <ms-task-center :color="color"/>
         <ms-header-org-ws :color="color"/>
       </el-col>
     </el-row>
@@ -34,7 +35,7 @@ import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
 import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
-
+import MsTaskCenter from "@/business/components/task/TaskCenter";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
@@ -174,6 +175,7 @@ export default {
     }
   },
   components: {
+    MsTaskCenter,
     MsLanguageSwitch,
     MsUser,
     MsView,

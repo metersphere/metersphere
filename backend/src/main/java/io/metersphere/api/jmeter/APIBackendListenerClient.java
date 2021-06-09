@@ -135,11 +135,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             LogUtil.error("testPlanApiCaseService is required");
         }
         apiEnvironmentRunningParamService = CommonBeanFactory.getBean(ApiEnvironmentRunningParamService.class);
-        if(apiEnvironmentRunningParamService == null){
+        if (apiEnvironmentRunningParamService == null) {
             LogUtil.error("apiEnvironmentRunningParamService is required");
         }
         testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
-        if(testPlanTestCaseService == null){
+        if (testPlanTestCaseService == null) {
             LogUtil.error("testPlanTestCaseService is required");
         }
         super.setupTest(context);
@@ -163,10 +163,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
-            if(StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)){
+            if (StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
                 String evnStr = result.getResponseDataAsString();
                 apiEnvironmentRunningParamService.parseEvn(evnStr);
-            }else {
+            } else {
                 String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
                 String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
                 String scenarioId = StringUtils.substringBefore(index, ID_SPLIT);
@@ -216,11 +216,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             // 调试操作，不需要存储结果
             apiDefinitionService.addResult(testResult);
             if (StringUtils.isBlank(debugReportId)) {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(), TriggerMode.MANUAL.name());
             }
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(), TriggerMode.API.name());
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
             ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
             //环境
@@ -248,7 +248,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             reportTask.setExecutionEnvironment(name);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.API.name());
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
             ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
             //环境
@@ -293,7 +293,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
             } else {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
             }
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             // 执行报告不需要存储，由用户确认后在存储
@@ -302,7 +302,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             //环境
             ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
             String name = "";
-            if(apiScenario!= null ) {
+            if (apiScenario != null) {
                 String executionEnvironment = apiScenario.getScenarioDefinition();
                 JSONObject json = JSONObject.parseObject(executionEnvironment);
                 if (json != null && json.getString("environmentMap") != null && json.getString("environmentMap").length() > 2) {

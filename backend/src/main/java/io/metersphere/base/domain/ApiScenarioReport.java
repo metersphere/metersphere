@@ -29,6 +29,8 @@ public class ApiScenarioReport implements Serializable {
 
     private String createUser;
 
+    private String actuator;
+
     private String description;
 
     private static final long serialVersionUID = 1L;

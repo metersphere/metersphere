@@ -359,6 +359,7 @@ export default {
           this.buildExecuteParam(param, row);
         });
         param.condition = selectParam.condition;
+        param.triggerMode = "BATCH";
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
         });
@@ -370,6 +371,7 @@ export default {
       let param ={planCaseIds: []};
       this.reportId = "";
       this.buildExecuteParam(param,row);
+      param.triggerMode = "MANUAL";
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;

@@ -1,0 +1,198 @@
+<template>
+  <div>
+    <el-menu :unique-opened="true" class="header-user-menu align-right header-top-menu"
+             mode="horizontal"
+             :background-color="color"
+             text-color="#fff"
+             active-text-color="#fff">
+      <el-menu-item onselectstart="return false">
+        <font-awesome-icon class="icon global" :icon="['fas', 'flag']"/>
+        <span @click="showTaskCenter">{{ $t('commons.task_center') }}</span>
+      </el-menu-item>
+    </el-menu>
+
+    <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
+               :withHeader="true" :modal="false" :title="$t('commons.task_center')" size="600px" custom-class="ms-drawer-task">
+      <div style="color: #2B415C;margin: 0px 20px 0px">
+        <el-form label-width="68px">
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
+                <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init">
+                  <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('commons.status')" prop="status">
+                <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init">
+                  <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+      </div>
+
+      <div class="report-container" v-loading="result.loading">
+        <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
+          <el-card class="ms-card-task">
+            <span>{{ item.name }} </span><br/>
+            <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}</span><br/>
+            <el-progress :percentage="getPercentage(item.executionStatus)"></el-progress>
+          </el-card>
+        </div>
+      </div>
+    </el-drawer>
+  </div>
+</template>
+
+<script>
+import MsDrawer from "../common/components/MsDrawer";
+import {getCurrentProjectID} from "@/common/js/utils";
+
+export default {
+  name: "MsTaskCenter",
+  components: {
+    MsDrawer
+  },
+  inject: [
+    'reload'
+  ],
+  data() {
+    return {
+      taskVisible: false,
+      result: {},
+      taskData: [],
+      runMode: [
+        {id: '', label: this.$t('api_test.definition.document.data_set.all')},
+        {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
+        {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
+        {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
+        {id: 'CASE', label: this.$t('commons.trigger_mode.case')},
+        {id: 'API', label: 'API'}
+      ],
+      runStatus: [
+        {id: '', label: this.$t('api_test.definition.document.data_set.all')},
+        {id: 'Saved', label: 'Saved'},
+        {id: 'Starting', label: 'Starting'},
+        {id: 'Running', label: 'Running'},
+        {id: 'Reporting', label: 'Reporting'},
+        {id: 'Completed', label: 'Completed'},
+        {id: 'error', label: 'Error'},
+        {id: 'success', label: 'Success'}
+      ],
+      condition: {triggerMode: "", executionStatus: ""},
+    };
+  },
+  props: {
+    color: String
+  },
+  methods: {
+    showTaskCenter() {
+      this.init();
+      this.taskVisible = true;
+    },
+    getPercentage(status) {
+      if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
+        return 100;
+      }
+      return Math.round(Math.random() * 80 + 20);
+    },
+    getMode(mode) {
+      if (mode === 'MANUAL') {
+        return this.$t('commons.trigger_mode.manual');
+      }
+      if (mode === 'SCHEDULE') {
+        return this.$t('commons.trigger_mode.schedule');
+      }
+      if (mode === 'TEST_PLAN_SCHEDULE') {
+        return this.$t('commons.trigger_mode.schedule');
+      }
+      if (mode === 'API') {
+        return this.$t('commons.trigger_mode.api');
+      }
+      if (mode === 'CASE') {
+        return this.$t('commons.trigger_mode.case');
+      }
+      if (mode === 'BATCH') {
+        return this.$t('api_test.automation.batch_execute');
+      }
+      return mode;
+    },
+    init() {
+      this.result.loading = true;
+      this.condition.projectId = getCurrentProjectID();
+      this.result = this.$post('/task/center/list', this.condition, response => {
+        this.taskData = response.data;
+      });
+    }
+  }
+}
+</script>
+
+<style>
+.ms-drawer-task {
+  top: 42px !important;
+}
+</style>
+
+<style scoped>
+.el-icon-check {
+  color: #44b349;
+  margin-left: 10px;
+}
+
+.report-container {
+  height: calc(100vh - 180px);
+  min-height: 600px;
+  overflow-y: auto;
+}
+
+.align-right {
+  float: right;
+}
+
+.icon {
+  width: 24px;
+}
+
+/deep/ .el-drawer__header {
+  font-size: 18px;
+  color: #0a0a0a;
+  border-bottom: 1px solid #E6E6E6;
+  background-color: #FFF;
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.ms-card-task >>> .el-card__body {
+  padding: 10px;
+}
+
+.global {
+  color: #fff;
+}
+
+.header-top-menu {
+  height: 40px;
+  line-height: 40px;
+  color: inherit;
+}
+
+.header-top-menu.el-menu--horizontal > li {
+  height: 40px;
+  line-height: 40px;
+  color: inherit;
+}
+
+.header-top-menu.el-menu--horizontal > li.el-submenu > * {
+  height: 39px;
+  line-height: 40px;
+  color: inherit;
+}
+
+.header-top-menu.el-menu--horizontal > li.is-active {
+  background: var(--color_shallow) !important;
+}
+</style>

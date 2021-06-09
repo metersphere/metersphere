@@ -679,7 +679,7 @@ public class ApiTestCaseService {
     }
 
     public String getExecResult(String id) {
-        String status = apiDefinitionExecResultMapper.selectExecResult(id);
+        String status = extApiDefinitionExecResultMapper.selectExecResult(id);
         return status;
     }
 
