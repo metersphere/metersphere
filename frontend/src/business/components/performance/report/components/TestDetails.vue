@@ -284,9 +284,17 @@ export default {
           let allData = [];
           let checkAllOption = checkList.indexOf('ALL') > -1;
           if (checkAllOption) {
+            let avgOpt = [
+              'ResponseTimeChart',
+              'ResponseTimePercentilesChart',
+              'LatencyChart',
+            ];
             let result = groupBy(data, 'xAxis');
             for (const xAxis in result) {
-              let yAxis = result[xAxis].map(a => a.yAxis).reduce((a, b) => a + b, 0) / result[xAxis].length;
+              let yAxis = result[xAxis].map(a => a.yAxis).reduce((a, b) => a + b, 0);
+              if (avgOpt.indexOf(reportKey) > -1) {
+                yAxis = yAxis / result[xAxis].length;
+              }
               allData.push({
                 groupName: 'ALL',
                 xAxis: xAxis,
