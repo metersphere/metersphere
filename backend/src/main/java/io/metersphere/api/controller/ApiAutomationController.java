@@ -10,6 +10,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
@@ -21,6 +22,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -30,7 +32,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/api/automation")
@@ -42,6 +46,12 @@ public class ApiAutomationController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
+        if (StringUtils.isBlank(request.getProjectId())) {
+            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            request.setFilters(new HashMap<String, List<String>>() {{
+                put("project_id", sourceIds);
+            }});
+        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
