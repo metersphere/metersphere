@@ -1058,7 +1058,11 @@ public class TestPlanService {
             RunTestPlanRequest performanceRequest = new RunTestPlanRequest();
             performanceRequest.setId(caseID);
             performanceRequest.setTestPlanLoadId(caseID);
-            performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
+            if (StringUtils.equals(ReportTriggerMode.API.name(), triggerMode)) {
+                performanceRequest.setTriggerMode(ReportTriggerMode.API.name());
+            } else {
+                performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
+            }
             String reportId = null;
             try {
                 reportId = performanceTestService.run(performanceRequest);
@@ -1091,6 +1095,7 @@ public class TestPlanService {
         if (!performaneReportIDList.isEmpty()) {
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
             testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDList, ReportTriggerMode.SCHEDULE.name());
+
         }
 
 
@@ -1114,7 +1119,11 @@ public class TestPlanService {
             scenarioRequest.setId(senarionReportID);
             scenarioRequest.setReportId(senarionReportID);
             scenarioRequest.setProjectId(projectID);
-            scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+            if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
+            } else {
+                scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+            }
             scenarioRequest.setExecuteType(ExecuteType.Saved.name());
             Map<String, Map<String, String>> testPlanScenarioIdMap = new HashMap<>();
             testPlanScenarioIdMap.put(testPlanID, planScenarioIdMap);
