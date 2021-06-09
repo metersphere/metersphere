@@ -1,17 +1,18 @@
 package io.metersphere.track.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
+import io.metersphere.track.dto.ApiRunConfigDTO;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.dto.TestPlanDTOWithMetric;
@@ -22,9 +23,7 @@ import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -156,7 +155,11 @@ public class TestPlanController {
         return PageUtils.setPageInfo(page, testPlanProjectService.getProjectByPlanId(request));
     }
     @PostMapping("/testplan/jenkins")
-    public void  runJenkins(@RequestBody TestplanRunRequest testplanRunRequest){
-        testPlanService.run(testplanRunRequest.getTestPlanID(),testplanRunRequest.getProjectID(),testplanRunRequest.getUserId(),testplanRunRequest.getTriggerMode(),null);
+    public void  runJenkins(@RequestBody TestplanRunRequest testplanRunRequest) {
+        ApiRunConfigDTO api = new ApiRunConfigDTO();
+        api.setMode(testplanRunRequest.getMode());
+        api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
+        String apiRunConfig = JSONObject.toJSONString(api);
+        testPlanService.run(testplanRunRequest.getTestPlanID(), testplanRunRequest.getProjectID(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
 }

@@ -80,7 +80,7 @@
             this.selectPageFontColor.color = "gray";
 
           } else {
-            this.selectAllSimpleStyle.color = "gray";
+            this.selectAllFontColor.color = "gray";
             this.selectPageFontColor.color = "gray";
           }
           this.$emit(even);
