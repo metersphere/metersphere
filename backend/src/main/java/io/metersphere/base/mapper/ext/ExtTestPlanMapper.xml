@@ -99,6 +99,7 @@
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select DISTINCT test_plan.*, user.name as user_name, project.name as projectName,schedule.id as scheduleId,
+                        (select name from user where user.id = test_plan.creator) as createUser,
             IF(schedule.enable = true,true,false) as scheduleOpen
         from test_plan
         LEFT JOIN user ON user.id = test_plan.principal
