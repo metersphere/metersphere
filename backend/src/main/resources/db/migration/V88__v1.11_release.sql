@@ -14,3 +14,6 @@ UPDATE test_resource_pool
 SET api         = FALSE,
     performance = TRUE
 WHERE type = 'K8S';
+ALTER table api_scenario_report add actuator varchar(100) null;
+ALTER table api_definition_exec_result add actuator varchar(100) null;
+ALTER table api_definition_exec_result add trigger_mode varchar(50) null;
