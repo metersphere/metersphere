@@ -1,6 +1,6 @@
 <template>
 
-  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content">
+  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content" :disabled="isReadOnly">
     <div class="ms-border">
       <el-form-item prop="socket">
         <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
@@ -98,6 +98,10 @@
     props: {
       httpConfig: new HttpConfig(),
       projectId: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
     created() {
       this.list();

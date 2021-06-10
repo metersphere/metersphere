@@ -1,6 +1,6 @@
 <template>
     <div>
-      <el-form :model="commonConfig" :rules="rules" ref="commonConfig">
+      <el-form :model="commonConfig" :rules="rules" ref="commonConfig" :disabled="isReadOnly">
 
         <span>{{$t('api_test.environment.globalVariable')}}</span>
         <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables"/>
@@ -23,6 +23,10 @@
       components: {MsApiHostTable, MsApiScenarioVariables},
       props: {
         commonConfig: new CommonConfig(),
+        isReadOnly: {
+          type: Boolean,
+          default: false
+        },
       },
       data() {
         return {
