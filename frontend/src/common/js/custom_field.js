@@ -57,7 +57,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
     if (data.customFields instanceof Array) {
       for (let i = 0; i < data.customFields.length; i++) {
         let customField = data.customFields[i];
-        if (customField.id === item.id) {
+        if (customField.name === item.name) {
           setDefaultValue(item, customField.value);
           break;
         }
@@ -97,13 +97,12 @@ export function buildCustomFields(data, param, template) {
         }
         nameSet.add(name);
       }
-
     }
 
     template.customFields.forEach(item => {
       let hasField = false;
       for (const index in customFields) {
-        if (customFields[index].id === item.id) {
+        if (customFields[index].name === item.name) {
           hasField = true;
           customFields[index].name = item.name;
           customFields[index].value = item.defaultValue;

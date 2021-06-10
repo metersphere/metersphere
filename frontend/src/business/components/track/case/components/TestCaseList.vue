@@ -161,12 +161,16 @@ import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
-  buildBatchParam, deepClone, getCustomFieldBatchEditOption, getCustomFieldValue, getCustomTableWidth,
+  buildBatchParam,
+  checkTableRowIsSelected,
+  deepClone,
+  getCustomFieldBatchEditOption,
+  getCustomFieldValue,
+  getCustomTableWidth,
   getPageInfo,
   getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
-import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
 import {getCurrentProjectID} from "@/common/js/utils";
@@ -207,7 +211,6 @@ export default {
     return {
       type: TEST_CASE_LIST,
       screenHeight: 'calc(100vh - 310px)',
-      headerItems: Track_Test_Case,
       tableLabel: [],
       deletePath: "/test/case/delete",
       condition: {
@@ -424,6 +427,7 @@ export default {
           this.page.data.forEach((item) => {
             item.tags = JSON.parse(item.tags);
           });
+          checkTableRowIsSelected(this, this.$refs.table);
         });
       }
     },
@@ -464,7 +468,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let param = buildBatchParam(this);
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
             this.$post('/test/case/batch/delete', param, () => {
               this.$refs.table.clear();
               this.$emit("refresh");
@@ -510,7 +514,7 @@ export default {
         url: '/test/case/export/testcase',
         method: 'post',
         responseType: 'blob',
-        data: buildBatchParam(this)
+        data: buildBatchParam(this, this.$refs.table.selectIds)
       };
 
       if (config.data.ids === undefined || config.data.ids.length < 1) {

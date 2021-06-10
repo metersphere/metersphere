@@ -9,6 +9,7 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
       selection.hashTree = [];
       tableData.forEach(item => {
         component.$set(item, "showMore", true);
+        selectRows.add(item);
       });
     } else {
       tableData.forEach(item => {
@@ -25,9 +26,6 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
     if (condition) {
       condition.selectAll = false;
     }
-  }
-  if (selectRows.size < 1 && condition) {
-    condition.selectAll = false;
   }
 }
 
@@ -109,6 +107,15 @@ export function checkTableRowIsSelect(component, condition, tableData, table, se
   }
 }
 
+// nexttick:表格加载完成之后触发。判断是否需要勾选行
+export function checkTableRowIsSelected(veuObj, table) {
+  veuObj.$nextTick(function () {
+    if (table) {
+      table.checkTableRowIsSelect();
+      table.doLayout();
+    }
+  });
+}
 
 //表格数据过滤
 export function _filter(filters, condition) {
@@ -179,9 +186,9 @@ export function getLabel(vueObj, type) {
 }
 
 
-export function buildBatchParam(vueObj) {
+export function buildBatchParam(vueObj, selectIds) {
   let param = {};
-  param.ids = Array.from(vueObj.selectRows).map(row => row.id);
+  param.ids = selectIds ? selectIds: Array.from(vueObj.selectRows).map(row => row.id);
   param.projectId = getCurrentProjectID();
   param.condition = vueObj.condition;
   return param;
