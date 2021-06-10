@@ -16,7 +16,7 @@
                 :fields.sync="fields"
                 :table-is-loading="this.result.loading"
                 field-key="API_DEFINITION"
-                ref="apiDefinitionTable">
+                ref="table">
 
         <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
@@ -177,7 +177,7 @@ import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
   initCondition,
-  getCustomTableHeader, getCustomTableWidth, buildBatchParam
+  getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
@@ -390,9 +390,6 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-    selectRows() {
-      return this.$refs.apiDefinitionTable.getSelectRows();
-    },
     getApiRequestTypeName(){
       if(this.currentProtocol === 'TCP'){
         return this.$t('api_test.definition.api_agreement');
@@ -452,8 +449,8 @@ export default {
       }
     },
     initTable() {
-      if (this.$refs.apiDefinitionTable) {
-        this.$refs.apiDefinitionTable.clearSelectRows();
+      if (this.$refs.table) {
+        this.$refs.table.clear();
       }
 
       initCondition(this.condition, this.condition.selectAll);
@@ -499,13 +496,7 @@ export default {
             }
           });
 
-          // nexttick:表格加载完成之后触发。判断是否需要勾选行
-          this.$nextTick(function () {
-            if (this.$refs.apiDefinitionTable) {
-              this.$refs.apiDefinitionTable.checkTableRowIsSelect();
-              this.$refs.apiDefinitionTable.doLayout();
-            }
-          });
+          checkTableRowIsSelected(this, this.$refs.table);
         });
       }
       if(this.needRefreshModule()){
@@ -620,7 +611,7 @@ export default {
       });
     },
     handleBatchRestore() {
-      this.$post('/api/definition/reduction/', buildBatchParam(this), () => {
+      this.$post('/api/definition/reduction/', buildBatchParam(this, this.$refs.table.selectIds), () => {
         this.$success(this.$t('commons.save_success'));
         this.search();
       });
@@ -631,8 +622,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this), () => {
-                this.$refs.apiDefinitionTable.clearSelectRows();
+              this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
+                this.$refs.table.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
               });
@@ -644,8 +635,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this), () => {
-                this.$refs.apiDefinitionTable.clearSelectRows();
+              this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
+                this.$refs.table.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();
@@ -668,7 +659,7 @@ export default {
       this.$refs.batchEdit.open();
     },
     batchEdit(form) {
-      let param = buildBatchParam(this);
+      let param = buildBatchParam(this, this.$refs.table.selectIds);
       param[form.type] = form.value;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -676,15 +667,10 @@ export default {
       });
     },
     moveSave(param) {
-      let arr = Array.from(this.selectRows);
-      let ids = arr.map(row => row.id);
+      let ids = this.$refs.table.selectIds;
       param.ids = ids;
       param.projectId = this.projectId;
-      param.moduleId = param.nodeId;
       param.condition = this.condition;
-      param.selectAllDate = this.isSelectAllDate;
-      param.unSelectIds = this.unSelection;
-      param = Object.assign(param, this.condition);
       param.moduleId = param.nodeId;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -756,7 +742,7 @@ export default {
       return ids;
     },
     exportApi(type) {
-      let param = buildBatchParam(this);
+      let param = buildBatchParam(this, this.$refs.table.selectIds);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
         this.$warning(this.$t("api_test.definition.check_select"));
