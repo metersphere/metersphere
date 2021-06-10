@@ -87,7 +87,6 @@ public class ProjectController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         if (StringUtils.isBlank(request.getProjectId())) {
             List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
             request.setFilters(new HashMap<String, List<String>>() {{
@@ -106,7 +105,6 @@ public class ProjectController {
      */
     @PostMapping("/list/related")
     public List<ProjectDTO> getUserProject(@RequestBody ProjectRequest request) {
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return projectService.getUserProject(request);
     }
 

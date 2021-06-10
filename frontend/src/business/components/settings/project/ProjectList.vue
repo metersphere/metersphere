@@ -245,7 +245,7 @@ export default {
       });
     },
     create() {
-      let workspaceId = this.currentUser.lastWorkspaceId;
+      let workspaceId = getCurrentWorkspaceId();
       this.getOptions();
       if (!workspaceId) {
         this.$warning(this.$t('project.please_choose_workspace'));
