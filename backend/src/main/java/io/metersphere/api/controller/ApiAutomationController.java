@@ -53,7 +53,7 @@ public class ApiAutomationController {
             }});
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
@@ -80,7 +80,6 @@ public class ApiAutomationController {
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioDTO> list(@PathVariable String projectId) {
         ApiScenarioRequest request = new ApiScenarioRequest();
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setProjectId(projectId);
         return apiAutomationService.list(request);
     }

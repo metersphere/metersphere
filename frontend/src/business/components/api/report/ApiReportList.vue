@@ -70,6 +70,7 @@ import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem"
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   components: {
@@ -121,7 +122,7 @@ export default {
       if (this.testId !== 'all') {
         this.condition.testId = this.testId;
       }
-
+      this.condition.projectId = getCurrentProjectID();
       let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;

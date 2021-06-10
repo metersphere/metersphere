@@ -382,7 +382,7 @@ export default {
       });
     },
     create() {
-      let workspaceId = this.currentUser.lastWorkspaceId;
+      let workspaceId = getCurrentWorkspaceId();
       this.getOptions();
       if (!workspaceId) {
         this.$warning(this.$t('project.please_choose_workspace'));
@@ -487,6 +487,7 @@ export default {
       this.list();
     },
     list() {
+      this.condition.workspaceId = getCurrentWorkspaceId();
       let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
       this.result = this.$post(url, this.condition, (response) => {
         let data = response.data;

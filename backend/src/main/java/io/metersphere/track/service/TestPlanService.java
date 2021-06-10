@@ -149,7 +149,9 @@ public class TestPlanService {
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlan.setCreator(SessionUtils.getUser().getId());
-        testPlan.setProjectId(SessionUtils.getCurrentProjectId());
+        if (StringUtils.isBlank(testPlan.getProjectId())) {
+            testPlan.setProjectId(SessionUtils.getCurrentProjectId());
+        }
         testPlanMapper.insert(testPlan);
 
         List<String> userIds = new ArrayList<>();
@@ -172,7 +174,7 @@ public class TestPlanService {
 
     public List<TestPlan> getTestPlanByName(String name) {
         TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+        example.createCriteria()
                 .andProjectIdEqualTo(SessionUtils.getCurrentProjectId())
                 .andNameEqualTo(name);
         return testPlanMapper.selectByExample(example);
@@ -385,9 +387,8 @@ public class TestPlanService {
 
     public List<TestPlanDTOWithMetric> listTestPlan(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        String projectId = SessionUtils.getCurrentProjectId();
-        if (StringUtils.isNotBlank(projectId)) {
-            request.setProjectId(projectId);
+        if (StringUtils.isNotBlank(request.getProjectId())) {
+            request.setProjectId(request.getProjectId());
         }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
         testPlans.forEach(item -> {
