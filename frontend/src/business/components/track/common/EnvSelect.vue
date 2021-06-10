@@ -5,11 +5,11 @@
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name"
                    :value="environment.id"/>
-        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
+        <el-button class="ms-scenario-button" v-if="isShowConfirmButton(pe.id)"  size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
           {{ $t('api_test.environment.environment_config') }}
         </el-button>
         <template v-slot:empty>
-          <div class="empty-environment">
+          <div v-if="isShowConfirmButton(pe.id)"  class="empty-environment">
             <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
               {{ $t('api_test.environment.environment_config') }}
             </el-button>
@@ -38,6 +38,12 @@ export default {
   props: {
     envMap: Map,
     projectIds: Set,
+    showConfigButtonWithOutPermission:{
+      type: Boolean,
+      default() {
+        return true;
+      }
+    },
     projectList: Array
   },
   data() {
@@ -46,12 +52,33 @@ export default {
       result: {},
       projects: [],
       environments: [],
+      permissionProjectIds:[],
       dialogVisible: false,
       isFullUrl: true,
     };
   },
   methods: {
+    isShowConfirmButton(projectId){
+      if(this.showConfigButtonWithOutPermission === true){
+        return true;
+      }else{
+        if(this.permissionProjectIds){
+          if(this.permissionProjectIds.indexOf(projectId)<0){
+            return false;
+          }else {
+            return true;
+          }
+        }else{
+          return false;
+        }
+      }
+    },
     init() {
+      //获取当前用户有权限的ID
+      if(this.permissionProjectIds.length === 0){
+        this.getUserPermissionProjectIds();
+      }
+
       this.projectIds.forEach(id => {
         const project = this.projectList.find(p => p.id === id);
         if (project) {
@@ -138,7 +165,12 @@ export default {
     },
     environmentConfigClose() {
       // todo 关闭处理
-    }
+    },
+    getUserPermissionProjectIds(){
+      this.$get('/project/getOwnerProjectIds/', res => {
+        this.permissionProjectIds = res.data;
+      })
+    },
   }
 };
 </script>

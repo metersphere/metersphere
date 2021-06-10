@@ -8,8 +8,8 @@
             <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
                       @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
           </el-col>
-
           <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                        :project-list="projectList" ref="envPopover" class="env-popover"/>
         </el-row>
       </template>
@@ -92,6 +92,7 @@
     data() {
       return {
         result: {},
+        showConfigButtonWithOutPermission:false,
         condition: {},
         currentScenario: {},
         schedule: {},
