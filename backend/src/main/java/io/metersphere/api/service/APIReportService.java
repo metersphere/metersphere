@@ -49,13 +49,11 @@ public class APIReportService {
 
     public List<APIReportResult> list(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestReportMapper.list(request);
     }
 
     public List<APIReportResult> recentTest(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestReportMapper.list(request);
     }
 

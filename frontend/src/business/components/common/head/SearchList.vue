@@ -17,7 +17,7 @@
           <div class="title">
             {{ i.name }}
           </div>
-          <i class="el-icon-check" v-if="i.id === currentProjectId"></i>
+          <i class="el-icon-check" v-if="i.id === getCurrentProjectID()"></i>
         </template>
       </el-menu-item>
     </div>
@@ -26,8 +26,15 @@
 </template>
 
 <script>
-import {getCurrentProjectID, getCurrentUser, getCurrentUserId, saveLocalStorage} from "@/common/js/utils";
+import {
+  getCurrentProjectID,
+  getCurrentUser,
+  getCurrentUserId,
+  getCurrentWorkspaceId,
+  saveLocalStorage
+} from "@/common/js/utils";
 import {mapGetters} from "vuex";
+import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
   name: "SearchList",
@@ -54,17 +61,21 @@ export default {
       searchArray: [],
       searchString: '',
       userId: getCurrentUser().id,
-      currentProjectId: getCurrentProjectID(),
-    }
+    };
   },
   watch: {
     searchString(val) {
-      this.query(val)
+      this.query(val);
     }
   },
   methods: {
+    getCurrentProjectID,
     init: function () {
-      this.result = this.$post("/project/list/related", {userId: getCurrentUserId()}, response => {
+      let data = {
+        userId: getCurrentUserId(),
+        workspaceId: getCurrentWorkspaceId()
+      };
+      this.result = this.$post("/project/list/related", data, response => {
         this.items = response.data;
         this.searchArray = response.data;
         let projectId = getCurrentProjectID();
@@ -79,7 +90,7 @@ export default {
           }
         }
         this.changeProjectName(projectId);
-      })
+      });
     },
     query(queryString) {
       this.items = queryString ? this.searchArray.filter(this.createFilter(queryString)) : this.searchArray;
@@ -99,6 +110,8 @@ export default {
         this.currentProjectId = projectId;
 
         this.$EventBus.$emit('projectChange');
+        // 保存session里的projectId
+        sessionStorage.setItem(PROJECT_ID, projectId);
         // 刷新路由
         this.reload();
 
@@ -116,7 +129,7 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>

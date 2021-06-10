@@ -32,8 +32,6 @@ public class TestPlanReportController {
     private TestPlanReportService testPlanReportService;
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanReportDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanReportRequest request) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        request.setWorkspaceId(currentWorkspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanReportService.list(request));
     }

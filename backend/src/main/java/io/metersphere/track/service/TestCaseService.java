@@ -406,9 +406,8 @@ public class TestCaseService {
         TestCaseExample testCaseExample = new TestCaseExample();
         TestCaseExample.Criteria criteria = testCaseExample.createCriteria();
         criteria.andMaintainerEqualTo(request.getUserId());
-        String projectId = SessionUtils.getCurrentProjectId();
-        if (StringUtils.isNotBlank(projectId)) {
-            criteria.andProjectIdEqualTo(projectId);
+        if (StringUtils.isNotBlank(request.getProjectId())) {
+            criteria.andProjectIdEqualTo(request.getProjectId());
             testCaseExample.setOrderByClause("update_time desc, sort desc");
             return testCaseMapper.selectByExample(testCaseExample);
         }

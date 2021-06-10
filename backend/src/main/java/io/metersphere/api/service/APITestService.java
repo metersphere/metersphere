@@ -77,7 +77,6 @@ public class APITestService {
 
     public List<APITestResult> recentTest(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestMapper.list(request);
     }
 
@@ -412,8 +411,8 @@ public class APITestService {
             ApiTestExample example = new ApiTestExample();
             ApiTestExample.Criteria criteria = example.createCriteria();
             criteria.andIdIn(resourceIds);
-            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            if (StringUtils.isNotBlank(request.getProjectId())) {
+                criteria.andProjectIdEqualTo(request.getProjectId());
             }
             List<ApiTest> apiTests = apiTestMapper.selectByExample(example);
             Map<String, String> apiTestMap = apiTests.stream().collect(Collectors.toMap(ApiTest::getId, ApiTest::getName));

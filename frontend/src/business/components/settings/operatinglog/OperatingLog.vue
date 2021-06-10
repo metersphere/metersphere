@@ -116,7 +116,7 @@
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableOperator from "../../common/components/MsTableOperator";
-  import {getCurrentProjectID, getCurrentUser, hasRoles} from "@/common/js/utils";
+  import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, hasRoles} from "@/common/js/utils";
   import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, WORKSPACE_ID} from "@/common/js/constants";
   import MsLogDetail from "./LogDetail";
 
@@ -246,11 +246,11 @@
           this.getMember();
           break;
         case "organization":
-          this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
           this.getMember();
           break;
         case "workspace":
-          this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
           this.getMember();
           break;
         case "project":
@@ -267,11 +267,11 @@
             this.getMember();
             break;
           case "organization":
-            this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
             this.getMember();
             break;
           case "workspace":
-            this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
             this.getMember();
             break;
           case "project":

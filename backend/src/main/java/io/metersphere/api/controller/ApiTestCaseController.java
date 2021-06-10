@@ -8,15 +8,11 @@ import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,14 +31,12 @@ public class ApiTestCaseController {
 
     @PostMapping("/list")
     public List<ApiTestCaseResult> list(@RequestBody ApiTestCaseRequest request) {
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return apiTestCaseService.list(request);
     }
 
     @GetMapping("/findById/{id}")
     public ApiTestCaseResult single(@PathVariable String id) {
         ApiTestCaseRequest request = new ApiTestCaseRequest();
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setId(id);
         List<ApiTestCaseResult> list = apiTestCaseService.list(request);
         if (!list.isEmpty()) {
@@ -62,28 +56,24 @@ public class ApiTestCaseController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestCaseDTO>> listSimple(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
     }
 
     @GetMapping("/list/{projectId}")
     public List<ApiTestCaseDTO> list(@PathVariable String projectId) {
         ApiTestCaseRequest request = new ApiTestCaseRequest();
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setProjectId(projectId);
         return apiTestCaseService.listSimple(request);
     }
 
     @PostMapping("/get/request")
     public Map<String, String> listSimple(@RequestBody ApiTestCaseRequest request) {
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return apiTestCaseService.getRequest(request);
     }
 
     @PostMapping("/get/caseBLOBs/request")
     public List<ApiTestCaseInfo> getCaseBLOBs(@RequestBody ApiTestCaseRequest request) {
 
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         List<ApiTestCaseInfo> returnList = apiTestCaseService.findApiTestCaseBLOBs(request);
         return returnList;
     }
