@@ -1144,6 +1144,9 @@ export default {
     shrinkTreeNode() {
       //改变每个节点的状态
       for (let i in this.scenarioDefinition) {
+        if (i > 30 && this.expandedStatus) {
+          continue;
+        }
         if (this.scenarioDefinition[i]) {
           if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
             this.expandedNode.push(this.scenarioDefinition[i].resourceId);
@@ -1169,9 +1172,18 @@ export default {
       }
     },
     openExpansion() {
-      this.expandedNode = [];
-      this.expandedStatus = true;
-      this.shrinkTreeNode();
+      if (this.scenarioDefinition && this.scenarioDefinition.length > 30) {
+        this.$alert(this.$t('api_test.definition.request.step_message'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.expandedNode = [];
+              this.expandedStatus = true;
+              this.shrinkTreeNode();
+            }
+          }
+        });
+      }
     },
     closeExpansion() {
       this.expandedStatus = false;

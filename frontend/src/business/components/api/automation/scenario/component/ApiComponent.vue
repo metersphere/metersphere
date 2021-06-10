@@ -241,7 +241,7 @@ export default {
           });
         }
       }
-      if (databaseConfigsOptions.length > 0) {
+      if (databaseConfigsOptions.length > 0 && this.request.environmentId !== this.environment.id) {
         this.request.dataSourceId = databaseConfigsOptions[0].id;
         this.request.environmentId = this.environment.id;
       }

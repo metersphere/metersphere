@@ -796,6 +796,7 @@ export default {
         other_config: "其他设置",
         message_template: "报文模版",
         tcp_parameter_tip: "请求参数可以在请求模版通过${xxx}引用",
+        step_message: "步骤过多，是否展开前 30 个步骤？",
         esb_table: {
           name: "参数名",
           type: "类型",
