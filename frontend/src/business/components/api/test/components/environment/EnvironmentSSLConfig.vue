@@ -2,7 +2,7 @@
 
   <div>
     <div style="float: right;">
-      <el-button size="mini" @click="open">{{$t('test_track.case.import.click_upload')}}</el-button>
+      <el-button size="mini" @click="open" :disabled="isReadOnly">{{$t('test_track.case.import.click_upload')}}</el-button>
     </div>
     <div class="tip">{{ this.$t('commons.ssl.files') }}
     </div>
@@ -76,6 +76,10 @@
     props: {
       sslConfig: new SSLConfig(),
       projectId: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
     created() {
     },

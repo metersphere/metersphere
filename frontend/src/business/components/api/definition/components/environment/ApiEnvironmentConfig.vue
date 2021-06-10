@@ -4,9 +4,10 @@
              @close="close" append-to-body ref="environmentConfig">
     <el-container v-loading="result.loading">
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
+                     :env-add-permission="['PROJECT_ENVIRONMENT:READ+CREATE']"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
-      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"/>
+      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close" :is-read-only="isReadOnly"/>
     </el-container>
   </el-dialog>
 </template>
@@ -20,7 +21,7 @@
   import MsMainContainer from "../../../../common/components/MsMainContainer";
   import MsAsideItem from "../../../../common/components/MsAsideItem";
   import EnvironmentEdit from "./EnvironmentEdit";
-  import {deepClone, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import {deepClone, hasPermission, listenGoBack, removeGoBackListener} from "@/common/js/utils";
   import {Environment, parseEnvironment} from "../../model/EnvironmentModel";
 
   export default {
@@ -40,14 +41,21 @@
         environmentOperators: [
           {
             icon: 'el-icon-document-copy',
-            func: this.copyEnvironment
+            func: this.copyEnvironment,
+            permissions: ['PROJECT_ENVIRONMENT:READ+COPY']
           },
           {
             icon: 'el-icon-delete',
-            func: this.deleteEnvironment
+            func: this.deleteEnvironment,
+            permissions: ['PROJECT_ENVIRONMENT:READ+DELETE']
           }
         ],
         selectEnvironmentId: ''
+      }
+    },
+    computed: {
+      isReadOnly() {
+        return !hasPermission('PROJECT_ENVIRONMENT:READ+EDIT');
       }
     },
     methods: {

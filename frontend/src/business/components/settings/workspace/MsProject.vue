@@ -246,7 +246,7 @@
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
-    <api-environment-config ref="environmentConfig"/>
+    <api-environment-config ref="environmentConfig" :type="'workspace'"/>
 
     <ms-jar-config ref="jarConfig"/>
 
