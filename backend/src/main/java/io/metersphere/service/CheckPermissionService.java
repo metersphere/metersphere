@@ -39,7 +39,7 @@ public class CheckPermissionService {
         }
     }
 
-    private Set<String> getUserRelatedProjectIds() {
+    public Set<String> getUserRelatedProjectIds() {
         List<String> groupIds = Objects.requireNonNull(SessionUtils.getUser()).getGroups()
                 .stream()
                 .filter(g -> StringUtils.equals(g.getType(), UserGroupType.PROJECT))
