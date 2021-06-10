@@ -33,7 +33,6 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -380,14 +379,7 @@ public class IssuesService {
                     issue.setStatus(tapdIssues.getStatus());
                 } else if (StringUtils.equals(platform, IssuesManagePlatform.Jira.name())) {
                     JiraPlatform jiraPlatform = new JiraPlatform(new IssuesRequest());
-                    String config = getConfig(orgId, IssuesManagePlatform.Jira.toString());
-                    JSONObject object = JSON.parseObject(config);
-                    HttpHeaders headers = jiraPlatform.getAuthHeader(object);
-                    String url = object.getString("url");
-                    IssuesDao jiraIssues = jiraPlatform.getJiraIssues(headers, url, issue.getId());
-                    issue.setTitle(jiraIssues.getTitle());
-                    issue.setDescription(jiraIssues.getDescription());
-                    issue.setStatus(jiraIssues.getStatus());
+                    jiraPlatform.getJiraIssues(issue, issue.getId());
                 } else if (StringUtils.equals(platform, IssuesManagePlatform.Zentao.name())) {
                     String config = getConfig(orgId, IssuesManagePlatform.Zentao.toString());
                     JSONObject object = JSON.parseObject(config);
