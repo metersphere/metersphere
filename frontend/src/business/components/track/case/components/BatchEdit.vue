@@ -17,6 +17,7 @@
         </el-form-item>
         <el-form-item  v-if="form.type === 'projectEnv'" :label="$t('test_track.case.updated_attr_value')">
           <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                        :project-list="projectList" ref="envPopover"/>
         </el-form-item>
         <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
@@ -61,6 +62,7 @@
     data() {
       return {
         dialogVisible: false,
+        showConfigButtonWithOutPermission:false,
         form: {},
         size: 0,
         rules: {
