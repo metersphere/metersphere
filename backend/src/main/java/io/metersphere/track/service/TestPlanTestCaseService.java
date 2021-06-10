@@ -101,22 +101,21 @@ public class TestPlanTestCaseService {
     }
 
     public void editTestCaseBath(TestPlanCaseBatchRequest request) {
-        List<String> ids = request.getIds();
-        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
-            ids = extTestPlanTestCaseMapper.selectIds(request.getCondition());
-            if (request.getCondition().getUnSelectIds() != null) {
-                ids.removeAll(request.getCondition().getUnSelectIds());
-            }
-        }
-        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andIdIn(ids);
-
+        TestPlanTestCaseExample testPlanTestCaseExample = getBatchExample(request);
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         BeanUtils.copyBean(testPlanTestCase, request);
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
         testPlanTestCaseMapper.updateByExampleSelective(
                 testPlanTestCase,
                 testPlanTestCaseExample);
+    }
+
+    public TestPlanTestCaseExample getBatchExample(TestPlanCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestPlanTestCaseMapper.selectIdsByQuery(query));
+        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+        testPlanTestCaseExample.createCriteria().andIdIn(request.getIds());
+        return testPlanTestCaseExample;
     }
 
     public List<TestPlanCaseDTO> getRecentTestCases(QueryTestPlanCaseRequest request, int count) {
@@ -195,8 +194,7 @@ public class TestPlanTestCaseService {
     }
 
     public void deleteTestCaseBath(TestPlanCaseBatchRequest request) {
-        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
-        example.createCriteria().andIdIn(request.getIds());
+        TestPlanTestCaseExample example = getBatchExample(request);
         testPlanTestCaseMapper.deleteByExample(example);
     }
 
