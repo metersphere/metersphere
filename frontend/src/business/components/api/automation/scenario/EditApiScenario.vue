@@ -136,6 +136,7 @@
                 <el-col :span="4">
                   <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
                                :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
+                               :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
@@ -317,6 +318,7 @@ export default {
   data() {
     return {
       enableContinues: false,
+      showConfigButtonWithOutPermission:false,
       props: {
         label: "label",
         children: "hashTree"
