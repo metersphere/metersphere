@@ -6,7 +6,7 @@
           {{title}}
         </span>
         <span :style="{'line-height': titleBarHeight - 10 + 'px'}" class="title-right">
-          <i class="el-icon-plus" @click="addFuc"/>
+          <i class="el-icon-plus" @click="addFuc" v-permission="envAddPermission"/>
         </span>
       </slot>
     </div>
@@ -19,8 +19,9 @@
                  v-model="item.name" :placeholder="$t('commons.input_content')"/>
         </el-tooltip>
         <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
-          <i v-for="(operator, operatorIndex) in itemOperators" :key="operatorIndex" :class="operator.icon"
-             @click.stop="operator.func(item, index)"/>
+          <i v-for="(operator, operatorIndex) in itemOperators" :key="operatorIndex" :class="operator.icon" v-permission="operator.permissions"
+             @click.stop="operator.func(item, index)">
+          </i>
       </span>
       </div>
     </slot>
@@ -61,7 +62,8 @@
           return [
             {
               icon: 'el-icon-delete',
-              func: this.deleteFuc
+              func: this.deleteFuc,
+              permissions: []
             }
           ];
         }
@@ -70,6 +72,12 @@
         type: Boolean,
         default: true
       },
+      envAddPermission: {
+        type: Array,
+        default() {
+          return [];
+        }
+      }
     },
     methods: {
       itemSelected(index, item) {
