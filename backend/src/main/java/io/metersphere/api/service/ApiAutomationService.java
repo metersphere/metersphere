@@ -1644,7 +1644,7 @@ public class ApiAutomationService {
                 item.setName(item.getName().substring(0, 255));
             }
             item.setNum(num++);
-            if (BooleanUtils.isTrue(project.getScenarioCustomNum())) {
+            if (BooleanUtils.isTrue(project.getScenarioCustomNum()) && StringUtils.isBlank(item.getCustomNum())) {
                 item.setCustomNum(String.valueOf(num));
             }
             importCreate(item, batchMapper, request);
