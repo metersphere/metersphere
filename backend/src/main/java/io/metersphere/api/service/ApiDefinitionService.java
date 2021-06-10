@@ -77,6 +77,8 @@ public class ApiDefinitionService {
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
     private JMeterService jMeterService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
@@ -633,6 +635,10 @@ public class ApiDefinitionService {
      */
     public APIReportResult getDbResult(String testId) {
         ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
+        return buildAPIReportResult(result);
+    }
+    public APIReportResult getReportById(String testId) {
+        ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
     }
 
