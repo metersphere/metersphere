@@ -4,13 +4,15 @@
       <div @click="active">
         <el-row :gutter="10" type="flex" align="middle" class="info">
           <el-col :span="10" v-if="indexNumber!=undefined">
-            <div class="method">
-              <div class="el-step__icon is-text ms-api-col-create">
-                <div class="el-step__icon-inner"> {{ indexNumber }}</div>
+            <el-tooltip :content="getName(request.name)" placement="top">
+              <div class="method ms-req-name">
+                <div class="el-step__icon is-text ms-api-col-create">
+                  <div class="el-step__icon-inner"> {{ indexNumber }}</div>
+                </div>
+                <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
+                {{ getName(request.name) }}
               </div>
-              <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
-              {{ getName(request.name) }}
-            </div>
+            </el-tooltip>
           </el-col>
           <el-col :span="9">
             <el-tooltip effect="dark" :content="request.responseResult.responseCode" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" placement="bottom" :open-delay="800">
@@ -207,5 +209,14 @@ export default {
 .icon.is-active {
   transform: rotate(90deg);
 }
-
+.ms-req-name {
+  display: inline-block;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 350px;
+}
 </style>
