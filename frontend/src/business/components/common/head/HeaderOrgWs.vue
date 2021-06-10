@@ -124,7 +124,7 @@ export default {
       if (!this.currentUser.lastOrganizationId) {
         return false;
       }
-      this.$get("/workspace/list/orgworkspace/", response => {
+      this.$get("/workspace/list/orgworkspace/" + getCurrentOrganizationId(), response => {
         let data = response.data;
         if (data.length === 0) {
           this.workspaceList = [{name: this.$t('workspace.none')}];
