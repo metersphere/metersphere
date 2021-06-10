@@ -8,12 +8,12 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-public class JiraIssueDescription {
+public class JiraIssueDescriptionV3 {
     private String type;
     private int version;
     private List<Content> content;
 
-    public JiraIssueDescription(String text) {
+    public JiraIssueDescriptionV3(String text) {
         List<Content> list = new ArrayList<>();
         Content content = new Content(text);
         list.add(content);
