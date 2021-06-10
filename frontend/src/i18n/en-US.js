@@ -785,6 +785,7 @@ export default {
         cert_alias: "Certificate Alias",
         message_template: "Message Template",
         tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
+        step_message: "Too many steps, whether to expand the first 30 steps？",
         esb_table: {
           name: "name",
           type: "type",
