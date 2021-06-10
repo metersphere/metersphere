@@ -12,13 +12,6 @@ export const CUSTOM_FIELD_LIST = new Set([
   'updateTime'
 ]);
 
-export const TEST_CASE_TEMPLATE_LIST = new Set([
-  'name',
-  'type',
-  'description',
-  'createTime',
-  'updateTime'
-]);
 
 export const ISSUE_TEMPLATE_LIST = new Set([
   'name',
@@ -100,7 +93,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'reviewerName', key: '7', label: i18n.t('test_track.review.reviewer')},
     {id: 'reviewStatus', key: '8', label: i18n.t('test_track.case.status')},
     {id: 'updateTime', key: '9', label: i18n.t('commons.update_time')},
-    {id: 'maintainer', key: '10', label: i18n.t('custom_field.case_maintainer')},
+    {id: 'maintainer', key: 'a', label: i18n.t('custom_field.case_maintainer')},
   ],
   //测试计划
   TEST_PLAN_LIST: [
@@ -113,26 +106,23 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'plannedStartTime', key: '7', label: i18n.t('test_track.plan.planned_start_time')},
     {id: 'plannedEndTime', key: '8', label: i18n.t('test_track.plan.planned_end_time')},
     {id: 'actualStartTime', key: '9', label: i18n.t('test_track.plan.actual_start_time')},
-    {id: 'actualEndTime', key: '10', label: i18n.t('test_track.plan.actual_end_time')},
-    {id: 'tags', key: '11', label: i18n.t('commons.tag')},
-    {id: 'executionTimes', key: '12', label: i18n.t('commons.execution_times')},
-    {id: 'passRate', key: '13', label: i18n.t('commons.pass_rate')},
-    {id: 'createUser', key: '14', label: i18n.t('commons.create_user')},
+    {id: 'actualEndTime', key: 'a', label: i18n.t('test_track.plan.actual_end_time')},
+    {id: 'tags', key: 'b', label: i18n.t('commons.tag')},
+    {id: 'executionTimes', key: 'c', label: i18n.t('commons.execution_times')},
+    {id: 'passRate', key: 'd', label: i18n.t('commons.pass_rate')},
+    {id: 'createUser', key: 'e', label: i18n.t('commons.create_user')},
   ],
   //测试计划-功能用例
   TEST_PLAN_FUNCTION_TEST_CASE: [
     {id: 'num', key: '1', label: i18n.t('commons.id')},
-    {id: 'name', key: ' 2', label: i18n.t('commons.name')},
-    {id: 'priority', key: '3', label: i18n.t('test_track.case.priority')},
-    {id: 'type', key: '4', label: i18n.t('test_track.case.type')},
-    {id: 'tags', key: '5', label: i18n.t('commons.tag')},
-    {id: 'nodePath', key: '6', label: i18n.t('test_track.case.module')},
-    {id: 'projectName', key: '7', label: i18n.t('test_track.review.review_project')},
-    {id: 'issuesContent', key: '8', label: i18n.t('test_track.issue.issue')},
-    {id: 'executorName', key: '9', label: i18n.t('test_track.plan_view.executor')},
-    {id: 'status', key: '10', label: i18n.t('test_track.plan_view.execute_result')},
-    {id: 'updateTime', key: '11', label: i18n.t('commons.update_time')},
-    {id: 'maintainer', key: '12', label: i18n.t('api_test.definition.request.responsible')}
+    {id: 'name', key: '2', label: i18n.t('commons.name')},
+    {id: 'tags', key: '3', label: i18n.t('commons.tag')},
+    {id: 'nodePath', key: '4', label: i18n.t('test_track.case.module')},
+    {id: 'projectName', key: '5', label: i18n.t('test_track.review.review_project')},
+    {id: 'issuesContent', key: '6', label: i18n.t('test_track.issue.issue')},
+    {id: 'executorName', key: '7', label: i18n.t('test_track.plan_view.executor')},
+    {id: 'status', key: '8', label: i18n.t('test_track.plan_view.execute_result')},
+    {id: 'updateTime', key: '9', label: i18n.t('commons.update_time')},
   ],
   //测试计划-api用例
   TEST_PLAN_API_CASE: [
@@ -169,7 +159,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'stepTotal', key: '7', label: i18n.t('api_test.automation.success')},
     {id: 'lastResult', key: '8', label: i18n.t('api_test.automation.fail')},
     {id: 'passRate', key: '9', label: i18n.t('api_test.automation.passing_rate')},
-    {id: 'maintainer', key: '10', label: i18n.t('api_test.definition.request.responsible')}
+    {id: 'maintainer', key: 'a', label: i18n.t('api_test.definition.request.responsible')}
   ],
   //测试用例
   TRACK_TEST_CASE: [
