@@ -20,9 +20,9 @@ import java.util.Arrays;
 
 public abstract class BaseClient {
 
-    protected static RestTemplate restTemplate;
+    protected  RestTemplate restTemplate;
 
-    static {
+     {
         try {
             TrustStrategy acceptingTrustStrategy = (X509Certificate[] chain, String authType) -> true;
             SSLContext sslContext = org.apache.http.ssl.SSLContexts.custom()
@@ -41,28 +41,28 @@ public abstract class BaseClient {
         }
     }
 
-    protected static HttpHeaders getBasicHttpHeaders(String userName, String passWd) {
+    protected  HttpHeaders getBasicHttpHeaders(String userName, String passWd) {
         String authKey = EncryptUtils.base64Encoding(userName + ":" + passWd);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", "Basic " + authKey);
         return headers;
     }
 
-    protected static String getResult(ResponseEntity<String> response) {
+    protected  String getResult(ResponseEntity<String> response) {
         int statusCodeValue = response.getStatusCodeValue();
-        LogUtil.info("responseCode: " + statusCodeValue);
+        LogUtil.debug("responseCode: " + statusCodeValue);
         if(statusCodeValue >= 400){
             MSException.throwException(response.getBody());
         }
-        LogUtil.info("result: " + response.getBody());
+        LogUtil.debug("result: " + response.getBody());
         return response.getBody();
     }
 
-    protected static Object getResultForList(Class clazz, ResponseEntity<String> response) {
+    protected  Object getResultForList(Class clazz, ResponseEntity<String> response) {
         return Arrays.asList(JSONArray.parseArray(getResult(response), clazz).toArray());
     }
 
-    protected static Object getResultForObject(Class clazz,ResponseEntity<String> response) {
+    protected  Object getResultForObject(Class clazz,ResponseEntity<String> response) {
         return JSONObject.parseObject(getResult(response), clazz);
     }
 }

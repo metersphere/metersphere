@@ -32,12 +32,14 @@ export function getIssuesByCaseId(caseId, page) {
 }
 
 export function buildPlatformIssue(data) {
+  data.customFields = JSON.stringify(data.customFields);
   return post("issues/get/platform/issue", data).then(response => {
     let issues = response.data.data;
     if (issues) {
       data.title = issues.title ? issues.title : '--';
       data.description = issues.description ? issues.description : '--';
       data.status = issues.status ? issues.status : 'delete';
+      data.customFields = JSON.parse(data.customFields);
     }
   }).catch(() => {
     data.title = '--';
