@@ -428,7 +428,7 @@ export default {
 <style scoped>
 .chart-config {
   width: 100%;
-  height: 445px;
+  height: 500px;
 }
 
 .test-detail {

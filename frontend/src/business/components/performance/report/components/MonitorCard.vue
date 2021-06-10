@@ -1,22 +1,22 @@
 <template>
   <div v-loading="result.loading">
-    <el-tabs>
-      <el-tab-pane v-for="(item,index) in instances" :key="index" :label="item" class="logging-content">
+    <el-tabs @tab-click="clickTabs">
+      <el-tab-pane v-for="(item) in instances" :key="item" :label="item" class="logging-content">
         <el-row>
-          <el-col :span="12">
-            <ms-chart ref="chart1" class="chart-config" :options="getCpuOption(item)" :autoresize="true"></ms-chart>
+          <el-col :span="6">
+            <el-collapse v-model="activeNames" class="monitor-detail">
+              <el-collapse-item :title="$t('Monitor')" name="0">
+                <el-checkbox-group v-model="checkList"
+                                   @change="handleChecked(item)">
+                  <el-checkbox :label="op.label" v-for="op in checkOptions"
+                               :key="op.key"
+                               :content="op.label"/>
+                </el-checkbox-group>
+              </el-collapse-item>
+            </el-collapse>
           </el-col>
-          <el-col :span="12">
-            <ms-chart ref="chart2" class="chart-config" :options="getMemoryOption(item)" :autoresize="true"></ms-chart>
-          </el-col>
-          <el-col :span="12">
-            <ms-chart ref="chart3" class="chart-config" :options="getDiskOption(item)" :autoresize="true"></ms-chart>
-          </el-col>
-          <el-col :span="12">
-            <ms-chart ref="chart3" class="chart-config" :options="getNetOutOption(item)" :autoresize="true"></ms-chart>
-          </el-col>
-          <el-col :span="12">
-            <ms-chart ref="chart4" class="chart-config" :options="getNetInOption(item)" :autoresize="true"></ms-chart>
+          <el-col :span="18">
+            <ms-chart ref="chart2" class="chart-config" :options="totalOption" :autoresize="true"></ms-chart>
           </el-col>
         </el-row>
       </el-tab-pane>
@@ -36,34 +36,130 @@ export default {
   components: {MsChart},
   data() {
     return {
+      activeNames: '0',
       result: {},
       id: '',
+      init: false,
       loading: false,
       instances: [],
-      data: []
+      data: [],
+      checkList: ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'],
+      checkOptions: [
+        {key: 'cpu', label: 'CPU'},
+        {key: 'memory', label: 'Memory'},
+        {key: 'disk', label: 'Disk'},
+        {key: 'netIn', label: 'Network In'},
+        {key: 'netOut', label: 'Network Out'}
+      ],
+      baseOption: {
+        color: color,
+        grid: {
+          // right: '35%' // 动态改这个值
+        },
+        title: {
+          text: 'Monitor',
+          left: 'center',
+          top: 20,
+          textStyle: {
+            color: '#99743C'
+          },
+        },
+        tooltip: {
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          },
+        },
+        legend: {},
+        xAxis: {type: 'category'},
+        yAxis: [{
+          name: 'Usage(%)',
+          type: 'value',
+          min: 0,
+          max: 100,
+        }, {
+          type: 'value',
+          name: 'kb/s',
+          min: 0,
+        }],
+        series: []
+      },
+      totalOption: {}
     };
   },
   created() {
     this.data = [];
     this.instances = [];
+    this.id = this.$route.path.split('/')[4];
+    this.getResource();
   },
   methods: {
     getResource() {
+      // this.init = true;
       this.result = this.$get("/metric/query/resource/" + this.report.id)
         .then(response => {
           this.instances = response.data.data;
+          this.$get("/metric/query/" + this.report.id)
+            .then(result => {
+              if (result) {
+                this.data = result.data.data;
+                this.totalOption = this.getOption(this.instances[0]);
+              }
+            })
+            .catch(() => {
+            });
         })
         .catch(() => {
         });
 
-      this.$get("/metric/query/" + this.report.id)
-        .then(result => {
-          if (result) {
-            this.data = result.data.data;
+    },
+    handleChecked(id) {
+      this.totalOption = {};
+      this.$nextTick(() => {
+        this.totalOption = this.getOption(id);
+      });
+    },
+    clickTabs(tab) {
+      this.totalOption = {};
+      this.$nextTick(() => {
+        this.totalOption = this.getOption(tab.label);
+      });
+    },
+    getOption(id) {
+      let xAxis = [];
+      let yAxis = [];
+      let legend = [];
+      let series = [];
+
+      for (const name of this.checkList) {
+        let check = this.checkOptions.filter(op => op.label === name)[0].key;
+        let yAxisIndex = 1;
+        if (check === 'cpu' || check === 'memory' || check === 'disk') {
+          yAxisIndex = 0;
+        }
+        this.data.forEach(d => {
+          if (d.instance === id && d.seriesName === check) {
+            if (legend.indexOf(name) > -1) {
+              return;
+            }
+            xAxis = d.timestamps;
+            yAxis = d.values.map(v => v.toFixed(2));
+            legend.push(name);
+            series.push({
+              name: name,
+              data: yAxis,
+              type: 'line',
+              yAxisIndex: yAxisIndex,
+              smooth: true,
+              sampling: 'lttb',
+            });
           }
-        })
-        .catch(() => {
         });
+      }
+      this.baseOption.legend.data = legend;
+      this.baseOption.xAxis.data = xAxis;
+      this.baseOption.series = series;
+      return this.baseOption;
     },
     getCpuOption(id) {
       let xAxis = [];
@@ -247,6 +343,13 @@ export default {
     }
   },
   watch: {
+    '$route'(to) {
+      if (to.name === "perReportView") {
+        this.id = to.path.split('/')[4];
+        this.init = false;
+        this.getResource();
+      }
+    },
     report: {
       handler(val) {
         if (!val.status || !val.id) {
@@ -254,8 +357,11 @@ export default {
         }
         let status = val.status;
         this.id = val.id;
+        // if (this.init) {
+        //   return;
+        // }
         if (status === "Completed" || status === "Running") {
-          this.getResource();
+          // this.getResource();
         } else {
           this.instances = [];
         }
@@ -269,5 +375,11 @@ export default {
 <style scoped>
 .chart-config {
   width: 100%;
+  height: 500px;
+}
+
+.monitor-detail {
+  height: calc(100vh - 375px);
+  overflow: auto;
 }
 </style>
