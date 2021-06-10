@@ -785,6 +785,7 @@ export default {
         cert_alias: "證書別名",
         message_template: "報文模版",
         tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
+        step_message: "步驟過多，是否展開前 30 個步驟？",
         esb_table: {
           name: "參數名",
           type: "類型",
