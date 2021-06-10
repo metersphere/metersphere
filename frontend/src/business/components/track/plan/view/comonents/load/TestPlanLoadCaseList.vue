@@ -36,6 +36,7 @@
               prop="caseName"
               :label="$t('commons.name')"
               min-width="120"
+              sortable
               show-overflow-tooltip
               :key="index">
           </el-table-column>
