@@ -32,8 +32,7 @@
             min-width="80"/>
 
         <ms-table-column
-          v-if="customNum"
-          :field="item"
+          v-if="item.id === 'num' && customNum"
           :fields-width="fieldsWidth"
           prop="customNum"
           :label="$t('commons.id')"
