@@ -187,6 +187,11 @@ public class ApiDefinitionController {
         return apiDefinitionService.getDbResult(testId);
     }
 
+    @GetMapping("/report/get/{testId}")
+    public APIReportResult getReportById(@PathVariable String testId) {
+        return apiDefinitionService.getReportById(testId);
+    }
+
     @GetMapping("/report/getReport/{testId}/{type}")
     public APIReportResult getReport(@PathVariable String testId, @PathVariable String type) {
         return apiDefinitionService.getDbResult(testId, type);

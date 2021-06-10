@@ -36,7 +36,7 @@
 
       <div class="report-container" v-loading="result.loading">
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
-          <el-card class="ms-card-task">
+          <el-card class="ms-card-task" @click.native="showReport(item,$event)">
             <span>{{ item.name }} </span><br/>
             <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}</span><br/>
             <el-progress :percentage="getPercentage(item.executionStatus)"></el-progress>
@@ -44,17 +44,25 @@
         </div>
       </div>
     </el-drawer>
+
+
+    <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
+               :visible.sync="visible" class="api-import" destroy-on-close @close="close">
+      <ms-request-result-tail :response="response" ref="debugResult"/>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import MsDrawer from "../common/components/MsDrawer";
 import {getCurrentProjectID} from "@/common/js/utils";
+import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 
 export default {
   name: "MsTaskCenter",
   components: {
-    MsDrawer
+    MsDrawer,
+    MsRequestResultTail
   },
   inject: [
     'reload'
@@ -64,6 +72,8 @@ export default {
       taskVisible: false,
       result: {},
       taskData: [],
+      response: {},
+      visible: false,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
@@ -93,11 +103,51 @@ export default {
       this.init();
       this.taskVisible = true;
     },
+    close() {
+      this.visible = false;
+    },
     getPercentage(status) {
       if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
         return 100;
       }
-      return Math.round(Math.random() * 80 + 20);
+      //return Math.round(Math.random() * 80 + 20);
+      return 60;
+    },
+    showReport(row, env) {
+      let status = row.executionStatus;
+      if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
+        this.taskVisible = false;
+        switch (row.executionModule) {
+          case "SCENARIO":
+            this.$router.push({
+              path: '/api/automation/report/view/' + row.id,
+            });
+            break;
+          case "PERFORMANCE":
+            this.$router.push({
+              path: '/performance/report/view/' + row.id,
+            });
+            break;
+          case "API":
+            this.getExecResult(row.id);
+            break;
+        }
+      } else {
+        this.$warning("正在运行中，请稍后查看");
+      }
+    },
+
+    getExecResult(reportId) {
+      if (reportId) {
+        let url = "/api/definition/report/get/" + reportId;
+        this.$get(url, response => {
+          if (response.data) {
+            let data = JSON.parse(response.data.content);
+            this.response = data;
+            this.visible = true;
+          }
+        });
+      }
     },
     getMode(mode) {
       if (mode === 'MANUAL') {
@@ -194,5 +244,10 @@ export default {
 
 .header-top-menu.el-menu--horizontal > li.is-active {
   background: var(--color_shallow) !important;
+}
+
+.ms-card-task:hover {
+  cursor: pointer;
+  border-color: #783887;
 }
 </style>
