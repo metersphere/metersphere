@@ -33,7 +33,7 @@
         </el-row>
 
 
-        <el-tabs class="testplan-config" v-model="active">
+        <el-tabs class="testplan-config" v-model="active" @tab-click="clickTab">
           <el-tab-pane :label="$t('load_test.basic_config')" class="advanced-config">
             <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
                                       @tgTypeChange="tgTypeChange"
@@ -337,6 +337,11 @@ export default {
     tgTypeChange(threadGroup) {
       let handler = this.$refs.pressureConfig;
       handler.calculateTotalChart();
+    },
+    clickTab(tab) {
+      if (tab.index === '1') {
+        this.$refs.pressureConfig.calculateTotalChart();
+      }
     }
   }
 };
