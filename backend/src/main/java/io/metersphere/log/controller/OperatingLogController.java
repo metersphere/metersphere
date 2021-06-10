@@ -25,7 +25,6 @@ public class OperatingLogController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<OperatingLogDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody OperatingLogRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, operatingLogService.list(request));
     }
 

@@ -49,8 +49,6 @@ public class TestPlanController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_TRACK_PLAN:READ")
     public Pager<List<TestPlanDTOWithMetric>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        request.setWorkspaceId(currentWorkspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanService.listTestPlan(request));
     }

@@ -20,6 +20,7 @@ export const ROLE_TEST_MANAGER = 'test_manager';
 export const ROLE_TEST_USER = 'test_user';
 export const ROLE_TEST_VIEWER = 'test_viewer';
 
+export const ORGANIZATION_ID = 'organization_id';
 export const WORKSPACE_ID = 'workspace_id';
 export const CURRENT_PROJECT = 'current_project';
 export const PROJECT_ID = 'project_id';

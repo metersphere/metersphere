@@ -2,6 +2,7 @@ import {
   COUNT_NUMBER,
   COUNT_NUMBER_SHALLOW,
   LicenseKey,
+  ORGANIZATION_ID,
   ORIGIN_COLOR,
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
@@ -12,7 +13,8 @@ import {
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey
+  TokenKey,
+  WORKSPACE_ID
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -178,13 +180,15 @@ export function checkoutTestManagerOrTestUser() {
 }
 
 export function getCurrentOrganizationId() {
-  let user = getCurrentUser();
-  return user.lastOrganizationId;
+  return sessionStorage.getItem(ORGANIZATION_ID);
 }
 
 export function getCurrentWorkspaceId() {
-  let user = getCurrentUser();
-  return user.lastWorkspaceId;
+  return sessionStorage.getItem(WORKSPACE_ID);
+}
+
+export function getCurrentProjectID() {
+  return sessionStorage.getItem(PROJECT_ID);
 }
 
 export function getCurrentUser() {
@@ -194,11 +198,6 @@ export function getCurrentUser() {
 export function getCurrentUserId() {
   let user = JSON.parse(localStorage.getItem(TokenKey));
   return user.id;
-}
-
-export function getCurrentProjectID() {
-  let user = getCurrentUser();
-  return user.lastProjectId;
 }
 
 export function enableModules(...modules) {
@@ -214,6 +213,15 @@ export function enableModules(...modules) {
 export function saveLocalStorage(response) {
   // 登录信息保存 cookie
   localStorage.setItem(TokenKey, JSON.stringify(response.data));
+  if (!sessionStorage.getItem(PROJECT_ID)) {
+    sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+  }
+  if (!sessionStorage.getItem(ORGANIZATION_ID)) {
+    sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
+  }
+  if (!sessionStorage.getItem(WORKSPACE_ID)) {
+    sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
+  }
   let rolesArray = response.data.roles;
   let roles = rolesArray.map(r => r.id);
   // 保存角色

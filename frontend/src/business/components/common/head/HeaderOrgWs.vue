@@ -28,7 +28,7 @@
             {{ item.name }}
           </span>
           <i class="el-icon-check"
-             v-if="item.id === currentUserInfo.lastOrganizationId"></i>
+             v-if="item.id === getCurrentOrganizationId()"></i>
         </el-menu-item>
       </div>
     </el-submenu>
@@ -53,7 +53,7 @@
           <span class="title">
             {{ item.name }}
           </span>
-          <i class="el-icon-check" v-if="item.id === currentUserInfo.lastWorkspaceId"></i>
+          <i class="el-icon-check" v-if="item.id === getCurrentWorkspaceId()"></i>
         </el-menu-item>
       </div>
     </el-submenu>
@@ -61,7 +61,8 @@
 </template>
 
 <script>
-import {getCurrentUser, saveLocalStorage} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId, saveLocalStorage} from "@/common/js/utils";
+import {ORGANIZATION_ID, PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "MsHeaderOrgWs",
@@ -108,12 +109,14 @@ export default {
     }
   },
   methods: {
+    getCurrentOrganizationId,
+    getCurrentWorkspaceId,
     initMenuData() {
       this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
         let data = response.data;
         this.organizationList = data;
         this.orgListCopy = data;
-        let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
+        let org = data.filter(r => r.id === getCurrentOrganizationId());
         if (org.length > 0) {
           this.currentOrganizationName = org[0].name;
         }
@@ -121,14 +124,14 @@ export default {
       if (!this.currentUser.lastOrganizationId) {
         return false;
       }
-      this.$get("/workspace/list/orgworkspace/", response => {
+      this.$get("/workspace/list/orgworkspace/" + getCurrentOrganizationId(), response => {
         let data = response.data;
         if (data.length === 0) {
           this.workspaceList = [{name: this.$t('workspace.none')}];
         } else {
           this.workspaceList = data;
           this.wsListCopy = data;
-          let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
+          let workspace = data.filter(r => r.id === getCurrentWorkspaceId());
           if (workspace.length > 0) {
             this.currentWorkspaceName = workspace[0].name;
           }
@@ -147,14 +150,11 @@ export default {
       }
       this.$post("/user/switch/source/org/" + orgId, {}, response => {
         saveLocalStorage(response);
-        if (response.data.workspaceId) {
-          localStorage.setItem("workspace_id", response.data.workspaceId);
-        }
-        // if (response.data.lastProjectId) {
-        //   localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-        // } else {
-        //   localStorage.removeItem(PROJECT_ID);
-        // }
+
+        sessionStorage.setItem(ORGANIZATION_ID, orgId);
+        sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
+        sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+
         this.$router.push('/').then(() => {
           this.reloadTopMenus();
         }).catch(err => err);
@@ -167,12 +167,9 @@ export default {
       }
       this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
         saveLocalStorage(response);
-        localStorage.setItem("workspace_id", workspaceId);
-        // if (response.data.lastProjectId) {
-        //   localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
-        // } else {
-        //   localStorage.removeItem(PROJECT_ID);
-        // }
+        sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+        sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+
         this.$router.push('/').then(() => {
           this.reloadTopMenus();
         }).catch(err => err);

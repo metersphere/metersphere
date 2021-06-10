@@ -135,7 +135,7 @@
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {
     getCurrentOrganizationId, getCurrentProjectID,
-    getCurrentUser,
+    getCurrentUser, getCurrentWorkspaceId,
     listenGoBack,
     removeGoBackListener
   } from "../../../../common/js/utils";
@@ -199,19 +199,19 @@
         return getCurrentUser();
       },
       initTableData() {
-        if (this.currentUser().lastWorkspaceId === null) {
+        if (getCurrentWorkspaceId() === null) {
           return false;
         }
         this.loading = true;
         let param = {
           name: this.condition.name,
-          workspaceId: this.currentUser().lastWorkspaceId
+          workspaceId: getCurrentWorkspaceId()
         };
 
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/user/group/list/ws/" + this.currentUser().lastWorkspaceId;
+          let url = "/user/group/list/ws/" + getCurrentWorkspaceId();
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
               let groups = response.data;
@@ -262,7 +262,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + encodeURIComponent(row.id),() => {
+          this.result = this.$get('/user/ws/member/delete/' + getCurrentWorkspaceId() + '/' + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });
@@ -288,7 +288,7 @@
           email: this.form.email,
           phone: this.form.phone,
           groupIds: this.form.groupIds,
-          workspaceId: this.currentUser().lastWorkspaceId
+          workspaceId: getCurrentWorkspaceId()
         }
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -306,7 +306,7 @@
         //   name: this.condition.name,
         //   organizationId: this.currentUser().lastOrganizationId
         // };
-        let wsId = this.currentUser().lastWorkspaceId;
+        let wsId = getCurrentWorkspaceId();
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
           this.$warning(this.$t('workspace.please_select_a_workspace_first'));
           return false;
@@ -330,7 +330,7 @@
             let param = {
               userIds: this.form.userIds,
               groupIds: this.form.groupIds,
-              workspaceId: this.currentUser().lastWorkspaceId
+              workspaceId: getCurrentWorkspaceId()
             };
             this.result = this.$post("user/ws/member/add", param, () => {
               this.$success(this.$t('commons.save_success'));

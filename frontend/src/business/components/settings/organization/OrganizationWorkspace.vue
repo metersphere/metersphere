@@ -249,6 +249,7 @@ export default {
           if (this.form.id) {
             saveType = 'update';
           }
+          this.form.organizationId = getCurrentOrganizationId();
           this.$post("/workspace/" + saveType, this.form, () => {
             this.dialogWsAddVisible = false;
             this.dialogWsUpdateVisible = false;
@@ -298,7 +299,7 @@ export default {
     },
     list() {
       let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
-      let lastOrganizationId = this.currentUser.lastOrganizationId;
+      let lastOrganizationId = getCurrentOrganizationId();
       // let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
       // if (userRole.length > 0) {
       //   let isOrg_admin = false;
@@ -329,6 +330,7 @@ export default {
       //     this.items = [];
       //     this.total = 0;
       //   }
+      this.condition.organizationId = lastOrganizationId;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;
         this.items = data.listObject;

@@ -24,7 +24,8 @@
 
 <script>
 import SearchList from "@/business/components/common/head/SearchList";
-import {PROJECT_NAME} from "../../../../common/js/constants";
+import {PROJECT_NAME} from "@/common/js/constants";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "ProjectSwitch",
@@ -34,24 +35,27 @@ export default {
   components: {SearchList},
   watch: {
     currentProject() {
-      localStorage.setItem(PROJECT_NAME, this.currentProject);
+      sessionStorage.setItem(PROJECT_NAME, this.currentProject);
     }
+  },
+  methods: {
+    getCurrentProjectID,
   },
   data() {
     return {
       currentProject: this.projectName
-    }
+    };
   }
-}
+};
 </script>
 
 <style scoped>
 .project-name {
   display: inline-block;
   width: 130px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .el-divider--horizontal {
