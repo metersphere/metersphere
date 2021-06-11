@@ -29,7 +29,7 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="groups" label="用户组" width="150">
+        <el-table-column prop="groups" :label="$t('commons.group')" width="150">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.groups" type="success"/>
           </template>
@@ -70,8 +70,8 @@
             </template>
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
               v-for="item in form.groups"
               :key="item.id"
@@ -103,8 +103,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -168,7 +168,7 @@
             {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
           groupIds: [
-            {required: true, message: "请选择用户组", trigger: ['blur']}
+            {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
           ]
         },
         screenHeight: 'calc(100vh - 255px)',
