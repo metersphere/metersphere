@@ -268,7 +268,7 @@ function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
  * @returns {[]|*}
  */
 export function getTableHeaderWithCustomFields(key, customFields) {
-  let fieldSetting = CUSTOM_TABLE_HEADER[key];
+  let fieldSetting = [CUSTOM_TABLE_HEADER[key]];
   let keys = getCustomFieldsKeys(customFields);
   customFields.forEach(item => {
     if (!item.key) {
