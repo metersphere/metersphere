@@ -487,6 +487,7 @@ export default {
       this.list();
     },
     list() {
+      this.condition.workspaceId = getCurrentWorkspaceId();
       let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
       this.result = this.$post(url, this.condition, (response) => {
         let data = response.data;
