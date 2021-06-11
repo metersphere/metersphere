@@ -102,51 +102,7 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible"
-               width="40%"
-               :destroy-on-close="true"
-               @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
-               size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds"
-                      :rules="{required: true, message: $t('member.please_choose_member'), trigger: 'blur'}">
-          <el-select
-            v-model="memberForm.userIds"
-            multiple
-            filterable
-            :popper-append-to-body="false"
-            class="select-width"
-            :placeholder="$t('member.please_choose_member')">
-            <el-option
-              v-for="item in userList"
-              :key="item.id"
-              :label="item.id"
-              :value="item.id">
-              <template>
-                <span class="ws-member-name">{{item.name}} ({{item.id}})</span>
-                <span class="ws-member-email">{{item.email}}</span>
-              </template>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds">
-          <el-select v-model="memberForm.groupIds" multiple :placeholder="$t('group.please_select_group')"
-                     class="select-width">
-            <el-option
-              v-for="item in memberForm.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="dialogWsMemberAddVisible = false"
-          @confirm="submitForm('form')"/>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'WORKSPACE'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <!-- update workspace member dialog -->
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible"
@@ -210,6 +166,7 @@ import {
   removeGoBackListener
 } from "../../../../common/js/utils";
 import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+import AddMember from "@/business/components/settings/common/AddMember";
 
 export default {
   name: "MsOrganizationWorkspace",
@@ -221,7 +178,8 @@ export default {
     MsRolesTag,
     MsTableOperator,
     MsDialogFooter,
-    MsTableOperatorButton
+    MsTableOperatorButton,
+    AddMember
   },
   activated() {
     this.list();
@@ -232,6 +190,9 @@ export default {
     },
     workspaceId() {
       return getCurrentWorkspaceId();
+    },
+    orgId() {
+      return getCurrentOrganizationId();
     }
   },
   inject: [
@@ -351,14 +312,7 @@ export default {
 
     },
     addMember() {
-      this.dialogWsMemberAddVisible = true;
-      this.memberForm = {};
-      this.result = this.$get('/user/list/', response => {
-        this.userList = response.data;
-      });
-      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
-        this.$set(this.memberForm, "groups", response.data);
-      });
+      this.$refs.addMember.open();
       listenGoBack(this.close);
     },
     cellClick(row) {
@@ -408,33 +362,12 @@ export default {
     closeFunc() {
       this.form = {};
     },
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          // let userIds = [];
-          // let userId = this.memberForm.userId;
-          // let email = this.memberForm.memberSign;
-          // let member = this.userList.find(user => user.id === email || user.email === email);
-          // if (!member) {
-          //   this.$warning(this.$t('member.no_such_user'));
-          //   return false;
-          // } else {
-          //   userId = member.id;
-          // }
-          // userIds.push(userId);
-          let param = {
-            userIds: this.memberForm.userIds,
-            groupIds: this.memberForm.groupIds,
-            workspaceId: this.currentWorkspaceRow.id
-          };
-          this.result = this.$post("user/ws/member/add", param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.cellClick(this.currentWorkspaceRow);
-            this.dialogWsMemberAddVisible = false;
-          });
-        } else {
-          return false;
-        }
+    submitForm(param) {
+      param['workspaceId'] = this.currentWorkspaceRow.id;
+      this.result = this.$post("user/ws/member/add", param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.cellClick(this.currentWorkspaceRow);
+        this.$refs.addMember.close();
       });
     },
     editMember(row) {

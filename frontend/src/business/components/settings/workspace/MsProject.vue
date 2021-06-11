@@ -199,52 +199,7 @@
       </template>
     </el-dialog>
 
-
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogMemberVisible" width="40%"
-               :destroy-on-close="true"
-               @close="handleMemberClose">
-      <el-form :model="memberForm" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds"
-                      :rules="{required: true, message:$t('member.please_choose_member'), trigger: 'blur'}">
-          <el-select
-            v-model="memberForm.userIds"
-            multiple
-            filterable
-            :popper-append-to-body="false"
-            class="select-width"
-            :placeholder="$t('member.please_choose_member')">
-            <el-option
-              v-for="item in userList"
-              :key="item.id"
-              :label="item.id"
-              :value="item.id">
-              <template>
-                <span class="workspace-member-name">{{item.name}} ({{item.id}})</span>
-                <span class="workspace-member-email">{{item.email}}</span>
-              </template>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'blur'}">
-          <el-select v-model="memberForm.groupIds" multiple :placeholder="$t('group.please_select_group')" style="width: 100%">
-            <el-option
-              v-for="item in memberForm.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogMemberVisible = false" size="medium">{{ $t('commons.cancel') }}</el-button>
-          <el-button type="primary" @click="submitForm('form')" @keydown.enter.native.prevent size="medium">
-            {{ $t('commons.confirm') }}
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'PROJECT'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
@@ -285,6 +240,7 @@ import MsResourceFiles from "@/business/components/performance/test/components/R
 import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
+import AddMember from "@/business/components/settings/common/AddMember";
 
 export default {
   name: "MsProject",
@@ -298,7 +254,8 @@ export default {
     MsTableOperatorButton,
     MsDeleteConfirm,
     MsMainContainer, MsRolesTag,
-    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter,
+    AddMember
   },
   inject: [
     'reloadTopMenus'
@@ -367,6 +324,9 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+    orgId() {
+      return getCurrentOrganizationId();
     }
   },
   destroyed() {
@@ -616,33 +576,16 @@ export default {
         }
       });
     },
-    submitForm() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          let param = {
-            userIds: this.memberForm.userIds,
-            groupIds: this.memberForm.groupIds,
-            projectId: this.currentProjectId
-          };
-          this.result = this.$post("user/project/member/add", param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.dialogSearch();
-            this.dialogMemberVisible = false;
-          });
-        }
+    submitForm(param) {
+      param['projectId'] = this.currentProjectId;
+      this.result = this.$post("user/project/member/add", param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.dialogSearch();
+        this.$refs.addMember.close();
       });
     },
     open() {
-      this.$get('/user/list/', response => {
-        this.dialogMemberVisible = true;
-        this.userList = response.data;
-      });
-      this.result = this.$post('/user/group/list', {
-        type: GROUP_PROJECT,
-        resourceId: getCurrentOrganizationId()
-      }, response => {
-        this.$set(this.memberForm, "groups", response.data);
-      });
+      this.$refs.addMember.open();
     },
     handleMemberClose() {
       this.dialogMemberVisible = false;
