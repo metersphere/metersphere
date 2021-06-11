@@ -270,6 +270,7 @@ export default {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
+        this.condition.projectId = getCurrentProjectID();
         this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
