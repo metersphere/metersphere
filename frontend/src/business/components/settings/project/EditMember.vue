@@ -1,26 +1,29 @@
 <template>
-  <el-dialog :close-on-click-modal="false" title="添加成员" :visible.sync="dialogVisible" width="30%" :destroy-on-close="true"
+  <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogVisible" width="40%" :destroy-on-close="true"
              @close="handleClose">
     <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-      <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'change'}">
-        <el-autocomplete
-          class="input-with-autocomplete"
-          v-model="form.memberSign"
-          :placeholder="$t('member.input_id_or_email')"
-          :trigger-on-focus="false"
-          :fetch-suggestions="querySearch"
-          size="small"
-          highlight-first-item
-          value-key="email"
-        >
-          <template v-slot:default="scope">
-            <span class="workspace-member-name">{{scope.item.id}}</span>
-            <span class="workspace-member-email">{{scope.item.email}}</span>
-          </template>
-        </el-autocomplete>
+      <el-form-item :label="$t('commons.member')" prop="userIds" :rules="{required: true, message: $t('member.please_choose_member'), trigger: 'blur'}">
+        <el-select
+          v-model="form.userIds"
+          multiple
+          filterable
+          :popper-append-to-body="false"
+          class="select-width"
+          :placeholder="$t('member.please_choose_member')">
+          <el-option
+            v-for="item in userList"
+            :key="item.id"
+            :label="item.id"
+            :value="item.id">
+            <template>
+              <span class="workspace-member-name">{{item.name}} ({{item.id}})</span>
+              <span class="workspace-member-email">{{item.email}}</span>
+            </template>
+          </el-option>
+        </el-select>
       </el-form-item>
-      <el-form-item label="用户组" prop="groupIds">
-        <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+      <el-form-item :label="$t('commons.group')" prop="groupIds">
+        <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
           <el-option
             v-for="item in form.groups"
             :key="item.id"
@@ -56,7 +59,7 @@ export default {
           {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
         ],
         groupIds: [
-          {required: true, message: '请选择用户组', trigger: ['blur']}
+          {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
         ]
       },
       userList: [],
@@ -71,19 +74,8 @@ export default {
     submitForm() {
       this.$refs['form'].validate((valid) => {
         if (valid) {
-          let userIds = [];
-          let userId = this.form.userId;
-          let email  = this.form.memberSign;
-          let member = this.userList.find(user => user.id === email || user.email === email);
-          if (!member) {
-            this.$warning(this.$t('member.no_such_user'));
-            return false;
-          } else {
-            userId = member.id;
-          }
-          userIds.push(userId);
           let param = {
-            userIds: userIds,
+            userIds: this.form.userIds,
             groupIds: this.form.groupIds,
             projectId: this.projectId
           };
