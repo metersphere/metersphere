@@ -3,6 +3,7 @@
  */
 package io.metersphere.api.service.task;
 
+import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.ApiScenarioReport;
@@ -11,7 +12,6 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jorphan.collections.HashTree;
 
 import java.util.concurrent.Callable;
 
@@ -19,32 +19,30 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     private RunScenarioRequest request;
     private JMeterService jMeterService;
     private ApiScenarioReportMapper apiScenarioReportMapper;
-    private HashTree hashTree;
+    private RunModeDataDTO runModeDataDTO;
     ApiScenarioReport report = null;
-    private String id;
 
-    public SerialScenarioExecTask(JMeterService jMeterService, ApiScenarioReportMapper apiScenarioReportMapper, String id, HashTree hashTree, RunScenarioRequest request) {
+    public SerialScenarioExecTask(JMeterService jMeterService, ApiScenarioReportMapper apiScenarioReportMapper, RunModeDataDTO runModeDataDTO, RunScenarioRequest request) {
         this.jMeterService = jMeterService;
         this.apiScenarioReportMapper = apiScenarioReportMapper;
         this.request = request;
-        this.hashTree = hashTree;
-        this.id = id;
+        this.runModeDataDTO = runModeDataDTO;
     }
 
     @Override
     public T call() {
         try {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(id, hashTree, request.getRunMode(), false, request.getConfig());
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReportId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
-                jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
+                jMeterService.runSerial(runModeDataDTO.getReportId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode(), request.getConfig());
             }
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
             while (index < 200) {
                 Thread.sleep(3000);
                 index++;
-                report = apiScenarioReportMapper.selectByPrimaryKey(id);
+                report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReportId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }

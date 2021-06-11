@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class RunRequest {
     private String testId;
+    private String url;
     private String userId;
     private boolean isDebug;
     private String runMode;

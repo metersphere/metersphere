@@ -34,6 +34,8 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/sso/signin", "anon");
         filterChainDefinitionMap.put("/sso/callback", "anon");
         filterChainDefinitionMap.put("/license/valid", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download/jar", "anon");
 
         // for swagger
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");

@@ -589,7 +589,7 @@ public class ApiDefinitionService {
 
         // 调用执行方法
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-            jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, request.getConfig());
+            jMeterService.runTest(request.getId(), request.getId(), runMode, null, request.getConfig());
         } else {
             jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
         }
@@ -637,6 +637,7 @@ public class ApiDefinitionService {
         ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
         return buildAPIReportResult(result);
     }
+
     public APIReportResult getReportById(String testId) {
         ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
