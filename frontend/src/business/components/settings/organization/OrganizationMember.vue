@@ -48,29 +48,25 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="createVisible" width="40%" :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
         <el-form-item :label="$t('commons.member')" prop="ids"
-                      :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'blur'}">
+                      :rules="{required: true, message: $t('member.please_choose_member'), trigger: 'blur'}">
           <el-select
             v-model="form.ids"
             multiple
             filterable
-            remote
-            reserve-keyword
             :popper-append-to-body="false"
             class="select-width"
-            :placeholder="$t('member.input_id_or_email')"
-            :remote-method="remoteMethod"
-            :loading="loading">
+            :placeholder="$t('member.please_choose_member')">
             <el-option
-              v-for="item in options"
+              v-for="item in userList"
               :key="item.id"
               :label="item.id"
               :value="item.id">
               <template>
-                <span class="org-member-name">{{item.id}}</span>
+                <span class="org-member-name">{{item.name}} ({{item.id}})</span>
                 <span class="org-member-email">{{item.email}}</span>
               </template>
             </el-option>
@@ -199,6 +195,7 @@
           //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
           // }
         ],
+        userList: []
       }
     },
     methods: {
@@ -313,6 +310,9 @@
         }
         this.form = {};
         this.createVisible = true;
+        this.result = this.$get('/user/list/', response => {
+          this.userList = response.data;
+        });
         this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: orgId}, response => {
           this.$set(this.form, "groups", response.data);
         })
@@ -336,20 +336,6 @@
             return false;
           }
         });
-      },
-      remoteMethod(query) {
-        query = query.trim();
-        if (query !== '') {
-          this.loading = true;
-          setTimeout(() => {
-            this.loading = false;
-            this.$get("/user/search/" + query, response => {
-              this.options = response.data;
-            })
-          }, 200);
-        } else {
-          this.options = [];
-        }
       },
       initWorkspaceBatchProcessDataStruct(isShow){
         let organizationId = getCurrentOrganizationId();
