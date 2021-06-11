@@ -497,7 +497,8 @@ export default {
     functional_menu: '功能菜单',
     operation_object: '操作对象',
     check_all: '全选',
-    permission: '权限'
+    permission: '权限',
+    please_select_group: '请选择用户组'
   },
   role: {
     please_choose_role: '请选择角色',

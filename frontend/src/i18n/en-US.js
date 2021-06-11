@@ -499,7 +499,8 @@ export default {
     functional_menu: 'Functional Menu',
     operation_object: 'Operation Object',
     check_all: 'ALL',
-    permission: 'Permission'
+    permission: 'Permission',
+    please_select_group: 'Please Select Group'
   },
   role: {
     please_choose_role: 'Please Choose Role',

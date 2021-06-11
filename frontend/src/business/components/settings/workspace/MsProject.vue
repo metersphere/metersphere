@@ -145,7 +145,7 @@
           <el-table-column prop="name" :label="$t('commons.username')"/>
           <el-table-column prop="email" :label="$t('commons.email')"/>
           <el-table-column prop="phone" :label="$t('commons.phone')"/>
-          <el-table-column label="用户组" width="150">
+          <el-table-column :label="$t('commons.group')" width="150">
             <template v-slot:default="scope">
               <ms-roles-tag :roles="scope.row.groups" type="success"/>
             </template>
@@ -181,8 +181,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" style="width: 100%">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -223,8 +223,8 @@
             </template>
           </el-autocomplete>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'blur'}">
-          <el-select v-model="memberForm.groupIds" multiple placeholder="请选择用户组" style="width: 100%">
+        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'blur'}">
+          <el-select v-model="memberForm.groupIds" multiple :placeholder="$t('group.please_select_group')" style="width: 100%">
             <el-option
               v-for="item in memberForm.groups"
               :key="item.id"
