@@ -78,7 +78,7 @@
         </el-form-item>
 
         <el-form-item :label="$t('commons.group')" prop="groupIds">
-          <el-select v-model="form.groupIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
               v-for="item in form.groups"
               :key="item.id"
@@ -111,9 +111,9 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds"
-                      :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds"
+                      :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -174,8 +174,8 @@
           userIds: [
             {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
-          roleIds: [
-            {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
+          groupIds: [
+            {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
           ]
         },
         multipleSelection: [],
