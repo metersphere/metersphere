@@ -49,46 +49,7 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="createVisible" width="40%" :destroy-on-close="true"
-               @close="handleClose">
-      <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds" :rules="{required: true, message: $t('member.please_choose_member'), trigger: 'blur'}">
-          <el-select
-            v-model="form.userIds"
-            multiple
-            filterable
-            :popper-append-to-body="false"
-            class="select-width"
-            :placeholder="$t('member.please_choose_member')">
-            <el-option
-              v-for="item in userList"
-              :key="item.id"
-              :label="item.id"
-              :value="item.id">
-              <template>
-                <span class="workspace-member-name">{{item.name}} ({{item.id}})</span>
-                <span class="workspace-member-email">{{item.email}}</span>
-              </template>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds">
-          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
-            <el-option
-              v-for="item in form.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="createVisible = false"
-          @confirm="submitForm('form')"/>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'WORKSPACE'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
@@ -150,10 +111,12 @@
   import UserCascader from "@/business/components/settings/system/components/UserCascader";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import {GROUP_WORKSPACE} from "@/common/js/constants";
+  import AddMember from "@/business/components/settings/common/AddMember";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
+    components: {
+      AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
       MsTableHeaderSelectPopover,UserCascader,ShowMoreBtn},
     data() {
       return {
@@ -189,6 +152,11 @@
           //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
           // }
         ],
+      }
+    },
+    computed: {
+      orgId() {
+        return getCurrentOrganizationId();
       }
     },
     activated: function () {
@@ -301,7 +269,7 @@
         });
       },
       create() {
-        this.form = {};
+        // this.form = {};
         // let param = {
         //   name: this.condition.name,
         //   organizationId: this.currentUser().lastOrganizationId
@@ -315,31 +283,24 @@
         //   this.createVisible = true;
         //   this.userList = response.data;
         // })
-        this.$get('/user/list/', response => {
-          this.createVisible = true;
-          this.userList = response.data;
-        })
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
-          this.$set(this.form, "groups", response.data);
-        })
+        // this.$get('/user/list/', response => {
+        //   this.createVisible = true;
+        //   this.userList = response.data;
+        // })
+        // this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
+        //   this.$set(this.form, "groups", response.data);
+        // })
+        this.$refs.addMember.open();
         listenGoBack(this.handleClose);
       },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let param = {
-              userIds: this.form.userIds,
-              groupIds: this.form.groupIds,
-              workspaceId: getCurrentWorkspaceId()
-            };
-            this.result = this.$post("user/ws/member/add", param, () => {
-              this.$success(this.$t('commons.save_success'));
-              this.initTableData();
-              this.selectRows.clear();
-              this.createVisible = false;
-            })
-          }
-        });
+      submitForm(param) {
+        param['workspaceId'] = getCurrentWorkspaceId();
+        this.result = this.$post("user/ws/member/add", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initTableData();
+          this.selectRows.clear();
+          this.$refs.addMember.close();
+        })
       },
       querySearch(queryString, cb) {
         var userList = this.userList;
