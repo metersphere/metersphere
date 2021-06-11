@@ -358,33 +358,6 @@ public class ApiScenarioReportService {
             }
         }
     }
-
-    private void margeReport(TestResult result, StringBuilder scenarioIds, StringBuilder scenarioNames, String runMode, String projectId, String userId, List<String> reportIds) {
-        // 合并生成一份报告
-        if (StringUtils.isNotEmpty(result.getSetReportId())) {
-            // 清理其他报告保留一份合并后的报告
-            this.deleteByIds(reportIds);
-
-            ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(result.getSetReportId());
-            report.setStatus(result.getError() > 0 ? "Error" : "Success");
-            if (StringUtils.isNotEmpty(userId)) {
-                report.setUserId(userId);
-            } else {
-                report.setUserId(SessionUtils.getUserId());
-            }
-            report.setExecuteType(ExecuteType.Saved.name());
-            report.setProjectId(projectId);
-            report.setScenarioName(scenarioNames.toString().substring(0, scenarioNames.toString().length() - 1));
-            report.setScenarioId(scenarioIds.toString());
-            apiScenarioReportMapper.updateByPrimaryKey(report);
-            ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-            detail.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
-            detail.setReportId(report.getId());
-            detail.setProjectId(report.getProjectId());
-            apiScenarioReportDetailMapper.insert(detail);
-        }
-    }
-
     public void margeReport(String reportId, List<String> reportIds) {
         // 合并生成一份报告
         if (CollectionUtils.isNotEmpty(reportIds)) {

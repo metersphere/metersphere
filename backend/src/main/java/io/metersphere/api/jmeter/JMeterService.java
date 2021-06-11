@@ -3,13 +3,11 @@ package io.metersphere.api.jmeter;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.RunModeConfig;
-import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
@@ -31,13 +29,8 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -47,7 +40,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class JMeterService {
@@ -125,10 +121,6 @@ public class JMeterService {
         BackendListener backendListener = new BackendListener();
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
-        if (config != null && config.getMode().equals(RunModeConstants.SERIAL.toString()) && config.getReportType().equals(RunModeConstants.SET_REPORT.toString())) {
-            arguments.addArgument(APIBackendListenerClient.TEST_REPORT_ID, config.getReportId());
-
-        }
         arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
         if (StringUtils.isNotBlank(runMode)) {
             arguments.addArgument("runMode", runMode);
@@ -136,6 +128,16 @@ public class JMeterService {
         if (StringUtils.isNotBlank(debugReportId)) {
             arguments.addArgument("debugReportId", debugReportId);
         }
+        backendListener.setArguments(arguments);
+        backendListener.setClassname(APIBackendListenerClient.class.getCanonicalName());
+        testPlan.add(testPlan.getArray()[0], backendListener);
+    }
+
+    public void addBackendListener(String testId, HashTree testPlan) {
+        BackendListener backendListener = new BackendListener();
+        backendListener.setName(testId);
+        Arguments arguments = new Arguments();
+        arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
         backendListener.setArguments(arguments);
         backendListener.setClassname(APIBackendListenerClient.class.getCanonicalName());
         testPlan.add(testPlan.getArray()[0], backendListener);
@@ -198,7 +200,7 @@ public class JMeterService {
         }
     }
 
-    private byte[] fileToByte(File tradeFile) {
+    public byte[] fileToByte(File tradeFile) {
         byte[] buffer = null;
         try (FileInputStream fis = new FileInputStream(tradeFile);
              ByteArrayOutputStream bos = new ByteArrayOutputStream();) {
@@ -213,7 +215,7 @@ public class JMeterService {
         return buffer;
     }
 
-    private List<Object> getZipJar() {
+    public List<Object> getZipJar() {
         List<Object> jarFiles = new LinkedList<>();
         // jar 包
         JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
@@ -249,7 +251,7 @@ public class JMeterService {
         return jarFiles;
     }
 
-    private List<Object> getJar() {
+    public List<Object> getJar() {
         List<Object> jarFiles = new LinkedList<>();
         // jar 包
         JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
@@ -280,7 +282,7 @@ public class JMeterService {
         return jarFiles;
     }
 
-    private List<Object> getMultipartFiles(HashTree hashTree) {
+    public List<Object> getMultipartFiles(HashTree hashTree) {
         List<Object> multipartFiles = new LinkedList<>();
         // 获取附件
         List<BodyFile> files = new LinkedList<>();
@@ -306,12 +308,7 @@ public class JMeterService {
         return multipartFiles;
     }
 
-    public void runTest(String testId, HashTree hashTree, String runMode, boolean isDebug, RunModeConfig config) {
-        // 获取JMX使用到的附件
-        List<Object> multipartFiles = getMultipartFiles(hashTree);
-        // 获取JAR
-        List<Object> jarFiles = getJar();
-
+    public void runTest(String testId, String reportId, String runMode, String testPlanScenarioId, RunModeConfig config) {
         // 获取可以执行的资源池
         String resourcePoolId = config.getResourcePoolId();
         TestResource testResource = resourcePoolCalculation.getPool(resourcePoolId);
@@ -327,54 +324,26 @@ public class JMeterService {
         if (baseInfo != null) {
             metersphereUrl = baseInfo.getUrl();
         }
-        // 检查≈地址是否正确
-        String jmeterPingUrl = metersphereUrl + "/jmeter/ping";
-        // docker 不能从 localhost 中下载文件
-        if (StringUtils.contains(metersphereUrl, "http://localhost")
-                || !UrlTestUtils.testUrlWithTimeOut(jmeterPingUrl, 1000)) {
-            MSException.throwException(Translator.get("run_load_test_file_init_error"));
-        }
-
-        String uri = String.format(BASE_URL + "/jmeter/api/run", nodeIp, port);
         try {
-            File file = new File(FileUtils.BODY_FILE_DIR + "/tmp");
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(testId);
-            runRequest.setDebug(isDebug);
+            metersphereUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&testPlanScenarioId" + "&runMode=" + runMode;
+            if (StringUtils.isNotEmpty(testPlanScenarioId)) {
+                metersphereUrl += "=" + testPlanScenarioId;
+            }
+            runRequest.setUrl(metersphereUrl);
             runRequest.setRunMode(runMode);
-            runRequest.setConfig(config);
-            runRequest.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-            runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
-            MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
-            if (CollectionUtils.isEmpty(multipartFiles)) {
-                multipartFiles.add(new FileSystemResource(file));
-            }
-            if (CollectionUtils.isEmpty(jarFiles)) {
-                jarFiles.add(new FileSystemResource(file));
-            }
-            postParameters.put("files", multipartFiles);
-            postParameters.put("jarFiles", jarFiles);
-            postParameters.add("request", JSON.toJSONString(runRequest));
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN));
-            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(postParameters, headers);
-
-            ResponseEntity<String> result = restTemplate.postForEntity(uri, request, String.class);
+            String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
+            ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
             if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
                 // 清理零时报告
                 ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                apiScenarioReportService.delete(testId);
+                apiScenarioReportService.delete(reportId);
                 MSException.throwException("执行失败：" + result);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            MSException.throwException("Please check node-controller status.");
+            MSException.throwException(e.getMessage());
         }
     }
 }
