@@ -16,8 +16,6 @@ public class TestResult {
 
     private String testId;
 
-    private String setReportId;
-
     private int scenarioTotal;
 
     private int scenarioSuccess;

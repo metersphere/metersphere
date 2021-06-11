@@ -30,7 +30,7 @@ import java.util.Map;
 
 @Service
 public class MsKafkaListener {
-    public static final String TOPICS = "ms-api-exec-topic";
+    public static final String TOPICS = "ms-api-exec-topic-test";
     public static final String CONSUME_ID = "ms-api-exec-consume";
 
     @KafkaListener(id = CONSUME_ID, topics = TOPICS, groupId = "${spring.kafka.consumer.group-id}")
