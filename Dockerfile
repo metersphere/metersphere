@@ -1,7 +1,7 @@
 FROM openjdk:8-jdk-alpine as build
 WORKDIR /workspace/app
 
-COPY backend/target/backend-1.9.jar .
+COPY backend/target/*.jar .
 
 RUN mkdir -p dependency && (cd dependency; jar -xf ../*.jar)
 
