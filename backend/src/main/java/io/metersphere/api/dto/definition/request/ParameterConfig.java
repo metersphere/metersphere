@@ -30,6 +30,10 @@ public class ParameterConfig {
      * 公共Cookie
      */
     private boolean enableCookieShare;
+    /**
+     * 是否停止继续
+     */
+    private boolean onSampleError;
 
     /**
      * 是否是导入/导出操作

@@ -140,8 +140,8 @@
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
-                <el-col :span="2" class="ms-col-one ms-font">
-                  <el-checkbox v-model="enableContinues">{{ $t('commons.failure_continues') }}</el-checkbox>
+                <el-col :span="3" class="ms-col-one ms-font">
+                  <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
                 </el-col>
                 <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
@@ -317,8 +317,7 @@ export default {
   },
   data() {
     return {
-      enableContinues: false,
-      showConfigButtonWithOutPermission:false,
+      onSampleError: false,
       props: {
         label: "label",
         children: "hashTree"
@@ -390,6 +389,7 @@ export default {
     this.getMaintainerOptions();
     this.getApiScenario();
     this.addListener(); //  添加 ctrl s 监听
+
   },
   directives: {OutsideClick},
   computed: {
@@ -873,7 +873,8 @@ export default {
                 enableCookieShare: this.enableCookieShare,
                 headers: this.currentScenario.headers,
                 environmentMap: this.projectEnvMap,
-                hashTree: this.scenarioDefinition
+                hashTree: this.scenarioDefinition,
+                onSampleError: this.onSampleError,
               };
               this.reportId = getUUID().substring(0, 8);
               // this.editScenario().then(() => {
@@ -1033,6 +1034,7 @@ export default {
                   this.currentScenario.headers = obj.headers;
                 }
                 this.enableCookieShare = obj.enableCookieShare;
+                this.onSampleError = obj.onSampleError;
                 if (obj.hashTree) {
                   obj.hashTree.forEach(item => {
                     if (!item.hashTree) {
@@ -1066,7 +1068,9 @@ export default {
         referenced: 'Created',
         environmentMap: strMapToObj(this.projectEnvMap),
         hashTree: this.scenarioDefinition,
+        onSampleError: this.onSampleError,
         projectId: this.projectId,
+
       };
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
