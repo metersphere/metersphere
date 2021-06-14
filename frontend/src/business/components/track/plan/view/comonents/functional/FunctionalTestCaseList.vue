@@ -65,26 +65,37 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="tags"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('commons.tag')"
-          min-width="120px">
+            prop="tags"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.tag')"
+            min-width="120px">
           <template v-slot:default="scope">
             <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain"
                     :content="tag" style="margin-left: 0px; margin-right: 2px"/>
           </template>
         </ms-table-column>
+          <ms-table-column
+              sortable
+              prop="createTime"
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="$t('commons.create_time')"
+              min-width="120px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
-          prop="nodePath"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('test_track.case.module')"
-          min-width="120px"/>
+            prop="nodePath"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.case.module')"
+            min-width="120px"/>
 
         <ms-table-column
-          prop="projectName"
+            prop="projectName"
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('test_track.plan.plan_project')"

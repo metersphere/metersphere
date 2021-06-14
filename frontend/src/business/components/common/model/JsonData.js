@@ -94,7 +94,9 @@ export const Test_Plan_Api_Case = [
   {id: 'custom', label: i18n.t('api_test.definition.api_last_time')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'execResult', label: '执行状态'},
-  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')}
+  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')},
+  {id: 'createTime', label: i18n.t('commons.create_time')},
+
 
 ]
 //测试计划-性能用例
@@ -119,7 +121,9 @@ export const Test_Plan_Scenario_Case = [
   {id: 'stepTotal', label: i18n.t('api_test.automation.success')},
   {id: 'lastResult', label: i18n.t('api_test.automation.fail')},
   {id: 'passRate', label: i18n.t('api_test.automation.passing_rate')},
-  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')}
+  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')},
+  {id: 'createTime', label: i18n.t('commons.create_time')},
+
 
 ]
 
