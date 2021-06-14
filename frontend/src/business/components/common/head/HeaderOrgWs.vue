@@ -60,7 +60,6 @@ export default {
   name: "MsHeaderOrgWs",
   created() {
     this.initMenuData();
-    this.getCurrentUserInfo();
   },
   inject: [
     'reloadTopMenus',
@@ -73,7 +72,6 @@ export default {
       workspaceList: [
         {name: this.$t('workspace.none')},
       ],
-      currentUserInfo: {},
       currentUserId: getCurrentUser().id,
       workspaceIds: [],
       currentOrganizationName: '',
@@ -113,7 +111,7 @@ export default {
           this.currentOrganizationName = org[0].name;
         }
         this.organizationList.forEach(org => {
-          this.$get("/workspace/list/orgworkspace/" + org.id, response => {
+          this.$get("/workspace/list/orgworkspace/" + encodeURIComponent(this.currentUserId) + "/" + org.id, response => {
             let d = response.data;
             if (d.length === 0) {
               // org.workspaceList = [{name: this.$t('workspace.none')}];
@@ -146,11 +144,6 @@ export default {
           }
         }
       });*/
-    },
-    getCurrentUserInfo() {
-      this.$get("/user/info/" + encodeURIComponent(this.currentUserId), response => {
-        this.currentUserInfo = response.data;
-      });
     },
     changeOrg(data) {
       let orgId = data.id;
