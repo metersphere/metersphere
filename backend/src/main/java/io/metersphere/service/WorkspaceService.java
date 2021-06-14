@@ -202,9 +202,8 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(workspaceExample);
     }
 
-    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String orgId) {
-        String useId = SessionUtils.getUser().getId();
-        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(useId);
+    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String userId, String orgId) {
+        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(userId);
         List<String> wsIds = relatedSource
                 .stream()
                 .filter(r -> StringUtils.equals(r.getOrganizationId(), orgId))
