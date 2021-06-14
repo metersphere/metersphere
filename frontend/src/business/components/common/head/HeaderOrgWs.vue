@@ -7,11 +7,7 @@
            default-active="1"
            text-color="#fff">
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
-    <el-submenu index="1" popper-class="org-ws-submenu"
-                v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
-                'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
-                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
-                'WORKSPACE_USER:READ']">
+    <el-submenu index="1" popper-class="org-ws-submenu">
       <template v-slot:title>
         <div class="org-ws-name" :title="currentOrganizationName + '-' + currentWorkspaceName">
           <div>{{ currentWorkspaceName || currentOrganizationName }}</div>
@@ -60,7 +56,6 @@ export default {
   name: "MsHeaderOrgWs",
   created() {
     this.initMenuData();
-    this.getCurrentUserInfo();
   },
   inject: [
     'reloadTopMenus',
@@ -73,7 +68,6 @@ export default {
       workspaceList: [
         {name: this.$t('workspace.none')},
       ],
-      currentUserInfo: {},
       currentUserId: getCurrentUser().id,
       workspaceIds: [],
       currentOrganizationName: '',
@@ -113,7 +107,7 @@ export default {
           this.currentOrganizationName = org[0].name;
         }
         this.organizationList.forEach(org => {
-          this.$get("/workspace/list/orgworkspace/" + org.id, response => {
+          this.$get("/workspace/list/orgworkspace/" + encodeURIComponent(this.currentUserId) + "/" + org.id, response => {
             let d = response.data;
             if (d.length === 0) {
               // org.workspaceList = [{name: this.$t('workspace.none')}];
@@ -146,11 +140,6 @@ export default {
           }
         }
       });*/
-    },
-    getCurrentUserInfo() {
-      this.$get("/user/info/" + encodeURIComponent(this.currentUserId), response => {
-        this.currentUserInfo = response.data;
-      });
     },
     changeOrg(data) {
       let orgId = data.id;

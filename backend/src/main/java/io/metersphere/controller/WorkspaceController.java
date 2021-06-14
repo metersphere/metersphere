@@ -92,15 +92,9 @@ public class WorkspaceController {
         return workspaceService.getWorkspaceListByUserId(userId);
     }
 
-    @GetMapping("/list/orgworkspace/")
-    public List<Workspace> getWorkspaceListByOrgIdAndUserId() {
-        String currentOrganizationId = SessionUtils.getCurrentOrganizationId();
-        return workspaceService.getWorkspaceListByOrgIdAndUserId(currentOrganizationId);
-    }
-
-    @GetMapping("/list/orgworkspace/{orgId}")
-    public List<WorkspaceDTO> getWorkspaceListByOrgId(@PathVariable String orgId) {
-        return workspaceService.getWorkspaceIdsByOrgId(orgId);
+    @GetMapping("/list/orgworkspace/{userId}/{orgId}")
+    public List<Workspace> getWorkspaceListByOrgId(@PathVariable String userId, @PathVariable String orgId) {
+        return workspaceService.getWorkspaceListByOrgIdAndUserId(userId, orgId);
     }
 
     @PostMapping("/member/update")
