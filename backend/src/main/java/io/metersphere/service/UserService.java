@@ -467,7 +467,7 @@ public class UserService {
 
         if (StringUtils.equals("organization", sign)) {
             user.setLastOrganizationId(sourceId);
-            List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(sourceId);
+            List<Workspace> workspaces = workspaceService.getWorkspaceListByOrgIdAndUserId(user.getId(), sourceId);
             if (workspaces.size() > 0) {
                 user.setLastWorkspaceId(workspaces.get(0).getId());
                 List<Project> projects = getProjectListByWsAndUserId(workspaces.get(0).getId());
