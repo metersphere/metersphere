@@ -74,6 +74,15 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
+          <el-table-column v-if="item.id == 'createTime'"
+                           prop="createTime"
+                           min-width="120px"
+                           sortable="custom"
+                           :label="$t('commons.create_time')" width="180" :key="index">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
           <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
                            min-width="80px"
                            show-overflow-tooltip :key="index"/>
