@@ -1070,6 +1070,7 @@ public class ApiAutomationService {
                     scenario.setVariables(variables);
                 }
                 group.setEnableCookieShare(scenario.isEnableCookieShare());
+                group.setOnSampleError(scenario.getOnSampleError());
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
                 scenarios.add(scenario);
                 // 创建场景报告
