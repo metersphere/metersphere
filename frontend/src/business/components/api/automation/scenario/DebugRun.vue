@@ -32,11 +32,13 @@ import {saveScenario} from "@/business/components/api/automation/api-automation"
     },
     methods: {
       run() {
+        console.log(this.runData.onSampleError);
         let testPlan = createComponent('TestPlan');
         let threadGroup = createComponent('ThreadGroup');
         threadGroup.hashTree = [];
         threadGroup.name = this.reportId;
         threadGroup.enableCookieShare = this.runData.enableCookieShare;
+        threadGroup.onSampleError = this.runData.onSampleError;
         let map = this.environment;
         this.runData.projectId = getCurrentProjectID();
         threadGroup.hashTree.push(this.runData);
