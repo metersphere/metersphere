@@ -123,6 +123,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'executorName', key: '7', label: i18n.t('test_track.plan_view.executor')},
     {id: 'status', key: '8', label: i18n.t('test_track.plan_view.execute_result')},
     {id: 'updateTime', key: '9', label: i18n.t('commons.update_time')},
+    {id: 'createTime', key: 'a', label: i18n.t('commons.create_time')},
   ],
   //测试计划-api用例
   TEST_PLAN_API_CASE: [
