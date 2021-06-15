@@ -276,8 +276,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
-                if(StringUtils.isEmpty(httpConfig.getProtocol())){
-                    MSException.throwException(this.getName() +"接口，对应的环境无协议，请完善环境信息");
+                if (StringUtils.isEmpty(httpConfig.getProtocol())) {
+                    MSException.throwException(this.getName() + "接口，对应的环境无协议，请完善环境信息");
                 }
                 if (StringUtils.isEmpty(this.useEnvironment)) {
                     this.useEnvironment = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
@@ -398,6 +398,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     /**
      * 加载SSL认证
+     *
      * @param config
      * @param httpSamplerTree
      * @return
@@ -454,6 +455,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     /**
      * 自定义请求如果是完整url时不拼接mock信息
+     *
      * @param url
      * @return
      */
@@ -461,7 +463,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (isCustomizeReq() && (url.startsWith("http://") || url.startsWith("https://"))) {
             return true;
         }
-       return false;
+        return false;
     }
 
     // 兼容旧数据
@@ -622,12 +624,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         break;
                     }
                 } else if (item.getType().equals(ConditionType.MODULE.name())) {
-                    ApiDefinition apiDefinition;
+                    ApiDefinition apiDefinition = null;
                     ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
                     ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-                    if (StringUtils.isNotEmpty(this.getReferenced()) && this.getReferenced().equals("REF") && StringUtils.isNotEmpty(this.getRefType()) && this.getRefType().equals("CASE")) {
+                    if (StringUtils.isNotEmpty(this.getRefType()) && this.getRefType().equals("CASE")) {
                         ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(this.getId());
-                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                        if (caseWithBLOBs != null) {
+                            apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                        }
                     } else {
                         apiDefinition = apiDefinitionService.get(this.getId());
                         if (apiDefinition == null) {
@@ -702,7 +706,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     public static List<MsHTTPSamplerProxy> findHttpSampleFromHashTree(MsTestElement hashTree) {
-       return findFromHashTreeByType(hashTree, MsHTTPSamplerProxy.class, null);
+        return findFromHashTreeByType(hashTree, MsHTTPSamplerProxy.class, null);
     }
 }
 
