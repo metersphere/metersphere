@@ -3,6 +3,7 @@ package io.metersphere.performance.engine;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.RunRequest;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
@@ -32,7 +33,6 @@ public abstract class AbstractEngine implements Engine {
     protected PerformanceTestService performanceTestService;
     protected Integer threadNum;
     protected List<TestResource> resourceList;
-
     private final TestResourcePoolService testResourcePoolService;
     private final TestResourceService testResourceService;
 
@@ -45,7 +45,39 @@ public abstract class AbstractEngine implements Engine {
         this.startTime = System.currentTimeMillis();
         this.reportId = UUID.randomUUID().toString();
     }
-
+    protected void initApiConfig(RunRequest runRequest) {
+        String resourcePoolId = runRequest.getPoolId();
+        TestResourcePool resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
+        if (resourcePool == null || StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.DELETE.name())) {
+            MSException.throwException("Resource Pool is empty");
+        }
+        if (!ResourcePoolTypeEnum.K8S.name().equals(resourcePool.getType())
+                && !ResourcePoolTypeEnum.NODE.name().equals(resourcePool.getType())) {
+            MSException.throwException("Invalid Resource Pool type.");
+        }
+        if (!StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.VALID.name())) {
+            MSException.throwException("Resource Pool Status is not VALID");
+        }
+        // image
+        String image = resourcePool.getImage();
+        if (StringUtils.isNotEmpty(image)) {
+            JMETER_IMAGE = image;
+        }
+        // heap
+        String heap = resourcePool.getHeap();
+        if (StringUtils.isNotEmpty(heap)) {
+            HEAP = heap;
+        }
+        // gc_algo
+        String gcAlgo = resourcePool.getGcAlgo();
+        if (StringUtils.isNotEmpty(gcAlgo)) {
+            GC_ALGO = gcAlgo;
+        }
+        this.resourceList = testResourceService.getResourcesByPoolId(resourcePool.getId());
+        if (CollectionUtils.isEmpty(this.resourceList)) {
+            MSException.throwException("Test Resource is empty");
+        }
+    }
     protected void init(LoadTestWithBLOBs loadTest) {
         if (loadTest == null) {
             MSException.throwException("LoadTest is null.");

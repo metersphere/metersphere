@@ -7,13 +7,20 @@ import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.TestResource;
+import io.metersphere.base.domain.TestResourcePool;
+import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.CompressUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.performance.engine.Engine;
+import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
@@ -54,6 +61,8 @@ public class JMeterService {
     ResourcePoolCalculation resourcePoolCalculation;
     @Resource
     private RestTemplate restTemplate;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     @PostConstruct
     public void init() {
@@ -311,42 +320,48 @@ public class JMeterService {
     public void runTest(String testId, String reportId, String runMode, String testPlanScenarioId, RunModeConfig config) {
         // 获取可以执行的资源池
         String resourcePoolId = config.getResourcePoolId();
-        TestResource testResource = resourcePoolCalculation.getPool(resourcePoolId);
-
-        String configuration = testResource.getConfiguration();
-        NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
-        String nodeIp = node.getIp();
-        Integer port = node.getPort();
-
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
-        // 占位符
-        String metersphereUrl = "http://localhost:8081";
-        if (baseInfo != null) {
-            metersphereUrl = baseInfo.getUrl();
+        RunRequest runRequest = new RunRequest();
+        runRequest.setTestId(testId);
+        if (ApiRunMode.API_PLAN.name().equals(runMode)) {
+            runRequest.setReportId(reportId);
         }
-        try {
-            RunRequest runRequest = new RunRequest();
-            runRequest.setTestId(testId);
-            if (ApiRunMode.API_PLAN.name().equals(runMode)) {
-                runRequest.setReportId(reportId);
+        runRequest.setPoolId(resourcePoolId);
+        // 占位符
+        String platformUrl = "http://localhost:8081";
+        if (baseInfo != null) {
+            platformUrl = baseInfo.getUrl();
+        }
+        platformUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&testPlanScenarioId" + "&runMode=" + runMode;
+        if (StringUtils.isNotEmpty(testPlanScenarioId)) {
+            platformUrl += "=" + testPlanScenarioId;
+        }
+        runRequest.setUrl(platformUrl);
+        runRequest.setRunMode(runMode);
+        // 如果是K8S调用
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
+        if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {
+            final Engine engine = EngineFactory.createApiEngine(runRequest);
+            engine.start();
+        } else {
+            TestResource testResource = resourcePoolCalculation.getPool(resourcePoolId);
+            String configuration = testResource.getConfiguration();
+            NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
+            String nodeIp = node.getIp();
+            Integer port = node.getPort();
+            try {
+                String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
+                ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
+                if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                    // 清理零时报告
+                    ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+                    apiScenarioReportService.delete(reportId);
+                    MSException.throwException("执行失败：" + result);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                MSException.throwException(e.getMessage());
             }
-            metersphereUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&testPlanScenarioId" + "&runMode=" + runMode;
-            if (StringUtils.isNotEmpty(testPlanScenarioId)) {
-                metersphereUrl += "=" + testPlanScenarioId;
-            }
-            runRequest.setUrl(metersphereUrl);
-            runRequest.setRunMode(runMode);
-            String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
-            ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
-            if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
-                // 清理零时报告
-                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                apiScenarioReportService.delete(reportId);
-                MSException.throwException("执行失败：" + result);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            MSException.throwException(e.getMessage());
         }
     }
 }
