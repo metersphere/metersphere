@@ -112,7 +112,7 @@ public class PerformanceTestService {
             extLoadTestReportMapper.updateJmxContentIfAbsent(record);
         });
         //delete schedule
-        scheduleService.deleteByResourceId(testId);
+        scheduleService.deleteByResourceId(testId, ScheduleGroup.PERFORMANCE_TEST.name());
 
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());

@@ -40,7 +40,7 @@
   import OutsideClick from "@/common/js/outside-click";
 
   export default {
-    name: 'test-code',
+    name: 'SelectTree',
     directives: {OutsideClick},
     props: {
       // 树结构数据
