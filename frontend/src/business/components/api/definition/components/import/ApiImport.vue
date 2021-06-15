@@ -127,14 +127,16 @@
           id: 'id',
           label: 'name',
         },
-        modeOptions: [{
-          id: 'fullCoverage',
-          name: this.$t('commons.cover')
-        },
+        modeOptions: [
+          {
+            id: 'fullCoverage',
+            name: this.$t('commons.cover')
+          },
           {
             id: 'incrementalMerge',
             name: this.$t('commons.not_cover')
-          }],
+          }
+        ],
         protocol: "",
         platforms: [
           {

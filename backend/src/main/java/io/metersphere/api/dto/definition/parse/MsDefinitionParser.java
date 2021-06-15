@@ -128,7 +128,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
-            parent = ApiDefinitionImportUtil.buildModule(parent, item, this.projectId);
+            parent = ApiDefinitionImportUtil.buildModule(parent, item, this.projectId, importRequest.getUserId());
             if (!iterator.hasNext()) {
                 apiDefinition.setModuleId(parent.getId());
                 String path = apiDefinition.getModulePath() == null ? "" : apiDefinition.getModulePath();

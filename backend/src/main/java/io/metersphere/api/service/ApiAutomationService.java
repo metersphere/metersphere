@@ -411,7 +411,7 @@ public class ApiAutomationService {
         ids.add(scenarioId);
         deleteApiScenarioReport(ids);
 
-        scheduleService.deleteScheduleAndJobByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name());
+        scheduleService.deleteByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name());
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria().andApiScenarioIdEqualTo(scenarioId);
         List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
@@ -485,7 +485,7 @@ public class ApiAutomationService {
                 }
             }
 
-            scheduleService.deleteByResourceId(id);
+            scheduleService.deleteByResourceId(id, ScheduleGroup.API_SCENARIO_TEST.name());
         }
         if (!testPlanApiScenarioIdList.isEmpty()) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
@@ -507,7 +507,7 @@ public class ApiAutomationService {
         extApiScenarioMapper.removeToGc(apiIds);
         //将这些场景的定时任务删除掉
         for (String id : apiIds) {
-            scheduleService.deleteScheduleAndJobByResourceId(id, ScheduleGroup.API_SCENARIO_TEST.name());
+            scheduleService.deleteByResourceId(id, ScheduleGroup.API_SCENARIO_TEST.name());
         }
     }
 

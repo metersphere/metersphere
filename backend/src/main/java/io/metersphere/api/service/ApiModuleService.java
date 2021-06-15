@@ -184,7 +184,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
-        node.setCreateUser(SessionUtils.getUserId());
+        if (StringUtils.isBlank(node.getCreateUser())) {
+            node.setCreateUser(SessionUtils.getUserId());
+        }
         double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
         node.setPos(pos);
         apiModuleMapper.insertSelective(node);

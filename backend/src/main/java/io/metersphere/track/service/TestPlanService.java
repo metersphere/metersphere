@@ -296,7 +296,7 @@ public class TestPlanService {
         testPlanScenarioCaseService.deleteByPlanId(planId);
 
         //删除定时任务
-        scheduleService.deleteScheduleAndJobByResourceId(planId, ScheduleGroup.TEST_PLAN_TEST.name());
+        scheduleService.deleteByResourceId(planId, ScheduleGroup.TEST_PLAN_TEST.name());
 
         int num = testPlanMapper.deleteByPrimaryKey(planId);
         List<String> relatedUsers = new ArrayList<>();

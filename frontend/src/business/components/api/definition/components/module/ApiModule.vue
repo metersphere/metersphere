@@ -30,6 +30,7 @@
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
+          @schedule="$emit('schedule')"
           @refresh="refresh"
           @debug="debug"/>
       </template>
@@ -47,7 +48,7 @@
   import ApiImport from "../import/ApiImport";
   import MsNodeTree from "../../../../track/common/NodeTree";
   import ApiModuleHeader from "./ApiModuleHeader";
-  import {buildNodePath, buildTree} from "../../model/NodeTree";
+  import {buildTree} from "../../model/NodeTree";
   import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {

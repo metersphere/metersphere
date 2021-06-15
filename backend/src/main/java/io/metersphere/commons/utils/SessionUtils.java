@@ -9,14 +9,14 @@ import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.support.DefaultSubjectContext;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
 public class SessionUtils {
 
     public static String getUserId() {
-        return Objects.requireNonNull(getUser()).getId();
+        SessionUser user = getUser();
+        return user == null ? null : user.getId();
     }
 
     public static SessionUser getUser() {
