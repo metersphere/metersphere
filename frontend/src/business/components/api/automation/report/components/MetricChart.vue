@@ -38,23 +38,44 @@
       <div style="width: 50%">
         <el-row type="flex" justify="center" align="middle">
           <el-row type="flex" justify="center" align="middle">
-            <div class="metric-box" style="margin-right: 50px">
+            <div class="metric-box">
               <div class="value">{{ content.scenarioTotal ? content.scenarioTotal : 0}}</div>
               <div class="name">{{ $t('api_test.scenario.scenario') }}</div>
             </div>
-            <i class="circle success"/>
+            <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>
             <div class="metric-box">
               <div class="value">{{ content.scenarioSuccess ? content.scenarioSuccess: 0 }}</div>
               <div class="name">{{ $t('api_report.success') }}</div>
             </div>
-            <div style="width: 40px"></div>
-            <i class="circle fail"/>
+<!--            <div style="width: 40px"></div>-->
+            <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>
             <div class="metric-box">
               <div class="value">{{ content.scenarioError ? content.scenarioError : 0 }}</div>
               <div class="name">{{ $t('api_report.fail') }}</div>
             </div>
           </el-row>
         </el-row>
+        <el-divider></el-divider>
+        <el-row type="flex" justify="center" align="middle">
+          <el-row type="flex" justify="center" align="middle">
+            <div class="metric-box">
+              <div class="value">{{ content.scenarioStepTotal ? content.scenarioStepTotal : 0}}</div>
+              <div class="name">{{ $t('test_track.plan_view.step') }}</div>
+            </div>
+            <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>
+            <div class="metric-box">
+              <div class="value">{{ content.scenarioStepSuccess ? content.scenarioStepSuccess: 0 }}</div>
+              <div class="name">{{ $t('api_report.success') }}</div>
+            </div>
+<!--            <div style="width: 40px"></div>-->
+            <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>
+            <div class="metric-box">
+              <div class="value">{{ content.scenarioStepError ? content.scenarioStepError : 0 }}</div>
+              <div class="name">{{ $t('api_report.fail') }}</div>
+            </div>
+          </el-row>
+        </el-row>
+
       </div>
       <div class="split"></div>
 

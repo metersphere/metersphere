@@ -317,6 +317,7 @@ export default {
   },
   data() {
     return {
+      showConfigButtonWithOutPermission:false,
       onSampleError: false,
       props: {
         label: "label",
