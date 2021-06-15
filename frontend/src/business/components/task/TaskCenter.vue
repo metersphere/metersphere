@@ -106,6 +106,9 @@ export default {
     close() {
       this.visible = false;
     },
+    open(){
+      this.showTaskCenter();
+    },
     getPercentage(status) {
       if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
         return 100;

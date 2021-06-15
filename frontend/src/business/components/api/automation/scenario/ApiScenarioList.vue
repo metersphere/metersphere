@@ -175,6 +175,7 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-task-center ref="taskCenter"/>
   </div>
 </template>
 
@@ -198,6 +199,7 @@ import {API_SCENARIO_LIST, PROJECT_NAME, WORKSPACE_ID} from "../../../../../comm
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
 import MsRunMode from "./common/RunMode";
+import MsTaskCenter from "../../../task/TaskCenter";
 
 import {
   getCustomTableHeader, getCustomTableWidth,
@@ -230,7 +232,8 @@ export default {
     MsScenarioExtendButtons,
     MsTestPlanList,
     MsTableOperatorButton,
-    MsRunMode
+    MsRunMode,
+    MsTaskCenter
   },
   props: {
     referenced: {
@@ -619,6 +622,7 @@ export default {
       if (this.batchReportId) {
         this.result.loading = false;
         this.$success("批量执行成功，请到报告页面查看详情！");
+        this.$refs.taskCenter.open();
       }
     },
     buildBatchParam(param) {
