@@ -155,10 +155,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     public void teardownTest(BackendListenerContext context) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
-        testResult.setTotal(queue.size());
         testResult.setSetReportId(this.setReportId);
         testResult.setConsole(getConsole());
-
+        testResult.setTotal(0);
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
@@ -198,11 +197,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
                 testResult.addPassAssertions(requestResult.getPassAssertions());
                 testResult.addTotalAssertions(requestResult.getTotalAssertions());
-
+                testResult.setTotal(testResult.getTotal()+1);
                 scenarioResult.addPassAssertions(requestResult.getPassAssertions());
                 scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
             }
         });
+
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;

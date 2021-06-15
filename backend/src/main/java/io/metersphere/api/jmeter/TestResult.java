@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import io.metersphere.commons.constants.DelimiterConstants;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +47,11 @@ public class TestResult {
 
     private Map<String, Boolean> margeScenariMap = new HashMap<>();
 
+    private Map<String, Boolean> scenarioStepMap = new HashMap<>();
+
+    private int scenarioStepSuccess = 0;
+    private int scenarioStepError = 0;
+    private int scenarioStepTotal = 0;
     public void addError(int count) {
         this.error += count;
     }
@@ -74,12 +80,33 @@ public class TestResult {
         }
     }
 
+    private void setStepStatus(String step_names, boolean status) {
+        if (!scenarioStepMap.containsKey(step_names) || status) {
+            scenarioStepMap.put(step_names, status);
+        }
+    }
+
+
     public void addScenario(ScenarioResult result) {
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
+                String itemScenarioName = "";
                 if (StringUtils.isNotEmpty(item.getScenario())) {
-                    List<String> id_names = JSON.parseObject(item.getScenario(), List.class);
-                    this.setStatus(id_names, item.getError() > 0);
+                    List<String> all_id_names = JSON.parseObject(item.getScenario(), List.class);
+                    if(all_id_names.size()>1){
+                        List<String> id_names = new ArrayList<>();
+                        all_id_names.forEach(name -> {
+                            if(!name.endsWith(result.getName())){
+                                id_names.add(name);
+                            }
+                        });
+                        this.setStatus(id_names, item.getError() > 0);
+                        itemScenarioName = JSONArray.toJSONString(id_names);
+                    }else{
+                        this.setStatus(all_id_names, item.getError() > 0);
+                        itemScenarioName = JSONArray.toJSONString(all_id_names);
+                    }
+
                 }
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
                     String array[] = item.getName().split(SEPARATOR);
@@ -102,17 +129,38 @@ public class TestResult {
                         }
                     });
                 }
+                this.setStepStatus(item.getName()+itemScenarioName,item.getError()>0);
             });
             scenarios.add(result);
         }
-        for (String key : margeScenariMap.keySet()) {
-            if (margeScenariMap.get(key)) {
-                this.scenarioError++;
+        /**
+         * 1.10.2 场景成功/失败统计，不再按照请求为纬度，按照场景为纬度，
+         */
+        for (String key : scenarioStepMap.keySet()) {
+            if (scenarioStepMap .get(key)) {
+                this.scenarioStepError++;
             } else {
-                this.scenarioSuccess++;
+                this.scenarioStepSuccess++;
             }
         }
-        this.setScenarioTotal(this.margeScenariMap.size());
+        boolean hasError = false;
+        for (String key : margeScenariMap.keySet()) {
+            if (margeScenariMap.get(key)) {
+                hasError = true;
+                break;
+            }
+        }
+        if(!margeScenariMap.isEmpty()){
+            if(hasError){
+                this.scenarioError ++;
+            }else {
+                this.scenarioSuccess++;
+            }
+            this.scenarioTotal++;
+        }
+
+
+        this.setScenarioStepTotal(this.scenarioStepMap.size());
 
     }
 }
