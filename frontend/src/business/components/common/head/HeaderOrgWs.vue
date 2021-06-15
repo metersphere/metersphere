@@ -13,6 +13,7 @@
                 'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
                 'WORKSPACE_USER:READ']">
       <template v-slot:title>
+        <font-awesome-icon class="icon global" :icon="['fas', 'tag']"/>
         <div class="org-ws-name" :title="currentOrganizationName + '-' + currentWorkspaceName">
           <div>{{ currentWorkspaceName || currentOrganizationName }}</div>
         </div>
