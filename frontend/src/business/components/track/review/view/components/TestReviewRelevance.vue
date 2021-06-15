@@ -108,7 +108,7 @@ import ReviewStatus from "@/business/components/track/case/components/ReviewStat
 import elTableInfiniteScroll from 'el-table-infinite-scroll';
 import SelectMenu from "../../../common/SelectMenu";
 import {_filter} from "@/common/js/tableUtils";
-import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
 
 export default {
@@ -313,7 +313,7 @@ export default {
       },
       getProject() {
         if (this.reviewId) {
-          this.$post("/project/list/related", {userId: getCurrentUserId()}, res => {
+          this.$post("/project/list/related", {userId: getCurrentUserId(), workspaceId: getCurrentWorkspaceId()}, res => {
             let data = res.data;
             if (data) {
               this.projects = data;
