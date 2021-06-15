@@ -40,6 +40,8 @@ public class TestResult {
 
     private String console;
 
+    private String runningDebugSampler;
+
     private List<ScenarioResult> scenarios = new ArrayList<>();
 
     private Map<String, Boolean> margeScenariMap = new HashMap<>();

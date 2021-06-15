@@ -65,7 +65,7 @@ public class TestPlanApiCaseController {
     }
 
     @PostMapping(value = "/run")
-    public String run(@RequestPart("request") BatchRunDefinitionRequest request) {
+    public String run(@RequestBody BatchRunDefinitionRequest request) {
         return testPlanApiCaseService.run(request);
     }
 }

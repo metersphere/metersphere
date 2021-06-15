@@ -61,36 +61,41 @@ public class ApiDefinitionExecResultService {
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
+                        ApiDefinitionExecResult saveResult = definitionExecResultMapper.selectByPrimaryKey(result.getTestId());
                         item.getResponseResult().setConsole(result.getConsole());
-                        ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
-                        saveResult.setId(UUID.randomUUID().toString());
-                        saveResult.setCreateTime(item.getStartTime());
-                        if (StringUtils.isNotEmpty(result.getUserId())) {
-                            saveResult.setUserId(result.getUserId());
-                        } else {
-                            saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                        boolean saved = true;
+                        if (saveResult == null) {
+                            saveResult = new ApiDefinitionExecResult();
+                            saveResult.setId(UUID.randomUUID().toString());
+                            saveResult.setActuator("LOCAL");
+                            saveResult.setName(item.getName());
+                            saveResult.setTriggerMode(triggerMode);
+                            saveResult.setType(type);
+                            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
+                            if (apiDefinitionWithBLOBs != null) {
+                                saveResult.setName(apiDefinitionWithBLOBs.getName());
+                            } else {
+                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
+                                if (caseWithBLOBs != null) {
+                                    saveResult.setName(caseWithBLOBs.getName());
+                                }
+                            }
+                            if (StringUtils.isNotEmpty(result.getUserId())) {
+                                saveResult.setUserId(result.getUserId());
+                            } else {
+                                saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                            }
+                            saved = false;
                         }
-                        saveResult.setName(item.getName());
-                        saveResult.setTriggerMode(triggerMode);
-                        saveResult.setActuator("LOCAL");
+                        saveResult.setCreateTime(item.getStartTime());
                         if (item.getName().indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
                             saveResult.setName(item.getName().substring(0, item.getName().indexOf(DelimiterConstants.SEPARATOR.toString())));
-                        }
-                        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
-                        if (apiDefinitionWithBLOBs != null) {
-                            saveResult.setName(apiDefinitionWithBLOBs.getName());
-                        } else {
-                            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
-                            if (caseWithBLOBs != null) {
-                                saveResult.setName(caseWithBLOBs.getName());
-                            }
                         }
                         saveResult.setResourceId(item.getName());
                         saveResult.setContent(JSON.toJSONString(item));
                         saveResult.setStartTime(item.getStartTime());
                         String status = item.isSuccess() ? "success" : "error";
                         saveResult.setEndTime(item.getResponseResult().getResponseTime());
-                        saveResult.setType(type);
                         saveResult.setStatus(status);
                         if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
                             testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
@@ -109,7 +114,11 @@ public class ApiDefinitionExecResultService {
                         apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
 
                         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
-                        definitionExecResultMapper.insert(saveResult);
+                        if (!saved) {
+                            definitionExecResultMapper.insert(saveResult);
+                        } else {
+                            definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
+                        }
                     });
                 }
             });

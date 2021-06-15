@@ -327,6 +327,9 @@ public class JMeterService {
         try {
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(testId);
+            if (ApiRunMode.API_PLAN.name().equals(runMode)) {
+                runRequest.setReportId(reportId);
+            }
             metersphereUrl += "/api/jmeter/download?testId=" + testId + "&reportId=" + reportId + "&testPlanScenarioId" + "&runMode=" + runMode;
             if (StringUtils.isNotEmpty(testPlanScenarioId)) {
                 metersphereUrl += "=" + testPlanScenarioId;

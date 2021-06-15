@@ -29,8 +29,10 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RunModeConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -252,10 +254,11 @@ public class TestPlanApiCaseService {
     }
 
 
-    private MsTestElement parse(String api, String planId) {
+    private MsTestElement parse(ApiTestCaseWithBLOBs caseWithBLOBs, String planId) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
+            String api = caseWithBLOBs.getRequest();
             JSONObject element = JSON.parseObject(api);
             LinkedList<MsTestElement> list = new LinkedList<>();
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
@@ -265,40 +268,32 @@ public class TestPlanApiCaseService {
                 list.addAll(elements);
             }
             TestPlanApiCase apiCase = testPlanApiCaseMapper.selectByPrimaryKey(planId);
-            Map<String, String> envMap = null;
-            if (apiCase != null) {
-                envMap = JSON.parseObject(apiCase.getEnvironmentId(), Map.class);
-            }
             if (element.getString("type").equals("HTTPSamplerProxy")) {
                 MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class);
                 httpSamplerProxy.setHashTree(list);
-                if (envMap != null && envMap.containsKey(httpSamplerProxy.getProjectId())) {
-                    httpSamplerProxy.setUseEnvironment(envMap.get(httpSamplerProxy.getProjectId()));
-                }
+                httpSamplerProxy.setName(caseWithBLOBs.getId());
+                httpSamplerProxy.setUseEnvironment(apiCase.getEnvironmentId());
                 return httpSamplerProxy;
             }
             if (element.getString("type").equals("TCPSampler")) {
                 MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class);
-                if (envMap != null && envMap.containsKey(msTCPSampler.getProjectId())) {
-                    msTCPSampler.setUseEnvironment(envMap.get(msTCPSampler.getProjectId()));
-                }
+                msTCPSampler.setUseEnvironment(apiCase.getEnvironmentId());
                 msTCPSampler.setHashTree(list);
+                msTCPSampler.setName(caseWithBLOBs.getId());
                 return msTCPSampler;
             }
             if (element.getString("type").equals("DubboSampler")) {
                 MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class);
-                if (envMap != null && envMap.containsKey(dubboSampler.getProjectId())) {
-                    dubboSampler.setUseEnvironment(envMap.get(dubboSampler.getProjectId()));
-                }
+                dubboSampler.setUseEnvironment(apiCase.getEnvironmentId());
                 dubboSampler.setHashTree(list);
+                dubboSampler.setName(caseWithBLOBs.getId());
                 return dubboSampler;
             }
             if (element.getString("type").equals("JDBCSampler")) {
                 MsJDBCSampler jDBCSampler = JSON.parseObject(api, MsJDBCSampler.class);
-                if (envMap != null && envMap.containsKey(jDBCSampler.getProjectId())) {
-                    jDBCSampler.setUseEnvironment(envMap.get(jDBCSampler.getProjectId()));
-                }
+                jDBCSampler.setUseEnvironment(apiCase.getEnvironmentId());
                 jDBCSampler.setHashTree(list);
+                jDBCSampler.setName(caseWithBLOBs.getId());
                 return jDBCSampler;
             }
         } catch (Exception e) {
@@ -319,8 +314,8 @@ public class TestPlanApiCaseService {
                 try {
                     MsThreadGroup group = new MsThreadGroup();
                     group.setLabel(caseWithBLOBs.getName());
-                    group.setName(testId);
-                    MsTestElement testElement = parse(caseWithBLOBs.getRequest(), testId);
+                    group.setName(caseWithBLOBs.getName());
+                    MsTestElement testElement = parse(caseWithBLOBs, testId);
                     group.setHashTree(new LinkedList<>());
                     group.getHashTree().add(testElement);
                     testPlan.getHashTree().add(group);
@@ -334,12 +329,36 @@ public class TestPlanApiCaseService {
         return null;
     }
 
+    private String addResult(BatchRunDefinitionRequest request, TestPlanApiCase key) {
+        ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
+        apiResult.setId(UUID.randomUUID().toString());
+        apiResult.setCreateTime(System.currentTimeMillis());
+        apiResult.setStartTime(System.currentTimeMillis());
+        apiResult.setEndTime(System.currentTimeMillis());
+        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(key.getApiCaseId());
+        if (caseWithBLOBs != null) {
+            apiResult.setName(caseWithBLOBs.getName());
+        }
+        apiResult.setTriggerMode(TriggerMode.MANUAL.name());
+        apiResult.setActuator("LOCAL");
+        if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+            apiResult.setActuator(request.getConfig().getResourcePoolId());
+        }
+        apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        apiResult.setResourceId(key.getApiCaseId());
+        apiResult.setStartTime(System.currentTimeMillis());
+        apiResult.setType(ApiRunMode.API_PLAN.name());
+        apiResult.setStatus(APITestStatus.Running.name());
+        mapper.insert(apiResult);
+
+        return apiResult.getId();
+    }
+
     public String modeRun(BatchRunDefinitionRequest request) {
         List<String> ids = request.getPlanIds();
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(ids);
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
-
         // 开始选择执行模式
         ExecutorService executorService = Executors.newFixedThreadPool(planApiCases.size());
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -357,6 +376,8 @@ public class TestPlanApiCaseService {
                                 HashTree hashTree = generateHashTree(key.getId());
                                 modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
                             }
+                            String reportId = addResult(request, key);
+                            modeDataDTO.setReportId(reportId);
                             Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
                             ApiDefinitionExecResult report = future.get();
                             // 如果开启失败结束执行，则判断返回结果状态
@@ -384,6 +405,8 @@ public class TestPlanApiCaseService {
                     HashTree hashTree = generateHashTree(key.getId());
                     modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
                 }
+                String reportId = addResult(request, key);
+                modeDataDTO.setReportId(reportId);
                 executorService.submit(new ParallelApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
             }
         }
