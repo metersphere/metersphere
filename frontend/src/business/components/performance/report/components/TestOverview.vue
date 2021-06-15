@@ -81,6 +81,13 @@ import MsChart from "@/business/components/common/chart/MsChart";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
 
+const groupBy = function (xs, key) {
+  return xs.reduce(function (rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+};
+
 export default {
   name: "TestOverview",
   components: {MsChart},
@@ -134,11 +141,6 @@ export default {
         let yAxisListMax = this._getChartMax(yAxisList);
         let yAxis2ListMax = this._getChartMax(yAxis2List);
 
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
-        let yAxisIndex1List = data.filter(m => m.yAxis === -1).map(m => m.groupName);
-        yAxisIndex1List = this._unique(yAxisIndex1List);
-
         let loadOption = {
           color: color,
           title: {
@@ -176,32 +178,27 @@ export default {
           ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            },
-            {
-              name: 'hits',
-              yAxisIndex: '1',
-              color: '#65A2FF',
-            },
-            {
-              name: 'errors',
-              yAxisIndex: '1',
-              color: '#E6113C',
-            }
-          ]
-        };
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
 
-        yAxisIndex1List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'});
-        });
-        this.loadOption = this.generateOption(loadOption, data, setting);
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+          let yAxis2 = result[xAxis].filter(a => a.yAxis === -1).map(a => a.yAxis2).reduce((a, b) => a + b, 0);
+          allData.push({
+            groupName: 'users',
+            xAxis: xAxis,
+            yAxis: yAxis1,
+            yAxis2: -1,
+            yAxisIndex: 0,
+          }, {
+            groupName: 'transactions/s',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis2,
+            yAxisIndex: 1,
+          });
+        }
+        this.loadOption = this.generateOption(loadOption, allData);
       }).catch(() => {
         this.loadOption = {};
       });
@@ -213,11 +210,6 @@ export default {
         let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
         let yAxisListMax = this._getChartMax(yAxisList);
         let yAxis2ListMax = this._getChartMax(yAxis2List);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
-        let yAxisIndex1List = data.filter(m => m.yAxis === -1).map(m => m.groupName);
-        yAxisIndex1List = this._unique(yAxisIndex1List);
 
         let resOption = {
           color: color,
@@ -253,41 +245,34 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            min: 0,
-            max: yAxisListMax,
-            interval: yAxisListMax / 5
-          },
+          yAxis: [
             {
               name: 'Response Time',
               type: 'value',
               min: 0,
-              max: yAxis2ListMax,
-              interval: yAxis2ListMax / 5
+              max: yAxisListMax,
+              interval: yAxisListMax / 5
             }
           ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            }
-          ]
-        };
 
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+          yAxis1 = yAxis1 / result[xAxis].length;
 
-        yAxisIndex1List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'});
-        });
+          allData.push({
+            groupName: 'response',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis1,
+            yAxisIndex: 0,
+          });
+        }
 
-        this.resOption = this.generateOption(resOption, data, setting);
+        this.resOption = this.generateOption(resOption, allData);
       }).catch(() => {
         this.resOption = {};
       });
@@ -346,20 +331,23 @@ export default {
           ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            }
-          ]
-        };
 
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
 
-        this.errorOption = this.generateOption(errorOption, data, setting);
+          allData.push({
+            groupName: 'errors',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis1,
+            yAxisIndex: 0,
+          });
+        }
+
+
+        this.errorOption = this.generateOption(errorOption, allData);
       }).catch(() => {
         this.errorOption = {};
       });
@@ -418,41 +406,36 @@ export default {
           ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            }
-          ]
-        };
 
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
 
-        this.resCodeOption = this.generateOption(resCodeOption, data, setting);
+          allData.push({
+            groupName: 'codes',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis1,
+            yAxisIndex: 0,
+          });
+        }
+
+        this.resCodeOption = this.generateOption(resCodeOption, allData);
       }).catch(() => {
         this.resCodeOption = {};
       });
     },
-    generateOption(option, data, setting) {
+    generateOption(option, data) {
       let chartData = data;
-      let seriesArray = [];
-      for (let set in setting) {
-        if (set === "series") {
-          seriesArray = setting[set];
-          continue;
-        }
-        this.$set(option, set, setting[set]);
-      }
-      let legend = [], series = {}, xAxis = [], seriesData = [];
+      let legend = [], series = {}, xAxis = [], seriesData = [], yAxisIndex = {};
       chartData.forEach(item => {
         if (!xAxis.includes(item.xAxis)) {
           xAxis.push(item.xAxis);
         }
         xAxis.sort();
         let name = item.groupName;
+        yAxisIndex[name] = item.yAxisIndex;
         if (!legend.includes(name)) {
           legend.push(name);
           series[name] = [];
@@ -477,16 +460,8 @@ export default {
           smooth: true,
           sampling: 'lttb',
           animation: !this.export,
+          yAxisIndex: yAxisIndex[name]
         };
-        let seriesArrayNames = seriesArray.map(m => m.name);
-        if (seriesArrayNames.includes(name)) {
-          for (let j = 0; j < seriesArray.length; j++) {
-            let seriesObj = seriesArray[j];
-            if (seriesObj['name'] === name) {
-              Object.assign(items, seriesObj);
-            }
-          }
-        }
         seriesData.push(items);
       }
       this.$set(option, "series", seriesData);
