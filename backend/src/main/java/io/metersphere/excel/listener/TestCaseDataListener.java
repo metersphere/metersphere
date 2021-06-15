@@ -8,6 +8,7 @@ import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ListUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
@@ -351,30 +352,41 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         List<String> stepResList = new ArrayList<>();
 //        String[] stepDesc = new String[1];
 //        String[] stepRes = new String[1];
-
+        ListUtils<String> listUtils = new ListUtils<String>();
         if (data.getStepDesc() != null) {
             String[] stepDesc = data.getStepDesc().split("\r\n|\n");
             StringBuffer stepBuffer = new StringBuffer();
-            int stepIndex = 1;
+            int lastStepIndex = 1;
             for (String row : stepDesc) {
-                if(StringUtils.startsWithAny(row,
-                        stepIndex+")","("+stepIndex+")","（\"+stepIndex+\"）",
-                        stepIndex+".",stepIndex+",",stepIndex+"，")){
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepDescList.add(stepBuffer.toString());
-                    }
+                int rowIndex = this.parseIndexInRow(row);
+                if(rowIndex > -1){
+
+                    listUtils.set(stepDescList,lastStepIndex-1,stepBuffer.toString(),"");
+//                    stepResList.set(stepIndex-1,stepBuffer.toString());
                     stepBuffer = new StringBuffer();
-                    stepIndex++;
+                    lastStepIndex = rowIndex;
                     stepBuffer.append(row);
                 }else {
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepBuffer.append("\r\n");
-                    }
                     stepBuffer.append(row);
                 }
+//                if(StringUtils.startsWithAny(row,
+//                        stepIndex+")","("+stepIndex+")","（\"+stepIndex+\"）",
+//                        stepIndex+".",stepIndex+",",stepIndex+"，")){
+//                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
+//                        stepDescList.add(stepBuffer.toString());
+//                    }
+//                    stepBuffer = new StringBuffer();
+//                    stepIndex++;
+//                    stepBuffer.append(row);
+//                }else {
+//                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
+//                        stepBuffer.append("\r\n");
+//                    }
+//                    stepBuffer.append(row);
+//                }
             }
             if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                stepDescList.add(stepBuffer.toString());
+                listUtils.set(stepDescList,lastStepIndex-1,stepBuffer.toString(),"");
             }
         } else {
             stepDescList.add("");
@@ -383,32 +395,43 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if (data.getStepResult() != null) {
             String [] stepRes = data.getStepResult().split("\r\n|\n");
             StringBuffer stepBuffer = new StringBuffer();
-            int stepIndex = 1;
+            int lastStepIndex = 1;
             for (String row : stepRes) {
-                if(StringUtils.startsWithAny(row,
-                        stepIndex+")","("+stepIndex+")","（\"+stepIndex+\"）",
-                        stepIndex+".",stepIndex+",",stepIndex+"，")){
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepResList.add(stepBuffer.toString());
-                    }
+                int rowIndex = this.parseIndexInRow(row);
+                if(rowIndex > -1){
+
+                    listUtils.set(stepResList,lastStepIndex-1,stepBuffer.toString(),"");
+//                    stepResList.set(stepIndex-1,stepBuffer.toString());
                     stepBuffer = new StringBuffer();
-                    stepIndex++;
+                    lastStepIndex = rowIndex;
                     stepBuffer.append(row);
                 }else {
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepBuffer.append("\r\n");
-                    }
                     stepBuffer.append(row);
                 }
+//                if(StringUtils.startsWithAny(row,
+//                        stepIndex+")","("+stepIndex+")","（\"+stepIndex+\"）",
+//                        stepIndex+".",stepIndex+",",stepIndex+"，")){
+//                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
+//                        stepResList.add(stepBuffer.toString());
+//                    }
+//                    stepBuffer = new StringBuffer();
+//                    stepIndex++;
+//                    stepBuffer.append(row);
+//                }else {
+//                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
+//                        stepBuffer.append("\r\n");
+//                    }
+//                    stepBuffer.append(row);
+//                }
             }
             if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                stepResList.add(stepBuffer.toString());
+                listUtils.set(stepResList,lastStepIndex-1,stepBuffer.toString(),"");
             }
         } else {
             stepResList.add("");
         }
 
-        String pattern = "(^\\d+)(\\.)?";
+//        String pattern = "(^\\d+)(\\.)?";
         int index = stepDescList.size() > stepResList.size() ? stepDescList.size() : stepResList.size();
 
         for (int i = 0; i < index; i++) {
@@ -417,30 +440,58 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             JSONObject step = new JSONObject(true);
             step.put("num", i + 1);
 
-            Pattern descPattern = Pattern.compile(pattern);
-            Pattern resPattern = Pattern.compile(pattern);
+//            Pattern descPattern = Pattern.compile(pattern);
+//            Pattern resPattern = Pattern.compile(pattern);
 
             if (i < stepDescList.size()) {
-                Matcher descMatcher = descPattern.matcher(stepDescList.get(i));
-                if (descMatcher.find()) {
-                    step.put("desc", descMatcher.replaceAll(""));
-                } else {
-                    step.put("desc", stepDescList.get(i));
-                }
+//                Matcher descMatcher = descPattern.matcher(stepDescList.get(i));
+//                if (descMatcher.find()) {
+//                    step.put("desc", descMatcher.replaceAll(""));
+//                } else {
+//                    step.put("desc", stepDescList.get(i));
+//                }
+                step.put("desc", stepDescList.get(i));
             }
 
             if (i < stepResList.size()) {
-                Matcher resMatcher = resPattern.matcher(stepResList.get(i));
-                if (resMatcher.find()) {
-                    step.put("result", resMatcher.replaceAll(""));
-                } else {
-                    step.put("result", stepResList.get(i));
-                }
+//                Matcher resMatcher = resPattern.matcher(stepResList.get(i));
+//                if (resMatcher.find()) {
+//                    step.put("result", resMatcher.replaceAll(""));
+//                } else {
+//                    step.put("result", stepResList.get(i));
+//                }
+                step.put("result", stepResList.get(i));
             }
 
             jsonArray.add(step);
         }
         return jsonArray.toJSONString();
+    }
+
+    private int parseIndexInRow(String row) {
+        String parseString = row;
+        int index = -1;
+        String [] indexSplitCharArr = new String[]{")","）","]","】",".",",","，","。"};
+        if(StringUtils.startsWithAny(row,"(","（","[","【")){
+            parseString = parseString.substring(1);
+        }
+        for (String splitChar : indexSplitCharArr) {
+            if(StringUtils.contains(parseString,splitChar)){
+                String[] rowSplit = StringUtils.split(parseString,splitChar);
+                if(rowSplit.length > 0){
+                    String indexString = rowSplit[0];
+                    if(StringUtils.isNumeric(indexString)){
+                        try {
+                            index = Integer.parseInt(indexString);
+                        }catch (Exception e){}
+                        if(index > -1){
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return index;
     }
 
     @Override
