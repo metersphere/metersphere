@@ -66,6 +66,13 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
         },
         {
+          label: this.$t('定时同步'),
+          callback: () => {
+            this.$emit('schedule');
+          },
+          permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
+        },
+        {
           label: this.$t('report.export'),
           permissions: ['PROJECT_API_DEFINITION:READ+EXPORT_API'],
           children: [

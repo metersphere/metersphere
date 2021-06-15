@@ -8,7 +8,6 @@ import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
-import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
@@ -22,10 +21,8 @@ import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
-import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
@@ -39,8 +36,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.net.MalformedURLException;
-import java.util.Date;
 import java.util.List;
 
 
@@ -211,12 +206,12 @@ public class ApiDefinitionController {
     //定时任务创建
     @PostMapping(value = "/schedule/create")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.scheduleFrom", project = "#request.projectId")
-    public void createSchedule(@RequestBody ScheduleRequest request) throws MalformedURLException {
+    public void createSchedule(@RequestBody ScheduleRequest request) {
         apiDefinitionService.createSchedule(request);
     }
 
     @PostMapping(value = "/schedule/update")
-    public void updateSchedule(@RequestBody Schedule request) {
+    public void updateSchedule(@RequestBody ScheduleRequest request) {
         apiDefinitionService.updateSchedule(request);
     }
 
@@ -229,30 +224,18 @@ public class ApiDefinitionController {
     //查找定时任务列表
     @GetMapping("/scheduleTask/{projectId}")
     public List<SwaggerTaskResult> getSwaggerScheduleList(@PathVariable String projectId) {
-        List<SwaggerTaskResult> resultList = apiDefinitionService.getSwaggerScheduleList(projectId);
-        int dataIndex = 1;
-        for (SwaggerTaskResult swaggerTaskResult :
-                resultList) {
-            swaggerTaskResult.setIndex(dataIndex++);
-            Date nextExecutionTime = CronUtils.getNextTriggerTime(swaggerTaskResult.getRule());
-            if (nextExecutionTime != null) {
-                swaggerTaskResult.setNextExecutionTime(nextExecutionTime.getTime());
-            }
-        }
-        return resultList;
+        return apiDefinitionService.getSwaggerScheduleList(projectId);
     }
 
-    //更新定时任务
-    @PostMapping(value = "/schedule/updateByPrimyKey")
-    public void updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoSwaggerUrlRequest request) {
-        Schedule schedule = scheduleService.getSchedule(request.getTaskId());
-        schedule.setEnable(request.getTaskStatus());
-        apiDefinitionService.updateSchedule(schedule);
+    //更新定时任务更新定时任务
+    @PostMapping(value = "/schedule/switch")
+    public void updateScheduleEnable(@RequestBody Schedule request) {
+        apiDefinitionService.switchSchedule(request);
     }
 
     //删除定时任务和swaggereUrl
-    @PostMapping("/schedule/deleteByPrimyKey")
-    public void deleteSchedule(@RequestBody ScheduleInfoSwaggerUrlRequest request) {
+    @PostMapping("/schedule/delete")
+    public void deleteSchedule(@RequestBody ScheduleRequest request) {
         apiDefinitionService.deleteSchedule(request);
     }
 
