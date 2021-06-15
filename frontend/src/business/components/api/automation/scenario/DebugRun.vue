@@ -32,7 +32,6 @@ import {saveScenario} from "@/business/components/api/automation/api-automation"
     },
     methods: {
       run() {
-        console.log(this.runData.onSampleError);
         let testPlan = createComponent('TestPlan');
         let threadGroup = createComponent('ThreadGroup');
         threadGroup.hashTree = [];
