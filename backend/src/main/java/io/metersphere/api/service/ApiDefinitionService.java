@@ -12,7 +12,6 @@ import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.api.dto.definition.parse.Swagger3Parser;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.Body;
@@ -910,21 +909,22 @@ public class ApiDefinitionService {
     }
 
     /*swagger定时导入*/
-    public void createSchedule(ScheduleRequest request) throws MalformedURLException {
+    public void createSchedule(ScheduleRequest request) {
         /*保存swaggerUrl*/
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
+        BeanUtils.copyBean(swaggerUrlProject, request);
         swaggerUrlProject.setId(UUID.randomUUID().toString());
-        swaggerUrlProject.setProjectId(request.getProjectId());
-        swaggerUrlProject.setSwaggerUrl(request.getResourceId());
-        swaggerUrlProject.setModuleId(request.getModuleId());
-        swaggerUrlProject.setModulePath(request.getModulePath());
-        swaggerUrlProject.setModeId(request.getModeId());
         scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
+
         request.setResourceId(swaggerUrlProject.getId());
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setProjectId(swaggerUrlProject.getProjectId());
-        java.net.URL swaggerUrl = new java.net.URL(swaggerUrlProject.getSwaggerUrl());
-        schedule.setName(swaggerUrl.getHost()); //  swagger 定时任务的 name 设置为 swaggerURL 的域名
+        try {
+            schedule.setName(new java.net.URL(swaggerUrlProject.getSwaggerUrl()).getHost());
+        } catch (MalformedURLException e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("URL 格式不正确！");
+        }
         schedule.setJob(SwaggerUrlImportJob.class.getName());
         schedule.setGroup(ScheduleGroup.SWAGGER_IMPORT.name());
         schedule.setType(ScheduleType.CRON.name());
@@ -933,17 +933,39 @@ public class ApiDefinitionService {
 
     }
 
-    //关闭
-    public void updateSchedule(Schedule request) {
+    public void updateSchedule(ScheduleRequest request) {
+        SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
+        BeanUtils.copyBean(swaggerUrlProject, request);
+        scheduleService.updateSwaggerUrlSchedule(swaggerUrlProject);
+        // 只修改表达式和名称
+        Schedule schedule = new Schedule();
+        schedule.setId(request.getTaskId());
+        schedule.setValue(request.getValue().trim());
+        schedule.setEnable(request.getEnable());
+        try {
+            schedule.setName(new java.net.URL(swaggerUrlProject.getSwaggerUrl()).getHost());
+        } catch (MalformedURLException e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("URL 格式不正确！");
+        }
+        scheduleService.editSchedule(schedule);
+        request.setResourceId(swaggerUrlProject.getId());
+        this.addOrUpdateSwaggerImportCronJob(request);
+    }
+
+    /**
+     * 列表开关切换
+     * @param request
+     */
+    public void switchSchedule(Schedule request) {
         scheduleService.editSchedule(request);
         this.addOrUpdateSwaggerImportCronJob(request);
     }
 
     //删除
-    public void deleteSchedule(ScheduleInfoSwaggerUrlRequest request) {
+    public void deleteSchedule(ScheduleRequest request) {
         swaggerUrlProjectMapper.deleteByPrimaryKey(request.getId());
-        scheduleMapper.deleteByPrimaryKey(request.getTaskId());
-
+        scheduleService.deleteByResourceId(request.getTaskId(), ScheduleGroup.SWAGGER_IMPORT.name());
     }
 
     //查询swaggerUrl详情
@@ -967,7 +989,17 @@ public class ApiDefinitionService {
     }
 
     public List<SwaggerTaskResult> getSwaggerScheduleList(String projectId) {
-        return extSwaggerUrlScheduleMapper.getSwaggerTaskList(projectId);
+        List<SwaggerTaskResult> resultList = extSwaggerUrlScheduleMapper.getSwaggerTaskList(projectId);
+        int dataIndex = 1;
+        for (SwaggerTaskResult swaggerTaskResult :
+                resultList) {
+            swaggerTaskResult.setIndex(dataIndex++);
+            Date nextExecutionTime = CronUtils.getNextTriggerTime(swaggerTaskResult.getRule());
+            if (nextExecutionTime != null) {
+                swaggerTaskResult.setNextExecutionTime(nextExecutionTime.getTime());
+            }
+        }
+        return resultList;
     }
 
     private void addOrUpdateSwaggerImportCronJob(Schedule request) {
