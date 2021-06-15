@@ -284,6 +284,7 @@ export default {
       // environmentId: undefined,
       currentCaseProjectId: "",
       runData: [],
+      testPlanCaseIds: [],
       reportId: "",
       response: {},
       rowLoading: "",
@@ -531,6 +532,7 @@ export default {
       return new Promise((resolve) => {
         let index = 1;
         this.runData = [];
+        this.testPlanCaseIds = [];
         if (this.condition != null && this.condition.selectAll) {
           let selectAllRowParams = buildBatchParam(this);
           selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
@@ -546,6 +548,7 @@ export default {
                 request.id = row.id;
                 request.useEnvironment = row.environmentId;
                 this.runData.unshift(request);
+                this.testPlanCaseIds.unshift(row.id);
                 if (dataRows.length === index) {
                   resolve();
                 }
@@ -564,6 +567,7 @@ export default {
               request.id = row.id;
               request.useEnvironment = row.environmentId;
               this.runData.unshift(request);
+              this.testPlanCaseIds.unshift(row.id);
               if (this.selectRows.length === index) {
                 resolve();
               }
@@ -614,52 +618,11 @@ export default {
       });
     },
     handleRunBatch(config) {
-      let testPlan = new TestPlan();
-      let projectId = getCurrentProjectID();
-      if (config.mode === 'serial') {
-        testPlan.serializeThreadgroups = true;
-        testPlan.hashTree = [];
-        this.runData.forEach(item => {
-          let threadGroup = new ThreadGroup();
-          threadGroup.onSampleError = config.onSampleError;
-          threadGroup.hashTree = [];
-          threadGroup.hashTree.push(item);
-          testPlan.hashTree.push(threadGroup);
-        });
-        let reqObj = {
-          id: getUUID().substring(0, 8),
-          testElement: testPlan,
-          type: 'API_PLAN',
-          reportId: "run",
-          projectId: projectId,
-          config: config
-        };
-        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
-        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
-          this.$message('任务执行中，请稍后刷新查看结果');
-          this.$refs.taskCenter.open();
-        });
-      } else {
-        testPlan.serializeThreadgroups = false;
-        let threadGroup = new ThreadGroup();
-        threadGroup.hashTree = [];
-        testPlan.hashTree = [threadGroup];
-        this.runData.forEach(item => {
-          threadGroup.hashTree.push(item);
-        });
-        let reqObj = {
-          id: getUUID().substring(0, 8),
-          testElement: testPlan,
-          type: 'API_PLAN',
-          reportId: "run",
-          projectId: projectId
-        };
-        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
-        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
-          this.$message('任务执行中，请稍后刷新查看结果');
-          this.$refs.taskCenter.open();
-        });
-      }
+      let obj = {planIds: this.testPlanCaseIds, config: config};
+      this.$post("/test/plan/api/case/run", obj, response => {
+        this.$message('任务执行中，请稍后刷新查看结果');
+        this.$refs.taskCenter.open();
+      });
       this.search();
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态

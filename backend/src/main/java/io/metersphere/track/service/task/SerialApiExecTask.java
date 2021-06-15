@@ -8,6 +8,7 @@ import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -44,9 +45,14 @@ public class SerialApiExecTask<T> implements Callable<T> {
                 Thread.sleep(3000);
                 index++;
                 report = mapper.selectByPrimaryKey(runModeDataDTO.getReportId());
-                if (report != null) {
+                if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }
+            }
+            // 执行失败了，恢复报告状态
+            if (index == 200 && report != null && report.getStatus().equals(APITestStatus.Running.name())) {
+                report.setStatus(APITestStatus.Error.name());
+                mapper.updateByPrimaryKey(report);
             }
             return (T) report;
         } catch (Exception ex) {
