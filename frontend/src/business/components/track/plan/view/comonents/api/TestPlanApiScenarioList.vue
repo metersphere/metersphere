@@ -127,6 +127,7 @@
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
     <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-task-center ref="taskCenter"/>
   </div>
 </template>
 
@@ -164,6 +165,7 @@ import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
+import MsTaskCenter from "../../../../../task/TaskCenter";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -183,7 +185,8 @@ export default {
     MsTestPlanList,
     BatchEdit,
     MsPlanRunMode,
-    MsTableHeaderSelectPopover
+    MsTableHeaderSelectPopover,
+    MsTaskCenter
   },
   props: {
     referenced: {
@@ -350,6 +353,7 @@ export default {
         });
         this.$post("/test/case/review/scenario/case/run", param, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
+          this.$refs.taskCenter.open();
         });
       }
       if (this.planId) {
@@ -362,6 +366,7 @@ export default {
         param.triggerMode = "BATCH";
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
+          this.$refs.taskCenter.open();
         });
       }
       this.search();

@@ -161,6 +161,7 @@
 
       <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     </el-card>
+    <ms-task-center ref="taskCenter"/>
   </div>
 
 </template>
@@ -205,7 +206,7 @@ import {Test_Plan_Api_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsPlanRunMode from "../../../common/PlanRunMode";
-
+import MsTaskCenter from "../../../../../task/TaskCenter";
 
 export default {
   name: "TestPlanApiCaseList",
@@ -228,7 +229,8 @@ export default {
     MsBottomContainer,
     ShowMoreBtn,
     MsTableHeaderSelectPopover,
-    MsPlanRunMode
+    MsPlanRunMode,
+    MsTaskCenter
   },
   data() {
     return {
@@ -624,6 +626,7 @@ export default {
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
+          this.$refs.taskCenter.open();
         });
       } else {
         testPlan.serializeThreadgroups = false;
@@ -643,6 +646,7 @@ export default {
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
           this.$message('任务执行中，请稍后刷新查看结果');
+          this.$refs.taskCenter.open();
         });
       }
       this.search();
