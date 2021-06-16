@@ -1190,6 +1190,10 @@ export default {
             }
           }
         });
+      }else{
+        this.expandedNode = [];
+        this.expandedStatus = true;
+        this.shrinkTreeNode();
       }
     },
     closeExpansion() {
