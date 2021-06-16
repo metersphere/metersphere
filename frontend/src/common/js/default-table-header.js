@@ -171,7 +171,6 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'nodePath', key: '5', label: i18n.t('test_track.case.module')},
     {id: 'updateTime', key: '6', label: i18n.t('commons.update_time')},
     {id: 'createUser', key: '7', label: i18n.t('commons.create_user')},
-    {id: 'maintainer', key: '8', label: i18n.t('custom_field.case_maintainer')},
   ],
   //缺陷列表
   ISSUE_LIST: [

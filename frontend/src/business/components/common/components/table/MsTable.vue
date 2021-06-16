@@ -56,8 +56,9 @@
 
     <ms-custom-table-header
       v-if="fieldKey"
-      @reload="reloadTable"
+      @reload="resetHeader"
       :type="fieldKey"
+      :custom-fields="customFields"
       ref="customTableHeader"/>
 
   </div>
@@ -187,6 +188,7 @@ export default {
     },
     fields: Array,
     fieldKey: String,
+    customFields: Array
   },
   mounted() {
     getLabel(this, TEST_CASE_LIST);
@@ -291,8 +293,11 @@ export default {
     openCustomHeader() {
       this.$refs.customTableHeader.open(this.fields);
     },
+    resetHeader() {
+      this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
+      this.reloadTable();
+    },
     reloadTable() {
-      this.$emit('update:fields', getCustomTableHeader(this.fieldKey));
       this.tableActive = false;
       this.$nextTick(() => {
         this.tableActive = true;

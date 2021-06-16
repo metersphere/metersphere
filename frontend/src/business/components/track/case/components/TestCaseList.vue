@@ -19,6 +19,7 @@
       :fields.sync="fields"
       field-key="TRACK_TEST_CASE"
       @refresh="initTableData"
+      :custom-fields="testCaseTemplate.customFields"
       ref="table">
 
       <span v-for="item in fields" :key="item.key">

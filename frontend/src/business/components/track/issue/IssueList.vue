@@ -22,6 +22,7 @@
           :fields.sync="fields"
           field-key="ISSUE_LIST"
           @refresh="getIssues"
+          :custom-fields="issueTemplate.customFields"
           ref="table"
         >
     <span v-for="(item) in fields" :key="item.key">
