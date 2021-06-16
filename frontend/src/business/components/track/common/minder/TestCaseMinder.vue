@@ -123,7 +123,7 @@ name: "TestCaseMinder",
         if (deleteChild && deleteChild.length > 0) {
           deleteCases.push(...deleteChild);
         }
-        if (data.type !== 'node') {
+        if (data.type !== 'node' && data.type !== 'tmp') {
           let tip = '用例(' + data.text + ')未添加用例标签！';
           this.$error(tip)
           throw new Error(tip);
