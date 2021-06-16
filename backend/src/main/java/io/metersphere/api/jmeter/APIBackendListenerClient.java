@@ -131,11 +131,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             LogUtil.error("testPlanApiCaseService is required");
         }
         apiEnvironmentRunningParamService = CommonBeanFactory.getBean(ApiEnvironmentRunningParamService.class);
-        if (apiEnvironmentRunningParamService == null) {
+        if(apiEnvironmentRunningParamService == null){
             LogUtil.error("apiEnvironmentRunningParamService is required");
         }
         testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
-        if (testPlanTestCaseService == null) {
+        if(testPlanTestCaseService == null){
             LogUtil.error("testPlanTestCaseService is required");
         }
         super.setupTest(context);
@@ -151,17 +151,16 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     public void teardownTest(BackendListenerContext context) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
-        testResult.setTotal(queue.size());
         testResult.setConsole(getConsole());
-
+        testResult.setTotal(0);
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
-            if (StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
+            if(StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)){
                 String evnStr = result.getResponseDataAsString();
                 apiEnvironmentRunningParamService.parseEvn(evnStr);
-            } else {
+            }else {
                 String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
                 String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
                 String scenarioId = StringUtils.substringBefore(index, ID_SPLIT);
@@ -193,11 +192,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
                 testResult.addPassAssertions(requestResult.getPassAssertions());
                 testResult.addTotalAssertions(requestResult.getTotalAssertions());
-
+                testResult.setTotal(testResult.getTotal()+1);
                 scenarioResult.addPassAssertions(requestResult.getPassAssertions());
                 scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
             }
         });
+
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;
@@ -297,7 +297,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             //环境
             ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
             String name = "";
-            if (apiScenario != null) {
+            if(apiScenario!= null ) {
                 String executionEnvironment = apiScenario.getScenarioDefinition();
                 JSONObject json = JSONObject.parseObject(executionEnvironment);
                 if (json != null && json.getString("environmentMap") != null && json.getString("environmentMap").length() > 2) {

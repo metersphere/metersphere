@@ -318,6 +318,7 @@ export default {
   data() {
     return {
       onSampleError: false,
+      showConfigButtonWithOutPermission:false,
       props: {
         label: "label",
         children: "hashTree"
