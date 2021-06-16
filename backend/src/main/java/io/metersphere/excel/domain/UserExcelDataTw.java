@@ -18,6 +18,7 @@ public class UserExcelDataTw extends TestCaseExcelData {
 
     @NotBlank(message = "{cannot_be_null}")
     @Length(max = 255)
+    @ColumnWidth(20)
     @ExcelProperty("姓名")
     private String name;
 
@@ -37,14 +38,17 @@ public class UserExcelDataTw extends TestCaseExcelData {
 
     @ExcelProperty("電話")
     @Length(max = 11)
+    @ColumnWidth(30)
     @Pattern(regexp = "^1(3|4|5|6|7|8|9)\\d{9}$", message = "{user_import_format_wrong}")
     private String phone;
 
     @NotBlank(message = "{cannot_be_null}")
+    @ColumnWidth(30)
     @ExcelProperty("是否是系統管理員(是/否)")
     private String userIsAdmin;
 
     @NotBlank(message = "{cannot_be_null}")
+    @ColumnWidth(30)
     @ExcelProperty("是否是組織管理員(是/否)")
     private String userIsOrgAdmin;
 
@@ -54,6 +58,7 @@ public class UserExcelDataTw extends TestCaseExcelData {
     private String orgAdminOrganization;
 
     @NotBlank(message = "{cannot_be_null}")
+    @ColumnWidth(30)
     @ExcelProperty("是否是組織成員(是/否)")
     private String userIsOrgMember;
 
@@ -63,29 +68,52 @@ public class UserExcelDataTw extends TestCaseExcelData {
     private String orgMemberOrganization;
 
     @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("是否是測試經理(是/否)")
+    @ColumnWidth(30)
+    @ExcelProperty("是否是工作空間管理員(是/否)")
     private String userIsTestManager;
 
     @Length(max = 100)
     @ColumnWidth(30)
-    @ExcelProperty("測試經理工作空間")
+    @ExcelProperty("工作空間管理員應用工作空間")
     private String testManagerWorkspace;
 
     @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("是否是測試成員(是/否)")
+    @ColumnWidth(30)
+    @ExcelProperty("是否是工作空間成員(是/否)")
     private String userIsTester;
 
     @Length(max = 100)
     @ColumnWidth(30)
-    @ExcelProperty("測試成員工作空間")
+    @ExcelProperty("工作空間成員應用工作空間")
     private String testerWorkspace;
 
     @NotBlank(message = "{cannot_be_null}")
+    @ColumnWidth(30)
+    @ExcelProperty("是否是項目管理員(是/否)")
+    private String userIsProjectAdmin;
+
+    @Length(max = 100)
+    @ColumnWidth(30)
+    @ExcelProperty("項目管理員應用項目")
+    private String proAdminProject;
+
+    @NotBlank(message = "{cannot_be_null}")
+    @ColumnWidth(30)
+    @ExcelProperty("是否是項目成員(是/否)")
+    private String userIsProjectMember;
+
+    @Length(max = 100)
+    @ColumnWidth(30)
+    @ExcelProperty("項目成員應用項目")
+    private String proMemberProject;
+
+    @NotBlank(message = "{cannot_be_null}")
+    @ColumnWidth(30)
     @ExcelProperty("是否是只讀用戶(是/否)")
     private String userIsViewer;
 
     @Length(max = 100)
     @ColumnWidth(30)
-    @ExcelProperty("只讀用戶工作空間")
-    private String viewerWorkspace;
+    @ExcelProperty("只讀用戶應用項目")
+    private String viewerProject;
 }

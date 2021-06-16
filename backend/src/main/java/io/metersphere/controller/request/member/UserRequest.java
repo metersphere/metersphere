@@ -11,7 +11,9 @@ import java.util.Map;
 @Getter
 @Setter
 public class UserRequest extends User {
-
+    /**
+     * 弃用
+     */
     private List<Map<String, Object>> roles = new ArrayList<>();
     private List<Map<String, Object>> groups = new ArrayList<>();
 

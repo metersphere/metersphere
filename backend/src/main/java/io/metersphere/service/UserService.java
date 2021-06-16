@@ -887,37 +887,28 @@ public class UserService {
 
     private List<UserExcelData> generateExportTemplate() {
         List<UserExcelData> list = new ArrayList<>();
-        List<String> types = TestCaseConstants.Type.getValues();
-        List<String> methods = TestCaseConstants.Method.getValues();
-        SessionUser user = SessionUtils.getUser();
         for (int i = 1; i <= 2; i++) {
             UserExcelData data = new UserExcelData();
             data.setId("user_id_" + i);
             data.setName(Translator.get("user") + i);
-            data.setPassword(Translator.get("required") + ";" + Translator.get("password_format_is_incorrect"));
             data.setEmail(Translator.get("required"));
-            String workspace = "";
-            for (int workspaceIndex = 1; workspaceIndex <= i; workspaceIndex++) {
-                if (workspaceIndex == 1) {
-                    workspace = "workspace" + workspaceIndex;
-                } else {
-                    workspace = workspace + "\n" + "workspace" + workspaceIndex;
-                }
-            }
             data.setUserIsAdmin(Translator.get("options_no"));
             data.setUserIsTester(Translator.get("options_no"));
             data.setUserIsOrgMember(Translator.get("options_no"));
             data.setUserIsViewer(Translator.get("options_no"));
             data.setUserIsTestManager(Translator.get("options_no"));
+            data.setUserIsProjectAdmin(Translator.get("options_no"));
+            data.setUserIsProjectMember(Translator.get("options_no"));
             data.setUserIsOrgAdmin(Translator.get("options_yes"));
-            data.setOrgAdminOrganization(workspace);
+            data.setOrgAdminOrganization("默认组织");
             list.add(data);
         }
-
         list.add(new UserExcelData());
         UserExcelData explain = new UserExcelData();
+        explain.setId("ID不支持中文");
         explain.setName(Translator.get("do_not_modify_header_order"));
-        explain.setOrgAdminOrganization("多个工作空间请换行展示");
+        explain.setOrgAdminOrganization("多个组织请换行展示");
+        explain.setPassword(Translator.get("required") + ";" + Translator.get("password_format_is_incorrect"));
         list.add(explain);
         return list;
     }
@@ -935,6 +926,7 @@ public class UserService {
 
             Map<String, String> orgNameMap = new HashMap<>();
             Map<String, String> workspaceNameMap = new HashMap<>();
+            Map<String, String> projectNameMap = new HashMap<>();
 
             List<OrganizationMemberDTO> organizationList = extOrganizationMapper.findIdAndNameByOrganizationId("All");
             for (OrganizationMemberDTO model : organizationList) {
@@ -944,7 +936,12 @@ public class UserService {
             for (WorkspaceDTO model : workspaceList) {
                 workspaceNameMap.put(model.getName(), model.getId());
             }
-            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap);
+            List<Project> projectList = projectMapper.selectByExample(new ProjectExample());
+            for (Project pro : projectList) {
+                projectNameMap.put(pro.getName(), pro.getId());
+            }
+
+            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap, projectNameMap);
             EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
             if (CollectionUtils.isNotEmpty(((UserDataListener) easyExcelListener).getNames())) {
                 request.setAttribute("ms-req-title", String.join(",", ((UserDataListener) easyExcelListener).getNames()));
@@ -1350,5 +1347,82 @@ public class UserService {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdIn(userIds);
         return userMapper.selectByExample(userExample);
+    }
+
+
+    public void updateImportUserGroup(UserRequest user) {
+        UserGroupExample userGroupExample = new UserGroupExample();
+        userGroupExample.createCriteria().andUserIdEqualTo(user.getId());
+        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+        List<String> list = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+
+        if (!CollectionUtils.isEmpty(list)) {
+            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
+                user.setLastOrganizationId("");
+                user.setLastWorkspaceId("");
+                userMapper.updateByPrimaryKeySelective(user);
+            }
+        }
+
+        userGroupMapper.deleteByExample(userGroupExample);
+        List<Map<String, Object>> groups = user.getGroups();
+        saveImportUserGroup(groups, user.getId());
+
+        UserExample example = new UserExample();
+        UserExample.Criteria criteria = example.createCriteria();
+        criteria.andEmailEqualTo(user.getEmail());
+        criteria.andIdNotEqualTo(user.getId());
+        if (userMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("user_email_already_exists"));
+        }
+        user.setUpdateTime(System.currentTimeMillis());
+        user.setPassword(null);
+        userMapper.updateByPrimaryKeySelective(user);
+    }
+
+    public void saveImportUser(UserRequest userRequest) {
+        checkUserParam(userRequest);
+        String userId = userRequest.getId();
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (user != null) {
+            MSException.throwException(Translator.get("user_id_already_exists"));
+        } else {
+            createUser(userRequest);
+        }
+        List<Map<String, Object>> groups = userRequest.getGroups();
+        saveImportUserGroup(groups, userId);
+    }
+
+    private void saveImportUserGroup(List<Map<String, Object>> groups, String userId) {
+        if (!groups.isEmpty()) {
+            for (Map<String, Object> map : groups) {
+                String groupId = (String) map.get("id");
+                if (StringUtils.equals(groupId, UserGroupConstants.ADMIN)) {
+                    UserGroup userGroup = new UserGroup();
+                    userGroup.setId(UUID.randomUUID().toString());
+                    userGroup.setUserId(userId);
+                    userGroup.setGroupId(groupId);
+                    userGroup.setSourceId("system");
+                    userGroup.setCreateTime(System.currentTimeMillis());
+                    userGroup.setUpdateTime(System.currentTimeMillis());
+                    userGroupMapper.insertSelective(userGroup);
+                } else {
+                    List<String> ids = (List<String>) map.get("ids");
+                    SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                    UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+                    for (String id : ids) {
+                        UserGroup userGroup = new UserGroup();
+                        userGroup.setId(UUID.randomUUID().toString());
+                        userGroup.setUserId(userId);
+                        userGroup.setGroupId(groupId);
+                        userGroup.setSourceId(id);
+                        userGroup.setCreateTime(System.currentTimeMillis());
+                        userGroup.setUpdateTime(System.currentTimeMillis());
+                        mapper.insertSelective(userGroup);
+                    }
+                    sqlSession.flushStatements();
+                }
+            }
+        }
     }
 }
