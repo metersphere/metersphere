@@ -924,66 +924,6 @@ public class TestPlanExample {
             return (Criteria) this;
         }
 
-        public Criteria andActualEndTimeIsNull() {
-            addCriterion("actual_end_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeIsNotNull() {
-            addCriterion("actual_end_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeEqualTo(Long value) {
-            addCriterion("actual_end_time =", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeNotEqualTo(Long value) {
-            addCriterion("actual_end_time <>", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeGreaterThan(Long value) {
-            addCriterion("actual_end_time >", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("actual_end_time >=", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeLessThan(Long value) {
-            addCriterion("actual_end_time <", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeLessThanOrEqualTo(Long value) {
-            addCriterion("actual_end_time <=", value, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeIn(List<Long> values) {
-            addCriterion("actual_end_time in", values, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeNotIn(List<Long> values) {
-            addCriterion("actual_end_time not in", values, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeBetween(Long value1, Long value2) {
-            addCriterion("actual_end_time between", value1, value2, "actualEndTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andActualEndTimeNotBetween(Long value1, Long value2) {
-            addCriterion("actual_end_time not between", value1, value2, "actualEndTime");
-            return (Criteria) this;
-        }
-
         public Criteria andPlannedStartTimeIsNull() {
             addCriterion("planned_start_time is null");
             return (Criteria) this;
@@ -1161,6 +1101,66 @@ public class TestPlanExample {
 
         public Criteria andActualStartTimeNotBetween(Long value1, Long value2) {
             addCriterion("actual_start_time not between", value1, value2, "actualStartTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIsNull() {
+            addCriterion("actual_end_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIsNotNull() {
+            addCriterion("actual_end_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeEqualTo(Long value) {
+            addCriterion("actual_end_time =", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotEqualTo(Long value) {
+            addCriterion("actual_end_time <>", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeGreaterThan(Long value) {
+            addCriterion("actual_end_time >", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("actual_end_time >=", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeLessThan(Long value) {
+            addCriterion("actual_end_time <", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeLessThanOrEqualTo(Long value) {
+            addCriterion("actual_end_time <=", value, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeIn(List<Long> values) {
+            addCriterion("actual_end_time in", values, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotIn(List<Long> values) {
+            addCriterion("actual_end_time not in", values, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeBetween(Long value1, Long value2) {
+            addCriterion("actual_end_time between", value1, value2, "actualEndTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andActualEndTimeNotBetween(Long value1, Long value2) {
+            addCriterion("actual_end_time not between", value1, value2, "actualEndTime");
             return (Criteria) this;
         }
 
@@ -1361,6 +1361,66 @@ public class TestPlanExample {
 
         public Criteria andExecutionTimesNotBetween(Integer value1, Integer value2) {
             addCriterion("execution_times not between", value1, value2, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateIsNull() {
+            addCriterion("automatic_status_update is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateIsNotNull() {
+            addCriterion("automatic_status_update is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateEqualTo(Boolean value) {
+            addCriterion("automatic_status_update =", value, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateNotEqualTo(Boolean value) {
+            addCriterion("automatic_status_update <>", value, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateGreaterThan(Boolean value) {
+            addCriterion("automatic_status_update >", value, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("automatic_status_update >=", value, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateLessThan(Boolean value) {
+            addCriterion("automatic_status_update <", value, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateLessThanOrEqualTo(Boolean value) {
+            addCriterion("automatic_status_update <=", value, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateIn(List<Boolean> values) {
+            addCriterion("automatic_status_update in", values, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateNotIn(List<Boolean> values) {
+            addCriterion("automatic_status_update not in", values, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateBetween(Boolean value1, Boolean value2) {
+            addCriterion("automatic_status_update between", value1, value2, "automaticStatusUpdate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAutomaticStatusUpdateNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("automatic_status_update not between", value1, value2, "automaticStatusUpdate");
             return (Criteria) this;
         }
     }
