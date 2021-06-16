@@ -980,48 +980,50 @@ public class ApiAutomationService {
 
     private void run(Map<APIScenarioReportResult, RunModeDataDTO> map, RunScenarioRequest request, String serialReportId) {
         // 开始选择执行模式
-        ExecutorService executorService = Executors.newFixedThreadPool(map.size());
-        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            // 开始串行执行
-            Thread thread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    List<String> reportIds = new LinkedList<>();
-                    for (APIScenarioReportResult key : map.keySet()) {
-                        apiScenarioReportMapper.insert(key);
-                        reportIds.add(key.getId());
-                        try {
-                            Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, map.get(key), request));
-                            ApiScenarioReport report = future.get();
-                            // 如果开启失败结束执行，则判断返回结果状态
-                            if (request.getConfig().isOnSampleError()) {
-                                if (report == null || !report.getStatus().equals("Success")) {
-                                    break;
+        if (map != null && map.size() > 0) {
+            ExecutorService executorService = Executors.newFixedThreadPool(map.size());
+            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                // 开始串行执行
+                Thread thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        List<String> reportIds = new LinkedList<>();
+                        for (APIScenarioReportResult key : map.keySet()) {
+                            apiScenarioReportMapper.insert(key);
+                            reportIds.add(key.getId());
+                            try {
+                                Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, map.get(key), request));
+                                ApiScenarioReport report = future.get();
+                                // 如果开启失败结束执行，则判断返回结果状态
+                                if (request.getConfig().isOnSampleError()) {
+                                    if (report == null || !report.getStatus().equals("Success")) {
+                                        break;
+                                    }
                                 }
+                            } catch (Exception e) {
+                                LogUtil.error("执行终止：" + e.getMessage());
+                                break;
                             }
-                        } catch (Exception e) {
-                            LogUtil.error("执行终止：" + e.getMessage());
-                            break;
+                        }
+                        // 更新集成报告
+                        if (StringUtils.isNotEmpty(serialReportId)) {
+                            apiScenarioReportService.margeReport(serialReportId, reportIds);
+                            map.clear();
                         }
                     }
-                    // 更新集成报告
-                    if (StringUtils.isNotEmpty(serialReportId)) {
-                        apiScenarioReportService.margeReport(serialReportId, reportIds);
-                        map.clear();
-                    }
+                });
+                thread.start();
+            } else {
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+                // 开始并发执行
+                for (APIScenarioReportResult report : map.keySet()) {
+                    //存储报告
+                    batchMapper.insert(report);
+                    executorService.submit(new ParallelScenarioExecTask(jMeterService, map.get(report), request));
                 }
-            });
-            thread.start();
-        } else {
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
-            // 开始并发执行
-            for (APIScenarioReportResult report : map.keySet()) {
-                //存储报告
-                batchMapper.insert(report);
-                executorService.submit(new ParallelScenarioExecTask(jMeterService, map.get(report), request));
+                sqlSession.flushStatements();
             }
-            sqlSession.flushStatements();
         }
     }
 
