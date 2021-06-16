@@ -84,7 +84,7 @@ public class XmindCaseParser {
         this.importType = importType;
     }
 
-    private static final String TC_REGEX = "(?:tc:|tc：)";
+    private static final String TC_REGEX = "(?:tc:|tc：|tc)";
     private static final String PC_REGEX = "(?:pc:|pc：)";
     private static final String RC_REGEX = "(?:rc:|rc：)";
     private static final String ID_REGEX = "(?:id:|id：)";
