@@ -3,6 +3,7 @@ package io.metersphere.performance.engine;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.Application;
+import io.metersphere.api.dto.RunRequest;
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
@@ -86,6 +87,15 @@ public class EngineFactory {
             }
         }
         return null;
+    }
+
+    public static Engine createApiEngine(RunRequest runRequest) {
+        try {
+            return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, runRequest);
+        } catch (Exception e) {
+            LogUtil.error(e);
+            return null;
+        }
     }
 
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, String reportId, int resourceIndex) {
