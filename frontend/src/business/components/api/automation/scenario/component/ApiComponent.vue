@@ -31,25 +31,33 @@
       <template v-slot:request>
         <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+        <legend style="width: 100%">
+
         <ms-api-request-form v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
                              :isShowEnable="true"
                              :referenced="true"
                              :headers="request.headers "
+                             :is-read-only="isCompReadOnly"
                              :request="request"/>
         <esb-definition v-if="showXpackCompnent&&request.esbDataStruct!=null"
                         v-xpack
                         :request="request"
                         :showScript="false"
+                        :is-read-only="isCompReadOnly"
                         ref="esbDefinition"/>
         <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
                                  :request="request"
+                                 :is-read-only="isCompReadOnly"
                                  :showScript="false"/>
         <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
                                  :request="request"
+                                 :is-read-only="isCompReadOnly"
                                  :showScript="false"/>
         <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
                                    :request="request"
+                                   :is-read-only="isCompReadOnly"
                                    :showScript="false"/>
+        </legend>
       </template>
       <!-- 执行结果内容 -->
       <template v-slot:result>
@@ -191,6 +199,17 @@ export default {
         }
       }
       return {};
+    },
+    isCompReadOnly(){
+      if(this.request){
+        if(this.request.disabled){
+          return this.request.disabled;
+        }else {
+          return false;
+        }
+      }else {
+        return false;
+      }
     },
     displayTitle() {
       if (this.isApiImport) {

@@ -238,18 +238,23 @@ public class MsTCPSampler extends MsTestElement {
             this.parameters.forEach(item -> {
                 names.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getName()));
                 String value = item.getValue();
-                value = this.formatMockValue(value);
-                if(StringUtils.isNotEmpty(this.getConnectEncoding())){
-                    if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
-                        value = new String(value.getBytes(),StandardCharsets.UTF_8);
-                    }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
-                        try {
-                            value = new String(value.getBytes(),"GBK");
-                        }catch (Exception e){
+                if(StringUtils.isNotEmpty(value)){
+                    value = this.formatMockValue(value);
+                    if(StringUtils.isNotEmpty(this.getConnectEncoding())){
+                        if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
+                            try {
+                                value = new String(value.getBytes(),StandardCharsets.UTF_8);
+                            }catch (Exception e){
+                            }
+                        }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
+                            try {
+                                value = new String(value.getBytes(),"GBK");
+                            }catch (Exception e){
+                            }
                         }
                     }
+                    threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), value));
                 }
-                threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), value));
             });
         }
         userParameters.setNames(new CollectionProperty(UserParameters.NAMES, names));
