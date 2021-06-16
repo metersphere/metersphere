@@ -6,8 +6,9 @@
              text-color="#fff"
              active-text-color="#fff">
       <el-menu-item onselectstart="return false">
-        <font-awesome-icon class="icon global" :icon="['fas', 'flag']"/>
-        <span @click="showTaskCenter">{{ $t('commons.task_center') }}</span>
+        <el-tooltip :content="$t('commons.task_center')">
+          <font-awesome-icon class="icon global" :icon="['fas', 'flag']" @click="showTaskCenter"/>
+        </el-tooltip>
       </el-menu-item>
     </el-menu>
 
