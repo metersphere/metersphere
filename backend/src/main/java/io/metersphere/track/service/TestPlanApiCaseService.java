@@ -219,4 +219,16 @@ public class TestPlanApiCaseService {
         }
         return null;
     }
+
+    public Boolean hasFailCase(String planId, List<String> apiCaseIds) {
+        if (CollectionUtils.isEmpty(apiCaseIds)) {
+            return false;
+        }
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(planId)
+                .andApiCaseIdIn(apiCaseIds)
+                .andStatusEqualTo("error");
+        return testPlanApiCaseMapper.countByExample(example) > 0 ? true : false;
+    }
 }
