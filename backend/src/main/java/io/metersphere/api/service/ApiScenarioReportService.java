@@ -233,6 +233,7 @@ public class ApiScenarioReportService {
                 testPlanApiScenario.setPassRate(passRate);
                 testPlanApiScenario.setReportId(report.getId());
                 testPlanApiScenario.setUpdateTime(report.getCreateTime());
+                report.setTestPlanScenarioId(testPlanApiScenario.getId());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
             }
             returnReport = report;
@@ -280,6 +281,7 @@ public class ApiScenarioReportService {
             }
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
             report.setScenarioId(testPlanApiScenario.getApiScenarioId());
+            report.setTestPlanScenarioId(planScenarioId);
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
             if (scenarioResult.getError() > 0) {
                 testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());

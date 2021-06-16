@@ -15,8 +15,10 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanReportService;
+import io.metersphere.track.service.TestPlanScenarioCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -203,6 +205,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         ApiTestReport report = null;
         ApiTestReportVariable reportTask = null;
         String reportUrl = null;
+        String planScenarioId = null;
         // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
@@ -330,6 +333,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
             testResult.setTestId(scenarioReport.getScenarioId());
+            planScenarioId = scenarioReport.getTestPlanScenarioId();
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());
@@ -337,6 +341,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         }
         queue.clear();
         super.teardownTest(context);
+
+        updateTestCaseStates(testResult, planScenarioId);
 
         List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
         if (ids.size() > 0) {
@@ -356,6 +362,37 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
         }
 
+    }
+
+    /**
+     * 更新测试计划关联接口测试的功能用例的状态
+     * @param testResult
+     */
+    private void updateTestCaseStates(TestResult testResult, String testPlanScenarioId) {
+        try {
+            if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
+                    ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+                testResult.getScenarios().forEach(scenarioResult -> {
+                    if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
+                        scenarioResult.getRequestResults().forEach(item -> {
+                            if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
+                                    ApiRunMode.JENKINS_API_PLAN.name())) {
+                                TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(item.getName());
+                                ApiTestCaseWithBLOBs apiTestCase = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                testPlanTestCaseService.updateTestCaseStates(apiTestCase.getId(), apiTestCase.getName(), testPlanApiCase.getTestPlanId(), TrackCount.TESTCASE);
+                            } else {
+                                TestPlanScenarioCaseService testPlanScenarioCaseService = CommonBeanFactory.getBean(TestPlanScenarioCaseService.class);
+                                TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.get(testPlanScenarioId);
+                                ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(testPlanApiScenario.getApiScenarioId());
+                                testPlanTestCaseService.updateTestCaseStates(apiScenario.getId(), apiScenario.getName(), testPlanApiScenario.getTestPlanId(), TrackCount.AUTOMATION);
+                            }
+                        });
+                    }
+                });
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 
     private static void sendTask(ApiTestReportVariable report, String reportUrl, TestResult testResult) {

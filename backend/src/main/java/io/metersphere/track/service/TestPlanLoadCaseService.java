@@ -326,4 +326,16 @@ public class TestPlanLoadCaseService {
         }
         return null;
     }
+
+    public Boolean hasFailCase(String planId, List<String> performanceIds) {
+        if (CollectionUtils.isEmpty(performanceIds)) {
+            return false;
+        }
+        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(planId)
+                .andLoadCaseIdIn(performanceIds)
+                .andStatusEqualTo("error");
+        return testPlanLoadCaseMapper.countByExample(example) > 0 ? true : false;
+    }
 }
