@@ -10,13 +10,13 @@
     :show-btn="showBtn"
     :background-color="backgroundColor"
     :title="title" v-loading="loading">
-
-    <jsr233-processor-content
-      :jsr223-processor="jsr223Processor"
-      :is-pre-processor="isPreProcessor"
-      :node="node"
-      :is-read-only="isReadOnly"/>
-
+    <legend style="width: 100%">
+      <jsr233-processor-content
+        :jsr223-processor="jsr223Processor"
+        :is-pre-processor="isPreProcessor"
+        :node="node"
+        :is-read-only="this.jsr223Processor.disabled"/>
+      </legend>
   </api-base-component>
 </template>
 

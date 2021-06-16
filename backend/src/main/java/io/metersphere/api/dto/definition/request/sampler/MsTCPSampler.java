@@ -242,7 +242,10 @@ public class MsTCPSampler extends MsTestElement {
                     value = this.formatMockValue(value);
                     if(StringUtils.isNotEmpty(this.getConnectEncoding())){
                         if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
-                            value = new String(value.getBytes(),StandardCharsets.UTF_8);
+                            try {
+                                value = new String(value.getBytes(),StandardCharsets.UTF_8);
+                            }catch (Exception e){
+                            }
                         }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
                             try {
                                 value = new String(value.getBytes(),"GBK");
