@@ -37,8 +37,16 @@ public class UserExcelData {
     @ExcelIgnore
     private String testerWorkspace;
     @ExcelIgnore
+    private String userIsProjectAdmin;
+    @ExcelIgnore
+    private String proAdminProject;
+    @ExcelIgnore
+    private String userIsProjectMember;
+    @ExcelIgnore
+    private String proMemberProject;
+    @ExcelIgnore
     private String userIsViewer;
     @ExcelIgnore
-    private String viewerWorkspace;
+    private String viewerProject;
 
 }
