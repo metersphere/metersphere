@@ -126,11 +126,13 @@ export default {
         //运行场景中如果连续将1个场景引入多次，会出现运行结果合并的情况。
         //为了解决这种问题，在转hashTree的时候给场景放了个新ID，前台加载解析的时候也要做处理
         let scenarioId = "";
+        let scenarioName = "";
         if (item.scenario) {
           let scenarioArr = JSON.parse(item.scenario);
           if (scenarioArr.length > 1) {
             let scenarioIdArr = scenarioArr[0].split("_");
             scenarioId = scenarioIdArr[0];
+            scenarioName = scenarioIdArr[1];
           }
         }
         // 循环构建子节点
@@ -160,16 +162,23 @@ export default {
               if (i === nodeArray.length - 2) {
                 idIsPath = false;
                 let childId = "";
+                let childName = "";
                 if (children[j].value && children[j].value.scenario) {
                   let scenarioArr = JSON.parse(children[j].value.scenario);
                   if (scenarioArr.length > 1) {
                     let childArr = scenarioArr[0].split("_");
                     childId = childArr[0];
+                    if(childArr.length > 1){
+                      childName = childArr[1];
+                    }
                   }
                 }
                 if (scenarioId === "") {
                   idIsPath = true;
                 } else if (scenarioId === childId) {
+                  idIsPath = true;
+                } else if(scenarioName !== childName){
+                  //如果两个名字不匹配则默认通过，不匹配ID
                   idIsPath = true;
                 }
               }
