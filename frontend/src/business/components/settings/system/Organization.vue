@@ -485,7 +485,7 @@ export default {
           this.result = this.$post("user/special/org/member/add", param, () => {
             let sign = "other";
             let sourceId = this.currentRow.id;
-            refreshSessionAndCookies(sign, sourceId);
+            // refreshSessionAndCookies(sign, sourceId);
             this.cellClick(this.currentRow);
             this.dialogOrgMemberAddVisible = false;
           });
