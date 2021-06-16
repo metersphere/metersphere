@@ -635,12 +635,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     } else {
                         apiDefinition = apiDefinitionService.get(this.getId());
                         if (apiDefinition == null) {
-                            TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
-                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
-                            if (testPlanApiCase != null) {
-                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
-                                if (caseWithBLOBs != null) {
-                                    apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(this.getId());
+                            if (apiTestCaseWithBLOBs != null) {
+                                apiDefinition = apiDefinitionService.get(apiTestCaseWithBLOBs.getApiDefinitionId());
+                            } else {
+                                TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+                                TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                                if (testPlanApiCase != null) {
+                                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                    if (caseWithBLOBs != null) {
+                                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                                    }
                                 }
                             }
                         }
