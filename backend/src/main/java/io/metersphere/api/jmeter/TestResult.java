@@ -80,6 +80,12 @@ public class TestResult {
         }
     }
 
+    private void setStatus(String id_names, boolean status) {
+        if (!margeScenariMap.containsKey(id_names) || status) {
+            margeScenariMap.put(id_names, status);
+        }
+    }
+
     private void setStepStatus(String step_names, boolean status) {
         if (!scenarioStepMap.containsKey(step_names) || status) {
             scenarioStepMap.put(step_names, status);
@@ -88,23 +94,27 @@ public class TestResult {
 
 
     public void addScenario(ScenarioResult result) {
+        /**
+         * 1.10.2统计逻辑修改：
+         * 不统计所有的请求，改为统计场景和场景步骤
+         * 场景里的第一层视为步骤，不考虑深层情况
+         */
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
-                String itemScenarioName = "";
+                String itemAndScenarioName = "";
                 if (StringUtils.isNotEmpty(item.getScenario())) {
+                    //第1个：当前场景， 第all_id_names个：最后一层场景
                     List<String> all_id_names = JSON.parseObject(item.getScenario(), List.class);
                     if(all_id_names.size()>1){
-                        List<String> id_names = new ArrayList<>();
-                        all_id_names.forEach(name -> {
-                            if(!name.endsWith(result.getName())){
-                                id_names.add(name);
-                            }
-                        });
-                        this.setStatus(id_names, item.getError() > 0);
-                        itemScenarioName = JSONArray.toJSONString(id_names);
+                        StringBuffer scenarioNames = new StringBuffer();
+                        //因为要进行步骤统计，第一层级下的场景算作步骤，所以统计视角只按照第一级别场景来计算
+                        scenarioNames.append(all_id_names.get(all_id_names.size()-1)+all_id_names.get(all_id_names.size()-2));
+                        this.setStatus(scenarioNames.toString(), item.getError() > 0);
+                        itemAndScenarioName = scenarioNames.toString();
                     }else{
+                        //不存在多场景时需要补上步骤名字做唯一判断
+                        itemAndScenarioName = item.getName()+":"+JSONArray.toJSONString(all_id_names.get(0));
                         this.setStatus(all_id_names, item.getError() > 0);
-                        itemScenarioName = JSONArray.toJSONString(all_id_names);
                     }
 
                 }
@@ -129,7 +139,7 @@ public class TestResult {
                         }
                     });
                 }
-                this.setStepStatus(item.getName()+itemScenarioName,item.getError()>0);
+                this.setStepStatus(itemAndScenarioName,item.getError()>0);
             });
             scenarios.add(result);
         }
