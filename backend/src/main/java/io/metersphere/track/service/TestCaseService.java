@@ -540,6 +540,7 @@ public class TestCaseService {
             num.set(getNextNum(projectId) + testCases.size());
             testCases.forEach(testcase -> {
                 testcase.setId(UUID.randomUUID().toString());
+                testcase.setCreateUser(SessionUtils.getUserId());
                 testcase.setCreateTime(System.currentTimeMillis());
                 testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
