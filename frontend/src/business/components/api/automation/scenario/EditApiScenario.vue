@@ -1359,7 +1359,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 200px;
+  width: 150px;
 }
 
 .ms-open-btn {

@@ -4,7 +4,9 @@
       <!-- 调试部分 -->
       <el-row class="ms-header-margin">
         <el-col :span="8">
-          {{currentScenario.name}}
+          <el-tooltip placement="top" :content="currentScenario.name">
+            <span class="ms-scenario-name">{{currentScenario.name}}</span>
+          </el-tooltip>
         </el-col>
         <el-col :span="8">
           {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
@@ -196,5 +198,15 @@ import html2canvas from 'html2canvas';
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
+  }
+  .ms-scenario-name {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 200px;
   }
 </style>
