@@ -12,6 +12,7 @@ export default class ThreadGroup extends HashTreeElement {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
     this.type = TYPE;
+    this.onSampleError = true;
   }
 }
 
