@@ -44,7 +44,7 @@ public abstract class JiraAbstractClient extends BaseClient {
     }
 
     public String getIssueCreateMetadata() {
-        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/createmeta", HttpMethod.GET, getAuthHttpEntity(), String.class);
+        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/issue/createmeta", HttpMethod.GET, getAuthHttpEntity(), String.class);
         return (String) getResultForObject(String.class, response);
     }
 
