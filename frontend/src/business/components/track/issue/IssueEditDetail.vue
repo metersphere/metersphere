@@ -159,10 +159,12 @@ export default {
       if (platform === 'Zentao') {
         this.hasZentaoId = true;
         this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId}, response => {
-          this.Builds = response.data;
-        });
-        this.result = this.$post("/issues/zentao/user", {projectId: this.projectId}, response => {
-          this.zentaoUsers = response.data;
+          if (response.data) {
+            this.Builds = response.data;
+          }
+          this.result = this.$post("/issues/zentao/user", {projectId: this.projectId}, response => {
+            this.zentaoUsers = response.data;
+          });
         });
       }
       if (platform === 'Tapd') {

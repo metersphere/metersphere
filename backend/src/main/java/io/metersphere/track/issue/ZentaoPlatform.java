@@ -47,6 +47,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     public ZentaoPlatform(IssuesRequest issuesRequest) {
         super(issuesRequest);
         String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
+        // todo
+        if (StringUtils.isBlank(config)) {
+            MSException.throwException("未集成禅道平台!");
+        }
         JSONObject object = JSON.parseObject(config);
         this.account = object.getString("account");
         this.password = object.getString("password");
