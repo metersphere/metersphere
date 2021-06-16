@@ -3,8 +3,9 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_USER:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="$t('user.create')" :title="$t('commons.user')"/>
+        <ms-table-header :create-permission="['SYSTEM_USER:READ+CREATE']" :condition.sync="condition" @search="search"
+                         @import="importUserDialogOpen" :show-import="true" :import-tip="$t('commons.import_user')"
+                         @create="create" :create-tip="$t('user.create')" :title="$t('commons.user')"/>
 
       </template>
 

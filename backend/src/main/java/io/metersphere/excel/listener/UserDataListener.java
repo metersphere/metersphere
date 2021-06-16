@@ -1,6 +1,7 @@
 package io.metersphere.excel.listener;
 
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.controller.request.member.UserRequest;
@@ -20,6 +21,10 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     Map<String, String> workspaceNameMap;
     //key:Organization.name value:id
     Map<String, String> orgNameMap;
+    /**
+     * key:project.name value.id
+     */
+    Map<String, String> projectNameMap;
     //已经保存的用户ID
     List<String> savedUserId;
 
@@ -42,10 +47,11 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
         return this.names;
     }
 
-    public UserDataListener(Class clazz, Map<String, String> workspaceNameMap, Map<String, String> orgNameMap) {
+    public UserDataListener(Class clazz, Map<String, String> workspaceNameMap, Map<String, String> orgNameMap, Map<String, String> projectNameMap) {
         this.clazz = clazz;
         this.workspaceNameMap = workspaceNameMap;
         this.orgNameMap = orgNameMap;
+        this.projectNameMap = projectNameMap;
         this.userService = (UserService) CommonBeanFactory.getBean("userService");
         savedUserId = userService.selectAllId();
     }
@@ -54,30 +60,40 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     public String validate(UserExcelData data, String errMsg) {
         StringBuilder stringBuilder = new StringBuilder(errMsg);
 
-        //判断组织管理员组织
+        //判断组织管理员组织(系统)
         String orgManagerOrgCheck = this.checkOrganization(data.getUserIsOrgAdmin(), data.getOrgAdminOrganization());
         if (orgManagerOrgCheck != null) {
             stringBuilder.append(orgManagerOrgCheck);
         }
-        //判断组织成员组织
+        //判断组织成员组织(系统)
         String orgMemberOrgCheck = this.checkOrganization(data.getUserIsOrgMember(), data.getOrgMemberOrganization());
         if (orgMemberOrgCheck != null) {
             stringBuilder.append(orgMemberOrgCheck);
         }
-        //判断测试经理工作空间
+        //判断测试经理工作空间(系统)
         String testManagerWorkspaceCheck = this.checkWorkSpace(data.getUserIsTestManager(), data.getTestManagerWorkspace());
         if (testManagerWorkspaceCheck != null) {
             stringBuilder.append(testManagerWorkspaceCheck);
         }
-        //判断测试人员工作空间
+        //判断测试人员工作空间(系统)
         String testerWorkspaceCheck = this.checkWorkSpace(data.getUserIsTester(), data.getTesterWorkspace());
         if (testerWorkspaceCheck != null) {
             stringBuilder.append(testerWorkspaceCheck);
         }
-        //判断只读用户工作空间
-        String viewerWorkspaceCheck = this.checkWorkSpace(data.getUserIsViewer(), data.getViewerWorkspace());
-        if (viewerWorkspaceCheck != null) {
-            stringBuilder.append(viewerWorkspaceCheck);
+        // 判断项目管理员(系统)
+        String proAdminProjectCheck = this.checkProject(data.getUserIsProjectAdmin(), data.getProAdminProject());
+        if (proAdminProjectCheck != null) {
+            stringBuilder.append(proAdminProjectCheck);
+        }
+        // 判断项目成员(系统)
+        String proMemberProjectCheck = this.checkProject(data.getUserIsProjectMember(), data.getProMemberProject());
+        if (proMemberProjectCheck != null) {
+            stringBuilder.append(proMemberProjectCheck);
+        }
+        //判断只读用户工作空间(系统)
+        String viewerProjectCheck = this.checkWorkSpace(data.getUserIsViewer(), data.getViewerProject());
+        if (viewerProjectCheck != null) {
+            stringBuilder.append(viewerProjectCheck);
         }
         return stringBuilder.toString();
     }
@@ -95,7 +111,7 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
             return;
         }
         Collections.reverse(list);
-        List<UserRequest> result = list.stream().map(item -> this.convert2UserRequest(item)).collect(Collectors.toList());
+        List<UserRequest> result = list.stream().map(this::convert2UserRequest).collect(Collectors.toList());
         List<String> ids = new LinkedList<>();
         List<String> names = new LinkedList<>();
         for (UserRequest userRequest : result) {
@@ -104,10 +120,10 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
             names.add(userRequest.getName());
             if (savedUserId.contains(id)) {
                 //已经在数据库内的，走更新逻辑
-                userService.updateUserRole(userRequest);
+                userService.updateImportUserGroup(userRequest);
             } else {
                 //不再数据库中的走新建逻辑
-                userService.insert(userRequest);
+                userService.saveImportUser(userRequest);
             }
         }
         this.setIds(ids);
@@ -165,6 +181,29 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     }
 
     /**
+     * 检查项目
+     * @param userGroupInExcel   excel表中用户组填写信息
+     * @param projectInfoInExcel excel表中用户项目填写信息
+     * @return 报错信息
+     */
+    private String checkProject(String userGroupInExcel, String projectInfoInExcel) {
+        String result = null;
+        if (StringUtils.equalsAnyIgnoreCase(Translator.get("options_yes"), userGroupInExcel)) {
+            String[] projectNameArr = projectInfoInExcel.split("\n");
+            for (String projectName : projectNameArr) {
+                if (!projectNameMap.containsKey(projectName)) {
+                    if (result == null) {
+                        result = Translator.get("user_import_organization_not_fond") + "：" + projectName + "; ";
+                    } else {
+                        result += Translator.get("user_import_organization_not_fond") + "：" + projectName + "; ";
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
      * 通过excel的信息，以及id字典对象，获取相对应的ID
      *
      * @param userRoleInExcel  excel中的信息，是否进行工作空间或者组织的id转化
@@ -196,63 +235,76 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
         //这里的password要加密
         request.setPassword(data.getPassword());
 
-        List<Map<String, Object>> roleMapList = new ArrayList<>();
+        List<Map<String, Object>> groupMapList = new ArrayList<>();
         //判断是否是Admin
         if (StringUtils.equalsIgnoreCase(Translator.get("options_yes"), data.getUserIsAdmin())) {
             List<String> adminIdList = new ArrayList<>();
-            adminIdList.add("adminSourceId");
-            Map<String, Object> adminRoleMap = this.genRoleMap(RoleConstants.ADMIN, adminIdList);
-            roleMapList.add(adminRoleMap);
+            adminIdList.add("system");
+            Map<String, Object> adminRoleMap = this.genGroupMap(UserGroupConstants.ADMIN, adminIdList);
+            groupMapList.add(adminRoleMap);
         }
         //判断组织管理员
         List<String> orgManagerOrdIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsOrgAdmin(), data.getOrgAdminOrganization(), orgNameMap);
         if (!orgManagerOrdIdList.isEmpty()) {
-            Map<String, Object> orgAdminRoleMap = this.genRoleMap(RoleConstants.ORG_ADMIN, orgManagerOrdIdList);
-            roleMapList.add(orgAdminRoleMap);
+            Map<String, Object> orgAdminRoleMap = this.genGroupMap(UserGroupConstants.ORG_ADMIN, orgManagerOrdIdList);
+            groupMapList.add(orgAdminRoleMap);
         }
         //判断组织成员
         List<String> orgMemberOrdIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsOrgMember(), data.getOrgMemberOrganization(), orgNameMap);
         if (!orgMemberOrdIdList.isEmpty()) {
-            Map<String, Object> orgMemberRoleMap = this.genRoleMap(RoleConstants.ORG_MEMBER, orgMemberOrdIdList);
-            roleMapList.add(orgMemberRoleMap);
+            Map<String, Object> orgMemberRoleMap = this.genGroupMap(UserGroupConstants.ORG_MEMBER, orgMemberOrdIdList);
+            groupMapList.add(orgMemberRoleMap);
         }
         //判断测试经理
         List<String> testManagerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsTestManager(), data.getTestManagerWorkspace(), workspaceNameMap);
         if (!testManagerWorkspaceIdList.isEmpty()) {
-            Map<String, Object> testManagerRoleMap = this.genRoleMap(RoleConstants.TEST_MANAGER, testManagerWorkspaceIdList);
-            roleMapList.add(testManagerRoleMap);
+            Map<String, Object> testManagerRoleMap = this.genGroupMap(UserGroupConstants.WS_ADMIN, testManagerWorkspaceIdList);
+            groupMapList.add(testManagerRoleMap);
         }
         //判断测试人员
         List<String> testgerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsTester(), data.getTesterWorkspace(), workspaceNameMap);
         if (!testgerWorkspaceIdList.isEmpty()) {
-            Map<String, Object> testerRoleMap = this.genRoleMap(RoleConstants.TEST_USER, testgerWorkspaceIdList);
-            roleMapList.add(testerRoleMap);
+            Map<String, Object> testerRoleMap = this.genGroupMap(UserGroupConstants.WS_MEMBER, testgerWorkspaceIdList);
+            groupMapList.add(testerRoleMap);
+        }
+        // 判断项目管理员
+        List<String> proAdminProjectIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsProjectAdmin(), data.getProAdminProject(), projectNameMap);
+        if (!proAdminProjectIdList.isEmpty()) {
+            Map<String, Object> proAdminGroupMap = this.genGroupMap(UserGroupConstants.PROJECT_ADMIN, proAdminProjectIdList);
+            groupMapList.add(proAdminGroupMap);
+        }
+        // 判断项目成员
+        List<String> proMemberProjectIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsProjectMember(), data.getProMemberProject(), projectNameMap);
+        if (!proMemberProjectIdList.isEmpty()) {
+            Map<String, Object> proMemberGroupMap = this.genGroupMap(UserGroupConstants.PROJECT_MEMBER, proMemberProjectIdList);
+            groupMapList.add(proMemberGroupMap);
         }
         //判断只读用户
-        List<String> viewerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsViewer(), data.getViewerWorkspace(), workspaceNameMap);
-        if (!viewerWorkspaceIdList.isEmpty()) {
-            Map<String, Object> testViewerRoleMap = this.genRoleMap(RoleConstants.TEST_VIEWER, viewerWorkspaceIdList);
-            roleMapList.add(testViewerRoleMap);
+        List<String> readOnlyProjectIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsViewer(), data.getViewerProject(), projectNameMap);
+        if (!readOnlyProjectIdList.isEmpty()) {
+            Map<String, Object> testViewerRoleMap = this.genGroupMap(UserGroupConstants.READ_ONLY, readOnlyProjectIdList);
+            groupMapList.add(testViewerRoleMap);
         }
-        request.setRoles(roleMapList);
+
+        request.setGroups(groupMapList);
         return request;
     }
 
     /**
      * 封装用户权限数据格式
      *
-     * @param roleName   权限名称
-     * @param roleIdList 对应的权限ID
+     * @param groupName   权限名称
+     * @param groupIdList 对应的权限ID
      * @return 保存用户时，对应的数据权限的数据格式
      */
-    private Map<String, Object> genRoleMap(String roleName, List<String> roleIdList) {
-        Map<String, Object> roleMap = new HashMap<>();
-        if (roleName == null || roleIdList == null) {
-            return roleMap;
+    private Map<String, Object> genGroupMap(String groupName, List<String> groupIdList) {
+        Map<String, Object> groupMap = new HashMap<>();
+        if (groupName == null || groupIdList == null) {
+            return groupMap;
         }
-        roleMap.put("id", roleName);
-        roleMap.put("ids", roleIdList);
-        return roleMap;
+        groupMap.put("id", groupName);
+        groupMap.put("ids", groupIdList);
+        return groupMap;
     }
 
     /**
