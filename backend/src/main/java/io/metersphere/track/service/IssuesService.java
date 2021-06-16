@@ -24,6 +24,7 @@ import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
+import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -68,6 +69,8 @@ public class IssuesService {
     private ExtIssuesMapper extIssuesMapper;
     @Resource
     private WorkspaceMapper workspaceMapper;
+    @Resource
+    private IssueTemplateService issueTemplateService;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -160,11 +163,16 @@ public class IssuesService {
 
     public String getIssueTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
+        IssueTemplate issueTemplate = null;
         String id = project.getIssueTemplateId();
         if (StringUtils.isBlank(id)) {
+            issueTemplate = issueTemplateService.getDefaultTemplate(project.getWorkspaceId());
+        } else {
+            issueTemplate = issueTemplateMapper.selectByPrimaryKey(id);
+        }
+        if (issueTemplate == null) {
             MSException.throwException("project issue template id is null.");
         }
-        IssueTemplate issueTemplate = issueTemplateMapper.selectByPrimaryKey(id);
         String platform = issueTemplate.getPlatform();
         if (StringUtils.equals(platform, "metersphere")) {
             return IssuesManagePlatform.Local.name();
