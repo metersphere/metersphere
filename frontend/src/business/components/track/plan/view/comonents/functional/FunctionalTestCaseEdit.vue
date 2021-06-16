@@ -341,7 +341,7 @@ export default {
         Object.assign(item, response.data);
         if (item.results) {
           item.results = JSON.parse(item.results);
-        } else {
+        } else if (item.steps) {
           item.results = [item.steps.length];
         }
         if (item.issues) {
