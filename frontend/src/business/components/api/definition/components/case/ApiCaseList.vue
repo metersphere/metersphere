@@ -19,7 +19,7 @@
         />
       </template>
 
-      <el-container v-loading="result.loading">
+      <el-container v-if="!result.loading">
         <el-main>
           <div v-for="(item,index) in apiCaseList" :key="item.id ? item.id : item.uuid">
             <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
@@ -437,7 +437,7 @@ export default {
           this.$success(this.$t('commons.save_success'));
         }
         this.selectdCases = [];
-        //this.getApiTest();
+        this.getApiTest();
       });
     },
   }
