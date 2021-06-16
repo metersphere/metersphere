@@ -237,11 +237,17 @@ export function getPageDate(response, page) {
  * @param key
  * @returns {[]|*}
  */
-export function getCustomTableHeader(key) {
-  let fieldSetting = CUSTOM_TABLE_HEADER[key];
+export function getCustomTableHeader(key, customFields) {
+  let fieldSetting = getAllFieldWithCustomFields(key, customFields);
   return getCustomTableHeaderByFiledSetting(key, fieldSetting);
 }
 
+/**
+ * 获取 localStorage 的值，过滤
+ * @param key
+ * @param fieldSetting
+ * @returns {[]|*}
+ */
 function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
   let fieldStr = localStorage.getItem(key);
   if (fieldStr !== null) {
@@ -268,7 +274,7 @@ function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
  * @returns {[]|*}
  */
 export function getTableHeaderWithCustomFields(key, customFields) {
-  let fieldSetting = [CUSTOM_TABLE_HEADER[key]];
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]]; // 复制
   let keys = getCustomFieldsKeys(customFields);
   customFields.forEach(item => {
     if (!item.key) {
@@ -285,6 +291,28 @@ export function getTableHeaderWithCustomFields(key, customFields) {
     fieldSetting.push(field);
   });
   return getCustomTableHeaderByFiledSetting(key, fieldSetting);
+}
+
+/**
+ * 获取所有字段
+ * @param key
+ * @param customFields
+ * @returns {*[]}
+ */
+export function getAllFieldWithCustomFields(key, customFields) {
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+  if (customFields) {
+    customFields.forEach(item => {
+      let field = {
+        id: item.name,
+        key: item.key,
+        label: item.name,
+        isCustom: true
+      }
+      fieldSetting.push(field);
+    });
+  }
+  return fieldSetting;
 }
 
 export function generateTableHeaderKey(keys) {

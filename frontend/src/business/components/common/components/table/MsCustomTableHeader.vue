@@ -18,8 +18,7 @@
 <script>
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import treeTransfer from 'el-tree-transfer'
-import {saveCustomTableHeader} from "@/common/js/tableUtils";
-import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
+import {getAllFieldWithCustomFields, saveCustomTableHeader} from "@/common/js/tableUtils";
 
 export default {
   name: "MsCustomTableHeader",
@@ -37,6 +36,7 @@ export default {
   },
   props: {
     type: String,
+    customFields: Array
   },
   methods: {
     allowDrop(draggingNode, dropNode, type) {
@@ -44,7 +44,7 @@ export default {
     },
     open(items) {
       items = JSON.parse(JSON.stringify(items));
-      let fields = JSON.parse(JSON.stringify(CUSTOM_TABLE_HEADER[this.type]));
+      let fields = getAllFieldWithCustomFields(this.type, this.customFields);
       this.selectedKeys = [];
       this.fromFields = [];
       this.selectedKeys = items.map(item => item.key);
