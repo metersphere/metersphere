@@ -19,9 +19,9 @@
           </span>
           <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
             <el-tooltip placement="top" :content="data.name">
-              <span class="ms-step-name-width">{{data.name}}</span>
+              <span>{{data.name}}</span>
             </el-tooltip>
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName"
+            <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
                v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
           </span>
         </slot>
