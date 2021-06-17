@@ -1035,7 +1035,7 @@ export default {
                   this.currentScenario.headers = obj.headers;
                 }
                 this.enableCookieShare = obj.enableCookieShare;
-                if (obj.onSampleError == undefined) {
+                if (obj.onSampleError === undefined) {
                   this.onSampleError = true;
                 } else {
                   this.onSampleError = obj.onSampleError;
