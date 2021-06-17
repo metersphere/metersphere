@@ -128,6 +128,11 @@ name: "TestCaseMinder",
           this.$error(tip)
           throw new Error(tip);
         }
+        if (data.id === null) {
+          let tip = '脑图编辑无法创建模块：' + data.text + '';
+          this.$error(tip)
+          throw new Error(tip);
+        }
         if (root.children) {
           root.children.forEach((childNode) => {
             this.buildSaveCase(childNode, saveCases, deleteCases, root.data);
