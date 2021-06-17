@@ -392,7 +392,8 @@
                test_case.id as caseId, test_case.name, test_case.priority,
                test_case.type, test_case.node_path, test_case.method, test_case.review_status,
                test_case.remark as remark, test_case.maintainer, test_case.steps as steps,
-               test_case.node_id as nodeId
+               test_case.node_id as nodeId,
+               test_case.prerequisite, test_case.step_description, test_case.expected_result, test_case.step_model
         from test_case_review_test_case tcrtc
         inner join test_case
         on tcrtc.case_id = test_case.id
