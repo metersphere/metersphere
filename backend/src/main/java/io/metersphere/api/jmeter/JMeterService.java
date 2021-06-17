@@ -323,9 +323,7 @@ public class JMeterService {
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         RunRequest runRequest = new RunRequest();
         runRequest.setTestId(testId);
-        if (ApiRunMode.API_PLAN.name().equals(runMode)) {
-            runRequest.setReportId(reportId);
-        }
+        runRequest.setReportId(reportId);
         runRequest.setPoolId(resourcePoolId);
         // 占位符
         String platformUrl = "http://localhost:8081";
@@ -341,8 +339,14 @@ public class JMeterService {
         // 如果是K8S调用
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null && pool.getApi() && pool.getType().equals(ResourcePoolTypeEnum.K8S.name())) {
-            final Engine engine = EngineFactory.createApiEngine(runRequest);
-            engine.start();
+            try {
+                final Engine engine = EngineFactory.createApiEngine(runRequest);
+                engine.start();
+            } catch (Exception e) {
+                ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+                apiScenarioReportService.delete(reportId);
+                MSException.throwException(e.getMessage());
+            }
         } else {
             TestResource testResource = resourcePoolCalculation.getPool(resourcePoolId);
             String configuration = testResource.getConfiguration();

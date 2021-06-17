@@ -327,7 +327,7 @@ public class ApiScenarioReportService {
      *
      * @param reportId
      */
-    private void updateScenarioStatus(String reportId) {
+    public void updateScenarioStatus(String reportId) {
         if (StringUtils.isNotEmpty(reportId)) {
             List<String> list = new LinkedList<>();
             try {

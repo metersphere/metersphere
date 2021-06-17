@@ -94,8 +94,9 @@ public class EngineFactory {
             return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, runRequest);
         } catch (Exception e) {
             LogUtil.error(e);
-            return null;
+            MSException.throwException(e.getMessage());
         }
+        return null;
     }
 
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, String reportId, int resourceIndex) {
