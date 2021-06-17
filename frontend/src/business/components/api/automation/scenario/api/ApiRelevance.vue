@@ -92,16 +92,25 @@ export default {
         let params = this.$refs.apiList.getConditions();
         this.result = this.$post("/api/definition/list/batch", params, (response) => {
           let apis = response.data;
-          this.$emit('save', apis, 'API', reference);
-          this.$refs.baseRelevance.close();
+          if(apis.length === 0){
+            this.$warning('请选择接口');
+          }else {
+            this.$emit('save', apis, 'API', reference);
+            this.$refs.baseRelevance.close();
+          }
         });
 
       } else {
         let params = this.$refs.apiCaseList.getConditions();
         this.result = this.$post("/api/testcase/get/caseBLOBs/request", params, (response) => {
           let apiCases = response.data;
-          this.$emit('save', apiCases, 'CASE', reference);
-          this.$refs.baseRelevance.close();
+          if(apiCases.length === 0) {
+            this.$warning('请选择案例');
+          }else{
+            this.$emit('save', apiCases, 'CASE', reference);
+            this.$refs.baseRelevance.close();
+          }
+
         });
       }
     },
