@@ -115,7 +115,9 @@
       formatChange() {
         const MsConvert = new Convert();
         if (this.body.format === 'JSON-SCHEMA') {
-          this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+          if (this.body.raw) {
+            this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+          }
         } else {
           if (this.body.jsonSchema) {
             MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
