@@ -119,6 +119,9 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
+        if(CollectionUtils.isEmpty(request.getIds())){
+            return new ArrayList<>();
+        }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
         calculateResult(resList, request.getProjectId());
         return resList;
