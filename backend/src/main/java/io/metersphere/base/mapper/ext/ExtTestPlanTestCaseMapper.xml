@@ -432,7 +432,7 @@
                t.type, t.node_id,
                t.steps, t.prerequisite,
                t.remark,
-               t.node_path, t.method, t.num
+               t.node_path, t.method, t.num, t.step_model, t.expected_result, t.step_description
         from test_plan_test_case pc
         inner join test_case t on pc.case_id = t.id
         <where>
