@@ -237,7 +237,19 @@
         left join test_case_node on test_case_node.id = test_case.node_id
         inner join project on project.id = test_case.project_id
         <include refid="queryWhereCondition"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <choose>
+                    <when test="order.name == 'custom_num'">
+                     customNum ${order.type}
+                    </when>
+                    <otherwise>
+                     ${order.name} ${order.type}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
     </select>
     <select id="selectIds" resultType="java.lang.String">
         select distinct test_plan_test_case.id as id
