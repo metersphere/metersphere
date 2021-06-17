@@ -237,8 +237,14 @@
       <!--步骤最大化-->
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
-          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds.sync="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare"
+          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap"
+                           :projectIds.sync="projectIds" :projectList="projectList"
+                           :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
+                           :onSampleError="onSampleError"
+                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen"
+                           @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap"
+                           @showScenarioParameters="showScenarioParameters"
+                           @setCookieShare="setCookieShare" @setSampleError="setSampleError"
                            ref="maximizeHeader"/>
         </template>
 
@@ -538,6 +544,9 @@ export default {
     },
     setCookieShare(cookie) {
       this.enableCookieShare = cookie;
+    },
+    setSampleError(sampleError) {
+      this.onSampleError = sampleError;
     },
     showAllBtn() {
       this.$refs.maximizeScenario.showAll();
