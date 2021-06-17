@@ -194,7 +194,6 @@ export default {
 <style scoped>
 .chart-config {
   width: 100%;
-  height: 500px;
 }
 
 .monitor-detail {
