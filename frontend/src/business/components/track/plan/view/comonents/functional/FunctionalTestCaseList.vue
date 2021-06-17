@@ -135,12 +135,16 @@
         </ms-table-column>
 
         <ms-table-column
-          prop="executorName"
+          prop="executor"
           :filters="executorFilters"
           min-width="100px"
           :field="item"
           :fields-width="fieldsWidth"
-          :label="$t('test_track.plan_view.executor')"/>
+          :label="$t('test_track.plan_view.executor')">
+          <template v-slot:default="scope">
+            {{scope.row.executorName}}
+          </template>
+        </ms-table-column>
 
         <!-- 责任人(创建该用例时所关联的责任人) -->
         <ms-table-column
