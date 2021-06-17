@@ -28,6 +28,7 @@ import {getCurrentUser} from "@/common/js/utils";
 import AboutUs from "./AboutUs";
 import axios from "axios";
 import {mapGetters} from "vuex";
+import {TokenKey} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
@@ -52,11 +53,11 @@ export default {
     logout: function () {
       axios.get("/signout").then(response => {
         if (response.data.success) {
-          localStorage.clear();
+          localStorage.removeItem(TokenKey);
           window.location.href = "/login";
         }
       }).catch(error => {
-        localStorage.clear();
+        localStorage.removeItem(TokenKey);
         window.location.href = "/login";
       });
     },
