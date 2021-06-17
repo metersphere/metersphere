@@ -317,8 +317,8 @@ export default {
   },
   data() {
     return {
-      showConfigButtonWithOutPermission:false,
-      onSampleError: false,
+      showConfigButtonWithOutPermission: false,
+      onSampleError: true,
       props: {
         label: "label",
         children: "hashTree"
@@ -1035,7 +1035,11 @@ export default {
                   this.currentScenario.headers = obj.headers;
                 }
                 this.enableCookieShare = obj.enableCookieShare;
-                this.onSampleError = obj.onSampleError;
+                if (obj.onSampleError == undefined) {
+                  this.onSampleError = true;
+                } else {
+                  this.onSampleError = obj.onSampleError;
+                }
                 if (obj.hashTree) {
                   obj.hashTree.forEach(item => {
                     if (!item.hashTree) {
