@@ -18,12 +18,16 @@
       </el-row>
     </div>
     <div class="ms-header-right">
-      <el-checkbox v-model="cookieShare" @change="setCookieShare" style="margin-right: 20px">共享cookie</el-checkbox>
+      <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
+      <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">失败继续</el-checkbox>
+      <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
+                   :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                   @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
+                   :result="envResult"/>
 
-      <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1" :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                   @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right" :result="envResult"/>
-
-      <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+      <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
+                 @click="runDebug">{{ $t('api_test.request.debug') }}
+      </el-button>
 
       <font-awesome-icon class="ms-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
       <!-- <i class="el-icon-close alt-ico-close" @click="close"/>-->
@@ -39,7 +43,8 @@ import html2canvas from 'html2canvas';
   export default {
     name: "ScenarioHeader",
     components: {EnvPopover},
-    props: {currentScenario: {}, scenarioDefinition: Array, enableCookieShare: Boolean,
+    props: {
+      currentScenario: {}, scenarioDefinition: Array, enableCookieShare: Boolean, onSampleError: Boolean,
       projectEnvMap: Map,
       projectIds: Set,
       projectList: Array,
@@ -51,6 +56,7 @@ import html2canvas from 'html2canvas';
         loading: false,
         varSize: 0,
         cookieShare: false,
+        sampleError: true,
         envResult: {
           loading: false
         }
@@ -65,6 +71,7 @@ import html2canvas from 'html2canvas';
       this.envMap = this.projectEnvMap;
       this.getVariableSize();
       this.cookieShare = this.enableCookieShare;
+      this.sampleError = this.onSampleError;
     },
     methods: {
       handleExport() {
@@ -93,6 +100,9 @@ import html2canvas from 'html2canvas';
       },
       setCookieShare() {
         this.$emit('setCookieShare', this.cookieShare);
+      },
+      setOnSampleError() {
+        this.$emit('setSampleError', this.sampleError);
       },
       showScenarioParameters() {
         this.$emit('showScenarioParameters');
@@ -159,7 +169,7 @@ import html2canvas from 'html2canvas';
 
   .ms-header-right {
     float: right;
-    width: 380px;
+    width: 500px;
     margin-top: 4px;
     z-index: 1;
   }
