@@ -658,7 +658,7 @@ public class ApiTestCaseService {
         MsThreadGroup group = new MsThreadGroup();
         group.setLabel(testCaseWithBLOBs.getName());
         group.setName(testCaseWithBLOBs.getId());
-
+        group.setOnSampleError(true);
         LinkedList<MsTestElement> hashTrees = new LinkedList<>();
         hashTrees.add(element);
         group.setHashTree(hashTrees);
