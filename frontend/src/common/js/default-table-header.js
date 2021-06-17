@@ -120,7 +120,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'nodePath', key: '4', label: i18n.t('test_track.case.module')},
     {id: 'projectName', key: '5', label: i18n.t('test_track.review.review_project')},
     {id: 'issuesContent', key: '6', label: i18n.t('test_track.issue.issue')},
-    {id: 'executorName', key: '7', label: i18n.t('test_track.plan_view.executor')},
+    {id: 'executor', key: '7', label: i18n.t('test_track.plan_view.executor')},
     {id: 'status', key: '8', label: i18n.t('test_track.plan_view.execute_result')},
     {id: 'updateTime', key: '9', label: i18n.t('commons.update_time')},
     {id: 'createTime', key: 'a', label: i18n.t('commons.create_time')},
