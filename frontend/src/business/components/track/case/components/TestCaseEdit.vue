@@ -1,4 +1,4 @@
-<template>
+ <template>
   <el-card>
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
@@ -79,7 +79,7 @@
           <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
           <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
 
-          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
+          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel" :form="form" :read-only="readOnly"/>
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
