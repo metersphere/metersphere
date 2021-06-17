@@ -36,7 +36,6 @@
       <div class="split"></div>
       <!-- 场景统计 -->
       <div style="width: 50%">
-        <el-row type="flex" justify="center" align="middle">
           <el-row type="flex" justify="center" align="middle">
 <!--            <div class="metric-box" style="margin-right: 50px">-->
             <div class="metric-box">
@@ -75,7 +74,6 @@
               </div>
             </el-row>
           </el-row>
-        </el-row>
       </div>
       <div class="split"></div>
 
