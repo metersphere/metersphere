@@ -131,8 +131,13 @@
                                      :label="$t('api_test.definition.document.table_coloum.name')"
                                      min-width="120px"
                                      show-overflow-tooltip/>
-                    <el-table-column prop="isEnable"
+<!--                    <el-table-column prop="isEnable"-->
+<!--                                     :label="$t('api_test.definition.document.table_coloum.is_required')"-->
+<!--                                     min-width="80px"-->
+<!--                                     show-overflow-tooltip/>-->
+                    <el-table-column prop="required"
                                      :label="$t('api_test.definition.document.table_coloum.is_required')"
+                                     :formatter="formatBoolean"
                                      min-width="80px"
                                      show-overflow-tooltip/>
                     <el-table-column prop="value"
