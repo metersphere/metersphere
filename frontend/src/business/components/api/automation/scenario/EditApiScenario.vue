@@ -133,15 +133,15 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
+                <el-col :span="3" class="ms-col-one ms-font">
+                  <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
+                </el-col>
                 <el-col :span="4">
                   <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
                                :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                :project-list="projectList" ref="envPopover"/>
-                </el-col>
-                <el-col :span="3" class="ms-col-one ms-font">
-                  <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
                 </el-col>
                 <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
@@ -160,12 +160,19 @@
             </div>
             <!-- 场景步骤内容 -->
             <div>
-              <el-button class="el-icon-files ms-open-btn ms-open-btn-left" size="mini" v-prevent-re-click @click="openExpansion">
-                {{ $t('api_test.automation.open_expansion') }}
-              </el-button>
-              <el-button class=" el-icon-notebook-1 ms-open-btn" size="mini" @click="closeExpansion">
-                {{ $t('api_test.automation.close_expansion') }}
-              </el-button>
+              <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
+                <i class="el-icon-remove-outline ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
+              </el-tooltip>
+              <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
+                <i class=" el-icon-circle-plus-outline ms-open-btn" size="mini" v-prevent-re-click @click="closeExpansion"/>
+              </el-tooltip>
+              <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light">
+                <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="enableAll"/>
+              </el-tooltip>
+              <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light">
+                <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" v-prevent-re-click @click="disableAll"/>
+              </el-tooltip>
+
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
@@ -382,6 +389,7 @@ export default {
       drawer: false,
       isFullUrl: true,
       expandedStatus: false,
+      stepEnable: false,
       envResult: {
         loading: false
       }
@@ -1203,7 +1211,7 @@ export default {
             }
           }
         });
-      }else{
+      } else {
         this.expandedNode = [];
         this.expandedStatus = true;
         this.shrinkTreeNode();
@@ -1214,6 +1222,35 @@ export default {
       this.expandedNode = [];
       this.shrinkTreeNode();
       this.reload();
+    },
+    stepNode() {
+      //改变每个节点的状态
+      for (let i in this.scenarioDefinition) {
+        if (this.scenarioDefinition[i]) {
+          this.scenarioDefinition[i].enable = this.stepEnable;
+          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
+            this.stepStatus(this.scenarioDefinition[i].hashTree);
+          }
+        }
+      }
+    },
+    stepStatus(nodes) {
+      for (let i in nodes) {
+        if (nodes[i]) {
+          nodes[i].enable = this.stepEnable;
+          if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
+            this.stepStatus(nodes[i].hashTree);
+          }
+        }
+      }
+    },
+    enableAll() {
+      this.stepEnable = true;
+      this.stepNode();
+    },
+    disableAll() {
+      this.stepEnable = false;
+      this.stepNode();
     }
   }
 }
@@ -1377,12 +1414,17 @@ export default {
 
 .ms-open-btn {
   margin: 5px 5px 0px;
-  font-size: 10px;
+  color: #6D317C;
+  font-size: 20px;
+}
+
+.ms-open-btn:hover {
   background-color: #F2F9EE;
+  cursor: pointer;
   color: #67C23A;
 }
 
 .ms-open-btn-left {
-  margin-left: 30px;
+  margin-left: 35px;
 }
 </style>
