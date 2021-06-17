@@ -342,7 +342,9 @@ export default {
         this.testCaseTemplate = template;
         this.fields = getTableHeaderWithCustomFields('TRACK_TEST_CASE', this.testCaseTemplate.customFields);
         this.page.result.loading = false;
-        this.$refs.table.reloadTable();
+        if (this.$refs.table) {
+          this.$refs.table.reloadTable();
+        }
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
       });
     },
@@ -418,7 +420,9 @@ export default {
           let data = response.data;
           this.page.total = data.itemCount;
           this.page.data = data.listObject;
-          this.$refs.table.clear();
+          if (this.$refs.table) {
+            this.$refs.table.clear();
+          }
           this.page.data.forEach(item => {
             if (item.customFields) {
               item.customFields = JSON.parse(item.customFields);
