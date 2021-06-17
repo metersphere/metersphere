@@ -6,8 +6,8 @@
              text-color="#fff"
              active-text-color="#fff">
       <el-menu-item onselectstart="return false">
-        <el-tooltip :content="$t('commons.task_center')">
-          <font-awesome-icon class="icon global" :icon="['fas', 'flag']" @click="showTaskCenter"/>
+        <el-tooltip :content="$t('commons.task_center')" effect="light">
+          <span @click="showTaskCenter"> <font-awesome-icon class="icon global focusing" :icon="['fas', 'flag']"/></span>
         </el-tooltip>
       </el-menu-item>
     </el-menu>
@@ -107,7 +107,7 @@ export default {
     close() {
       this.visible = false;
     },
-    open(){
+    open() {
       this.showTaskCenter();
     },
     getPercentage(status) {
