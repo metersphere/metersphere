@@ -62,6 +62,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key == 'workspace_id'">
+                                AND p.workspace_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
