@@ -250,7 +250,7 @@
         });
       },
       singleRun(data) {
-        if (this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
+        if (this.api.protocol !== "SQL" && this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
