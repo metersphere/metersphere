@@ -342,7 +342,7 @@ public class TestPlanReportService {
             if (testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting() || testPlanReport.getIsScenarioExecuting()) {
                 status = TestPlanReportStatus.RUNNING.name();
             } else {
-                if (testPlanReportData == null) {
+                if (testPlanReportData != null) {
                     String failCaseString = testPlanReportData.getFailurTestCases();
                     status = TestPlanReportStatus.SUCCESS.name();
                     try {
