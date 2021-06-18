@@ -202,9 +202,7 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   getCurrentOrganizationId,
-  getCurrentUser,
   listenGoBack,
-  refreshSessionAndCookies,
   removeGoBackListener
 } from "@/common/js/utils";
 import {DEFAULT, GROUP_ORGANIZATION, ORGANIZATION} from "@/common/js/constants";
@@ -316,9 +314,6 @@ export default {
       this.dialogOrgMemberUpdateVisible = true;
       this.memberForm = Object.assign({}, row);
       let groupIds = this.memberForm.groups.map(r => r.id);
-      // this.result = this.$get('/role/list/org', response => {
-      //   this.$set(this.memberForm, "allroles", response.data);
-      // })
       this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: this.orgId}, response => {
         this.$set(this.memberForm, "allgroups", response.data);
       });
@@ -381,11 +376,6 @@ export default {
         type: 'warning'
       }).then(() => {
         this.result = this.$get(this.deletePath + organization.id, () => {
-          let lastOrganizationId = getCurrentOrganizationId();
-          let sourceId = organization.id;
-          if (lastOrganizationId === sourceId) {
-            refreshSessionAndCookies(DEFAULT, sourceId);
-          }
           this.$success(this.$t('commons.delete_success'));
           this.reloadTopMenus();
         });
@@ -403,12 +393,6 @@ export default {
         type: 'warning'
       }).then(() => {
         this.result = this.$get('/user/special/org/member/delete/' + this.currentRow.id + '/' + encodeURIComponent(row.id), () => {
-          let sourceId = this.currentRow.id;
-          let currentUser = getCurrentUser();
-          let userId = row.id;
-          if (currentUser.id === userId) {
-            refreshSessionAndCookies(ORGANIZATION, sourceId);
-          }
           this.$success(this.$t('commons.remove_success'));
           this.cellClick(this.currentRow);
         });
@@ -483,9 +467,6 @@ export default {
             organizationId: this.currentRow.id
           };
           this.result = this.$post("user/special/org/member/add", param, () => {
-            let sign = "other";
-            let sourceId = this.currentRow.id;
-            // refreshSessionAndCookies(sign, sourceId);
             this.cellClick(this.currentRow);
             this.dialogOrgMemberAddVisible = false;
           });
