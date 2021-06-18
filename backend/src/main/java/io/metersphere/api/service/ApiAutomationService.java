@@ -916,7 +916,7 @@ public class ApiAutomationService {
             APIScenarioReportResult report;
             Map<String, String> planEnvMap = new HashMap<>();
             //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
-            if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+            if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 String testPlanScenarioId = item.getId();
                 if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                     testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
@@ -1091,7 +1091,7 @@ public class ApiAutomationService {
                 if (reportIds != null) {
                     //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
                     APIScenarioReportResult report = null;
-                    if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+                    if (StringUtils.equalsAny(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                         String testPlanScenarioId = item.getId();
                         if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                             testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());

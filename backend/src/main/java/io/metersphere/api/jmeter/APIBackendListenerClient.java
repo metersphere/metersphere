@@ -278,11 +278,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             reportTask.setExecutor(userName);
             reportTask.setExecutionTime(executionTime);
             reportTask.setExecutionEnvironment(name);
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
+            //用例，定时，jenkins
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-            if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+            if (StringUtils.equals(this.runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
                 apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
@@ -290,17 +291,25 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     testPlanReportService.checkTestPlanStatus(testPlanReportId);
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
+            } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.JENKINS_API_PLAN.name(), TriggerMode.API.name());
+                List<String> testPlanReportIdList = new ArrayList<>();
+                testPlanReportIdList.add(debugReportId);
+                for (String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
+                    testPlanReportService.checkTestPlanStatus(testPlanReportId);
+                }
+                testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.JENKINS_API_PLAN.name(), TriggerMode.API.name());
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
             }
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
             //环境
             ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
             String name = "";
-            if(apiScenario!= null ) {
+            if (apiScenario != null) {
                 String executionEnvironment = apiScenario.getScenarioDefinition();
                 JSONObject json = JSONObject.parseObject(executionEnvironment);
                 if (json != null && json.getString("environmentMap") != null && json.getString("environmentMap").length() > 2) {
