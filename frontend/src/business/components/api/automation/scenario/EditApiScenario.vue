@@ -161,10 +161,10 @@
             <!-- 场景步骤内容 -->
             <div>
               <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
-                <i class="el-icon-remove-outline ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
+                <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
               </el-tooltip>
               <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
-                <i class=" el-icon-circle-plus-outline ms-open-btn" size="mini" v-prevent-re-click @click="closeExpansion"/>
+                <i class="el-icon-remove-outline ms-open-btn" size="mini" v-prevent-re-click @click="closeExpansion"/>
               </el-tooltip>
               <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-if="!stepEnable">
                 <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="enableAll"/>
