@@ -12,12 +12,13 @@ MAINTAINER FIT2CLOUD <support@fit2cloud.com>
 ARG MS_VERSION=dev
 ARG DEPENDENCY=/workspace/app/dependency
 
+COPY backend/target/classes/jmeter/ /opt/jmeter/
+
 COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
 COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
 COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 
 RUN mkdir -p /opt/jmeter/lib/junit
-COPY backend/target/classes/jmeter/ /opt/jmeter/
 
 ENV JAVA_CLASSPATH=/app:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
