@@ -39,12 +39,6 @@ public class PerformanceReportController {
     @PostMapping("/recent/{count}")
     @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
     public List<ReportDTO> recentProjects(@PathVariable int count, @RequestBody ReportRequest request) {
-        if (StringUtils.isBlank(request.getProjectId())) {
-            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
-            request.setFilters(new HashMap<String, List<String>>() {{
-                put("project_id", sourceIds);
-            }});
-        }
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return performanceReportService.getRecentReportList(request);
@@ -53,12 +47,6 @@ public class PerformanceReportController {
     @PostMapping("/list/all/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_PERFORMANCE_REPORT:READ")
     public Pager<List<ReportDTO>> getReportList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReportRequest request) {
-        if (StringUtils.isBlank(request.getProjectId())) {
-            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
-            request.setFilters(new HashMap<String, List<String>>() {{
-                put("project_id", sourceIds);
-            }});
-        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceReportService.getReportList(request));
     }
