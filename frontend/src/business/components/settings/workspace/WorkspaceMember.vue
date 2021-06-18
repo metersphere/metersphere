@@ -269,27 +269,11 @@
         });
       },
       create() {
-        // this.form = {};
-        // let param = {
-        //   name: this.condition.name,
-        //   organizationId: this.currentUser().lastOrganizationId
-        // };
         let wsId = getCurrentWorkspaceId();
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
           this.$warning(this.$t('workspace.please_select_a_workspace_first'));
           return false;
         }
-        // this.$post('/user/org/member/list/all', param, response => {
-        //   this.createVisible = true;
-        //   this.userList = response.data;
-        // })
-        // this.$get('/user/list/', response => {
-        //   this.createVisible = true;
-        //   this.userList = response.data;
-        // })
-        // this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
-        //   this.$set(this.form, "groups", response.data);
-        // })
         this.$refs.addMember.open();
         listenGoBack(this.handleClose);
       },

@@ -150,7 +150,7 @@
 <script>
 import MsCreateBox from "../CreateBox";
 import {Message} from "element-ui";
-import {DEFAULT, GROUP_WORKSPACE} from "../../../../common/js/constants";
+import {GROUP_WORKSPACE} from "../../../../common/js/constants";
 import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsRolesTag from "../../common/components/MsRolesTag";
@@ -162,7 +162,6 @@ import {
   getCurrentUser,
   getCurrentWorkspaceId,
   listenGoBack,
-  refreshSessionAndCookies,
   removeGoBackListener
 } from "../../../../common/js/utils";
 import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
@@ -241,12 +240,6 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$get('/workspace/delete/' + workspace.id, () => {
-          let lastWorkspaceId = getCurrentWorkspaceId();
-          let sourceId = workspace.id;
-          if (lastWorkspaceId === sourceId) {
-            let sign = DEFAULT;
-            refreshSessionAndCookies(sign, sourceId);
-          }
           this.$success(this.$t('commons.delete_success'));
           this.list();
         });
@@ -261,36 +254,6 @@ export default {
     list() {
       let url = '/workspace/list/' + this.currentPage + '/' + this.pageSize;
       let lastOrganizationId = getCurrentOrganizationId();
-      // let userRole = this.currentUser.userRoles.filter(r => r.sourceId === lastOrganizationId);
-      // if (userRole.length > 0) {
-      //   let isOrg_admin = false;
-      //   userRole.forEach(row=>{
-      //     if(row.roleId === "org_admin" ){
-      //       isOrg_admin = true;
-      //       return;
-      //     }
-      //   });
-      //   if (isOrg_admin) {
-      //     this.result = this.$post(url, this.condition, response => {
-      //       let data = response.data;
-      //       this.items = data.listObject;
-      //       for (let i = 0; i < this.items.length; i++) {
-      //         let param = {
-      //           name: '',
-      //           workspaceId: this.items[i].id
-      //         }
-      //         let path = "user/ws/member/list/all";
-      //         this.$post(path, param, res => {
-      //           let member = res.data;
-      //           this.$set(this.items[i], "memberSize", member.length);
-      //         })
-      //       }
-      //       this.total = data.itemCount;
-      //     });
-      //   } else {
-      //     this.items = [];
-      //     this.total = 0;
-      //   }
       this.condition.organizationId = lastOrganizationId;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;

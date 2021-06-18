@@ -7,7 +7,6 @@ import {
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
   PROJECT_ID,
-  REFRESH_SESSION_USER_URL,
   ROLE_ADMIN,
   ROLE_ORG_ADMIN,
   ROLE_TEST_MANAGER,
@@ -232,15 +231,6 @@ export function saveLicense(data) {
   // 保存License
   localStorage.setItem(LicenseKey, data);
 }
-
-
-export function refreshSessionAndCookies(sign, sourceId) {
-  axios.post(REFRESH_SESSION_USER_URL + "/" + sign + "/" + sourceId).then(r => {
-    saveLocalStorage(r.data);
-    window.location.reload();
-  });
-}
-
 
 export function jsonToMap(jsonStr) {
   let obj = JSON.parse(jsonStr);
