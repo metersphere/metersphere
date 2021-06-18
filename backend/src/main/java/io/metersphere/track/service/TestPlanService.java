@@ -1053,6 +1053,7 @@ public class TestPlanService {
 
         //执行性能测试任务
         List<String> performaneReportIDList = new ArrayList<>();
+        List<String> performanceRunCaseIdList = new ArrayList<>();
         for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
             String id = entry.getKey();
             String caseID = entry.getValue();
@@ -1084,13 +1085,14 @@ public class TestPlanService {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            if (StringUtils.isEmpty(reportId)) {
-                performaceIsExcuting = false;
+            if (StringUtils.isNotEmpty(reportId)) {
+                performanceRunCaseIdList.add(caseID);
             }
         }
 
-        if (performaceIsExcuting) {
-            performanceCaseIdArray = JSONArray.toJSONString(new ArrayList<>(performanceIdMap.values()));
+        if (!performanceRunCaseIdList.isEmpty()) {
+            performaceIsExcuting = true;
+            performanceCaseIdArray = JSONArray.toJSONString(new ArrayList<>(performanceRunCaseIdList));
         }
 
         if (!performaneReportIDList.isEmpty()) {
