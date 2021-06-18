@@ -6,7 +6,7 @@ import lombok.Data;
 public class ApiRunConfigDTO {
     private String mode;
     private String reportType;
-    private String onSampleError;
+    private boolean onSampleError;
     private String runWithinResourcePool;
     private String resourcePoolId;
 }

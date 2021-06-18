@@ -157,6 +157,8 @@ public class TestPlanController {
         ApiRunConfigDTO api = new ApiRunConfigDTO();
         api.setMode(testplanRunRequest.getMode());
         api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
+        api.setOnSampleError(true);
+        api.setReportType("iddReport");
         String apiRunConfig = JSONObject.toJSONString(api);
         testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }

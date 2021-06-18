@@ -168,7 +168,6 @@ public class TestPlanReportService {
         //更新TestPlan状态，改为进行中
         testPlan.setStatus(TestPlanStatus.Underway.name());
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
-
         return testPlanReport;
     }
 
@@ -243,8 +242,7 @@ public class TestPlanReportService {
         String issuesInfo = null;
 
         //因为接口案例的定时任务是单个案例开线程运行， 所以要检查是否都执行完成。全部执行完成时才会进行统一整理
-        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), triggerMode)
-                && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+        if (StringUtils.equalsAny(triggerMode, ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name()) && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             List<String> statusList = extTestPlanApiCaseMapper.getStatusByTestPlanId(testPlan.getId());
             for (String status : statusList) {
                 if (status == null) {
@@ -280,14 +278,14 @@ public class TestPlanReportService {
 
 
         //只针对定时任务做处理
-        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), triggerMode)
-                && StringUtils.equals(resourceRunMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+        if (StringUtils.equalsAny(triggerMode, ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())
+                && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             testPlanReport.setIsApiCaseExecuting(false);
-        } else if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), triggerMode)
-                && StringUtils.equals(resourceRunMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+        } else if (StringUtils.equalsAny(triggerMode, ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())
+                && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
             testPlanReport.setIsScenarioExecuting(false);
-        } else if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), triggerMode)
-                && StringUtils.equals(resourceRunMode, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name())) {
+        } else if (StringUtils.equalsAny(triggerMode, ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())
+                && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(), ApiRunMode.JENKINS_PERFORMANCE_TEST.name())) {
             testPlanReport.setIsPerformanceExecuting(false);
         } else {
             testPlanReport.setIsPerformanceExecuting(false);
@@ -299,8 +297,8 @@ public class TestPlanReportService {
             component.afterBuild(testCaseReportMetricDTO);
         });
 
-        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), triggerMode)
-                && StringUtils.equals(resourceRunMode, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name())) {
+        if (StringUtils.equalsAny(triggerMode, ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())
+                && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(), ApiRunMode.JENKINS_PERFORMANCE_TEST.name())) {
             //如果是性能测试作为触发，由于延迟原因可能会出现报告已经结束但是状态还是进行中的状态
             List<TestCaseReportStatusResultDTO> loadResult = testCaseReportMetricDTO.getExecuteResult().getLoadResult();
             for (TestCaseReportStatusResultDTO dto : loadResult) {
@@ -381,17 +379,16 @@ public class TestPlanReportService {
                     testPlan.setStatus(TestPlanStatus.Completed.name());
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
-
-                if (StringUtils.equals(report.getTriggerMode(), ReportTriggerMode.API.name()) || StringUtils.equals(report.getTriggerMode(), ReportTriggerMode.SCHEDULE.name())) {
+                if (StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name())) {
                     //发送通知
                     sendMessage(report);
                 }
-
             } catch (Exception e) {
 
             }
         } else {
         }
+
         testPlanReportMapper.updateByPrimaryKey(report);
     }
 
@@ -408,10 +405,16 @@ public class TestPlanReportService {
         String failedContext = "";
         String subject = "";
         String event = "";
+        if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.API.name())) {
+            successContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            failedContext = "测试计划jenkins任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            subject = Translator.get("task_notification_jenkins");
+        } else {
+            successContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            failedContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            subject = Translator.get("task_notification");
+        }
 
-        successContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-        failedContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-        subject = Translator.get("task_notification");
 
         if (StringUtils.equals(TestPlanReportStatus.FAILED.name(), testPlanReport.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
@@ -428,7 +431,7 @@ public class TestPlanReportService {
         String successfulMailTemplate = "";
         String errfoMailTemplate = "";
 
-        if (StringUtils.equals(testPlanReport.getTriggerMode(), ReportTriggerMode.SCHEDULE.name())) {
+        if (StringUtils.equalsAny(testPlanReport.getTriggerMode(), ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())) {
             successfulMailTemplate = "TestPlanSuccessfulNotification";
             errfoMailTemplate = "TestPlanFailedNotification";
         }
@@ -498,7 +501,7 @@ public class TestPlanReportService {
                     for (String string : updatePerformaneReportIDList) {
                         TestPlanLoadCaseEventDTO eventDTO = new TestPlanLoadCaseEventDTO();
                         eventDTO.setReportId(string);
-                        eventDTO.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+                        eventDTO.setTriggerMode(triggerMode);
                         eventDTO.setStatus(PerformanceTestStatus.Completed.name());
                         this.updatePerformanceTestStatus(eventDTO);
                     }
@@ -516,7 +519,11 @@ public class TestPlanReportService {
 
     public void updatePerformanceTestStatus(TestPlanLoadCaseEventDTO eventDTO) {
         List<String> testPlanReportId = extTestPlanMapper.findIdByPerformanceReportId(eventDTO.getReportId());
-        this.updateReport(testPlanReportId, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(), eventDTO.getTriggerMode());
+        if (StringUtils.equals(eventDTO.getTriggerMode(), ReportTriggerMode.SCHEDULE.name())) {
+            this.updateReport(testPlanReportId, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(), eventDTO.getTriggerMode());
+        } else {
+            this.updateReport(testPlanReportId, ApiRunMode.JENKINS_PERFORMANCE_TEST.name(), eventDTO.getTriggerMode());
+        }
     }
 
     public void delete(List<String> testPlanReportIdList) {
