@@ -44,7 +44,14 @@ public class TestPlanReportController {
     public String sendTask(@PathVariable String planId) {
         TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
         testPlanReportService.update(report);
-        return  "sucess";
+        return "sucess";
+    }
+
+    @GetMapping("/status/{planId}")
+    public String getStatus(@PathVariable String planId) {
+        TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
+        String status = report.getStatus();
+        return status;
     }
 
     @PostMapping("/delete")

@@ -66,7 +66,7 @@ public class ApiScenarioReportService {
         if (result != null) {
             if (StringUtils.equals(runMode, ApiRunMode.SCENARIO_PLAN.name())) {
                 return updatePlanCase(result, runMode);
-            } else if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+            } else if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
                 return updateSchedulePlanCase(result, runMode);
             } else {
                 updateScenarioStatus(result.getTestId());
@@ -319,7 +319,7 @@ public class ApiScenarioReportService {
         // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
+        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode());
 
         return lastReport;
     }
