@@ -58,9 +58,15 @@ public class ScheduleService {
         schedule.setUpdateTime(System.currentTimeMillis());
         scheduleMapper.insert(schedule);
     }
+
     public void addSwaggerUrlSchedule(SwaggerUrlProject swaggerUrlProject) {
         swaggerUrlProjectMapper.insert(swaggerUrlProject);
     }
+
+    public void updateSwaggerUrlSchedule(SwaggerUrlProject swaggerUrlProject) {
+        swaggerUrlProjectMapper.updateByPrimaryKeySelective(swaggerUrlProject);
+    }
+
     public ApiSwaggerUrlDTO selectApiSwaggerUrlDTO(String id){
         return extScheduleMapper.select(id);
     }
@@ -85,34 +91,23 @@ public class ScheduleService {
         return null;
     }
 
-    public int deleteSchedule(String scheduleId) {
-        Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);
-        removeJob(schedule.getResourceId());
-        return scheduleMapper.deleteByPrimaryKey(scheduleId);
-    }
-
-    public int deleteByResourceId(String resourceId) {
+    public int deleteByResourceId(String resourceId, String group) {
         ScheduleExample scheduleExample = new ScheduleExample();
         scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
-        removeJob(resourceId);
+        removeJob(resourceId, group);
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
-    public int deleteScheduleAndJobByResourceId(String resourceId,String group) {
-        ScheduleExample scheduleExample = new ScheduleExample();
-        scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
-        removeJob(resourceId,group);
-        return scheduleMapper.deleteByExample(scheduleExample);
-    }
-
-    public void removeJob(String resourceId,String group) {
-        if(StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(),group)){
+    private void removeJob(String resourceId, String group) {
+        if(StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(), group)){
             scheduleManager.removeJob(ApiScenarioTestJob.getJobKey(resourceId), ApiScenarioTestJob.getTriggerKey(resourceId));
-        }else if(StringUtils.equals(ScheduleGroup.TEST_PLAN_TEST.name(),group)){
+        } else if(StringUtils.equals(ScheduleGroup.TEST_PLAN_TEST.name(), group)){
             scheduleManager.removeJob(TestPlanTestJob.getJobKey(resourceId), TestPlanTestJob.getTriggerKey(resourceId));
-        }else if(StringUtils.equals(ScheduleGroup.SWAGGER_IMPORT.name(),group)){
+        } else if(StringUtils.equals(ScheduleGroup.SWAGGER_IMPORT.name(), group)){
             scheduleManager.removeJob(SwaggerUrlImportJob.getJobKey(resourceId), SwaggerUrlImportJob.getTriggerKey(resourceId));
-        }else{
+        } else if(StringUtils.equals(ScheduleGroup.PERFORMANCE_TEST.name(), group)){
+            scheduleManager.removeJob(PerformanceTestJob.getJobKey(resourceId), PerformanceTestJob.getTriggerKey(resourceId));
+        } else {
             scheduleManager.removeJob(ApiTestJob.getJobKey(resourceId), ApiTestJob.getTriggerKey(resourceId));
         }
     }
@@ -154,10 +149,6 @@ public class ScheduleService {
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());
         return schedule;
-    }
-
-    public void removeJob(String resourceId) {
-        scheduleManager.removeJob(ApiTestJob.getJobKey(resourceId), ApiTestJob.getTriggerKey(resourceId));
     }
 
     public void addOrUpdateCronJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {

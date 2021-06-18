@@ -3,11 +3,14 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtSwaggerUrlScheduleMapper">
     <select id="getSwaggerTaskList" resultType="io.metersphere.api.dto.swaggerurl.SwaggerTaskResult"
             parameterType="java.lang.String">
-        SELECT sup.id as SwaggerUrlId,
-               sup.swagger_url as swaggerUrl,
-               sup.module_path as modulePath,
+        SELECT sup.id,
+               sup.swagger_url,
+               sup.module_path,
+               sup.mode_id,
+               sup.module_id,
+               sup.project_id,
                sch.value as rule,
-               sch.enable as taskStatus,
+               sch.enable,
                sch.id as taskId
         FROM swagger_url_project sup
                  INNER JOIN schedule sch ON sup.id = sch.resource_id

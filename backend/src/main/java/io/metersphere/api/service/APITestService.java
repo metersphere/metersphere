@@ -204,7 +204,7 @@ public class APITestService {
         }
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
-        scheduleService.deleteByResourceId(testId);
+        scheduleService.deleteByResourceId(testId, ScheduleGroup.API_TEST.name());
         apiTestMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }
