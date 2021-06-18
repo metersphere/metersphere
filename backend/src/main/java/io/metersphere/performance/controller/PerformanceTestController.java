@@ -56,12 +56,6 @@ public class PerformanceTestController {
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_PERFORMANCE_TEST:READ")
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
-        if (StringUtils.isBlank(request.getProjectId())) {
-            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
-            request.setFilters(new HashMap<String, List<String>>() {{
-                put("project_id", sourceIds);
-            }});
-        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.list(request));
     }

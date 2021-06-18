@@ -87,12 +87,6 @@ public class ProjectController {
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ProjectDTO>> getProjectList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ProjectRequest request) {
-        if (StringUtils.isBlank(request.getProjectId())) {
-            List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
-            request.setFilters(new HashMap<String, List<String>>() {{
-                put("workspace_id", sourceIds);
-            }});
-        }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, projectService.getProjectList(request));
     }
