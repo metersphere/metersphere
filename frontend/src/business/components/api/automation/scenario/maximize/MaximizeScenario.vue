@@ -11,10 +11,10 @@
           <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
             <i class=" el-icon-circle-plus-outline ms-open-btn" size="mini" @click="closeExpansion"/>
           </el-tooltip>
-          <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light">
+          <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-if="!stepEnable">
             <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" @click="enableAll"/>
           </el-tooltip>
-          <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light">
+          <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light" v-else>
             <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" @click="disableAll"/>
           </el-tooltip>
           <el-tree node-key="resourceId"
