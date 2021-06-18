@@ -337,26 +337,28 @@ public class ApiScenarioReportService {
             } catch (Exception e) {
                 list.add(reportId);
             }
-            ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
-            scenarioReportExample.createCriteria().andIdIn(list);
-            List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            ApiScenarioReportMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
-            if (CollectionUtils.isNotEmpty(reportList)) {
-                reportList.forEach(report -> {
-                    report.setUpdateTime(System.currentTimeMillis());
-                    String status = "Error";
-                    report.setStatus(status);
-                    scenarioReportMapper.updateByPrimaryKeySelective(report);
-                    // 把上一条调试的数据内容清空
-                    ApiScenarioReport prevResult = extApiScenarioReportMapper.selectPreviousReportByScenarioId(report.getScenarioId(), reportId);
-                    if (prevResult != null) {
-                        ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
-                        example.createCriteria().andReportIdEqualTo(prevResult.getId());
-                        apiScenarioReportDetailMapper.deleteByExample(example);
-                    }
-                });
-                sqlSession.flushStatements();
+            if (CollectionUtils.isNotEmpty(list)) {
+                ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+                scenarioReportExample.createCriteria().andIdIn(list);
+                List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                ApiScenarioReportMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+                if (CollectionUtils.isNotEmpty(reportList)) {
+                    reportList.forEach(report -> {
+                        report.setUpdateTime(System.currentTimeMillis());
+                        String status = "Error";
+                        report.setStatus(status);
+                        scenarioReportMapper.updateByPrimaryKeySelective(report);
+                        // 把上一条调试的数据内容清空
+                        ApiScenarioReport prevResult = extApiScenarioReportMapper.selectPreviousReportByScenarioId(report.getScenarioId(), reportId);
+                        if (prevResult != null) {
+                            ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
+                            example.createCriteria().andReportIdEqualTo(prevResult.getId());
+                            apiScenarioReportDetailMapper.deleteByExample(example);
+                        }
+                    });
+                    sqlSession.flushStatements();
+                }
             }
         }
     }
@@ -386,9 +388,9 @@ public class ApiScenarioReportService {
                     testResult.setScenarioSuccess(testResult.getScenarioSuccess() + scenarioResult.getScenarioSuccess());
                     testResult.setScenarioError(testResult.getScenarioError() + scenarioResult.getScenarioError());
                     testResult.setConsole(scenarioResult.getConsole());
-                    testResult.setScenarioStepError(scenarioResult.getScenarioStepError()+testResult.getScenarioStepError());
-                    testResult.setScenarioStepSuccess(scenarioResult.getScenarioStepSuccess()+testResult.getScenarioStepSuccess());
-                    testResult.setScenarioStepTotal(scenarioResult.getScenarioStepTotal()+testResult.getScenarioStepTotal());
+                    testResult.setScenarioStepError(scenarioResult.getScenarioStepError() + testResult.getScenarioStepError());
+                    testResult.setScenarioStepSuccess(scenarioResult.getScenarioStepSuccess() + testResult.getScenarioStepSuccess());
+                    testResult.setScenarioStepTotal(scenarioResult.getScenarioStepTotal() + testResult.getScenarioStepTotal());
                 } catch (Exception e) {
                     LogUtil.error(e.getMessage());
                 }
