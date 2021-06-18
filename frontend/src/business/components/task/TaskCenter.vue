@@ -40,7 +40,7 @@
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
             <span>{{ item.name }} </span><br/>
             <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}</span><br/>
-            <el-progress :percentage="getPercentage(item.executionStatus)"></el-progress>
+            <el-progress :percentage="getPercentage(item.executionStatus.toLowerCase())"></el-progress>
           </el-card>
         </div>
       </div>
@@ -111,14 +111,14 @@ export default {
       this.showTaskCenter();
     },
     getPercentage(status) {
-      if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
+      if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
         return 100;
       }
       //return Math.round(Math.random() * 80 + 20);
       return 60;
     },
     showReport(row, env) {
-      let status = row.executionStatus;
+      let status = row.executionStatus.toLowerCase();
       if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
         this.taskVisible = false;
         switch (row.executionModule) {
