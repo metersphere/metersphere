@@ -90,7 +90,7 @@ public class ProjectController {
         if (StringUtils.isBlank(request.getProjectId())) {
             List<String> sourceIds = SessionUtils.getUser().getUserGroups().stream().map(UserGroup::getSourceId).collect(Collectors.toList());
             request.setFilters(new HashMap<String, List<String>>() {{
-                put("project_id", sourceIds);
+                put("workspace_id", sourceIds);
             }});
         }
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
