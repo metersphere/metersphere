@@ -346,7 +346,7 @@ export default {
     },
 
     singleRun(row) {
-      if (this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
+      if (this.currentApi.protocol !== "SQL" && this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
@@ -364,7 +364,7 @@ export default {
     },
 
     batchRun() {
-      if (this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
+      if (this.currentApi.protocol !== "SQL" && this.currentApi.protocol !== "DUBBO" && this.currentApi.protocol !== "dubbo://" && !this.environment) {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
