@@ -18,11 +18,11 @@
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           </span>
           <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
+            <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
+               v-if="data.referenced!='REF' && !data.disabled"/>
             <el-tooltip placement="top" :content="data.name">
               <span>{{data.name}}</span>
             </el-tooltip>
-            <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
-               v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
           </span>
         </slot>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
@@ -132,9 +132,9 @@
     },
     methods: {
       active() {
-        // 这种写法性能极差，不要再放开了
-        //this.$set(this.data, 'active', !this.data.active);
-        this.$emit('active');
+        if(!this.isShowInput){
+          this.$emit('active');
+        }
       },
       getMethod() {
         if (this.data.protocol === "HTTP") {
@@ -208,11 +208,15 @@
   }
 
   .scenario-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: inline-block;
     font-size: 13px;
-    width: 100%;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: calc(100% - 30rem);
   }
 
   /deep/ .el-step__icon {
