@@ -236,6 +236,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='project_id'">
+                                and api_scenario.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
