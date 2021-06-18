@@ -111,33 +111,39 @@ export default {
       this.showTaskCenter();
     },
     getPercentage(status) {
-      if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
-        return 100;
+      if (status) {
+        status = status.toLowerCase();
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
+          return 100;
+        }
       }
       //return Math.round(Math.random() * 80 + 20);
       return 60;
     },
     showReport(row, env) {
       let status = row.executionStatus;
-      if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
-        this.taskVisible = false;
-        switch (row.executionModule) {
-          case "SCENARIO":
-            this.$router.push({
-              path: '/api/automation/report/view/' + row.id,
-            });
-            break;
-          case "PERFORMANCE":
-            this.$router.push({
-              path: '/performance/report/view/' + row.id,
-            });
-            break;
-          case "API":
-            this.getExecResult(row.id);
-            break;
+      if (status) {
+        status = row.executionStatus.toLowerCase();
+        if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
+          this.taskVisible = false;
+          switch (row.executionModule) {
+            case "SCENARIO":
+              this.$router.push({
+                path: '/api/automation/report/view/' + row.id,
+              });
+              break;
+            case "PERFORMANCE":
+              this.$router.push({
+                path: '/performance/report/view/' + row.id,
+              });
+              break;
+            case "API":
+              this.getExecResult(row.id);
+              break;
+          }
+        } else {
+          this.$warning("正在运行中，请稍后查看");
         }
-      } else {
-        this.$warning("正在运行中，请稍后查看");
       }
     },
 
