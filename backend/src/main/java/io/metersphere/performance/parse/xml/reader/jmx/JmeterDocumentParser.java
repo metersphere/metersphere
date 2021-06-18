@@ -742,6 +742,23 @@ public class JmeterDocumentParser implements DocumentParser {
       </ThreadGroup>
          */
         removeChildren(threadGroup);
+        // 避免出现配置错位
+        Object iterateNum = context.getProperty("iterateNum");
+        if (iterateNum instanceof List) {
+            ((List<?>) iterateNum).remove(0);
+        }
+        Object iterateRampUpTimes = context.getProperty("iterateRampUpTime");
+        if (iterateRampUpTimes instanceof List) {
+            ((List<?>) iterateRampUpTimes).remove(0);
+        }
+        Object steps = context.getProperty("Steps");
+        if (steps instanceof List) {
+            ((List<?>) steps).remove(0);
+        }
+        Object holds = context.getProperty("Hold");
+        if (holds instanceof List) {
+            ((List<?>) holds).remove(0);
+        }
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
@@ -838,6 +855,19 @@ public class JmeterDocumentParser implements DocumentParser {
         <stringProp name="Unit">S</stringProp>
          */
         removeChildren(threadGroup);
+        // 避免出现配置错位
+        Object iterateNum = context.getProperty("iterateNum");
+        if (iterateNum instanceof List) {
+            ((List<?>) iterateNum).remove(0);
+        }
+        Object iterateRampUpTimes = context.getProperty("iterateRampUpTime");
+        if (iterateRampUpTimes instanceof List) {
+            ((List<?>) iterateRampUpTimes).remove(0);
+        }
+        Object durations = context.getProperty("duration");
+        if (durations instanceof List) {
+            ((List<?>) durations).remove(0);
+        }
         // elementProp
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
@@ -970,6 +1000,27 @@ public class JmeterDocumentParser implements DocumentParser {
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
          */
         // elementProp
+        // 避免出现配置错位
+        Object durations = context.getProperty("duration");
+        if (durations instanceof List) {
+            ((List<?>) durations).remove(0);
+        }
+        Object units = context.getProperty("unit");
+        if (units instanceof List) {
+            ((List<?>) units).remove(0);
+        }
+        Object holds = context.getProperty("Hold");
+        if (holds instanceof List) {
+            ((List<?>) holds).remove(0);
+        }
+        Object steps = context.getProperty("Steps");
+        if (steps instanceof List) {
+            ((List<?>) steps).remove(0);
+        }
+        Object arampUps = context.getProperty("RampUp");
+        if (arampUps instanceof List) {
+            ((List<?>) arampUps).remove(0);
+        }
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
