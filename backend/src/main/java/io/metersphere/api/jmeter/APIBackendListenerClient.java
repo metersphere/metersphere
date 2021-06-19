@@ -297,13 +297,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
             } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.JENKINS_API_PLAN.name(), TriggerMode.API.name());
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.JENKINS_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
                 for (String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
                     testPlanReportService.checkTestPlanStatus(testPlanReportId);
                 }
-                testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.JENKINS_API_PLAN.name(), TriggerMode.API.name());
+                testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.JENKINS_API_PLAN.name(), ReportTriggerMode.API.name());
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
