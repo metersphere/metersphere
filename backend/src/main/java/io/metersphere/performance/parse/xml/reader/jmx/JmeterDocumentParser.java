@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.EngineContext;
@@ -528,7 +528,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         elementProp.appendChild(createStringProp(document, "Argument.name", jsonObject.getString("name")));
                         // 处理 mock data
                         String value = jsonObject.getString("value");
-                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.calculate(value)));
+                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.buildFunctionCallString(value)));
                         elementProp.appendChild(createStringProp(document, "Argument.metadata", "="));
                         item.appendChild(elementProp);
                     }

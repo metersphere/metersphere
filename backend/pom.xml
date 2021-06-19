@@ -21,6 +21,7 @@
         <nacos.version>1.1.3</nacos.version>
         <dubbo.version>2.7.8</dubbo.version>
         <groovy.version>3.0.8</groovy.version>
+        <metersphere-jmeter-functions.version>1.2</metersphere-jmeter-functions.version>
     </properties>
 
     <dependencies>
@@ -204,6 +205,12 @@
             <groupId>org.apache.jmeter</groupId>
             <artifactId>ApacheJMeter_java</artifactId>
             <version>${jmeter.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-jmeter-functions</artifactId>
+            <version>${metersphere-jmeter-functions.version}</version>
         </dependency>
 
         <dependency>
@@ -576,6 +583,15 @@
                             <overWrite>true</overWrite>
                             <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
                             <destFileName>ApacheJMeter_functions.jar</destFileName>
+                        </artifactItem>
+                        <artifactItem>
+                            <groupId>io.metersphere</groupId>
+                            <artifactId>metersphere-jmeter-functions</artifactId>
+                            <version>${metersphere-jmeter-functions.version}</version>
+                            <type>jar</type>
+                            <overWrite>true</overWrite>
+                            <outputDirectory>src/main/resources/jmeter/lib/ext</outputDirectory>
+                            <destFileName>metersphere-jmeter-functions.jar</destFileName>
                         </artifactItem>
                         <artifactItem>
                             <groupId>org.python</groupId>

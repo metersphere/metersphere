@@ -12,7 +12,7 @@ import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JsonPathUtils;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
@@ -354,7 +354,7 @@ public class MockConfigService {
                                                 values = "";
                                             } else {
                                                 try {
-                                                    values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                                                    values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
                                                 } catch (Exception e) {
                                                 }
                                             }
@@ -381,7 +381,7 @@ public class MockConfigService {
                                                         values = "";
                                                     } else {
                                                         try {
-                                                            values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                                                            values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
                                                         } catch (Exception e) {
                                                         }
                                                     }
@@ -453,7 +453,7 @@ public class MockConfigService {
                         values = "";
                     } else {
                         try {
-                            values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                            values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
                         } catch (Exception e) {
                         }
                     }
@@ -471,7 +471,7 @@ public class MockConfigService {
             values = "";
         } else {
             try {
-                values = values.startsWith("@") ? ScriptEngineUtils.calculate(values) : values;
+                values = values.startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(values) : values;
             } catch (Exception e) {
             }
         }
