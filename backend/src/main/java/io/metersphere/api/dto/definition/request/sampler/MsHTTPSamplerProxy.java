@@ -33,7 +33,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -542,7 +542,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         Map<String, String> keyValueMap = new HashMap<>();
         this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
                 keyValueMap.put(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue())
+                        ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue())
         );
         try {
             Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
@@ -567,7 +567,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             stringBuffer.append(keyValue.getName());
             if (keyValue.getValue() != null) {
                 stringBuffer.append("=").append(keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
+                        ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
             }
             stringBuffer.append("&");
         });
@@ -577,7 +577,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private Arguments httpArguments(List<KeyValue> list) {
         Arguments arguments = new Arguments();
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
-                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
+            HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
                     if (keyValue.getValue() == null) {
                         httpArgument.setValue("");
                     }
@@ -599,7 +599,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
         //  header 也支持 mock 参数
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.calculate(keyValue.getValue())))
+                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())))
         );
         if (headerManager.getHeaders().size() > 0) {
             tree.add(headerManager);

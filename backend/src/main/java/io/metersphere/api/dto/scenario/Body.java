@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -101,7 +101,7 @@ public class Body {
                 jsonMockParse((JSONObject) value);
             } else if(value instanceof String) {
                 if (StringUtils.isNotBlank((String) value)) {
-                    value = ScriptEngineUtils.calculate((String) value);
+                    value = ScriptEngineUtils.buildFunctionCallString((String) value);
                 }
                 jsonObject.put(key, value);
             }

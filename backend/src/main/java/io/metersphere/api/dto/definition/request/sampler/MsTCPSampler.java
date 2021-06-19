@@ -20,7 +20,7 @@ import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -273,7 +273,7 @@ public class MsTCPSampler extends MsTestElement {
                 String findStr = m.group();
                 if(findStr.length() > 3){
                     findStr = findStr.substring(1,findStr.length()-2);
-                    String replaceStr = ScriptEngineUtils.calculate(findStr);
+                    String replaceStr = ScriptEngineUtils.buildFunctionCallString(findStr);
                     if(StringUtils.equals(findStr,replaceStr)){
                         replaceStr = "";
                     }

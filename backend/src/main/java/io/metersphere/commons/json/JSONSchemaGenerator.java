@@ -7,7 +7,7 @@ import com.github.fge.jsonschema.cfg.ValidationConfiguration;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 import com.google.gson.*;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -125,7 +125,7 @@ public class JSONSchemaGenerator {
                     concept.put(propertyName, object.get("default"));
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString()) && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                    String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                     concept.put(propertyName, value);
                 }
                 if (object.has("maxLength")) {
@@ -154,7 +154,7 @@ public class JSONSchemaGenerator {
                         int value = object.get("mock").getAsJsonObject().get("mock").getAsInt();
                         concept.put(propertyName, value);
                     } catch (Exception e) {
-                        String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                         concept.put(propertyName, value);
                     }
                 }
@@ -198,7 +198,7 @@ public class JSONSchemaGenerator {
                             concept.put(propertyName, value.floatValue());
                         }
                     } catch (Exception e) {
-                        String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                         concept.put(propertyName, value);
                     }
                 }
@@ -209,7 +209,7 @@ public class JSONSchemaGenerator {
                     concept.put(propertyName, object.get("default"));
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
+                    String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").toString());
                     concept.put(propertyName, value);
                 }
             } else if (propertyObjType.equals("array")) {
@@ -230,7 +230,7 @@ public class JSONSchemaGenerator {
                         if (itemsObject.has("default")) {
                             array.add(itemsObject.get("default"));
                         } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.calculate(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
                             array.add(value);
                         } else {
                             array.add(null);
@@ -239,7 +239,7 @@ public class JSONSchemaGenerator {
                         if (itemsObject.has("default")) {
                             array.add(itemsObject.get("default"));
                         } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.calculate(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
                             array.add(value);
                         } else {
                             array.add(0);
