@@ -117,6 +117,7 @@ public class EngineFactory {
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
         engineContext.setReportId(reportId);
         engineContext.setResourceIndex(resourceIndex);
+        engineContext.setRatios(ratios);
 
         if (StringUtils.isNotEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -166,6 +167,15 @@ public class EngineFactory {
             MSException.throwException("File type unknown");
         }
 
+        if (CollectionUtils.isNotEmpty(resourceFiles)) {
+            Map<String, byte[]> data = new HashMap<>();
+            resourceFiles.forEach(cf -> {
+                FileContent csvContent = fileService.getFileContent(cf.getId());
+                data.put(cf.getName(), csvContent.getFile());
+            });
+            engineContext.setTestResourceFiles(data);
+        }
+
         try (ByteArrayInputStream source = new ByteArrayInputStream(jmxBytes)) {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
@@ -175,15 +185,6 @@ public class EngineFactory {
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
-        }
-
-        if (CollectionUtils.isNotEmpty(resourceFiles)) {
-            Map<String, byte[]> data = new HashMap<>();
-            resourceFiles.forEach(cf -> {
-                FileContent csvContent = fileService.getFileContent(cf.getId());
-                data.put(cf.getName(), csvContent.getFile());
-            });
-            engineContext.setTestResourceFiles(data);
         }
 
         return engineContext;
