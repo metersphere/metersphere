@@ -136,10 +136,6 @@ export default {
     getLoadChart() {
       this.$get("/performance/report/content/load_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
-        let yAxisListMax = this._getChartMax(yAxisList);
-        let yAxis2ListMax = this._getChartMax(yAxis2List);
 
         let loadOption = {
           color: color,
@@ -159,21 +155,6 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            min: 0,
-            max: yAxisListMax,
-            splitNumber: 5,
-          },
-            {
-              name: 'Transactions/s',
-              type: 'value',
-              splitNumber: 5,
-              min: 0,
-              max: yAxis2ListMax,
-            }
-          ],
           series: []
         };
 
@@ -196,6 +177,27 @@ export default {
             yAxisIndex: 1,
           });
         }
+        let yAxisList = allData.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
+        let yAxis2List = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        let yAxis2ListMax = this._getChartMax(yAxis2List);
+        loadOption.yAxis = [{
+          name: 'User',
+          type: 'value',
+          min: 0,
+          max: yAxisListMax,
+          splitNumber: 5,
+          interval: yAxisListMax / 5
+        },
+          {
+            name: 'Transactions/s',
+            type: 'value',
+            splitNumber: 5,
+            min: 0,
+            max: yAxis2ListMax,
+            interval: yAxisListMax / 5
+          }
+        ]
         this.loadOption = this.generateOption(loadOption, allData);
       }).catch(() => {
         this.loadOption = {};
@@ -204,10 +206,6 @@ export default {
     getResChart() {
       this.$get("/performance/report/content/res_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
-        let yAxisListMax = this._getChartMax(yAxisList);
-        let yAxis2ListMax = this._getChartMax(yAxis2List);
 
         let resOption = {
           color: color,
@@ -243,15 +241,6 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [
-            {
-              name: 'Response Time',
-              type: 'value',
-              min: 0,
-              max: yAxisListMax,
-              interval: yAxisListMax / 5
-            }
-          ],
           series: []
         };
 
@@ -270,6 +259,17 @@ export default {
           });
         }
 
+        let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        resOption.yAxis = [
+          {
+            name: 'Response Time',
+            type: 'value',
+            min: 0,
+            max: yAxisListMax,
+            interval: yAxisListMax / 5
+          }
+        ];
         this.resOption = this.generateOption(resOption, allData);
       }).catch(() => {
         this.resOption = {};
@@ -278,11 +278,6 @@ export default {
     getErrorChart() {
       this.$get("/performance/report/content/error_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxisListMax = this._getChartMax(yAxisList);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
 
         let errorOption = {
           color: color,
@@ -318,15 +313,6 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [
-            {
-              name: 'No',
-              type: 'value',
-              min: 0,
-              max: yAxisListMax,
-              interval: yAxisListMax / 5
-            }
-          ],
           series: []
         };
 
@@ -343,7 +329,17 @@ export default {
             yAxisIndex: 0,
           });
         }
-
+        let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        errorOption.yAxis = [
+          {
+            name: 'No',
+            type: 'value',
+            min: 0,
+            max: yAxisListMax,
+            interval: yAxisListMax / 5
+          }
+        ]
 
         this.errorOption = this.generateOption(errorOption, allData);
       }).catch(() => {
@@ -353,11 +349,6 @@ export default {
     getResponseCodeChart() {
       this.$get("/performance/report/content/response_code_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxisListMax = this._getChartMax(yAxisList);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
 
         let resCodeOption = {
           color: color,
@@ -393,15 +384,6 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [
-            {
-              name: 'No',
-              type: 'value',
-              min: 0,
-              max: yAxisListMax,
-              interval: yAxisListMax / 5
-            }
-          ],
           series: []
         };
 
@@ -418,7 +400,17 @@ export default {
             yAxisIndex: 0,
           });
         }
-
+        let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        resCodeOption.yAxis = [
+          {
+            name: 'No',
+            type: 'value',
+            min: 0,
+            max: yAxisListMax,
+            interval: yAxisListMax / 5
+          }
+        ];
         this.resCodeOption = this.generateOption(resCodeOption, allData);
       }).catch(() => {
         this.resCodeOption = {};
