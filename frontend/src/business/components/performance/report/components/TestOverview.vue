@@ -165,7 +165,6 @@ export default {
             min: 0,
             max: yAxisListMax,
             splitNumber: 5,
-            interval: yAxisListMax / 5
           },
             {
               name: 'Transactions/s',
@@ -173,7 +172,6 @@ export default {
               splitNumber: 5,
               min: 0,
               max: yAxis2ListMax,
-              interval: yAxis2ListMax / 5
             }
           ],
           series: []
