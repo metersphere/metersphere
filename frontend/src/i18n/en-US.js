@@ -648,6 +648,8 @@ export default {
     load_api_automation_jmx: 'Import API automation scenario',
     project_file_exist: "The file already exists in the project, please import it directly",
     project_file_update_type_error: 'Updated file types must be consistent',
+    csv_has_header: 'Contains Title',
+    csv_split: 'CSV Split',
     report: {
       diff: "Compare"
     },

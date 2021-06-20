@@ -616,9 +616,9 @@ export default {
     param_is_duplicate: '参数名不能重复',
     domain_ip_is_empty: '域名和IP不能为空',
     param_name_value_is_empty: '参数名和参数值不能为空',
-    connect_timeout: '建立连接超时时间',
-    response_timeout: '响应超时时间',
-    custom_http_code: '自定义 HTTP 响应成功状态码',
+    connect_timeout: '连接超时',
+    response_timeout: '响应超时',
+    custom_http_code: '自定义响应码',
     separated_by_commas: '按逗号分隔',
     create: '创建测试',
     run: '一键运行',
@@ -646,6 +646,8 @@ export default {
     threadgroup_at_least_one: '至少启用一个线程组',
     load_api_automation_jmx: '引用接口自动化场景',
     project_file_exist: "项目中已存在该文件，请直接引用",
+    csv_has_header: '包含表头',
+    csv_split: 'CSV分割',
     report: {
       diff: "对比"
     },

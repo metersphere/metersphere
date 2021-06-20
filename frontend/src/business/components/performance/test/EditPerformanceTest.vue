@@ -368,6 +368,7 @@ export default {
     fileChange(threadGroups) {
       let handler = this.$refs.pressureConfig;
 
+      let csvSet = new Set;
       threadGroups.forEach(tg => {
         tg.threadNumber = tg.threadNumber || 10;
         tg.duration = tg.duration || 10;
@@ -377,12 +378,21 @@ export default {
         tg.threadType = tg.threadType || 'DURATION';
         tg.iterateNum = tg.iterateNum || 1;
         tg.iterateRampUp = tg.iterateRampUp || 10;
+
+        if (tg.csvFiles) {
+          tg.csvFiles.map(item => csvSet.add(item));
+        }
       });
+      let csvFiles = [];
+      for (const f of csvSet) {
+        csvFiles.push({name: f, csvSplit: false, csvHasHeader: true});
+      }
 
       this.$set(handler, "threadGroups", threadGroups);
 
       this.$refs.basicConfig.threadGroups = threadGroups;
       this.$refs.pressureConfig.threadGroups = threadGroups;
+      this.$refs.advancedConfig.csvFiles = csvFiles;
 
       handler.calculateTotalChart();
     },
