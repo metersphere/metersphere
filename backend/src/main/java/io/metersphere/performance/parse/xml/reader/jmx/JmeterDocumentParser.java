@@ -22,8 +22,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
@@ -267,10 +269,74 @@ public class JmeterDocumentParser implements DocumentParser {
                 if (StringUtils.equals(filenameTag, "filename")) {
                     // 截取文件名
                     handleFilename(item);
+                    // 切割CSV文件
+                    splitCsvFile(item);
                     break;
                 }
             }
         }
+    }
+
+    private void splitCsvFile(Node item) {
+        Object csvConfig = context.getProperty("csvConfig");
+        if (csvConfig == null) {
+            return;
+        }
+        double[] ratios = context.getRatios();
+        int resourceIndex = context.getResourceIndex();
+        String filename = item.getTextContent();
+        byte[] content = context.getTestResourceFiles().get(filename);
+        StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
+        if (!tokenizer.hasMoreTokens()) {
+            return;
+        }
+        StringBuilder csv = new StringBuilder();
+        Object config = ((JSONObject) csvConfig).get(filename);
+        boolean csvSplit = ((JSONObject) (config)).getBooleanValue("csvSplit");
+        if (!csvSplit) {
+            return;
+        }
+        boolean csvHasHeader = ((JSONObject) (config)).getBooleanValue("csvHasHeader");
+        if (csvHasHeader) {
+            String header = tokenizer.nextToken();
+            csv.append(header).append("\n");
+        }
+        int count = tokenizer.countTokens();
+
+        long current, offset = 0;
+
+        // 计算偏移量
+        for (int k = 0; k < resourceIndex; k++) {
+            offset += Math.round(count * ratios[k]);
+        }
+
+        if (resourceIndex + 1 == ratios.length) {
+            current = count - offset; // 最后一个点可以分到的数量
+        } else {
+            current = Math.round(count * ratios[resourceIndex]); // 当前节点可以分到的数量
+        }
+
+        long index = 1;
+        while (tokenizer.hasMoreTokens()) {
+            if (current == 0) { // 节点一个都没有分到，把所有的数据都给这个节点（极端情况）
+                String line = tokenizer.nextToken();
+                csv.append(line).append("\n");
+            } else {
+                if (index < offset) {
+                    tokenizer.nextToken();
+                    index++;
+                    continue;
+                }
+                if (index > current + offset) {
+                    break;
+                }
+                String line = tokenizer.nextToken();
+                csv.append(line).append("\n");
+            }
+            index++;
+        }
+        // 替换文件
+        context.getTestResourceFiles().put(filename, csv.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     private void processResponseAssertion(Element element) {

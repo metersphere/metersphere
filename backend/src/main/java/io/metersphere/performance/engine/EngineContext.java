@@ -12,6 +12,7 @@ public class EngineContext {
     private String resourcePoolId;
     private String reportId;
     private Integer resourceIndex;
+    private double[] ratios;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, byte[]> testResourceFiles = new HashMap<>();
 
@@ -92,6 +93,13 @@ public class EngineContext {
         this.resourceIndex = resourceIndex;
     }
 
+    public double[] getRatios() {
+        return ratios;
+    }
+
+    public void setRatios(double[] ratios) {
+        this.ratios = ratios;
+    }
 
     public Map<String, byte[]> getTestResourceFiles() {
         return testResourceFiles;
