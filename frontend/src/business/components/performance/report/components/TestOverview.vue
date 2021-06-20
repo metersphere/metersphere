@@ -195,7 +195,7 @@ export default {
             splitNumber: 5,
             min: 0,
             max: yAxis2ListMax,
-            interval: yAxisListMax / 5
+            interval: yAxis2ListMax / 5
           }
         ]
         this.loadOption = this.generateOption(loadOption, allData);
