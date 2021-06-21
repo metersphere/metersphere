@@ -11,11 +11,11 @@
           <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
             <i class="el-icon-remove-outline ms-open-btn" size="mini" @click="closeExpansion"/>
           </el-tooltip>
-          <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-if="!stepEnable">
-            <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" @click="enableAll"/>
+          <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light" v-if="!stepEnable">
+            <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" @click="enableAll"/>
           </el-tooltip>
-          <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light" v-else>
-            <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" @click="disableAll"/>
+          <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
+            <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" @click="disableAll"/>
           </el-tooltip>
           <el-tree node-key="resourceId"
                    :props="props"
@@ -175,6 +175,7 @@ export default {
     moduleOptions: Array,
     currentScenario: {},
     type: String,
+    stepReEnable: Boolean,
     scenarioDefinition: Array,
     envMap: Map,
   },
@@ -240,7 +241,7 @@ export default {
       projectList: [],
       debugResult: new Map,
       expandedStatus: false,
-      stepEnable: false,
+      stepEnable: true,
     }
   },
   created() {
@@ -249,6 +250,7 @@ export default {
     }
     this.operatingElements = ELEMENTS.get("ALL");
     this.projectEnvMap = this.envMap;
+    this.stepEnable = this.stepReEnable;
   },
   watch: {
     envMap() {
@@ -969,7 +971,7 @@ export default {
             }
           }
         });
-      }else{
+      } else {
         this.expandedNode = [];
         this.expandedStatus = true;
         this.shrinkTreeNode();
