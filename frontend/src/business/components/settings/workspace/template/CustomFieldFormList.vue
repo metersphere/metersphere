@@ -84,7 +84,13 @@ export default {
      operators: [
        {
          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-         exec: this.handleDelete
+         exec: this.handleDelete,
+         isDisable: (row) => {
+           if (row.name === '用例等级') {
+             return true;
+           }
+           return false;
+         }
        }
      ],
     };
