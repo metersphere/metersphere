@@ -166,11 +166,11 @@
               <el-tooltip :content="$t('api_test.automation.close_expansion')" placement="top" effect="light">
                 <i class="el-icon-remove-outline ms-open-btn" size="mini" v-prevent-re-click @click="closeExpansion"/>
               </el-tooltip>
-              <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-if="!stepEnable">
-                <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="enableAll"/>
+              <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light" v-if="!stepEnable">
+                <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" v-prevent-re-click @click="enableAll"/>
               </el-tooltip>
-              <el-tooltip :content="$t('api_test.scenario.disable')" placement="top" effect="light" v-else>
-                <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-off']" v-prevent-re-click @click="disableAll"/>
+              <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
+                <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="disableAll"/>
               </el-tooltip>
 
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
@@ -256,7 +256,7 @@
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
-                           :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
+                           :currentScenario="currentScenario" :type="type" :stepReEnable="stepEnable" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
 
@@ -389,7 +389,7 @@ export default {
       drawer: false,
       isFullUrl: true,
       expandedStatus: false,
-      stepEnable: false,
+      stepEnable: true,
       envResult: {
         loading: false
       }
