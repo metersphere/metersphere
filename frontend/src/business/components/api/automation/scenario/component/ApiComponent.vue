@@ -29,10 +29,9 @@
 
       <!--请求内容-->
       <template v-slot:request>
+        <legend style="width: 100%">
         <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <legend style="width: 100%">
-
         <ms-api-request-form v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
                              :isShowEnable="true"
                              :referenced="true"
