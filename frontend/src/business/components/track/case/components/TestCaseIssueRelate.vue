@@ -97,7 +97,10 @@ export default {
   },
   methods: {
     getIssues() {
-      this.page.result = getIssuesByCaseId(this.caseId, this.page);
+      let result = getIssuesByCaseId(this.caseId, this.page);
+      if (result) {
+        this.page.result = result;
+      }
     },
     appIssue() {
       if (!this.caseId) {
