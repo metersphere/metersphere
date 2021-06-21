@@ -55,12 +55,13 @@ public class TestCaseCommentService {
         testCaseComment.setCreateTime(System.currentTimeMillis());
         testCaseComment.setUpdateTime(System.currentTimeMillis());
         testCaseComment.setDescription(request.getDescription());
+        testCaseComment.setStatus(request.getStatus());
         testCaseCommentMapper.insert(testCaseComment);
         TestCaseWithBLOBs testCaseWithBLOBs;
         testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
 
         // 发送通知
-        User user = userMapper.selectByPrimaryKey(testCaseWithBLOBs.getMaintainer());
+        User user = userMapper.selectByPrimaryKey(testCaseComment.getAuthor());
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         List<String> userIds = new ArrayList<>();
         userIds.add(testCaseWithBLOBs.getMaintainer());//用例维护人
