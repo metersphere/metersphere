@@ -316,13 +316,14 @@ public class JmeterDocumentParser implements DocumentParser {
             current = Math.round(count * ratios[resourceIndex]); // 当前节点可以分到的数量
         }
 
-        long index = 0;
+        long index = 1;
         while (tokenizer.hasMoreTokens()) {
             if (current == 0) { // 节点一个都没有分到，把所有的数据都给这个节点（极端情况）
                 String line = tokenizer.nextToken();
                 csv.append(line).append("\n");
             } else {
                 if (index < offset) {
+                    tokenizer.nextToken();
                     index++;
                     continue;
                 }
