@@ -53,6 +53,7 @@
 
     <div class="task-list">
       <swagger-task-list
+        @clear="clear"
         @rowClick="handleRowClick"
         ref="taskList"/>
     </div>

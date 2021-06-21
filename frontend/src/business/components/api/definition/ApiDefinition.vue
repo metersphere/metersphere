@@ -13,7 +13,7 @@
           @setModuleOptions="setModuleOptions"
           @setNodeTree="setNodeTree"
           @enableTrash="enableTrash"
-          @schedule="handleTabsEdit($t('api_test.definition.request.fast_debug'), 'SCHEDULE')"
+          @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
           :type="'edit'"
           page-source="definition"
           ref="nodeTree"/>
@@ -177,7 +177,6 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
-import {getLabel} from "@/common/js/tableUtils";
 
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
