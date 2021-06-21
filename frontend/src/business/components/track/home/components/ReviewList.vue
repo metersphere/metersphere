@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header">
       <span class="title">
-        用例评审
+        {{ $t('test_track.home.case_review') }}
       </span>
       <ms-table-button v-if="!showMyCreator" icon="el-icon-view"
                        :content="$t('test_track.review.my_create')" @click="searchMyCreator" style="float: right"/>

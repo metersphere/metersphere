@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header" >
       <span class="title">
-        用例数量统计
+        {{ $t('test_track.home.case_count') }}
       </span>
     </div>
 
@@ -68,7 +68,7 @@
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
               <el-aside width="30%">
-                评审率:
+                {{ $t('test_track.home.review_rate') }}:
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">
@@ -87,7 +87,7 @@
                 <el-row>
                   <el-col>
                     <span class="default-property">
-                      未评审
+                      {{ $t('test_track.review.prepare') }}
                       {{"\xa0\xa0"}}
                       <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
                         {{trackCountData.prepareCount}}
@@ -96,7 +96,7 @@
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="default-property">
-                      未通过
+                      {{ $t('test_track.review.un_pass') }}
                       {{"\xa0\xa0"}}
                       <el-link type="info" @click="redirectPage('UnPass')" target="_blank" style="color: #000000">
                         {{trackCountData.unPassCount}}
@@ -105,7 +105,7 @@
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="main-property">
-                      已通过
+                      {{ $t('test_track.review.pass') }}
                       {{"\xa0\xa0"}}
                       <el-link type="info" @click="redirectPage('Pass')" target="_blank" style="color: #000000">
                         {{trackCountData.passCount}}

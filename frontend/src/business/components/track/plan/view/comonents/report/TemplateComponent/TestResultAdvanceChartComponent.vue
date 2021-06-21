@@ -4,22 +4,22 @@
 
     <div class="char-component">
       <div class="char-item" v-if="showFunctional">
-        <ms-pie-chart v-if="isShow" :text="'功能测试用例'" @onClick="onFuncCharClick"
+        <ms-pie-chart v-if="isShow" :text="$t('test_track.functional_test_case')" @onClick="onFuncCharClick"
                       :name="$t('test_track.plan_view.test_result')" :data="functionalCharData"/>
       </div>
 
       <div class="char-item" v-if="showApi">
-        <ms-pie-chart v-if="isShow" :text="'接口测试用例'"  @onClick="onApiCharClick"
+        <ms-pie-chart v-if="isShow" :text="$t('test_track.api_test_case')"  @onClick="onApiCharClick"
                       :name="$t('test_track.plan_view.test_result')" :data="apiCharData"/>
       </div>
 
       <div class="char-item"  v-if="showScenario">
-        <ms-pie-chart v-if="isShow" :text="'场景测试用例'"  @onClick="onScenarioCharClick"
+        <ms-pie-chart v-if="isShow" :text="$t('test_track.scenario_test_case')"  @onClick="onScenarioCharClick"
                       :name="$t('test_track.plan_view.test_result')" :data="scenarioCharData"/>
       </div>
 
       <div class="char-item"  v-if="showLoad">
-        <ms-pie-chart v-if="isShow" :text="'性能测试用例'"  @onClick="onLoadCharClick"
+        <ms-pie-chart v-if="isShow" :text="$t('test_track.performance_test_case')"  @onClick="onLoadCharClick"
                       :name="$t('test_track.plan_view.test_result')" :data="loadCharData"/>
       </div>
     </div>

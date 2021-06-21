@@ -45,7 +45,7 @@ export default {
   }
 
   .menu-ul {
-    width: 500px;
+    width: 600px;
     display: inline-block;
   }
 
