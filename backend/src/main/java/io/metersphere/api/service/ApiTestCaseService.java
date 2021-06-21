@@ -757,4 +757,8 @@ public class ApiTestCaseService {
         }
         return null;
     }
+
+    public ApiDefinition findApiUrlAndMethodById(String id) {
+        return extApiTestCaseMapper.findApiUrlAndMethodById(id);
+    }
 }
