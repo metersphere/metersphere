@@ -17,7 +17,7 @@
         ref="nodeTree"/>
     </ms-aside-container>
 
-    <ms-main-container>
+    <ms-main-container style="overflow: hidden">
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
