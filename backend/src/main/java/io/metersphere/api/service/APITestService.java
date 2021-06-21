@@ -236,7 +236,7 @@ public class APITestService {
             mailService.sendHtml(reportId,notice,"api");
         }*/
         changeStatus(request.getId(), APITestStatus.Running);
-        jMeterService.run(request.getId(), null, is);
+        jMeterService.runOld(request.getId(), null, is);
         return reportId;
     }
 
@@ -445,7 +445,7 @@ public class APITestService {
             LogUtil.error(e.getMessage(), e);
         }
 
-        jMeterService.run(request.getId(), reportId, is);
+        jMeterService.runOld(request.getId(), reportId, is);
         return reportId;
     }
 

@@ -1233,7 +1233,7 @@ public class ApiAutomationService {
         List<String> reportIds = new LinkedList<>();
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-            jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
+            jMeterService.runLocal(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
             MSException.throwException(e.getMessage());
@@ -1334,7 +1334,7 @@ public class ApiAutomationService {
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
 
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         return request.getId();
     }
 

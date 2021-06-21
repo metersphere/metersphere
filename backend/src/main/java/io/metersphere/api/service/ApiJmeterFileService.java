@@ -12,6 +12,7 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.track.service.TestPlanApiCaseService;
@@ -91,7 +92,7 @@ public class ApiJmeterFileService {
                 if (file.isDirectory() && !path.endsWith("/")) {
                     file = new File(path + "/");
                 }
-                byte[] fileByte = jMeterService.fileToByte(file);
+                byte[] fileByte = FileUtils.fileToByte(file);
                 if (fileByte != null) {
                     jarFiles.put(file.getName(), fileByte);
                 }
@@ -106,12 +107,12 @@ public class ApiJmeterFileService {
         Map<String, byte[]> multipartFiles = new LinkedHashMap<>();
         // 获取附件
         List<BodyFile> files = new LinkedList<>();
-        jMeterService.getFiles(hashTree, files);
+        FileUtils.getFiles(hashTree, files);
         if (CollectionUtils.isNotEmpty(files)) {
             for (BodyFile bodyFile : files) {
                 File file = new File(bodyFile.getName());
                 if (file != null && !file.exists()) {
-                    byte[] fileByte = jMeterService.fileToByte(file);
+                    byte[] fileByte = FileUtils.fileToByte(file);
                     if (fileByte != null) {
                         multipartFiles.put(file.getName(), fileByte);
                     }
