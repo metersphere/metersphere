@@ -106,6 +106,7 @@ export default {
     deleteRowTask(row) {
       this.result = this.$post('/api/definition/schedule/delete', row, response => {
         this.search();
+        this.$emit('clear');
       });
     }
 
