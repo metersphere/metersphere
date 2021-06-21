@@ -66,6 +66,7 @@ export default {
       comment.caseId = this.caseId;
       comment.description = this.textarea;
       comment.reviewId = this.reviewId;
+      comment.status = this.reviewStatus;
       if (!this.textarea) {
         this.$warning(this.$t('test_track.comment.description_is_null'));
         return;
