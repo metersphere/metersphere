@@ -144,6 +144,12 @@
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
+<!--                  <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand">-->
+<!--                    {{ $t('api_test.request.debug') }}-->
+<!--                    <el-dropdown-menu slot="dropdown">-->
+<!--                      <el-dropdown-item>{{ $t('api_test.run') }}</el-dropdown-item>-->
+<!--                    </el-dropdown-menu>-->
+<!--                  </el-dropdown>-->
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
                              @click="runDebug">{{ $t('api_test.request.debug') }}
                   </el-button>
@@ -172,7 +178,9 @@
               <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
                 <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="disableAll"/>
               </el-tooltip>
-
+              <div class="ms-debug-result" v-if="debug">
+                354 ms 请求 10 成功 8 失败 2
+              </div>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
@@ -232,7 +240,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
+        <ms-api-report-detail :report-id="reportId" :debug="debug" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -392,7 +400,8 @@ export default {
       stepEnable: true,
       envResult: {
         loading: false
-      }
+      },
+      debug: false,
     }
   },
   created() {
@@ -536,6 +545,53 @@ export default {
     },
   },
   methods: {
+    getReport() {
+      if (this.debug) {
+        let url = "/api/scenario/report/get/real/" + this.reportId;
+        this.$get(url, response => {
+          // if (response.data && response.data.end) {
+          //   console.log(response.data);
+          // } else {
+          //   setTimeout(this.getReport, 2000)
+          // }
+
+        });
+      }
+    },
+    handleCommand() {
+      this.debug = false;
+      /*触发执行操作*/
+      this.$refs['currentScenario'].validate((valid) => {
+        if (valid) {
+          let definition = JSON.parse(JSON.stringify(this.currentScenario));
+          definition.hashTree = this.scenarioDefinition;
+          this.getEnv(JSON.stringify(definition)).then(() => {
+            let promise = this.$refs.envPopover.initEnv();
+            promise.then(() => {
+              let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
+              if (!sign) {
+                return;
+              }
+              this.editScenario().then(() => {
+                this.debugData = {
+                  id: this.currentScenario.id,
+                  name: this.currentScenario.name,
+                  type: "scenario",
+                  variables: this.currentScenario.variables,
+                  referenced: 'Created',
+                  enableCookieShare: this.enableCookieShare,
+                  headers: this.currentScenario.headers,
+                  environmentMap: this.projectEnvMap,
+                  hashTree: this.scenarioDefinition
+                };
+                this.reportId = getUUID().substring(0, 8);
+              })
+            })
+          })
+        }
+      })
+    },
+
     openHis() {
       this.$refs.changeHistory.open(this.currentScenario.id);
     },
@@ -869,6 +925,10 @@ export default {
       });
     },
     runDebug() {
+      if (this.scenarioDefinition.length < 1) {
+        return;
+      }
+      // this.debug = true;
       /*触发执行操作*/
       this.$refs['currentScenario'].validate((valid) => {
         if (valid) {
@@ -1107,8 +1167,12 @@ export default {
     }
     ,
     runRefresh() {
-      this.debugVisible = true;
-      this.loading = false;
+      if(!this.debug) {
+        this.debugVisible = true;
+        this.loading = false;
+      }else{
+        this.getReport();
+      }
     },
     showScenarioParameters() {
       this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
@@ -1423,6 +1487,12 @@ export default {
   background-color: #F2F9EE;
   cursor: pointer;
   color: #67C23A;
+}
+
+.ms-debug-result {
+  float: right;
+  margin-right: 30px;
+  margin-top: 3px;
 }
 
 .ms-open-btn-left {
