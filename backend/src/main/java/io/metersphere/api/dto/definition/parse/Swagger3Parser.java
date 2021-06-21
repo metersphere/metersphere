@@ -356,7 +356,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else {
             if(schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
                 if(StringUtils.equals(schema.getType(), "string")) {
-                    String example = (String) schema.getExample();
+                    Object exampleObj = schema.getExample();
+                    String example = null;
+                    if (exampleObj != null) {
+                        example = exampleObj.toString();
+                    }
                     return example == null ? "" : example;
                 } else if(StringUtils.equals(schema.getType(), "boolean")) {
                     return schema.getExample();
