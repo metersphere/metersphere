@@ -66,7 +66,7 @@
                   :disabled="isReadOnly"
                   v-model="threadGroup.threadNumber"
                   @change="calculateTotalChart()"
-                  :min="resourcePoolResourceLength"
+                  :min="1"
                   :max="maxThreadNumbers"
                   size="mini"/>
               </el-form-item>
