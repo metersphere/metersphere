@@ -892,36 +892,44 @@ public class TestCaseService {
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
 
-        List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
-        testCases.forEach((testCase) -> {
-            String customFields = testCase.getCustomFields();
-            List<TestCaseBatchRequest.CustomFiledRequest> fields = null;
-            if (StringUtils.isBlank(customFields)) {
-                fields = new ArrayList<>();
-            } else {
-                fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
-            }
-
-            boolean hasField = false;
-            for (int i = 0; i < fields.size(); i++) {
-                TestCaseBatchRequest.CustomFiledRequest field = fields.get(i);
-                if (StringUtils.equals(request.getCustomField().getName(), field.getName())) {
-                    field.setValue(request.getCustomField().getValue());
-                    hasField = true;
-                    break;
+        if (request.getCustomField() != null) {
+            List<TestCaseWithBLOBs> testCases = extTestCaseMapper.getCustomFieldsByIds(ids);
+            testCases.forEach((testCase) -> {
+                String customFields = testCase.getCustomFields();
+                List<TestCaseBatchRequest.CustomFiledRequest> fields = null;
+                if (StringUtils.isBlank(customFields)) {
+                    fields = new ArrayList<>();
+                } else {
+                    fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
                 }
-            }
-            if (!hasField) {
-                fields.add(request.getCustomField());
-            }
-            if (StringUtils.equals(request.getCustomField().getName(), "用例等级")) {
-                testCase.setPriority((String) request.getCustomField().getValue());
-            }
-            testCase.setCustomFields(JSONObject.toJSONString(fields));
-            testCase.setUpdateTime(System.currentTimeMillis());
-            testCase.setId(null);
-            testCaseMapper.updateByExampleSelective(testCase, example);
-        });
+
+                boolean hasField = false;
+                for (int i = 0; i < fields.size(); i++) {
+                    TestCaseBatchRequest.CustomFiledRequest field = fields.get(i);
+                    if (StringUtils.equals(request.getCustomField().getName(), field.getName())) {
+                        field.setValue(request.getCustomField().getValue());
+                        hasField = true;
+                        break;
+                    }
+                }
+                if (!hasField) {
+                    fields.add(request.getCustomField());
+                }
+                if (StringUtils.equals(request.getCustomField().getName(), "用例等级")) {
+                    testCase.setPriority((String) request.getCustomField().getValue());
+                }
+                testCase.setCustomFields(JSONObject.toJSONString(fields));
+                testCase.setUpdateTime(System.currentTimeMillis());
+                testCase.setId(null);
+                testCaseMapper.updateByExampleSelective(testCase, example);
+            });
+        } else {
+            // 批量移动
+            TestCaseWithBLOBs batchEdit = new TestCaseWithBLOBs();
+            BeanUtils.copyBean(batchEdit, request);
+            batchEdit.setUpdateTime(System.currentTimeMillis());
+            testCaseMapper.updateByExampleSelective(batchEdit, example);
+        }
     }
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
