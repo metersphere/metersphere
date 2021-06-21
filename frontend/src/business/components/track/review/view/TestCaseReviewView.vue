@@ -12,7 +12,7 @@
         <el-menu v-if="isMenuShow" :active-text-color="color"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect"
                  :default-active="activeIndex">
-          <el-menu-item index="functional">功能测试用例</el-menu-item>
+          <el-menu-item index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
 <!--          <el-menu-item index="api">接口测试用例</el-menu-item>
           <el-menu-item index="load">性能测试用例</el-menu-item>-->
           <!--          <el-menu-item index="report">报告统计</el-menu-item>-->

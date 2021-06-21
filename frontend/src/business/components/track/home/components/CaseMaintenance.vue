@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header">
       <span class="title">
-        用例维护人分布
+        {{ $t('test_track.home.case_maintenance') }}
       </span>
     </div>
     <el-container>

@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header">
       <span class="title">
-        遗留缺陷统计
+        {{ $t('test_track.home.bug_count') }}
       </span>
     </div>
     <el-container>
@@ -15,17 +15,17 @@
             {{ $t('api_test.home_page.unit_of_measurement') }}
           </span>
           <div>
-            占比
+            {{ $t('test_track.home.percentage') }}
             <span class="rage">
-                {{rage}}
+              {{rage}}
             </span>
           </div>
         </div>
       </el-aside>
       <el-table border :data="tableData" class="adjust-table table-content" height="300">
-        <el-table-column prop="index" label="序号"
+        <el-table-column prop="index" :label="$t('test_track.home.serial_number')"
                          width="60" show-overflow-tooltip/>
-        <el-table-column prop="planName" label="测试计划名称"
+        <el-table-column prop="planName" :label="$t('test_track.home.test_plan_name')"
                          width="130" show-overflow-tooltip/>
         <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180" show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -44,11 +44,11 @@
           </span>
           </template>
         </el-table-column>
-        <el-table-column prop="caseSize" label="用例数"
+        <el-table-column prop="caseSize" :label="$t('test_track.home.case_size')"
                          width="80" show-overflow-tooltip/>
-        <el-table-column prop="bugSize" label="缺陷数"
+        <el-table-column prop="bugSize" :label="$t('test_track.home.bug_size')"
                          width="80" show-overflow-tooltip/>
-        <el-table-column prop="passRage" label="通过率"
+        <el-table-column prop="passRage" :label="$t('test_track.home.passing_rate')"
                          width="80" show-overflow-tooltip/>
       </el-table>
     </el-container>
@@ -100,6 +100,7 @@ export default {
 .el-aside {
   line-height: 100px;
   text-align: center;
+  overflow-y: hidden;
 }
 
 .count-number {

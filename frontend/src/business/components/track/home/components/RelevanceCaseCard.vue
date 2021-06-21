@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header" >
       <span class="title">
-        关联用例数量统计
+        {{ $t('test_track.home.relevance_case') }}
       </span>
     </div>
 
@@ -51,7 +51,7 @@
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
               <el-aside width="30%">
-                覆盖率:
+                {{ $t('test_track.home.coverage') }}:
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">
@@ -70,7 +70,7 @@
                 <el-row>
                   <el-col>
                     <span class="default-property">
-                      未覆盖
+                      {{ $t('api_test.home_page.detail_card.uncoverage') }}
                       {{"\xa0\xa0"}}
                       <el-link type="info" @click="redirectPage('uncoverage')" target="_blank" style="color: #000000">
                         {{relevanceCountData.uncoverageCount}}
@@ -79,7 +79,7 @@
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="main-property">
-                      已覆盖
+                      {{ $t('api_test.home_page.detail_card.coverage') }}
                       {{"\xa0\xa0"}}
                       <el-link type="info" @click="redirectPage('coverage')" target="_blank" style="color: #000000">
                         {{relevanceCountData.coverageCount}}

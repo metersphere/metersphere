@@ -1,7 +1,7 @@
 <template>
   <div class="failure-cases-list">
     <div class="failure-cases-list-header">
-      性能测试用例
+      {{ $t('test_track.performance_test_case') }}
     </div>
 
     <el-table
