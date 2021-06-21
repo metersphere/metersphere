@@ -462,6 +462,10 @@ public class TestCaseReviewService {
                 testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
                 testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
                 return;
+            } else if (StringUtils.equals(status, TestReviewCaseStatus.UnPass.name())) {
+                testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
+                testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+                return;
             }
         }
         testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());

@@ -11,10 +11,10 @@
         {{ comment.createTime | timestampFormatDate }}
       </span>
       <span>
-        <el-button v-if="reviewStatus === 'UnPass'" type="danger" size="mini" round>
+        <el-button v-if="comment.status === 'UnPass'" type="danger" size="mini" round>
          {{ $t('test_track.review.un_pass') }}
          </el-button>
-         <el-button v-if="reviewStatus === 'Pass'" type="success" size="mini">
+         <el-button v-if="comment.status === 'Pass'" type="success" size="mini">
                         {{ $t('test_track.review.pass') }}
          </el-button>
       </span>
