@@ -933,7 +933,7 @@ public class TestPlanService {
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
             String runMode = ApiRunMode.SCHEDULE_SCENARIO_PLAN.name();
             // 调用执行方法
-            jMeterService.runDefinition(request.getId(), jmeterHashTree, request.getReportId(), runMode);
+            jMeterService.runLocal(request.getId(), jmeterHashTree, request.getReportId(), runMode);
         }
 
         return returnId;

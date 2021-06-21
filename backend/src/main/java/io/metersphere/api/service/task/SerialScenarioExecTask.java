@@ -35,7 +35,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReportId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
-                jMeterService.runSerial(runModeDataDTO.getReportId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode(), request.getConfig());
+                jMeterService.runLocal(runModeDataDTO.getReportId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
             }
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
