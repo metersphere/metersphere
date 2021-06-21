@@ -442,6 +442,11 @@
         WHERE testCase.project_id = #{0} AND apiDef.status != "Trash"
         GROUP BY apiDef.protocol
     </select>
+    <select id="findApiUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
+        SELECT method,path FROM api_definition WHERE id IN (
+            SELECT api_definition_id FROM api_test_case WHERE id = #{0}
+        )
+    </select>
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
         SELECT count(testCase.id) AS countNumber FROM api_test_case testCase
