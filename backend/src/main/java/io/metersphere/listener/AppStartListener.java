@@ -2,6 +2,7 @@ package io.metersphere.listener;
 
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.JarConfigService;
@@ -25,6 +26,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private JMeterService jMeterService;
     @Resource
     private JarConfigService jarConfigService;
+    @Resource
+    private ApiAutomationService apiAutomationService;
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -39,6 +42,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initPythonEnv();
 
+        checkApiScenarioUseUrl();
+
         try {
             Thread.sleep(1 * 60 * 1000);
         } catch (InterruptedException e) {
@@ -46,6 +51,10 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         }
 
         scheduleService.startEnableSchedules();
+    }
+
+    private void checkApiScenarioUseUrl() {
+        apiAutomationService.checkApiScenarioUseUrl();
     }
 
     /**
