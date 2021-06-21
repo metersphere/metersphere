@@ -176,12 +176,12 @@ export default {
           }
         },
         legend: {
-          data: ["功能用例数", "关联用例数"],
+          data: [this.$t('test_track.home.function_case_count'), this.$t('test_track.home.relevance_case_count')],
           orient: 'vertical',
           right: '80',
         },
         series: [{
-          name: "功能用例数",
+          name: this.$t('test_track.home.function_case_count'),
           data: yAxis1,
           type: 'bar',
           itemStyle: {
@@ -191,7 +191,7 @@ export default {
           }
         },
           {
-            name: "关联用例数",
+            name: this.$t('test_track.home.relevance_case_count'),
             data: yAxis2,
             type: 'bar',
             itemStyle: {
