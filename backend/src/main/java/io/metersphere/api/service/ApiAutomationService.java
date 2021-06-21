@@ -1566,6 +1566,10 @@ public class ApiAutomationService {
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(apiScenarioWithBLOBs, request);
         apiScenarioWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        if(apiScenarioWithBLOBs.getScenarioDefinition() != null){
+            List<ApiMethodUrlDTO> useUrl = this.parseUrl(apiScenarioWithBLOBs);
+            apiScenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
+        }
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
@@ -1594,11 +1598,15 @@ public class ApiAutomationService {
     private void _importCreate(List<ApiScenarioWithBLOBs> sameRequest, ApiScenarioMapper batchMapper, ApiScenarioWithBLOBs scenarioWithBLOBs, ApiTestImportRequest apiTestImportRequest) {
         if (CollectionUtils.isEmpty(sameRequest)) {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
+            List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
+            scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
             batchMapper.insert(scenarioWithBLOBs);
         } else {
             //如果存在则修改
             scenarioWithBLOBs.setId(sameRequest.get(0).getId());
             scenarioWithBLOBs.setNum(sameRequest.get(0).getNum());
+            List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
+            scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
             batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
         }
     }
@@ -1627,6 +1635,8 @@ public class ApiAutomationService {
             _importCreate(sameRequest, batchMapper, scenarioWithBLOBs, apiTestImportRequest);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
+                List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
+                scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 batchMapper.insert(scenarioWithBLOBs);
             }
 
@@ -1805,12 +1815,6 @@ public class ApiAutomationService {
             return 100;
         }
 
-        /**
-         * 前置工作：
-         *  1。将接口集合转化数据结构: map<method,Map<url,List<id>>> urlMap 用来做筛选
-         *  4。自定义List<api.id> coveragedIdList 已覆盖的id集合。 最终计算公式是 coveragedIdList/allApiIdList在
-         *
-         */
         Map<ApiMethodUrlDTO,List<String>> urlMap = new HashMap<>();
         for (ApiDefinition model : allEffectiveApiList) {
             String url = model.getPath();
