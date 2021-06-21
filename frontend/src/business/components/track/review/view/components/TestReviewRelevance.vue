@@ -67,7 +67,7 @@
 
               <el-table-column
                 :filters="statusFilters"
-                column-key="status"
+                column-key="reviewStatus"
                 :label="$t('test_track.case.status')"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
