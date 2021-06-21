@@ -301,7 +301,7 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='reviewStatus'">
+                        <when test="key=='review_status'">
                             and test_case.review_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
