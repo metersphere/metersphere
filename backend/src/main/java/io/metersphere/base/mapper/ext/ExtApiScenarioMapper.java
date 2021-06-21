@@ -36,6 +36,8 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> selectIdAndScenarioByProjectId(String projectId);
 
+    List<ApiScenarioWithBLOBs> selectIdAndUseUrlByProjectId(String projectId);
+
     long countByProjectIDAndCreatInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
     List<ApiDataCountResult> countRunResultByProjectID(String projectId);
@@ -51,4 +53,6 @@ public interface ExtApiScenarioMapper {
     List<ApiScenarioWithBLOBs> listWithIds(@Param("ids") List<String> ids);
 
     List<Map<String, Object>> listModuleByCollection(@Param("request") ApiScenarioRequest request);
+
+    List<String> selectIdsByUseUrlIsNull();
 }

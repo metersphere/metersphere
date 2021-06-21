@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiScenario implements Serializable {
@@ -49,6 +48,8 @@ public class ApiScenario implements Serializable {
     private String customNum;
 
     private String createUser;
+
+    private Integer version;
 
     private static final long serialVersionUID = 1L;
 }

@@ -283,11 +283,11 @@ public class APITestController {
          * 接口覆盖率
          * 复制的接口定义/复制或引用的单接口用例/ 添加的自定义请求 url 路径与现有的接口定义一致的请求
          */
-        List<ApiScenarioWithBLOBs> allScenarioInfoList = apiAutomationService.selectIdAndScenarioByProjectId(projectId);
+        List<ApiScenarioWithBLOBs> allScenarioInfoList = apiAutomationService.selectIdAndUseUrlByProjectId(projectId);
         List<ApiDefinition> allEffectiveApiIdList = apiDefinitionService.selectEffectiveIdByProjectId(projectId);
-        List<ApiTestCase> allEffectiveApiCaseList = apiTestCaseService.selectEffectiveTestCaseByProjectId(projectId);
+//        List<ApiTestCase> allEffectiveApiCaseList = apiTestCaseService.selectEffectiveTestCaseByProjectId(projectId);
         try {
-            float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(allScenarioInfoList, allEffectiveApiIdList, allEffectiveApiCaseList);
+            float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(allScenarioInfoList, allEffectiveApiIdList);
             DecimalFormat df = new DecimalFormat("0.0");
             returnStr = df.format(intetfaceCoverageRageNumber) + "%";
         }catch (Exception e){

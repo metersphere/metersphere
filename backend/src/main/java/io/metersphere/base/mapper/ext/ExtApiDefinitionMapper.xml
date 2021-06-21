@@ -299,7 +299,9 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiDefinition">
         SELECT * FROM api_definition WHERE api_definition.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
-
+    <select id="selectUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
+        SELECT method,path FROM api_definition WHERE id = #{0}
+    </select>
     <select id="listRelevance" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
         select
         <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Base_Column_List"/>
@@ -482,7 +484,7 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
-        select id,path
+        select id,path,method
         from api_definition
         WHERE project_id = #{0} AND status != 'Trash' AND protocol = 'HTTP'
     </select>

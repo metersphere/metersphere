@@ -99,7 +99,9 @@
         join project p on p.id = ug.source_id
         <where>
             g.type = 'PROJECT' and ug.user_id = #{proRequest.userId}
-            and p.workspace_id = #{proRequest.workspaceId}
+            <if test="proRequest.workspaceId != null and proRequest.workspaceId != ''">
+                and p.workspace_id = #{proRequest.workspaceId}
+            </if>
             <if test="proRequest.name != null and proRequest.name != ''">
                 and p.name like #{proRequest.name, jdbcType=VARCHAR}
             </if>

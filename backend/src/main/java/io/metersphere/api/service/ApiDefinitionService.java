@@ -1196,4 +1196,7 @@ public class ApiDefinitionService {
         return null;
     }
 
+    public ApiDefinition selectUrlAndMethodById(String id) {
+        return extApiDefinitionMapper.selectUrlAndMethodById(id);
+    }
 }

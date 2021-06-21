@@ -341,6 +341,9 @@
     <select id="selectIdAndScenarioByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         SELECT id,scenario_definition FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
+    <select id="selectIdAndUseUrlByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        SELECT id,use_url FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
+    </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber FROM api_scenario
         WHERE project_id = #{projectId}  AND status != 'Trash'
@@ -387,6 +390,11 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
+    <select id="selectIdsByUseUrlIsNull" resultType="java.lang.String">
+        select id
+        from api_scenario
+        WHERE use_url IS NULL
+    </select>
     <sql id="queryWhereConditionReview">
         <where>
             <if test="request.combine != null">

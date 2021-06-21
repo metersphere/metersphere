@@ -51,4 +51,6 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinitionResult> listByIds(@Param("ids") List<String> ids);
 
     List<Map<String, Object>> moduleCountByCollection(@Param("request") ApiDefinitionRequest request);
+
+    ApiDefinition selectUrlAndMethodById(String id);
 }
