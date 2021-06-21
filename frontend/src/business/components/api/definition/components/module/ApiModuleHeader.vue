@@ -61,15 +61,15 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+DEBUG']
         },
         {
-          label: this.$t('api_test.api_import.label'),
-          callback: this.handleImport,
-          permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
-        },
-        {
-          label: this.$t('定时同步'),
+          label: this.$t('api_test.api_import.timing_synchronization'),
           callback: () => {
             this.$emit('schedule');
           },
+          permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
+        },
+        {
+          label: this.$t('api_test.api_import.label'),
+          callback: this.handleImport,
           permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
         },
         {

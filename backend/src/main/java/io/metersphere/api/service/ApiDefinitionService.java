@@ -968,7 +968,7 @@ public class ApiDefinitionService {
     //删除
     public void deleteSchedule(ScheduleRequest request) {
         swaggerUrlProjectMapper.deleteByPrimaryKey(request.getId());
-        scheduleService.deleteByResourceId(request.getTaskId(), ScheduleGroup.SWAGGER_IMPORT.name());
+        scheduleService.deleteByResourceId(request.getId(), ScheduleGroup.SWAGGER_IMPORT.name());
     }
 
     //查询swaggerUrl详情
