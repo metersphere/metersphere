@@ -27,6 +27,8 @@ public class TestResult {
 
     private boolean isDebug;
 
+    private boolean end;
+
     private String runMode;
 
     private int success = 0;

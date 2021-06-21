@@ -22,6 +22,7 @@ import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
@@ -110,10 +111,21 @@ public class JMeterService {
         testPlan.add(testPlan.getArray()[0], backendListener);
     }
 
+    private void addResultCollector(String testId, HashTree testPlan) {
+        MsResultCollector resultCollector = new MsResultCollector();
+        resultCollector.setName(testId);
+        resultCollector.setProperty(TestElement.TEST_CLASS, MsResultCollector.class.getName());
+        resultCollector.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ViewResultsFullVisualizer"));
+        resultCollector.setEnabled(true);
+        testPlan.add(testPlan.getArray()[0], resultCollector);
+    }
+
+
     public void runLocal(String testId, HashTree testPlan, String debugReportId, String runMode) {
         init();
         FixedTask.tasks.put(testId,System.currentTimeMillis());
         addBackendListener(testId, debugReportId, runMode, testPlan);
+        addResultCollector(testId, testPlan);
         LocalRunner runner = new LocalRunner(testPlan);
         runner.run();
     }
