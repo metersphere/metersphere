@@ -110,7 +110,22 @@
         left join test_case_node on test_case_node.id=test_case.node_id
         inner join project on project.id = test_case.project_id
         <include refid="queryWhereCondition"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <choose>
+                    <when test="order.name == 'custom_num'">
+                        test_case.num ${order.type}, test_case.custom_num ${order.type}
+                    </when>
+                    <when test="order.name == 'priority'">
+                        test_case.priority ${order.type}
+                    </when>
+                    <otherwise>
+                        test_case_review_test_case.${order.name} ${order.type}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
     </select>
     <sql id="queryWhereCondition">
         <where>
