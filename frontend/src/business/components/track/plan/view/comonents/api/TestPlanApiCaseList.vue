@@ -619,7 +619,7 @@ export default {
         testPlan.hashTree = [];
         this.runData.forEach(item => {
           let threadGroup = new ThreadGroup();
-          threadGroup.onSampleError = config.onSampleError;
+          threadGroup.onSampleError = !config.onSampleError;
           threadGroup.hashTree = [];
           threadGroup.hashTree.push(item);
           testPlan.hashTree.push(threadGroup);
