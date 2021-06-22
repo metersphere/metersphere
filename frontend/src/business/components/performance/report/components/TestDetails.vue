@@ -11,100 +11,108 @@
           <el-collapse-item :title="$t('load_test.report.ActiveThreadsChart')" name="users">
             <el-checkbox-group v-model="checkList['ActiveThreadsChart']"
                                @change="handleChecked('ActiveThreadsChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['ActiveThreadsChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['ActiveThreadsChart']" :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.TransactionsChart')" name="transactions">
             <el-checkbox-group v-model="checkList['TransactionsChart']" @change="handleChecked('TransactionsChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['TransactionsChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['TransactionsChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.ResponseTimeChart')" name="responseTime">
             <el-checkbox-group v-model="checkList['ResponseTimeChart']" @change="handleChecked('ResponseTimeChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['ResponseTimeChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['ResponseTimeChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.ResponseTimePercentilesChart')" name="responseTimePercentiles">
             <el-checkbox-group v-model="checkList['ResponseTimePercentilesChart']"
                                @change="handleChecked('ResponseTimePercentilesChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['ResponseTimePercentilesChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['ResponseTimePercentilesChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.ResponseCodeChart')" name="responseCode">
             <el-checkbox-group v-model="checkList['ResponseCodeChart']" @change="handleChecked('ResponseCodeChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['ResponseCodeChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['ResponseCodeChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.LatencyChart')" name="latency">
             <el-checkbox-group v-model="checkList['LatencyChart']" @change="handleChecked('LatencyChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['LatencyChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['LatencyChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.BytesThroughputChart')" name="bytes">
             <el-checkbox-group v-model="checkList['BytesThroughputChart']"
                                @change="handleChecked('BytesThroughputChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['BytesThroughputChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['BytesThroughputChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.ErrorsChart')" name="errors">
             <el-checkbox-group v-model="checkList['ErrorsChart']" @change="handleChecked('ErrorsChart')">
-              <el-tooltip class="item" effect="dark"
-                          v-for="name in checkOptions['ErrorsChart']"
-                          :key="name"
-                          :content="name"
-                          :disabled="name.length < minLength"
-                          placement="top">
-                <el-checkbox :label="name"/>
-              </el-tooltip>
+              <div v-for="name in checkOptions['ErrorsChart']"
+                   :key="name">
+                <el-tooltip class="item" effect="dark"
+                            :content="name"
+                            :disabled="name.length < minLength"
+                            placement="top">
+                  <el-checkbox :label="name"/>
+                </el-tooltip>
+              </div>
             </el-checkbox-group>
           </el-collapse-item>
         </el-collapse>
@@ -434,5 +442,9 @@ export default {
 .test-detail {
   height: calc(100vh - 345px);
   overflow: auto;
+}
+
+/deep/ .el-checkbox__label {
+  font-size: 10px !important;
 }
 </style>
