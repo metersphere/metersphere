@@ -5,7 +5,11 @@
         {{$t('api_test.home_page.running_task_list.title')}}
       </span>
     </template>
-    <el-table border :data="tableData" class="adjust-table table-content" height="300px">
+    <ms-table
+      :condition="condition"
+      :data="tableData"
+      @refresh="search"
+      screen-height="300px">
       <el-table-column prop="index"  :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80" show-overflow-tooltip/>
       <el-table-column prop="name"  :label="$t('commons.name')" width="200" >
         <template v-slot:default="{row}">
@@ -18,13 +22,16 @@
           </el-link>
         </template>
       </el-table-column>
-      <el-table-column prop="taskType"  :label="$t('api_test.home_page.running_task_list.table_coloum.task_type')" width="120" show-overflow-tooltip>
+      <ms-table-column
+        prop="taskType"
+        :filters="typeFilters"
+        :label="$t('api_test.home_page.running_task_list.table_coloum.task_type')" width="120">
         <template v-slot:default="scope">
           <ms-tag v-if="scope.row.taskGroup == 'API_SCENARIO_TEST'" type="success" effect="plain" :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
           <ms-tag v-if="scope.row.taskGroup == 'TEST_PLAN_TEST'" type="warning" effect="plain" :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
           <ms-tag v-if="scope.row.taskGroup == 'SWAGGER_IMPORT'" type="danger" effect="plain" :content="$t('api_test.home_page.running_task_list.swagger_schedule')"/>
         </template>
-      </el-table-column>
+      </ms-table-column>
       <el-table-column prop="rule"  :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120" show-overflow-tooltip/>
       <el-table-column width="100" :label="$t('api_test.home_page.running_task_list.table_coloum.task_status')">
         <template v-slot:default="scope">
@@ -52,16 +59,20 @@
         </template>
       </el-table-column>
 
-    </el-table>
+    </ms-table>
   </el-card>
 </template>
 
 <script>
 import MsTag from "@/business/components/common/components/MsTag";
 import {getCurrentProjectID} from "@/common/js/utils";
+import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 export default {
   name: "MsRunningTaskList",
   components: {
+    MsTableColumn,
+    MsTable,
     MsTag
   },
   props: {
@@ -73,7 +84,13 @@ export default {
       result: {},
       tableData: [],
       visible: false,
-      loading: false
+      loading: false,
+      typeFilters: [],
+      condition: {
+        filters: {
+
+        }
+      }
     }
   },
 
@@ -85,11 +102,29 @@ export default {
       return getCurrentProjectID();
     },
   },
-
+  mounted() {
+    if (this.callFrom === 'api_test') {
+      this.typeFilters = [
+        {text: this.$t('api_test.home_page.running_task_list.scenario_schedule'), value: 'API_SCENARIO_TEST'},
+        {text: this.$t('api_test.home_page.running_task_list.swagger_schedule'), value: 'SWAGGER_IMPORT'},
+      ];
+    } else {
+      this.typeFilters = [
+        {text: this.$t('api_test.home_page.running_task_list.test_plan_schedule'), value: 'TEST_PLAN_TEST'}
+      ];
+    }
+  },
   methods: {
     search() {
+      if (!this.condition.filters.task_type) {
+        if (this.callFrom === 'api_test') {
+          this.condition.filters.task_type = ['SWAGGER_IMPORT', 'API_SCENARIO_TEST'];
+        } else {
+          this.condition.filters.task_type = ['TEST_PLAN_TEST'];
+        }
+      }
       if (this.projectId) {
-        this.result = this.$get("/api/runningTask/"+ this.projectId +"/"+this.callFrom, response => {
+        this.result = this.$post('/api/runningTask/' + this.projectId, this.condition, response => {
           this.tableData = response.data;
         });
       }

@@ -1162,7 +1162,7 @@ export default {
         title: "場景用例數量統計",
       },
       schedule_task_count_card: {
-        title: "定時任務數量統計",
+        title: "場景定時任務數量統計",
       },
       detail_card: {
         running: "進行中",
