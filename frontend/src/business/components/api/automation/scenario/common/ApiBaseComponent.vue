@@ -132,9 +132,7 @@
     },
     methods: {
       active() {
-        if(!this.isShowInput){
-          this.$emit('active');
-        }
+        this.$emit('active');
       },
       getMethod() {
         if (this.data.protocol === "HTTP") {
