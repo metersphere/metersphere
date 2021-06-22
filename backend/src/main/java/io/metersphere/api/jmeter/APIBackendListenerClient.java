@@ -29,11 +29,10 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.http.HttpMethod;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * JMeter BackendListener扩展, jmx脚本中使用
@@ -77,22 +76,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private String debugReportId;
 
-    //获得控制台内容
-    private PrintStream oldPrintStream = System.out;
-    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-    private void setConsole() {
-        System.setOut(new PrintStream(bos)); //设置新的out
-    }
-
-    private String getConsole() {
-        System.setOut(oldPrintStream);
-        return bos.toString();
-    }
-
     @Override
     public void setupTest(BackendListenerContext context) throws Exception {
-        setConsole();
         setParam(context);
         apiTestService = CommonBeanFactory.getBean(APITestService.class);
         if (apiTestService == null) {
@@ -133,16 +118,29 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             LogUtil.error("testPlanApiCaseService is required");
         }
         apiEnvironmentRunningParamService = CommonBeanFactory.getBean(ApiEnvironmentRunningParamService.class);
-        if(apiEnvironmentRunningParamService == null){
+        if (apiEnvironmentRunningParamService == null) {
             LogUtil.error("apiEnvironmentRunningParamService is required");
         }
         testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
-        if(testPlanTestCaseService == null){
+        if (testPlanTestCaseService == null) {
             LogUtil.error("testPlanTestCaseService is required");
         }
         super.setupTest(context);
     }
 
+    private String getJmeterLogger(String testId) {
+        Long startTime = FixedTask.tasks.get(testId);
+        Long endTime = System.currentTimeMillis();
+        String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
+                .filter(map -> map.getKey() > startTime && map.getKey() < endTime)
+                .map(map -> map.getValue())
+                .collect(Collectors.joining());
+        FixedTask.tasks.remove(testId);
+        if (FixedTask.tasks.isEmpty()) {
+            JmeterLoggerAppender.logger.clear();
+        }
+        return logMessage;
+    }
 
     @Override
     public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
@@ -153,16 +151,16 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     public void teardownTest(BackendListenerContext context) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
-        testResult.setConsole(getConsole());
+        testResult.setConsole(getJmeterLogger(testId));
         testResult.setTotal(0);
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
             // 线程名称: <场景名> <场景Index>-<请求Index>, 例如：Scenario 2-1
-            if(StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)){
+            if (StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
                 String evnStr = result.getResponseDataAsString();
                 apiEnvironmentRunningParamService.parseEvn(evnStr);
-            }else {
+            } else {
                 String scenarioName = StringUtils.substringBeforeLast(result.getThreadName(), THREAD_SPLIT);
                 String index = StringUtils.substringAfterLast(result.getThreadName(), THREAD_SPLIT);
                 String scenarioId = StringUtils.substringBefore(index, ID_SPLIT);
@@ -194,7 +192,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
                 testResult.addPassAssertions(requestResult.getPassAssertions());
                 testResult.addTotalAssertions(requestResult.getTotalAssertions());
-                testResult.setTotal(testResult.getTotal()+1);
+                testResult.setTotal(testResult.getTotal() + 1);
                 scenarioResult.addPassAssertions(requestResult.getPassAssertions());
                 scenarioResult.addTotalAssertions(requestResult.getTotalAssertions());
             }
@@ -375,6 +373,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     /**
      * 更新测试计划关联接口测试的功能用例的状态
+     *
      * @param testResult
      */
     private void updateTestCaseStates(TestResult testResult, String testPlanScenarioId) {
