@@ -785,7 +785,7 @@ public class ApiAutomationService {
             group.setLabel(item.getName());
             group.setName(reportId);
             MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
-            group.setOnSampleError(scenario.isOnSampleError());
+            group.setOnSampleError(scenario.getOnSampleError());
             this.preduceMsScenario(scenario);
             if (planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
@@ -829,7 +829,7 @@ public class ApiAutomationService {
                 group.setLabel(apiScenario.getName());
                 group.setName(apiScenario.getName());
                 group.setEnableCookieShare(scenario.isEnableCookieShare());
-                group.setOnSampleError(scenario.isOnSampleError());
+                group.setOnSampleError(scenario.getOnSampleError());
                 group.setHashTree(new LinkedList<MsTestElement>() {{
                     this.add(scenario);
                 }});
@@ -1062,7 +1062,7 @@ public class ApiAutomationService {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 JSONObject element = JSON.parseObject(item.getScenarioDefinition());
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
-                group.setOnSampleError(scenario.isOnSampleError());
+                group.setOnSampleError(scenario.getOnSampleError());
                 this.preduceMsScenario(scenario);
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
@@ -1078,7 +1078,7 @@ public class ApiAutomationService {
                     scenario.setVariables(variables);
                 }
                 group.setEnableCookieShare(scenario.isEnableCookieShare());
-                group.setOnSampleError(scenario.isOnSampleError());
+                group.setOnSampleError(scenario.getOnSampleError());
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
                 scenarios.add(scenario);
                 // 创建场景报告
