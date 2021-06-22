@@ -33,7 +33,7 @@ public class ParameterConfig {
     /**
      * 是否停止继续
      */
-    private boolean onSampleError;
+    private Boolean onSampleError;
 
     /**
      * 是否是导入/导出操作
