@@ -294,7 +294,9 @@ public class ApiAutomationService {
 
     private void checkCustomNumExist(SaveApiScenarioRequest request) {
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andCustomNumEqualTo(request.getCustomNum())
+        example.createCriteria()
+                .andCustomNumEqualTo(request.getCustomNum())
+                .andProjectIdEqualTo(request.getProjectId())
                 .andIdNotEqualTo(request.getId());
         List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
