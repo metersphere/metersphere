@@ -106,6 +106,7 @@ export default {
         res.scenarios.forEach(item => {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
+              req.responseResult.console = res.console;
               resMap.set(req.id + req.name, req);
               req.name = item.name + "^@~@^" + req.name + "UUID=" + getUUID();
               array.push(req);
@@ -168,7 +169,7 @@ export default {
                   if (scenarioArr.length > 1) {
                     let childArr = scenarioArr[0].split("_");
                     childId = childArr[0];
-                    if(childArr.length > 1){
+                    if (childArr.length > 1) {
                       childName = childArr[1];
                     }
                   }
@@ -177,7 +178,7 @@ export default {
                   idIsPath = true;
                 } else if (scenarioId === childId) {
                   idIsPath = true;
-                } else if(scenarioName !== childName){
+                } else if (scenarioName !== childName) {
                   //如果两个名字不匹配则默认通过，不匹配ID
                   idIsPath = true;
                 }
