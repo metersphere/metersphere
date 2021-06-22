@@ -1008,6 +1008,7 @@ export default {
     },
     getApiScenario() {
       this.loading = true;
+      this.stepEnable = true;
       if (this.currentScenario.tags != undefined && this.currentScenario.tags && !(this.currentScenario.tags instanceof Array)) {
         this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
       }
