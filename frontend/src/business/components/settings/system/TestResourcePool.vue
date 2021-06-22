@@ -2,7 +2,8 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition" @search="search" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_TEST_POOL:READ+CREATE']" :condition.sync="condition"
+                         @search="search" @create="create"
                          :create-tip="$t('test_resource_pool.create_resource_pool')"
                          :title="$t('commons.test_resource_pool')"/>
       </template>
@@ -55,123 +56,127 @@
       :close-on-click-modal="false"
       :title="form.id ? $t('test_resource_pool.update_resource_pool') : $t('test_resource_pool.create_resource_pool')"
       :visible.sync="dialogVisible" width="80%"
+      top="5%"
       @closed="closeFunc"
       :destroy-on-close="true"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
-               ref="testResourcePoolForm">
-        <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input v-model="form.description" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.image')" prop="image">
-          <el-input v-model="form.image"/>
-        </el-form-item>
-        <el-form-item label="JMeter HEAP" prop="HEAP">
-          <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
-        </el-form-item>
-        <el-form-item label="JMeter GC_ALGO" prop="GC_ALGO">
-          <el-input v-model="form.gcAlgo" placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
-        </el-form-item>
-        <el-form-item :label="$t('test_resource_pool.type')" prop="type">
-          <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
-                     @change="changeResourceType(form.type)">
-            <el-option key="NODE" value="NODE" label="Node">Node</el-option>
-            <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
-          </el-select>
-        </el-form-item>
-        <div v-for="(item,index) in infoList " :key="index">
-          <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
-            <el-row>
-              <el-col>
-                <el-form-item label="Master URL"
-                              :rules="requiredRules">
-                  <el-input v-model="item.masterUrl" autocomplete="new-password"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
-                <el-form-item label="Token"
-                              :rules="requiredRules">
-                  <el-input v-model="item.token" type="password" show-password autocomplete="new-password"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
-                <el-form-item label="Namespace"
-                              :rules="requiredRules">
-                  <el-input v-model="item.namespace" type="text"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col :span="12">
-                <el-form-item :label="$t('test_resource_pool.max_threads')"
-                              :rules="requiredRules">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item :label="$t('test_resource_pool.pod_thread_limit')"
-                              :rules="requiredRules">
-                  <el-input-number v-model="item.podThreadLimit" :min="1" :max="1000000"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
-                <el-form-item label="nodeSelector">
-                  <el-input v-model="item.nodeSelector" placeholder='{"disktype": "ssd",...}'/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="node-line" v-if="form.type === 'NODE'">
-            <el-row>
-              <el-col :span="6">
-                <el-form-item label="IP" :rules="requiredRules">
-                  <el-input v-model="item.ip" autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="4">
-                <el-form-item label="Port" label-width="60px" :rules="requiredRules">
-                  <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
-                </el-form-item>
-              </el-col>
-              <el-col :span="4">
-                <el-form-item label="Monitor" label-width="100px" :rules="requiredRules">
-                  <el-input-number v-model="item.monitorPort" :min="1" :max="65535"></el-input-number>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item :label="$t('test_resource_pool.max_threads')"
-                              :rules="requiredRules"
-                              style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
-                </el-form-item>
-              </el-col>
-              <el-col :offset="2" :span="2">
+      <div style="height: 60vh;overflow: auto;">
+        <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
+                 ref="testResourcePoolForm">
+          <el-form-item :label="$t('commons.name')" prop="name">
+            <el-input v-model="form.name" autocomplete="off"/>
+          </el-form-item>
+          <el-form-item :label="$t('commons.description')" prop="description">
+            <el-input v-model="form.description" autocomplete="off"/>
+          </el-form-item>
+          <el-form-item :label="$t('commons.image')" prop="image">
+            <el-input v-model="form.image"/>
+          </el-form-item>
+          <el-form-item label="JMeter HEAP" prop="HEAP">
+            <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
+          </el-form-item>
+          <el-form-item label="JMeter GC_ALGO" prop="GC_ALGO">
+            <el-input v-model="form.gcAlgo"
+                      placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
+          </el-form-item>
+          <el-form-item :label="$t('test_resource_pool.type')" prop="type">
+            <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
+                       @change="changeResourceType(form.type)">
+              <el-option key="NODE" value="NODE" label="Node">Node</el-option>
+              <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
+            </el-select>
+          </el-form-item>
+          <div v-for="(item,index) in infoList " :key="index">
+            <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
+              <el-row>
+                <el-col>
+                  <el-form-item label="Master URL"
+                                :rules="requiredRules">
+                    <el-input v-model="item.masterUrl" autocomplete="new-password"/>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col>
+                  <el-form-item label="Token"
+                                :rules="requiredRules">
+                    <el-input v-model="item.token" type="password" show-password autocomplete="new-password"/>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col>
+                  <el-form-item label="Namespace"
+                                :rules="requiredRules">
+                    <el-input v-model="item.namespace" type="text"/>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="12">
+                  <el-form-item :label="$t('test_resource_pool.max_threads')"
+                                :rules="requiredRules">
+                    <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                  <el-form-item :label="$t('test_resource_pool.pod_thread_limit')"
+                                :rules="requiredRules">
+                    <el-input-number v-model="item.podThreadLimit" :min="1" :max="1000000"/>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col>
+                  <el-form-item label="nodeSelector">
+                    <el-input v-model="item.nodeSelector" placeholder='{"disktype": "ssd",...}'/>
+                  </el-form-item>
+                </el-col>
+              </el-row>
+            </div>
+            <div class="node-line" v-if="form.type === 'NODE'">
+              <el-row>
+                <el-col :span="6">
+                  <el-form-item label="IP" :rules="requiredRules">
+                    <el-input v-model="item.ip" autocomplete="off"/>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="4">
+                  <el-form-item label="Port" label-width="60px" :rules="requiredRules">
+                    <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="4">
+                  <el-form-item label="Monitor" label-width="100px" :rules="requiredRules">
+                    <el-input-number v-model="item.monitorPort" :min="1" :max="65535"></el-input-number>
+                  </el-form-item>
+                </el-col>
+                <el-col :span="6">
+                  <el-form-item :label="$t('test_resource_pool.max_threads')"
+                                :rules="requiredRules"
+                                style="padding-left: 20px">
+                    <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
+                  </el-form-item>
+                </el-col>
+                <el-col :offset="2" :span="2">
                 <span class="box">
                     <el-button @click="addResourceInfo()" type="success" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'plus']"/>
                     </el-button>
                 </span>
-                <span class="box">
+                  <span class="box">
                     <el-button @click="removeResourceInfo(index)" type="danger" size="mini" circle>
                         <font-awesome-icon :icon="['fas', 'minus']"/>
                     </el-button>
                 </span>
-              </el-col>
-            </el-row>
+                </el-col>
+              </el-row>
+            </div>
           </div>
-        </div>
 
-      </el-form>
+        </el-form>
+      </div>
       <template v-slot:footer>
         <ms-dialog-footer
           v-if="form.id"
@@ -441,7 +446,7 @@ export default {
           } else {
             this.updatePoolStatus(row);
           }
-        })
+        });
       }
     },
     checkHaveTestUsePool(row) {
@@ -449,7 +454,7 @@ export default {
         this.$get('/testresourcepool/check/use/' + row.id, result => {
           this.updatePool = result.data;
           resolve();
-        })
+        });
       });
     },
     updatePoolStatus(row) {
