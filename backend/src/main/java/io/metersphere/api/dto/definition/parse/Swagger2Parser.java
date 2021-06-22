@@ -166,7 +166,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), "", getDefaultStringValue(parameter.getDescription())));
+        rests.add(new KeyValue(pathParameter.getName(), "", getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
     }
 
     private String getDefaultStringValue(String val) {
