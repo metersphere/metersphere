@@ -29,6 +29,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             prop="num"
+            sortable
             :label="$t('commons.id')"
             min-width="80"/>
 
@@ -36,11 +37,13 @@
           v-if="item.id === 'num' && customNum"
           :fields-width="fieldsWidth"
           prop="customNum"
+          sortable
           :label="$t('commons.id')"
           min-width="80"/>
 
         <ms-table-column
           prop="name"
+          sortable
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.name')"
@@ -97,6 +100,7 @@
 
         <ms-table-column
             prop="updateTime"
+            sortable
             :field="item"
             :fields-width="fieldsWidth"
             :label="$t('commons.update_time')"
