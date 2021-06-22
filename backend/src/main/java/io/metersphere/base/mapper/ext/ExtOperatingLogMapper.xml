@@ -26,8 +26,9 @@
                     <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
                         #{projectId}
                     </foreach>
+                    or
                 </if>
-                or t.project_id is null
+                t.project_id is null
                 or t.project_id = ""
             )
             <if test="request.operUser != null and request.operUser != ''">
