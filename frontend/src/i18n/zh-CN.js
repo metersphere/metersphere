@@ -1148,7 +1148,7 @@ export default {
         title: "场景用例数量统计",
       },
       schedule_task_count_card: {
-        title: "定时任务数量统计",
+        title: "场景定时任务数量统计",
       },
       detail_card: {
         running: "进行中",
