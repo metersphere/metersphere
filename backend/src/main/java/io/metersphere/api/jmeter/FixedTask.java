@@ -5,8 +5,13 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 public class FixedTask {
+    public static Map<String,Long> tasks = new HashMap<>();
+
     @Scheduled(cron = "*/3 * * * * ?")
     public void execute() {
         ApiScenarioReportService scenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);

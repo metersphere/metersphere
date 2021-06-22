@@ -112,6 +112,7 @@ public class JMeterService {
 
     public void runLocal(String testId, HashTree testPlan, String debugReportId, String runMode) {
         init();
+        FixedTask.tasks.put(testId,System.currentTimeMillis());
         addBackendListener(testId, debugReportId, runMode, testPlan);
         LocalRunner runner = new LocalRunner(testPlan);
         runner.run();

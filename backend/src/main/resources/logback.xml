@@ -140,11 +140,17 @@
 		<includeCallerData>true</includeCallerData>
 		<appender-ref ref="warnAppender" />
 	</appender>
+    <!-- 自定义JMETER输出日志 -->
+    <appender name="JMETER_LOG" class="io.metersphere.api.jmeter.JmeterLoggerAppender"/>
 
 	<root level="INFO">
 		<appender-ref ref="infoAsyncAppender" />
 		<appender-ref ref="console"/>
 	</root>
+    <!--将JMETER日志单独输出的包路径-->
+    <logger name="org.apache.jmeter" additivity="false" level="${logger.level:INFO}">
+        <appender-ref ref="JMETER_LOG"/>
+    </logger>
 
 	<logger name="io.metersphere" additivity="false">
 		<level value="${logger.level:INFO}"/>
