@@ -84,7 +84,7 @@
 <!--        <table tableName="custom_field"></table>-->
 <!--        <table tableName="test_case"></table>-->
 <!--        <table tableName="test_case"></table>-->
-<!--        <table tableName="custom_field_template"></table>-->
+        <table tableName="api_scenario"></table>
 
 <!--        表名和关键字冲突-->
 <!--                <table tableName="group" delimitIdentifiers="true"></table>-->
