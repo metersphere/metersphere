@@ -217,7 +217,6 @@ export default {
   },
   methods: {
     resetDefault() {
-      this.seriesData = [];
 
       this.checkList['ActiveThreadsChart'] = ['ALL'];
       this.checkList['TransactionsChart'] = ['ALL'];
@@ -422,8 +421,8 @@ export default {
         if (this.init) {
           return;
         }
-        if (status === "Completed" || status === "Running") {
-          this.initTableData();
+        if (status === "Running") {
+          this.getTotalChart();
         }
       },
       deep: true

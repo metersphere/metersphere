@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <el-tabs @tab-click="clickTabs">
-      <el-tab-pane v-for="(item) in instances" :key="item" :label="item" class="logging-content">
+      <el-tab-pane v-for="(item, index) in instances" :key="item + index" :label="item" class="logging-content">
         <el-row>
           <el-col :span="6">
             <el-collapse v-model="activeNames" class="monitor-detail">
