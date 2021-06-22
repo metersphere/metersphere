@@ -1000,7 +1000,7 @@ public class TestPlanService {
         return returnId;
     }
 
-    public void run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
+    public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
         Map<String, String> planScenarioIdMap;
         Map<String, String> apiTestCaseIdMap;
         Map<String, String> performanceIdMap;
@@ -1160,6 +1160,7 @@ public class TestPlanService {
             testPlanReport.setIsPerformanceExecuting(performaceIsExcuting);
             testPlanReportService.update(testPlanReport);
         }
+        return testPlanReport.getId();
     }
 
     public String getLogDetails(String id) {
