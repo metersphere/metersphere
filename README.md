@@ -29,6 +29,10 @@ MeterSphere 是一站式开源持续测试平台，涵盖测试跟踪、接口�
 
 > 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
 
+### 功能架构
+
+![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ct-devops.png)
+
 ### 在线体验
 
 -   环境地址：<https://demo.metersphere.com/>
@@ -40,8 +44,6 @@ MeterSphere 是一站式开源持续测试平台，涵盖测试跟踪、接口�
 | 该环境仅作体验目的使用，我们会定时清理、重置数据！    |
 | 请勿修改体验环境用户的密码！               |
 | 请勿在环境中添加业务生产环境地址、用户名密码等敏感信息！ |
-
-![产品定位](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/ct-devops.png)
 
 ### 快速开始
 
@@ -57,18 +59,15 @@ curl -sSL https://github.com/metersphere/metersphere/releases/latest/download/qu
 文档和演示视频：
 
 -   [完整文档](https://metersphere.io/docs/)
--   [演示视频](http://video.fit2cloud.com/%E3%80%90%E6%BC%94%E7%A4%BA%E8%A7%86%E9%A2%91%E3%80%91202006%20MeterSphere%20v1.0%20%E5%8A%9F%E8%83%BD%E6%BC%94%E7%A4%BA.mp4)
+-   [演示视频](https://www.bilibili.com/video/BV1yp4y1p72C/)
 
-### MeterSphere 企业版
+### 社区
 
-[申请企业版使用](https://jinshuju.net/f/CzzAOe)
+如果您在使用过程中有任何疑问或对建议，欢迎提交 [GitHub Issue](https://github.com/metersphere/metersphere/issues/new/choose) 或加入到我们的社区当中进行进一步交流沟通。
 
-> 注: 企业版支持离线安装，申请通过后会提供高速下载链接
+#### 微信交流群
 
-### 相关工具
-
--   [Jenkins 插件](https://github.com/metersphere/jenkins-plugin)
--   [浏览器插件](https://github.com/metersphere/chrome-extensions)
+<img src="https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png" alt="微信群二维码" width="200"/>
 
 ### 版本说明
 
@@ -80,6 +79,8 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 ```
 
 像其它优秀开源项目一样，MeterSphere 将每月发布一个功能版本。
+
+MeterSphere v1.10 版本正式为该项目的第一个LTS（Long Term Support）版本。针对这一版本，MeterSphere开源项目组将对其用户进行长期支持，并且在主线功能版本的基础之上，按需发布LTS版本的问题修复更新，旨在为用户提供更加稳定和高质量的软件使用体验。
 
 ### 技术栈
 
@@ -94,10 +95,6 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 -   [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
 -   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
 -   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
-
-### 微信群
-
-![wechat-group](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png)
 
 ### License & Copyright
 
