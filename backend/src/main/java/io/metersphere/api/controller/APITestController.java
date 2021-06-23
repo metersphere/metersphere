@@ -298,9 +298,7 @@ public class APITestController {
 
         long taskCountInThisWeek = scheduleService.countTaskByProjectIdInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(taskCountInThisWeek);
-//        long api_executedInThisWeekCountNumber = apiReportService.countByProjectIdAndCreateInThisWeek(projectId);
         long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
-//        long executedInThisWeekCountNumber = api_executedInThisWeekCountNumber+scene_executedInThisWeekCountNumber;
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
 
         //统计 失败 成功 以及总数

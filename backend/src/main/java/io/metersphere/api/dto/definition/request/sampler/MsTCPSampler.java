@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.automation.EsbDataStruct;
+import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -88,6 +89,14 @@ public class MsTCPSampler extends MsTestElement {
     private String projectId;
     @JSONField(ordinal = 40)
     private String connectEncoding;
+    @JSONField(ordinal = 41)
+    private String reportType;
+    @JSONField(ordinal = 42)
+    private List<TcpTreeTableDataStruct> xmlDataStruct;
+    @JSONField(ordinal = 43)
+    private String jsonDataStruct;
+    @JSONField(ordinal = 44)
+    private String rawDataStruct;
 
 
     /**

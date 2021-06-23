@@ -1144,6 +1144,7 @@ export default {
       })
     },
     refReload() {
+      console.info(JSON.stringify(this.scenarioDefinition));
       this.reload();
     },
     detailRefresh(result) {
