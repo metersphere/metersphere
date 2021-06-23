@@ -80,6 +80,7 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private final String ENV_NAME = "导入数据环境";
@@ -202,6 +203,16 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         }
     }
 
+    private String getBodyType(List<KeyValue> headers) {
+        if (CollectionUtils.isNotEmpty(headers)) {
+            List<KeyValue> keyValues = headers.stream().filter(keyValue -> keyValue.getName().equals("Content-Type") && keyValue.getValue().equals("application/x-www-form-urlencoded")).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(keyValues)) {
+                return keyValues.get(0).getValue();
+            }
+        }
+        return null;
+    }
+
     private void convertHttpSampler(MsHTTPSamplerProxy samplerProxy, Object key) {
         try {
             HTTPSamplerProxy source = (HTTPSamplerProxy) key;
@@ -212,6 +223,19 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             samplerProxy.setArguments(new ArrayList<KeyValue>() {{
                 this.add(new KeyValue());
             }});
+            // 处理HTTP协议的请求头
+            if (headerMap.containsKey(key.hashCode())) {
+                List<KeyValue> keyValues = new LinkedList<>();
+                headerMap.get(key.hashCode()).forEach(item -> {
+                    HeaderManager headerManager = (HeaderManager) item;
+                    if (headerManager.getHeaders() != null) {
+                        for (int i = 0; i < headerManager.getHeaders().size(); i++) {
+                            keyValues.add(new KeyValue(headerManager.getHeader(i).getName(), headerManager.getHeader(i).getValue()));
+                        }
+                    }
+                });
+                samplerProxy.setHeaders(keyValues);
+            }
             // 初始化body
             Body body = new Body();
             body.init();
@@ -226,11 +250,15 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     List<BodyFile> files = new LinkedList<>();
                     BodyFile file = new BodyFile();
                     file.setId(arg.getParamName());
-                    file.setName(arg.getPath());
+                    String fileName = arg.getPath();
+                    if (fileName.indexOf("/") != -1) {
+                        fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
+                    }
+                    file.setName(fileName);
                     files.add(file);
 
                     KeyValue keyValue = new KeyValue(arg.getParamName(), arg.getParamName());
-                    keyValue.setContentType(arg.getProperty("HTTPArgument.content_type").toString());
+                    keyValue.setContentType(arg.getMimeType());
                     keyValue.setType("file");
                     keyValue.setFiles(files);
                     keyValues.add(keyValue);
@@ -242,6 +270,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
             samplerProxy.setDomain(source.getDomain());
+            String bodyType = this.getBodyType(samplerProxy.getHeaders());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
                     samplerProxy.getBody().setType(Body.RAW);
@@ -249,6 +278,17 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                         samplerProxy.getBody().setRaw(v);
                     });
                     samplerProxy.getBody().initKvs();
+                } else if (StringUtils.isNotEmpty(bodyType)) {
+                    samplerProxy.getBody().setType(Body.WWW_FROM);
+                    source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
+                        KeyValue keyValue = new KeyValue(k, v);
+                        samplerProxy.getBody().getKvs().add(keyValue);
+                    });
+                } else if (samplerProxy.getBody() != null && samplerProxy.getBody().getType().equals(Body.FORM_DATA)) {
+                    source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
+                        KeyValue keyValue = new KeyValue(k, v);
+                        samplerProxy.getBody().getKvs().add(keyValue);
+                    });
                 } else {
                     List<KeyValue> keyValues = new LinkedList<>();
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
@@ -269,19 +309,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
-            // 处理HTTP协议的请求头
-            if (headerMap.containsKey(key.hashCode())) {
-                List<KeyValue> keyValues = new LinkedList<>();
-                headerMap.get(key.hashCode()).forEach(item -> {
-                    HeaderManager headerManager = (HeaderManager) item;
-                    if (headerManager.getHeaders() != null) {
-                        for (int i = 0; i < headerManager.getHeaders().size(); i++) {
-                            keyValues.add(new KeyValue(headerManager.getHeader(i).getName(), headerManager.getHeader(i).getValue()));
-                        }
-                    }
-                });
-                samplerProxy.setHeaders(keyValues);
-            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -387,28 +415,20 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             // JDBC 数据池
             if (key instanceof DataSourceElement) {
                 DataSourceElement dataSourceElement = (DataSourceElement) key;
+                DatabaseConfig newConfig = new DatabaseConfig();
+                newConfig.setUsername(dataSourceElement.getPropertyAsString("username"));
+                newConfig.setPassword(dataSourceElement.getPropertyAsString("password"));
+                newConfig.setDriver(dataSourceElement.getPropertyAsString("driver"));
+                newConfig.setDbUrl(dataSourceElement.getPropertyAsString("dbUrl"));
+                newConfig.setName(dataSourceElement.getPropertyAsString("dataSource"));
+                newConfig.setPoolMax(dataSourceElement.getPropertyAsInt("poolMax"));
+                newConfig.setTimeout(dataSourceElement.getPropertyAsInt("timeout"));
                 if (dataPools != null && dataPools.getDataSources() != null && dataPools.getDataSources().containsKey(dataSourceElement.getPropertyAsString("dataSource"))) {
                     DatabaseConfig config = dataPools.getDataSources().get(dataSourceElement.getPropertyAsString("dataSource"));
-                    DatabaseConfig newConfig = new DatabaseConfig();
-                    newConfig.setUsername(dataSourceElement.getPropertyAsString("username"));
-                    newConfig.setPassword(dataSourceElement.getPropertyAsString("password"));
-                    newConfig.setDriver(dataSourceElement.getPropertyAsString("driver"));
-                    newConfig.setDbUrl(dataSourceElement.getPropertyAsString("dbUrl"));
-                    newConfig.setName(dataSourceElement.getPropertyAsString("dataSource"));
-                    newConfig.setPoolMax(dataSourceElement.getPropertyAsInt("poolMax"));
-                    newConfig.setTimeout(dataSourceElement.getPropertyAsInt("timeout"));
                     newConfig.setId(config.getId());
                     dataPools.getDataSources().put(dataSourceElement.getPropertyAsString("dataSource"), newConfig);
                 } else {
-                    DatabaseConfig newConfig = new DatabaseConfig();
                     newConfig.setId(UUID.randomUUID().toString());
-                    newConfig.setUsername(dataSourceElement.getPropertyAsString("username"));
-                    newConfig.setPassword(dataSourceElement.getPropertyAsString("password"));
-                    newConfig.setDriver(dataSourceElement.getPropertyAsString("driver"));
-                    newConfig.setDbUrl(dataSourceElement.getPropertyAsString("dbUrl"));
-                    newConfig.setName(dataSourceElement.getPropertyAsString("dataSource"));
-                    newConfig.setPoolMax(dataSourceElement.getPropertyAsInt("poolMax"));
-                    newConfig.setTimeout(dataSourceElement.getPropertyAsInt("timeout"));
                     if (dataPools.getDataSources() == null) {
                         dataPools.setDataSources(new HashMap<>());
                     }
@@ -744,12 +764,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 countController.setInputVal(foreachController.getInputValString());
                 countController.setReturnVal(foreachController.getReturnValString());
                 ((MsLoopController) elementNode).setForEachController(countController);
-            }else if(key instanceof TransactionController){
+            } else if (key instanceof TransactionController) {
                 TransactionController transactionController = (TransactionController) key;
                 elementNode = new MsTransactionController();
                 elementNode.setName(transactionController.getName());
-                ((MsTransactionController)elementNode).setGenerateParentSample(transactionController.isGenerateParentSample());
-                ((MsTransactionController)elementNode).setIncludeTimers(transactionController.isIncludeTimers());
+                ((MsTransactionController) elementNode).setGenerateParentSample(transactionController.isGenerateParentSample());
+                ((MsTransactionController) elementNode).setIncludeTimers(transactionController.isIncludeTimers());
             }
             // 平台不能识别的Jmeter步骤
             else {
