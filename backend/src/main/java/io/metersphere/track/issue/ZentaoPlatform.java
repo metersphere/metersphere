@@ -3,6 +3,7 @@ package io.metersphere.track.issue;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
@@ -14,6 +15,7 @@ import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,10 +25,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ZentaoPlatform extends AbstractIssuePlatform {
     /**
@@ -41,6 +42,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
      * zentao url eg:http://x.x.x.x/zentao
      */
     private final String url;
+    private static final Pattern PATTERN = Pattern.compile("file-read-(.*?)\"/>");
 
     protected String key = IssuesManagePlatform.Zentao.toString();
 
@@ -137,7 +139,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         try {
             String session = login();
             String key = getProjectId(projectId);
-            HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(new HttpHeaders());
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-story-getProductStories-productID={key}?zentaosid=" + session,
                     HttpMethod.POST, requestEntity, String.class, key);
@@ -149,7 +151,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             if (obj != null) {
                 JSONObject data = obj.getJSONObject("data");
                 String s = JSON.toJSONString(data);
-                Map<String, Object> map = JSONArray.parseObject(s, Map.class);
+                Map<String, Object> map = JSONArray.parseObject(s, new TypeReference<Map<String, Object>>(){});
                 Collection<Object> values = map.values();
                 values.forEach(v -> {
                     JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(v));
@@ -169,7 +171,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     public IssuesDao getZentaoIssues(String bugId) {
         String session = login();
-        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
         try {
             ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-getById-bugID={bugId}?zentaosid=" + session,
@@ -184,6 +186,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 String id = bug.getString("id");
                 String title = bug.getString("title");
                 String description = bug.getString("steps");
+                String steps = description;
+                try {
+                    steps = zentao2MsDescription(description);
+                } catch (Exception e) {
+                    LogUtil.error(e.getMessage(), e);
+                }
                 Long createTime = bug.getLong("openedDate");
                 String status = bug.getString("status");
                 String reporter = bug.getString("openedBy");
@@ -194,7 +202,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
                 IssuesDao issues = new IssuesDao();
                 issues.setId(id);
                 issues.setTitle(title);
-                issues.setDescription(description);
+                issues.setDescription(steps);
                 issues.setCreateTime(createTime);
                 issues.setStatus(status);
                 issues.setReporter(reporter);
@@ -225,12 +233,21 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
-        paramMap.add("steps", issuesRequest.getDescription());
+        String description = issuesRequest.getDescription();
+        String zentaoSteps = description;
+
+        // transfer description
+        try {
+            zentaoSteps = ms2ZentaoDescription(description);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
+        LogUtil.info("zentao description transfer: " + zentaoSteps);
+
+        paramMap.add("steps", zentaoSteps);
         if (!CollectionUtils.isEmpty(issuesRequest.getZentaoBuilds())) {
             List<String> builds = issuesRequest.getZentaoBuilds();
-            builds.forEach(build -> {
-                paramMap.add("openedBuild[]", build);
-            });
+            builds.forEach(build -> paramMap.add("openedBuild[]", build));
         } else {
             paramMap.add("openedBuild", "trunk");
         }
@@ -238,7 +255,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             paramMap.add("assignedTo", issuesRequest.getZentaoAssigned());
         }
 
-        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-create.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
         String body = responseEntity.getBody();
@@ -295,7 +312,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("account", account);
         paramMap.add("password", password);
-        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.exchange(loginUrl, HttpMethod.POST, requestEntity, String.class);
         String body = responseEntity.getBody();
@@ -317,13 +334,12 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     private String getSession() {
         RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
+        HttpEntity<MultiValueMap<String,String>> requestEntity = new HttpEntity<>(new HttpHeaders());
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getsessionid.json", HttpMethod.GET, requestEntity, String.class);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
         JSONObject data = obj.getJSONObject("data");
-        String session = data.getString("sessionID");
-        return session;
+        return data.getString("sessionID");
     }
 
     @Override
@@ -331,7 +347,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
         String session = login();
         HttpHeaders httpHeaders = new HttpHeaders();
-        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity<MultiValueMap<String,String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-user-getList?zentaosid=" + session,
                 HttpMethod.GET, requestEntity, String.class);
@@ -359,7 +375,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String session = login();
         String projectId1 = getProjectId(projectId);
         HttpHeaders httpHeaders = new HttpHeaders();
-        HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(httpHeaders);
+        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-build-getProductBuildPairs-productID={projectId}?zentaosid=" + session,
                 HttpMethod.GET, requestEntity, String.class, projectId1);
@@ -372,15 +388,66 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         Map<String,Object> maps = data.getInnerMap();
 
         List<ZentaoBuild> list = new ArrayList<>();
-        for (Map.Entry map : maps.entrySet()) {
+        for (Map.Entry<String, Object> map : maps.entrySet()) {
             ZentaoBuild build = new ZentaoBuild();
-            String id = (String) map.getKey();
+            String id = map.getKey();
             if (StringUtils.isNotBlank(id)) {
-                build.setId((String) map.getKey());
+                build.setId(map.getKey());
                 build.setName((String) map.getValue());
                 list.add(build);
             }
         }
         return list;
+    }
+
+    private String uploadFile(FileSystemResource resource) {
+        String id = "";
+        String session = login();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, httpHeaders);
+        paramMap.add("files", resource);
+        RestTemplate restTemplate = new RestTemplate();
+        try {
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-file-saveUpload.json?zentaosid=" + session,
+                    HttpMethod.POST, requestEntity, String.class);
+            String body = responseEntity.getBody();
+            JSONObject obj = JSONObject.parseObject(body);
+            JSONObject data = obj.getJSONObject("data");
+            Set<String> set = data.getInnerMap().keySet();
+            if (!set.isEmpty()) {
+                id = (String) set.toArray()[0];
+            }
+        } catch (Exception e) {
+            LogUtil.error(e, e.getMessage());
+        }
+        LogUtil.info("upload file id: " + id);
+        return id;
+    }
+
+    private String ms2ZentaoDescription(String msDescription) {
+        String imgUrlRegex = "!\\[.*?]\\(/resource/md/get/(.*?\\..*?)\\)";
+        String zentaoSteps = msDescription.replaceAll(imgUrlRegex, "<img src=\"/zentao/file-read-$1\"/>");
+        Matcher matcher = PATTERN.matcher(zentaoSteps);
+        while (matcher.find()) {
+            // get file name
+            String fileName = matcher.group(1);
+            // get file
+            ResponseEntity<FileSystemResource> mdImage = resourceService.getMdImage(fileName);
+            // upload zentao
+            String id = uploadFile(mdImage.getBody());
+            // todo delete local file
+            // replace id
+            zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(fileName), id);
+        }
+        // image link
+        String netImgRegex = "!\\[(.*?)]\\((http.*?)\\)";
+        return zentaoSteps.replaceAll(netImgRegex, "<img src=\"$2\" alt=\"$1\"/>");
+    }
+
+    private String zentao2MsDescription(String ztDescription) {
+        // todo 图片回显
+        String imgRegex = "<img src.*?/>";
+        return ztDescription.replaceAll(imgRegex, "");
     }
 }
