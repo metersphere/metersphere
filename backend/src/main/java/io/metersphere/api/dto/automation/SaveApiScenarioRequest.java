@@ -40,6 +40,8 @@ public class SaveApiScenarioRequest {
 
     private String description;
 
+    private Integer version;
+
     private MsTestElement scenarioDefinition;
 
     List<String> bodyFileRequestIds;

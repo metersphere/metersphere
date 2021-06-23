@@ -843,6 +843,136 @@ public class LoadTestExample {
             addCriterion("create_user not between", value1, value2, "createUser");
             return (Criteria) this;
         }
+
+        public Criteria andScenarioVersionIsNull() {
+            addCriterion("scenario_version is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionIsNotNull() {
+            addCriterion("scenario_version is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionEqualTo(Integer value) {
+            addCriterion("scenario_version =", value, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionNotEqualTo(Integer value) {
+            addCriterion("scenario_version <>", value, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionGreaterThan(Integer value) {
+            addCriterion("scenario_version >", value, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionGreaterThanOrEqualTo(Integer value) {
+            addCriterion("scenario_version >=", value, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionLessThan(Integer value) {
+            addCriterion("scenario_version <", value, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionLessThanOrEqualTo(Integer value) {
+            addCriterion("scenario_version <=", value, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionIn(List<Integer> values) {
+            addCriterion("scenario_version in", values, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionNotIn(List<Integer> values) {
+            addCriterion("scenario_version not in", values, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionBetween(Integer value1, Integer value2) {
+            addCriterion("scenario_version between", value1, value2, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioVersionNotBetween(Integer value1, Integer value2) {
+            addCriterion("scenario_version not between", value1, value2, "scenarioVersion");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdIsNull() {
+            addCriterion("scenario_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdIsNotNull() {
+            addCriterion("scenario_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdEqualTo(String value) {
+            addCriterion("scenario_id =", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotEqualTo(String value) {
+            addCriterion("scenario_id <>", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdGreaterThan(String value) {
+            addCriterion("scenario_id >", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdGreaterThanOrEqualTo(String value) {
+            addCriterion("scenario_id >=", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdLessThan(String value) {
+            addCriterion("scenario_id <", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdLessThanOrEqualTo(String value) {
+            addCriterion("scenario_id <=", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdLike(String value) {
+            addCriterion("scenario_id like", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotLike(String value) {
+            addCriterion("scenario_id not like", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdIn(List<String> values) {
+            addCriterion("scenario_id in", values, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotIn(List<String> values) {
+            addCriterion("scenario_id not in", values, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdBetween(String value1, String value2) {
+            addCriterion("scenario_id between", value1, value2, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotBetween(String value1, String value2) {
+            addCriterion("scenario_id not between", value1, value2, "scenarioId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
