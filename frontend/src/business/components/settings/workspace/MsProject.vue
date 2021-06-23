@@ -221,7 +221,7 @@ import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   getCurrentOrganizationId,
   getCurrentProjectID,
-  getCurrentUser,
+  getCurrentUser, getCurrentUserId,
   getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
@@ -392,6 +392,8 @@ export default {
           var protocol = document.location.protocol;
           protocol = protocol.substring(0, protocol.indexOf(":"));
           this.form.protocal = protocol;
+          this.form.workspaceId = getCurrentWorkspaceId();
+          this.form.createUser = getCurrentUserId();
           this.result = this.$post("/project/" + saveType, this.form, () => {
             this.createVisible = false;
             Message.success(this.$t('commons.save_success'));
