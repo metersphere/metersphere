@@ -33,6 +33,9 @@
                 </if>
             </where>
         ) temp
+        <if test="request.name != null and request.name!=''">
+            where temp.name like CONCAT('%', #{request.name},'%')
+        </if>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
