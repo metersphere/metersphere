@@ -102,7 +102,7 @@
 
   .schedule-config {
     float: right;
-    width: 250px;
+    /*width: 250px;*/
     height: 15px;
     line-height: 25px;
   }

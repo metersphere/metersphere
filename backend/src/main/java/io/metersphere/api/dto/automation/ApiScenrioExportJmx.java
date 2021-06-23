@@ -10,6 +10,7 @@ import java.util.List;
 public class ApiScenrioExportJmx {
     private String name;
     private String jmx;
+    private Integer version;
     List<String> files;
 
     public ApiScenrioExportJmx(String name, String jmx) {

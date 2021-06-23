@@ -5,7 +5,6 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.base.domain.UserGroup;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -23,7 +22,6 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.testplan.FileOperationRequest;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -32,10 +30,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "performance")
@@ -85,6 +81,12 @@ public class PerformanceTestController {
         request.setId(UUID.randomUUID().toString());
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return performanceTestService.save(request, files);
+    }
+
+    @PostMapping(value = "/sync/scenario")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
+    public void syncScenario(@RequestBody EditTestPlanRequest request) {
+        performanceTestService.syncScenario(request);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})

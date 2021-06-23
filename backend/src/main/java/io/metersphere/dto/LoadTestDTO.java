@@ -11,4 +11,5 @@ public class LoadTestDTO extends LoadTest {
     private String projectName;
     private String userName;
     private Schedule schedule;
+    private Boolean isNeedUpdate;
 }
