@@ -372,6 +372,11 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
         },
         {
+          name: this.$t('api_test.create_performance_test_batch'),
+          handleClick: this.batchCreatePerformance,
+          permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH']
+        },
+        {
           name: this.$t('test_track.case.batch_move_case'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
@@ -825,7 +830,39 @@ export default {
     },
     callBackSelect(selection){
       this.$emit('selection', selection);
-    }
+    },
+    batchCreatePerformance() {
+      this.$alert(this.$t('api_test.definition.request.batch_to_performance_confirm') + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.infoDb = false;
+            let param = {};
+            this.buildBatchParam(param);
+            this.$post('/api/automation/batchGenPerformanceTestJmx/', param, response => {
+              let returnDataList = response.data;
+              let jmxObjList = [];
+              returnDataList.forEach(item => {
+                let jmxObj = {};
+                jmxObj.name = item.name;
+                jmxObj.xml = item.xml;
+                jmxObj.attachFiles = item.attachFiles;
+                jmxObj.attachByteFiles = item.attachByteFiles;
+                jmxObj.scenarioId = item.id;
+                jmxObjList.push(jmxObj);
+              });
+              this.$store.commit('setScenarioJmxs', {
+                name: 'Scenarios',
+                jmxs: jmxObjList
+              });
+              this.$router.push({
+                path: "/performance/test/create"
+              });
+            });
+          }
+        }
+      });
+    },
   }
 };
 </script>

@@ -466,7 +466,6 @@ public class APITestService {
     /**
      * 更新jmx数据，处理jmx里的各种参数
      * <p>
-     * 注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
      *
      * @param jmxString      原JMX文件
      * @param testNameParam  某些节点要替换的testName
@@ -475,7 +474,6 @@ public class APITestService {
      * @author song tianyang
      */
     public JmxInfoDTO updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
-        //注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
         String attribute_testName = "testname";
         String[] requestElementNameArr = new String[]{"HTTPSamplerProxy", "TCPSampler", "JDBCSampler", "DubboSample"};
 

@@ -25,7 +25,8 @@
     <!-- 请求参数 -->
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-      <ms-basis-parameters :show-script="false" :request="request"/>
+<!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
+      <ms-tcp-format-parameters :show-script="false" :request="request"/>
     </div>
     <div v-else-if="apiProtocol=='ESB'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -43,7 +44,7 @@
 
 <script>
 import MsTcpBasicApi from "./TCPBasicApi";
-import MsBasisParameters from "../request/tcp/TcpBasisParameters";
+import MsTcpFormatParameters from  "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
 import {hasLicense} from "@/common/js/utils";
 
@@ -52,7 +53,7 @@ const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) >
 const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
-  components: {MsTcpBasicApi, MsBasisParameters,MsChangeHistory,
+  components: {MsTcpBasicApi, MsTcpFormatParameters,MsChangeHistory,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default},
   props: {
