@@ -29,6 +29,9 @@ public class UserModularRealmAuthenticator extends ModularRealmAuthenticator {
 
         // 默认使用本地验证
         for (Realm realm : realms) {
+            if (realm == null) {
+                continue;
+            }
             if (realm.getName().contains(loginType)) {
                 typeRealms.add(realm);
             }
