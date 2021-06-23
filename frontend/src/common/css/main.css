@@ -236,12 +236,6 @@ textarea {
 }
 
 /* ms-tip-button 自定间距 */
-.el-button+.tooltip-btn {
-  margin-left: 10px;
-}
-.tooltip-btn+.el-button {
-   margin-left: 10px;
-}
-.tooltip-btn+.tooltip-btn {
+.el-button + .tooltip-btn, .tooltip-btn + .el-button, .tooltip-btn + .tooltip-btn {
   margin-left: 10px;
 }
