@@ -13,6 +13,7 @@ import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
+import org.apache.shiro.session.Session;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,7 @@ import java.util.stream.Collectors;
  * set realm
  * </p>
  */
-public class LdapRealm extends AuthorizingRealm {
+public class LdapRealm extends BaseRealm {
 
     private Logger logger = LoggerFactory.getLogger(LdapRealm.class);
     @Resource
@@ -44,7 +45,7 @@ public class LdapRealm extends AuthorizingRealm {
     }
 
     /**
-     * 权限认证
+     * 角色认证
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
@@ -95,8 +96,4 @@ public class LdapRealm extends AuthorizingRealm {
 
     }
 
-    @Override
-    public boolean isPermitted(PrincipalCollection principals, String permission) {
-        return true;
-    }
 }
