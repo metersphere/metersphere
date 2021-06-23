@@ -9,6 +9,7 @@ Vue.use(Vuex)
 const state = {
   projectId: "",
   test: {},
+  scenarioJmxs:{},
   versionSwitch: "new",
   isReadOnly: true,
   theme: undefined,

@@ -1,7 +1,9 @@
 const mutations = {
   setProjectId: (state, projectId) => state.projectId = projectId,
   setTest: (state, test) => state.test = test,
+  setScenarioJmxs: (state, scenarioJmxs) => state.scenarioJmxs = scenarioJmxs,
   clearTest: state => state.test = {},
+  clearScenarioJmxs:state => state.scenarioJmxs = {},
   setVersionSwitch: (state, value) => state.versionSwitch = value,
   setTheme: (state, value) => state.theme = value,
 

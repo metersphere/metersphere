@@ -145,7 +145,7 @@ export default {
         if (apiTest.jmx.caseId) {
           this.$refs.basicConfig.importCase(apiTest.jmx);
         }
-        if (JSON.stringify(apiTest.jmx.attachFiles) != "{}") {
+        if (JSON.stringify(apiTest.jmx.attachFiles) !== "{}") {
           let attachFiles = [];
           for (let fileID in apiTest.jmx.attachFiles) {
             attachFiles.push(fileID);
@@ -156,6 +156,33 @@ export default {
         }
         this.active = '1';
         this.$store.commit("clearTest");
+      }else {
+        let scenarioJmxs = this.$store.state.scenarioJmxs;
+        if(scenarioJmxs && scenarioJmxs.name){
+          this.$set(this.test, "name", scenarioJmxs.name);
+          if(scenarioJmxs.jmxs){
+            scenarioJmxs.jmxs.forEach(item => {
+              if (item.scenarioId) {
+                this.$refs.basicConfig.importScenario(item.scenarioId);
+                this.$refs.basicConfig.handleUpload();
+              }
+              if (item.caseId) {
+                this.$refs.basicConfig.importCase(item);
+              }
+              if (JSON.stringify(item.attachFiles) !== "{}") {
+                let attachFiles = [];
+                for (let fileID in item.attachFiles) {
+                  attachFiles.push(fileID);
+                }
+                if (attachFiles.length > 0) {
+                  this.$refs.basicConfig.selectAttachFileById(attachFiles);
+                }
+              }
+            });
+            this.active = '1';
+            this.$store.commit("clearScenarioJmxs");
+          }
+        }
       }
     },
     getTest(testId) {

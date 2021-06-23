@@ -44,10 +44,13 @@
                         :showScript="false"
                         :is-read-only="this.isCompReadOnly"
                         ref="esbDefinition"/>
-        <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
-                                 :request="request"
-                                 :is-read-only="isCompReadOnly"
-                                 :showScript="false"/>
+<!--        <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "-->
+<!--                                 :request="request"-->
+<!--                                 :is-read-only="isCompReadOnly"-->
+<!--                                 :showScript="false"/>-->
+        <ms-tcp-format-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
+                                  :is-read-only="isCompReadOnly"
+                                  :show-script="false" :request="request"/>
         <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
                                  :request="request"
                                  :is-read-only="isCompReadOnly"
@@ -91,7 +94,8 @@
 
 <script>
 import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
+// import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
+import MsTcpFormatParameters from  "../../../definition/components/request/tcp/TcpFormatParameters";
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
@@ -131,7 +135,7 @@ export default {
   components: {
     CustomizeReqInfo,
     ApiBaseComponent, ApiResponseComponent,
-    MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+    MsSqlBasisParameters, MsTcpFormatParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default
   },
