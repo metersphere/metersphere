@@ -81,7 +81,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
             processor.setProperty("scriptLanguage", "nashorn");
         }
         if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("rhinoScript")) {
-            processor.setProperty("scriptLanguage", "javascript");
+            processor.setProperty("scriptLanguage", "rhino");
         }
 
         processor.setProperty("script", this.getScript());
