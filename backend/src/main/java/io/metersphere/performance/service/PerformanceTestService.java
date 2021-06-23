@@ -1,6 +1,9 @@
 package io.metersphere.performance.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.automation.ApiScenarioBatchRequest;
+import io.metersphere.api.dto.automation.ApiScenrioExportJmx;
+import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
@@ -8,10 +11,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
@@ -36,12 +36,15 @@ import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -86,6 +89,8 @@ public class PerformanceTestService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private LoadTestProducer loadTestProducer;
+    @Resource
+    private ApiAutomationService apiAutomationService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -212,6 +217,8 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
+        loadTest.setScenarioVersion(request.getScenarioVersion());
+        loadTest.setScenarioId(request.getScenarioId());
         loadTestMapper.insert(loadTest);
         return loadTest;
     }
@@ -258,6 +265,8 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
+        loadTest.setScenarioVersion(request.getScenarioVersion());
+        loadTest.setScenarioId(request.getScenarioId());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
         return testId;
@@ -395,11 +404,27 @@ public class PerformanceTestService {
         List<LoadTestDTO> testDTOS = extLoadTestMapper.list(request);
         if (!CollectionUtils.isEmpty(testDTOS)) {
             LoadTestDTO loadTestDTO = testDTOS.get(0);
+            isNeedUpdate(loadTestDTO);
             Schedule schedule = scheduleService.getScheduleByResource(loadTestDTO.getId(), ScheduleGroup.PERFORMANCE_TEST.name());
             loadTestDTO.setSchedule(schedule);
             return loadTestDTO;
         }
         return null;
+    }
+
+    public void isNeedUpdate(LoadTestDTO loadTestDTO) {
+        String scenarioId = loadTestDTO.getScenarioId();
+        if (StringUtils.isNotBlank(scenarioId)) {
+            ApiScenarioWithBLOBs apiScenario = apiAutomationService.getApiScenario(scenarioId);
+            if (apiScenario == null) {
+                loadTestDTO.setScenarioId(null);
+            } else {
+                if (apiScenario.getVersion() != null && loadTestDTO.getScenarioVersion() != null
+                        && apiScenario.getVersion() > loadTestDTO.getScenarioVersion()) {
+                    loadTestDTO.setIsNeedUpdate(true);
+                }
+            }
+        }
     }
 
     public String getAdvancedConfiguration(String testId) {
@@ -635,5 +660,80 @@ public class PerformanceTestService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public void syncScenario(EditTestPlanRequest request) {
+        ApiScenarioBatchRequest scenarioRequest = new ApiScenarioBatchRequest();
+        scenarioRequest.setIds(Arrays.asList(request.getScenarioId()));
+        List<ApiScenrioExportJmx> apiScenrioExportJmxes = apiAutomationService.exportJmx(scenarioRequest);
+        ApiScenrioExportJmx apiScenrioExportJmx = apiScenrioExportJmxes.get(0);
+
+        String testId = request.getId();
+        LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
+        if (loadTest == null) {
+            MSException.throwException(Translator.get("edit_load_test_not_found") + testId);
+        }
+        if (StringUtils.containsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
+            MSException.throwException(Translator.get("cannot_edit_load_test_running"));
+        }
+
+        loadTest.setScenarioVersion(apiScenrioExportJmx.getVersion());
+        loadTest.setUpdateTime(System.currentTimeMillis());
+        loadTestMapper.updateByPrimaryKeySelective(loadTest);
+
+        deleteLoadTestFiles(testId);
+        saveJmxFile(apiScenrioExportJmx, loadTest.getProjectId(), loadTest.getId());
+        saveOtherFile(apiScenrioExportJmx.getFiles(), loadTest.getId());
+
+    }
+
+    private void saveJmxFile(ApiScenrioExportJmx apiScenrioExportJmx, String projectId, String loadTestId) {
+        String jmx = apiScenrioExportJmx.getJmx();
+        byte[] jmxBytes = jmx.getBytes(StandardCharsets.UTF_8);
+        String jmxName = apiScenrioExportJmx.getName() + "_" + System.currentTimeMillis() + ".jmx";
+        FileMetadata fileMetadata = fileService.saveFile(jmxBytes, jmxName, (long) jmxBytes.length);
+        fileMetadata.setProjectId(projectId);
+        saveLoadTestFile(fileMetadata, loadTestId, 0);
+    }
+
+    private void saveOtherFile(List<String> fileNames, String loadTestId) {
+        List<String> files = fileNames;
+        for (int i = 0; i < files.size(); i++) {
+            String fileName = files.get(i);
+            File file = FileUtils.getFileByName(fileName);
+            saveUploadFile(file, loadTestId, i + 1);
+        }
+    }
+
+    private void deleteLoadTestFiles(String testId) {
+        List<FileMetadata> originFiles = getFileMetadataByTestId(testId);
+        List<String> originFileIds = originFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        LoadTestFileExample example = new LoadTestFileExample();
+        example.createCriteria()
+                .andTestIdEqualTo(testId);
+        loadTestFileMapper.deleteByExample(example);
+        fileService.deleteFileByIds(originFileIds);
+    }
+
+    private void saveUploadFile(File file, String loadTestId, int sort) {
+        if (file != null) {
+            FileMetadata fileMetadata = null;
+            try {
+                fileMetadata = fileService.saveFile(file, FileUtil.readAsByteArray(file));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            saveLoadTestFile(fileMetadata, loadTestId, sort);
+        }
+    }
+
+    private void saveLoadTestFile(FileMetadata fileMetadata, String loadTestId, int sort) {
+        if (fileMetadata != null) {
+            LoadTestFile loadTestFile = new LoadTestFile();
+            loadTestFile.setTestId(loadTestId);
+            loadTestFile.setFileId(fileMetadata.getId());
+            loadTestFile.setSort(sort);
+            loadTestFileMapper.insert(loadTestFile);
+        }
     }
 }

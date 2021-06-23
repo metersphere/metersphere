@@ -29,6 +29,15 @@
             <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
                                 v-permission="['PROJECT_PERFORMANCE_TEST:READ+SCHEDULE']"
                                 :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
+
+            <ms-tip-button v-if="test.scenarioId"
+                           class="sync-btn" type="primary" size="small" circle
+                           icon="el-icon-connection"
+                           @click="syncScenario"
+                           :plain="!test.isNeedUpdate"
+                           :disabled="!test.isNeedUpdate"
+                           :tip="'同步场景测试最新变更'"/>
+
           </el-col>
         </el-row>
 
@@ -65,10 +74,14 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import MsChangeHistory from "../../history/ChangeHistory";
+import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+import MsTipButton from "@/business/components/common/components/MsTipButton";
 
 export default {
   name: "EditPerformanceTest",
   components: {
+    MsTipButton,
+    MsTableOperatorButton,
     MsScheduleConfig,
     PerformancePressureConfig,
     PerformanceBasicConfig,
@@ -141,6 +154,8 @@ export default {
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
           this.$refs.basicConfig.handleUpload();
+          this.$set(this.test, "scenarioId", apiTest.jmx.scenarioId);
+          this.$set(this.test, "scenarioVersion", apiTest.jmx.version);
         }
         if (apiTest.jmx.caseId) {
           this.$refs.basicConfig.importCase(apiTest.jmx);
@@ -236,6 +251,16 @@ export default {
           'Content-Type': undefined
         }
       };
+    },
+    syncScenario() {
+      let param = {
+        id: this.test.id,
+        scenarioId: this.test.scenarioId
+      };
+      this.result = this.$post('/performance/sync/scenario', param, () => {
+        this.getTest(this.$route.params.testId);
+        this.$success('更新成功');
+      });
     },
     cancel() {
       this.$router.push({path: '/performance/test/all'});
@@ -374,5 +399,11 @@ export default {
 .advanced-config {
   height: calc(100vh - 265px);
   overflow: auto;
+}
+
+.sync-btn {
+  float: right;
+  margin-right: 25px;
+  margin-top: 5px;
 }
 </style>
