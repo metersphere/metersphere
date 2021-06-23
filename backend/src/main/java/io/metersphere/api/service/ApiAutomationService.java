@@ -125,6 +125,8 @@ public class ApiAutomationService {
     private ProjectMapper projectMapper;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private TcpApiParamService tcpApiParamService;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -323,6 +325,8 @@ public class ApiAutomationService {
 
         //检查场景的请求步骤。如果含有ESB请求步骤的话，要做参数计算处理。
         esbApiParamService.checkScenarioRequests(request);
+        //如果场景有TCP步骤的话，也要做参数计算处理
+        tcpApiParamService.checkTestElement(request.getScenarioDefinition());
 
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         deleteUpdateBodyFile(scenario);
@@ -1347,21 +1351,9 @@ public class ApiAutomationService {
         return request.getId();
     }
 
-    private void preduceTestElement(RunDefinitionRequest request) throws Exception {
+    public void preduceTestElement(RunDefinitionRequest request) throws Exception {
         if (request.getTestElement() != null) {
-            for (MsTestElement threadGroup : request.getTestElement().getHashTree()) {
-                if (threadGroup instanceof MsThreadGroup && threadGroup.getHashTree() != null) {
-                    for (MsTestElement scenario : threadGroup.getHashTree()) {
-                        if (scenario instanceof MsScenario && scenario.getHashTree() != null) {
-                            for (MsTestElement itemElement : scenario.getHashTree()) {
-                                if (itemElement instanceof MsScenario) {
-                                    itemElement.setId(UUID.randomUUID().toString());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            tcpApiParamService.checkTestElement(request.getTestElement());
         }
     }
 
@@ -1549,8 +1541,10 @@ public class ApiAutomationService {
         List<String> ids = request.getIds();
         apiScenarios = extApiScenarioMapper.selectIds(ids);
         String testName = "";
+        String id = "";
         if (!apiScenarios.isEmpty()) {
             testName = apiScenarios.get(0).getName();
+            id = apiScenarios.get(0).getId();
         }
         if (CollectionUtils.isEmpty(apiScenarios)) {
             return null;
@@ -1561,6 +1555,7 @@ public class ApiAutomationService {
 
         String name = request.getName() + ".jmx";
         dto.setName(name);
+        dto.setId(id);
         return dto;
     }
 
@@ -2114,6 +2109,30 @@ public class ApiAutomationService {
                 e.printStackTrace();
             }
 
+        }
+    }
+
+    public List<JmxInfoDTO> batchGenPerformanceTestJmx(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        List<JmxInfoDTO> returnList = new ArrayList<>();
+
+        List<String> ids = request.getIds();
+        List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(ids);
+        if (CollectionUtils.isEmpty(apiScenarioList)) {
+            return returnList;
+        }else {
+            apiScenarioList.forEach(item ->{
+                String testName = item.getName();
+                MsTestPlan testPlan = new MsTestPlan();
+                testPlan.setHashTree(new LinkedList<>());
+                JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(item), testName, true);
+                String name = item.getName() + ".jmx";
+                dto.setId(item.getId());
+                dto.setName(name);
+                returnList.add(dto);
+            });
+            return returnList;
         }
     }
 }
