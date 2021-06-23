@@ -234,3 +234,8 @@ textarea {
   background-color: #FBFBFB !important;
   color: #606266 !important;
 }
+
+/* ms-tip-button 自定间距 */
+.el-button+.tooltip-btn,.tooltip-btn+.el-button,.tooltip-btn+.tooltip-btn {
+  margin-left: 10px;
+}

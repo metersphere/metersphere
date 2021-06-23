@@ -4,6 +4,7 @@
               placement="bottom"
               :enterable="false"
               :effect="effect">
+    <!-- 解决按钮禁用时无法显示内容的问题 -->
     <span class="tooltip-btn">
       <el-button @click="exec()"
                  @click.stop="clickStop"
@@ -58,7 +59,4 @@
 </script>
 
 <style scoped>
-.tooltip-btn+.tooltip-btn {
-  margin-left: 10px;
-}
 </style>
