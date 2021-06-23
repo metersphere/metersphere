@@ -62,6 +62,11 @@ public class FileUtils {
         }
     }
 
+    public static File getFileByName(String name) {
+        String path = BODY_FILE_DIR + "/" + name;
+        return new File(path);
+    }
+
     public static void copyBdyFile(String originId, String toId) {
         try {
             FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + "/" + originId),

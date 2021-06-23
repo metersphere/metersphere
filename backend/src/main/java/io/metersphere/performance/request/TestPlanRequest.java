@@ -26,6 +26,10 @@ public class TestPlanRequest {
 
     private String runtimeConfiguration;
 
+    private Integer scenarioVersion;
+
+    private String scenarioId;
+
     private Schedule schedule;
 
     private String testResourcePoolId;
