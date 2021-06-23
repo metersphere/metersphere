@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.UserGroupMapper;
 import io.metersphere.base.mapper.UserGroupPermissionMapper;
 import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -63,7 +64,7 @@ public class GroupService {
 
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
-        List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(user.getId());
+        List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId());
         List<String> groupTypeList = userGroup.stream().map(UserGroupDTO::getType).collect(Collectors.toList());
         return getGroups(groupTypeList, request);
     }
@@ -104,7 +105,7 @@ public class GroupService {
     }
 
     public void editGroup(EditGroupRequest request) {
-        if (StringUtils.equals(request.getId(), "admin")) {
+        if (StringUtils.equals(request.getId(), UserGroupConstants.ADMIN)) {
             MSException.throwException("系统管理员无法编辑！");
         }
         checkGroupExist(request);
@@ -145,7 +146,7 @@ public class GroupService {
         if (permission == null) {
             throw new RuntimeException("读取文件失败!");
         } else {
-            GroupJson group = null;
+            GroupJson group;
             try {
                 group = JSON.parseObject(permission, GroupJson.class);
                 List<GroupResource> resource = group.getResource();
@@ -209,8 +210,7 @@ public class GroupService {
         userGroupExample.createCriteria().andUserIdEqualTo(userId);
         List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
         List<String> groupsIds = userGroups.stream().map(UserGroup::getGroupId).distinct().collect(Collectors.toList());
-        for (int i = 0; i < groupsIds.size(); i++) {
-            String id = groupsIds.get(i);
+        for (String id : groupsIds) {
             Group group = groupMapper.selectByPrimaryKey(id);
             String type = group.getType();
             Map<String, Object> map = new HashMap<>(2);
