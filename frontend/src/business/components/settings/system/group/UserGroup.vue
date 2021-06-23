@@ -3,7 +3,7 @@
     <el-card>
       <template v-slot:header>
         <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']" :condition.sync="condition" @search="initData" @create="create"
-                         :create-tip="$t('group.create')" :title="$t('group.group_permission')" :have-search="false"/>
+                         :create-tip="$t('group.create')" :title="$t('group.group_permission')"/>
       </template>
 
       <el-table :data="groups" border class="adjust-table" style="width: 100%"
