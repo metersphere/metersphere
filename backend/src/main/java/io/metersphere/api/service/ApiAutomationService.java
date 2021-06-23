@@ -240,6 +240,7 @@ public class ApiAutomationService {
         checkNameExist(request);
         checkScenarioNum(request);
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
+        scenario.setVersion(0);
 
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setNum(getNextNum(request.getProjectId()));
@@ -321,6 +322,14 @@ public class ApiAutomationService {
         esbApiParamService.checkScenarioRequests(request);
 
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
+
+        Integer version = apiScenarioMapper.selectByPrimaryKey(request.getId()).getVersion();
+        if (version == null) {
+            scenario.setVersion(0);
+        } else {
+            scenario.setVersion(version + 1);
+        }
+
         deleteUpdateBodyFile(scenario);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
@@ -1534,7 +1543,7 @@ public class ApiAutomationService {
 
     }
 
-    public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) throws Exception {
+    public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarios = null;
         List<String> ids = request.getIds();
         apiScenarios = extApiScenarioMapper.selectIds(ids);
@@ -1743,6 +1752,7 @@ public class ApiAutomationService {
                             scenrioExportJmx.setFiles(fileList);
                         }
                     }
+                    scenrioExportJmx.setVersion(item.getVersion());
                     resList.add(scenrioExportJmx);
                 }
             }
