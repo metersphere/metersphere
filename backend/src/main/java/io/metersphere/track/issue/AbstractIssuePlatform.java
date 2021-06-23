@@ -15,6 +15,7 @@ import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.ResourceService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.TestCaseService;
@@ -45,7 +46,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected TestCaseService testCaseService;
     protected IssuesMapper issuesMapper;
     protected ExtIssuesMapper extIssuesMapper;
-
+    protected ResourceService resourceService;
     protected RestTemplate restTemplateIgnoreSSL;
 
     protected String testCaseId;
@@ -82,6 +83,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
         this.issuesMapper = CommonBeanFactory.getBean(IssuesMapper.class);
         this.extIssuesMapper = CommonBeanFactory.getBean(ExtIssuesMapper.class);
+        this.resourceService = CommonBeanFactory.getBean(ResourceService.class);
         this.testCaseId = issuesRequest.getTestCaseId();
         this.projectId = issuesRequest.getProjectId();
         //
