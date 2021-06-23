@@ -100,6 +100,8 @@ public class ApiDefinitionService {
     @Resource
     private EsbApiParamService esbApiParamService;
     @Resource
+    private TcpApiParamService tcpApiParamService;
+    @Resource
     private ApiModuleMapper apiModuleMapper;
     @Resource
     private SystemParameterService systemParameterService;
@@ -277,6 +279,8 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.handleEsbRequest(request);
+        }else if(StringUtils.equals(request.getMethod(), "TCP")) {
+            request = tcpApiParamService.handleTcpRequest(request);
         }
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
@@ -539,7 +543,7 @@ public class ApiDefinitionService {
 
     /**
      * 测试执行
-     *
+     *A
      * @param request
      * @param bodyFiles
      * @return
@@ -579,6 +583,13 @@ public class ApiDefinitionService {
                 FileUtils.copyBdyFile(item.getId(), tmpFilePath);
                 FileUtils.createBodyFiles(tmpFilePath, bodyFiles);
             });
+        }
+
+
+        try{
+            //检查TCP数据结构，等其他进行处理
+            tcpApiParamService.checkTestElement(request.getTestElement());
+        }catch (Exception e){
         }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);

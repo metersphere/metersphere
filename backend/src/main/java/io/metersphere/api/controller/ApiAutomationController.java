@@ -242,6 +242,11 @@ public class ApiAutomationController {
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
 
+    @PostMapping("/batchGenPerformanceTestJmx")
+    public List<JmxInfoDTO> batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.batchGenPerformanceTestJmx(request);
+    }
+
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = apiAutomationService.loadFileAsBytes(fileOperationRequest);

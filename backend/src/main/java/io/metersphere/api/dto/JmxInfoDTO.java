@@ -13,9 +13,15 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@AllArgsConstructor
 public class JmxInfoDTO {
     private String name;
     private String xml;
+    private String id;
     private Map<String, String> attachFiles;
+
+    public JmxInfoDTO(String name,String xml,Map<String, String> attachFiles){
+        this.name = name;
+        this.xml = xml;
+        this.attachFiles = attachFiles;
+    }
 }

@@ -710,6 +710,11 @@
       "resourceId": "PROJECT_API_SCENARIO"
     },
     {
+      "id": "PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH",
+      "name": "批量创建性能测试",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
       "id": "PROJECT_API_REPORT:READ",
       "name": "查询报告",
       "resourceId": "PROJECT_API_REPORT"

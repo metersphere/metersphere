@@ -44,10 +44,7 @@
 
     <select id="countTaskByProjectId" resultType="java.lang.Long">
         SELECT COUNT(id) AS countNumber
-        FROM `schedule`
-        WHERE resource_id IN (
-            SELECT id FROM api_scenario WHERE project_id = #{0,jdbcType=VARCHAR} AND status != 'Trash'
-        )
+        FROM `schedule` WHERE project_id = #{0,jdbcType=VARCHAR};
     </select>
     <select id="countTaskByProjectIdAndCreateTimeRange" resultType="java.lang.Long">
         SELECT COUNT(id) AS countNumber
