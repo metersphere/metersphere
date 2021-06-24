@@ -8,7 +8,5 @@ CREATE TABLE `user_key` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `IDX_AK` (`access_key`),
     KEY `IDX_USER_ID` (`user_id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
