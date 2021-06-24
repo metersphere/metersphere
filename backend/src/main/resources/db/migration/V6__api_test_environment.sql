@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS `api_test_environment` (
   `custom_data` longtext COMMENT 'Custom Data (JSON format)',
   PRIMARY KEY (`id`),
   KEY `project_id` ( `project_id` )
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

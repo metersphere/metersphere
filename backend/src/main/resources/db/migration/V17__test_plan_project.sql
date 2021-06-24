@@ -4,6 +4,6 @@ create table if not exists test_plan_project
 	project_id varchar(50) null,
 	constraint test_plan_project_pk
 		unique (test_plan_id, project_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 insert into test_plan_project(test_plan_id, project_id) select id test_plan_id, project_id project_id from test_plan;
