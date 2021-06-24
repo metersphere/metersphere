@@ -111,43 +111,7 @@
     </el-dialog>
 
     <!-- add organization member form -->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogOrgMemberAddVisible"
-               width="40%"
-               :destroy-on-close="true"
-               @close="closeFunc">
-      <el-form :model="memberForm" ref="form" :rules="orgMemberRule" label-position="right" label-width="100px"
-               size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
-                     class="select-width" :filter-method="dataFilter">
-            <el-option
-              v-for="item in memberForm.userList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-              <span class="org-member-id">{{ item.id }}</span>
-              <span class="org-member-email">{{ item.email }}</span>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds">
-          <el-select filterable v-model="memberForm.groupIds" multiple :placeholder="$t('group.please_select_group')"
-                     class="select-width">
-            <el-option
-              v-for="item in memberForm.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="dialogOrgMemberAddVisible = false"
-          @confirm="submitForm('form')"/>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'ORGANIZATION'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <!-- update organization member form -->
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogOrgMemberUpdateVisible"
@@ -205,8 +169,9 @@ import {
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
-import {DEFAULT, GROUP_ORGANIZATION, ORGANIZATION} from "@/common/js/constants";
+import {GROUP_ORGANIZATION} from "@/common/js/constants";
 import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+import AddMember from "@/business/components/settings/common/AddMember";
 
 export default {
   name: "MsOrganization",
@@ -218,7 +183,8 @@ export default {
     MsRolesTag,
     MsTableOperator,
     MsDialogFooter,
-    MsTableOperatorButton
+    MsTableOperatorButton,
+    AddMember
   },
   computed: {
     organizationId() {
@@ -284,15 +250,7 @@ export default {
       listenGoBack(this.closeFunc);
     },
     addMember() {
-      this.dialogOrgMemberAddVisible = true;
-      this.memberForm = {};
-      this.result = this.$get('/user/list/', response => {
-        this.$set(this.memberForm, "userList", response.data);
-        this.$set(this.memberForm, "copyUserList", response.data);
-      });
-      this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: this.orgId}, response => {
-        this.$set(this.memberForm, "groups", response.data);
-      });
+      this.$refs.addMember.open();
     },
     dataFilter(val) {
       if (val) {
@@ -458,21 +416,11 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val;
     },
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          let param = {
-            userIds: this.memberForm.userIds,
-            groupIds: this.memberForm.groupIds,
-            organizationId: this.currentRow.id
-          };
-          this.result = this.$post("user/special/org/member/add", param, () => {
-            this.cellClick(this.currentRow);
-            this.dialogOrgMemberAddVisible = false;
-          });
-        } else {
-          return false;
-        }
+    submitForm(param) {
+      param['organizationId'] = this.currentRow.id;
+      this.result = this.$post("user/special/org/member/add", param, () => {
+        this.cellClick(this.currentRow);
+        this.$refs.addMember.close();
       });
     },
     updateOrgMember(formName) {
