@@ -35,7 +35,7 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     private String nodePath;
 
     @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("维护人")
+    @ExcelProperty(value = "责任人")
     private String maintainer;
 
     @NotBlank(message = "{cannot_be_null}")
