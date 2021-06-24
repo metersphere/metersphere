@@ -16,6 +16,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
@@ -32,6 +33,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
@@ -74,7 +76,7 @@ public class TestCaseService {
     ExtTestCaseMapper extTestCaseMapper;
 
     @Resource
-    TestPlanMapper testPlanMapper;
+    UserService userService;
 
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
@@ -488,16 +490,13 @@ public class TestCaseService {
             }
 
         } else {
-            GroupExample groupExample = new GroupExample();
-            groupExample.createCriteria().andTypeIn(Arrays.asList(UserGroupType.WORKSPACE, UserGroupType.PROJECT));
-            List<Group> groups = groupMapper.selectByExample(groupExample);
-            List<String> groupIds = groups.stream().map(Group::getId).collect(Collectors.toList());
 
-            UserGroupExample userGroupExample = new UserGroupExample();
-            userGroupExample.createCriteria()
-                    .andGroupIdIn(groupIds)
-                    .andSourceIdEqualTo(currentWorkspaceId);
-            Set<String> userIds = userGroupMapper.selectByExample(userGroupExample).stream().map(UserGroup::getUserId).collect(Collectors.toSet());
+            QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
+            queryMemberRequest.setProjectId(projectId);
+            Set<String> userIds = userService.getProjectMemberList(queryMemberRequest)
+                    .stream()
+                    .map(User::getId)
+                    .collect(Collectors.toSet());
 
             try {
                 //根据本地语言环境选择用哪种数据对象进行存放读取的数据
