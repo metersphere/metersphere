@@ -7,6 +7,5 @@ create table swagger_url_project
     module_path varchar(255) null,
     mode_id varchar(30) null,
     primary key (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 

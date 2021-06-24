@@ -15,9 +15,7 @@ CREATE TABLE IF NOT EXISTS `test_plan_report` (
     `principal` VARCHAR ( 50 ) DEFAULT NULL COMMENT 'principal',
     PRIMARY KEY ( `id` ),
     UNIQUE KEY `executeInfoID` ( `test_plan_id`, `create_time` )
-)
-    ENGINE = INNODB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `test_plan_report_data` (
     `id` VARCHAR ( 50 ) NOT NULL COMMENT 'ID',
@@ -31,6 +29,4 @@ CREATE TABLE IF NOT EXISTS `test_plan_report_data` (
     `issues_info` longtext  COMMENT 'issues (JSON format)',
     PRIMARY KEY ( `id` ),
     UNIQUE KEY `test_plan_report_id` ( `test_plan_report_id` )
-)
-    ENGINE = INNODB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
