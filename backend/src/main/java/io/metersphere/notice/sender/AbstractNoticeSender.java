@@ -96,7 +96,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 if (context.get(k) != null) {
                     template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k).toString());
                 } else {
-                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "未设置");
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "");
                 }
             }
         }
