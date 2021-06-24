@@ -6,7 +6,6 @@
            active-text-color="#fff">
     <el-submenu index="1">
       <template slot="title">
-        <font-awesome-icon class="icon global" :icon="['fas', 'globe']"/>
         <span>{{ language }}</span>
       </template>
       <el-menu-item v-for="(value, key) in languageMap" :key="key" @click="changeLanguage(key)">
@@ -102,5 +101,9 @@ export default {
 
 .global {
   color: #fff;
+}
+
+/deep/ .el-submenu__title {
+  padding-left: 5px;
 }
 </style>
