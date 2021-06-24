@@ -105,9 +105,6 @@ public class ProjectService {
         long createTime = System.currentTimeMillis();
         project.setCreateTime(createTime);
         project.setUpdateTime(createTime);
-        // set workspace id
-        project.setWorkspaceId(project.getWorkspaceId());
-        project.setCreateUser(project.getCreateUser());
         project.setSystemId(systemId);
         projectMapper.insertSelective(project);
 
