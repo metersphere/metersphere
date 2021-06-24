@@ -126,43 +126,7 @@
     </el-dialog>
 
     <!-- add workspace member dialog -->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="dialogWsMemberAddVisible"
-               width="30%"
-               :destroy-on-close="true"
-               @close="handleClose">
-      <el-form :model="memberForm" ref="form" :rules="wsMemberRule" label-position="right" label-width="100px"
-               size="small">
-        <el-form-item :label="$t('commons.member')" prop="userIds">
-          <el-select filterable v-model="memberForm.userIds" multiple :placeholder="$t('member.please_choose_member')"
-                     class="select-width" :filter-method="dataFilter">
-            <el-option
-              v-for="item in memberForm.userList"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-              <span class="ws-member-id">{{ item.id }}</span>
-              <span class="ws-member-email">{{ item.email }}</span>
-            </el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item :label="$t('commons.group')" prop="groupIds">
-          <el-select filterable v-model="memberForm.groupIds" multiple :placeholder="$t('group.please_select_group')"
-                     class="select-width">
-            <el-option
-              v-for="item in memberForm.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="dialogWsMemberAddVisible = false"
-          @confirm="submitForm('form')"/>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'WORKSPACE'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <!-- update workspace member dialog -->
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="dialogWsMemberUpdateVisible"
@@ -224,6 +188,7 @@ import {
 } from "@/common/js/utils";
 import {GROUP_WORKSPACE} from "@/common/js/constants";
 import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+import AddMember from "@/business/components/settings/common/AddMember";
 
 export default {
   name: "MsSystemWorkspace",
@@ -235,7 +200,8 @@ export default {
     MsRolesTag,
     MsTableOperator,
     MsDialogFooter,
-    MsTableOperatorButton
+    MsTableOperatorButton,
+    AddMember
   },
   activated() {
     this.list();
@@ -281,15 +247,7 @@ export default {
       });
     },
     addMember() {
-      this.dialogWsMemberAddVisible = true;
-      this.result = this.$get('/user/list/', response => {
-        this.$set(this.memberForm, "userList", response.data);
-        this.$set(this.memberForm, "copyUserList", response.data);
-      });
-      this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.orgId}, response => {
-        this.$set(this.memberForm, "groups", response.data);
-      });
-
+      this.$refs.addMember.open();
       listenGoBack(this.handleClose);
     },
     cellClick(row) {
@@ -395,21 +353,11 @@ export default {
         this.total = data.itemCount;
       });
     },
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          let param = {
-            userIds: this.memberForm.userIds,
-            groupIds: this.memberForm.groupIds,
-            workspaceId: this.currentWorkspaceRow.id
-          };
-          this.result = this.$post("user/special/ws/member/add", param, () => {
-            this.cellClick(this.currentWorkspaceRow);
-            this.dialogWsMemberAddVisible = false;
-          });
-        } else {
-          return false;
-        }
+    submitForm(param) {
+      param['workspaceId'] = this.currentWorkspaceRow.id;
+      this.$post("user/special/ws/member/add", param, () => {
+        this.cellClick(this.currentWorkspaceRow);
+        this.$refs.addMember.close();
       });
     },
     editMember(row) {
