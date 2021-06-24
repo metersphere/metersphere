@@ -15,8 +15,8 @@
         <!-- float right -->
         <ms-user ref="headerUser"/>
         <ms-language-switch :color="color"/>
-        <ms-task-center :color="color"/>
         <ms-header-org-ws :color="color"/>
+        <ms-task-center :color="color"/>
       </el-col>
     </el-row>
 

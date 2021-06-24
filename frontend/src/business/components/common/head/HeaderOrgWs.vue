@@ -8,12 +8,12 @@
            text-color="#fff">
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="1" popper-class="org-ws-submenu"
+                :popper-append-to-body="true"
                 v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
                 'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
                 'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
                 'WORKSPACE_USER:READ']">
       <template v-slot:title>
-        <font-awesome-icon class="icon global" :icon="['fas', 'tag']"/>
         <div class="org-ws-name" :title="currentOrganizationName + '-' + currentWorkspaceName">
           <div>{{ currentWorkspaceName || currentOrganizationName }}</div>
         </div>
@@ -25,7 +25,9 @@
                 class="search-input"
                 size="small"/>
       <div class="org-ws-menu">
-        <el-submenu :index="1+'-'+index" v-for="(item, index) in organizationList" :key="index">
+        <el-submenu :index="1+'-'+index" v-for="(item, index) in organizationList"
+                    :popper-append-to-body="true"
+                    :key="index">
           <template v-slot:title>
             <div @click="changeOrg(item)">
               {{ item.name }}
@@ -258,6 +260,10 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/deep/ .el-submenu__title {
+  padding-left: 5px;
 }
 
 </style>

@@ -6,8 +6,11 @@
              text-color="#fff"
              active-text-color="#fff">
       <el-menu-item onselectstart="return false">
-        <el-tooltip :content="$t('commons.task_center')" effect="light">
-          <span @click="showTaskCenter"> <font-awesome-icon class="icon global focusing" :icon="['fas', 'flag']"/></span>
+        <el-tooltip effect="light">
+          <template v-slot:content>
+            <span>{{ $t('commons.task_center') }}</span>
+          </template>
+          <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']"/>
         </el-tooltip>
       </el-menu-item>
     </el-menu>
@@ -259,5 +262,10 @@ export default {
 .ms-card-task:hover {
   cursor: pointer;
   border-color: #783887;
+}
+
+/deep/ .el-menu-item {
+  padding-left: 0;
+  padding-right: 0;
 }
 </style>
