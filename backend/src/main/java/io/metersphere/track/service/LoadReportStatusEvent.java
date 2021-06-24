@@ -33,7 +33,8 @@ public class LoadReportStatusEvent implements LoadTestFinishEvent {
     @Override
     public void execute(LoadTestReport loadTestReport) {
         if (StringUtils.equals(ReportTriggerMode.CASE.name(), loadTestReport.getTriggerMode())
-                || StringUtils.equals(ReportTriggerMode.TEST_PLAN_SCHEDULE.name(), loadTestReport.getTriggerMode())) {
+                || StringUtils.equals(ReportTriggerMode.TEST_PLAN_SCHEDULE.name(), loadTestReport.getTriggerMode())
+                || StringUtils.equals(ReportTriggerMode.TEST_PLAN_API.name(), loadTestReport.getTriggerMode())) {
             if (StringUtils.equalsAny(loadTestReport.getStatus(),
                     PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
                 updateLoadCaseStatus(loadTestReport);

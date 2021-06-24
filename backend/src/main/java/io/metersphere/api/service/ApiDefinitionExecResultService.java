@@ -110,7 +110,7 @@ public class ApiDefinitionExecResultService {
      */
     public void saveApiResultByScheduleTask(TestResult result, String type) {
         String saveResultType = type;
-        if (StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(), saveResultType)) {
+        if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
 
@@ -129,7 +129,7 @@ public class ApiDefinitionExecResultService {
             saveResult.setStatus(status);
 
             String userID = null;
-            if (StringUtils.equals(type, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+            if (StringUtils.equalsAny(type, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                 TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
                 String scheduleCreateUser = testPlanService.findScheduleCreateUserById(apiCase.getTestPlanId());
                 userID = scheduleCreateUser;

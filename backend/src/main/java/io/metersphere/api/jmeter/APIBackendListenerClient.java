@@ -249,40 +249,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             reportTask.setExecutor(userName);
             reportTask.setExecutionTime(executionTime);
             reportTask.setExecutionEnvironment(name);
-        } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
-            apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
-            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
-            ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
-            //环境
-            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getInfo(testResult.getTestId(), debugReportId);
-            String name = apiAutomationService.get(testPlanApiCase.getEnvironmentId()).getName();
-            //时间
-            Long time = apiTestCaseWithBLOBs.getCreateTime();
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            String executionTime = null;
-            String time_ = String.valueOf(time);
-            if (!time_.equals("null")) {
-                executionTime = sdf.format(new Date(Long.parseLong(time_)));
-            }
-
-            //执行人
-            String userName = apiAutomationService.getUser(apiTestCaseWithBLOBs.getCreateUserId()).getName();
-
-            //报告内容
-            reportTask = new ApiTestReportVariable();
-            if (null != apiResult) {
-                reportTask.setStatus(apiResult.getStatus());
-                reportTask.setId(apiResult.getId());
-            } else {
-                reportTask.setStatus(testPlanApiCase.getStatus());
-                reportTask.setId(testPlanApiCase.getId());
-            }
-            reportTask.setTriggerMode("API");
-            reportTask.setName(apiTestCaseWithBLOBs.getName());
-            reportTask.setExecutor(userName);
-            reportTask.setExecutionTime(executionTime);
-            reportTask.setExecutionEnvironment(name);
             //用例，定时，jenkins
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
@@ -297,7 +263,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
             } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.JENKINS_API_PLAN.name());
+                apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.JENKINS_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
                 for (String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
