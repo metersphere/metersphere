@@ -18,6 +18,8 @@ public class KeyValue {
     private boolean enable = true;
     private boolean encode = true;
     private boolean required;
+    private Integer min;
+    private Integer max;
 
     public KeyValue() {
         this(null, null);
