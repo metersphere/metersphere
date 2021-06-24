@@ -58,13 +58,6 @@
           min-width="120"/>
 
         <ms-table-column
-          prop="maintainer"
-          :field="item"
-          :fields-width="fieldsWidth"
-          :label="$t('custom_field.case_maintainer')"
-          min-width="120"/>
-
-        <ms-table-column
           prop="reviewStatus"
           min-width="100px"
           :field="item"
@@ -353,7 +346,19 @@ export default {
       });
     },
     getCustomFieldValue(row, field) {
-      return getCustomFieldValue(row, field, this.members);
+      let value = getCustomFieldValue(row, field, this.members);
+      if (!value) {
+        if (field.name === '用例等级') {
+          return row.priority;
+        }
+        if (field.name === '责任人') {
+          return row.maintainer;
+        }
+        if (field.name === '用例状态') {
+          return row.status;
+        }
+      }
+      return value;
     },
     checkRedirectEditPage(redirectParam) {
       if (redirectParam != null) {
