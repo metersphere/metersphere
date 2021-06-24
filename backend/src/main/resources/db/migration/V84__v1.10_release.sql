@@ -23,8 +23,7 @@ CREATE TABLE `operating_log`
     `oper_params`  longtext COMMENT 'operating params',
     `oper_time`    bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- system_parameter
 UPDATE system_parameter

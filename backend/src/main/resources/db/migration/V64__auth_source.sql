@@ -8,7 +8,5 @@ CREATE TABLE IF NOT EXISTS `auth_source` (
     `name`          varchar(60)  DEFAULT NULL,
     `type`          varchar(30)  DEFAULT NULL,
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
