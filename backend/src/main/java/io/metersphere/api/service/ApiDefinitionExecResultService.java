@@ -135,10 +135,9 @@ public class ApiDefinitionExecResultService {
      */
     public void saveApiResultByScheduleTask(TestResult result, String type) {
         String saveResultType = type;
-        if (StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(), saveResultType)) {
+        if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
-
         String finalSaveResultType = saveResultType;
         result.getScenarios().get(0).getRequestResults().forEach(item -> {
             ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
@@ -154,7 +153,12 @@ public class ApiDefinitionExecResultService {
                     saveResult.setName(caseWithBLOBs.getName());
                 }
             }
-            saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
+            if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
+                saveResult.setTriggerMode(TriggerMode.API.name());
+            } else {
+                saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
+            }
+
             saveResult.setResourceId(item.getName());
             saveResult.setActuator("LOCAL");
             saveResult.setContent(JSON.toJSONString(item));
@@ -172,12 +176,17 @@ public class ApiDefinitionExecResultService {
                 apiCase.setStatus(status);
                 apiCase.setUpdateTime(System.currentTimeMillis());
                 testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+            } else if (StringUtils.equals(type, ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
+                userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                apiCase.setStatus(status);
+                apiCase.setUpdateTime(System.currentTimeMillis());
+                testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
             } else {
                 userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                 testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                 testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
             }
-
             saveResult.setUserId(userID);
             // 前一条数据内容清空
             ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), finalSaveResultType);
