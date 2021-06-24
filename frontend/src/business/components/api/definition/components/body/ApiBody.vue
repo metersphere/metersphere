@@ -29,7 +29,7 @@
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
       </el-row>
-      <ms-api-variable :is-read-only="isReadOnly"
+      <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly"
                        :parameters="body.kvs"
                        :isShowEnable="isShowEnable" type="body"/>
     </div>
