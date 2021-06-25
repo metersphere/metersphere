@@ -51,6 +51,8 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
+      <jira-user-info v-if="hasJira" :data="currentPlatformInfo"/>
+      <tapd-user-info v-if="hasTapd" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="updateVisible = false"
@@ -79,20 +81,27 @@
         </span>
     </el-dialog>
 
-
   </div>
 </template>
 
 <script>
 import {TokenKey} from "../../../../common/js/constants";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import {
+  getCurrentOrganizationId,
+  getCurrentUser,
+  listenGoBack,
+  removeGoBackListener
+} from "../../../../common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
+import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
+import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
+import {getIntegrationService} from "@/network/organization";
 
 export default {
   name: "MsPersonSetting",
-  components: {MsDialogFooter, MsTableOperatorButton},
+  components: {TapdUserInfo, JiraUserInfo, MsDialogFooter, MsTableOperatorButton},
   inject: [
     'reload'
   ],
@@ -105,8 +114,15 @@ export default {
       tableData: [],
       updatePath: '/user/update/current',
       updatePasswordPath: '/user/update/password',
-      form: {},
+      form: {platformInfo: {}},
+      currentPlatformInfo: {
+        jiraAccount: '',
+        jiraPassword: '',
+        tapdUserName: ''
+      },
       ruleForm: {},
+      hasJira: false,
+      hasTapd: false,
       rule: {
         name: [
           {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -168,10 +184,35 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    edit(row) {
+    edit: function (row) {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
+      this.getPlatformInfo(row);
       listenGoBack(this.handleClose);
+    },
+    getPlatformInfo(row) {
+      if (row.platformInfo) {
+        this.form.platformInfo = JSON.parse(row.platformInfo);
+      } else {
+        this.form.platformInfo = {};
+      }
+      let orgId = getCurrentOrganizationId();
+      if (!this.form.platformInfo[orgId]) {
+        this.form.platformInfo[orgId] = {};
+      }
+      this.currentPlatformInfo = this.form.platformInfo[orgId];
+      this.result = getIntegrationService((data) => {
+        let platforms = data.map(d => d.platform);
+        if (platforms.indexOf("Tapd") !== -1) {
+          this.hasTapd = true;
+        }
+        if (platforms.indexOf("Jira") !== -1) {
+          this.hasJira = true;
+        }
+        // if (platforms.indexOf("Zentao") !== -1) {
+        //   this.zentao = true;
+        // }
+      });
     },
     editPassword(row) {
       this.editPasswordVisible = true;
@@ -190,7 +231,10 @@ export default {
     updateUser(updateUserForm) {
       this.$refs[updateUserForm].validate(valid => {
         if (valid) {
-          this.result = this.$post(this.updatePath, this.form, response => {
+          let param = {};
+          Object.assign(param, this.form);
+          param.platformInfo = JSON.stringify(this.form.platformInfo);
+          this.result = this.$post(this.updatePath, param, response => {
             this.$success(this.$t('commons.modify_success'));
             localStorage.setItem(TokenKey, JSON.stringify(response.data));
             this.updateVisible = false;

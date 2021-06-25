@@ -145,14 +145,7 @@ public class UserController {
     @PostMapping("/update/current")
     @MsAuditLog(module = "personal_information_personal_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
     public UserDTO updateCurrentUser(@RequestBody User user) {
-        String currentUserId = SessionUtils.getUserId();
-        if (!StringUtils.equals(currentUserId, user.getId())) {
-            MSException.throwException(Translator.get("not_authorized"));
-        }
-        userService.updateUser(user);
-        UserDTO userDTO = userService.getUserDTO(user.getId());
-        SessionUtils.putUser(SessionUser.fromUser(userDTO));
-        return SessionUtils.getUser();
+        return userService.updateCurrentUser(user);
     }
 
     @PostMapping("/switch/source/org/{sourceId}")
