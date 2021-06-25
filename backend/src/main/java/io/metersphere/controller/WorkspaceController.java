@@ -102,4 +102,11 @@ public class WorkspaceController {
     public void updateOrgMember(@RequestBody WorkspaceMemberDTO memberDTO) {
         workspaceService.updateWorkspaceMember(memberDTO);
     }
+
+    @GetMapping("/list/{orgId}")
+    public List<Workspace> getWorkspaceByOrgId(@PathVariable String orgId) {
+        WorkspaceRequest request = new WorkspaceRequest();
+        request.setOrganizationId(orgId);
+        return workspaceService.getWorkspaceList(request);
+    }
 }
