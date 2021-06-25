@@ -17,11 +17,14 @@ public interface ExtApiScenarioMapper {
     int listModule(@Param("request") ApiScenarioRequest request);
 
     List<ApiScenarioDTO> listReview(@Param("request") ApiScenarioRequest request);
+
     List<ApiScenarioWithBLOBs> selectByTagId(@Param("id") String id);
 
     List<ApiScenarioWithBLOBs> selectIds(@Param("ids") List<String> ids);
 
-    List<ApiScenarioWithBLOBs> selectByIds(@Param("ids") String ids,@Param("oderId") String oderId);
+    int selectTrash(@Param("projectId") String projectId);
+
+    List<ApiScenarioWithBLOBs> selectByIds(@Param("ids") String ids, @Param("oderId") String oderId);
 
     List<ApiScenario> selectReference(@Param("request") ApiScenarioRequest request);
 
