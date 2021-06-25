@@ -66,6 +66,16 @@ public class TestPlanTestCaseService {
     @Resource
     private TestCaseCommentService testCaseCommentService;
 
+    public List<TestPlanTestCaseWithBLOBs> listAll() {
+        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
+        example.createCriteria();
+        return testPlanTestCaseMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public void updateIssues(int issuesCount, String id, String caseId, String issues) {
+        extTestPlanTestCaseMapper.update(issuesCount, id, caseId, issues);
+    }
+
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
@@ -216,6 +226,7 @@ public class TestPlanTestCaseService {
 
     /**
      * 更新测试计划关联接口测试的功能用例的状态
+     *
      * @param testId 接口测试id
      */
     public void updateTestCaseStates(String testId, String testName, String planId, String testType) {
@@ -318,7 +329,7 @@ public class TestPlanTestCaseService {
         if (planTestCaseWithBLOBs != null) {
             TestCase testCase = testCaseMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getCaseId());
             TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planTestCaseWithBLOBs.getPlanId());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testCase.getProjectId(),  testCase.getName(), planTestCaseWithBLOBs.getCreateUser(), new LinkedList<>());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testCase.getProjectId(), testCase.getName(), planTestCaseWithBLOBs.getCreateUser(), new LinkedList<>());
             return JSON.toJSONString(details);
         }
         return null;
