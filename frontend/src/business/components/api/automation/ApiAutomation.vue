@@ -14,6 +14,7 @@
         @refreshAll="refreshAll"
         page-source="scenario"
         :type="'edit'"
+        :total='total'
         ref="nodeTree"/>
     </ms-aside-container>
 
@@ -21,6 +22,7 @@
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
+            @getTrashCase="getTrashCase"
             @refreshTree="refreshTree"
             :module-tree="nodeTree"
             :module-options="moduleOptions"
@@ -112,6 +114,7 @@ export default {
   },
   data() {
     return {
+      total: 0,
       redirectID: '',
       renderComponent: true,
       isHide: true,
@@ -132,6 +135,7 @@ export default {
   },
   mounted() {
     this.getProject();
+    this.getTrashCase();
   },
   watch: {
     redirectID() {
@@ -361,6 +365,14 @@ export default {
       this.activeName = "default";
       this.initApiTableOpretion = "enableTrash";
       this.trashEnable = data;
+      this.getTrashCase();
+    },
+    getTrashCase() {
+      let param = {};
+      param.projectId = this.projectId;
+      this.$post("/api/automation/list/all/trash", param, response => {
+        this.total = response.data;
+      });
     },
     getProject() {
       this.$get("/project/get/" + this.projectId, result => {
@@ -370,7 +382,7 @@ export default {
         }
       });
     },
-    updateInitApiTableOpretion(param){
+    updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
     }
   }

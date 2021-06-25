@@ -153,6 +153,10 @@ public class ApiAutomationService {
         return list;
     }
 
+    public int listAllTrash(ApiScenarioBatchRequest request) {
+        return extApiScenarioMapper.selectTrash(request.getProjectId());
+    }
+
     public List<String> idAll(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
