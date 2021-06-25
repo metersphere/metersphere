@@ -31,6 +31,11 @@ public class GroupController {
         return groupService.getGroupList(request);
     }
 
+    @GetMapping("/get/all")
+    public List<Group> getAllGroup() {
+        return groupService.getAllGroup();
+    }
+
     @PostMapping("/get")
     @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
     public List<Group> getGroupByType(@RequestBody EditGroupRequest request) {
@@ -95,5 +100,10 @@ public class GroupController {
     @GetMapping("/org/{userId}")
     public List<Organization> getOrganization(@PathVariable String userId) {
         return groupService.getOrganization(userId);
+    }
+
+    @GetMapping("/{type}/{id}")
+    public List<?> getResource(@PathVariable String type, @PathVariable String id) {
+        return groupService.getResource(type, id);
     }
 }
