@@ -14,11 +14,12 @@
         :batch-operators="buttons"
         :total="total"
         :fields.sync="fields"
-        field-key="API_SCENARIO"
+        :field-key=tableHeaderKey
         operator-width="200"
         @refresh="search(projectId)"
         @callBackSelectAll="callBackSelectAll"
         @callBackSelect="callBackSelect"
+        @saveSortField="saveSortField"
         ref="scenarioTable">
 
         <span v-for="(item) in fields" :key="item.key">
@@ -119,6 +120,17 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </ms-table-column >
+          <ms-table-column prop="createTime"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           :label="$t('commons.create_time')"
+                           sortable
+                           min-width="180px">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </ms-table-column >
+
           <ms-table-column prop="stepTotal"
                            :field="item"
                            :fields-width="fieldsWidth"
@@ -198,9 +210,10 @@ import {API_SCENARIO_LIST, PROJECT_NAME, WORKSPACE_ID} from "../../../../../comm
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
 import MsRunMode from "./common/RunMode";
+import {saveLastTableSortField} from "@/common/js/tableUtils";
 
 import {
-  getCustomTableHeader, getCustomTableWidth,
+  getCustomTableHeader, getCustomTableWidth,getLastTableSortField,
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -272,6 +285,7 @@ export default {
   data() {
     return {
       result: {},
+      tableHeaderKey:"API_SCENARIO",
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
@@ -374,6 +388,11 @@ export default {
           permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH']
         },
         {
+          name: this.$t('api_test.batch_copy'),
+          handleClick: this.batchCopy,
+          permissions: ['PROJECT_API_SCENARIO:READ+BATCH_COPY']
+        },
+        {
           name: this.$t('test_track.case.batch_move_case'),
           handleClick: this.handleBatchMove,
           permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
@@ -418,8 +437,13 @@ export default {
     this.operators = this.unTrashOperators;
     this.buttons = this.unTrashButtons;
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.search();
     this.getPrincipalOptions([]);
+
   },
   watch: {
     selectNodeIds() {
@@ -859,6 +883,37 @@ export default {
         }
       });
     },
+    batchCopy(){
+      this.$alert(this.$t('api_test.definition.request.batch_copy_confirm') + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.infoDb = false;
+            let param = {};
+            this.buildBatchParam(param);
+            this.$post('/api/automation/batchCopy', param, response => {
+              this.$success(this.$t('api_test.definition.request.batch_copy_end'));
+              this.search();
+            });
+          }
+        }
+      });
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
 };
 </script>

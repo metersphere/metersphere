@@ -23,6 +23,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.util.JsseSSLManager;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -58,7 +59,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/listWithIds/all")
-    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    @RequiresPermissions("PROJECT_API_SbatchCopyCENARIO:READ")
     public List<ApiScenarioWithBLOBs> listWithIds(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.listWithIds(request);
     }
@@ -246,6 +247,11 @@ public class ApiAutomationController {
     public List<JmxInfoDTO> batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.batchGenPerformanceTestJmx(request);
     }
+    @PostMapping("/batchCopy")
+    public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.batchCopy(request);
+    }
+
 
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {

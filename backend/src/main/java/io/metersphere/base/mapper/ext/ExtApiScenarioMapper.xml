@@ -374,7 +374,6 @@
         from api_scenario
         left join project on api_scenario.project_id = project.id
         <include refid="queryWhereCondition"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listReview" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
