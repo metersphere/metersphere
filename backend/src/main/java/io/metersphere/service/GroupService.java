@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.GroupMapper;
-import io.metersphere.base.mapper.OrganizationMapper;
-import io.metersphere.base.mapper.UserGroupMapper;
-import io.metersphere.base.mapper.UserGroupPermissionMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
@@ -24,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,6 +52,10 @@ public class GroupService {
     private OrganizationService organizationService;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private WorkspaceMapper workspaceMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     private static final Map<String, List<String>> map = new HashMap<String, List<String>>(4){{
         put(UserGroupType.SYSTEM, Arrays.asList(UserGroupType.SYSTEM, UserGroupType.ORGANIZATION, UserGroupType.WORKSPACE, UserGroupType.PROJECT));
@@ -340,5 +342,55 @@ public class GroupService {
 
     public List<Group> getProjectMemberGroups(String projectId, String userId) {
         return extUserGroupMapper.getProjectMemberGroups(projectId, userId);
+    }
+
+    public List<Group> getAllGroup() {
+        return groupMapper.selectByExample(new GroupExample());
+    }
+
+    public List<? extends Object> getResource(String type, String groupId) {
+        List<T> resource = new ArrayList<>();
+        Group group = groupMapper.selectByPrimaryKey(groupId);
+        String orgId = group.getScopeId();
+        if (!StringUtils.equals("global", orgId)) {
+            Organization organization = organizationMapper.selectByPrimaryKey(orgId);
+            if (organization == null) {
+                return resource;
+            }
+        }
+
+        if (StringUtils.equals(UserGroupType.ORGANIZATION, type)) {
+            OrganizationExample organizationExample = new OrganizationExample();
+            OrganizationExample.Criteria criteria = organizationExample.createCriteria();
+            if (!StringUtils.equals(orgId, "global")) {
+                criteria.andIdEqualTo(orgId);
+            }
+           return organizationMapper.selectByExample(organizationExample);
+        }
+
+        if (StringUtils.equals(UserGroupType.WORKSPACE, type)) {
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(orgId, "global")) {
+                criteria.andOrganizationIdEqualTo(orgId);
+            }
+            return workspaceMapper.selectByExample(workspaceExample);
+        }
+
+        if (StringUtils.equals(UserGroupType.PROJECT, type)) {
+            ProjectExample projectExample = new ProjectExample();
+            ProjectExample.Criteria pc = projectExample.createCriteria();
+            WorkspaceExample workspaceExample = new WorkspaceExample();
+            WorkspaceExample.Criteria criteria = workspaceExample.createCriteria();
+            if (!StringUtils.equals(orgId, "global")) {
+                criteria.andOrganizationIdEqualTo(orgId);
+                List<Workspace> workspaces = workspaceMapper.selectByExample(workspaceExample);
+                List<String> list = workspaces.stream().map(Workspace::getId).collect(Collectors.toList());
+                pc.andWorkspaceIdIn(list);
+            }
+            return projectMapper.selectByExample(projectExample);
+        }
+
+        return resource;
     }
 }
