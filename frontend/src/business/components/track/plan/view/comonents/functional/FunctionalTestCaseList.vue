@@ -464,20 +464,8 @@ export default {
                 this.tableData[i].customFields = JSON.parse(this.tableData[i].customFields);
               }
               this.$set(this.tableData[i], "showTags", JSON.parse(this.tableData[i].tags));
-              this.$set(this.tableData[i], "issuesSize", 0);
-              this.$get("/issues/get/" + this.tableData[i].caseId).then(response => {
-                let issues = response.data.data;
-                if (this.tableData[i]) {
-                  this.$set(this.tableData[i], "issuesSize", issues.length);
-                  this.$set(this.tableData[i], "issuesContent", issues);
-                }
-              }).catch(() => {
-                this.$set(this.tableData[i], "issuesContent", [{
-                  title: '获取缺陷失败',
-                  description: '获取缺陷失败',
-                  platform: '获取缺陷失败'
-                }]);
-              });
+              this.$set(this.tableData[i], "issuesSize", this.tableData[i].issuesCount);
+              this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
           this.$refs.table.clear();
