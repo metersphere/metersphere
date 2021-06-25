@@ -395,6 +395,12 @@
         from api_scenario
         WHERE use_url IS NULL
     </select>
+    <select id="selectTrash" resultType="java.lang.Integer">
+        select count(1)
+        from api_scenario
+        where project_id = #{projectId}
+          and status = 'Trash'
+    </select>
     <sql id="queryWhereConditionReview">
         <where>
             <if test="request.combine != null">
