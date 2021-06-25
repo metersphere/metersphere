@@ -13,9 +13,11 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.ResourceService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.TestCaseService;
@@ -48,6 +50,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected ExtIssuesMapper extIssuesMapper;
     protected ResourceService resourceService;
     protected RestTemplate restTemplateIgnoreSSL;
+    protected UserService userService;
 
     protected String testCaseId;
     protected String projectId;
@@ -81,12 +84,13 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.testCaseIssuesMapper = CommonBeanFactory.getBean(TestCaseIssuesMapper.class);
         this.projectService = CommonBeanFactory.getBean(ProjectService.class);
         this.testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
+        this.userService = CommonBeanFactory.getBean(UserService.class);
         this.issuesMapper = CommonBeanFactory.getBean(IssuesMapper.class);
         this.extIssuesMapper = CommonBeanFactory.getBean(ExtIssuesMapper.class);
         this.resourceService = CommonBeanFactory.getBean(ResourceService.class);
         this.testCaseId = issuesRequest.getTestCaseId();
         this.projectId = issuesRequest.getProjectId();
-        //
+
         this.restTemplateIgnoreSSL = restTemplate;
     }
 
@@ -190,5 +194,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             return JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
         }
         return new ArrayList<>();
+    }
+
+    protected UserDTO.PlatformInfo getUserPlatInfo(String orgId, String userId) {
+        return userService.getCurrentPlatformInfo(orgId, userId);
     }
 }

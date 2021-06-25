@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
@@ -1357,5 +1358,30 @@ public class UserService {
                 }
             }
         }
+    }
+
+    public UserDTO updateCurrentUser(User user) {
+        String currentUserId = SessionUtils.getUserId();
+        if (!StringUtils.equals(currentUserId, user.getId())) {
+            MSException.throwException(Translator.get("not_authorized"));
+        }
+        updateUser(user);
+        UserDTO userDTO = getUserDTO(user.getId());
+        SessionUtils.putUser(SessionUser.fromUser(userDTO));
+        return SessionUtils.getUser();
+    }
+
+    public UserDTO.PlatformInfo getCurrentPlatformInfo(String orgId, String userId) {
+        User user = userMapper.selectByPrimaryKey(userId);
+        String platformInfoStr = user.getPlatformInfo();
+        if (StringUtils.isBlank(orgId) || StringUtils.isBlank(platformInfoStr)) {
+           return null;
+        }
+        JSONObject platformInfos = JSONObject.parseObject(platformInfoStr);
+        JSONObject platformInfo = platformInfos.getJSONObject(orgId);
+        if (platformInfo == null) {
+            return null;
+        }
+        return JSONObject.parseObject(JSONObject.toJSONString(platformInfo), UserDTO.PlatformInfo.class);
     }
 }
