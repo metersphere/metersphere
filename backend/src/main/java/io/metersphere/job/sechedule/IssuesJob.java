@@ -1,16 +1,11 @@
 package io.metersphere.job.sechedule;
 
 import com.fit2cloud.quartz.anno.QuartzScheduled;
-import com.github.pagehelper.Page;
-import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.IssuesDao;
-import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestPlanTestCaseService;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -21,8 +16,8 @@ public class IssuesJob {
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
 
-    //@QuartzScheduled(fixedDelay = 3600 * 1000)
-    @Scheduled(fixedDelay = 120 * 1000)
+    @QuartzScheduled(fixedDelay = 3600 * 1000)
+    //@Scheduled(fixedDelay = 120 * 1000)
     public void IssuesCount() {
         /*int pageSize = 100;
         int pages = 0;
