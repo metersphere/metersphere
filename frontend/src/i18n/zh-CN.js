@@ -652,7 +652,8 @@ export default {
     report: {
       diff: "对比",
       set_default: '恢复默认',
-      unselect_all: '取消所有',
+      unselect_all: '取消',
+      select_all: '全选',
       ActiveThreadsChart: '用户数',
       TransactionsChart: '请求/事务数',
       ErrorsChart: '错误',
