@@ -15,7 +15,8 @@
                 @refresh="initTable"
                 :fields.sync="fields"
                 :table-is-loading="this.result.loading"
-                field-key="API_DEFINITION"
+                :field-key="tableHeaderKey"
+                @saveSortField="saveSortField"
                 ref="table">
 
         <span v-for="(item) in fields" :key="item.key">
@@ -114,6 +115,16 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </ms-table-column>
+        <ms-table-column prop="createTime"
+                         :field="item"
+                         :fields-width="fieldsWidth"
+                         :label="$t('commons.create_time')"
+                         sortable
+                         min-width="180px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column >
 
         <ms-table-column
           prop="caseTotal"
@@ -177,7 +188,8 @@ import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
   initCondition,
-  getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected
+  getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected,
+  saveLastTableSortField,getLastTableSortField
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
@@ -209,6 +221,7 @@ export default {
   data() {
     return {
       type: API_LIST,
+      tableHeaderKey:"API_DEFINITION",
       fields: getCustomTableHeader('API_DEFINITION'),
       fieldsWidth: getCustomTableWidth('API_DEFINITION'),
       condition: {
@@ -405,6 +418,10 @@ export default {
     } else {
       this.tableOperatorButtons = this.tableUsualOperatorButtons;
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+    }
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
     }
     this.initTable();
     this.getMaintainerOptions();
@@ -794,6 +811,21 @@ export default {
         this.$emit('updateInitApiTableOpretion','0');
         return false;
       }
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     }
   },
 };

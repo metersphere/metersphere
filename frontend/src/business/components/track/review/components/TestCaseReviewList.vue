@@ -126,7 +126,7 @@ import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
-import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, deepClone, getLabel, getLastTableSortField,saveLastTableSortField} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
@@ -154,6 +154,7 @@ export default {
       type: TEST_CASE_REVIEW_LIST,
       headerItems: Test_Case_Review,
       tableLabel: [],
+      tableHeaderKey:"TEST_CASE_REVIEW",
       result: {},
       condition: {},
       tableData: [],
@@ -178,6 +179,10 @@ export default {
   },
   created() {
     this.isTestManagerOrTestUser = true;
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTableData();
   },
   computed: {
@@ -256,9 +261,29 @@ export default {
       this.initTableData();
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
 };
 </script>

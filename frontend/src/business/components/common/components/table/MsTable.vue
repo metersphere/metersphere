@@ -249,6 +249,7 @@ export default {
         this.condition.orders = [];
       }
       _sort(column, this.condition);
+      this.$emit("saveSortField", this.fieldKey,this.condition.orders);
       this.handleRefresh();
     },
     handleBatchEdit() {
