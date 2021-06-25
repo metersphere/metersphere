@@ -4,11 +4,23 @@
       <el-col :span="6">
         <div style="padding-bottom: 5px;">
           <el-link type="primary" @click="resetDefault()">{{ $t('load_test.report.set_default') }}</el-link>
-          &nbsp;/&nbsp;
-          <el-link type="danger" @click="unselectAll()">{{ $t('load_test.report.unselect_all') }}</el-link>
         </div>
         <el-collapse v-model="activeNames" class="test-detail">
-          <el-collapse-item :title="$t('load_test.report.ActiveThreadsChart')" name="users">
+          <el-collapse-item name="users">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.ActiveThreadsChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'ActiveThreadsChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('ActiveThreadsChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['ActiveThreadsChart']"
                                @change="handleChecked('ActiveThreadsChart')">
               <div v-for="name in checkOptions['ActiveThreadsChart']" :key="name">
@@ -21,7 +33,21 @@
               </div>
             </el-checkbox-group>
           </el-collapse-item>
-          <el-collapse-item :title="$t('load_test.report.TransactionsChart')" name="transactions">
+          <el-collapse-item name="transactions">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.TransactionsChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'TransactionsChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('TransactionsChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['TransactionsChart']" @change="handleChecked('TransactionsChart')">
               <div v-for="name in checkOptions['TransactionsChart']"
                    :key="name">
@@ -35,7 +61,21 @@
               </div>
             </el-checkbox-group>
           </el-collapse-item>
-          <el-collapse-item :title="$t('load_test.report.ResponseTimeChart')" name="responseTime">
+          <el-collapse-item name="responseTime">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.ResponseTimeChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'ResponseTimeChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('ResponseTimeChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['ResponseTimeChart']" @change="handleChecked('ResponseTimeChart')">
               <div v-for="name in checkOptions['ResponseTimeChart']"
                    :key="name">
@@ -48,7 +88,21 @@
               </div>
             </el-checkbox-group>
           </el-collapse-item>
-          <el-collapse-item :title="$t('load_test.report.ResponseTimePercentilesChart')" name="responseTimePercentiles">
+          <el-collapse-item name="responseTimePercentiles">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.ResponseTimePercentilesChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'ResponseTimePercentilesChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('ResponseTimePercentilesChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['ResponseTimePercentilesChart']"
                                @change="handleChecked('ResponseTimePercentilesChart')">
               <div v-for="name in checkOptions['ResponseTimePercentilesChart']"
@@ -63,6 +117,20 @@
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.ResponseCodeChart')" name="responseCode">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.ResponseCodeChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'ResponseCodeChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('ResponseCodeChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['ResponseCodeChart']" @change="handleChecked('ResponseCodeChart')">
               <div v-for="name in checkOptions['ResponseCodeChart']"
                    :key="name">
@@ -76,6 +144,20 @@
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.LatencyChart')" name="latency">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.LatencyChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'LatencyChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('LatencyChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['LatencyChart']" @change="handleChecked('LatencyChart')">
               <div v-for="name in checkOptions['LatencyChart']"
                    :key="name">
@@ -89,6 +171,20 @@
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.BytesThroughputChart')" name="bytes">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.BytesThroughputChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'BytesThroughputChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('BytesThroughputChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['BytesThroughputChart']"
                                @change="handleChecked('BytesThroughputChart')">
               <div v-for="name in checkOptions['BytesThroughputChart']"
@@ -103,6 +199,20 @@
             </el-checkbox-group>
           </el-collapse-item>
           <el-collapse-item :title="$t('load_test.report.ErrorsChart')" name="errors">
+            <template v-slot:title>
+              <div style="width: 100%">
+                <span>{{ $t('load_test.report.ErrorsChart') }}</span>
+                <span style="float:right;">
+                  <el-link type="primary" @click="selectAll( 'ErrorsChart', $event)">
+                    {{ $t('load_test.report.select_all') }}
+                  </el-link>
+                  /
+                  <el-link type="default" @click="unselectAll('ErrorsChart', $event)">
+                     {{ $t('load_test.report.unselect_all') }}
+                  </el-link>
+                </span>
+              </div>
+            </template>
             <el-checkbox-group v-model="checkList['ErrorsChart']" @change="handleChecked('ErrorsChart')">
               <div v-for="name in checkOptions['ErrorsChart']"
                    :key="name">
@@ -229,11 +339,31 @@ export default {
 
       this.getTotalChart();
     },
-    unselectAll() {
+    selectAll(name, e) {
+      if (e) {
+        e.stopPropagation(); // 阻止冒泡
+      }
       this.seriesData = [];
       this.totalOption = {};
       this.baseOption.yAxis = [];
       this.legend = [];
+      this.checkList[name] = this.checkOptions[name];
+
+      this.getTotalChart();
+    },
+    unselectAll(name, e) {
+      if (e) {
+        e.stopPropagation(); // 阻止冒泡
+      }
+      this.seriesData = [];
+      this.totalOption = {};
+      this.baseOption.yAxis = [];
+      this.legend = [];
+      if (name) {
+        this.checkList[name] = [];
+        this.getTotalChart();
+        return;
+      }
       for (const name in this.checkList) {
         this.checkList[name] = [];
       }

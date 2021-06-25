@@ -655,6 +655,7 @@ export default {
       diff: "Compare",
       set_default: 'Set to Default',
       unselect_all: 'Unselect All',
+      select_all: 'Select All',
       ActiveThreadsChart: 'Users',
       TransactionsChart: 'Req/Trans',
       ErrorsChart: 'Error',
