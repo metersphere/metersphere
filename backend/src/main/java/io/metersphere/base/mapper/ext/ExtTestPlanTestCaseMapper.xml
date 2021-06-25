@@ -230,7 +230,7 @@
         test_case.custom_num) as customNum, test_plan_test_case.executor, test_plan_test_case.status,
         test_plan_test_case.actual_result,
         test_plan_test_case.update_time, test_plan_test_case.create_time,test_case_node.name as model, project.name as
-        projectName,
+        projectName,test_plan_test_case.issues as issues,test_plan_test_case.issues_count as issuesCount,
         test_plan_test_case.plan_id as planId
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
@@ -474,6 +474,15 @@
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </update>
+    <update id="update">
+        update test_plan_test_case
+        <set>
+            issues_count=#{count},
+            issues = #{issues}
+        </set>
+
+        where plan_id=#{id,jdbcType=VARCHAR} and case_id=#{caseId,jdbcType=VARCHAR}
     </update>
 
     <delete id="deleteByTestCaseID" parameterType="java.lang.String">
