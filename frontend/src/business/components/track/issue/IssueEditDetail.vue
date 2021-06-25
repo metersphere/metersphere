@@ -76,7 +76,7 @@ import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/cust
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
-import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 
 export default {
@@ -234,6 +234,7 @@ export default {
       let param = {};
       Object.assign(param, this.form);
       param.projectId = this.projectId;
+      param.organizationId = getCurrentOrganizationId();
       buildCustomFields(this.form, param, this.issueTemplate);
       if (this.isPlan) {
         param.testCaseIds = [this.caseId];
