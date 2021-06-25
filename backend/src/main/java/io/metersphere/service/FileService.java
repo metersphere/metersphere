@@ -9,7 +9,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
