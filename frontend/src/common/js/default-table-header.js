@@ -44,7 +44,8 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'caseTotal', key: '8', label: i18n.t('api_test.definition.api_case_number')},
     {id: 'caseStatus', key: '9', label: i18n.t('api_test.definition.api_case_status')},
     {id: 'casePassingRate', key: 'a', label: i18n.t('api_test.definition.api_case_passing_rate')},
-    {id: 'status', key: 'b', label: i18n.t('api_test.definition.api_status')}
+    {id: 'status', key: 'b', label: i18n.t('api_test.definition.api_status')},
+    {id: 'createTime', key: 'c', label: i18n.t('commons.create_time')},
   ],
 //接口用例
   API_CASE: [
@@ -56,6 +57,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'tags', key: '6', label: i18n.t('commons.tag')},
     {id: 'createUser', key: '7', label: "创建人"},
     {id: 'updateTime', key: '8', label: i18n.t('api_test.definition.api_last_time')},
+    {id: 'createTime', key: '9', label: i18n.t('commons.create_time')},
   ],
   //场景测试
   API_SCENARIO: [
@@ -70,6 +72,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'stepTotal', key: '9', label: i18n.t('api_test.automation.step')},
     {id: 'lastResult', key: 'a', label: i18n.t('api_test.automation.last_result')},
     {id: 'passRate', key: 'b', label: i18n.t('api_test.automation.passing_rate')},
+    {id: 'createTime', key: 'c', label: i18n.t('commons.create_time')},
   ],
   //用例评审
   TEST_CASE_REVIEW: [
@@ -171,6 +174,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'nodePath', key: '5', label: i18n.t('test_track.case.module')},
     {id: 'updateTime', key: '6', label: i18n.t('commons.update_time')},
     {id: 'createUser', key: '7', label: i18n.t('commons.create_user')},
+    {id: 'createTime', key: '8', label: i18n.t('commons.create_time')},
   ],
   //缺陷列表
   ISSUE_LIST: [
@@ -181,7 +185,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'creatorName', key: '5', label: i18n.t('custom_field.issue_creator')},
     {id: 'resourceName', key: '6', label: i18n.t('test_track.issue.issue_resource')},
     {id: 'description', key: '7', label: i18n.t('test_track.issue.description')},
-
+    {id: 'createTime', key: '8', label: i18n.t('commons.create_time')},
   ]
 
 }

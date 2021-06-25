@@ -311,6 +311,20 @@ public class ApiAutomationService {
         }
     }
 
+    private boolean isCustomNumExist(ApiScenarioWithBLOBs blobs) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria()
+                .andCustomNumEqualTo(blobs.getCustomNum())
+                .andProjectIdEqualTo(blobs.getProjectId())
+                .andIdNotEqualTo(blobs.getId());
+        List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return true;
+        }else {
+            return false;
+        }
+    }
+
     private int getNextNum(String projectId) {
         ApiScenario apiScenario = extApiScenarioMapper.getNextNum(projectId);
         if (apiScenario == null) {
@@ -2139,5 +2153,52 @@ public class ApiAutomationService {
             });
             return returnList;
         }
+    }
+
+    public void batchCopy(ApiScenarioBatchRequest batchRequest) {
+
+        ServiceUtils.getSelectAllIds(batchRequest, batchRequest.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
+        for (ApiScenarioWithBLOBs apiModel:apiScenarioList) {
+            ApiScenarioWithBLOBs newModel = apiModel;
+            newModel.setId(UUID.randomUUID().toString());
+            newModel.setName("copy_"+apiModel.getName());
+            newModel.setCreateTime(System.currentTimeMillis());
+            newModel.setNum(getNextNum(newModel.getProjectId()));
+
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andNameEqualTo(newModel.getName()).
+                    andProjectIdEqualTo(newModel.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(newModel.getId());
+            if (apiScenarioMapper.countByExample(example) > 0) {
+                continue;
+            }else {
+                boolean insertFlag = true;
+                if (StringUtils.isNotBlank(newModel.getCustomNum())) {
+                    insertFlag = false;
+                    String projectId = newModel.getProjectId();
+                    Project project = projectMapper.selectByPrimaryKey(projectId);
+                    if (project != null) {
+                        Boolean customNum = project.getScenarioCustomNum();
+                        // 未开启自定义ID
+                        if (!customNum) {
+                            insertFlag = true;
+                            newModel.setCustomNum(null);
+                        } else {
+                            boolean isCustomNumExist = true;
+                            try {
+                                isCustomNumExist = this.isCustomNumExist(newModel);
+                            }catch (Exception e){}
+                            insertFlag = !isCustomNumExist;
+                        }
+                    }
+                }
+
+                if(insertFlag){
+                    apiScenarioMapper.insert(newModel);
+                }
+            }
+        }
+//        uploadFiles(request, bodyFiles, scenarioFiles);
     }
 }

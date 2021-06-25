@@ -239,7 +239,14 @@ import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
-import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
+import {
+  _filter,
+  _sort,
+  deepClone,
+  getLabel,
+  getLastTableSortField,
+  saveLastTableSortField
+} from "@/common/js/tableUtils";
 import {TEST_PLAN_LIST} from "@/common/js/constants";
 import {Test_Plan_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -267,6 +274,7 @@ export default {
       createUser: "",
       type: TEST_PLAN_LIST,
       headerItems: Test_Plan_List,
+      tableHeaderKey:"TEST_PLAN_LIST",
       tableLabel: [],
       result: {},
       cardResult: {},
@@ -308,6 +316,10 @@ export default {
       this.projectId = getCurrentProjectID();
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTableData();
   },
   methods: {
@@ -412,7 +424,12 @@ export default {
       this.initTableData();
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
     openTestReportTemplate(data) {
@@ -427,6 +444,21 @@ export default {
       row.redirectFrom = "testPlan";
       this.$refs.scheduleMaintain.open(row);
     },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
 };
 </script>
