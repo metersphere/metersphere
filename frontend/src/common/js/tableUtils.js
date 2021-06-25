@@ -353,6 +353,21 @@ export function saveCustomTableHeader(key, fields) {
   }
   localStorage.setItem(key, result);
 }
+/**
+ * 将上一次的表格排序字段存在 localStorage
+ * @param key
+ * @param fields
+ */
+export function saveLastTableSortField(key, field) {
+  let result = field;
+  localStorage.setItem(key+"_SORT", result);
+}
+
+export function getLastTableSortField(key) {
+  let fieldStr = localStorage.getItem(key+"_SORT");
+  return fieldStr;
+}
+
 
 /**
  * 获取对应表格的列宽

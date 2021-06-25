@@ -715,6 +715,11 @@
       "resourceId": "PROJECT_API_SCENARIO"
     },
     {
+      "id": "PROJECT_API_SCENARIO:READ+BATCH_COPY",
+      "name": "批量复制",
+      "resourceId": "PROJECT_API_SCENARIO"
+    },
+    {
       "id": "PROJECT_API_REPORT:READ",
       "name": "查询报告",
       "resourceId": "PROJECT_API_REPORT"
