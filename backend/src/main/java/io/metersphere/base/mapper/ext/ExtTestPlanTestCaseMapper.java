@@ -11,7 +11,6 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtTestPlanTestCaseMapper {
-
     List<TestCaseReportStatusResultDTO> getReportMetric(@Param("planId") String planId);
 
     List<String> getExecutors(@Param("planId") String planId);
@@ -56,4 +55,6 @@ public interface ExtTestPlanTestCaseMapper {
     List<String> selectIds(@Param("request") TestPlanFuncCaseConditions conditions);
 
     List<String> selectIdsByQuery(@Param("request") BaseQueryRequest query);
+
+    void update(@Param("count") int count, @Param("id") String id, @Param("caseId") String caseId, @Param("issues") String issues);
 }

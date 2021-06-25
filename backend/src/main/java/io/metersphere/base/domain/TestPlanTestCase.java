@@ -1,8 +1,8 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+
+import lombok.Data;
 
 @Data
 public class TestPlanTestCase implements Serializable {
@@ -25,6 +25,8 @@ public class TestPlanTestCase implements Serializable {
     private String reportId;
 
     private String createUser;
+
+    private Integer issuesCount;
 
     private static final long serialVersionUID = 1L;
 }
