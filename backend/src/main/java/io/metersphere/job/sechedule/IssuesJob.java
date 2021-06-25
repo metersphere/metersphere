@@ -1,11 +1,16 @@
 package io.metersphere.job.sechedule;
 
 import com.fit2cloud.quartz.anno.QuartzScheduled;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.TestPlanTestCase;
 import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.springframework.stereotype.Component;
+
 import javax.annotation.Resource;
 import java.util.List;
 
@@ -19,17 +24,22 @@ public class IssuesJob {
     @QuartzScheduled(fixedDelay = 3600 * 1000)
     //@Scheduled(fixedDelay = 120 * 1000)
     public void IssuesCount() {
-        /*int pageSize = 100;
-        int pages = 0;
-        Page<List<TestPlanTestCase>> page = PageHelper.startPage(pages, pageSize, true);
-        pages = page.getPages();
-        for (int i = 0; i < pages; i++) {*/
-        List<TestPlanTestCaseWithBLOBs> list = testPlanTestCaseService.listAll();
-        list.forEach(l -> {
-            List<IssuesDao> issues = issuesService.getIssues(l.getCaseId());
-            int issuesCount = issues.size();
-            testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), issues.toString());
-        });
+        int pageSize = 100;
+        int pages = 1;
+        for (int i = 0; i < pages; i++) {
+            Page<List<TestPlanTestCase>> page = PageHelper.startPage(i, pageSize, true);
+            List<TestPlanTestCaseWithBLOBs> list = testPlanTestCaseService.listAll();
+            pages = page.getPages();// 替换成真实的值
+            list.forEach(l -> {
+                try {
+                    List<IssuesDao> issues = issuesService.getIssues(l.getCaseId());
+                    int issuesCount = issues.size();
+                    testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), issues.toString());
+                } catch (Exception e) {
+                    LogUtil.error("定时任务处理bug数量报错planId: " + l.getPlanId(), e);
+                }
+            });
+        }
     }
-    }
+}
 
