@@ -5,25 +5,25 @@
         <ms-table-header :create-permission="['WORKSPACE_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
-      <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%"
                 @select-all="handleSelectAll"
                 @select="handleSelect"
                 :height="screenHeight"
                 ref="userTable">
 
         <el-table-column type="selection" width="50"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize>total?total:pageSize"
-                                        :total="total"
-                                        :select-data-counts="selectDataCounts"
-                                        :table-data-count-in-page="tableData.length"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
-          <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
-          </template>
-        </el-table-column>
+<!--        <ms-table-header-select-popover v-show="total>0"-->
+<!--                                        :page-size="pageSize>total?total:pageSize"-->
+<!--                                        :total="total"-->
+<!--                                        :select-data-counts="selectDataCounts"-->
+<!--                                        :table-data-count-in-page="tableData.length"-->
+<!--                                        @selectPageAll="isSelectDataAll(false)"-->
+<!--                                        @selectAll="isSelectDataAll(true)"/>-->
+<!--        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">-->
+<!--          <template v-slot:default="scope">-->
+<!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
 
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
