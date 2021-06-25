@@ -8,6 +8,7 @@
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
         <el-tag size="mini" v-if="data.method">{{getMethod()}}</el-tag>
       </slot>
+      <slot name="behindHeaderLeft" v-if="!isMax"></slot>
 
       <span>
         <slot name="headerLeft">
@@ -25,11 +26,11 @@
             </el-tooltip>
           </span>
         </slot>
-        <slot name="behindHeaderLeft" v-if="!isMax"></slot>
       </span>
 
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
+        <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root" style="width: 30px"/>
         </el-tooltip>
@@ -202,7 +203,7 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 180px;
+    width: 140px;
   }
 
   .scenario-name {
@@ -214,7 +215,7 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: calc(100% - 30rem);
+    width: calc(100% - 35rem);
   }
 
   /deep/ .el-step__icon {
@@ -240,4 +241,5 @@
     white-space: nowrap;
     width: 400px;
   }
+
 </style>
