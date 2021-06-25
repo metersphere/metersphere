@@ -25,7 +25,7 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
+        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash" :total='total'/>
       </template>
 
     </ms-node-tree>
@@ -64,13 +64,14 @@
       isReadOnly: {
         type: Boolean,
         default() {
-          return false
+          return false;
         }
       },
       showOperator: Boolean,
       relevanceProjectId: String,
       planId: String,
-      pageSource:String,
+      pageSource: String,
+      total: Number,
     },
     computed: {
       isPlanModel() {

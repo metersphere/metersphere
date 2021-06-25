@@ -57,6 +57,11 @@ public class ApiAutomationController {
         return apiAutomationService.listAll(request);
     }
 
+    @PostMapping("/list/all/trash")
+    public int listAllTrash(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.listAllTrash(request);
+    }
+
     @PostMapping("/listWithIds/all")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioWithBLOBs> listWithIds(@RequestBody ApiScenarioBatchRequest request) {

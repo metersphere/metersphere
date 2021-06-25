@@ -509,6 +509,7 @@ export default {
           if (this.$refs.scenarioTable) {
             this.$refs.scenarioTable.clear();
           }
+          this.$emit('getTrashCase');
         });
       }
     },
