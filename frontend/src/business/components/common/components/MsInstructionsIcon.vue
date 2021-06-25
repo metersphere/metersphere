@@ -1,7 +1,9 @@
 <template>
   <el-tooltip class="instructions-icon" :effect="effect" :placement="placement">
     <template v-slot:content>
-      {{content}}
+      <slot>
+        {{content}}
+      </slot>
     </template>
     <i :style="{'font-size': size + 'px'}" class="el-icon-info"></i>
   </el-tooltip>
@@ -48,6 +50,10 @@
 
   .el-icon-info:hover {
     color: #409EFF;
+  }
+
+  .instructions-icon {
+    margin-left: 5px;
   }
 
 </style>
