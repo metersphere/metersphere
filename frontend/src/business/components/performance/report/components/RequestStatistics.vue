@@ -10,6 +10,7 @@
         <el-table-column
           prop="label"
           label="Label"
+          sortable
           min-width="150">
           <template v-slot:header="{column}">
             <span>Label</span>
