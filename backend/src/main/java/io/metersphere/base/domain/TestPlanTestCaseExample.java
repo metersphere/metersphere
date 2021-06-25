@@ -783,6 +783,66 @@ public class TestPlanTestCaseExample {
             addCriterion("create_user not between", value1, value2, "createUser");
             return (Criteria) this;
         }
+
+        public Criteria andIssuesCountIsNull() {
+            addCriterion("issues_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountIsNotNull() {
+            addCriterion("issues_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountEqualTo(Integer value) {
+            addCriterion("issues_count =", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountNotEqualTo(Integer value) {
+            addCriterion("issues_count <>", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountGreaterThan(Integer value) {
+            addCriterion("issues_count >", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("issues_count >=", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountLessThan(Integer value) {
+            addCriterion("issues_count <", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountLessThanOrEqualTo(Integer value) {
+            addCriterion("issues_count <=", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountIn(List<Integer> values) {
+            addCriterion("issues_count in", values, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountNotIn(List<Integer> values) {
+            addCriterion("issues_count not in", values, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountBetween(Integer value1, Integer value2) {
+            addCriterion("issues_count between", value1, value2, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountNotBetween(Integer value1, Integer value2) {
+            addCriterion("issues_count not between", value1, value2, "issuesCount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
