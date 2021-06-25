@@ -104,7 +104,12 @@
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item :label="$t('project.jira_key')" v-if="jira">
-          <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
+          <el-input v-model="form.jiraKey" autocomplete="off"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../assets/jira-key.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
@@ -165,10 +170,12 @@ import {_filter, _sort} from "@/common/js/tableUtils";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
 import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "MsProject",
   components: {
+    MsInstructionsIcon,
     TemplateSelect,
     MsResourceFiles,
     MsTableButton,
@@ -381,5 +388,9 @@ export default {
 pre {
   margin: 0 0;
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+}
+
+.el-input,.el-textarea {
+  width: 95%;
 }
 </style>

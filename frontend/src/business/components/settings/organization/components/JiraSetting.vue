@@ -15,9 +15,19 @@
         </el-form-item>
         <el-form-item :label="$t('organization.integration.jira_issuetype')" prop="issuetype">
           <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.jira_storytype')" prop="storytype">
           <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_jira_storytype')"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
       </el-form>
     </div>
@@ -50,10 +60,11 @@
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
 import {getCurrentUser} from "@/common/js/utils";
 import {JIRA} from "@/common/js/constants";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "JiraSetting",
-  components: {BugManageBtn},
+  components: {MsInstructionsIcon, BugManageBtn},
   created() {
     this.init();
   },
@@ -202,5 +213,9 @@ export default {
   margin: 10px 0;
   padding: 10px;
   border-radius: 3px;
+}
+
+.el-input {
+  width: 80%;
 }
 </style>

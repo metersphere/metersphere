@@ -110,7 +110,12 @@
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item :label="$t('project.jira_key')" v-if="jira">
-          <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
+          <el-input v-model="form.jiraKey" autocomplete="off"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../assets/jira-key.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
@@ -241,10 +246,12 @@ import TemplateSelect from "@/business/components/settings/workspace/template/Te
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
 import AddMember from "@/business/components/settings/common/AddMember";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "MsProject",
   components: {
+    MsInstructionsIcon,
     TemplateSelect,
     MsResourceFiles,
     MsTableButton,
@@ -637,5 +644,9 @@ pre {
   float: right;
   color: #8492a6;
   font-size: 13px;
+}
+
+.el-input,.el-textarea {
+  width: 95%;
 }
 </style>
