@@ -62,4 +62,9 @@ public class APIScenarioReportController {
         return resultService.getResult(reportId);
     }
 
+    @GetMapping("/remove/real/{reportId}")
+    public void removeRealReport(@PathVariable String reportId) {
+        resultService.delete(reportId);
+    }
+
 }

@@ -69,6 +69,14 @@
         <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="3000" :step="1000"/>
         <span class="ms-span ms-radio">ms</span>
       </div>
+
+      <template v-slot:debugStepCode>
+        <el-tooltip :content="getCode()" v-if="node.data.debug">
+          <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'">
+            {{ getCode() }}
+          </span>
+        </el-tooltip>
+      </template>
     </api-base-component>
 
   </div>
@@ -151,6 +159,16 @@
       };
     },
     methods: {
+      getCode() {
+        if (this.node && this.node.data.debug) {
+          if (this.node.data.code && this.node.data.code === 'error') {
+            return 'error';
+          } else {
+            return 'success';
+          }
+        }
+        return '';
+      },
       initResult() {
         if (this.controller) {
           switch (this.controller.loopType) {
@@ -362,6 +380,13 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+  .ms-req-error {
+    color: #F56C6C;
+  }
+
+  .ms-req-success {
+    color: #67C23A;
   }
 
   /deep/ .el-radio {

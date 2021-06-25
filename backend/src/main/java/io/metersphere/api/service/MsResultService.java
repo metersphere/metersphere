@@ -38,8 +38,10 @@ public class MsResultService {
         if (testResult == null) {
             testResult = new TestResult();
         }
-        if(result.getResponseCode().equals(MsResultCollector.TEST_END)){
-
+        if (result.getResponseCode().equals(MsResultCollector.TEST_END)) {
+            testResult.setEnd(true);
+            this.cache.put(key, testResult);
+            return;
         }
         testResult.setTestId(key);
         testResult.setConsole(getJmeterLogger(key, false));
@@ -50,7 +52,7 @@ public class MsResultService {
 
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-
+        System.out.println(key + "=======" + result.getURL());
         this.cache.put(key, testResult);
     }
 

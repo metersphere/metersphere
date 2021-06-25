@@ -136,31 +136,29 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
                 </el-col>
-                <el-col :span="4">
-                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
-                               :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
-                               :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
-                               :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
-                               :project-list="projectList" ref="envPopover"/>
-                </el-col>
-                <el-col :span="4">
-<!--                  <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand">-->
-<!--                    {{ $t('api_test.request.debug') }}-->
-<!--                    <el-dropdown-menu slot="dropdown">-->
-<!--                      <el-dropdown-item>{{ $t('api_test.run') }}</el-dropdown-item>-->
-<!--                    </el-dropdown-menu>-->
-<!--                  </el-dropdown>-->
-                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
-                             @click="runDebug">{{ $t('api_test.request.debug') }}
-                  </el-button>
-                  <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">
-                    <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
-                               v-prevent-re-click @click="getApiScenario"></el-button>
-                  </el-tooltip>
-                  <el-tooltip class="item" effect="dark" :content="$t('commons.full_screen_editing')"
-                              placement="top-start">
-                    <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
-                  </el-tooltip>
+                <el-col :span="8">
+                  <div style=" float: right">
+                    <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
+                                 :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
+                                 :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
+                                 :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
+                                 :project-list="projectList" ref="envPopover" style="margin-right: 10px"/>
+                    <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand" v-if="!debugLoading">
+                      {{ $t('api_test.request.debug') }}
+                      <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>{{ $t('test_track.case.steps') }}</el-dropdown-item>
+                      </el-dropdown-menu>
+                    </el-dropdown>
+                    <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
+                    <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
+                      <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
+                                 v-prevent-re-click @click="getApiScenario"></el-button>
+                    </el-tooltip>
+                    <el-tooltip class="item" effect="dark" :content="$t('commons.full_screen_editing')"
+                                placement="top-start">
+                      <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
+                    </el-tooltip>
+                  </div>
                 </el-col>
               </el-row>
             </div>
@@ -179,7 +177,7 @@
                 <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="disableAll"/>
               </el-tooltip>
               <div class="ms-debug-result" v-if="debug">
-                354 ms 请求 10 成功 8 失败 2
+                {{ reqTotalTime }} ms 请求 {{ reqTotal }} 成功 {{ reqSuccess }} 失败 {{ reqError }}
               </div>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
@@ -256,15 +254,17 @@
                            :projectIds.sync="projectIds" :projectList="projectList"
                            :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
                            :onSampleError="onSampleError"
+                           :execDebug="stopDebug"
                            :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen"
-                           @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap"
+                           @showAllBtn="showAllBtn" @runDebug="runDebug" @handleCommand="handleCommand" @setProjectEnvMap="setProjectEnvMap"
                            @showScenarioParameters="showScenarioParameters"
                            @setCookieShare="setCookieShare" @setSampleError="setSampleError"
                            ref="maximizeHeader"/>
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
-                           :currentScenario="currentScenario" :type="type" :stepReEnable="stepEnable" ref="maximizeScenario" @openScenario="openScenario"/>
+                           :req-error="reqError" :req-success="reqSuccess" :req-total="reqTotal" :req-total-time="reqTotalTime"
+                           :currentScenario="currentScenario" :type="type" :debug="debug" :reloadDebug="reloadDebug" :stepReEnable="stepEnable" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
 
@@ -274,16 +274,7 @@
 
 <script>
 import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {
-  Assertions,
-  ConstantTimer,
-  Extract,
-  IfController,
-  JSR223Processor,
-  LoopController,
-  TransactionController
-} from "../../definition/model/ApiTestModel";
+import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
 import MsApiCustomize from "./ApiCustomize";
@@ -402,12 +393,21 @@ export default {
         loading: false
       },
       debug: false,
+      debugLoading: false,
+      reqTotal: 0,
+      reqSuccess: 0,
+      reqError: 0,
+      reqTotalTime: 0,
+      reloadDebug: "",
+      stopDebug: "",
     }
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
       this.currentScenario.apiScenarioModuleId = "";
     }
+    this.debug = false;
+    this.debugLoading = false;
     this.operatingElements = ELEMENTS.get("ALL");
     this.getWsProjects();
     this.getMaintainerOptions();
@@ -417,146 +417,105 @@ export default {
   },
   directives: {OutsideClick},
   computed: {
-    buttons() {
-      let buttons = [
-        {
-          title: this.$t('api_test.definition.request.extract_param'),
-          show: this.showButton("Extract"),
-          titleColor: "#015478",
-          titleBgColor: "#E6EEF2",
-          icon: "colorize",
-          click: () => {
-            this.addComponent('Extract')
-          }
-        },
-        {
-          title: this.$t('api_test.definition.request.post_script'),
-          show: this.showButton("JSR223PostProcessor"),
-          titleColor: "#783887",
-          titleBgColor: "#F2ECF3",
-          icon: "skip_next",
-          click: () => {
-            this.addComponent('JSR223PostProcessor')
-          }
-        },
-        {
-          title: this.$t('api_test.definition.request.pre_script'),
-          show: this.showButton("JSR223PreProcessor"),
-          titleColor: "#B8741A",
-          titleBgColor: "#F9F1EA",
-          icon: "skip_previous",
-          click: () => {
-            this.addComponent('JSR223PreProcessor')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.customize_script'),
-          show: this.showButton("JSR223Processor"),
-          titleColor: "#7B4D12",
-          titleBgColor: "#F1EEE9",
-          icon: "code",
-          click: () => {
-            this.addComponent('JSR223Processor')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.if_controller'),
-          show: this.showButton("IfController"),
-          titleColor: "#E6A23C",
-          titleBgColor: "#FCF6EE",
-          icon: "alt_route",
-          click: () => {
-            this.addComponent('IfController')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.loop_controller'),
-          show: this.showButton("LoopController"),
-          titleColor: "#02A7F0",
-          titleBgColor: "#F4F4F5",
-          icon: "next_plan",
-          click: () => {
-            this.addComponent('LoopController')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.transcation_controller'),
-          show: this.showButton("TransactionController"),
-          titleColor: "#6D317C",
-          titleBgColor: "#F4F4F5",
-          icon: "alt_route",
-          click: () => {
-            this.addComponent('TransactionController')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.wait_controller'),
-          show: this.showButton("ConstantTimer"),
-          titleColor: "#67C23A",
-          titleBgColor: "#F2F9EE",
-          icon: "access_time",
-          click: () => {
-            this.addComponent('ConstantTimer')
-          }
-        },
-        {
-          title: this.$t('api_test.definition.request.assertions_rule'),
-          show: this.showButton("Assertions"),
-          titleColor: "#A30014",
-          titleBgColor: "#F7E6E9",
-          icon: "next_plan",
-          click: () => {
-            this.addComponent('Assertions')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.customize_req'),
-          show: this.showButton("CustomizeReq"),
-          titleColor: "#008080",
-          titleBgColor: "#EBF2F2",
-          icon: "tune",
-          click: () => {
-            this.addComponent('CustomizeReq')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.scenario_import'),
-          show: this.showButton("scenario"),
-          titleColor: "#606266",
-          titleBgColor: "#F4F4F5",
-          icon: "movie",
-          click: () => {
-            this.addComponent('scenario')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.api_list_import'),
-          show: this.showButton("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"),
-          titleColor: "#F56C6C",
-          titleBgColor: "#FCF1F1",
-          icon: "api",
-          click: this.apiListImport
-        }
-      ];
-      return buttons.filter(btn => btn.show);
-    },
+    buttons,
     projectId() {
       return getCurrentProjectID();
     },
   },
   methods: {
+    clearDebug() {
+      this.reqError = 0;
+      this.reqTotalTime = 0;
+      this.reqTotal = 0;
+      this.reqSuccess = 0;
+    },
+    editParent(node, status) {
+      if (!status) {
+        node.data.code = "error";
+      }
+      node.data.debug = true;
+      if (node.parent && node.parent.data && node.parent.data.id) {
+        this.editParent(node.parent, status);
+      }
+    },
+    findNodeChild(arr, name, index, status) {
+      arr.forEach(item => {
+        if (item.data.name === name && item.data.index === index) {
+          this.editParent(item.parent, status);
+        }
+        if (item.childNodes && item.childNodes.length > 0) {
+          this.findNodeChild(item.childNodes, name, index, status);
+        }
+      })
+    },
+    findNode(name, index, status) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root) {
+        this.$refs.stepTree.root.childNodes.forEach(item => {
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.findNodeChild(item.childNodes, name, index, status);
+          }
+        })
+      }
+    },
     getReport() {
       if (this.debug) {
         let url = "/api/scenario/report/get/real/" + this.reportId;
         this.$get(url, response => {
-          // if (response.data && response.data.end) {
-          //   console.log(response.data);
-          // } else {
-          //   setTimeout(this.getReport, 2000)
-          // }
-
+          if (response.data) {
+            this.formatResult(response.data);
+            if (response.data.end) {
+              this.removeReport();
+              this.debugLoading = false;
+              this.stopDebug = "stop";
+            } else {
+              setTimeout(this.getReport, 2000)
+            }
+          } else {
+            setTimeout(this.getReport, 2000)
+          }
         });
       }
+    },
+    formatResult(res) {
+      let resMap = new Map;
+      let startTime = 99991611737506593;
+      let endTime = 0;
+      this.clearDebug();
+      if (res && res.scenarios) {
+        res.scenarios.forEach(item => {
+          this.reqTotal += item.requestResults.length;
+          if (item && item.requestResults) {
+            item.requestResults.forEach(req => {
+              req.responseResult.console = res.console;
+              let name = req.name.split('<->')[0];
+              resMap.set(req.id + name, req);
+              if (req.success) {
+                this.reqSuccess++;
+              } else {
+                this.reqError++;
+              }
+              if (req.startTime && Number(req.startTime) < startTime) {
+                startTime = req.startTime;
+              }
+              if (req.endTime && Number(req.endTime) > endTime) {
+                endTime = req.endTime;
+              }
+            })
+          }
+        })
+      }
+      if (startTime < endTime) {
+        this.reqTotalTime = endTime - startTime + 100;
+      }
+      this.debugResult = resMap;
+      this.sort();
+      this.reload();
+      this.reloadDebug = getUUID();
+    },
+    removeReport() {
+      let url = "/api/scenario/report/remove/real/" + this.reportId;
+      this.$get(url, response => {
+      });
     },
     handleCommand() {
       this.debug = false;
@@ -591,7 +550,6 @@ export default {
         }
       })
     },
-
     openHis() {
       this.$refs.changeHistory.open(this.currentScenario.id);
     },
@@ -658,59 +616,7 @@ export default {
       }
     },
     addComponent(type) {
-      switch (type) {
-        case ELEMENT_TYPE.IfController:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new IfController()) :
-            this.scenarioDefinition.push(new IfController());
-          break;
-        case ELEMENT_TYPE.ConstantTimer:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new ConstantTimer()) :
-            this.scenarioDefinition.push(new ConstantTimer());
-          break;
-        case ELEMENT_TYPE.JSR223Processor:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor()) :
-            this.scenarioDefinition.push(new JSR223Processor());
-          break;
-        case ELEMENT_TYPE.JSR223PreProcessor:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
-            this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
-          break;
-        case ELEMENT_TYPE.JSR223PostProcessor:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
-            this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
-          break;
-        case ELEMENT_TYPE.Assertions:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new Assertions()) :
-            this.scenarioDefinition.push(new Assertions());
-          break;
-        case ELEMENT_TYPE.Extract:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new Extract()) :
-            this.scenarioDefinition.push(new Extract());
-          break;
-        case ELEMENT_TYPE.CustomizeReq:
-          this.customizeRequest = {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false};
-          this.customizeVisible = true;
-          break;
-        case  ELEMENT_TYPE.LoopController:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new LoopController()) :
-            this.scenarioDefinition.push(new LoopController());
-          break;
-        case ELEMENT_TYPE.TransactionController:
-          this.selectedTreeNode !== undefined ? this.selectedTreeNode.hashTree.push(new TransactionController()) :
-            this.scenarioDefinition.push(new TransactionController());
-          break;
-        case ELEMENT_TYPE.scenario:
-          this.isBtnHide = true;
-          this.$refs.scenarioRelevance.open();
-          break;
-        default:
-          this.$refs.apiImport.open();
-          break;
-      }
-      if (this.selectedNode) {
-        this.selectedNode.expanded = true;
-      }
-      this.sort();
+      setComponent(type, this);
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
@@ -763,6 +669,8 @@ export default {
         // 添加debug结果
         if (this.debugResult && this.debugResult.get(arr[i].id + arr[i].name)) {
           arr[i].requestResult = this.debugResult.get(arr[i].id + arr[i].name);
+          arr[i].debug = this.debug;
+          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult.success);
         }
       }
     },
@@ -794,6 +702,7 @@ export default {
         // 添加debug结果
         if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
           this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
+          this.scenarioDefinition[i].debug = this.debug;
         }
       }
     },
@@ -928,7 +837,10 @@ export default {
       if (this.scenarioDefinition.length < 1) {
         return;
       }
-      // this.debug = true;
+      this.debug = true;
+      this.debugLoading = true;
+      this.stopDebug = "";
+      this.clearDebug();
       /*触发执行操作*/
       this.$refs['currentScenario'].validate((valid) => {
         if (valid) {
@@ -955,11 +867,7 @@ export default {
                 onSampleError: this.onSampleError,
               };
               this.reportId = getUUID().substring(0, 8);
-              // this.editScenario().then(() => {
-              //
-              // })
             })
-
           })
         }
       })
@@ -1167,10 +1075,10 @@ export default {
     }
     ,
     runRefresh() {
-      if(!this.debug) {
+      if (!this.debug) {
         this.debugVisible = true;
         this.loading = false;
-      }else{
+      } else {
         this.getReport();
       }
     },
@@ -1463,7 +1371,6 @@ export default {
 .alt-ico:hover {
   color: black;
   cursor: pointer;
-  font-size: 18px;
 }
 
 .scenario-name {

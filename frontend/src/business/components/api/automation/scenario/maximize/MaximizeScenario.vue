@@ -17,6 +17,10 @@
           <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
             <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" @click="disableAll"/>
           </el-tooltip>
+          <span class="ms-debug-result" v-if="debug">
+            {{ reqTotalTime }} ms 请求 {{ reqTotal }} 成功 {{ reqSuccess }} 失败 {{ reqError }}
+          </span>
+
           <el-tree node-key="resourceId"
                    :props="props"
                    :data="scenarioDefinition"
@@ -175,9 +179,15 @@ export default {
     moduleOptions: Array,
     currentScenario: {},
     type: String,
+    debug: Boolean,
+    reloadDebug: String,
     stepReEnable: Boolean,
     scenarioDefinition: Array,
     envMap: Map,
+    reqTotal: Number,
+    reqSuccess: Number,
+    reqError: Number,
+    reqTotalTime: Number,
   },
   components: {
     MsVariableList,
@@ -242,6 +252,7 @@ export default {
       debugResult: new Map,
       expandedStatus: false,
       stepEnable: true,
+      debugLoading: false,
     }
   },
   created() {
@@ -255,6 +266,9 @@ export default {
   watch: {
     envMap() {
       this.projectEnvMap = this.envMap;
+    },
+    reloadDebug() {
+      this.reload();
     }
   },
   directives: {OutsideClick},
@@ -1197,5 +1211,11 @@ export default {
 
 .ms-open-btn-left {
   margin-left: 30px;
+}
+
+.ms-debug-result {
+  float: right;
+  margin-right: 30px;
+  margin-top: 3px;
 }
 </style>

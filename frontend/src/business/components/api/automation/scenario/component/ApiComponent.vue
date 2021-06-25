@@ -20,7 +20,13 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
         <span class="ms-tag">{{ getProjectName(request.projectId) }}</span>
       </template>
-
+      <template v-slot:debugStepCode>
+        <el-tooltip :content="request.requestResult.responseResult.responseCode" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
+           <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'">
+            {{ request.requestResult.responseResult.responseCode }}
+          </span>
+        </el-tooltip>
+      </template>
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top">
           <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
@@ -30,35 +36,34 @@
       <!--请求内容-->
       <template v-slot:request>
         <legend style="width: 100%">
-        <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
-        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-api-request-form v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
-                             :isShowEnable="true"
-                             :referenced="true"
-                             :headers="request.headers "
-                             :is-read-only="isCompReadOnly"
-                             :request="request"/>
-        <esb-definition v-if="showXpackCompnent&&request.esbDataStruct!=null"
-                        v-xpack
-                        :request="request"
-                        :showScript="false"
-                        :is-read-only="isCompReadOnly"
-                        ref="esbDefinition"/>
-<!--        <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "-->
-<!--                                 :request="request"-->
-<!--                                 :is-read-only="isCompReadOnly"-->
-<!--                                 :showScript="false"/>-->
-        <ms-tcp-format-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
-                                  :is-read-only="isCompReadOnly"
-                                  :show-script="false" :request="request"/>
-        <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-                                 :request="request"
-                                 :is-read-only="isCompReadOnly"
-                                 :showScript="false"/>
-        <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+          <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
+          <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+          <ms-api-request-form v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
+                               :isShowEnable="true"
+                               :referenced="true"
+                               :headers="request.headers "
+                               :is-read-only="isCompReadOnly"
+                               :request="request"/>
+
+          <esb-definition v-if="showXpackCompnent&&request.esbDataStruct!=null"
+                          v-xpack
+                          :request="request"
+                          :showScript="false"
+                          :is-read-only="isCompReadOnly" ref="esbDefinition"/>
+
+          <ms-tcp-format-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
+                                    :is-read-only="isCompReadOnly"
+                                    :show-script="false" :request="request"/>
+
+          <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
                                    :request="request"
                                    :is-read-only="isCompReadOnly"
                                    :showScript="false"/>
+
+          <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+                                     :request="request"
+                                     :is-read-only="isCompReadOnly"
+                                     :showScript="false"/>
         </legend>
       </template>
       <!-- 执行结果内容 -->
@@ -94,8 +99,7 @@
 
 <script>
 import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-// import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
-import MsTcpFormatParameters from  "../../../definition/components/request/tcp/TcpFormatParameters";
+import MsTcpFormatParameters from "../../../definition/components/request/tcp/TcpFormatParameters";
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
 import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
@@ -104,6 +108,7 @@ import {getUUID, getCurrentProjectID} from "@/common/js/utils";
 import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
+import TemplateComponent from "@/business/components/track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
@@ -133,6 +138,7 @@ export default {
     envMap: Map
   },
   components: {
+    TemplateComponent,
     CustomizeReqInfo,
     ApiBaseComponent, ApiResponseComponent,
     MsSqlBasisParameters, MsTcpFormatParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
@@ -147,6 +153,7 @@ export default {
       isShowInput: false,
       showXpackCompnent: false,
       environment: {},
+      result: {},
     }
   },
   created() {
@@ -203,14 +210,14 @@ export default {
       }
       return {};
     },
-    isCompReadOnly(){
-      if(this.request){
-        if(this.request.disabled){
+    isCompReadOnly() {
+      if (this.request) {
+        if (this.request.disabled) {
           return this.request.disabled;
-        }else {
+        } else {
           return false;
         }
-      }else {
+      } else {
         return false;
       }
     },
@@ -462,6 +469,25 @@ export default {
 }
 
 .ms-tag {
-  margin-left: 20px;
+  margin-left: 10px;
+}
+
+.ms-step-debug-code {
+  display: inline-block;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 100px;
+}
+
+.ms-req-error {
+  color: #F56C6C;
+}
+
+.ms-req-success {
+  color: #67C23A;
 }
 </style>
