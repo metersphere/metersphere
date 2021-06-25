@@ -909,27 +909,104 @@ public class UserService {
      * @param request
      */
     public void batchProcessUserInfo(UserBatchProcessRequest request) {
-        List<String> userIdList = this.selectIdByUserRequest(request);
         String batchType = request.getBatchType();
-        for (String userID : userIdList) {
-            Map<String, List<String>> roleResourceIdMap = new HashMap<>();
-            if (StringUtils.equals(BatchProcessUserInfoType.ADD_WORKSPACE.name(), batchType)) {
-                //添加工作空间时，默认赋予只读用户权限
-                String userRole = RoleConstants.TEST_VIEWER;
-                List<String> workspaceID = request.getBatchProcessValue();
-                if (workspaceID != null && !workspaceID.isEmpty()) {
-                    roleResourceIdMap.put(userRole, workspaceID);
+        if (StringUtils.equals(BatchProcessUserInfoType.ADD_PROJECT.name(), batchType)) {
+            batchAddUserToProject(request);
+        } else {
+            batchAddUserGroup(request);
+        }
+    }
+
+    private void batchAddUserGroup(UserBatchProcessRequest request) {
+        List<String> userIds = this.selectIdByUserRequest(request);
+        // groupId+resourceId e.g. admin+none
+        List<String> groupResources = request.getBatchProcessValue();
+        Map<String, List<String>> sourceMap = new HashMap<>();
+        for (String groupResource : groupResources) {
+            String[] split = groupResource.split("\\+");
+            String groupId = split[0];
+            String sourceId = split[1];
+            if (sourceMap.get(groupId) == null) {
+                List<String> list = new ArrayList<>();
+                list.add(sourceId);
+                sourceMap.put(groupId, list);
+            } else {
+                sourceMap.get(groupId).add(sourceId);
+            }
+        }
+
+        for (String userId : userIds) {
+            Set<String> set = sourceMap.keySet();
+            for (String group : set) {
+                Group gp = groupMapper.selectByPrimaryKey(group);
+                if (gp != null) {
+                    if (StringUtils.equals(UserGroupType.SYSTEM, gp.getType())) {
+                        UserGroupExample userGroupExample = new UserGroupExample();
+                        userGroupExample.createCriteria().andGroupIdEqualTo(group).andUserIdEqualTo(userId);
+                        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                        if (CollectionUtils.isEmpty(userGroups)) {
+                            UserGroup userGroup = new UserGroup();
+                            userGroup.setId(UUID.randomUUID().toString());
+                            userGroup.setGroupId(group);
+                            userGroup.setSourceId("system");
+                            userGroup.setUserId(userId);
+                            userGroup.setUpdateTime(System.currentTimeMillis());
+                            userGroup.setCreateTime(System.currentTimeMillis());
+                            userGroupMapper.insertSelective(userGroup);
+                        }
+                    } else {
+                        // 组织、工作空间、项目
+                        UserGroupExample userGroupExample = new UserGroupExample();
+                        userGroupExample.createCriteria().andGroupIdEqualTo(group).andUserIdEqualTo(userId);
+                        List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+                        List<String> sourceIds = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+                        List<String> list = sourceMap.get(group);
+                        list.removeAll(sourceIds);
+                        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                        UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+                        for (String sourceId : list) {
+                            UserGroup userGroup = new UserGroup();
+                            userGroup.setId(UUID.randomUUID().toString());
+                            userGroup.setUserId(userId);
+                            userGroup.setGroupId(group);
+                            userGroup.setSourceId(sourceId);
+                            userGroup.setCreateTime(System.currentTimeMillis());
+                            userGroup.setUpdateTime(System.currentTimeMillis());
+                            mapper.insertSelective(userGroup);
+                        }
+                        sqlSession.flushStatements();
+                    }
                 }
-            } else if (StringUtils.equals(BatchProcessUserInfoType.ADD_USER_ROLE.name(), batchType)) {
-                roleResourceIdMap = this.genRoleResourceMap(request.getBatchProcessValue());
             }
-            if (!roleResourceIdMap.isEmpty()) {
-                UserRoleExample userRoleExample = new UserRoleExample();
-                userRoleExample.createCriteria().andUserIdEqualTo(userID);
-                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
-                UserRequest user = this.convert2UserRequest(userID, roleResourceIdMap, userRoles);
-                this.addUserWorkspaceAndRole(user, userRoles);
+        }
+    }
+
+    private void batchAddUserToProject(UserBatchProcessRequest request) {
+        List<String> userIds = this.selectIdByUserRequest(request);
+        String toSetGroup = UserGroupConstants.READ_ONLY;
+        List<String> projectIds = request.getBatchProcessValue();
+        for (String userId : userIds) {
+            UserGroupExample userGroupExample = new UserGroupExample();
+            userGroupExample
+                    .createCriteria()
+                    .andUserIdEqualTo(userId)
+                    .andGroupIdEqualTo(toSetGroup);
+            List<UserGroup> userGroups = userGroupMapper.selectByExample(userGroupExample);
+            List<String> exist = userGroups.stream().map(UserGroup::getSourceId).collect(Collectors.toList());
+            projectIds.removeAll(exist);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            UserGroupMapper mapper = sqlSession.getMapper(UserGroupMapper.class);
+            for (String projectId : projectIds) {
+                UserGroup userGroup = new UserGroup();
+                userGroup.setId(UUID.randomUUID().toString());
+                userGroup.setUserId(userId);
+                userGroup.setGroupId(toSetGroup);
+                userGroup.setSourceId(projectId);
+                userGroup.setCreateTime(System.currentTimeMillis());
+                userGroup.setUpdateTime(System.currentTimeMillis());
+                mapper.insertSelective(userGroup);
             }
+            sqlSession.flushStatements();
         }
     }
 
