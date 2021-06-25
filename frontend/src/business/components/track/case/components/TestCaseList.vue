@@ -17,8 +17,9 @@
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
-      field-key="TRACK_TEST_CASE"
+      :field-key="tableHeaderKey"
       @refresh="initTableData"
+      @saveSortField="saveSortField"
       :custom-fields="testCaseTemplate.customFields"
       ref="table">
 
@@ -102,6 +103,16 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </ms-table-column>
+        <ms-table-column prop="createTime"
+                         :field="item"
+                         :fields-width="fieldsWidth"
+                         :label="$t('commons.create_time')"
+                         sortable
+                         min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column >
 
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="field.name === '用例等级' ? priorityFilters : null"
@@ -163,10 +174,10 @@ import {
   deepClone,
   getCustomFieldBatchEditOption,
   getCustomFieldValue,
-  getCustomTableWidth,
+  getCustomTableWidth, getLastTableSortField,
   getPageInfo,
   getTableHeaderWithCustomFields,
-  initCondition,
+  initCondition, saveLastTableSortField,
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
@@ -207,6 +218,7 @@ export default {
   data() {
     return {
       type: TEST_CASE_LIST,
+      tableHeaderKey:"TRACK_TEST_CASE",
       screenHeight: 'calc(100vh - 310px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
@@ -307,6 +319,10 @@ export default {
   created: function () {
     this.$emit('setCondition', this.condition);
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
@@ -599,6 +615,21 @@ export default {
         this.$refs.testBatchMove.close();
         this.refresh();
       });
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     }
   }
 };

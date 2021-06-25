@@ -389,7 +389,11 @@ export default {
         id = this.testCase.caseId;
       }
       this.result = this.$get('/test/case/comment/list/' + id, res => {
-        this.comments = res.data;
+        if(res.data){
+          this.comments = null;
+          this.comments = res.data;
+        }
+
       })
     },
     initData(testCase) {

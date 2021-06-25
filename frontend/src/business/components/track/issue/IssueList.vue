@@ -20,7 +20,8 @@
           :screen-height="screenHeight"
           @handlePageChange="getIssues"
           :fields.sync="fields"
-          field-key="ISSUE_LIST"
+          :field-key="tableHeaderKey"
+          @saveSortField="saveSortField"
           @refresh="getIssues"
           :custom-fields="issueTemplate.customFields"
           ref="table"
@@ -77,6 +78,17 @@
             </span>
             </template>
           </ms-table-column>
+        <ms-table-column prop="createTime"
+                       :field="item"
+                       :fields-width="fieldsWidth"
+                       :label="$t('commons.create_time')"
+                       sortable
+                       min-width="180px">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </ms-table-column >
+
 
           <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
 
@@ -128,7 +140,7 @@ import {getIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
-  getPageInfo, getTableHeaderWithCustomFields,
+  getPageInfo, getTableHeaderWithCustomFields,saveLastTableSortField,getLastTableSortField
 } from "@/common/js/tableUtils";
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
@@ -150,6 +162,7 @@ export default {
     return {
       page: getPageInfo(),
       fields: [],
+      tableHeaderKey:"ISSUE_LIST",
       fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
       screenHeight: 'calc(100vh - 290px)',
       operators: [
@@ -211,6 +224,10 @@ export default {
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
+      let orderArr = this.getSortField();
+      if(orderArr){
+        this.page.condition.orders = orderArr;
+      }
       this.page.result = getIssues(this.page);
     },
     handleEdit(data) {
@@ -237,6 +254,21 @@ export default {
         return false;
       }
       return true;
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     }
   }
 };
