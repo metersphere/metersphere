@@ -1,9 +1,10 @@
 package io.metersphere.api.dto;
 
-import lombok.AllArgsConstructor;
+import io.metersphere.base.domain.FileMetadata;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,6 +19,7 @@ public class JmxInfoDTO {
     private String xml;
     private String id;
     private Map<String, String> attachFiles;
+    private List<FileMetadata> fileMetadataList;
 
     public JmxInfoDTO(String name,String xml,Map<String, String> attachFiles){
         this.name = name;

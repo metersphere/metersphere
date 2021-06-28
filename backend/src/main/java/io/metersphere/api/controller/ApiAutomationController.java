@@ -279,6 +279,5 @@ public class ApiAutomationController {
     public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
     }
-
 }
 
