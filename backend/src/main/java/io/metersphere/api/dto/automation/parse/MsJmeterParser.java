@@ -124,7 +124,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             }
         }
         ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
-        scenarioWithBLOBs.setName(msScenario.getName());
+        scenarioWithBLOBs.setName(request.getFileName());
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
             scenarioWithBLOBs.setStepTotal(msScenario.getHashTree().size());
