@@ -33,7 +33,6 @@
       </el-dropdown>
       <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
       <font-awesome-icon class="ms-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
-      <!-- <i class="el-icon-close alt-ico-close" @click="close"/>-->
     </div>
   </div>
 </template>
@@ -191,7 +190,7 @@ export default {
 
 .ms-header-right {
   float: right;
-  width: 540px;
+  width: 520px;
   margin-top: 4px;
   z-index: 1;
 }

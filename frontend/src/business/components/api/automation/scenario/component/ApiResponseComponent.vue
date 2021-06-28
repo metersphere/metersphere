@@ -24,7 +24,7 @@ import MsRequestMetric from "../../../definition/components/response/RequestMetr
 export default {
   name: "ApiResponseComponent",
   components: {ElCollapseTransition, MsRequestResultTail, ApiBaseComponent, MsRequestMetric},
-  props: {apiItem: {}, result: {}, currentProtocol: String},
+  props: {apiItem: {}, result: {}, currentProtocol: String, apiActive:{type:Boolean,default:false}},
   data() {
     return {
       isActive: false,
@@ -40,6 +40,9 @@ export default {
     } else {
       this.response = this.result;
       // this.isActive = true;
+    }
+    if(this.apiActive){
+      this.isActive = true
     }
   },
   watch: {

@@ -918,6 +918,10 @@ export default {
       loop_return_val: "Define variable name",
       loop_input_val: "Variable prefix",
       loop_message: "There is more than one request in the current cycle and cannot be closed",
+      env_message: "Please select the operating environment for the project to which this step belongs in the environment configuration",
+      request_total: "request",
+      request_success: "success",
+      request_error: "error",
     },
     environment: {
       create: 'Create environment',

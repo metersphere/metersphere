@@ -137,13 +137,13 @@
                   <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
                 </el-col>
                 <el-col :span="8">
-                  <div style=" float: right">
+                  <div style="float: right;width: 300px">
                     <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
                                  :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                  :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
-                                 :project-list="projectList" ref="envPopover" style="margin-right: 10px"/>
-                    <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand" v-if="!debugLoading">
+                                 :project-list="projectList" ref="envPopover" class="ms-message-right"/>
+                    <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-if="!debugLoading">
                       {{ $t('api_test.request.debug') }}
                       <el-dropdown-menu slot="dropdown">
                         <el-dropdown-item>{{ $t('test_track.case.steps') }}</el-dropdown-item>
@@ -177,7 +177,10 @@
                 <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="disableAll"/>
               </el-tooltip>
               <div class="ms-debug-result" v-if="debug">
-                {{ reqTotalTime }} ms 请求 {{ reqTotal }} 成功 {{ reqSuccess }} 失败 {{ reqError }}
+                <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
+                <span class="ms-message-right">{{$t('api_test.automation.request_total')}} {{ reqTotal }}</span>
+                <span class="ms-message-right">{{$t('api_test.automation.request_success')}} {{ reqSuccess }}</span>
+                <span class="ms-message-right"> {{$t('api_test.automation.request_error')}} {{ reqError }}</span>
               </div>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
@@ -837,8 +840,6 @@ export default {
       if (this.scenarioDefinition.length < 1) {
         return;
       }
-      this.debug = true;
-      this.debugLoading = true;
       this.stopDebug = "";
       this.clearDebug();
       /*触发执行操作*/
@@ -867,6 +868,8 @@ export default {
                 onSampleError: this.onSampleError,
               };
               this.reportId = getUUID().substring(0, 8);
+              this.debug = true;
+              this.debugLoading = true;
             })
           })
         }
@@ -1404,5 +1407,9 @@ export default {
 
 .ms-open-btn-left {
   margin-left: 35px;
+}
+
+.ms-message-right {
+  margin-right: 10px;
 }
 </style>

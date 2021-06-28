@@ -24,11 +24,9 @@
     </template>
 
     <template v-slot:debugStepCode>
-      <el-tooltip :content="getCode()" v-if="node.data.debug">
-          <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'">
-            {{ getCode() }}
-          </span>
-      </el-tooltip>
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+        {{ getCode() }}
+      </span>
     </template>
   </api-base-component>
 </template>
@@ -142,5 +140,15 @@
 
   .ms-req-success {
     color: #67C23A;
+  }
+  .ms-step-debug-code {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 100px;
   }
 </style>

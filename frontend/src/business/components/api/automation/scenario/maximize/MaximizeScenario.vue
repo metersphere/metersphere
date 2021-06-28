@@ -18,9 +18,13 @@
             <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" @click="disableAll"/>
           </el-tooltip>
           <span class="ms-debug-result" v-if="debug">
-            {{ reqTotalTime }} ms 请求 {{ reqTotal }} 成功 {{ reqSuccess }} 失败 {{ reqError }}
+              <div class="ms-debug-result" v-if="debug">
+                <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
+                <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
+                <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
+                <span class="ms-message-right"> {{ $t('api_test.automation.request_error') }} {{ reqError }}</span>
+              </div>
           </span>
-
           <el-tree node-key="resourceId"
                    :props="props"
                    :data="scenarioDefinition"
@@ -141,15 +145,6 @@
 
 <script>
 import {API_STATUS, PRIORITY} from "../../../definition/model/JsonData";
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {
-  Assertions,
-  ConstantTimer,
-  Extract,
-  IfController,
-  JSR223Processor,
-  LoopController
-} from "../../../definition/model/ApiTestModel";
 import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
 import MsApiCustomize from "../ApiCustomize";
@@ -171,6 +166,7 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
 import MsAsideContainer from "./MsLeftContainer";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {buttons, setComponent} from '../menu/Menu';
 
 let jsonPath = require('jsonpath');
 export default {
@@ -273,119 +269,7 @@ export default {
   },
   directives: {OutsideClick},
   computed: {
-    buttons() {
-      let buttons = [
-        {
-          title: this.$t('api_test.definition.request.extract_param'),
-          show: this.showButton("Extract"),
-          titleColor: "#015478",
-          titleBgColor: "#E6EEF2",
-          icon: "colorize",
-          click: () => {
-            this.addComponent('Extract')
-          }
-        },
-        {
-          title: this.$t('api_test.definition.request.post_script'),
-          show: this.showButton("JSR223PostProcessor"),
-          titleColor: "#783887",
-          titleBgColor: "#F2ECF3",
-          icon: "skip_next",
-          click: () => {
-            this.addComponent('JSR223PostProcessor')
-          }
-        },
-        {
-          title: this.$t('api_test.definition.request.pre_script'),
-          show: this.showButton("JSR223PreProcessor"),
-          titleColor: "#B8741A",
-          titleBgColor: "#F9F1EA",
-          icon: "skip_previous",
-          click: () => {
-            this.addComponent('JSR223PreProcessor')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.customize_script'),
-          show: this.showButton("JSR223Processor"),
-          titleColor: "#7B4D12",
-          titleBgColor: "#F1EEE9",
-          icon: "code",
-          click: () => {
-            this.addComponent('JSR223Processor')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.if_controller'),
-          show: this.showButton("IfController"),
-          titleColor: "#E6A23C",
-          titleBgColor: "#FCF6EE",
-          icon: "alt_route",
-          click: () => {
-            this.addComponent('IfController')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.loop_controller'),
-          show: this.showButton("LoopController"),
-          titleColor: "#02A7F0",
-          titleBgColor: "#F4F4F5",
-          icon: "next_plan",
-          click: () => {
-            this.addComponent('LoopController')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.wait_controller'),
-          show: this.showButton("ConstantTimer"),
-          titleColor: "#67C23A",
-          titleBgColor: "#F2F9EE",
-          icon: "access_time",
-          click: () => {
-            this.addComponent('ConstantTimer')
-          }
-        },
-        {
-          title: this.$t('api_test.definition.request.assertions_rule'),
-          show: this.showButton("Assertions"),
-          titleColor: "#A30014",
-          titleBgColor: "#F7E6E9",
-          icon: "next_plan",
-          click: () => {
-            this.addComponent('Assertions')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.customize_req'),
-          show: this.showButton("CustomizeReq"),
-          titleColor: "#008080",
-          titleBgColor: "#EBF2F2",
-          icon: "tune",
-          click: () => {
-            this.addComponent('CustomizeReq')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.scenario_import'),
-          show: this.showButton("scenario"),
-          titleColor: "#606266",
-          titleBgColor: "#F4F4F5",
-          icon: "movie",
-          click: () => {
-            this.addComponent('scenario')
-          }
-        },
-        {
-          title: this.$t('api_test.automation.api_list_import'),
-          show: this.showButton("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"),
-          titleColor: "#F56C6C",
-          titleBgColor: "#FCF1F1",
-          icon: "api",
-          click: this.apiListImport
-        }
-      ];
-      return buttons.filter(btn => btn.show);
-    },
+    buttons,
     projectId() {
       return getCurrentProjectID();
     },
@@ -438,54 +322,7 @@ export default {
       return false;
     },
     addComponent(type) {
-      switch (type) {
-        case ELEMENT_TYPE.IfController:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new IfController()) :
-            this.scenarioDefinition.push(new IfController());
-          break;
-        case ELEMENT_TYPE.ConstantTimer:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new ConstantTimer()) :
-            this.scenarioDefinition.push(new ConstantTimer());
-          break;
-        case ELEMENT_TYPE.JSR223Processor:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor()) :
-            this.scenarioDefinition.push(new JSR223Processor());
-          break;
-        case ELEMENT_TYPE.JSR223PreProcessor:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PreProcessor"})) :
-            this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PreProcessor"}));
-          break;
-        case ELEMENT_TYPE.JSR223PostProcessor:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
-            this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
-          break;
-        case ELEMENT_TYPE.Assertions:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new Assertions()) :
-            this.scenarioDefinition.push(new Assertions());
-          break;
-        case ELEMENT_TYPE.Extract:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new Extract()) :
-            this.scenarioDefinition.push(new Extract());
-          break;
-        case ELEMENT_TYPE.CustomizeReq:
-          this.customizeRequest = {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false};
-          this.customizeVisible = true;
-          break;
-        case  ELEMENT_TYPE.LoopController:
-          this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new LoopController()) :
-            this.scenarioDefinition.push(new LoopController());
-          break;
-        case ELEMENT_TYPE.scenario:
-          this.$refs.scenarioRelevance.open();
-          break;
-        default:
-          this.$refs.apiImport.open();
-          break;
-      }
-      if (this.selectedNode) {
-        this.selectedNode.expanded = true;
-      }
-      this.sort();
+      setComponent(type, this);
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
@@ -1218,4 +1055,9 @@ export default {
   margin-right: 30px;
   margin-top: 3px;
 }
+
+.ms-message-right {
+  margin-right: 10px;
+}
+
 </style>
