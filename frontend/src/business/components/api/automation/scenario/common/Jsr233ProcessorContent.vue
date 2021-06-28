@@ -43,7 +43,7 @@
             },
             {
               title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
-              value: 'vars.put(${__metersphere_env_id}+"key","value")',
+              value: 'vars.put(${__metersphere_env_id}+"key","value");\n'+'vars.put("key","value");',
             },
             {
               title: this.$t('api_test.request.processor.code_add_report_length'),
