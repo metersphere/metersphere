@@ -917,6 +917,10 @@ export default {
       loop_return_val: "定义变量名称",
       loop_input_val: "变量前缀",
       loop_message: "当前循环下超过一个请求，不能关闭状态",
+      env_message: "请在环境配置中为该步骤所属项目选择运行环境",
+      request_total: "请求",
+      request_success: "成功",
+      request_error: "失败",
     },
     environment: {
       create: '创建环境',

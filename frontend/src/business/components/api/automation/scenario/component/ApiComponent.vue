@@ -21,11 +21,9 @@
         <span class="ms-tag">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
-        <el-tooltip :content="request.requestResult.responseResult.responseCode" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
-           <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'">
-            {{ request.requestResult.responseResult.responseCode }}
-          </span>
-        </el-tooltip>
+         <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
+          {{ request.requestResult.success ? 'success' : 'error' }}
+        </span>
       </template>
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top">
@@ -83,7 +81,7 @@
                                    :show-options-button="false" :show-header="true" :result="request.requestResult"/>
         </div>
         <div v-else>
-          <api-response-component :currentProtocol="request.protocol" :result="request.requestResult"/>
+          <api-response-component :currentProtocol="request.protocol" :apiActive="apiActive" :result="request.requestResult"/>
         </div>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)" v-if="!request.referenced">
@@ -154,6 +152,7 @@ export default {
       showXpackCompnent: false,
       environment: {},
       result: {},
+      apiActive: false,
     }
   },
   created() {
@@ -372,18 +371,19 @@ export default {
           this.expandedNode.splice(this.expandedNode.indexOf(this.request.resourceId), 1);
         }
       }
+      this.apiActive = this.request.active;
       this.reload();
     },
     run() {
       if (this.isApiImport || this.request.isRefEnvironment) {
         if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
           if (!this.envMap || this.envMap.size === 0) {
-            this.$warning("请在环境配置中为该步骤所属项目选择运行环境！");
+            this.$warning(this.$t('api_test.automation.env_message'));
             return false;
           } else if (this.envMap && this.envMap.size > 0) {
             const env = this.envMap.get(this.request.projectId);
             if (!env) {
-              this.$warning("请在环境配置中为该步骤所属项目选择运行环境！");
+              this.$warning(this.$t('api_test.automation.env_message'));
               return false;
             }
           }
@@ -480,7 +480,7 @@ export default {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
-  width: 100px;
+  width: 60px;
 }
 
 .ms-req-error {
