@@ -1,6 +1,6 @@
 <template>
   <el-dialog class="user-cascade" :title="title" :visible.sync="dialogVisible"
-             @close="close">
+             @close="close" v-loading="loading">
     <div class="block">
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm">
         <el-form-item prop="project" label-width="0px">
@@ -37,7 +37,7 @@ export default {
     let validateSelect = (rule, value, callback) => {
       let checkNodes = this.$refs.cascadeSelector.getCheckedNodes(true);
       if (checkNodes.length === 0) {
-        callback(new Error("请选择项目"));
+        callback(new Error(this.$t('user.select_group')));
       }
       callback();
     };
@@ -48,7 +48,7 @@ export default {
       },
       rules: {
         project: [
-          {validator: validateSelect, message: "请选择项目", trigger: 'change'}
+          {validator: validateSelect, message: this.$t('user.select_group'), trigger: 'change'}
         ],
       },
       selectedIds: [],
@@ -70,9 +70,7 @@ export default {
         }
       },
       dialogVisible: false,
-      isLoading: false,
-      batchProcessType: '',
-      options: [],
+      loading: false,
     };
   },
   props: {
@@ -84,22 +82,16 @@ export default {
   methods: {
     close() {
       removeGoBackListener(this.close);
+      this.loading = false;
       this.dialogVisible = false;
       this.selectedIds = [];
       ++this.isResourceShow;
-      this.options = [];
       this.$refs['ruleForm'].resetFields();
     },
-    open(batchProcessType, optionsParam) {
+    open() {
       listenGoBack(this.close);
       this.dialogVisible = true;
-      this.batchProcessType = batchProcessType;
-      this.options = optionsParam;
-      if (this.batchProcessType === 'ADD_PROJECT') {
-        this.rules.project[0].message = "请选择项目";
-      } else {
-        this.rules.project[0].message = "请选择用户组";
-      }
+      this.rules.project[0].message = this.$t('user.select_group');
     },
     confirm() {
       this.$refs.ruleForm.validate((valid) => {
@@ -115,7 +107,8 @@ export default {
             }
             selectValueArr.push(idString);
           }
-          this.$emit('confirm', this.batchProcessType, selectValueArr)
+          this.$emit('confirm', 'ADD_USER_GROUP', selectValueArr);
+          this.loading = true;
         } else {
           return false;
         }
