@@ -1766,6 +1766,7 @@ public class ApiAutomationService {
                         }
                     }
                     scenrioExportJmx.setVersion(item.getVersion());
+                    scenrioExportJmx.setFileMetadataList(dto.getFileMetadataList());
                     resList.add(scenrioExportJmx);
                 }
             }
