@@ -530,11 +530,13 @@ public class APITestService {
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
 
+        List<FileMetadata> fileMetadataList = new ArrayList<>();
         for (String filePath: attachmentFilePathList) {
             File file  = new File(filePath);
             if(file.exists() && file.isFile()){
                 try{
                     FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file));
+                    fileMetadataList.add(fileMetadata);
                     attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
                 }catch (Exception e){
                     e.printStackTrace();
@@ -543,7 +545,7 @@ public class APITestService {
         }
 
         JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx",jmxString,attachmentFiles);
-
+        returnDTO.setFileMetadataList(fileMetadataList);
         return returnDTO;
     }
 
