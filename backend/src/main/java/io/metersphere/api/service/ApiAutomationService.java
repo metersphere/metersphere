@@ -1762,20 +1762,9 @@ public class ApiAutomationService {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
                     ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true).getXml());
-                    //扫描需要哪些文件
                     JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getName(), true);
-                    if (MapUtils.isNotEmpty(dto.getAttachFiles())) {
-                        List<String> fileList = new ArrayList<>();
-                        for (String fileName : dto.getAttachFiles().values()) {
-                            if (!fileList.contains(fileName)) {
-                                fileList.add(fileName);
-                            }
-                        }
-                        if (!fileList.isEmpty()) {
-                            scenrioExportJmx.setFiles(fileList);
-                        }
-                    }
                     scenrioExportJmx.setVersion(item.getVersion());
+                    //扫描需要哪些文件
                     scenrioExportJmx.setFileMetadataList(dto.getFileMetadataList());
                     resList.add(scenrioExportJmx);
                 }
