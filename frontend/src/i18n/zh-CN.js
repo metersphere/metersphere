@@ -471,7 +471,12 @@ export default {
     button: {
       add_workspace_batch: '批量添加到工作空间',
       add_user_role_batch: '批量添加角色',
-    }
+    },
+    select_project: '请选择项目',
+    select_group: '请选择用户组',
+    add_user_group_batch: '批量添加用户组',
+    add_project_batch : '批量添加到项目',
+    add_project_batch_tip: '默认为成员添加只读用户组(系统)',
   },
   group: {
     add: '添加用户组',

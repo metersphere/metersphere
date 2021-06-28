@@ -473,7 +473,12 @@ export default {
     button: {
       add_workspace_batch: 'Batch add user to workspace',
       add_user_role_batch: 'Batch add user role',
-    }
+    },
+    select_project: 'please select project',
+    select_group: 'please select group',
+    add_user_group_batch: 'Batch Add User Group',
+    add_project_batch : 'Batch Add User To Project',
+    add_project_batch_tip: 'Add a read-only user group for members by default (system)',
   },
   group: {
     add: 'Add User Group',

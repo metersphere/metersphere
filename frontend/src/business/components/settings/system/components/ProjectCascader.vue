@@ -1,9 +1,9 @@
 <template>
   <el-dialog class="user-cascade" :title="title" :visible.sync="dialogVisible"
-             @close="close">
+             @close="close" v-loading="loading">
     <div class="block">
       <el-alert
-        title="默认为成员添加只读用户组(系统)"
+        :title="$t('user.add_project_batch_tip')"
         type="info"
         show-icon
         :closable="false"
@@ -43,7 +43,7 @@ export default {
     let validateSelect = (rule, value, callback) => {
       let checkNodes = this.$refs.cascadeSelector.getCheckedNodes(true);
       if (checkNodes.length === 0) {
-        callback(new Error("请选择项目"));
+        callback(new Error(this.$t('user.select_project')));
       }
       callback();
     };
@@ -54,7 +54,7 @@ export default {
       },
       rules: {
         project: [
-          {validator: validateSelect, message: "请选择项目", trigger: 'change'}
+          {validator: validateSelect, message: this.$t('user.select_project'), trigger: 'change'}
         ],
       },
       selectedIds: [],
@@ -78,9 +78,7 @@ export default {
         }
       },
       dialogVisible: false,
-      isLoading: false,
-      batchProcessType: '',
-      options: [],
+      loading: false,
     };
   },
   props: {
@@ -92,22 +90,16 @@ export default {
   methods: {
     close() {
       removeGoBackListener(this.close);
+      this.loading = false;
       this.dialogVisible = false;
       this.selectedIds = [];
       ++this.isResourceShow;
-      this.options = [];
       this.$refs['ruleForm'].resetFields();
     },
-    open(batchProcessType, optionsParam) {
+    open() {
       listenGoBack(this.close);
       this.dialogVisible = true;
-      this.batchProcessType = batchProcessType;
-      this.options = optionsParam;
-      if (this.batchProcessType === 'ADD_PROJECT') {
-        this.rules.project[0].message = "请选择项目";
-      } else {
-        this.rules.project[0].message = "请选择用户组";
-      }
+      this.rules.project[0].message = this.$t('user.select_project');
     },
     confirm() {
       this.$refs.ruleForm.validate((valid) => {
@@ -117,7 +109,8 @@ export default {
           for (let i = 0; i < checkNodes.length; i++) {
             selectValueArr.push(checkNodes[i].value);
           }
-          this.$emit('confirm', this.batchProcessType, selectValueArr)
+          this.$emit('confirm', 'ADD_PROJECT', selectValueArr);
+          this.loading = true;
         } else {
           return false;
         }
