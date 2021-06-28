@@ -164,6 +164,49 @@ public class JsonPathUtils {
         }
     }
 
+    /**
+     * 检查一个JSON对象的数据集合是否包含另一个对象（包含）
+     * @param sourceArray
+     * @param matchObj
+     * @return
+     */
+    public static boolean checkJsonArrayCompliance(JSONArray sourceArray, JSONObject matchObj) {
+        if (sourceArray == null && matchObj == null) {
+            return true;
+        } else if (sourceArray != null && matchObj != null) {
+            boolean isMatch = false;
+            try {
+                Set<String> matchKeys = matchObj.keySet();
+                for(int sourceIndex = 0;sourceIndex < sourceArray.size();sourceIndex ++){
+                    JSONObject sourceObj = sourceArray.getJSONObject(sourceIndex);
+                    for (String key : matchKeys) {
+                        if (sourceObj.containsKey(key)) {
+                            Object sourceObjItem = sourceObj.get(key);
+                            Object matchObjItem = matchObj.get(key);
+                            isMatch = checkObjCompliance(sourceObjItem, matchObjItem);
+                            if(!isMatch){
+                                break;
+                            }
+                        } else {
+                            isMatch = false;
+                            break;
+                        }
+                    }
+
+                    if(isMatch){
+                        break;
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return isMatch;
+        } else {
+            return false;
+        }
+    }
+
     private static boolean checkObjCompliance(Object sourceObjItem, Object matchObjItem) {
         if (matchObjItem instanceof JSONObject) {
             if (sourceObjItem instanceof JSONObject) {

@@ -683,7 +683,7 @@ public class PerformanceTestService {
 
         deleteLoadTestFiles(testId);
         saveJmxFile(apiScenrioExportJmx, loadTest.getProjectId(), loadTest.getId());
-        saveOtherFile(apiScenrioExportJmx.getFiles(), loadTest.getId());
+        saveOtherFile(apiScenrioExportJmx.getFileMetadataList(), loadTest.getId());
 
     }
 
@@ -696,10 +696,10 @@ public class PerformanceTestService {
         saveLoadTestFile(fileMetadata, loadTestId, 0);
     }
 
-    private void saveOtherFile(List<String> fileNames, String loadTestId) {
-        List<String> files = fileNames;
-        for (int i = 0; i < files.size(); i++) {
-            String fileName = files.get(i);
+    private void saveOtherFile(List<FileMetadata> fileNames, String loadTestId) {
+        for (int i = 0; i < fileNames.size(); i++) {
+            FileMetadata model = fileNames.get(i);
+            String fileName = model.getName();
             File file = FileUtils.getFileByName(fileName);
             saveUploadFile(file, loadTestId, i + 1);
         }

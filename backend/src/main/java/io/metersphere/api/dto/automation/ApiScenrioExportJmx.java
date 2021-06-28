@@ -12,7 +12,6 @@ public class ApiScenrioExportJmx {
     private String name;
     private String jmx;
     private Integer version;
-    List<String> files;
 
     //性能测试引用场景时需要场景下的附件
     private List<FileMetadata> fileMetadataList;
