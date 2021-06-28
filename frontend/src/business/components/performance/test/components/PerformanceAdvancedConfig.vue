@@ -295,8 +295,8 @@ export default {
     csvFiles() {
       if (this.csvConfig && this.csvFiles) {
         this.csvFiles.forEach(f => {
-          f.csvSplit = this.csvConfig[f.name].csvSplit;
-          f.csvHasHeader = this.csvConfig[f.name].csvHasHeader;
+          f.csvSplit = this.csvConfig[f.name]?.csvSplit;
+          f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
         });
       }
     }

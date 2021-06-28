@@ -21,7 +21,8 @@
       <el-table-column prop="tags" min-width="120px"
                        :label="$t('api_test.automation.tag')">
         <template v-slot:default="scope">
-          <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName"
+          <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                  :content="itemName"
                   style="margin-left: 0px; margin-right: 2px"/>
         </template>
       </el-table-column>
@@ -66,7 +67,7 @@ export default {
       total: 0,
       apiScenarios: [],
       selectIds: new Set,
-    }
+    };
   },
   methods: {
     open() {
@@ -101,7 +102,7 @@ export default {
       let condition = {
         projectId: getCurrentProjectID(),
         filters: {status: ["Prepare", "Underway", "Completed"]}
-      }
+      };
       this.projectLoadingResult = this.$post('/api/automation/list/' + this.currentPage + "/" + this.pageSize, condition, res => {
         let data = res.data;
         this.total = data.itemCount;
@@ -111,7 +112,7 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
         });
-      })
+      });
     },
     handleImport() {
       if (this.selectIds.size === 0) {
@@ -133,7 +134,7 @@ export default {
         let data = response.data;
         data.forEach(d => {
           let jmxName = d.name + "_" + new Date().getTime() + ".jmx";
-          let threadGroups = findThreadGroup(d.jmx, jmxName)
+          let threadGroups = findThreadGroup(d.jmx, jmxName);
           threadGroups.forEach(tg => {
             tg.options = {};
             this.scenarios.push(tg);
@@ -146,16 +147,21 @@ export default {
             type: 'JMX',
             updateTime: file.lastModified,
           });
-        })
+          // csv 处理
+          d.fileMetadataList?.forEach(f => {
+            this.fileList.push(f);
+            this.tableData.push(f);
+          });
+        });
 
         this.$emit('fileChange', this.scenarios);
         this.$success(this.$t('test_track.case.import.success'));
         this.loadApiAutomationVisible = false;
-      })
+      });
       this.selectIds.clear();
     },
   }
-}
+};
 </script>
 
 <style scoped>
