@@ -99,7 +99,7 @@
     </el-dialog>
     <user-import ref="userImportDialog" @refreshAll="search"></user-import>
     <project-cascader :title="batchAddTitle" @confirm="cascaderConfirm" ref="cascaderDialog"></project-cascader>
-    <group-cascader :title="'批量添加用户组'" @confirm="cascaderConfirm" ref="groupCascaderDialog"></group-cascader>
+    <group-cascader :title="$t('user.add_user_group_batch')" @confirm="cascaderConfirm" ref="groupCascaderDialog"></group-cascader>
     <edit-user ref="editUser" @refresh="search"/>
   </div>
 </template>
@@ -168,9 +168,7 @@ export default {
       createPath: '/user/special/add',
       updatePath: '/user/special/update',
       editPasswordPath: '/user/special/password',
-      batchAddTitle: "批量选择项目",
-      batchAddProjectOptions:[],
-      batchAddUserRoleOptions:[],
+      batchAddTitle: this.$t('user.add_project_batch'),
       result: {},
       currentUserId: '',
       createVisible: false,
@@ -196,10 +194,10 @@ export default {
       ruleForm: {},
       buttons: [
         {
-          name: "批量添加到项目", handleClick: this.addToProjectBatch
+          name: this.$t('user.add_project_batch'), handleClick: this.addToProjectBatch
         },
         {
-          name: "批量添加用户组", handleClick: this.addUserGroupBatch
+          name: this.$t('user.add_user_group_batch'), handleClick: this.addUserGroupBatch
         }
       ],
       rule: {
@@ -276,10 +274,10 @@ export default {
   },
   methods: {
     create() {
-      this.$refs.editUser.open("Add", "创建用户");
+      this.$refs.editUser.open("Add", this.$t('user.create'));
     },
     edit(row) {
-      this.$refs.editUser.open("Edit", "修改用户", row);
+      this.$refs.editUser.open("Edit", this.$t('user.modify'), row);
     },
     editPassword(row) {
       this.editPasswordVisible = true;
@@ -442,10 +440,10 @@ export default {
       toggleAllSelection(this.$refs.userTable, this.tableData, this.selectRows);
     },
     addToProjectBatch(){
-      this.$refs.cascaderDialog.open('ADD_PROJECT',this.batchAddProjectOptions);
+      this.$refs.cascaderDialog.open();
     },
     addUserGroupBatch(){
-      this.$refs.groupCascaderDialog.open('ADD_USER_GROUP',this.batchAddUserRoleOptions);
+      this.$refs.groupCascaderDialog.open();
     },
     cascaderConfirm(batchProcessTypeParam, selectValueArr){
       if(selectValueArr.length === 0){
@@ -458,9 +456,18 @@ export default {
       this.$post('/user/special/batchProcessUserInfo', params, () => {
         this.$success(this.$t('commons.modify_success'));
         this.search();
-        batchProcessTypeParam === "ADD_PROJECT" ? this.$refs.cascaderDialog.close() :
-          this.$refs.groupCascaderDialog.close();
+        this.cascaderClose(batchProcessTypeParam);
+      }, () => {
+        this.cascaderRequestError(batchProcessTypeParam);
       });
+    },
+    cascaderRequestError(type) {
+      type === "ADD_PROJECT" ? this.$refs.cascaderDialog.loading = false :
+        this.$refs.groupCascaderDialog.loading = false;
+    },
+    cascaderClose(type) {
+      type === "ADD_PROJECT" ? this.$refs.cascaderDialog.close() :
+        this.$refs.groupCascaderDialog.close();
     },
     buildBatchParam(param) {
       param.ids = Array.from(this.selectRows).map(row => row.id);
