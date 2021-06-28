@@ -348,16 +348,25 @@ public class TestPlanReportService {
                     try {
                         JSONObject failurCaseObject = JSONObject.parseObject(failCaseString);
                         if (failurCaseObject.containsKey("apiTestCases") && failurCaseObject.getJSONArray("apiTestCases").size() >= 0) {
-                            status = TestPlanReportStatus.FAILED.name();
-                            return status;
+                            JSONArray array = failurCaseObject.getJSONArray("apiTestCases");
+                            if(array.size() > 0){
+                                status = TestPlanReportStatus.FAILED.name();
+                                return status;
+                            }
                         }
                         if (failurCaseObject.containsKey("loadTestCases") && failurCaseObject.getJSONArray("loadTestCases").size() >= 0) {
-                            status = TestPlanReportStatus.FAILED.name();
-                            return status;
+                            JSONArray array = failurCaseObject.getJSONArray("loadTestCases");
+                            if(array.size() > 0){
+                                status = TestPlanReportStatus.FAILED.name();
+                                return status;
+                            }
                         }
                         if (failurCaseObject.containsKey("scenarioTestCases") && failurCaseObject.getJSONArray("scenarioTestCases").size() >= 0) {
-                            status = TestPlanReportStatus.FAILED.name();
-                            return status;
+                            JSONArray array = failurCaseObject.getJSONArray("scenarioTestCases");
+                            if(array.size() > 0){
+                                status = TestPlanReportStatus.FAILED.name();
+                                return status;
+                            }
                         }
                     } catch (Exception e) {
                         status = TestPlanReportStatus.FAILED.name();

@@ -1,7 +1,9 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONValidator;
 import io.metersphere.api.dto.mockconfig.MockConfigRequest;
 import io.metersphere.api.dto.mockconfig.MockExpectConfigRequest;
 import io.metersphere.api.dto.mockconfig.response.JsonSchemaReturnObj;
@@ -178,10 +180,12 @@ public class MockConfigService {
                 }
                 JSONObject requestObj = model.getRequest();
                 boolean isJsonParam = requestObj.getBoolean("jsonParam");
-                JSONObject mockExpectJson = new JSONObject();
                 if (isJsonParam) {
-                    mockExpectJson = JSONObject.parseObject(requestObj.getString("jsonData"));
+                    if(StringUtils.isEmpty(requestObj.getString("jsonData"))){
+                        return model;
+                    }
                 } else {
+                    JSONObject mockExpectJson = new JSONObject();
                     JSONArray jsonArray = requestObj.getJSONArray("variables");
                     for (int i = 0; i < jsonArray.size(); i++) {
                         JSONObject object = jsonArray.getJSONObject(i);
@@ -197,11 +201,10 @@ public class MockConfigService {
                             mockExpectJson.put(name, value);
                         }
                     }
+                    if (mockExpectJson.isEmpty()) {
+                        return model;
+                    }
                 }
-                if (mockExpectJson.isEmpty()) {
-                    return model;
-                }
-
             }
         }
         for (MockExpectConfigResponse model : mockExpectConfigList) {
@@ -213,7 +216,18 @@ public class MockConfigService {
                 boolean isJsonParam = requestObj.getBoolean("jsonParam");
                 JSONObject mockExpectJson = new JSONObject();
                 if (isJsonParam) {
-                    mockExpectJson = JSONObject.parseObject(requestObj.getString("jsonData"));
+                    String jsonParams = requestObj.getString("jsonData");
+                    JSONValidator jsonValidator = JSONValidator.from(jsonParams);
+                    if(StringUtils.equalsIgnoreCase("Array",jsonValidator.getType().name())){
+                        JSONArray mockExpectArr = JSONArray.parseArray(jsonParams);
+                        for(int expectIndex = 0;expectIndex < mockExpectArr.size(); expectIndex ++){
+                            JSONObject itemObj = mockExpectArr.getJSONObject(expectIndex);
+                            mockExpectJson = itemObj;
+                        }
+                    }else if(StringUtils.equalsIgnoreCase("Object",jsonValidator.getType().name())){
+                        JSONObject mockExpectJsonItem = JSONObject.parseObject(jsonParams);
+                        mockExpectJson = mockExpectJsonItem;
+                    }
                 } else {
                     JSONArray jsonArray = requestObj.getJSONArray("variables");
                     for (int i = 0; i < jsonArray.size(); i++) {
@@ -233,6 +247,99 @@ public class MockConfigService {
                 }
 
                 boolean mathing = JsonPathUtils.checkJsonObjCompliance(reqJsonObj, mockExpectJson);
+                if (mathing) {
+                    returnModel = model;
+                    break;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return returnModel;
+    }
+
+    public MockExpectConfigResponse findExpectConfig(List<MockExpectConfigResponse> mockExpectConfigList, JSONArray reqJsonArray) {
+        MockExpectConfigResponse returnModel = null;
+
+        if (reqJsonArray == null || reqJsonArray.isEmpty()) {
+            for (MockExpectConfigResponse model : mockExpectConfigList) {
+                if (!model.isStatus()) {
+                    continue;
+                }
+                JSONObject requestObj = model.getRequest();
+                boolean isJsonParam = requestObj.getBoolean("jsonParam");
+
+                if (isJsonParam) {
+                    if(StringUtils.isEmpty(requestObj.getString("jsonData"))){
+                        return model;
+                    }
+                } else {
+                    JSONObject mockExpectJson = new JSONObject();
+                    JSONArray jsonArray = requestObj.getJSONArray("variables");
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        String name = "";
+                        String value = "";
+                        if (object.containsKey("name")) {
+                            name = String.valueOf(object.get("name")).trim();
+                        }
+                        if (object.containsKey("value")) {
+                            value = String.valueOf(object.get("value")).trim();
+                        }
+                        if (StringUtils.isNotEmpty(name)) {
+                            mockExpectJson.put(name, value);
+                        }
+                    }
+                    if (mockExpectJson.isEmpty()) {
+                        return model;
+                    }
+                }
+            }
+        }
+        for (MockExpectConfigResponse model : mockExpectConfigList) {
+            try {
+                if (!model.isStatus()) {
+                    continue;
+                }
+                JSONObject requestObj = model.getRequest();
+                boolean isJsonParam = requestObj.getBoolean("jsonParam");
+                boolean mathing = false;
+                if (isJsonParam) {
+                    String jsonParams = requestObj.getString("jsonData");
+                    JSONValidator jsonValidator = JSONValidator.from(jsonParams);
+                    if(StringUtils.equalsIgnoreCase("Array",jsonValidator.getType().name())){
+                        JSONArray mockExpectArr = JSONArray.parseArray(jsonParams);
+                        for(int expectIndex = 0;expectIndex < mockExpectArr.size(); expectIndex ++){
+                            JSONObject itemObj = mockExpectArr.getJSONObject(expectIndex);
+                            mathing = JsonPathUtils.checkJsonArrayCompliance(reqJsonArray, itemObj);
+                            if(!mathing){
+                                break;
+                            }
+                        }
+                    }else if(StringUtils.equalsIgnoreCase("Object",jsonValidator.getType().name())){
+                        JSONObject mockExpectJson = JSONObject.parseObject(jsonParams);
+                        mathing = JsonPathUtils.checkJsonArrayCompliance(reqJsonArray, mockExpectJson);
+                    }
+
+                } else {
+                    JSONArray jsonArray = requestObj.getJSONArray("variables");
+                    JSONObject mockExpectJson = new JSONObject();
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        String name = "";
+                        String value = "";
+                        if (object.containsKey("name")) {
+                            name = String.valueOf(object.get("name")).trim();
+                        }
+                        if (object.containsKey("value")) {
+                            value = String.valueOf(object.get("value")).trim();
+                        }
+                        if (StringUtils.isNotEmpty(name)) {
+                            mockExpectJson.put(name, value);
+                        }
+                    }
+                    mathing = JsonPathUtils.checkJsonArrayCompliance(reqJsonArray, mockExpectJson);
+                }
                 if (mathing) {
                     returnModel = model;
                     break;
@@ -415,31 +522,23 @@ public class MockConfigService {
         for (String key : keySet) {
             try {
                 JsonSchemaReturnObj obj = bodyReturnObj.getObject(key, JsonSchemaReturnObj.class);
-                if(StringUtils.equals("object",obj.getType())) {
+                if (StringUtils.equals("object", obj.getType())) {
                     JSONObject itemObj = this.parseJsonSchema(obj.getProperties());
                     if (!itemObj.isEmpty()) {
                         returnObj.put(key, itemObj);
                     }
-                }else if(StringUtils.equals("array",obj.getType())){
-                    if(obj.getItems() != null){
+                } else if (StringUtils.equals("array", obj.getType())) {
+                    if (obj.getItems() != null) {
                         JSONObject itemObj = obj.getItems();
-                        if(itemObj.containsKey("type")){
-                            if(StringUtils.equals("object",itemObj.getString("type"))&& itemObj.containsKey("properties")){
+                        if (itemObj.containsKey("type")) {
+                            if (StringUtils.equals("object", itemObj.getString("type")) && itemObj.containsKey("properties")) {
                                 JSONObject arrayObj = itemObj.getJSONObject("properties");
-//                                Set<String> arrayKeys = arrayObj.keySet();
-//
-//                                JSONObject parseObj = new JSONObject();
-//                                for (String arrayKey : arrayKeys) {
-//                                    JsonSchemaReturnObj arrayItemObj = arrayObj.getObject(arrayKey, JsonSchemaReturnObj.class);
-//                                    String value = this.getMockValues(arrayItemObj.getMockValue());
-//                                    parseObj.put(arrayKey,value);
-//                                }
                                 JSONObject parseObj = this.parseJsonSchema(arrayObj);
                                 JSONArray array = new JSONArray();
                                 array.add(parseObj);
                                 returnObj.put(key, array);
-                            }else if(StringUtils.equals("string",itemObj.getString("type"))&& itemObj.containsKey("mock")){
-                                JsonSchemaReturnObj arrayObj = JSONObject.toJavaObject(itemObj,JsonSchemaReturnObj.class);
+                            } else if (StringUtils.equals("string", itemObj.getString("type")) && itemObj.containsKey("mock")) {
+                                JsonSchemaReturnObj arrayObj = JSONObject.toJavaObject(itemObj, JsonSchemaReturnObj.class);
                                 String value = this.getMockValues(arrayObj.getMockValue());
                                 JSONArray array = new JSONArray();
                                 array.add(value);
@@ -489,7 +588,6 @@ public class MockConfigService {
     public JSONObject getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
         JSONObject paramMap = this.getSendRestParamMapByIdAndUrl(api, urlParams);
         Enumeration<String> paramNameItor = request.getParameterNames();
-        JSONObject object = new JSONObject();
         while (paramNameItor.hasMoreElements()) {
             String key = paramNameItor.nextElement();
             String value = request.getParameter(key);
@@ -498,16 +596,21 @@ public class MockConfigService {
         return paramMap;
     }
 
-    public JSONObject getPostParamMap(HttpServletRequest request) {
+    public JSON getPostParamMap(HttpServletRequest request) {
         if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
-            JSONObject object = null;
+            JSON returnJson = null;
             try {
                 String param = this.getRequestPostStr(request);
-                object = JSONObject.parseObject(param);
+                JSONValidator jsonValidator = JSONValidator.from(param);
+                if(StringUtils.equalsIgnoreCase("Array",jsonValidator.getType().name())){
+                    returnJson = JSONArray.parseArray(param);
+                }else if(StringUtils.equalsIgnoreCase("Object",jsonValidator.getType().name())){
+                    returnJson = JSONObject.parseObject(param);
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return object;
+            return returnJson;
         } else if (StringUtils.equalsIgnoreCase("text/xml", request.getContentType())) {
             String xmlString = this.readXml(request);
             System.out.println(xmlString);
@@ -772,19 +875,28 @@ public class MockConfigService {
         String returnStr = "";
         boolean isMatch = false;
         List<ApiDefinitionWithBLOBs> aualifiedApiList = new ArrayList<>();
-        if(project!=null){
+        if (project != null) {
             String urlSuffix = this.getUrlSuffix(project.getSystemId(), request);
             aualifiedApiList = apiDefinitionService.preparedUrl(project.getId(), method, urlSuffix, urlSuffix);
-            JSONObject paramMap = this.getPostParamMap(request);
-
             List<String> apiIdList = aualifiedApiList.stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
             MockConfigResponse mockConfigData = this.findByApiIdList(apiIdList);
 
             if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
-                MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
-                if (finalExpectConfig != null) {
-                    isMatch = true;
-                    returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
+                JSON paramJson = this.getPostParamMap(request);
+                if(paramJson instanceof JSONObject){
+                    JSONObject paramMap = (JSONObject)paramJson;
+                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);
+                    if (finalExpectConfig != null) {
+                        isMatch = true;
+                        returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
+                    }
+                }else if(paramJson instanceof JSONArray){
+                    JSONArray paramArray = (JSONArray)paramJson;
+                    MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramArray);
+                    if (finalExpectConfig != null) {
+                        isMatch = true;
+                        returnStr = this.updateHttpServletResponse(finalExpectConfig, response);
+                    }
                 }
             }
         }

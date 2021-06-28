@@ -332,14 +332,16 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 executionTime = sdf.format(new Date(Long.parseLong(time_)));
             }
             //执行人
-            String userName = apiAutomationService.getUser(apiScenario.getUserId()).getName();
+            if(apiScenario != null){
+                String userName = apiAutomationService.getUser(apiScenario.getUserId()).getName();
+                reportTask.setExecutor(userName);
+            }
             //报告内容
             reportTask = new ApiTestReportVariable();
             reportTask.setStatus(scenarioReport.getStatus());
             reportTask.setId(scenarioReport.getId());
             reportTask.setTriggerMode(scenarioReport.getTriggerMode());
             reportTask.setName(scenarioReport.getName());
-            reportTask.setExecutor(userName);
             reportTask.setExecutionTime(executionTime);
             reportTask.setExecutionEnvironment(name);
             SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);

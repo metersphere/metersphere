@@ -215,7 +215,7 @@ public class ScheduleService {
 
     public void createSchedule(ScheduleRequest request) {
         Schedule schedule = this.buildApiTestSchedule(request);
-        schedule.setJob(ApiScenarioTestJob.class.getName());
+
 
         JobKey jobKey = null;
         TriggerKey triggerKey = null;
@@ -229,7 +229,8 @@ public class ScheduleService {
             jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
-        }else { //  实际上在场景中添加定时任务并不会执行到这里?
+            schedule.setJob(TestPlanTestJob.class.getName());
+        }else {
             //默认为情景
             ApiScenarioWithBLOBs apiScene = apiScenarioMapper.selectByPrimaryKey(request.getResourceId());
             schedule.setName(apiScene.getName());
@@ -239,6 +240,7 @@ public class ScheduleService {
             jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
             triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
             clazz = ApiScenarioTestJob.class;
+            schedule.setJob(ApiScenarioTestJob.class.getName());
         }
         this.addSchedule(schedule);
 
@@ -246,7 +248,7 @@ public class ScheduleService {
     }
 
     public void updateSchedule(Schedule request) {
-        this.editSchedule(request);
+
 
         JobKey jobKey = null;
         TriggerKey triggerKey = null;
@@ -255,12 +257,15 @@ public class ScheduleService {
             jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
+            request.setJob(TestPlanTestJob.class.getName());
         }else {
             //默认为情景
             jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());
             triggerKey = ApiScenarioTestJob.getTriggerKey(request.getResourceId());
             clazz = ApiScenarioTestJob.class;
+            request.setJob(ApiScenarioTestJob.class.getName());
         }
+        this.editSchedule(request);
 
         this.addOrUpdateCronJob(request,jobKey ,triggerKey , clazz);
     }
