@@ -2,6 +2,7 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.User;
+import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.RelatedSource;
@@ -30,4 +31,6 @@ public interface ExtUserGroupMapper {
     List<Group> getProjectMemberGroups(@Param("projectId") String projectId,@Param("userId") String userId);
 
     List<RelatedSource> getRelatedSource(@Param("userId") String userId);
+
+    List<User> getGroupUser(@Param("request")EditGroupRequest request);
 }

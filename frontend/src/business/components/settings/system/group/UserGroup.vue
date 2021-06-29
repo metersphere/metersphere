@@ -8,19 +8,26 @@
 
       <el-table :data="groups" border class="adjust-table" style="width: 100%"
                 :height="screenHeight" @sort-change="sort">
-        <el-table-column prop="name" :label="$t('commons.name')"/>
+        <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
         <el-table-column prop="type" :label="$t('group.type')">
           <template v-slot="scope">
             <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
           </template>
         </el-table-column>
+        <el-table-column :label="$t('commons.member')" width="100">
+          <template v-slot:default="scope">
+            <el-link type="primary" class="member-size" @click="memberClick(scope.row)">
+              {{ scope.row.memberSize || 0 }}
+            </el-link>
+          </template>
+        </el-table-column>
         <el-table-column prop="scopeName" :label="$t('group.scope')"/>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable>
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="updateTime" :label="$t('commons.update_time')" sortable>
+        <el-table-column prop="updateTime" :label="$t('commons.update_time')" sortable show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -48,7 +55,7 @@
       <ms-table-pagination :change="initData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
-
+    <group-member ref="groupMember" @refresh="initData"/>
     <edit-user-group ref="editUserGroup" @refresh="initData"/>
     <edit-permission ref="editPermission"/>
     <ms-delete-confirm :title="$t('group.delete')" @delete="_handleDel" ref="deleteConfirm"/>
@@ -65,10 +72,12 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import EditPermission from "@/business/components/settings/system/group/EditPermission";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
 import {_sort} from "@/common/js/tableUtils";
+import GroupMember from "@/business/components/settings/system/group/GroupMember";
 
 export default {
   name: "UserGroup",
   components: {
+    GroupMember,
     EditUserGroup,
     MsTableHeader,
     MsTableOperator,
@@ -85,7 +94,8 @@ export default {
       pageSize: 10,
       total: 0,
       screenHeight: 'calc(100vh - 275px)',
-      groups: []
+      groups: [],
+      currentGroup: {}
     };
   },
   activated() {
@@ -143,6 +153,9 @@ export default {
       _sort(column, this.condition);
       this.initData();
     },
+    memberClick(row) {
+      this.$refs.groupMember.open(row);
+    }
   }
 };
 </script>
