@@ -165,7 +165,7 @@ export default {
 
 .rows-count-number{
   font-family:'ArialMT', 'Arial', sans-serif;
-  font-size:23px;
+  font-size:19px;
   color: var(--count_number);
   margin:20px auto;
   position: relative;
