@@ -195,13 +195,13 @@
                                           @exec="openReport(scope.row.id, scope.row.reportId)"/>
               </template>
             </ms-table-operator>
-            <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;"
+            <ms-table-operator-button class="schedule-btn"
                                       v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
                                       v-if="!scope.row.scheduleOpen" type="text"
                                       :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                       @exec="scheduleTask(scope.row)"/>
             <ms-table-operator-button
-              style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;"
+              class="schedule-btn"
               v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
               v-if="scope.row.scheduleOpen" type="text"
               :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
@@ -473,5 +473,12 @@ export default {
 
 .el-table {
   cursor: pointer;
+}
+
+.schedule-btn >>> .el-button {
+  margin-left: 10px;
+  color:#85888E;
+  border-color: #85888E;
+  border-width: thin;
 }
 </style>
