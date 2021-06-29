@@ -64,7 +64,6 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../../../common/components/MsTag";
-  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
   import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";

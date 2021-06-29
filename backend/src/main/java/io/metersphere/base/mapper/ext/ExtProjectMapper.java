@@ -18,4 +18,5 @@ public interface ExtProjectMapper {
 
     String getSystemIdByProjectId(String projectId);
 
+    List<String> getProjectIds();
 }

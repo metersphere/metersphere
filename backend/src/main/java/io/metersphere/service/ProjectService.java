@@ -451,4 +451,8 @@ public class ProjectService {
             return returnList.get(0);
         }
     }
+
+    public List<String> getProjectIds() {
+        return extProjectMapper.getProjectIds();
+    }
 }

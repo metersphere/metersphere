@@ -1,6 +1,7 @@
 package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.Project;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -56,4 +57,11 @@ public interface IssuesPlatform {
      * @return platform user list
      */
     List<PlatformUser> getPlatformUser();
+
+    /**
+     * 同步缺陷最新变更
+     * @param project
+     * @param tapdIssues
+     */
+    void syncIssues(Project project, List<IssuesDao> tapdIssues);
 }

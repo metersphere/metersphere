@@ -371,6 +371,11 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         return users;
     }
 
+    @Override
+    public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
+
+    }
+
     public List<ZentaoBuild> getBuilds() {
         String session = login();
         String projectId1 = getProjectId(projectId);

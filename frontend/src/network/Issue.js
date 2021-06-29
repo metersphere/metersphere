@@ -1,5 +1,6 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export function buildIssues(page) {
   let data = page.data;
@@ -8,9 +9,9 @@ export function buildIssues(page) {
       if (data[i].customFields) {
         data[i].customFields = JSON.parse(data[i].customFields);
       }
-      if (data[i].platform !== 'Local') {
-        page.result = buildPlatformIssue(data[i]);
-      }
+      // if (data[i].platform !== 'Local') {
+      //   page.result = buildPlatformIssue(data[i]);
+      // }
     }
   }
 }
@@ -60,6 +61,12 @@ export function getRelateIssues(page) {
   return post('issues/list/relate/' + page.currentPage + '/' + page.pageSize, page.condition, (response) => {
     getPageDate(response, page);
     buildIssues(page);
+  });
+}
+
+export function syncIssues() {
+  return get('issues/sync/' + getCurrentProjectID(), (response) => {
+    console.log('ok');
   });
 }
 

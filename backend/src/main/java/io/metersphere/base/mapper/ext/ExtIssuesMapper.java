@@ -16,4 +16,6 @@ public interface ExtIssuesMapper {
     List<IssuesDao> getRelateIssues(@Param("request") IssuesRequest request);
 
     Issues getNextNum(String projectId);
+
+    List<IssuesDao> getIssueForSync(String projectId);
 }

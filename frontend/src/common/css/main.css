@@ -239,3 +239,8 @@ textarea {
 .el-button + .tooltip-btn, .tooltip-btn + .el-button, .tooltip-btn + .tooltip-btn {
   margin-left: 10px;
 }
+
+.run-button .el-button {
+  background-color: #409EFF;
+  border-color: #409EFF;
+}
