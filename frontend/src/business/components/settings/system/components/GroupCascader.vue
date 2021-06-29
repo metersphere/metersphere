@@ -37,7 +37,7 @@ export default {
     let validateSelect = (rule, value, callback) => {
       let checkNodes = this.$refs.cascadeSelector.getCheckedNodes(true);
       if (checkNodes.length === 0) {
-        callback(new Error(this.$t('user.select_group')));
+        callback(new Error(this.$t('user.select_group').toString()));
       }
       callback();
     };

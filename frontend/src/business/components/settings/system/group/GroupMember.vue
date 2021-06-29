@@ -1,7 +1,6 @@
 <template>
   <div>
     <el-dialog :close-on-click-modal="false" :visible.sync="visible" width="65%" top="15vh"
-
                :destroy-on-close="true" @close="close" v-loading="result.loading"
                class="group-member"
     >
@@ -13,7 +12,7 @@
         <el-table-column prop="email" :label="$t('commons.email')" show-overflow-tooltip/>
         <el-table-column prop="phone" :label="$t('commons.phone')" show-overflow-tooltip>
           <template v-slot="scope">
-            {{scope.row.phone || '-'}}
+            {{ scope.row.phone || '-' }}
           </template>
         </el-table-column>
         <el-table-column :label="typeLabel" v-if="showTypeLabel">
@@ -23,7 +22,7 @@
               width="250"
               trigger="click"
             >
-              <div v-loading="source.loading" style="height: 150px;overflow: auto;">
+              <div v-loading="sourceResult.loading" style="height: 150px;overflow: auto;">
                 <el-tag
                   v-for="item in groupSource"
                   :key="item.id"
@@ -55,7 +54,8 @@
     </el-dialog>
     <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="45%"
                :title="title" :destroy-on-close="true" v-loading="memberResult.loading" @close="memberDialogClose">
-      <el-form ref="memberFrom" label-position="right" :model="form" size="small" :rules="rules" label-width="120px" style="margin-right: 40px;">
+      <el-form ref="memberFrom" label-position="right" :model="form" size="small" :rules="rules" label-width="120px"
+               style="margin-right: 40px;">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select
             v-model="form.userIds"
@@ -119,7 +119,7 @@ export default {
       pageSize: 5,
       total: 0,
       result: {},
-      source: {},
+      sourceResult: {},
       memberResult: {},
       group: {},
       groupSource: [],
@@ -191,12 +191,9 @@ export default {
       this.submitType = 'EDIT';
       this.getUser();
       this.getResource();
-      let userId = row.id;
-      let groupId = this.group.id;
-      this.$get('/user/group/source/' + userId + "/" + groupId, res => {
+      this.$get('/user/group/source/' + row.id + "/" + this.group.id, res => {
         let data = res.data;
-        let userIds = [];
-        userIds.push(row.id);
+        let userIds = [row.id];
         let sourceIds = data.map(d => d.id);
         this.$set(this.form, 'userIds', userIds);
         this.$set(this.form, 'sourceIds', sourceIds);
@@ -222,7 +219,7 @@ export default {
       })
     },
     removeMember(row) {
-      this.$confirm(this.$t('member.remove_member'), '', {
+      this.$confirm(this.$t('member.remove_member').toString(), '', {
         confirmButtonText: this.$t('commons.confirm'),
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning'
@@ -237,9 +234,7 @@ export default {
     },
     getGroupSource(row) {
       this.groupSource = [];
-      let userId = row.id;
-      let groupId = this.group.id;
-      this.source = this.$get('/user/group/source/' + userId + "/" + groupId, res => {
+      this.sourceResult = this.$get('/user/group/source/' + row.id + "/" + this.group.id, res => {
         this.groupSource = res.data;
       })
     },
@@ -265,12 +260,10 @@ export default {
       })
     },
     getResource() {
-      let id = this.group.id;
-      let type = this.group.type;
-      this.memberResult = this.$get('/organization/list/resource/' + id + "/" + type, res => {
+      this.memberResult = this.$get('/organization/list/resource/' + this.group.id + "/" + this.group.type, res => {
         let data = res.data;
         if (data) {
-          this._setResource(type, data);
+          this._setResource(this.group.type, data);
         }
       })
     },
@@ -289,9 +282,9 @@ export default {
       }
     },
     memberDialogClose() {
+      this.form = {};
       this.memberVisible = false;
       this.userSelectDisable = false;
-      this.form = {};
     }
   }
 }
@@ -301,6 +294,7 @@ export default {
 .group-member >>> .el-dialog__header {
   padding: 0;
 }
+
 .user-select-left {
   float: left;
 }
