@@ -110,6 +110,9 @@
     <select id="getSystemIdByProjectId" resultType="java.lang.String">
         SELECT system_id FROM project WHERE id = #{0}
     </select>
+    <select id="getProjectIds" resultType="java.lang.String">
+        select id from project;
+    </select>
 
 
     <update id="removeIssuePlatform">
