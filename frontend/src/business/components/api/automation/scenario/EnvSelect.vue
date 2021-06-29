@@ -275,6 +275,9 @@ export default {
     checkEnv(data) {
       let sign = true;
       this.isFullUrl = true;
+      if(data){
+        return true;
+      }
       if (this.data.length > 0) {
         this.data.forEach(dt => {
           if (!dt.selectEnv) {
@@ -291,14 +294,7 @@ export default {
               return false;
             }
           })
-        } else {
-          if (!data) {
-            sign = false;
-          }
         }
-        // 校验是否全是全路径
-        //this.checkFullUrl(data);
-        //sign = this.isFullUrl;
       }
 
       if (!sign) {
