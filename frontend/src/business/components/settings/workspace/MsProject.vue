@@ -375,7 +375,7 @@ export default {
       this.createVisible = true;
       listenGoBack(this.handleClose);
       this.form = Object.assign({}, row);
-      this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
+      this.$get("/service/integration/all/" + getCurrentOrganizationId(), response => {
         let data = response.data;
         let platforms = data.map(d => d.platform);
         if (platforms.indexOf("Tapd") !== -1) {

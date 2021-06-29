@@ -195,9 +195,4 @@ export default {
   margin: 5px 10px;
 }
 
-/deep/ .run-button {
-  background-color: #409EFF;
-  border-color: #409EFF;
-}
-
 </style>

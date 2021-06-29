@@ -2,6 +2,7 @@ package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
+import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
@@ -79,6 +80,11 @@ public class LocalPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         return null;
+    }
+
+    @Override
+    public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
+
     }
 
     @Override
