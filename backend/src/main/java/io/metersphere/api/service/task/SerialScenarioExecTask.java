@@ -35,7 +35,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     public T call() {
         try {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(id, hashTree, request.getRunMode(), false, request.getConfig());
+                jMeterService.runTest(id, hashTree, request.getRunMode(), false, request.getUserId(), request.getConfig());
             } else {
                 jMeterService.runSerial(id, hashTree, request.getReportId(), request.getRunMode(), request.getConfig());
             }

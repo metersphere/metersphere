@@ -120,7 +120,7 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
-        if(CollectionUtils.isEmpty(request.getIds())){
+        if (CollectionUtils.isEmpty(request.getIds())) {
             return new ArrayList<>();
         }
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
@@ -279,7 +279,7 @@ public class ApiDefinitionService {
         if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.handleEsbRequest(request);
-        }else if(StringUtils.equals(request.getMethod(), "TCP")) {
+        } else if (StringUtils.equals(request.getMethod(), "TCP")) {
             request = tcpApiParamService.handleTcpRequest(request);
         }
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
@@ -586,10 +586,10 @@ public class ApiDefinitionService {
         }
 
 
-        try{
+        try {
             //检查TCP数据结构，等其他进行处理
             tcpApiParamService.checkTestElement(request.getTestElement());
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
@@ -600,7 +600,7 @@ public class ApiDefinitionService {
 
         // 调用执行方法
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-            jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, request.getConfig());
+            jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null, request.getConfig());
         } else {
             jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
         }
@@ -969,6 +969,7 @@ public class ApiDefinitionService {
 
     /**
      * 列表开关切换
+     *
      * @param request
      */
     public void switchSchedule(Schedule request) {
