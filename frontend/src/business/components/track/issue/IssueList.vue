@@ -281,8 +281,9 @@ export default {
       saveLastTableSortField(key,JSON.stringify(orders));
     },
     syncIssues() {
-      this.page.result = syncIssues();
-      this.getIssues();
+      this.page.result = syncIssues(() => {
+        this.getIssues();
+      });
     },
     getSortField(){
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);

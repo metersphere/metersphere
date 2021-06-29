@@ -64,9 +64,11 @@ export function getRelateIssues(page) {
   });
 }
 
-export function syncIssues() {
+export function syncIssues(success) {
   return get('issues/sync/' + getCurrentProjectID(), (response) => {
-    console.log('ok');
+    if (success) {
+      success(response);
+    }
   });
 }
 
