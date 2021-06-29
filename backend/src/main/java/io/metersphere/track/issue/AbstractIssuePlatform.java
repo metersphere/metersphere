@@ -3,14 +3,14 @@ package io.metersphere.track.issue;
 import com.alibaba.fastjson.JSONArray;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.WorkspaceMapper;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
@@ -51,10 +51,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected ResourceService resourceService;
     protected RestTemplate restTemplateIgnoreSSL;
     protected UserService userService;
-
+    protected WorkspaceMapper workspaceMapper;
+    protected ProjectMapper projectMapper;
     protected String testCaseId;
     protected String projectId;
     protected String key;
+    protected String orgId;
+    protected String userId;
+
 
     public String getKey() {
         return key;
@@ -90,16 +94,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.resourceService = CommonBeanFactory.getBean(ResourceService.class);
         this.testCaseId = issuesRequest.getTestCaseId();
         this.projectId = issuesRequest.getProjectId();
-
+        this.orgId = issuesRequest.getOrganizationId();
+        this.userId = issuesRequest.getUserId();
         this.restTemplateIgnoreSSL = restTemplate;
     }
 
     protected String getPlatformConfig(String platform) {
-        SessionUser user = SessionUtils.getUser();
-        String orgId = user.getLastOrganizationId();
-/*
-        String orgId = "88aceecf-5764-4094-96a9-f82bd52e77ad";
-*/
         IntegrationRequest request = new IntegrationRequest();
         if (StringUtils.isBlank(orgId)) {
             MSException.throwException("organization id is null");
