@@ -120,7 +120,7 @@
 <script>
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {getCurrentWorkspaceId, getDefaultTableHeight} from "@/common/js/utils";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";

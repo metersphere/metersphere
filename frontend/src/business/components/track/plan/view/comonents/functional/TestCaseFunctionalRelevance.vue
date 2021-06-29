@@ -97,7 +97,7 @@ import MsTableAdvSearchBar from "../../../../../common/components/search/MsTable
 import MsTableHeader from "../../../../../common/components/MsTableHeader";
 import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
 import {buildPagePath, getPageDate, getPageInfo} from "@/common/js/tableUtils";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
