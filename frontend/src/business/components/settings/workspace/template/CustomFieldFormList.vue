@@ -69,7 +69,7 @@
 <script>
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import FieldCustomDataTableItem from "@/business/components/settings/workspace/template/FieldCustomDataTableItem";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";

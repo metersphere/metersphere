@@ -91,7 +91,7 @@
 <script>
 
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 import MsTablePagination from "../../../../common/pagination/TablePagination";
