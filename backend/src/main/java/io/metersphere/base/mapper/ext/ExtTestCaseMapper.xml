@@ -341,17 +341,15 @@
             <if test="request.createTime >0">
                 and test_case.create_time >= #{request.createTime}
             </if>
-            <choose>
-                <when test="request.nodeIds != null and request.nodeIds.size() > 0">
-                    and test_case.node_id in
-                    <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                        #{nodeId}
-                    </foreach>
-                </when>
-                <when test="request.projectId != null">
-                    and test_case.project_id = #{request.projectId}
-                </when>
-            </choose>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.projectId != null">
+                and test_case.project_id = #{request.projectId}
+            </if>
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
