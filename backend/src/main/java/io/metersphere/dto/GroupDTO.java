@@ -8,4 +8,5 @@ import lombok.Setter;
 @Setter
 public class GroupDTO extends Group {
     private String scopeName;
+    private Long memberSize;
 }

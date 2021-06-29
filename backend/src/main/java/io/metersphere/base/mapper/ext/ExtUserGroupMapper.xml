@@ -95,4 +95,13 @@
                  JOIN organization o ON user_group.source_id = o.id
         WHERE user_id = #{userId} -- org_admin org_member aaa
     </select>
+    <select id="getGroupUser" resultType="io.metersphere.base.domain.User">
+        select distinct user.id, user.name, user.email, user.phone, user.create_time
+          from user join user_group ug on user.id = ug.user_id
+         where ug.group_id = #{request.userGroupId}
+        <if test="request.name != null and request.name !=''">
+            and user.name like concat('%', #{request.name},'%')
+        </if>
+        order by ug.update_time desc
+    </select>
 </mapper>
