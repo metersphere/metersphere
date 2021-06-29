@@ -10,6 +10,7 @@
         @edit="editScenario"
         @selection="setData"
         :referenced="true"
+        :select-project-id="cuurentProjectId"
         ref="apiScenarioList"/>
 
       <el-button style="float: right;margin: 10px" @click="importApiScenario" type="primary">{{ $t('api_test.scenario.reference') }}</el-button>
@@ -40,6 +41,7 @@
         currentScenario: [],
         currentScenarioIds: [],
         moduleOptions: {},
+        cuurentProjectId: "",
         scenarioDefinition: Object,
       }
     },
@@ -84,6 +86,7 @@
         this.moduleOptions = data;
       },
       refresh(data) {
+        this.cuurentProjectId = data;
         this.$refs.apiScenarioList.search(data);
       },
       editScenario(row) {
