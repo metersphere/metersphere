@@ -2,10 +2,7 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.IssueTemplateMapper;
-import io.metersphere.base.mapper.IssuesMapper;
-import io.metersphere.base.mapper.TestCaseIssuesMapper;
-import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -71,6 +68,8 @@ public class IssuesService {
     private WorkspaceMapper workspaceMapper;
     @Resource
     private IssueTemplateService issueTemplateService;
+    @Resource
+    private TestCaseMapper testCaseMapper;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -139,6 +138,13 @@ public class IssuesService {
         issueRequest.setTestCaseId(caseId);
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         Project project = getProjectByCaseId(caseId);
+        String workspaceId = project.getWorkspaceId();
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
+        TestCase testCase = testCaseMapper.selectByPrimaryKey(caseId);
+        String orgId = workspace.getOrganizationId();
+        String userId = testCase.getMaintainer();
+        issueRequest.setOrganizationId(orgId);
+        issueRequest.setUserId(userId);
         return getIssuesByProject(issueRequest, project);
     }
 
