@@ -8,8 +8,8 @@ INNER JOIN (
 		ader.id AS result_id
 	FROM
 		api_test_case atc
-		LEFT JOIN USER u1 ON atc.create_user_id = u1.id
-		LEFT JOIN USER u2 ON atc.update_user_id = u2.id
+		LEFT JOIN `user` u1 ON atc.create_user_id = u1.id
+		LEFT JOIN `user` u2 ON atc.update_user_id = u2.id
 		LEFT JOIN (
 		SELECT
 			max( create_time ) create_time,
