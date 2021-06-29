@@ -2,7 +2,8 @@
   <div v-if="isShow">
     <el-dropdown placement="bottom" trigger="click" size="medium">
       <div @click.stop class="show-more-btn">
-        <el-tooltip class="item" effect="dark" :content="$t('test_track.case.batch_operate')" placement="top-start">
+        <el-tooltip :value="showTool" class="item" effect="dark" :content="$t('test_track.case.batch_operate')"
+                    placement="top-start">
           <i class="el-icon-more ms-icon-more"/>
         </el-tooltip>
 
@@ -24,7 +25,8 @@
     name: "ShowMoreBtn",
     data() {
       return {
-        disabled: false
+        disabled: false,
+        showTool: false
       };
     },
     props: {
@@ -32,9 +34,23 @@
         type: Boolean,
         default: false
       },
+      isShowTool: {
+        type: Boolean,
+        default: false
+      },
       buttons: Array,
       row: Object,
       size: Number
+    },
+    watch: {
+      isShowTool(val) {
+        if (val) {
+          this.showTool = val;
+          setTimeout(() => {
+            this.showTool = false;
+          }, 1000);
+        }
+      }
     },
     created() {
       if (this.trashEnable) {
