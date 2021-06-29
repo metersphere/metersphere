@@ -5,7 +5,14 @@
         <template v-slot:header>
           <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
                            :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"
-                           :tip="$t('issue.search_name')" :have-search="false"/>
+                           :tip="$t('commons.search_by_name_or_id')">
+            <template v-slot:button>
+              <el-tooltip v-if="hasThirdPart" :content="'更新第三方平台的缺陷内容'">
+                <ms-table-button icon="el-icon-refresh" v-if="true"
+                                 :content="'同步缺陷'" @click="syncIssues"/>
+              </el-tooltip>
+            </template>
+          </ms-table-header>
         </template>
 
         <ms-table
@@ -40,6 +47,7 @@
             :label="$t('test_track.issue.id')"
             prop="num"
             :field="item"
+            sortable
             :fields-width="fieldsWidth">
           </ms-table-column>
 
@@ -47,6 +55,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             :label="$t('test_track.issue.title')"
+            sortable
             prop="title">
           </ms-table-column>
 
@@ -136,7 +145,7 @@ import {
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import IssueEdit from "@/business/components/track/issue/IssueEdit";
-import {getIssues} from "@/network/Issue";
+import {getIssues, syncIssues} from "@/network/Issue";
 import {
   getCustomFieldValue,
   getCustomTableWidth,
@@ -147,6 +156,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import {getCurrentProjectID} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
+import {getIntegrationService} from "@/network/organization";
 
 export default {
   name: "IssueList",
@@ -183,12 +193,16 @@ export default {
         }
       ],
       issueTemplate: {},
-      members: []
+      members: [],
+      platforms: []
     };
   },
   activated() {
     getProjectMember((data) => {
       this.members = data;
+    });
+    getIntegrationService((data) => {
+      this.platforms = data.map(d => d.platform);
     });
     getIssueTemplate()
       .then((template) => {
@@ -216,6 +230,14 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+    hasThirdPart() {
+      if (this.platforms.indexOf("Tapd") !== -1
+      || this.platforms.indexOf("Jira") !== -1
+      || this.platforms.indexOf("Zentao") !== -1) {
+        return true;
+      }
+      return false;
     }
   },
   methods: {
@@ -257,6 +279,10 @@ export default {
     },
     saveSortField(key,orders){
       saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    syncIssues() {
+      this.page.result = syncIssues();
+      this.getIssues();
     },
     getSortField(){
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);

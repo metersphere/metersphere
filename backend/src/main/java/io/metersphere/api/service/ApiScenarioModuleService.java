@@ -272,7 +272,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         checkApiScenarioModuleExist(request);
         List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
         apiScenarios.forEach(apiScenario -> {
-            StringBuilder path = new StringBuilder(apiScenario.getModulePath());
+            String modulePath = apiScenario.getModulePath();
+            StringBuilder path = new StringBuilder(modulePath == null ? "" : modulePath);
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
             if (pathLists.size() > request.getLevel()) {
                 pathLists.set(request.getLevel(), request.getName());

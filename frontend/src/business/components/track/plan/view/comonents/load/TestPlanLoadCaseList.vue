@@ -495,10 +495,6 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .run-button {
-  background-color: #409EFF;
-  border-color: #409EFF;
-}
 /deep/ .el-table__fixed-body-wrapper {
   top: 59px !important;
 }

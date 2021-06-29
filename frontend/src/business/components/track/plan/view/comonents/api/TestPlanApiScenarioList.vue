@@ -8,7 +8,8 @@
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="test-content adjust-table ms-select-all-fixed"
+      <el-table ref="scenarioTable"
+                border :data="tableData" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
                 @sort-change="sort"
                 @filter-change="filter"
@@ -35,6 +36,7 @@
             label="ID"
             :key="index"/>
           <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')" min-width="120px"
+                           sortable
                            show-overflow-tooltip :key="index"/>
           <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')" min-width="100px"
                            column-key="level"

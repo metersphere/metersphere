@@ -34,12 +34,20 @@
         and test_case_issues.issues_id is null
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="getIssueForSync" resultType="io.metersphere.base.domain.IssuesDao">
+        select id,platform
+        from issues
+        where project_id = #{projectId} and platform != 'Local';
+    </select>
 
     <sql id="queryWhereCondition">
         <where>
 
             <if test="request.name != null">
-                and issues.title LIKE CONCAT('%', #{request.name}, '%')
+                and (
+                      issues.title LIKE CONCAT('%', #{request.name}, '%')
+                      or issues.id LIKE CONCAT('%', #{request.name}, '%')
+                    )
             </if>
 
             <if test="request.projectId != null and request.projectId != ''">

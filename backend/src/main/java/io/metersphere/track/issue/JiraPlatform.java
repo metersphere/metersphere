@@ -31,6 +31,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -64,8 +65,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        List<IssuesDao> list = new ArrayList<>();
-
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
@@ -73,26 +72,26 @@ public class JiraPlatform extends AbstractIssuePlatform {
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
-        setConfig(issuesRequest.getOrganizationId());
-        issues.forEach(item -> {
-            String issuesId = item.getId();
-            parseIssue(item, jiraClientV2.getIssues(issuesId));
-            if (StringUtils.isBlank(item.getId())) {
-                // 缺陷不存在，解除用例和缺陷的关联
-                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
-                issuesExample.createCriteria()
-                        .andTestCaseIdEqualTo(testCaseId)
-                        .andIssuesIdEqualTo(issuesId);
-                testCaseIssuesMapper.deleteByExample(issuesExample);
-                issuesMapper.deleteByPrimaryKey(issuesId);
-            } else {
-                // 缺陷状态为 完成，则不显示
-                if (!StringUtils.equals("done", item.getStatus())) {
-                    list.add(item);
-                }
-            }
-        });
-        return list;
+//        setConfig(issuesRequest.getOrganizationId());
+//        issues.forEach(item -> {
+//            String issuesId = item.getId();
+//            parseIssue(item, jiraClientV2.getIssues(issuesId));
+//            if (StringUtils.isBlank(item.getId())) {
+//                // 缺陷不存在，解除用例和缺陷的关联
+//                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
+//                issuesExample.createCriteria()
+//                        .andTestCaseIdEqualTo(testCaseId)
+//                        .andIssuesIdEqualTo(issuesId);
+//                testCaseIssuesMapper.deleteByExample(issuesExample);
+//                issuesMapper.deleteByPrimaryKey(issuesId);
+//            } else {
+//                // 缺陷状态为 完成，则不显示
+//                if (!StringUtils.equals("done", item.getStatus())) {
+//                    list.add(item);
+//                }
+//            }
+//        });
+        return issues;
     }
 
     public void parseIssue(IssuesWithBLOBs item, JiraIssue jiraIssue) {
@@ -294,6 +293,27 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         return null;
+    }
+
+    @Override
+    public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
+        tapdIssues.forEach(item -> {
+            setConfig(null);
+            try {
+                parseIssue(item, jiraClientV2.getIssues(item.getId()));
+                // 缺陷状态为 完成，则不显示
+                if (StringUtils.equals("done", item.getStatus())) {
+                    item.setStatus(IssuesStatus.RESOLVED.toString());
+                }
+                issuesMapper.updateByPrimaryKeySelective(item);
+            } catch (HttpClientErrorException e) {
+                if (e.getRawStatusCode() == 404) {
+                    // 标记成删除
+                    item.setStatus(IssuesStatus.DELETE.toString());
+                    issuesMapper.deleteByPrimaryKey(item.getId());
+                }
+            }
+        });
     }
 
     @Override

@@ -926,11 +926,6 @@ export default {
   margin-bottom: 0px;
 }
 
-/deep/ .run-button {
-  background-color: #409EFF;
-  border-color: #409EFF;
-}
-
 /deep/ .el-table__fixed-body-wrapper {
   z-index: auto !important;
 }

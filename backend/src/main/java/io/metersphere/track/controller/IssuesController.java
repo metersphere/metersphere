@@ -92,10 +92,13 @@ public class IssuesController {
         return issuesService.getZentaoBuilds(request);
     }
 
-    @PostMapping("/get/platform/issue")
-    public IssuesWithBLOBs getPlatformIssue(@RequestBody IssuesWithBLOBs issue) {
-        return issuesService.getPlatformIssue(issue);
+//    @PostMapping("/get/platform/issue")
+//    public IssuesWithBLOBs getPlatformIssue(@RequestBody IssuesWithBLOBs issue) {
+//        return issuesService.getPlatformIssue(issue);
+//    }
+
+    @GetMapping("/sync/{projectId}")
+    public void getPlatformIssue(@PathVariable String projectId) {
+        issuesService.syncThirdPartyIssues(projectId);
     }
-
-
 }
