@@ -377,10 +377,6 @@ public class UserService {
             MSException.throwException(Translator.get("cannot_delete_current_user"));
         }
 
-        UserRoleExample example = new UserRoleExample();
-        example.createCriteria().andUserIdEqualTo(userId);
-        userRoleMapper.deleteByExample(example);
-
         UserGroupExample userGroupExample = new UserGroupExample();
         userGroupExample.createCriteria().andUserIdEqualTo(userId);
         userGroupMapper.deleteByExample(userGroupExample);

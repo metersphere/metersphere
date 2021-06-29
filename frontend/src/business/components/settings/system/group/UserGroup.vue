@@ -2,7 +2,8 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']" :condition.sync="condition" @search="initData" @create="create"
+        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']"
+                         :condition.sync="condition" @search="initData" @create="create"
                          :create-tip="$t('group.create')" :title="$t('group.group_permission')"/>
       </template>
 
@@ -111,8 +112,9 @@ export default {
       this.result = this.$post("/user/group/get/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         if (data) {
-          this.total = data.itemCount;
-          this.groups = data.listObject;
+          let {itemCount, listObject} = data;
+          this.total = itemCount;
+          this.groups = listObject;
         }
       });
     },
@@ -122,7 +124,7 @@ export default {
     edit(row) {
       if (row.id === "admin") {
         this.$warning(this.$t('group.admin_not_allow_edit'));
-        return ;
+        return;
       }
       this.$refs.editUserGroup.open(row, 'edit', this.$t('group.edit'));
     },
@@ -135,7 +137,7 @@ export default {
     del(row) {
       if (row.system) {
         this.$warning(this.$t('group.admin_not_allow_delete'));
-        return ;
+        return;
       }
       this.$refs.deleteConfirm.open(row);
     },
