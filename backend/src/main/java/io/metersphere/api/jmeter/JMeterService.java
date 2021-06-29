@@ -306,7 +306,7 @@ public class JMeterService {
         return multipartFiles;
     }
 
-    public void runTest(String testId, HashTree hashTree, String runMode, boolean isDebug, RunModeConfig config) {
+    public void runTest(String testId, HashTree hashTree, String runMode, boolean isDebug, String userId, RunModeConfig config) {
         // 获取JMX使用到的附件
         List<Object> multipartFiles = getMultipartFiles(hashTree);
         // 获取JAR
@@ -347,7 +347,12 @@ public class JMeterService {
             runRequest.setDebug(isDebug);
             runRequest.setRunMode(runMode);
             runRequest.setConfig(config);
-            runRequest.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+            if (SessionUtils.getUser() != null) {
+                runRequest.setUserId(SessionUtils.getUser().getId());
+            }
+            if (StringUtils.isNotEmpty(userId)) {
+                runRequest.setUserId(userId);
+            }
             runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
             MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
             if (CollectionUtils.isEmpty(multipartFiles)) {
