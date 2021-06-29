@@ -605,7 +605,7 @@ public class ApiAutomationService {
                         }
                     }
                     if (http.isEnable()) {
-                        if (http.getIsRefEnvironment()) {
+                        if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment()!= null && http.getIsRefEnvironment())) {
                             env.getProjectIds().add(http.getProjectId());
                             env.setFullUrl(false);
                         }
@@ -637,7 +637,7 @@ public class ApiAutomationService {
                     // 校验是否是全路径
                     MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                     if (httpSamplerProxy.isEnable()) {
-                        if (httpSamplerProxy.getIsRefEnvironment()) {
+                        if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || (httpSamplerProxy.getIsRefEnvironment()!= null && httpSamplerProxy.getIsRefEnvironment())) {
                             env.getProjectIds().add(httpSamplerProxy.getProjectId());
                             env.setFullUrl(false);
                         }
@@ -678,7 +678,7 @@ public class ApiAutomationService {
                             http.setUrl(apiDefinition.getPath());
                         }
                         if (http.isEnable()) {
-                            if (http.getIsRefEnvironment()) {
+                            if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment()!= null && http.getIsRefEnvironment())) {
                                 env.setFullUrl(false);
                                 env.getProjectIds().add(http.getProjectId());
                             }
