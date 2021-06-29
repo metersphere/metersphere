@@ -67,7 +67,7 @@
 import MsTag from "@/business/components/common/components/MsTag";
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 export default {
   name: "MsRunningTaskList",
   components: {

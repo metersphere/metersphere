@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 export default {
   name: "CustomFiledComponent",

@@ -81,7 +81,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import TestCaseReportTemplate from "@/business/components/settings/workspace/template/TestCaseReportTemplate";
 import TestCaseTemplateEdit from "@/business/components/settings/workspace/template/TestCaseTemplateEdit";

@@ -96,7 +96,7 @@
 <script>
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {getCurrentWorkspaceId} from "@/common/js/utils";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
