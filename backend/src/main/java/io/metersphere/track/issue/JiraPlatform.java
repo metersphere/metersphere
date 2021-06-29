@@ -52,7 +52,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
         if (StringUtils.isNotBlank(config)) {
             jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(orgId, SessionUtils.getUserId());
+            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(orgId, userId);
             if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getJiraAccount())
                     && StringUtils.isNotBlank(userPlatInfo.getJiraPassword())) {
                 jiraConfig.setAccount(userPlatInfo.getJiraAccount());

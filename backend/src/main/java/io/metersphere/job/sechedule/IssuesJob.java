@@ -1,5 +1,6 @@
 package io.metersphere.job.sechedule;
 
+import com.alibaba.fastjson.JSON;
 import com.fit2cloud.quartz.anno.QuartzScheduled;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -34,7 +35,7 @@ public class IssuesJob {
                 try {
                     List<IssuesDao> issues = issuesService.getIssues(l.getCaseId());
                     int issuesCount = issues.size();
-                    testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), issues.toString());
+                    testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), JSON.toJSONString(issues));
                 } catch (Exception e) {
                     LogUtil.error("定时任务处理bug数量报错planId: " + l.getPlanId(), e);
                 }
