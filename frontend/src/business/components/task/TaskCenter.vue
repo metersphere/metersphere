@@ -43,7 +43,14 @@
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
             <span>{{ item.name }} </span><br/>
             <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}</span><br/>
-            <el-progress :percentage="getPercentage(item.executionStatus)"></el-progress>
+            <el-row>
+              <el-col :span="20">
+                <el-progress :percentage="getPercentage(item.executionStatus)"/>
+              </el-col>
+              <el-col :span="4">
+                <span>{{ item.executionStatus }}</span>
+              </el-col>
+            </el-row>
           </el-card>
         </div>
       </div>
