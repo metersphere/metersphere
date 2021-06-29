@@ -78,7 +78,7 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import {TEST_CASE_LIST} from "@/common/js/constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";

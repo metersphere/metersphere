@@ -73,7 +73,7 @@
 <script>
 import TestPlanIssueEdit from "@/business/components/track/case/components/TestPlanIssueEdit";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
 import IssueRelateList from "@/business/components/track/case/components/IssueRelateList";

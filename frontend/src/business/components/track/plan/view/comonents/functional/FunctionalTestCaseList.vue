@@ -269,7 +269,7 @@ import {
   initCondition,
 } from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getProjectMember} from "@/network/user";
 import {getTestTemplate} from "@/network/custom-field-template";
 

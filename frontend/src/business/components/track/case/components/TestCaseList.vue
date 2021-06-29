@@ -185,7 +185,7 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import {getTestTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import BatchMove from "@/business/components/track/case/components/BatchMove";
 
 export default {

@@ -55,7 +55,7 @@
 <script>
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getRelateIssues, testCaseIssueRelate} from "@/network/Issue";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";

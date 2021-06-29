@@ -21,7 +21,7 @@
 
 <script>
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getCustomTableWidth} from "@/common/js/tableUtils";
 export default {
   name: "IssueDescriptionTableItem",
