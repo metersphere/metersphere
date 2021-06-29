@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ZentaoBuild;
@@ -218,6 +219,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
+        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
 
         String session = login();
         String projectId = getProjectId(issuesRequest.getProjectId());
@@ -233,6 +235,13 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
+
+        customFields.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getCustomData())) {
+                paramMap.add(item.getCustomData(), item.getValue());
+            }
+        });
+
         String description = issuesRequest.getDescription();
         String zentaoSteps = description;
 
@@ -255,31 +264,36 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             paramMap.add("assignedTo", issuesRequest.getZentaoAssigned());
         }
 
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-create.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
-        String body = responseEntity.getBody();
-        JSONObject obj = JSONObject.parseObject(body);
+        try {
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-create.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
+            String body = responseEntity.getBody();
+            JSONObject obj = JSONObject.parseObject(body);
+            LogUtil.info("add zentao bug " + obj);
 
-        LogUtil.info("add zentao bug " + obj);
+            if (obj != null) {
+                JSONObject data = obj.getJSONObject("data");
+                String id = data.getString("id");
+                if (StringUtils.isNotBlank(id)) {
+                    issuesRequest.setId(id);
+                    // 用例与第三方缺陷平台中的缺陷关联
+                    handleTestCaseIssues(issuesRequest);
 
-        if (obj != null) {
-            JSONObject data = obj.getJSONObject("data");
-            String id = data.getString("id");
-            if (StringUtils.isNotBlank(id)) {
-                issuesRequest.setId(id);
-                // 用例与第三方缺陷平台中的缺陷关联
-                handleTestCaseIssues(issuesRequest);
-
-                IssuesExample issuesExample = new IssuesExample();
-                issuesExample.createCriteria().andIdEqualTo(id)
-                        .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
-                if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
-                    // 插入缺陷表
-                    insertIssuesWithoutContext(id, issuesRequest);
+                    IssuesExample issuesExample = new IssuesExample();
+                    issuesExample.createCriteria().andIdEqualTo(id)
+                            .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+                    if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
+                        // 插入缺陷表
+                        insertIssuesWithoutContext(id, issuesRequest);
+                    }
                 }
             }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("提交禅道缺陷失败!");
         }
+
     }
 
     @Override
