@@ -50,7 +50,6 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -585,6 +584,9 @@ public class ApiAutomationService {
         List<MsTestElement> hashTree = getScenarioHashTree(definition);
         for (int i = 0; i < hashTree.size(); i++) {
             MsTestElement tr = hashTree.get(i);
+            if (!tr.isEnable()) {
+                continue;
+            }
             String referenced = tr.getReferenced();
             if (StringUtils.equals(MsTestElementConstants.REF.name(), referenced)) {
                 if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
@@ -599,7 +601,7 @@ public class ApiAutomationService {
                         }
                     }
                     if (http.isEnable()) {
-                        if (StringUtils.isBlank(http.getUrl()) || !tr.isURL(http.getUrl())) {
+                        if (http.getIsRefEnvironment()) {
                             env.getProjectIds().add(http.getProjectId());
                             env.setFullUrl(false);
                         }
@@ -631,7 +633,7 @@ public class ApiAutomationService {
                     // 校验是否是全路径
                     MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                     if (httpSamplerProxy.isEnable()) {
-                        if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !tr.isURL(httpSamplerProxy.getUrl())) {
+                        if (httpSamplerProxy.getIsRefEnvironment()) {
                             env.getProjectIds().add(httpSamplerProxy.getProjectId());
                             env.setFullUrl(false);
                         }
@@ -640,9 +642,7 @@ public class ApiAutomationService {
                     env.getProjectIds().add(tr.getProjectId());
                 }
             }
-            if (!tr.isEnable()) {
-                continue;
-            }
+
             if (StringUtils.equals(tr.getType(), "scenario")) {
                 env.getProjectIds().add(tr.getProjectId());
             }
@@ -659,6 +659,9 @@ public class ApiAutomationService {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             for (int i = 0; i < tree.size(); i++) {
                 MsTestElement tr = tree.get(i);
+                if (!tr.isEnable()) {
+                    continue;
+                }
                 String referenced = tr.getReferenced();
                 if (StringUtils.equals(MsTestElementConstants.REF.name(), referenced)) {
                     if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
@@ -671,7 +674,7 @@ public class ApiAutomationService {
                             http.setUrl(apiDefinition.getPath());
                         }
                         if (http.isEnable()) {
-                            if (StringUtils.isBlank(http.getUrl()) || !tr.isURL(http.getUrl())) {
+                            if (http.getIsRefEnvironment()) {
                                 env.setFullUrl(false);
                                 env.getProjectIds().add(http.getProjectId());
                             }
@@ -710,9 +713,6 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
                     }
-                }
-                if (!tr.isEnable()) {
-                    continue;
                 }
                 if (StringUtils.equals(tr.getType(), "scenario")) {
                     env.getProjectIds().add(tr.getProjectId());
