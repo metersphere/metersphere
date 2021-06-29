@@ -489,6 +489,9 @@ export default {
       if(this.needRefreshModule()){
         this.$emit('refreshTree');
       }
+      if(this.selectProjectId){
+        projectId = this.selectProjectId;
+      }
       this.selectRows = new Set();
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
