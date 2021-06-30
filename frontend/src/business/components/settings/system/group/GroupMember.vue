@@ -54,7 +54,7 @@
     </el-dialog>
     <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="45%"
                :title="title" :destroy-on-close="true" v-loading="memberResult.loading" @close="memberDialogClose">
-      <el-form ref="memberFrom" label-position="right" :model="form" size="small" :rules="rules" label-width="120px"
+      <el-form ref="memberFrom" label-position="right" :model="form" size="small" :rules="rules" label-width="100px"
                style="margin-right: 40px;">
         <el-form-item :label="$t('commons.member')" prop="userIds">
           <el-select

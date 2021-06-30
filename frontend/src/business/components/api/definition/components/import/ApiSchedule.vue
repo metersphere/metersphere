@@ -1,7 +1,7 @@
 <template>
   <el-main>
     <div  class="api-schedule-form">
-      <el-form :model="formData" :rules="rules" v-loading="result.loading" label-width="140px" ref="form">
+      <el-form :model="formData" :rules="rules" v-loading="result.loading" label-width="80px" ref="form">
         <el-row>
           <el-col :span="12">
             <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">

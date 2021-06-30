@@ -1,7 +1,7 @@
 <template>
   <el-main v-loading="result.loading" class="container" :style="isPlan ? '' : 'height: calc(100vh - 62px)'">
     <el-scrollbar>
-      <el-form :model="form" :rules="rules" label-position="right" label-width="140px" ref="form">
+      <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
         <el-form-item :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
@@ -96,7 +96,7 @@ export default {
       result: {},
       relateFields: [],
       isFormAlive: true,
-      formLabelWidth: "120px",
+      formLabelWidth: "100px",
       issueTemplate: {},
       customFieldForm: {},
       customFieldRules: {},

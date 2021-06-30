@@ -166,7 +166,7 @@ export default {
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
       },
-      formLabelWidth: "120px",
+      formLabelWidth: "100px",
       operationType: '',
       principalOptions: []
     };

@@ -892,13 +892,6 @@ export default {
   padding: 7px;
 }
 
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-}
-
 .ms-api-col {
   background-color: #7C3985;
   border-color: #7C3985;
@@ -928,7 +921,7 @@ export default {
 }
 
 /deep/ .el-card__body {
-  padding: 5px;
+  padding: 6px 10px;
 }
 
 /deep/ .el-drawer__body {

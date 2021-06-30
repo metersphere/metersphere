@@ -163,7 +163,7 @@ export default {
 
 <style scoped>
 .metric-container {
-  padding: 20px;
+  padding: 5px 10px;
 }
 
 .metric-container #chart {
@@ -173,7 +173,7 @@ export default {
 }
 
 .metric-container .split {
-  margin: 20px;
+  margin: 10px;
   height: 100px;
   border-left: 1px solid #D8DBE1;
 }

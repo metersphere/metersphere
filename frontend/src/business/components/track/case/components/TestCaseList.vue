@@ -219,7 +219,7 @@ export default {
     return {
       type: TEST_CASE_LIST,
       tableHeaderKey:"TRACK_TEST_CASE",
-      screenHeight: 'calc(100vh - 310px)',
+      screenHeight: 'calc(100vh - 250px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
       condition: {
@@ -638,7 +638,7 @@ export default {
 <style scoped>
 
 .table-page {
-  padding-top: 20px;
+  padding-top: 10px;
   margin-right: -9px;
   float: right;
 }

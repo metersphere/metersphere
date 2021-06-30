@@ -159,11 +159,4 @@
 <style scoped>
   @import "~jsondiffpatch/dist/formatters-styles/html.css";
   @import "~jsondiffpatch/dist/formatters-styles/annotated.css";
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-  }
 </style>
