@@ -19,7 +19,7 @@ COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
 COPY backend/target/classes/jmeter/ /app/jmeter/
 
 RUN mkdir -p /opt/jmeter/lib/junit
-COPY backend/target/classes/jmeter/ /opt/jmeter/
+RUN cp -rf /app/jmeter/ /opt/jmeter/
 
 ENV JAVA_CLASSPATH=/app:/app/lib/*
 ENV JAVA_MAIN_CLASS=io.metersphere.Application
