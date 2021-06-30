@@ -3,7 +3,7 @@
     <div>
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{ $t('commons.adv_search.title') }}
       </el-link>
-      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" class="search-input" size="small"
+      <el-input :placeholder="$t('commons.search_by_id_name_tag_path')" @blur="search" class="search-input" size="small"
                 @keyup.enter.native="enterSearch"
                 v-model="condition.name" ref="inputVal"/>
 
