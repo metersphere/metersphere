@@ -79,14 +79,14 @@ public class TestPlanReportService {
     }
 
     /**
-     * @param reportId               报告ID(外部传入）
-     * @param planId                 测试计划ID
-     * @param userId                 用户ID
-     * @param triggerMode            执行方式
-     * @param countResources         是否统计资源-false的话， 下面三个不同资源是否运行则由参数决定。 true的话则由统计后的结果决定
-     * @param apiCaseIsExecuting     接口案例是否执行中
-     * @param scenarioIsExecuting    场景案例是否执行中
-     * @param performanceIsExecuting 性能案例是否执行中
+     *  saveRequest.reportId               报告ID(外部传入）
+     *  saveRequest.planId                 测试计划ID
+     *  saveRequest.userId                 用户ID
+     *  saveRequest.triggerMode            执行方式
+     *  saveRequest.countResources         是否统计资源-false的话， 下面三个不同资源是否运行则由参数决定。 true的话则由统计后的结果决定
+     *  saveRequest.apiCaseIsExecuting     接口案例是否执行中
+     *  saveRequest.scenarioIsExecuting    场景案例是否执行中
+     *  saveRequest.performanceIsExecuting 性能案例是否执行中
      * @return
      */
     public TestPlanReport genTestPlanReport(TestPlanReportSaveRequest saveRequest) {
@@ -215,7 +215,13 @@ public class TestPlanReportService {
 
     public synchronized void updateReport(List<String> testPlanReportIdList, String runMode, String triggerMode) {
         for (String planReportId : testPlanReportIdList) {
-            this.countReportByTestPlanReportId(planReportId, runMode, triggerMode);
+            this.countReportByTestPlanReportId(planReportId, runMode, triggerMode,null);
+        }
+    }
+
+    public synchronized void updateReport(List<String> testPlanReportIdList, String runMode, String triggerMode,List<String> scenarioIdList) {
+        for (String planReportId : testPlanReportIdList) {
+            this.countReportByTestPlanReportId(planReportId, runMode, triggerMode,scenarioIdList);
         }
     }
 
@@ -233,7 +239,7 @@ public class TestPlanReportService {
      * @param resourceRunMode 资源的运行模式,triggerMode非Scedule可以为null
      * @param triggerMode     触发方式  ReportTriggerMode.enum
      */
-    public void countReportByTestPlanReportId(String planReportId, String resourceRunMode, String triggerMode) {
+    public void countReportByTestPlanReportId(String planReportId, String resourceRunMode, String triggerMode,List<String> scenarioIdList) {
         TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(planReportId);
 
         QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
@@ -318,6 +324,39 @@ public class TestPlanReportService {
         TestPlanReportDataWithBLOBs testPlanReportData = null;
         if (!testPlanReportDataList.isEmpty()) {
             testPlanReportData = testPlanReportDataList.get(0);
+
+            if (CollectionUtils.isNotEmpty(scenarioIdList)
+                &&StringUtils.equalsAny(triggerMode, ReportTriggerMode.SCHEDULE.name(), ReportTriggerMode.API.name())
+                && StringUtils.equalsAny(resourceRunMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                try{
+                    List<String> scenarioListArr = JSONArray.parseArray(testPlanReportData.getScenarioInfo(),String.class);
+                    TestCaseReportAdvanceStatusResultDTO savedDTO = JSONObject.parseObject(testPlanReportData.getExecuteResult(),TestCaseReportAdvanceStatusResultDTO.class);
+                    List<String> executeScenarioList = new ArrayList<>();
+                    if(savedDTO != null){
+                        if(savedDTO.getExecutedScenarioIds() != null){
+                            executeScenarioList = savedDTO.getExecutedScenarioIds();
+                        }
+                    }
+                    for (String scenarioId  : scenarioIdList) {
+                        if (!executeScenarioList.contains(scenarioId)) {
+                            executeScenarioList.add(scenarioId);
+                        }
+                    }
+                    if(testCaseReportMetricDTO.getExecuteResult() == null){
+                        TestCaseReportAdvanceStatusResultDTO executeResultDTO = new TestCaseReportAdvanceStatusResultDTO();
+                        testCaseReportMetricDTO.setExecuteResult(executeResultDTO);
+                    }
+                    testCaseReportMetricDTO.getExecuteResult().setExecutedScenarioIds(executeScenarioList);
+
+                    if(!CollectionUtils.isEqualCollection(scenarioListArr,executeScenarioList)){
+                        testPlanReport.setIsScenarioExecuting(true);
+                    }
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+            //统计执行的场景ID
+
             testPlanReportData.setExecuteResult(JSONObject.toJSONString(testCaseReportMetricDTO.getExecuteResult()));
             testPlanReportData.setFailurTestCases(JSONObject.toJSONString(testCaseReportMetricDTO.getFailureTestCases()));
             testPlanReportData.setModuleExecuteResult(JSONArray.toJSONString(testCaseReportMetricDTO.getModuleExecuteResult()));
