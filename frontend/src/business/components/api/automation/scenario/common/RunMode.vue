@@ -62,6 +62,7 @@
                 v-for="item in resourcePools"
                 :key="item.id"
                 :label="item.name"
+                :disabled="!item.api"
                 :value="item.id">
               </el-option>
             </el-select>
