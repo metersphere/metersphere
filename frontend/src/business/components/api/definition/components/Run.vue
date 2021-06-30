@@ -39,7 +39,7 @@ import ThreadGroup from "./jmeter/components/thread-group";
           if (this.debug) {
             url = "/api/definition/report/get/" + this.runId + "/" + "debug";
           } else {
-            url = "/api/definition/report/get/" + this.runId + "/" + "run";
+            url = "/api/definition/report/get/" + this.runId;
           }
           this.$get(url, response => {
             if (response.data) {

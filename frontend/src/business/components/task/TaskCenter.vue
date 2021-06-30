@@ -45,7 +45,7 @@
             <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}</span><br/>
             <el-row>
               <el-col :span="20">
-                <el-progress :percentage="getPercentage(item.executionStatus)"/>
+                <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
               </el-col>
               <el-col :span="4">
                 <span>{{ item.executionStatus }}</span>
@@ -110,6 +110,9 @@ export default {
     color: String
   },
   methods: {
+    format(item) {
+      return '';
+    },
     showTaskCenter() {
       this.init();
       this.taskVisible = true;
@@ -127,7 +130,6 @@ export default {
           return 100;
         }
       }
-      //return Math.round(Math.random() * 80 + 20);
       return 60;
     },
     showReport(row, env) {
@@ -269,6 +271,10 @@ export default {
 .ms-card-task:hover {
   cursor: pointer;
   border-color: #783887;
+}
+
+/deep/ .el-progress-bar {
+  padding-right: 20px;
 }
 
 /deep/ .el-menu-item {
