@@ -17,6 +17,8 @@ public class RunDefinitionRequest {
 
     private String reportId;
 
+    private boolean saved;
+
     private String requestId;
 
     private String name;

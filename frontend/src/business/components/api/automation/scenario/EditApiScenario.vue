@@ -146,7 +146,7 @@
                     <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-if="!debugLoading">
                       {{ $t('api_test.request.debug') }}
                       <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>{{ $t('test_track.case.steps') }}</el-dropdown-item>
+                        <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
                       </el-dropdown-menu>
                     </el-dropdown>
                     <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
@@ -235,13 +235,13 @@
       <api-environment-config v-if="type!=='detail'" ref="environmentConfig" @close="environmentConfigClose"/>
 
       <!--执行组件-->
-      <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId"
+      <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="!debug"
               :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="debug" :currentProjectId="projectId" @refresh="detailRefresh"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->

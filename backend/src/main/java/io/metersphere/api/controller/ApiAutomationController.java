@@ -160,6 +160,9 @@ public class ApiAutomationController {
     public void runDebug(@RequestPart("request") RunDefinitionRequest request,
                          @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         request.setExecuteType(ExecuteType.Debug.name());
+        if (request.isSaved()) {
+            request.setExecuteType(ExecuteType.Saved.name());
+        }
         apiAutomationService.debugRun(request, bodyFiles, scenarioFiles);
     }
 
@@ -245,6 +248,7 @@ public class ApiAutomationController {
     public List<JmxInfoDTO> batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.batchGenPerformanceTestJmx(request);
     }
+
     @PostMapping("/batchCopy")
     public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.batchCopy(request);

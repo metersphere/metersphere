@@ -19,7 +19,7 @@
     </div>
     <div class="ms-header-right">
       <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
-      <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">失败继续</el-checkbox>
+      <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{$t('commons.failure_continues')}}</el-checkbox>
       <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
                    :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                    @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
@@ -28,7 +28,7 @@
       <el-dropdown split-button type="primary" @click="runDebug" style="margin-right: 10px" size="mini" @command="handleCommand" v-if="!debug">
         {{ $t('api_test.request.debug') }}
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item>{{ $t('test_track.case.steps') }}</el-dropdown-item>
+          <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
       <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
