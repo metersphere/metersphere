@@ -339,7 +339,7 @@ public class TestPlanApiCaseService {
         if (caseWithBLOBs != null) {
             apiResult.setName(caseWithBLOBs.getName());
         }
-        apiResult.setTriggerMode(TriggerMode.MANUAL.name());
+        apiResult.setTriggerMode(TriggerMode.BATCH.name());
         apiResult.setActuator("LOCAL");
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             apiResult.setActuator(request.getConfig().getResourcePoolId());
@@ -368,8 +368,8 @@ public class TestPlanApiCaseService {
                 public void run() {
                     for (TestPlanApiCase key : planApiCases) {
                         try {
-                            RunModeDataDTO modeDataDTO = null;
-                            if (StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+                            RunModeDataDTO modeDataDTO;
+                            if (request.getConfig()!= null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                                 modeDataDTO = new RunModeDataDTO(key.getId(), UUID.randomUUID().toString());
                             } else {
                                 // 生成报告和HashTree

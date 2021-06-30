@@ -7,6 +7,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
+import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.DelimiterConstants;
@@ -46,6 +47,8 @@ public class ApiDefinitionExecResultService {
     private TestCaseReviewApiCaseService testCaseReviewApiCaseService;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -66,18 +69,20 @@ public class ApiDefinitionExecResultService {
                         boolean saved = true;
                         if (saveResult == null) {
                             saveResult = new ApiDefinitionExecResult();
-                            saveResult.setId(UUID.randomUUID().toString());
+                            saveResult.setId(result.getTestId());
                             saveResult.setActuator("LOCAL");
                             saveResult.setName(item.getName());
                             saveResult.setTriggerMode(triggerMode);
                             saveResult.setType(type);
-                            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
-                            if (apiDefinitionWithBLOBs != null) {
-                                saveResult.setName(apiDefinitionWithBLOBs.getName());
-                            } else {
-                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
-                                if (caseWithBLOBs != null) {
-                                    saveResult.setName(caseWithBLOBs.getName());
+                            if (!StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+                                ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(item.getName());
+                                if (apiDefinition != null) {
+                                    saveResult.setName(apiDefinition.getName());
+                                } else {
+                                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
+                                    if (caseWithBLOBs != null) {
+                                        saveResult.setName(caseWithBLOBs.getName());
+                                    }
                                 }
                             }
                             if (StringUtils.isNotEmpty(result.getUserId())) {
@@ -98,8 +103,22 @@ public class ApiDefinitionExecResultService {
                         saveResult.setEndTime(item.getResponseResult().getResponseTime());
                         saveResult.setStatus(status);
                         if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
-                            testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
-                            testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(item.getName());
+                            String id = null;
+                            if (testPlanApiCase != null) {
+                                testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                                id = testPlanApiCase.getApiCaseId();
+                            }
+                            TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(item.getName());
+                            if (testCaseReviewApiCase != null) {
+                                testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                                id = testCaseReviewApiCase.getApiCaseId();
+                            }
+                            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
+                            if (caseWithBLOBs != null) {
+                                saveResult.setName(caseWithBLOBs.getName());
+                                saveResult.setResourceId(id);
+                            }
                         }
 
                         // 清空上次执行结果的内容，只保留当前最新一条内容
