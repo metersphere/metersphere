@@ -284,14 +284,7 @@ export default {
         grid: {
           // right: '35%' // 动态改这个值
         },
-        title: {
-          text: 'Test Details',
-          left: 'center',
-          top: 20,
-          textStyle: {
-            color: '#99743C'
-          },
-        },
+        title: {},
         tooltip: {
           show: true,
           trigger: 'axis',
@@ -316,9 +309,22 @@ export default {
             return result;
           }
         },
-        legend: {},
+        legend: {
+          y: 'top',
+        },
         xAxis: {},
         yAxis: [],
+        dataZoom: [
+          {
+            type: 'inside',
+            start: 0,
+            end: 100
+          },
+          {
+            start: 0,
+            end: 20
+          }
+        ],
         series: []
       },
       seriesData: [],

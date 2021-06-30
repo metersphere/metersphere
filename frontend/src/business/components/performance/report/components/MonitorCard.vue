@@ -8,9 +8,11 @@
               <el-collapse-item :title="$t('Monitor')" name="0">
                 <el-checkbox-group v-model="checkList"
                                    @change="handleChecked(item)">
-                  <el-checkbox :label="op.label" v-for="op in checkOptions"
-                               :key="op.key"
-                               :content="op.label"/>
+                  <div v-for="op in checkOptions"
+                       :key="op.key"
+                       :content="op.label">
+                    <el-checkbox :label="op.label"/>
+                  </div>
                 </el-checkbox-group>
               </el-collapse-item>
             </el-collapse>
@@ -56,21 +58,16 @@ export default {
         grid: {
           // right: '35%' // 动态改这个值
         },
-        title: {
-          text: 'Monitor',
-          left: 'center',
-          top: 20,
-          textStyle: {
-            color: '#99743C'
-          },
-        },
+        title: {},
         tooltip: {
           trigger: 'axis',
           axisPointer: {
             type: 'cross'
           },
         },
-        legend: {},
+        legend: {
+          y: 'top'
+        },
         xAxis: {type: 'category'},
         yAxis: [{
           name: 'Usage(%)',
@@ -82,6 +79,17 @@ export default {
           name: 'kb/s',
           min: 0,
         }],
+        dataZoom: [
+          {
+            type: 'inside',
+            start: 0,
+            end: 100
+          },
+          {
+            start: 0,
+            end: 20
+          }
+        ],
         series: []
       },
       totalOption: {}
@@ -199,5 +207,9 @@ export default {
 .monitor-detail {
   height: calc(100vh - 375px);
   overflow: auto;
+}
+
+/deep/ .el-checkbox__label {
+  font-size: 10px !important;
 }
 </style>
