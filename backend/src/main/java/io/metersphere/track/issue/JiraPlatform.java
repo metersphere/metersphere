@@ -14,9 +14,9 @@ import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.JiraClientV2;
-import io.metersphere.track.issue.domain.JiraAddIssueResponse;
-import io.metersphere.track.issue.domain.JiraConfig;
-import io.metersphere.track.issue.domain.JiraIssue;
+import io.metersphere.track.issue.domain.Jira.JiraAddIssueResponse;
+import io.metersphere.track.issue.domain.Jira.JiraConfig;
+import io.metersphere.track.issue.domain.Jira.JiraIssue;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
@@ -125,23 +125,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void filter(List<IssuesDao> issues) {
-        setConfig(null);
-        issues.forEach((issuesDao) -> {
-            parseIssue(issuesDao, jiraClientV2.getIssues(issuesDao.getId()));
-            if (StringUtils.isBlank(issuesDao.getId())) {
-                // 标记成删除
-                issuesDao.setStatus(IssuesStatus.DELETE.toString());
-            } else {
-                // 缺陷状态为 完成，则不显示
-                if (!StringUtils.equals("done", issuesDao.getStatus())) {
-                    issuesDao.setStatus(IssuesStatus.RESOLVED.toString());
-                }
-            }
-        });
-    }
-
-    @Override
     public List<DemandDTO> getDemandList(String projectId) {
         List<DemandDTO> list = new ArrayList<>();
 
@@ -217,19 +200,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         String jiraKey = validateJiraKey(issuesRequest.getProjectId());
 
-        String content = issuesRequest.getDescription();
-
-        Document document = Jsoup.parse(content);
-        document.outputSettings(new Document.OutputSettings().prettyPrint(false));
-        document.select("br").append("\\n");
-        document.select("p").prepend("\\n\\n");
-        String s = document.html().replaceAll("\\\\n", "\n");
-        String desc = Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
-        desc = desc.replace("&nbsp;", "");
-
         JSONObject fields = new JSONObject();
         JSONObject project = new JSONObject();
 
+//        String desc = ms2JiraDescription(issuesRequest.getDescription());
+        String desc = issuesRequest.getDescription();
 
         fields.put("project", project);
         project.put("key", jiraKey);
@@ -270,7 +245,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         handleTestCaseIssues(issuesRequest);
 
         // 插入缺陷表
-        insertIssuesWithoutContext(result.getKey(), issuesRequest);
+        insertIssues(result.getKey(), issuesRequest);
     }
 
     @Override
@@ -282,6 +257,16 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void deleteIssue(String id) {
+    }
+
+    private String jiraDescription2Ms(String jiraDescription) {
+        Document document = Jsoup.parse(jiraDescription);
+        document.outputSettings(new Document.OutputSettings().prettyPrint(false));
+        document.select("br").append("\\n");
+        document.select("p").prepend("\\n\\n");
+        String s = document.html().replaceAll("\\\\n", "\n");
+        String desc = Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
+        return desc.replace("&nbsp;", "");
     }
 
     @Override
@@ -301,6 +286,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             setConfig(null);
             try {
                 parseIssue(item, jiraClientV2.getIssues(item.getId()));
+                item.setDescription(jiraDescription2Ms(item.getDescription()));
                 // 缺陷状态为 完成，则不显示
                 if (StringUtils.equals("done", item.getStatus())) {
                     item.setStatus(IssuesStatus.RESOLVED.toString());

@@ -1,4 +1,4 @@
-package io.metersphere.track.issue.domain;
+package io.metersphere.track.issue.domain.tapd;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import lombok.Getter;

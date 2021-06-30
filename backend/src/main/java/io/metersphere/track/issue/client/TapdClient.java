@@ -1,9 +1,9 @@
 package io.metersphere.track.issue.client;
 
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.track.issue.domain.TapdConfig;
-import io.metersphere.track.issue.domain.TapdGetIssueResponse;
-import io.metersphere.track.issue.domain.TapdStatusMapResponse;
+import io.metersphere.track.issue.domain.tapd.TapdConfig;
+import io.metersphere.track.issue.domain.tapd.TapdGetIssueResponse;
+import io.metersphere.track.issue.domain.tapd.TapdStatusMapResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -23,14 +23,6 @@ public class TapdClient extends BaseClient {
 
     protected  String PASSWD;
 
-//    public JiraAddIssueResponse addIssue(String body) {
-//        LogUtil.debug("addIssue: " + body);
-//        HttpHeaders headers = getAuthHeader();
-//        headers.setContentType(MediaType.APPLICATION_JSON);
-//        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
-//        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/issue", HttpMethod.POST, requestEntity, String.class);
-//        return (JiraAddIssueResponse) getResultForObject(JiraAddIssueResponse.class, response);
-//    }
 
     public TapdGetIssueResponse getIssueForPage(String projectId, int pageNum, int limit) {
        return getIssueForPageByIds(projectId, pageNum, limit, null);

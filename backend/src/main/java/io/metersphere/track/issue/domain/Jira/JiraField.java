@@ -1,4 +1,4 @@
-package io.metersphere.track.issue.domain;
+package io.metersphere.track.issue.domain.Jira;
 
 import lombok.Getter;
 import lombok.Setter;

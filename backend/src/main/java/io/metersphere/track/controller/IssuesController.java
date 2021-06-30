@@ -4,13 +4,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
-import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.issue.domain.PlatformUser;
-import io.metersphere.track.issue.domain.ZentaoBuild;
+import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -91,11 +90,6 @@ public class IssuesController {
     public List<ZentaoBuild> getZentaoBuilds(@RequestBody IssuesRequest request) {
         return issuesService.getZentaoBuilds(request);
     }
-
-//    @PostMapping("/get/platform/issue")
-//    public IssuesWithBLOBs getPlatformIssue(@RequestBody IssuesWithBLOBs issue) {
-//        return issuesService.getPlatformIssue(issue);
-//    }
 
     @GetMapping("/sync/{projectId}")
     public void getPlatformIssue(@PathVariable String projectId) {

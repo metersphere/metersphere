@@ -24,7 +24,7 @@ import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
-import io.metersphere.track.issue.domain.ZentaoBuild;
+import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -415,32 +415,24 @@ public class IssuesService {
             List<IssuesDao> jiraIssues = issues.stream()
                     .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Jira.name()))
                     .collect(Collectors.toList());
-//            List<IssuesDao> zentaoIssues = issues.stream()
-//                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Zentao.name()))
-//                    .collect(Collectors.toList());
+            List<IssuesDao> zentaoIssues = issues.stream()
+                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Zentao.name()))
+                    .collect(Collectors.toList());
 
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
-                if (CollectionUtils.isNotEmpty(tapdIssues)) {
-                    TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
-                    syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
-                }
-                if (CollectionUtils.isNotEmpty(jiraIssues)) {
-                    JiraPlatform jiraPlatform = new JiraPlatform(new IssuesRequest());
-                    syncThirdPartyIssues(jiraPlatform::syncIssues, project, tapdIssues);
-                }
-//                if (CollectionUtils.isNotEmpty(zentaoIssues)) {
-//                    String config = getConfig(orgId, IssuesManagePlatform.Zentao.toString());
-//                    JSONObject object = JSON.parseObject(config);
-//                    String account = object.getString("account");
-//                    String password = object.getString("password");
-//                    String url = object.getString("url");
-//                    ZentaoPlatform zentaoPlatform = new ZentaoPlatform(account, password, url);
-//                    IssuesDao zentaoIssues = zentaoPlatform.getZentaoIssues(issue.getId());
-//                    issue.setTitle(zentaoIssues.getTitle());
-//                    issue.setDescription(zentaoIssues.getDescription());
-//                    issue.setStatus(zentaoIssues.getStatus());
-//                }
+            if (CollectionUtils.isNotEmpty(tapdIssues)) {
+                TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
+                syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
+            }
+            if (CollectionUtils.isNotEmpty(jiraIssues)) {
+                JiraPlatform jiraPlatform = new JiraPlatform(new IssuesRequest());
+                syncThirdPartyIssues(jiraPlatform::syncIssues, project, jiraIssues);
+            }
+            if (CollectionUtils.isNotEmpty(zentaoIssues)) {
+                ZentaoPlatform zentaoPlatform = new ZentaoPlatform(issuesRequest);
+                syncThirdPartyIssues(zentaoPlatform::syncIssues, project, zentaoIssues);
+            }
         }
     }
 
