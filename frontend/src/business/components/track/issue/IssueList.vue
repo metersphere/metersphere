@@ -4,7 +4,7 @@
       <el-card class="table-card">
         <template v-slot:header>
           <ms-table-header :create-permission="['PROJECT_TRACK_ISSUE:READ+CREATE']" :condition.sync="page.condition" @search="getIssues" @create="handleCreate"
-                           :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"
+                           :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
               <el-tooltip v-if="hasThirdPart" :content="'更新第三方平台的缺陷内容'">
@@ -174,7 +174,7 @@ export default {
       fields: [],
       tableHeaderKey:"ISSUE_LIST",
       fieldsWidth: getCustomTableWidth('ISSUE_LIST'),
-      screenHeight: 'calc(100vh - 290px)',
+      screenHeight: 'calc(100vh - 200px)',
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",

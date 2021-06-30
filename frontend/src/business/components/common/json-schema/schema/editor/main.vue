@@ -386,13 +386,6 @@
     cursor: pointer;
   }
 
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 0px 0px 10px;
-  }
   .ms-transform {
     transform: rotate(-180deg);
     transition: 0ms;

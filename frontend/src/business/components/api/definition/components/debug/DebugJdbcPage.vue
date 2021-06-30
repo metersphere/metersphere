@@ -162,11 +162,5 @@
 </script>
 
 <style scoped>
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 0px;
-  }
+
 </style>

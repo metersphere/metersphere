@@ -3,8 +3,7 @@
     <template v-slot:header>
       <ms-table-header :create-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
-                       :create-tip="$t('test_track.review.create_review')"
-                       :title="$t('test_track.review.test_review')"/>
+                       :create-tip="$t('test_track.review.create_review')"/>
     </template>
 
     <el-table
@@ -162,7 +161,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},

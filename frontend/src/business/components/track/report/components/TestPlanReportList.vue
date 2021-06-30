@@ -2,8 +2,7 @@
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" :show-create="false"
-                       @search="initTableData"
-                       :title="$t('test_track.report.name')"/>
+                       @search="initTableData"/>
     </template>
     <el-table border :data="tableData"
               @select-all="handleSelectAll"
@@ -116,7 +115,7 @@ export default {
       pageSize: 10,
       isTestManagerOrTestUser: false,
       selectRows: new Set(),
-      screenHeight: 'calc(100vh - 295px)', //屏幕高度
+      screenHeight: 'calc(100vh - 200px)', //屏幕高度
       total: 0,
       tableData: [],
       statusFilters: [

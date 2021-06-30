@@ -194,11 +194,4 @@
   .ms-el-form-item__content >>> .el-form-item__content {
     line-height: 20px;
   }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-  }
 </style>

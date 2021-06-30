@@ -407,7 +407,7 @@ export default {
 <style scoped>
 
 .el-main {
-  padding: 15px;
+  padding: 5px 10px;
 }
 
 /deep/ .el-button-group > .el-button:first-child {

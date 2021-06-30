@@ -41,7 +41,7 @@
 
 <style scoped>
   .metric-container {
-    padding-bottom: 20px;
+    padding-bottom: 10px;
   }
 
   .node-title {

@@ -4,7 +4,6 @@
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
-                           :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
@@ -133,7 +132,7 @@ export default {
       selectAll: false,
       unSelection: [],
       selectDataCounts: 0,
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
     }
   },
 

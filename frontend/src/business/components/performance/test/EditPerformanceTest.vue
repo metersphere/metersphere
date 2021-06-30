@@ -412,7 +412,7 @@ export default {
 <style scoped>
 
 .testplan-config {
-  margin-top: 15px;
+  margin-top: 5px;
 }
 
 .el-select {
@@ -424,7 +424,7 @@ export default {
 }
 
 .advanced-config {
-  height: calc(100vh - 265px);
+  height: calc(100vh - 210px);
   overflow: auto;
 }
 

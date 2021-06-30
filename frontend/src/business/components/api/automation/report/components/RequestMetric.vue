@@ -35,7 +35,7 @@
 
 <style scoped>
   .metric-container {
-    padding: 20px;
+    padding: 5px 10px;
   }
 
   .metric {
