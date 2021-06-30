@@ -248,20 +248,27 @@ public class ApiScenarioReportService {
         List<ScenarioResult> scenarioResultList = result.getScenarios();
 
         List<String> testPlanReportIdList = new ArrayList<>();
-        StringBuilder scenarioIds = new StringBuilder();
+//        StringBuilder scenarioIds = new StringBuilder();
         StringBuilder scenarioNames = new StringBuilder();
         String projectId = null;
         String userId = null;
-        TestResult fullResult = createTestResult(result);
+
         List<String> reportIds = new ArrayList<>();
+        List<String> scenarioIdList = new ArrayList<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
+
             // 存储场景报告
             long startTime = System.currentTimeMillis();
             if (CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                 startTime = scenarioResult.getRequestResults().get(0).getStartTime();
             }
+
             ApiScenarioReport report = editReport(scenarioResult, startTime);
 
+            TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
+            newResult.setConsole(result.getConsole());
+            scenarioResult.setName(report.getScenarioName());
+            newResult.addScenario(scenarioResult);
             /**
              * 测试计划的定时任务场景执行时，主键是提前生成的【测试报告ID】。也就是TestResult.id是【测试报告ID】。
              * report.getScenarioId中存放的是 TestPlanApiScenario.id:TestPlanReport.id 由于参数限制，只得将两个ID拼接起来
@@ -292,11 +299,7 @@ public class ApiScenarioReportService {
             testPlanApiScenario.setPassRate(passRate);
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-            TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
-            List<ScenarioResult> scenarioResults = new ArrayList();
-            scenarioResult.setName(report.getScenarioName());
-            scenarioResults.add(scenarioResult);
-            newResult.setScenarios(scenarioResults);
+
             detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
             detail.setReportId(report.getId());
             detail.setProjectId(report.getProjectId());
@@ -305,11 +308,10 @@ public class ApiScenarioReportService {
             testPlanApiScenario.setReportId(report.getId());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-
-            fullResult.addScenario(scenarioResult);
             projectId = report.getProjectId();
             userId = report.getUserId();
-            scenarioIds.append(scenarioResult.getName()).append(",");
+//            scenarioIds.append(scenarioResult.getName()).append(",");
+            scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
             scenarioNames.append(report.getName()).append(",");
 
             lastReport = report;
@@ -319,7 +321,7 @@ public class ApiScenarioReportService {
         // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode());
+        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(),scenarioIdList);
 
         return lastReport;
     }

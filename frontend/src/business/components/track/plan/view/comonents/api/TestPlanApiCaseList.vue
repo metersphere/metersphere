@@ -15,6 +15,7 @@
       <el-table v-loading="result.loading" ref="table"
                 border
                 :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
+                @header-dragend="tableHeaderDragend"
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
@@ -46,7 +47,7 @@
             column-key="priority"
             :label="$t('test_track.case.priority')"
             show-overflow-tooltip
-            min-width="120"
+            min-width="120px"
             :key="index">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
@@ -678,6 +679,16 @@ export default {
       this.condition.unSelectIds = [];
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+    },
+    tableHeaderDragend(newWidth, oldWidth, column, event){
+      if(column){
+        if(column.minWidth){
+          let minWidth = column.minWidth;
+          if(minWidth > newWidth){
+            column.width = minWidth;
+          }
+        }
+      }
     },
   },
 };
