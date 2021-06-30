@@ -12,6 +12,7 @@
                 border :data="tableData" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
                 @sort-change="sort"
+                @header-dragend="tableHeaderDragend"
                 @filter-change="filter"
                 :height="screenHeight"
                 @select="handleSelect">
@@ -69,7 +70,7 @@
           </el-table-column>
           <el-table-column v-if="item.id == 'updateTime'"
                            prop="updateTime"
-                           min-width="120px"
+                           min-width="160px"
                            sortable="custom"
                            :label="$t('api_test.automation.update_time')" width="180" :key="index">
             <template v-slot:default="scope">
@@ -514,6 +515,16 @@ export default {
       this.condition.unSelectIds = [];
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+    },
+    tableHeaderDragend(newWidth, oldWidth, column, event){
+      if(column){
+        if(column.minWidth){
+          let minWidth = column.minWidth;
+          if(minWidth > newWidth){
+            column.width = minWidth;
+          }
+        }
+      }
     },
   }
 }
