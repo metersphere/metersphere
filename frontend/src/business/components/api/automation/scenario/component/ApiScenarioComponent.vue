@@ -186,7 +186,7 @@ export default {
 <style scoped>
 
 /deep/ .el-card__body {
-  padding: 15px;
+  padding: 6px 10px;
 }
 
 .icon.is-active {

@@ -174,6 +174,6 @@
   }
 
   /deep/ .el-card__body {
-    padding: 15px;
+    padding: 6px 10px;
   }
 </style>

@@ -84,7 +84,7 @@ export default {
     }
   },
   created() {
-    this.height = document.body.clientHeight - 340;
+    this.height = document.body.clientHeight - 285;
   },
   mounted() {
     this.defaultMode = 3;

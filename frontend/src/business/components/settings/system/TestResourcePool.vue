@@ -62,7 +62,7 @@
       v-loading="result.loading"
     >
       <div style="height: 60vh;overflow: auto;">
-        <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
+        <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rule"
                  ref="testResourcePoolForm">
           <el-form-item :label="$t('commons.name')" prop="name">
             <el-input v-model="form.name" autocomplete="off"/>

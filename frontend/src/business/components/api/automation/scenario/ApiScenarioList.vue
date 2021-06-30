@@ -291,7 +291,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 275px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
@@ -946,7 +946,7 @@ export default {
   padding: 10px;
 }
 
-/deep/ .el-table__fixed-body-wrapper {
+/* /deep/ .el-table__fixed-body-wrapper {
   top: 60px !important;
-}
+} */
 </style>

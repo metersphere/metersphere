@@ -234,7 +234,7 @@
         },
         customFieldRules: {},
         customFieldForm: {},
-        formLabelWidth: "120px",
+        formLabelWidth: "100px",
         operationType: '',
         isCreateContinue: false,
         isStepTableAlive: true,

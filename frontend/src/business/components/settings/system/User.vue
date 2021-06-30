@@ -79,7 +79,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('member.edit_password')" :visible.sync="editPasswordVisible"
                width="30%"
                :destroy-on-close="true" @close="handleClose" left>
-      <el-form :model="ruleForm" label-position="right" label-width="120px" size="small" :rules="rule"
+      <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="editPasswordForm" class="demo-ruleForm">
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
@@ -488,7 +488,10 @@ export default {
 /*  height: 110px !important;*/
 /*}*/
 
-/*/deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {*/
-/*  top: -5px;*/
-/*}*/
+/deep/ .ms-select-all-fixed th:first-child.el-table-column--selection {
+  margin-top: 0px;
+}
+/deep/ .ms-select-all-fixed th:nth-child(2) .table-select-icon {
+  top: -8px;
+}
 </style>

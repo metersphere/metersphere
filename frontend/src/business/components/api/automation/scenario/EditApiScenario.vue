@@ -1234,7 +1234,7 @@ export default {
 
 <style scoped>
 .card-content {
-  height: calc(100vh - 196px);
+  height: calc(100vh - 156px);
   overflow-y: auto;
 }
 
@@ -1255,13 +1255,6 @@ export default {
 .ms-scenario-button {
   margin-left: 20px;
   padding: 7px;
-}
-
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
 }
 
 .ms-api-col {
@@ -1293,7 +1286,7 @@ export default {
 }
 
 /deep/ .el-card__body {
-  padding: 10px;
+  padding: 6px 10px;
 }
 
 /deep/ .el-drawer__body {

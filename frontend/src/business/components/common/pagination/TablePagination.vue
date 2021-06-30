@@ -54,6 +54,6 @@
 
 <style scoped>
   .table-page {
-    padding-top: 20px;
+    padding-top: 10px;
   }
 </style>
