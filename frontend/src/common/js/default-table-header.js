@@ -180,7 +180,7 @@ export const CUSTOM_TABLE_HEADER = {
   ISSUE_LIST: [
     {id: 'num', key: '1', label: i18n.t('test_track.issue.id')},
     {id: 'title', key: '2', label: i18n.t('test_track.issue.title')},
-    {id: 'status', key: '3', label: i18n.t('test_track.issue.status')},
+    {id: 'platformStatus', key: '3', label: i18n.t('test_track.issue.status')},
     {id: 'platform', key: '4', label: i18n.t('test_track.issue.platform')},
     {id: 'creatorName', key: '5', label: i18n.t('custom_field.issue_creator')},
     {id: 'resourceName', key: '6', label: i18n.t('test_track.issue.issue_resource')},

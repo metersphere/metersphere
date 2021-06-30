@@ -169,7 +169,7 @@ export default {
       }
       if (platform === 'Tapd') {
         this.hasTapdId = true;
-        this.result = this.$post("/issues/tapd/user", {projectId: this.projectId}, (response) => {
+        this.result = this.$post("/issues/tapd/user", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, (response) => {
           this.tapdUsers = response.data;
         });
       }
