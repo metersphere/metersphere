@@ -162,6 +162,7 @@ export default {
     task_center: "Task center",
     all_module_title: "All module",
     create_user: 'Creator',
+    run_message: "The task is being executed, please go to the task center to view the details",
     table: {
       select_tip: "Item {0} data is selected"
     },

@@ -11,4 +11,6 @@ public interface ExtTaskMapper {
     void deleteByResourceId(String id);
     List<TaskCenterDTO> getTasks (@Param("request") TaskCenterRequest request);
 
+    List<TaskCenterDTO> getRunningTasks (@Param("request") TaskCenterRequest request);
+
 }

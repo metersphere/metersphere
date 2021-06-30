@@ -653,7 +653,7 @@ export default {
     getReport() {
       if (this.batchReportId) {
         this.result.loading = false;
-        this.$success("批量执行成功，请到报告页面查看详情！");
+        this.$success(this.$t('commons.run_message'));
         this.$refs.taskCenter.open();
       }
     },

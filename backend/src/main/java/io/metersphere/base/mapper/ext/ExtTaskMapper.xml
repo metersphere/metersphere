@@ -40,4 +40,25 @@
         )tt ORDER BY tt.executionTime DESC;
     </select>
 
+
+    <select id="getRunningTasks" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
+        SELECT tt.* FROM (
+            (select t.id,t.create_time as executionTime
+                from api_scenario_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.actuator  = t2.id
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.project_id= #{request.projectId} and t.status not in ("saved","completed","success","error")
+            )
+        UNION ALL
+            (select t.id,t.create_time as executionTime
+                from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id  left join test_resource_pool t2 on t.actuator  = t2.id
+                left join api_definition t3 on t.resource_id = t3.id left join api_test_case t4 on t4.id = t.resource_id
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and (t3.project_id =#{request.projectId} OR t4.project_id =#{request.projectId}) and t.status not in ("saved","completed","success","error")
+            )
+        UNION ALL
+            (select t.id,t.create_time as executionTime
+                from load_test_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.test_resource_pool_id  = t2.id
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now())  and t.project_id= #{request.projectId} and t.status not in ("saved","completed","success","error")
+            )
+        )tt ORDER BY tt.executionTime DESC;
+    </select>
+
 </mapper>
