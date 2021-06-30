@@ -15,3 +15,5 @@ alter table test_plan_test_case
 -- 对接Jira等平台认证信息
 ALTER TABLE `user`
     ADD platform_info LONGTEXT NULL COMMENT ' 其他平台对接信息';
+
+ALTER TABLE issues ADD platform_status varchar(50) NULL COMMENT '第三方平台状态';

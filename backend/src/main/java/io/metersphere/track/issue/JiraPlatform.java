@@ -49,12 +49,19 @@ public class JiraPlatform extends AbstractIssuePlatform {
         super(issuesRequest);
     }
 
-    public JiraConfig getConfig(String orgId) {
+    public JiraConfig getConfig() {
+        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
+        JiraConfig jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
+        validateConfig(jiraConfig);
+        return jiraConfig;
+    }
+
+    public JiraConfig getUserConfig() {
         JiraConfig jiraConfig = null;
         String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
         if (StringUtils.isNotBlank(config)) {
             jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
-            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(orgId, userId);
+            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.orgId);
             if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getJiraAccount())
                     && StringUtils.isNotBlank(userPlatInfo.getJiraPassword())) {
                 jiraConfig.setAccount(userPlatInfo.getJiraAccount());
@@ -74,25 +81,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
-//        setConfig(issuesRequest.getOrganizationId());
-//        issues.forEach(item -> {
-//            String issuesId = item.getId();
-//            parseIssue(item, jiraClientV2.getIssues(issuesId));
-//            if (StringUtils.isBlank(item.getId())) {
-//                // 缺陷不存在，解除用例和缺陷的关联
-//                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
-//                issuesExample.createCriteria()
-//                        .andTestCaseIdEqualTo(testCaseId)
-//                        .andIssuesIdEqualTo(issuesId);
-//                testCaseIssuesMapper.deleteByExample(issuesExample);
-//                issuesMapper.deleteByPrimaryKey(issuesId);
-//            } else {
-//                // 缺陷状态为 完成，则不显示
-//                if (!StringUtils.equals("done", item.getStatus())) {
-//                    list.add(item);
-//                }
-//            }
-//        });
         return issues;
     }
 
@@ -104,7 +92,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject assignee = (JSONObject) fields.get("assignee");
         if (statusObj != null) {
             JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
-            status = statusCategory.getString("key");
+            status = statusCategory.getString("name");
         }
 
         String description = fields.getString("description");
@@ -122,7 +110,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         item.setCreateTime(fields.getLong("created"));
         item.setLastmodify(lastmodify);
         item.setDescription(description);
-        item.setStatus(status);
+        item.setPlatformStatus(status);
         item.setPlatform(IssuesManagePlatform.Jira.toString());
     }
 
@@ -198,14 +186,14 @@ public class JiraPlatform extends AbstractIssuePlatform {
     public void addIssue(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
 
-        JiraConfig config = setConfig(issuesRequest.getOrganizationId());// todo
+        JiraConfig config = getUserConfig();
+        jiraClientV2.setConfig(config);
 
         String jiraKey = validateJiraKey(issuesRequest.getProjectId());
 
         JSONObject fields = new JSONObject();
         JSONObject project = new JSONObject();
 
-//        String desc = ms2JiraDescription(issuesRequest.getDescription());
         String desc = issuesRequest.getDescription();
 
         fields.put("project", project);
@@ -273,7 +261,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void testAuth() {
-        setConfig(null);
+        setConfig();
         jiraClientV2.getIssueCreateMetadata();
     }
 
@@ -283,21 +271,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
-        tapdIssues.forEach(item -> {
-            setConfig(null);
+    public void syncIssues(Project project, List<IssuesDao> issues) {
+        issues.forEach(item -> {
+            setConfig();
             try {
                 parseIssue(item, jiraClientV2.getIssues(item.getId()));
                 item.setDescription(jiraDescription2Ms(item.getDescription()));
-                // 缺陷状态为 完成，则不显示
-                if (StringUtils.equals("done", item.getStatus())) {
-                    item.setStatus(IssuesStatus.RESOLVED.toString());
-                }
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
                     // 标记成删除
-                    item.setStatus(IssuesStatus.DELETE.toString());
+                    item.setPlatformStatus(IssuesStatus.DELETE.toString());
                     issuesMapper.deleteByPrimaryKey(item.getId());
                 }
             }
@@ -314,19 +298,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
         return project.getJiraKey();
     }
 
-    public JiraConfig setConfig(String orgId) {
-        JiraConfig config = getConfig(orgId);
+    public JiraConfig setConfig() {
+        JiraConfig config = getConfig();
         jiraClientV2.setConfig(config);
         return config;
     }
-
-    public IssuesWithBLOBs getJiraIssues(IssuesWithBLOBs issuesDao, String issueId) {
-        setConfig(null);
-        if (issuesDao == null) {
-            issuesDao = new IssuesDao();
-        }
-        parseIssue(issuesDao, jiraClientV2.getIssues(issueId));
-        return issuesDao;
-    }
-
 }

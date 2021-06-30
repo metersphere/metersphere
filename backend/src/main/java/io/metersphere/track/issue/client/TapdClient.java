@@ -1,9 +1,9 @@
 package io.metersphere.track.issue.client;
 
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.track.issue.domain.tapd.TapdConfig;
 import io.metersphere.track.issue.domain.tapd.TapdGetIssueResponse;
-import io.metersphere.track.issue.domain.tapd.TapdStatusMapResponse;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +13,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class TapdClient extends BaseClient {
@@ -28,10 +29,13 @@ public class TapdClient extends BaseClient {
        return getIssueForPageByIds(projectId, pageNum, limit, null);
     }
 
-    public TapdStatusMapResponse getStatusMap(String projectId) {
+    public Map<String, String> getStatusMap(String projectId) {
         String url = getBaseUrl() + "/workflows/status_map?workspace_id={1}&system=bug";
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class, projectId);
-        return (TapdStatusMapResponse) getResultForObject(TapdStatusMapResponse.class, response);
+        String resultForObject = (String) getResultForObject(String.class, response);
+        JSONObject jsonObject = JSONObject.parseObject(resultForObject);
+        String data = jsonObject.getString("data");
+        return JSONObject.parseObject(data, Map.class);
     }
 
     public TapdGetIssueResponse getIssueForPageByIds(String projectId, int pageNum, int limit, List<String> ids) {

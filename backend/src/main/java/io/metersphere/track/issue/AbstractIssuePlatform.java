@@ -207,7 +207,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return new ArrayList<>();
     }
 
-    protected UserDTO.PlatformInfo getUserPlatInfo(String orgId, String userId) {
-        return userService.getCurrentPlatformInfo(orgId, userId);
+    protected UserDTO.PlatformInfo getUserPlatInfo(String orgId) {
+        return userService.getCurrentPlatformInfo(orgId);
     }
 }

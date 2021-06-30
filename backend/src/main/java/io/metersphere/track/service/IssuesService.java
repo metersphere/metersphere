@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -129,7 +130,7 @@ public class IssuesService {
             platforms.add(IssuesManagePlatform.Local.toString());
         }
         IssuesRequest issuesRequest = new IssuesRequest();
-        issuesRequest.setTestCaseId(updateRequest.getTestCaseId());
+        BeanUtils.copyBean(issuesRequest, updateRequest);
         return IssueFactory.createPlatforms(platforms, issuesRequest);
     }
 
@@ -402,6 +403,7 @@ public class IssuesService {
     public void syncThirdPartyIssues(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             Project project = projectService.getProjectById(projectId);
+            Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
 
             List<IssuesDao> issues = extIssuesMapper.getIssueForSync(projectId);
 
@@ -421,12 +423,13 @@ public class IssuesService {
 
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
+            issuesRequest.setOrganizationId(workspace.getOrganizationId());
             if (CollectionUtils.isNotEmpty(tapdIssues)) {
                 TapdPlatform tapdPlatform = new TapdPlatform(issuesRequest);
                 syncThirdPartyIssues(tapdPlatform::syncIssues, project, tapdIssues);
             }
             if (CollectionUtils.isNotEmpty(jiraIssues)) {
-                JiraPlatform jiraPlatform = new JiraPlatform(new IssuesRequest());
+                JiraPlatform jiraPlatform = new JiraPlatform(issuesRequest);
                 syncThirdPartyIssues(jiraPlatform::syncIssues, project, jiraIssues);
             }
             if (CollectionUtils.isNotEmpty(zentaoIssues)) {

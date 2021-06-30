@@ -9,6 +9,7 @@ import io.metersphere.base.domain.IssuesExample;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.dto.DemandDTO;
@@ -66,6 +67,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         this.account = object.getString("account");
         this.password = object.getString("password");
         this.url = object.getString("url");
+        this.orgId = issuesRequest.getOrganizationId();
     }
 
     @Override
@@ -137,15 +139,15 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
-        if (StringUtils.equals(bug.getDeleted(),"1")) {
-            // todo
-            return new IssuesDao();
-        }
         IssuesDao issues = new IssuesDao();
         issues.setId(bug.getId());
+        if (StringUtils.equals(bug.getDeleted(),"1")) {
+            issues.setPlatformStatus(IssuesStatus.DELETE.toString());
+            issuesMapper.updateByPrimaryKeySelective(issues);
+        }
         issues.setTitle(bug.getTitle());
         issues.setDescription(steps);
-        issues.setStatus(bug.getStatus());
+        issues.setPlatformStatus(bug.getStatus());
         issues.setReporter(bug.getOpenedBy());
         return issues;
     }
@@ -275,28 +277,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             setConfig();
             IssuesDao issuesDao = getZentaoIssues(item.getId());
             issuesMapper.updateByPrimaryKeySelective(issuesDao);
-
-            // 标记成删除
-//          item.setStatus(IssuesStatus.DELETE.toString());
-//          issuesMapper.deleteByPrimaryKey(item.getId());
-
-//            if (StringUtils.isBlank(dto.getId())) {
-//                // 缺陷不存在，解除用例和缺陷的关联
-//                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
-//                TestCaseIssuesExample.Criteria criteria = issuesExample.createCriteria();
-//                if (StringUtils.isNotBlank(testCaseId)) {
-//                    criteria.andTestCaseIdEqualTo(testCaseId);
-//                }
-//                criteria.andIssuesIdEqualTo(issuesId);
-//                testCaseIssuesMapper.deleteByExample(issuesExample);
-//                issuesMapper.deleteByPrimaryKey(issuesId);
-//            } else {
-//                dto.setPlatform(IssuesManagePlatform.Zentao.toString());
-//                // 缺陷状态为 关闭，则不显示
-//                if (!StringUtils.equals("closed", dto.getStatus())) {
-//                    list.add(dto);
-//                }
-//            }
         });
     }
 
