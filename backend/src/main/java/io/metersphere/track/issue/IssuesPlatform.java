@@ -18,12 +18,6 @@ public interface IssuesPlatform {
      */
     List<IssuesDao> getIssue(IssuesRequest request);
 
-    /**
-     * 过滤分页数据
-     * @param issues
-     */
-    void filter(List<IssuesDao> issues);
-
     /*获取平台相关需求*/
     List<DemandDTO> getDemandList(String projectId);
 

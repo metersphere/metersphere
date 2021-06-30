@@ -35,10 +35,6 @@ public class LocalPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void filter(List<IssuesDao> issues) {
-    }
-
-    @Override
     public List<DemandDTO> getDemandList(String projectId) {
         return null;
     }
