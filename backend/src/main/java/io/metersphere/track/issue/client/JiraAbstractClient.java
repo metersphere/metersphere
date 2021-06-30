@@ -2,10 +2,10 @@ package io.metersphere.track.issue.client;
 
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.track.issue.domain.JiraAddIssueResponse;
-import io.metersphere.track.issue.domain.JiraConfig;
-import io.metersphere.track.issue.domain.JiraField;
-import io.metersphere.track.issue.domain.JiraIssue;
+import io.metersphere.track.issue.domain.Jira.JiraAddIssueResponse;
+import io.metersphere.track.issue.domain.Jira.JiraConfig;
+import io.metersphere.track.issue.domain.Jira.JiraField;
+import io.metersphere.track.issue.domain.Jira.JiraIssue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;

@@ -11,6 +11,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
@@ -177,6 +178,16 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         issues.setUpdateTime(System.currentTimeMillis());
         issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issues.setResourceId(issuesRequest.getResourceId());
+        issuesMapper.insert(issues);
+    }
+
+    protected void insertIssues(String id, IssuesUpdateRequest issuesRequest) {
+        IssuesWithBLOBs issues = new IssuesWithBLOBs();
+        BeanUtils.copyBean(issues, issuesRequest);
+        issues.setId(id);
+        issues.setCreateTime(System.currentTimeMillis());
+        issues.setUpdateTime(System.currentTimeMillis());
+        issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issuesMapper.insert(issues);
     }
 
