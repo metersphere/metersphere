@@ -1,12 +1,11 @@
 <template>
   <div>
     <div>
-
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{ $t('commons.adv_search.title') }}
       </el-link>
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" class="search-input" size="small"
-                @keyup.enter.native="search"
-                v-model="condition.name"/>
+                @keyup.enter.native="enterSearch"
+                v-model="condition.name" ref="inputVal"/>
 
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
@@ -569,6 +568,10 @@ export default {
           return {text: u.name, value: u.id};
         });
       });
+    },
+    enterSearch(){
+      this.$refs.inputVal.blur();
+      this.search();
     },
     search() {
       this.changeSelectDataRangeAll();
