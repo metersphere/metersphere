@@ -168,8 +168,39 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
                 }
             }
         }
+        /*
+        校验用例
+         */
+        if (testCaseNames.contains(data.getName())) {
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            BeanUtils.copyBean(testCase, data);
+            testCase.setProjectId(projectId);
+            String steps = getSteps(data);
+            testCase.setSteps(steps);
+            testCase.setType("functional");
+
+            boolean dbExist = testCaseService.exist(testCase);
+            boolean excelExist = false;
+
+            if (dbExist) {
+                // db exist
+                stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
+            } else {
+                // @Data 重写了 equals 和 hashCode 方法
+                excelExist = excelDataList.contains(data);
+            }
+
+            if (excelExist) {
+                // excel exist
+                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+            } else {
+                excelDataList.add(data);
+            }
+
+        } else {
             testCaseNames.add(data.getName());
             excelDataList.add(data);
+        }
         return stringBuilder.toString();
     }
 
