@@ -71,7 +71,7 @@ public class TestPlanReportController {
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,ReportTriggerMode.API.name());
         TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name());
+        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name(),null);
     }
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
@@ -80,7 +80,7 @@ public class TestPlanReportController {
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,triggerMode);
         TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode,null);
         return "success";
     }
 }
