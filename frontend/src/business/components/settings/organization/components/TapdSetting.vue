@@ -2,7 +2,7 @@
   <div>
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
-      <el-form :model="form" ref="form" label-width="120px" size="small" :disabled="show" :rules="rules">
+      <el-form :model="form" ref="form" label-width="100px" size="small" :disabled="show" :rules="rules">
         <el-form-item :label="$t('organization.integration.api_account')" prop="account">
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>

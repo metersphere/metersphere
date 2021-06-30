@@ -4,7 +4,6 @@
       <el-card class="table-card">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
-                           :title="$t('commons.report')"
                            :show-create="false"/>
         </template>
 
@@ -174,7 +173,7 @@ export default {
       total: 0,
       loading: false,
       testId: null,
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
       statusFilters: [
         {text: 'Starting', value: 'Starting'},
         {text: 'Running', value: 'Running'},

@@ -739,7 +739,6 @@ export default {
 }
 
 .el-col {
-  margin-top: 5px;
   text-align: left;
 }
 

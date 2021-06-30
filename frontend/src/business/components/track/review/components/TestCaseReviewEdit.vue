@@ -133,7 +133,7 @@ export default {
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
         endTime: [{required: true, message: '请选择截止时间', trigger: 'blur'}]
       },
-      formLabelWidth: "120px",
+      formLabelWidth: "100px",
       operationType: '',
       reviewerOptions: []
     };

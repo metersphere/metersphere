@@ -4,7 +4,6 @@
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
-                           :title="$t('commons.test')"
                            :create-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
@@ -153,7 +152,7 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       userFilters: [],
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
     };
   },
   watch: {

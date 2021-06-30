@@ -8,7 +8,7 @@
     :destroy-on-close="true"
     v-loading="result.loading"
   >
-    <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule" ref="monitorForm">
+    <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rule" ref="monitorForm">
       <el-form-item :label="$t('commons.name')" prop="name">
         <el-input v-model="form.name" autocomplete="off"/>
       </el-form-item>

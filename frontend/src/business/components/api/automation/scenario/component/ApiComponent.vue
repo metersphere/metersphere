@@ -431,15 +431,7 @@ export default {
 }
 
 /deep/ .el-card__body {
-  padding: 10px;
-}
-
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-  margin: 20px 0;
+  padding: 6px 10px;
 }
 
 .icon.is-active {

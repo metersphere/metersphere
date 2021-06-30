@@ -358,7 +358,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 320px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 250px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
     };
@@ -867,8 +867,8 @@ export default {
   top: -2px;
 }
 
-/deep/ .el-table__fixed-body-wrapper {
+/* /deep/ .el-table__fixed-body-wrapper {
   top: 60px !important;
-}
+} */
 
 </style>

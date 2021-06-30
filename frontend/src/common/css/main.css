@@ -10,6 +10,50 @@
   width: 100%;
 }
 
+/* <-- 使布局更加紧凑 */
+
+.el-main {
+  padding: 5px 10px;
+}
+
+.el-card__header {
+  padding: 8px 16px;
+}
+
+.el-card__body {
+  padding: 6px 10px;
+}
+
+.el-table td, .el-table th {
+  padding: 6px 0;
+}
+
+.el-tabs__header {
+  margin: 0 0 5px;
+}
+
+.el-tabs__item {
+  padding: 0 10px;
+}
+
+.el-form-item {
+  margin-bottom: 18px;
+}
+
+.tip {
+  padding: 3px 5px;
+  font-size: 16px;
+  border-radius: 0;
+  border-left: 4px solid #783887;
+  margin: 5px 5px 10px 5px;
+}
+
+.el-divider--horizontal {
+  margin: 10px 0 5px 0;
+}
+
+/* --> */
+
 body {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   font-size: 14px;
@@ -215,7 +259,7 @@ textarea {
 .ms-select-all-fixed th:nth-child(2) .table-select-icon {
   position: absolute;
   display: inline-block;
-  top: -9px;
+  top: -4px;
   left: -30px;
   width: 30px;
 }
