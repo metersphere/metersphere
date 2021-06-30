@@ -10,6 +10,7 @@ import io.metersphere.base.domain.TestPlanTestCaseWithBLOBs;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestPlanTestCaseService;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -24,7 +25,7 @@ public class IssuesJob {
 
     @QuartzScheduled(fixedDelay = 3600 * 1000)
     //@Scheduled(fixedDelay = 120 * 1000)
-    public void IssuesCount() {
+    public void issuesCount() {
         int pageSize = 100;
         int pages = 1;
         for (int i = 0; i < pages; i++) {
@@ -37,7 +38,7 @@ public class IssuesJob {
                     int issuesCount = issues.size();
                     testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), JSON.toJSONString(issues));
                 } catch (Exception e) {
-                    LogUtil.error("定时任务处理bug数量报错planId: " + l.getPlanId(), e);
+                    LogUtil.error("定时任务处理bug数量报错planId: " + l.getPlanId(), ExceptionUtils.getStackTrace(e));
                 }
             });
         }
