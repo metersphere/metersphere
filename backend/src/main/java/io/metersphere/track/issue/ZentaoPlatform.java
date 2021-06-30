@@ -4,15 +4,21 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.IssuesExample;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.IssuesManagePlatform;
-import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.track.dto.DemandDTO;
+import io.metersphere.track.issue.client.ZentaoClient;
 import io.metersphere.track.issue.domain.PlatformUser;
-import io.metersphere.track.issue.domain.ZentaoBuild;
+import io.metersphere.track.issue.domain.zentao.AddIssueResponse;
+import io.metersphere.track.issue.domain.zentao.GetIssueResponse;
+import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.issue.domain.zentao.ZentaoConfig;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -43,6 +49,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
      * zentao url eg:http://x.x.x.x/zentao
      */
     private final String url;
+
+    private ZentaoClient zentaoClient = new ZentaoClient();
+
     private static final Pattern PATTERN = Pattern.compile("file-read-(.*?)\"/>");
 
     protected String key = IssuesManagePlatform.Zentao.toString();
@@ -60,13 +69,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         this.url = object.getString("url");
     }
 
-    public ZentaoPlatform(String account, String password, String url) {
-        super(new IssuesRequest());
-        this.account = account;
-        this.password = password;
-        this.url = url;
-    }
-
     @Override
     String getProjectId(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
@@ -79,58 +81,14 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
-        List<IssuesDao> list = new ArrayList<>();
-
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
-
-
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
             issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
-
-        issues.forEach(item -> {
-            String issuesId = item.getId();
-            IssuesDao dto = getZentaoIssues(issuesId);
-            dto.setNum(item.getNum());
-            if (StringUtils.isBlank(dto.getId())) {
-                // 缺陷不存在，解除用例和缺陷的关联
-                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
-                TestCaseIssuesExample.Criteria criteria = issuesExample.createCriteria();
-                if (StringUtils.isNotBlank(testCaseId)) {
-                    criteria.andTestCaseIdEqualTo(testCaseId);
-                }
-                criteria.andIssuesIdEqualTo(issuesId);
-                testCaseIssuesMapper.deleteByExample(issuesExample);
-                issuesMapper.deleteByPrimaryKey(issuesId);
-            } else {
-                dto.setPlatform(IssuesManagePlatform.Zentao.toString());
-                // 缺陷状态为 关闭，则不显示
-                if (!StringUtils.equals("closed", dto.getStatus())) {
-                    list.add(dto);
-                }
-            }
-        });
-        return list;
-
-    }
-
-    @Override
-    public void filter(List<IssuesDao> issues) {
-        issues.forEach((issuesDao) -> {
-            IssuesDao dto = getZentaoIssues(issuesDao.getId());
-            if (StringUtils.isBlank(dto.getId())) {
-                // 标记成删除
-                issuesDao.setStatus(IssuesStatus.DELETE.toString());
-            } else {
-                // 缺陷状态为 完成，则不显示
-                if (!StringUtils.equals("done", dto.getStatus())) {
-                    issuesDao.setStatus(IssuesStatus.RESOLVED.toString());
-                }
-            }
-        });
+        return issues;
     }
 
     @Override
@@ -138,7 +96,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         //getTestStories
         List<DemandDTO> list = new ArrayList<>();
         try {
-            String session = login();
+            setConfig();
+            String session = zentaoClient.login();
             String key = getProjectId(projectId);
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(new HttpHeaders());
             RestTemplate restTemplate = new RestTemplate();
@@ -171,57 +130,35 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     public IssuesDao getZentaoIssues(String bugId) {
-        String session = login();
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(new HttpHeaders());
-        RestTemplate restTemplate = new RestTemplate();
+        GetIssueResponse.Issue bug = zentaoClient.getBugById(bugId);
+        String description = bug.getSteps();
+        String steps = description;
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-getById-bugID={bugId}?zentaosid=" + session,
-                    HttpMethod.POST, requestEntity, String.class, bugId);
-            String body = responseEntity.getBody();
-            JSONObject obj = JSONObject.parseObject(body);
-
-            LogUtil.info("bug id is " + bugId + obj);
-
-            if (obj != null) {
-                JSONObject bug = obj.getJSONObject("data");
-                String id = bug.getString("id");
-                String title = bug.getString("title");
-                String description = bug.getString("steps");
-                String steps = description;
-                try {
-                    steps = zentao2MsDescription(description);
-                } catch (Exception e) {
-                    LogUtil.error(e.getMessage(), e);
-                }
-                Long createTime = bug.getLong("openedDate");
-                String status = bug.getString("status");
-                String reporter = bug.getString("openedBy");
-                int deleted = bug.getInteger("deleted");
-                if (deleted == 1) {
-                    return new IssuesDao();
-                }
-                IssuesDao issues = new IssuesDao();
-                issues.setId(id);
-                issues.setTitle(title);
-                issues.setDescription(steps);
-                issues.setCreateTime(createTime);
-                issues.setStatus(status);
-                issues.setReporter(reporter);
-                return issues;
-            }
+            steps = zentao2MsDescription(description);
         } catch (Exception e) {
-            LogUtil.error("get zentao bug fail " + e.getMessage());
+            LogUtil.error(e.getMessage(), e);
         }
-
-        return new IssuesDao();
+        if (StringUtils.equals(bug.getDeleted(),"1")) {
+            // todo
+            return new IssuesDao();
+        }
+        IssuesDao issues = new IssuesDao();
+        issues.setId(bug.getId());
+        issues.setTitle(bug.getTitle());
+        issues.setDescription(steps);
+        issues.setStatus(bug.getStatus());
+        issues.setReporter(bug.getOpenedBy());
+        return issues;
     }
 
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
-        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
 
-        String session = login();
+        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
+        setConfig();
+        String session = zentaoClient.login();
+
         String projectId = getProjectId(issuesRequest.getProjectId());
 
         if (StringUtils.isBlank(projectId)) {
@@ -231,7 +168,6 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         if (StringUtils.isBlank(session)) {
             MSException.throwException("session is null");
         }
-
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
@@ -264,34 +200,21 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             paramMap.add("assignedTo", issuesRequest.getZentaoAssigned());
         }
 
-        try {
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-bug-create.json?zentaosid=" + session, HttpMethod.POST, requestEntity, String.class);
-            String body = responseEntity.getBody();
-            JSONObject obj = JSONObject.parseObject(body);
-            LogUtil.info("add zentao bug " + obj);
+        AddIssueResponse.Issue issue = zentaoClient.addIssue(paramMap);
 
-            if (obj != null) {
-                JSONObject data = obj.getJSONObject("data");
-                String id = data.getString("id");
-                if (StringUtils.isNotBlank(id)) {
-                    issuesRequest.setId(id);
-                    // 用例与第三方缺陷平台中的缺陷关联
-                    handleTestCaseIssues(issuesRequest);
+        String id = issue.getId();
+        if (StringUtils.isNotBlank(id)) {
+            issuesRequest.setId(id);
+            // 用例与第三方缺陷平台中的缺陷关联
+            handleTestCaseIssues(issuesRequest);
 
-                    IssuesExample issuesExample = new IssuesExample();
-                    issuesExample.createCriteria().andIdEqualTo(id)
-                            .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
-                    if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
-                        // 插入缺陷表
-                        insertIssuesWithoutContext(id, issuesRequest);
-                    }
-                }
+            IssuesExample issuesExample = new IssuesExample();
+            issuesExample.createCriteria().andIdEqualTo(id)
+                    .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+            if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
+                // 插入缺陷表
+                insertIssues(id, issuesRequest);
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException("提交禅道缺陷失败!");
         }
 
     }
@@ -310,56 +233,28 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void testAuth() {
-        try {
-            login();
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException("验证失败！");
-        }
-
+        setConfig();
+        zentaoClient.login();
     }
 
-
-    private String login() {
-        String session = getSession();
-        String loginUrl = url + "user-login.json?zentaosid=" + session;
-        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("account", account);
-        paramMap.add("password", password);
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(loginUrl, HttpMethod.POST, requestEntity, String.class);
-        String body = responseEntity.getBody();
-        JSONObject obj = JSONObject.parseObject(body);
-        JSONObject user = obj.getJSONObject("user");
-        if (user == null) {
-            LogUtil.error("login fail");
-            LogUtil.error(obj);
-            // 登录失败，获取的session无效，置空session
-            MSException.throwException("zentao login fail");
-        }
-        String username = user.getString("account");
-        if (!StringUtils.equals(username, account)) {
-            LogUtil.error("login fail，inconsistent users");
-            MSException.throwException("zentao login fail");
-        }
-        return session;
+    public ZentaoConfig setConfig() {
+        ZentaoConfig config = getConfig();
+        zentaoClient.setConfig(config);
+        return config;
     }
 
-    private String getSession() {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpEntity<MultiValueMap<String,String>> requestEntity = new HttpEntity<>(new HttpHeaders());
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getsessionid.json", HttpMethod.GET, requestEntity, String.class);
-        String body = responseEntity.getBody();
-        JSONObject obj = JSONObject.parseObject(body);
-        JSONObject data = obj.getJSONObject("data");
-        return data.getString("sessionID");
+    public ZentaoConfig getConfig() {
+        ZentaoConfig zentaoConfig = null;
+        String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
+        zentaoConfig = JSONObject.parseObject(config, ZentaoConfig.class);
+//        validateConfig(tapdConfig);
+        return zentaoConfig;
     }
 
     @Override
     public List<PlatformUser> getPlatformUser() {
-
-        String session = login();
+        setConfig();
+        String session = zentaoClient.login();;
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String,String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
@@ -386,12 +281,39 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
+    public void syncIssues(Project project, List<IssuesDao> issues) {
+        issues.forEach(item -> {
+            setConfig();
+            IssuesDao issuesDao = getZentaoIssues(item.getId());
+            issuesMapper.updateByPrimaryKeySelective(issuesDao);
 
+            // 标记成删除
+//          item.setStatus(IssuesStatus.DELETE.toString());
+//          issuesMapper.deleteByPrimaryKey(item.getId());
+
+//            if (StringUtils.isBlank(dto.getId())) {
+//                // 缺陷不存在，解除用例和缺陷的关联
+//                TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
+//                TestCaseIssuesExample.Criteria criteria = issuesExample.createCriteria();
+//                if (StringUtils.isNotBlank(testCaseId)) {
+//                    criteria.andTestCaseIdEqualTo(testCaseId);
+//                }
+//                criteria.andIssuesIdEqualTo(issuesId);
+//                testCaseIssuesMapper.deleteByExample(issuesExample);
+//                issuesMapper.deleteByPrimaryKey(issuesId);
+//            } else {
+//                dto.setPlatform(IssuesManagePlatform.Zentao.toString());
+//                // 缺陷状态为 关闭，则不显示
+//                if (!StringUtils.equals("closed", dto.getStatus())) {
+//                    list.add(dto);
+//                }
+//            }
+        });
     }
 
     public List<ZentaoBuild> getBuilds() {
-        String session = login();
+        setConfig();
+        String session = zentaoClient.login();;
         String projectId1 = getProjectId(projectId);
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
@@ -421,7 +343,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     private String uploadFile(FileSystemResource resource) {
         String id = "";
-        String session = login();
+        setConfig();
+        String session = zentaoClient.login();
         HttpHeaders httpHeaders = new HttpHeaders();
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, httpHeaders);

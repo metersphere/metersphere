@@ -1,4 +1,4 @@
-package io.metersphere.track.issue.domain;
+package io.metersphere.track.issue.domain.tapd;
 
 import lombok.Data;
 import java.io.Serializable;
