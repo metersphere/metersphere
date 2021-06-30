@@ -7,10 +7,7 @@ import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Data
 public class TestResult {
@@ -112,8 +109,8 @@ public class TestResult {
                         this.setStatus(scenarioNames.toString(), item.getError() > 0);
                         itemAndScenarioName = scenarioNames.toString();
                     }else{
-                        //不存在多场景时需要补上步骤名字做唯一判断
-                        itemAndScenarioName = item.getName()+":"+JSONArray.toJSONString(all_id_names.get(0));
+                        //不存在多场景时需要补上步骤名字做唯一判断  添加UUID进行处理
+                        itemAndScenarioName = item.getName()+":"+JSONArray.toJSONString(all_id_names.get(0))+ UUID.randomUUID().toString();
                         this.setStatus(all_id_names, item.getError() > 0);
                     }
 
