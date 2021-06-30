@@ -1444,8 +1444,8 @@ public class UserService {
         return SessionUtils.getUser();
     }
 
-    public UserDTO.PlatformInfo getCurrentPlatformInfo(String orgId, String userId) {
-        User user = userMapper.selectByPrimaryKey(userId);
+    public UserDTO.PlatformInfo getCurrentPlatformInfo(String orgId) {
+        User user = userMapper.selectByPrimaryKey(SessionUtils.getUserId());
         String platformInfoStr = user.getPlatformInfo();
         if (StringUtils.isBlank(orgId) || StringUtils.isBlank(platformInfoStr)) {
            return null;
