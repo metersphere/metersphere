@@ -28,6 +28,6 @@ public class TapdGetIssueResponse {
 //        private String priority;
 //        private String severity;
 //        private String reporter;
-//        private String status;
+        private String status;
     }
 }

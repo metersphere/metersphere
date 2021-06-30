@@ -7,7 +7,7 @@
                            :create-tip="$t('test_track.issue.create_issue')" :title="$t('test_track.issue.issue_list')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
-              <el-tooltip v-if="hasThirdPart" :content="'更新第三方平台的缺陷内容'">
+              <el-tooltip v-if="isThirdPart" :content="'更新第三方平台的缺陷'">
                 <ms-table-button icon="el-icon-refresh" v-if="true"
                                  :content="'同步缺陷'" @click="syncIssues"/>
               </el-tooltip>
@@ -64,6 +64,13 @@
             :fields-width="fieldsWidth"
             :label="$t('test_track.issue.platform')"
             prop="platform">
+          </ms-table-column>
+
+          <ms-table-column
+                  :field="item"
+                  :fields-width="fieldsWidth"
+                  :label="$t('test_track.issue.status')"
+                  prop="platformStatus">
           </ms-table-column>
 
           <ms-table-column
@@ -194,20 +201,30 @@ export default {
       ],
       issueTemplate: {},
       members: [],
-      platforms: []
+      isThirdPart: false
     };
   },
   activated() {
     getProjectMember((data) => {
       this.members = data;
     });
-    getIntegrationService((data) => {
-      this.platforms = data.map(d => d.platform);
-    });
     getIssueTemplate()
       .then((template) => {
         this.issueTemplate = template;
+        if (this.issueTemplate.platform === 'metersphere') {
+          this.isThirdPart = false;
+        } else {
+          this.isThirdPart = true;
+        }
         this.fields = getTableHeaderWithCustomFields('ISSUE_LIST', this.issueTemplate.customFields);
+        if (!this.isThirdPart) {
+          for (let i = 0; i < this.fields.length; i++) {
+            if (this.fields[i].id === 'platformStatus') {
+              this.fields.splice(i, 1);
+              break;
+            }
+          }
+        }
         this.$refs.table.reloadTable();
       });
     this.getIssues();
@@ -230,14 +247,6 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
-    },
-    hasThirdPart() {
-      if (this.platforms.indexOf("Tapd") !== -1
-      || this.platforms.indexOf("Jira") !== -1
-      || this.platforms.indexOf("Zentao") !== -1) {
-        return true;
-      }
-      return false;
     }
   },
   methods: {
