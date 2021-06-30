@@ -364,7 +364,7 @@ export default {
           this.buildExecuteParam(param,row);
         });
         this.$post("/test/case/review/scenario/case/run", param, response => {
-          this.$message('任务执行中，请稍后刷新查看结果');
+          this.$message(this.$t('commons.run_message'));
           this.$refs.taskCenter.open();
         });
       }
@@ -377,7 +377,7 @@ export default {
         param.condition = selectParam.condition;
         param.triggerMode = "BATCH";
         this.$post("/test/plan/scenario/case/run", param, response => {
-          this.$message('任务执行中，请稍后刷新查看结果');
+          this.$message(this.$t('commons.run_message'));
           this.$refs.taskCenter.open();
         });
       }

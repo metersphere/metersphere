@@ -16,4 +16,9 @@ public class TaskService {
     public List<TaskCenterDTO> getTasks(TaskCenterRequest request) {
         return extTaskMapper.getTasks(request);
     }
+
+    public List<TaskCenterDTO> getRunningTasks(TaskCenterRequest request) {
+        return extTaskMapper.getRunningTasks(request);
+    }
+
 }

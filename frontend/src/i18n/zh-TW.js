@@ -163,6 +163,7 @@ export default {
     task_center: "任务中心",
     all_module_title: "全部模塊",
     create_user: "創建人",
+    run_message: "任務執行中，請到任務中心查看詳情",
     table: {
       select_tip: "已選中 {0} 條數據"
     },

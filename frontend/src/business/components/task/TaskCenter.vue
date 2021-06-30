@@ -10,7 +10,10 @@
           <template v-slot:content>
             <span>{{ $t('commons.task_center') }}</span>
           </template>
-          <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']"/>
+          <el-badge :value="runningTotal" class="item" type="primary" v-if="runningTotal > 0">
+            <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" style="font-size: 18px"/>
+          </el-badge>
+          <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
         </el-tooltip>
       </el-menu-item>
     </el-menu>
@@ -80,6 +83,7 @@ export default {
   ],
   data() {
     return {
+      runningTotal: 0,
       taskVisible: false,
       result: {},
       taskData: [],
@@ -109,11 +113,15 @@ export default {
   props: {
     color: String
   },
+  created() {
+    this.getTaskRunning();
+  },
   methods: {
     format(item) {
       return '';
     },
     showTaskCenter() {
+      this.getTaskRunning();
       this.init();
       this.taskVisible = true;
     },
@@ -191,6 +199,13 @@ export default {
         return this.$t('api_test.automation.batch_execute');
       }
       return mode;
+    },
+    getTaskRunning() {
+      this.condition.projectId = getCurrentProjectID();
+      this.$post('/task/center/count/running', this.condition, response => {
+        this.runningTotal = response.data;
+        setTimeout(this.getTaskRunning, 5000);
+      });
     },
     init() {
       this.result.loading = true;
@@ -280,5 +295,19 @@ export default {
 /deep/ .el-menu-item {
   padding-left: 0;
   padding-right: 0;
+}
+
+/deep/ .el-badge__content.is-fixed {
+  top: 25px;
+}
+
+/deep/ .el-badge__content {
+  border-radius: 10px;
+  height: 10px;
+  line-height: 10px;
+}
+
+.item {
+  margin-right: 10px;
 }
 </style>

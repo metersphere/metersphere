@@ -23,4 +23,11 @@ public class TaskController {
     public List<TaskCenterDTO> getTasks(@RequestBody TaskCenterRequest request) {
         return taskService.getTasks(request);
     }
+
+    @PostMapping("/count/running")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public int getRunningTasks(@RequestBody TaskCenterRequest request) {
+        return taskService.getRunningTasks(request).size();
+    }
+
 }

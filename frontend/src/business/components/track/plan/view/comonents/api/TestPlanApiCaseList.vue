@@ -621,7 +621,7 @@ export default {
     handleRunBatch(config) {
       let obj = {planIds: this.testPlanCaseIds, config: config};
       this.$post("/test/plan/api/case/run", obj, response => {
-        this.$message('任务执行中，请稍后刷新查看结果');
+        this.$message(this.$t('commons.run_message'));
         this.$refs.taskCenter.open();
       });
       this.search();
