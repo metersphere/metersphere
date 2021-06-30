@@ -929,6 +929,7 @@ export default {
       request_total: "请求",
       request_success: "成功",
       request_error: "失败",
+      generate_report: "生成报告",
     },
     environment: {
       create: '创建环境',

@@ -930,6 +930,7 @@ export default {
       request_total: "request",
       request_success: "success",
       request_error: "error",
+      generate_report: "Generate report",
     },
     environment: {
       create: 'Create environment',

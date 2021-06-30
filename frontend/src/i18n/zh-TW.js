@@ -930,6 +930,7 @@ export default {
       request_total: "請求",
       request_success: "成功",
       request_error: "失敗",
+      generate_report: "生成報告",
     },
     environment: {
       create: '創建環境',
