@@ -75,7 +75,6 @@
             <include refid="condition">
                 <property name="object" value="${condition}.type"/>
             </include>
-            test_case_review_users
         </if>
         <if test="${condition}.updateTime != null">
             and test_case.update_time
