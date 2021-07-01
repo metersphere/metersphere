@@ -152,14 +152,15 @@ public class TestPlanController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanProjectService.getProjectByPlanId(request));
     }
+
     @PostMapping("/testplan/jenkins")
-    public void  runJenkins(@RequestBody TestplanRunRequest testplanRunRequest) {
+    public String runJenkins(@RequestBody TestplanRunRequest testplanRunRequest) {
         ApiRunConfigDTO api = new ApiRunConfigDTO();
         api.setMode(testplanRunRequest.getMode());
         api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
         api.setOnSampleError(true);
         api.setReportType("iddReport");
         String apiRunConfig = JSONObject.toJSONString(api);
-        testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
+        return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
 }

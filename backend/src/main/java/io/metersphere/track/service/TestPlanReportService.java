@@ -461,6 +461,12 @@ public class TestPlanReportService {
         noticeSendService.send(testPlanReport.getTriggerMode(), noticeModel);
     }
 
+    public List<TestPlanReport> getTestPlanReportApi(String planId) {
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        return testPlanReportMapper.selectByExample(example);
+    }
+
     public TestPlanReport getTestPlanReport(String planId) {
         return testPlanReportMapper.selectByPrimaryKey(planId);
     }

@@ -36,7 +36,7 @@
                            show-overflow-tooltip
                            :key="index"/>
           <el-table-column v-if="item.id == 'name'" prop="name" sortable="custom" min-width="120"
-                           :label="$t('api_test.definition.api_name')" show-overflow-tooltip :key="index"/>
+                           :label="$t('test_track.case.name')" show-overflow-tooltip :key="index"/>
 
           <el-table-column
             v-if="item.id == 'priority'"
