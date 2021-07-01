@@ -25,7 +25,7 @@ MeterSphere 是一站式开源持续测试平台，涵盖测试跟踪、接口�
 
 ### UI 展示
 
-![UI展示](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/UI.gif)
+![UI展示](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/UIdemo.gif)
 
 > 如需进一步了解 MeterSphere 开源项目，推荐阅读 [MeterSphere 的初心和使命](https://mp.weixin.qq.com/s/DpCt3BNgBTlV3sJ5qtPmZw)
 
