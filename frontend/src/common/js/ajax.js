@@ -1,6 +1,6 @@
 import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
-import i18n from '../../i18n/i18n'
+import i18n from '../../i18n/i18n';
 import {TokenKey} from "@/common/js/constants";
 
 export function registerRequestHeaders() {
@@ -33,7 +33,7 @@ export function login() {
     callback: () => {
       axios.get("/signout");
       localStorage.setItem('Admin-Token', "{}");
-      window.location.href = "/login"
+      window.location.href = "/login";
     }
   });
 }
@@ -86,7 +86,7 @@ export function get(url, success) {
   }
 }
 
-export function post (url, data, success, failure) {
+export function post(url, data, success, failure) {
   let result = {loading: true};
   if (!success) {
     return axios.post(url, data);
@@ -139,7 +139,7 @@ export function fileUpload(url, file, files, param, success, failure) {
   if (files) {
     files.forEach(f => {
       formData.append("files", f);
-    })
+    });
   }
   formData.append('request', new Blob([JSON.stringify(param)], {type: "application/json"}));
   let axiosRequestConfig = getUploadConfig(url, formData);
@@ -156,15 +156,15 @@ export default {
 
     if (!axios) {
       window.console.error('You have to install axios');
-      return
+      return;
     }
 
     if (!Message) {
       window.console.error('You have to install Message of ElementUI');
-      return
+      return;
     }
 
-    let login = login;
+    // let login = login;
 
     axios.defaults.withCredentials = true;
 
@@ -189,4 +189,4 @@ export default {
 
     Vue.prototype.$fileUpload = fileUpload;
   }
-}
+};

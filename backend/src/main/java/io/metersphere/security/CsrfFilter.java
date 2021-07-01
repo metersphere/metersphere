@@ -1,5 +1,6 @@
 package io.metersphere.security;
 
+import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -25,7 +26,7 @@ public class CsrfFilter extends AnonymousFilter {
         HttpServletRequest httpServletRequest = WebUtils.toHttp(request);
 
         if (!SecurityUtils.getSubject().isAuthenticated()) {
-            ((HttpServletResponse) response).setHeader("Authentication-Status", "invalid");
+            ((HttpServletResponse) response).setHeader(SessionConstants.AUTHENTICATION_STATUS, SessionConstants.AUTHENTICATION_INVALID);
             return true;
         }
         // api 过来的请求

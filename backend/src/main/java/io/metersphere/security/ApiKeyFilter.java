@@ -1,5 +1,6 @@
 package io.metersphere.security;
 
+import io.metersphere.commons.constants.SessionConstants;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
@@ -31,7 +32,7 @@ public class ApiKeyFilter extends AnonymousFilter {
             }
 
             if (!SecurityUtils.getSubject().isAuthenticated()) {
-                ((HttpServletResponse) response).setHeader("Authentication-Status", "invalid");
+                ((HttpServletResponse) response).setHeader(SessionConstants.AUTHENTICATION_STATUS, SessionConstants.AUTHENTICATION_INVALID);
             }
         } catch (Exception e) {
             if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
