@@ -2108,29 +2108,20 @@ public class ApiAutomationService {
     }
 
     public void checkApiScenarioUseUrl() {
-        try {
-            final String key = "init.scenario.url";
-            String value = systemParameterService.getValue(key);
-            if (StringUtils.isBlank(value)) {
-                List<String> noUrlScenarioIdList = extApiScenarioMapper.selectIdsByUseUrlIsNull();
-                for (String id : noUrlScenarioIdList) {
-                    ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
-                    if (scenario.getUseUrl() == null) {
-                        List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
-                        if (useUrl != null) {
-                            ApiScenarioWithBLOBs updateModel = new ApiScenarioWithBLOBs();
-                            updateModel.setId(scenario.getId());
-                            updateModel.setUseUrl(JSONArray.toJSONString(useUrl));
-                            apiScenarioMapper.updateByPrimaryKeySelective(updateModel);
-                            updateModel = null;
-                        }
-                    }
-                    scenario = null;
+        List<String> noUrlScenarioIdList = extApiScenarioMapper.selectIdsByUseUrlIsNull();
+        for (String id : noUrlScenarioIdList) {
+            ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
+            if (scenario.getUseUrl() == null) {
+                List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
+                if (useUrl != null) {
+                    ApiScenarioWithBLOBs updateModel = new ApiScenarioWithBLOBs();
+                    updateModel.setId(scenario.getId());
+                    updateModel.setUseUrl(JSONArray.toJSONString(useUrl));
+                    apiScenarioMapper.updateByPrimaryKeySelective(updateModel);
+                    updateModel = null;
                 }
-                systemParameterService.saveInitParam(key);
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
+            scenario = null;
         }
     }
 

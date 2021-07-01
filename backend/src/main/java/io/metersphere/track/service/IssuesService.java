@@ -364,23 +364,14 @@ public class IssuesService {
     }
 
     public void syncThirdPartyIssues() {
-        try {
-            final String key = "init.issue";
-            String value = systemParameterService.getValue(key);
-            if (StringUtils.isBlank(value)) {
-                List<String> projectIds = projectService.getProjectIds();
-                projectIds.forEach(id -> {
-                    try {
-                        syncThirdPartyIssues(id);
-                    } catch (Exception e) {
-                        LogUtil.error(e.getMessage(), e);
-                    }
-                });
-                systemParameterService.saveInitParam(key);
+        List<String> projectIds = projectService.getProjectIds();
+        projectIds.forEach(id -> {
+            try {
+                syncThirdPartyIssues(id);
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
+        });
     }
 
     public void syncThirdPartyIssues(String projectId) {
