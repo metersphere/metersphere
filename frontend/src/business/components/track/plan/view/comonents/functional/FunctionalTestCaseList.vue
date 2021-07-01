@@ -73,6 +73,7 @@
           <template v-slot:default="scope">
             <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain"
                     :content="tag" style="margin-left: 0px; margin-right: 2px"/>
+            <span></span>
           </template>
         </ms-table-column>
           <ms-table-column
