@@ -23,7 +23,7 @@ public abstract class JiraAbstractClient extends BaseClient {
     protected  String PASSWD;
 
     public JiraIssue getIssues(String issuesId) {
-        LogUtil.debug("getIssues: " + issuesId);
+        LogUtil.info("getIssues: " + issuesId);
         ResponseEntity<String> responseEntity;
         responseEntity = restTemplate.exchange(getBaseUrl() + "/issue/" + issuesId, HttpMethod.GET, getAuthHttpEntity(), String.class);
         return  (JiraIssue) getResultForObject(JiraIssue.class, responseEntity);
@@ -35,11 +35,17 @@ public abstract class JiraAbstractClient extends BaseClient {
     }
 
     public JiraAddIssueResponse addIssue(String body) {
-        LogUtil.debug("addIssue: " + body);
+        LogUtil.info("addIssue: " + body);
         HttpHeaders headers = getAuthHeader();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
-        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/issue", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(getBaseUrl() + "/issue", HttpMethod.POST, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
         return (JiraAddIssueResponse) getResultForObject(JiraAddIssueResponse.class, response);
     }
 

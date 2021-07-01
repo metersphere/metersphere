@@ -88,13 +88,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
         String lastmodify = "";
         String status = "";
         JSONObject fields = jiraIssue.getFields();
-        JSONObject statusObj = (JSONObject) fields.get("status");
-        JSONObject assignee = (JSONObject) fields.get("assignee");
-        if (statusObj != null) {
-            JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
-            status = statusCategory.getString("name");
-        }
 
+        status = getStatus(fields);
+        JSONObject assignee = (JSONObject) fields.get("assignee");
         String description = fields.getString("description");
 
         Parser parser = Parser.builder().build();
@@ -112,6 +108,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
         item.setDescription(description);
         item.setPlatformStatus(status);
         item.setPlatform(IssuesManagePlatform.Jira.toString());
+    }
+
+    private String getStatus(JSONObject fields) {
+        JSONObject statusObj = (JSONObject) fields.get("status");
+        if (statusObj != null) {
+            JSONObject statusCategory = (JSONObject) statusObj.get("statusCategory");
+            return statusCategory.getString("name");
+        }
+        return "";
     }
 
     @Override
@@ -229,6 +234,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
             }
         });
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
+        JiraIssue issues = jiraClientV2.getIssues(result.getId());
+        String status = getStatus(issues.getFields());
+        issuesRequest.setPlatformStatus(status);
 
         issuesRequest.setId(result.getKey());
         // 用例与第三方缺陷平台中的缺陷关联

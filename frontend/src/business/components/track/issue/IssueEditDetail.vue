@@ -158,11 +158,11 @@ export default {
       let platform = this.issueTemplate.platform;
       if (platform === 'Zentao') {
         this.hasZentaoId = true;
-        this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId}, response => {
+        this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, response => {
           if (response.data) {
             this.Builds = response.data;
           }
-          this.result = this.$post("/issues/zentao/user", {projectId: this.projectId}, response => {
+          this.result = this.$post("/issues/zentao/user", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, response => {
             this.zentaoUsers = response.data;
           });
         });

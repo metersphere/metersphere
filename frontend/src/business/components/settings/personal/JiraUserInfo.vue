@@ -1,7 +1,7 @@
 <template>
   <el-form label-position="right" label-width="100px" size="small">
     <el-form-item :label="'Jira 信息'">
-      <ms-instructions-icon size="10" :content="'该信息为对接 Jira 的用户认证信息，若未填写，则使用组织中配置的默认信息'"/>
+      <ms-instructions-icon size="10" :content="'该信息为通过Jira提交缺陷的用户认证信息，若未填写，则使用组织中配置的默认信息'"/>
     </el-form-item>
     <el-form-item :label="'Jira ' + $t('organization.integration.account')" prop="account">
       <el-input v-model="data.jiraAccount" :placeholder="$t('organization.integration.input_api_account')"/>

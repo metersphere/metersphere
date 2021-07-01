@@ -27,6 +27,8 @@ public class UserDTO extends User {
         private String  jiraAccount;
         private String  jiraPassword;
         private String  tapdUserName;
+        private String  zentaoUserName;
+        private String  zentaoPassword;
     }
 
 }

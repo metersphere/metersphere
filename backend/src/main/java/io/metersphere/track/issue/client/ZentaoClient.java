@@ -34,7 +34,6 @@ public class ZentaoClient extends BaseClient {
         GetUserResponse getUserResponse = (GetUserResponse) getResultForObject(GetUserResponse.class, response);
         GetUserResponse.User user = getUserResponse.getUser();
         if (user == null) {
-            LogUtil.error("login fail");
             LogUtil.error(JSONObject.toJSON(getUserResponse));
             // 登录失败，获取的session无效，置空session
             MSException.throwException("zentao login fail");
