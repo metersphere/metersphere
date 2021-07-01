@@ -7,6 +7,7 @@ import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.track.service.IssuesService;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,6 +29,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private JarConfigService jarConfigService;
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private IssuesService issuesService;
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -43,6 +46,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initPythonEnv();
 
         checkApiScenarioUseUrl();
+
+        issuesService.syncThirdPartyIssues();
 
         try {
             Thread.sleep(1 * 60 * 1000);
