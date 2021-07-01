@@ -12,6 +12,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.ZentaoClient;
@@ -161,9 +162,17 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         if (StringUtils.isBlank(projectId)) {
             MSException.throwException("未关联禅道项目ID.");
         }
+        List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
         paramMap.add("title", issuesRequest.getTitle());
+
+        customFields.forEach(item -> {
+            if (StringUtils.isNotBlank(item.getCustomData())) {
+                paramMap.add(item.getCustomData(), item.getValue());
+            }
+        });
+
         String description = issuesRequest.getDescription();
         String zentaoSteps = description;
 
@@ -186,24 +195,28 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             paramMap.add("assignedTo", issuesRequest.getZentaoAssigned());
         }
 
-        AddIssueResponse.Issue issue = zentaoClient.addIssue(paramMap);
-        issuesRequest.setPlatformStatus(issue.getStatus());
+        try {
+            AddIssueResponse.Issue issue = zentaoClient.addIssue(paramMap);
+            issuesRequest.setPlatformStatus(issue.getStatus());
 
-        String id = issue.getId();
-        if (StringUtils.isNotBlank(id)) {
-            issuesRequest.setId(id);
-            // 用例与第三方缺陷平台中的缺陷关联
-            handleTestCaseIssues(issuesRequest);
+            String id = issue.getId();
+            if (StringUtils.isNotBlank(id)) {
+                issuesRequest.setId(id);
+                // 用例与第三方缺陷平台中的缺陷关联
+                handleTestCaseIssues(issuesRequest);
 
-            IssuesExample issuesExample = new IssuesExample();
-            issuesExample.createCriteria().andIdEqualTo(id)
-                    .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
-            if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
-                // 插入缺陷表
-                insertIssues(id, issuesRequest);
+                IssuesExample issuesExample = new IssuesExample();
+                issuesExample.createCriteria().andIdEqualTo(id)
+                        .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+                if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
+                    // 插入缺陷表
+                    insertIssues(id, issuesRequest);
+                }
             }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("提交禅道缺陷失败!");
         }
-
     }
 
     @Override
