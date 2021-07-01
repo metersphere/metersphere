@@ -96,6 +96,7 @@ export default {
     },
     {
       path: 'personsetting',
+      name: 'PersonSetting',
       component: () => import('@/business/components/settings/personal/PersonSetting'),
       meta: {person: true, title: 'commons.personal_setting'}
     },

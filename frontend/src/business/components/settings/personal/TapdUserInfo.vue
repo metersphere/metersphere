@@ -10,6 +10,11 @@
     <el-form-item :label="'Tapd 昵称'" prop="account">
       <el-input v-model="data.tapdUserName" :placeholder="$t('organization.integration.input_api_account')"/>
     </el-form-item>
+    <el-form-item >
+      <el-button type="primary" style="float: right" @click="$emit('auth', 'Tapd')" size="mini">
+        {{$t('commons.validate')}}
+      </el-button>
+    </el-form-item>
   </el-form>
 </template>
 

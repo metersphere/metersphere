@@ -2,13 +2,11 @@ package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.IssuesWithBLOBs;
-import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.DemandDTO;
-import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -16,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
-public class LocalPlatform extends AbstractIssuePlatform {
+public class LocalPlatform extends LocalAbstractPlatform {
 
     protected String key = IssuesManagePlatform.Local.toString();
 
@@ -66,32 +64,5 @@ public class LocalPlatform extends AbstractIssuePlatform {
     @Override
     public void deleteIssue(String id) {
         issuesMapper.deleteByPrimaryKey(id);
-    }
-
-    @Override
-    public void testAuth() {
-
-    }
-
-    @Override
-    public List<PlatformUser> getPlatformUser() {
-        return null;
-    }
-
-    @Override
-    public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
-
-    }
-
-    @Override
-    String getProjectId(String projectId) {
-        return null;
-    }
-
-    public void closeIssue(String issueId) {
-        IssuesWithBLOBs issues = new IssuesWithBLOBs();
-        issues.setId(issueId);
-        issues.setStatus("closed");
-        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 }

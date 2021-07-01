@@ -237,6 +237,16 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         zentaoClient.login();
     }
 
+    @Override
+    public void userAuth(UserDTO.PlatformInfo userInfo) {
+        String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
+        ZentaoConfig zentaoConfig = JSONObject.parseObject(config, ZentaoConfig.class);
+        zentaoConfig.setAccount(userInfo.getZentaoUserName());
+        zentaoConfig.setPassword(userInfo.getZentaoPassword());
+        zentaoClient.setConfig(zentaoConfig);
+        zentaoClient.login();
+    }
+
     public ZentaoConfig setConfig() {
         ZentaoConfig config = getConfig();
         zentaoClient.setConfig(config);
