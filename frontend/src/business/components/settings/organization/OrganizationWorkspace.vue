@@ -422,7 +422,7 @@ export default {
       dialogTotal: 0,
       memberLineData: [],
       memberForm: {},
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       form: {
         // name: "",
         // description: ""

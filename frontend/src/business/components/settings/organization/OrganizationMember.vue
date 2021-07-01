@@ -121,7 +121,7 @@
         result: {},
         createVisible: false,
         updateVisible: false,
-        screenHeight: 'calc(100vh - 255px)',
+        screenHeight: 'calc(100vh - 195px)',
         form: {},
         queryPath: "/user/org/member/list",
         condition: {},

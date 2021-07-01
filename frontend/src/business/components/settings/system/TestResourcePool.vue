@@ -244,7 +244,7 @@ export default {
       pageSize: 10,
       total: 0,
       form: {performance: true, api: true},
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
         name: [

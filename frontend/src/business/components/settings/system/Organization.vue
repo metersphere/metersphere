@@ -214,7 +214,7 @@ export default {
       dialogPageSize: 10,
       dialogTotal: 0,
       currentRow: {},
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       condition: {},
       dialogCondition: {},
       tableData: [],

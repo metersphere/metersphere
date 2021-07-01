@@ -149,7 +149,7 @@
         total: 0,
         projectIds: [],   //当前工作空间所拥有的所有项目id
         projectFilters: [],
-        screenHeight: 'calc(100vh - 255px)',
+        screenHeight: 'calc(100vh - 195px)',
       }
     },
     created() {

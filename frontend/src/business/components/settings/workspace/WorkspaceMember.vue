@@ -136,7 +136,7 @@
             {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
           ]
         },
-        screenHeight: 'calc(100vh - 255px)',
+        screenHeight: 'calc(100vh - 195px)',
         multipleSelection: [],
         currentPage: 1,
         pageSize: 10,

@@ -38,7 +38,7 @@
                   <el-row class="head-bar">
                     <el-col>
                       <el-divider content-position="left">
-                        <el-button type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
                       </el-divider>
                     </el-col>
                   </el-row>
@@ -501,7 +501,7 @@ export default {
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 70px);
+  height: calc(100vh - 50px);
 }
 
 .comment-card >>> .el-card__header {
@@ -509,7 +509,7 @@ export default {
 }
 
 .comment-card >>> .el-card__body {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
 }
 
 .case_container > .el-row {
@@ -542,5 +542,14 @@ p {
 
 .save-btn {
   margin-left: 10px;
+}
+
+
+.el-divider__text {
+  line-height: normal;
+}
+
+.test-case-name {
+  padding: 0;
 }
 </style>
