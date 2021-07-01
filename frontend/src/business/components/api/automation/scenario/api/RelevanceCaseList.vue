@@ -18,18 +18,18 @@
                 ref="table"
       >
 
-      <ms-table-column
+        <ms-table-column
           prop="num"
           label="ID"
           width="80px"
           sortable=true>
-<!--          <template slot-scope="scope">-->
-<!--            &lt;!&ndash; 判断为只读用户的话不可点击ID进行编辑操作 &ndash;&gt;-->
-<!--            <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
-<!--            <el-tooltip v-else content="编辑">-->
-<!--              <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>-->
-<!--            </el-tooltip>-->
-<!--          </template>-->
+          <!--          <template slot-scope="scope">-->
+          <!--            &lt;!&ndash; 判断为只读用户的话不可点击ID进行编辑操作 &ndash;&gt;-->
+          <!--            <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
+          <!--            <el-tooltip v-else content="编辑">-->
+          <!--              <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>-->
+          <!--            </el-tooltip>-->
+          <!--          </template>-->
         </ms-table-column>
 
         <ms-table-column prop="name" width="160px" :label="$t('test_track.case.name')"/>
@@ -124,70 +124,70 @@ export default {
     MsTable,
     MsTableColumn
   },
-    data() {
-      return {
-        condition: {},
-        selectCase: {},
-        result: {},
-        moduleId: "",
-        typeArr: [
-          {id: 'priority', name: this.$t('test_track.case.priority')},
-        ],
-        priorityFilters: [
-          {text: 'P0', value: 'P0'},
-          {text: 'P1', value: 'P1'},
-          {text: 'P2', value: 'P2'},
-          {text: 'P3', value: 'P3'}
-        ],
-        valueArr: {
-          priority: CASE_PRIORITY,
-        },
-        methodColorMap: new Map(API_METHOD_COLOUR),
-        screenHeight: 'calc(100vh - 400px)',//屏幕高度
-        tableData: [],
-        currentPage: 1,
-        pageSize: 10,
-        total: 0,
-        environmentId: ""
-      }
+  data() {
+    return {
+      condition: {},
+      selectCase: {},
+      result: {},
+      moduleId: "",
+      typeArr: [
+        {id: 'priority', name: this.$t('test_track.case.priority')},
+      ],
+      priorityFilters: [
+        {text: 'P0', value: 'P0'},
+        {text: 'P1', value: 'P1'},
+        {text: 'P2', value: 'P2'},
+        {text: 'P3', value: 'P3'}
+      ],
+      valueArr: {
+        priority: CASE_PRIORITY,
+      },
+      methodColorMap: new Map(API_METHOD_COLOUR),
+      screenHeight: 'calc(100vh - 400px)',//屏幕高度
+      tableData: [],
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      environmentId: ""
+    }
+  },
+  props: {
+    currentProtocol: String,
+    selectNodeIds: Array,
+    visible: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-      currentProtocol: String,
-      selectNodeIds: Array,
-      visible: {
-        type: Boolean,
-        default: false,
-      },
-      isApiListEnable: {
-        type: Boolean,
-        default: false,
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      isCaseRelevance: {
-        type: Boolean,
-        default: false,
-      },
-      projectId: String,
-      planId: String,
-      isTestPlan: Boolean
+    isApiListEnable: {
+      type: Boolean,
+      default: false,
     },
-    created: function () {
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    isCaseRelevance: {
+      type: Boolean,
+      default: false,
+    },
+    projectId: String,
+    planId: String,
+    isTestPlan: Boolean
+  },
+  created: function () {
+    this.initTable();
+  },
+  watch: {
+    selectNodeIds() {
       this.initTable();
     },
-    watch: {
-      selectNodeIds() {
-        this.initTable();
-      },
-      currentProtocol() {
-        this.initTable();
-      },
-      projectId() {
-        this.initTable();
-      }
+    currentProtocol() {
+      this.initTable();
     },
+    projectId() {
+      this.initTable();
+    }
+  },
   computed: {
     selectRows() {
       if (this.$refs.table) {
@@ -207,16 +207,18 @@ export default {
       if (projectId != null && typeof projectId === 'string') {
         this.condition.projectId = projectId;
       } else if (this.projectId != null) {
-          this.condition.projectId = this.projectId;
-        }
-        if (this.currentProtocol != null) {
-          this.condition.protocol = this.currentProtocol;
-        }
-        let url = '/api/testcase/list/';
-        if (this.isTestPlan) {
-          url = '/test/plan/api/case/relevance/list/';
-          this.condition.planId = this.planId;
-        }
+        this.condition.projectId = this.projectId;
+      }
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+      let url = '/api/testcase/list/';
+      if (this.isTestPlan) {
+        url = '/test/plan/api/case/relevance/list/';
+        this.condition.planId = this.planId;
+      } else {
+        this.condition.ids = [];
+      }
 
       this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
@@ -259,22 +261,22 @@ export default {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
     handleTestCase(testCase) {
-        this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
-          let api = response.data;
-          let selectApi = api;
-          let request = {};
-          if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-            request = api.request;
-          } else {
-            request = JSON.parse(api.request);
-          }
-          if (!request.hashTree) {
-            request.hashTree = [];
-          }
-          selectApi.url = request.path;
-          this.$refs.caseList.open(selectApi, testCase.id);
-        });
-      },
+      this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
+        let api = response.data;
+        let selectApi = api;
+        let request = {};
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          request = api.request;
+        } else {
+          request = JSON.parse(api.request);
+        }
+        if (!request.hashTree) {
+          request.hashTree = [];
+        }
+        selectApi.url = request.path;
+        this.$refs.caseList.open(selectApi, testCase.id);
+      });
+    },
     setEnvironment(data) {
       this.environmentId = data.id;
     },
@@ -288,39 +290,39 @@ export default {
       let sampleSelectRows = this.$refs.table.getSelectRows();
       let batchParam = buildBatchParam(this);
       let param = {};
-      if(batchParam.condition){
+      if (batchParam.condition) {
         param = batchParam.condition;
         param.projectId = batchParam.projectId;
-      }else{
+      } else {
         param = batchParam;
       }
       param.ids = Array.from(sampleSelectRows).map(row => row.id);
       return param;
     }
   },
-  }
+}
 </script>
 
 <style scoped>
-  .operate-button > div {
-    display: inline-block;
-    margin-left: 10px;
-  }
+.operate-button > div {
+  display: inline-block;
+  margin-left: 10px;
+}
 
-  .request-method {
-    padding: 0 5px;
-    color: #1E90FF;
-  }
+.request-method {
+  padding: 0 5px;
+  color: #1E90FF;
+}
 
-  .api-el-tag {
-    color: white;
-  }
+.api-el-tag {
+  color: white;
+}
 
-  .search-input {
-    float: right;
-    width: 300px;
-    /*margin-bottom: 20px;*/
-    margin-right: 20px;
-  }
+.search-input {
+  float: right;
+  width: 300px;
+  /*margin-bottom: 20px;*/
+  margin-right: 20px;
+}
 
 </style>
