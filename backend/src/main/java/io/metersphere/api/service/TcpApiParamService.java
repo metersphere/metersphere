@@ -2,8 +2,7 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
-import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author song.tianyang
@@ -66,8 +64,6 @@ public class TcpApiParamService {
         if(testElement != null){
             if(testElement instanceof MsTCPSampler){
                 this.handleTcpRequest(testElement);
-            }else if (testElement instanceof MsScenario) {
-                testElement.setId(UUID.randomUUID().toString());
             }
 
             if(testElement.getHashTree() != null){
