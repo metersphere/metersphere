@@ -56,8 +56,14 @@ public class ZentaoClient extends BaseClient {
         String sessionId = login();
         HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/api-getModel-bug-create.json?zentaosid=" + sessionId,
-                HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = null;
+        try {
+           response = restTemplate.exchange(getBaseUrl() + "/api-getModel-bug-create.json?zentaosid=" + sessionId,
+                    HttpMethod.POST, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
         AddIssueResponse addIssueResponse = (AddIssueResponse) getResultForObject(AddIssueResponse.class, response);
         return JSONObject.parseObject(addIssueResponse.getData(), AddIssueResponse.Issue.class);
     }

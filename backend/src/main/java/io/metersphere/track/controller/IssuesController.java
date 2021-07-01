@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.service.IssuesService;
@@ -57,6 +58,11 @@ public class IssuesController {
     @GetMapping("/auth/{orgId}/{platform}")
     public void testAuth(@PathVariable String orgId, @PathVariable String platform) {
         issuesService.testAuth(orgId, platform);
+    }
+
+    @PostMapping("/user/auth")
+    public void userAuth(@RequestBody AuthUserIssueRequest authUserIssueRequest) {
+        issuesService.userAuth(authUserIssueRequest);
     }
 
     @GetMapping("/close/{id}")

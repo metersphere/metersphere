@@ -26,6 +26,7 @@ import io.metersphere.service.ProjectService;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
+import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -483,5 +484,12 @@ public class IssuesService {
 
     public List<IssuesDao> relateList(IssuesRequest request) {
        return extIssuesMapper.getRelateIssues(request);
+    }
+
+    public void userAuth(AuthUserIssueRequest authUserIssueRequest) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setOrganizationId(authUserIssueRequest.getOrgId());
+        AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(authUserIssueRequest.getPlatform(), issuesRequest);
+        abstractPlatform.userAuth(authUserIssueRequest);
     }
 }
