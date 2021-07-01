@@ -39,7 +39,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {TAPD} from "@/common/js/constants";
 
 export default {
@@ -123,7 +123,7 @@ export default {
     },
     testConnection() {
       if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + TAPD, () => {
+        this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + TAPD, () => {
           this.$success(this.$t('organization.integration.verified'));
         });
       } else {
