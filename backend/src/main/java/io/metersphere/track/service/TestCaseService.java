@@ -1054,6 +1054,7 @@ public class TestCaseService {
 
     public String edit(EditTestCaseRequest request, List<MultipartFile> files) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
+        request.setNum(testCaseWithBLOBs.getNum());
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
         }
