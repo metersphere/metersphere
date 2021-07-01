@@ -296,7 +296,7 @@ export default {
         // caseTemplateId: [{required: true}],
         // issueTemplateId: [{required: true}],
       },
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       dialogCondition: {},
       memberVisible: false,
       memberLineData: [],

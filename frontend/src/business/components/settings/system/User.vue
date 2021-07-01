@@ -189,7 +189,7 @@ export default {
           id: ''
         }]
       },
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       checkPasswordForm: {},
       ruleForm: {},
       buttons: [

@@ -493,5 +493,5 @@ export function getNodePath(id, moduleOptions) {
 }
 
 export function getDefaultTableHeight() {
-  return document.documentElement.clientHeight - 280;
+  return document.documentElement.clientHeight - 200;
 }
