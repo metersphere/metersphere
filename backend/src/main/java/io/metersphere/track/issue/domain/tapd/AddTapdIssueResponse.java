@@ -3,14 +3,12 @@ package io.metersphere.track.issue.domain.tapd;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class TapdGetIssueResponse {
+public class AddTapdIssueResponse {
 
     private int status;
-    private List<Data> data;
+    private Data data;
     private String info;
 
     @Getter
@@ -18,4 +16,5 @@ public class TapdGetIssueResponse {
     public static class Data {
         private TapdBug bug;
     }
+
 }
