@@ -144,7 +144,7 @@ export default {
       let status = row.executionStatus;
       if (status) {
         status = row.executionStatus.toLowerCase();
-        if (status === 'Saved' || status === 'Completed' || status === 'success' || status === 'error') {
+        if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
           this.taskVisible = false;
           switch (row.executionModule) {
             case "SCENARIO":
