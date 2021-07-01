@@ -61,6 +61,7 @@ public class MsExtract extends MsTestElement {
             shell.setName(StringUtils.isEmpty(this.getName()) ? "JSR223PostProcessor" : this.getName());
             shell.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
             shell.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+            shell.setProperty("cacheKey", false);
             shell.setProperty("script", "io.metersphere.api.jmeter.JMeterVars.addVars(prev.hashCode(),vars," + "\"" + extract.toString() + "\"" + ");");
             samplerHashTree.add(shell);
         }
