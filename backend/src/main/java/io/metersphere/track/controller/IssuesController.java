@@ -54,9 +54,9 @@ public class IssuesController {
         return issuesService.getIssues(id);
     }
 
-    @GetMapping("/auth/{platform}")
-    public void testAuth(@PathVariable String platform) {
-        issuesService.testAuth(platform);
+    @GetMapping("/auth/{orgId}/{platform}")
+    public void testAuth(@PathVariable String orgId, @PathVariable String platform) {
+        issuesService.testAuth(orgId, platform);
     }
 
     @GetMapping("/close/{id}")
