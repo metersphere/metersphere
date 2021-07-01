@@ -272,6 +272,37 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         testCase.setTags(modifiedTags);
         testCase.setType("functional");
 
+        JSONArray customArr = new JSONArray();
+        String caseStatusValue = "";
+        if(StringUtils.equalsAny(data.getStatus(),"Underway","进行中","進行中")){
+            caseStatusValue = "Underway";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","未开始","未開始")){
+            caseStatusValue = "Prepare";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","已完成","已完成")){
+            caseStatusValue = "Completed";
+        }
+        if(StringUtils.isNotEmpty(caseStatusValue)){
+            JSONObject  statusObj = new JSONObject();
+            statusObj.put("id",UUID.randomUUID().toString());
+            statusObj.put("name","用例状态");
+            statusObj.put("value",caseStatusValue);
+            statusObj.put("customData",null);
+            customArr.add(statusObj);
+        }
+
+        if(StringUtils.isNotEmpty(data.getMaintainer())){
+            JSONObject  obj = new JSONObject();
+            obj.put("id",UUID.randomUUID().toString());
+            obj.put("name","责任人");
+            obj.put("value",data.getMaintainer());
+            obj.put("customData",null);
+            customArr.add(obj);
+        }
+
+        if(customArr.size()>0){
+            testCase.setCustomFields(customArr.toString());
+        }
+
         if (StringUtils.isNotBlank(data.getStepModel())
                 && StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
             testCase.setStepDescription(data.getStepDesc());
@@ -307,6 +338,37 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
         String steps = getSteps(data);
         testCase.setSteps(steps);
+
+        JSONArray customArr = new JSONArray();
+        String caseStatusValue = "";
+        if(StringUtils.equalsAny(data.getStatus(),"Underway","进行中","進行中")){
+            caseStatusValue = "Underway";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","未开始","未開始")){
+            caseStatusValue = "Prepare";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","已完成","已完成")){
+            caseStatusValue = "Completed";
+        }
+        if(StringUtils.isNotEmpty(caseStatusValue)){
+            JSONObject  statusObj = new JSONObject();
+            statusObj.put("id",UUID.randomUUID().toString());
+            statusObj.put("name","用例状态");
+            statusObj.put("value",caseStatusValue);
+            statusObj.put("customData",null);
+            customArr.add(statusObj);
+        }
+
+        if(StringUtils.isNotEmpty(data.getMaintainer())){
+            JSONObject  obj = new JSONObject();
+            obj.put("id",UUID.randomUUID().toString());
+            obj.put("name","责任人");
+            obj.put("value",data.getMaintainer());
+            obj.put("customData",null);
+            customArr.add(obj);
+        }
+
+        if(customArr.size()>0){
+            testCase.setCustomFields(customArr.toString());
+        }
 
         //将标签设置为前端可解析的格式
         String modifiedTags = modifyTagPattern(data);
