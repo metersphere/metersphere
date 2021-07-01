@@ -222,7 +222,7 @@
 <style scoped>
 
   .el-main {
-    height: calc(100vh - 70px);
+    height: calc(100vh - 50px);
     width: 100%;
   }
 

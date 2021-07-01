@@ -494,7 +494,7 @@ export default {
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 70px);
+  height: calc(100vh - 50px);
 }
 
 .comment-card >>> .el-card__header {
@@ -502,7 +502,7 @@ export default {
 }
 
 .comment-card >>> .el-card__body {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
 }
 
 .tb-edit >>> .el-textarea__inner {
@@ -514,5 +514,9 @@ export default {
 .step-info {
   padding-left: 40px;
   padding-right: 15px;
+}
+
+.el-divider__text {
+  line-height: normal;
 }
 </style>
