@@ -186,4 +186,10 @@ export default {
   height: calc(100vh - 80px - 53px);
   margin-top: 1px;
 }
+
+.header-menu.el-menu--horizontal > li {
+  height: 49px;
+  line-height: 50px;
+  color: dimgray;
+}
 </style>

@@ -201,7 +201,7 @@ export default {
       total: 0,
       selectDataCounts: 0,
       status: 'default',
-      screenHeight: 'calc(100vh - 330px)',//屏幕高度
+      screenHeight: 'calc(100vh - 250px)',//屏幕高度
       buttons: [
         {
           name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
@@ -496,6 +496,6 @@ export default {
 
 <style scoped>
 /deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+  top: 47px !important;
 }
 </style>

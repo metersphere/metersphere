@@ -281,7 +281,7 @@ export default {
       pageSize: 10,
       total: 0,
       selectDataCounts: 0,
-      screenHeight: 'calc(100vh - 330px)',//屏幕高度
+      screenHeight: 'calc(100vh - 250px)',//屏幕高度
       // environmentId: undefined,
       currentCaseProjectId: "",
       runData: [],
@@ -717,6 +717,6 @@ export default {
 }
 
 /deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+  top: 48px !important;
 }
 </style>

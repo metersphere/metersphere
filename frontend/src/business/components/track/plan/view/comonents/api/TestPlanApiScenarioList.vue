@@ -39,7 +39,7 @@
           <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')" min-width="120px"
                            sortable
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')" min-width="100px"
+          <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')" min-width="120px"
                            column-key="level"
                            sortable="custom"
                            :filters="LEVEL_FILTERS"
@@ -214,7 +214,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      screenHeight: 'calc(100vh - 330px)',//屏幕高度
+      screenHeight: 'calc(100vh - 250px)',//屏幕高度
       tableLabel: [],
       loading: false,
       condition: {},
@@ -543,9 +543,10 @@ export default {
 }
 
 .ms-select-all-fixed >>> th:nth-child(2) .el-icon-arrow-down {
-  top: -3px;
+  top: -4px;
 }
-/*/deep/ .el-table__fixed-body-wrapper {*/
-/*  top: 59px !important;*/
-/*}*/
+
+/deep/ .el-table__fixed-body-wrapper {
+ top: 48px !important;
+}
 </style>
