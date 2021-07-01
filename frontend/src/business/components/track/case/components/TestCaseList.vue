@@ -217,6 +217,7 @@ export default {
   },
   data() {
     return {
+      projectName:"",
       type: TEST_CASE_LIST,
       tableHeaderKey:"TRACK_TEST_CASE",
       screenHeight: 'calc(100vh - 250px)',
@@ -326,6 +327,9 @@ export default {
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
+    if(!this.projectName || this.projectName === ""){
+      this.getProjectName();
+    }
   },
   activated() {
     this.getTemplateField();
@@ -384,6 +388,14 @@ export default {
           this.$emit('testCaseEdit', testCase);
         });
       }
+    },
+    getProjectName (){
+      this.$get('project/get/' + this.projectId, response => {
+        let project = response.data;
+        if(project){
+          this.projectName = project.name;
+        }
+      });
     },
     customHeader() {
       const list = deepClone(this.tableLabel);
@@ -552,7 +564,7 @@ export default {
       }
 
       this.page.result = this.$request(config).then(response => {
-        const filename = "Metersphere_case_" + localStorage.getItem(PROJECT_NAME) + ".xlsx";
+        const filename = "Metersphere_case_" + this.projectName+ ".xlsx";
         const blob = new Blob([response.data]);
         if ("download" in document.createElement("a")) {
           let aTag = document.createElement('a');
