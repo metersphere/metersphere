@@ -5,6 +5,7 @@ import io.metersphere.base.domain.UserGroup;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,6 +28,8 @@ public class CheckPermissionService {
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private ExtTestCaseReviewMapper extTestCaseReviewMapper;
+    @Resource
+    private UserService userService;
 
     public void checkProjectOwner(String projectId) {
         Set<String> projectIds = getUserRelatedProjectIds();
@@ -40,12 +42,13 @@ public class CheckPermissionService {
     }
 
     public Set<String> getUserRelatedProjectIds() {
-        List<String> groupIds = Objects.requireNonNull(SessionUtils.getUser()).getGroups()
+        UserDTO userDTO = userService.getUserDTO(SessionUtils.getUserId());
+        List<String> groupIds = userDTO.getGroups()
                 .stream()
                 .filter(g -> StringUtils.equals(g.getType(), UserGroupType.PROJECT))
                 .map(Group::getId)
                 .collect(Collectors.toList());
-        return Objects.requireNonNull(SessionUtils.getUser()).getUserGroups().stream()
+        return userDTO.getUserGroups().stream()
                 .filter(ur -> groupIds.contains(ur.getGroupId()))
                 .map(UserGroup::getSourceId)
                 .collect(Collectors.toSet());
