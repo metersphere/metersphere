@@ -2098,25 +2098,29 @@ public class ApiAutomationService {
     }
 
     public void checkApiScenarioUseUrl() {
-        List<String> noUrlScenarioIdList = extApiScenarioMapper.selectIdsByUseUrlIsNull();
-        for (String id : noUrlScenarioIdList) {
-            try {
-                ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
-                if (scenario.getUseUrl() == null) {
-                    List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
-                    if (useUrl != null) {
-                        ApiScenarioWithBLOBs updateModel = new ApiScenarioWithBLOBs();
-                        updateModel.setId(scenario.getId());
-                        updateModel.setUseUrl(JSONArray.toJSONString(useUrl));
-                        apiScenarioMapper.updateByPrimaryKeySelective(updateModel);
-                        updateModel = null;
+        try {
+            final String key = "init.scenario.url";
+            String value = systemParameterService.getValue(key);
+            if (StringUtils.isBlank(value)) {
+                List<String> noUrlScenarioIdList = extApiScenarioMapper.selectIdsByUseUrlIsNull();
+                for (String id : noUrlScenarioIdList) {
+                    ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
+                    if (scenario.getUseUrl() == null) {
+                        List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
+                        if (useUrl != null) {
+                            ApiScenarioWithBLOBs updateModel = new ApiScenarioWithBLOBs();
+                            updateModel.setId(scenario.getId());
+                            updateModel.setUseUrl(JSONArray.toJSONString(useUrl));
+                            apiScenarioMapper.updateByPrimaryKeySelective(updateModel);
+                            updateModel = null;
+                        }
                     }
+                    scenario = null;
                 }
-                scenario = null;
-            } catch (Exception e) {
-                e.printStackTrace();
+                systemParameterService.saveInitParam(key);
             }
-
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
