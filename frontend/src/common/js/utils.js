@@ -440,6 +440,15 @@ export function handleCtrlSEvent(event, func) {
   }
 }
 
+export function handleCtrlREvent(event, func) {
+  if (event.keyCode === 82 && event.ctrlKey) {
+    func();
+    event.preventDefault();
+    event.returnValue = false;
+    return false;
+  }
+}
+
 export function strMapToObj(strMap) {
   if (strMap) {
     let obj = Object.create(null);
