@@ -42,7 +42,7 @@
 
 <script>
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
 
 export default {
@@ -139,7 +139,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.account && this.form.password) {
-            this.$parent.result = this.$get("issues/auth/" + ZEN_TAO, () => {
+            this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + ZEN_TAO, () => {
               this.$success(this.$t('organization.integration.verified'));
             });
           } else {

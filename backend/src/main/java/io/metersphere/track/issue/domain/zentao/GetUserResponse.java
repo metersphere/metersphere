@@ -8,6 +8,7 @@ import lombok.Setter;
 public class GetUserResponse {
     private String status;
     private User user;
+    private String reason;
 
     @Getter
     @Setter

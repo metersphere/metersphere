@@ -37,6 +37,14 @@ public class TestCaseExcelData {
     @ExcelIgnore
     private String stepModel;
 
+    /**
+     * 责任人
+     * 用例状态
+     * 用例等级
+     */
+    @ExcelIgnore
+    private String status;
+
     public Set<String> getExcludeColumnFiledNames(boolean needNum){
         Set<String> excludeColumnFiledNames = new HashSet<>();
         if(!needNum){

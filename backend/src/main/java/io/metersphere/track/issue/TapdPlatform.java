@@ -19,6 +19,7 @@ import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.TapdClient;
 import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.tapd.TapdBug;
 import io.metersphere.track.issue.domain.tapd.TapdConfig;
 import io.metersphere.track.issue.domain.tapd.TapdGetIssueResponse;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -100,13 +101,15 @@ public class TapdPlatform extends AbstractIssuePlatform {
             usersStr = String.join(";", platformUsers);
         }
 
-        String username = SessionUtils.getUser().getName();
+        String reporter = getReporter();
+        if (StringUtils.isBlank(reporter)) {
+            reporter = SessionUtils.getUser().getName();
+        }
 
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
         paramMap.add("description", issuesRequest.getDescription());
-        paramMap.add("reporter", username);
         paramMap.add("current_owner", usersStr);
 
         customFields.forEach(item -> {
@@ -114,19 +117,19 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 paramMap.add(item.getCustomData(), item.getValue());
             }
         });
+        paramMap.add("reporter", reporter);
 
-        ResultHolder result = call(url, HttpMethod.POST, paramMap);
+        setConfig();
+        TapdBug bug = tapdClient.addIssue(paramMap);
+        Map<String, String> statusMap = tapdClient.getStatusMap(getProjectId(this.projectId));
+        issuesRequest.setPlatformStatus(statusMap.get(bug.getStatus()));
 
-        String listJson = JSON.toJSONString(result.getData());
-        JSONObject jsonObject = JSONObject.parseObject(listJson);
-        String issuesId = jsonObject.getObject("Bug", Issues.class).getId();
-
-        issuesRequest.setId(issuesId);
+        issuesRequest.setId(bug.getId());
         // 用例与第三方缺陷平台中的缺陷关联
         handleTestCaseIssues(issuesRequest);
 
         // 插入缺陷表
-        insertIssues(issuesId, issuesRequest);
+        insertIssues(bug.getId(), issuesRequest);
     }
 
     @Override
@@ -200,7 +203,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
             count = data.size();
             pageNum++;
             data.forEach(issue -> {
-                TapdGetIssueResponse.Bug bug = issue.getBug();
+                TapdBug bug = issue.getBug();
                 IssuesDao issuesDao = new IssuesDao();
                 BeanUtils.copyBean(issuesDao, bug);
                 issuesDao.setPlatformStatus(statusMap.get(bug.getStatus()));
@@ -228,17 +231,18 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     public TapdConfig getConfig() {
-        TapdConfig tapdConfig = null;
         String config = getPlatformConfig(IssuesManagePlatform.Tapd.toString());
-        if (StringUtils.isNotBlank(config)) {
-            tapdConfig = JSONObject.parseObject(config, TapdConfig.class);
-            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.orgId);
-            if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getTapdUserName())) {
-//                tapdConfig.setAccount(userPlatInfo.getTapdUserName());
-            }
-        }
+        TapdConfig tapdConfig = JSONObject.parseObject(config, TapdConfig.class);
 //        validateConfig(tapdConfig);
         return tapdConfig;
+    }
+
+    public String getReporter() {
+        UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.orgId);
+        if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getTapdUserName())) {
+            return userPlatInfo.getTapdUserName();
+        }
+        return null;
     }
 
     public TapdConfig setConfig() {
