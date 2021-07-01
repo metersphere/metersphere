@@ -268,6 +268,15 @@ public class SystemParameterService {
         });
     }
 
+    public void saveInitParam(String key) {
+        SystemParameter parameter = new SystemParameter();
+        parameter.setParamKey(key);
+        parameter.setParamValue("over");
+        parameter.setType("text");
+        systemParameterMapper.insert(parameter);
+    }
+
+
     //保存表头
     public void saveHeader(UserHeader userHeader) {
         UserHeaderExample example = new UserHeaderExample();
