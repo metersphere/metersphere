@@ -244,6 +244,12 @@ public class MsLogAspect {
                 }
 
                 String path = request.getServletPath();
+                if (StringUtils.isNotEmpty(msOperLog.getSourceId()) && msOperLog.getSourceId().length() > 6000) {
+                    msOperLog.setSourceId(msOperLog.getSourceId().substring(0, 5999));
+                }
+                if (StringUtils.isNotEmpty(msOperLog.getOperTitle()) && msOperLog.getOperTitle().length() > 6000) {
+                    msOperLog.setOperTitle(msOperLog.getOperTitle().substring(0, 5999));
+                }
                 msOperLog.setOperPath(path);
                 operatingLogService.create(msOperLog);
             }
