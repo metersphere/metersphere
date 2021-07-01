@@ -248,7 +248,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_CASE_LIST,
       headerItems: Test_Case_Review_Case_List,
-      screenHeight: 'calc(100vh - 330px)',
+      screenHeight: 'calc(100vh - 270px)',
       tableLabel: [],
       result: {},
       condition: {},
@@ -547,7 +547,7 @@ export default {
 }
 
 /deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+  top: 48px !important;
 }
 </style>
 
