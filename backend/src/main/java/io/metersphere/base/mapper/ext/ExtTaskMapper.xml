@@ -16,9 +16,11 @@
              )
              UNION ALL
              (select t.id,t.name,'API' as executionModule, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, ifnull(t.trigger_mode,'MANUAL') as triggerMode ,ifnull(t.status,'Saved') as executionStatus
-                from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id  left join test_resource_pool t2 on t.actuator  = t2.id
-                left join api_definition t3 on t.resource_id = t3.id left join api_test_case t4 on t4.id = t.resource_id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and (t3.project_id =#{request.projectId} OR t4.project_id =#{request.projectId})
+                    from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id  left join test_resource_pool t2 on t.actuator  = t2.id
+                    left join api_definition t3 on t.resource_id = t3.id left join api_test_case t4 on t4.id = t.resource_id
+                    left join test_plan_api_case t5 on t.resource_id = t5.id left join test_plan t6 on t5.test_plan_id =  t6.id
+                    where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and
+                    (t3.project_id =#{request.projectId} OR t4.project_id =#{request.projectId} OR t6.project_id = #{request.projectId})
                 <if test="request.triggerMode != null and request.triggerMode != ''">
                     and t.trigger_mode = #{request.triggerMode}
                 </if>
@@ -51,7 +53,8 @@
             (select t.id,t.create_time as executionTime
                 from api_definition_exec_result t left join `user` t1 ON t.user_id = t1.id  left join test_resource_pool t2 on t.actuator  = t2.id
                 left join api_definition t3 on t.resource_id = t3.id left join api_test_case t4 on t4.id = t.resource_id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and (t3.project_id =#{request.projectId} OR t4.project_id =#{request.projectId}) and t.status not in ("saved","completed","success","error")
+                left join test_plan_api_case t5 on t.resource_id = t5.id left join test_plan t6 on t5.test_plan_id =  t6.id
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and (t3.project_id =#{request.projectId} OR t4.project_id =#{request.projectId} OR t6.project_id = #{request.projectId}) and t.status not in ("saved","completed","success","error")
             )
         UNION ALL
             (select t.id,t.create_time as executionTime

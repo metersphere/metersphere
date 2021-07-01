@@ -74,17 +74,6 @@ public class ApiDefinitionExecResultService {
                             saveResult.setName(item.getName());
                             saveResult.setTriggerMode(triggerMode);
                             saveResult.setType(type);
-                            if (!StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
-                                ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(item.getName());
-                                if (apiDefinition != null) {
-                                    saveResult.setName(apiDefinition.getName());
-                                } else {
-                                    ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
-                                    if (caseWithBLOBs != null) {
-                                        saveResult.setName(caseWithBLOBs.getName());
-                                    }
-                                }
-                            }
                             if (StringUtils.isNotEmpty(result.getUserId())) {
                                 saveResult.setUserId(result.getUserId());
                             } else {
@@ -92,34 +81,14 @@ public class ApiDefinitionExecResultService {
                             }
                             saved = false;
                         }
+                        String status = item.isSuccess() ? "success" : "error";
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime()));
+                        saveResult.setStatus(status);
                         saveResult.setCreateTime(item.getStartTime());
-                        if (item.getName().indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
-                            saveResult.setName(item.getName().substring(0, item.getName().indexOf(DelimiterConstants.SEPARATOR.toString())));
-                        }
                         saveResult.setResourceId(item.getName());
                         saveResult.setContent(JSON.toJSONString(item));
                         saveResult.setStartTime(item.getStartTime());
-                        String status = item.isSuccess() ? "success" : "error";
                         saveResult.setEndTime(item.getResponseResult().getResponseTime());
-                        saveResult.setStatus(status);
-                        if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
-                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(item.getName());
-                            String id = null;
-                            if (testPlanApiCase != null) {
-                                testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
-                                id = testPlanApiCase.getApiCaseId();
-                            }
-                            TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(item.getName());
-                            if (testCaseReviewApiCase != null) {
-                                testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
-                                id = testCaseReviewApiCase.getApiCaseId();
-                            }
-                            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
-                            if (caseWithBLOBs != null) {
-                                saveResult.setName(caseWithBLOBs.getName());
-                                saveResult.setResourceId(id);
-                            }
-                        }
 
                         // 清空上次执行结果的内容，只保留当前最新一条内容
                         ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
@@ -143,6 +112,39 @@ public class ApiDefinitionExecResultService {
             });
             sqlSession.flushStatements();
         }
+    }
+
+    private String getName(String type, String id, String status, Long time) {
+        if (id.indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
+            return id.substring(0, id.indexOf(DelimiterConstants.SEPARATOR.toString()));
+        }
+        if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(id);
+            ApiTestCaseWithBLOBs caseWithBLOBs = null;
+            if (testPlanApiCase != null) {
+                testPlanApiCaseService.setExecResult(id, status, time);
+                caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+            }
+            TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(id);
+            if (testCaseReviewApiCase != null) {
+                testCaseReviewApiCaseService.setExecResult(id, status, time);
+                caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testCaseReviewApiCase.getApiCaseId());
+            }
+            if (caseWithBLOBs != null) {
+                return caseWithBLOBs.getName();
+            }
+        } else {
+            ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+            if (apiDefinition != null) {
+                return apiDefinition.getName();
+            } else {
+                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
+                if (caseWithBLOBs != null) {
+                    return caseWithBLOBs.getName();
+                }
+            }
+        }
+        return id;
     }
 
     /**

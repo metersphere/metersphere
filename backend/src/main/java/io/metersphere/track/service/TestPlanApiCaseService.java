@@ -271,7 +271,7 @@ public class TestPlanApiCaseService {
             if (element.getString("type").equals("HTTPSamplerProxy")) {
                 MsHTTPSamplerProxy httpSamplerProxy = JSON.parseObject(api, MsHTTPSamplerProxy.class);
                 httpSamplerProxy.setHashTree(list);
-                httpSamplerProxy.setName(caseWithBLOBs.getId());
+                httpSamplerProxy.setName(planId);
                 httpSamplerProxy.setUseEnvironment(apiCase.getEnvironmentId());
                 return httpSamplerProxy;
             }
@@ -279,21 +279,21 @@ public class TestPlanApiCaseService {
                 MsTCPSampler msTCPSampler = JSON.parseObject(api, MsTCPSampler.class);
                 msTCPSampler.setUseEnvironment(apiCase.getEnvironmentId());
                 msTCPSampler.setHashTree(list);
-                msTCPSampler.setName(caseWithBLOBs.getId());
+                msTCPSampler.setName(planId);
                 return msTCPSampler;
             }
             if (element.getString("type").equals("DubboSampler")) {
                 MsDubboSampler dubboSampler = JSON.parseObject(api, MsDubboSampler.class);
                 dubboSampler.setUseEnvironment(apiCase.getEnvironmentId());
                 dubboSampler.setHashTree(list);
-                dubboSampler.setName(caseWithBLOBs.getId());
+                dubboSampler.setName(planId);
                 return dubboSampler;
             }
             if (element.getString("type").equals("JDBCSampler")) {
                 MsJDBCSampler jDBCSampler = JSON.parseObject(api, MsJDBCSampler.class);
                 jDBCSampler.setUseEnvironment(apiCase.getEnvironmentId());
                 jDBCSampler.setHashTree(list);
-                jDBCSampler.setName(caseWithBLOBs.getId());
+                jDBCSampler.setName(planId);
                 return jDBCSampler;
             }
         } catch (Exception e) {
