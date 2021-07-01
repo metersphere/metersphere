@@ -242,13 +242,13 @@ public class TestCaseService {
 
             // 如果上边字段全部相同，去检查 remark 和 steps
             if (!CollectionUtils.isEmpty(caseList)) {
-                String caseRemark = testCase.getRemark();
-                String caseSteps = testCase.getSteps();
-                String casePrerequisite = testCase.getPrerequisite();
+                String caseRemark = testCase.getRemark() == null? "" : testCase.getRemark();
+                String caseSteps = testCase.getSteps() == null? "" : testCase.getSteps();
+                String casePrerequisite = testCase.getPrerequisite() == null? "" : testCase.getPrerequisite();
                 for (TestCaseWithBLOBs tc : caseList) {
-                    String steps = tc.getSteps();
-                    String remark = tc.getRemark();
-                    String prerequisite = tc.getPrerequisite();
+                    String steps = tc.getSteps() == null?"" : tc.getSteps();
+                    String remark = tc.getRemark() == null?"" : tc.getRemark();
+                    String prerequisite = tc.getPrerequisite() == null?"" : tc.getPrerequisite();
                     if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
                         //MSException.throwException(Translator.get("test_case_already_exists"));
                         return tc;
@@ -872,6 +872,7 @@ public class TestCaseService {
                 }
             }
             data.setMaintainer(t.getMaintainer());
+            data.setStatus(t.getStatus());
             list.add(data);
         });
         return list;
