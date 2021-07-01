@@ -139,7 +139,7 @@
         condition: {},
         tableData: [],
         userList: [],
-        screenHeight: 'calc(100vh - 275px)',
+        screenHeight: 'calc(100vh - 215px)',
         LOG_TYPE: [
           {id: 'CREATE', label: this.$t('api_test.definition.request.create_info')},
           {id: 'DELETE', label: this.$t('commons.delete')},

@@ -179,6 +179,6 @@ export default {
 
 <style scoped>
 /deep/ .el-table__fixed-body-wrapper {
-  top: 58PX !IMPORTANT;
+  top: 47PX !IMPORTANT;
 }
 </style>
