@@ -72,8 +72,10 @@ public class IssuesService {
     @Resource
     private TestCaseMapper testCaseMapper;
 
-    public void testAuth(String platform) {
-        AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
+    public void testAuth(String orgId, String platform) {
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setOrganizationId(orgId);
+        AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, issuesRequest);
         abstractPlatform.testAuth();
     }
 
