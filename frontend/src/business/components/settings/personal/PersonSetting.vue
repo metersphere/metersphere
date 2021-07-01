@@ -53,6 +53,7 @@
       </el-form>
       <jira-user-info v-if="hasJira" :data="currentPlatformInfo"/>
       <tapd-user-info v-if="hasTapd" :data="currentPlatformInfo"/>
+      <zentao-user-info v-if="hasZentao" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="updateVisible = false"
@@ -98,10 +99,11 @@ import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
 import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
 import {getIntegrationService} from "@/network/organization";
+import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
 
 export default {
   name: "MsPersonSetting",
-  components: {TapdUserInfo, JiraUserInfo, MsDialogFooter, MsTableOperatorButton},
+  components: {ZentaoUserInfo, TapdUserInfo, JiraUserInfo, MsDialogFooter, MsTableOperatorButton},
   inject: [
     'reload'
   ],
@@ -118,11 +120,14 @@ export default {
       currentPlatformInfo: {
         jiraAccount: '',
         jiraPassword: '',
-        tapdUserName: ''
+        tapdUserName: '',
+        zentaoUserName: '',
+        zentaoPassword: ''
       },
       ruleForm: {},
       hasJira: false,
       hasTapd: false,
+      hasZentao: false,
       rule: {
         name: [
           {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -209,9 +214,9 @@ export default {
         if (platforms.indexOf("Jira") !== -1) {
           this.hasJira = true;
         }
-        // if (platforms.indexOf("Zentao") !== -1) {
-        //   this.zentao = true;
-        // }
+        if (platforms.indexOf("Zentao") !== -1) {
+          this.hasZentao = true;
+        }
       });
     },
     editPassword(row) {

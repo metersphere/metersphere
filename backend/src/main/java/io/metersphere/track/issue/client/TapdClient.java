@@ -2,6 +2,9 @@ package io.metersphere.track.issue.client;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.issue.domain.tapd.AddTapdIssueResponse;
+import io.metersphere.track.issue.domain.tapd.TapdBug;
 import io.metersphere.track.issue.domain.tapd.TapdConfig;
 import io.metersphere.track.issue.domain.tapd.TapdGetIssueResponse;
 import org.springframework.http.HttpEntity;
@@ -51,6 +54,19 @@ public class TapdClient extends BaseClient {
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class,
                 projectId, pageNum, limit, fields, idStr);
         return (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);
+    }
+
+    public TapdBug addIssue(MultiValueMap<String, Object> paramMap) {
+        String url = getBaseUrl() + "/bugs";
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, getAuthHeader());
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        return ((AddTapdIssueResponse) getResultForObject(AddTapdIssueResponse.class, response)).getData().getBug();
     }
 
     protected HttpEntity<MultiValueMap> getAuthHttpEntity() {

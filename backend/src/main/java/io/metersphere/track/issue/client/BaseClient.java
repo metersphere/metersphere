@@ -50,11 +50,11 @@ public abstract class BaseClient {
 
     protected  String getResult(ResponseEntity<String> response) {
         int statusCodeValue = response.getStatusCodeValue();
-        LogUtil.debug("responseCode: " + statusCodeValue);
+        LogUtil.info("responseCode: " + statusCodeValue);
         if(statusCodeValue >= 400){
             MSException.throwException(response.getBody());
         }
-        LogUtil.debug("result: " + response.getBody());
+        LogUtil.info("result: " + response.getBody());
         return response.getBody();
     }
 

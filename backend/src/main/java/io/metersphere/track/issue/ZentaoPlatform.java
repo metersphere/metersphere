@@ -13,6 +13,7 @@ import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.CustomFieldItemDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.ZentaoClient;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -158,17 +159,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
 
         List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
-        setConfig();
-        String session = zentaoClient.login();
-
+        zentaoClient.setConfig(getUserConfig());
         String projectId = getProjectId(issuesRequest.getProjectId());
-
         if (StringUtils.isBlank(projectId)) {
             MSException.throwException("未关联禅道项目ID.");
-        }
-
-        if (StringUtils.isBlank(session)) {
-            MSException.throwException("session is null");
         }
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("product", projectId);
@@ -203,6 +197,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         }
 
         AddIssueResponse.Issue issue = zentaoClient.addIssue(paramMap);
+        issuesRequest.setPlatformStatus(issue.getStatus());
 
         String id = issue.getId();
         if (StringUtils.isNotBlank(id)) {
@@ -250,6 +245,22 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
         zentaoConfig = JSONObject.parseObject(config, ZentaoConfig.class);
 //        validateConfig(tapdConfig);
+        return zentaoConfig;
+    }
+
+    public ZentaoConfig getUserConfig() {
+        ZentaoConfig zentaoConfig = null;
+        String config = getPlatformConfig(IssuesManagePlatform.Zentao.toString());
+        if (StringUtils.isNotBlank(config)) {
+            zentaoConfig = JSONObject.parseObject(config, ZentaoConfig.class);
+            UserDTO.PlatformInfo userPlatInfo = getUserPlatInfo(this.orgId);
+            if (userPlatInfo != null && StringUtils.isNotBlank(userPlatInfo.getZentaoUserName())
+                    && StringUtils.isNotBlank(userPlatInfo.getZentaoPassword())) {
+                zentaoConfig.setAccount(userPlatInfo.getZentaoUserName());
+                zentaoConfig.setPassword(userPlatInfo.getZentaoPassword());
+            }
+        }
+//        validateConfig(jiraConfig);
         return zentaoConfig;
     }
 
