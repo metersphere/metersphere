@@ -294,7 +294,7 @@ export default {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       fields: [],
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
-      screenHeight: 'calc(100vh - 330px)',
+      screenHeight: 'calc(100vh - 275px)',
       tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",

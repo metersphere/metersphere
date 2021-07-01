@@ -946,7 +946,7 @@ export default {
   padding: 10px;
 }
 
-/* /deep/ .el-table__fixed-body-wrapper {
+/deep/ .el-table__fixed-body-wrapper {
   top: 60px !important;
-} */
+}
 </style>
