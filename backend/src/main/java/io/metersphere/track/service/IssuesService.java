@@ -23,6 +23,7 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
@@ -72,6 +73,8 @@ public class IssuesService {
     private IssueTemplateService issueTemplateService;
     @Resource
     private TestCaseMapper testCaseMapper;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public void testAuth(String orgId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -360,47 +363,24 @@ public class IssuesService {
         return IssueFactory.createPlatformsForMap(platforms, request);
     }
 
-//    public IssuesWithBLOBs getPlatformIssue(IssuesWithBLOBs issue) {
-//        String platform = issue.getPlatform();
-//        if (StringUtils.isNotBlank(issue.getProjectId())) {
-//            Project project = projectService.getProjectById(issue.getProjectId());
-//            Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
-//            String orgId = workspace.getOrganizationId();
-//            try {
-//                if (StringUtils.equals(platform, IssuesManagePlatform.Tapd.name())) {
-//                    TapdPlatform tapdPlatform = new TapdPlatform(new IssuesRequest());
-//                    String tapdId = projectService.getProjectById(issue.getProjectId()).getTapdId();
-//                    IssuesDao tapdIssues = tapdPlatform.getTapdIssues(tapdId, issue.getId());
-//                    issue.setTitle(tapdIssues.getTitle());
-//                    issue.setDescription(tapdIssues.getDescription());
-//                    issue.setStatus(tapdIssues.getStatus());
-//                } else if (StringUtils.equals(platform, IssuesManagePlatform.Jira.name())) {
-//                    JiraPlatform jiraPlatform = new JiraPlatform(new IssuesRequest());
-//                    jiraPlatform.getJiraIssues(issue, issue.getId());
-//                } else if (StringUtils.equals(platform, IssuesManagePlatform.Zentao.name())) {
-//                    String config = getConfig(orgId, IssuesManagePlatform.Zentao.toString());
-//                    JSONObject object = JSON.parseObject(config);
-//                    String account = object.getString("account");
-//                    String password = object.getString("password");
-//                    String url = object.getString("url");
-//                    ZentaoPlatform zentaoPlatform = new ZentaoPlatform(account, password, url);
-//                    IssuesDao zentaoIssues = zentaoPlatform.getZentaoIssues(issue.getId());
-//                    issue.setTitle(zentaoIssues.getTitle());
-//                    issue.setDescription(zentaoIssues.getDescription());
-//                    issue.setStatus(zentaoIssues.getStatus());
-//                }
-//            } catch (Exception e) {
-//                LogUtil.error(e.getMessage(), e);
-//            }
-//        }
-//        return issue;
-//    }
-
     public void syncThirdPartyIssues() {
-        List<String> projectIds = projectService.getProjectIds();
-        projectIds.forEach(id -> {
-            syncThirdPartyIssues(id);
-        });
+        try {
+            final String key = "init.issue";
+            String value = systemParameterService.getValue(key);
+            if (StringUtils.isBlank(value)) {
+                List<String> projectIds = projectService.getProjectIds();
+                projectIds.forEach(id -> {
+                    try {
+                        syncThirdPartyIssues(id);
+                    } catch (Exception e) {
+                        LogUtil.error(e.getMessage(), e);
+                    }
+                });
+                systemParameterService.saveInitParam(key);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 
     public void syncThirdPartyIssues(String projectId) {
