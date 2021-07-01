@@ -34,7 +34,7 @@
     </el-card>
 
     <!--Modify personal details-->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="40%"
                :destroy-on-close="true" @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateUserForm">
@@ -51,9 +51,9 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
-      <jira-user-info v-if="hasJira" :data="currentPlatformInfo"/>
-      <tapd-user-info v-if="hasTapd" :data="currentPlatformInfo"/>
-      <zentao-user-info v-if="hasZentao" :data="currentPlatformInfo"/>
+      <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo"/>
+      <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
+      <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="updateVisible = false"
@@ -86,7 +86,7 @@
 </template>
 
 <script>
-import {TokenKey} from "../../../../common/js/constants";
+import {TokenKey, ZEN_TAO} from "../../../../common/js/constants";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
   getCurrentOrganizationId,
@@ -276,7 +276,23 @@ export default {
         let dataList = [];
         dataList[0] = data;
         this.tableData = dataList;
+        this.handleRouteOpen();
       })
+    },
+    handleRouteOpen() {
+      let params = this.$route.params;
+      if (params.open) {
+        this.edit(this.tableData[0]);
+        params.open = false;
+      }
+    },
+    handleAuth(type) {
+      let param = {...this.currentPlatformInfo};
+      param.orgId = getCurrentOrganizationId();
+      param.platform = type
+      this.$parent.result = this.$post("issues/user/auth", param, () => {
+        this.$success(this.$t('organization.integration.verified'));
+      });
     },
     handleClose() {
       this.form = {};

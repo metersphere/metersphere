@@ -10,6 +10,11 @@
       <el-input v-model="data.zentaoPassword" auto-complete="new-password"
                 :placeholder="$t('organization.integration.input_api_password')" show-password/>
     </el-form-item>
+    <el-form-item >
+      <el-button type="primary" style="float: right" @click="$emit('auth', 'Zentao')" size="mini">
+        {{$t('commons.validate')}}
+      </el-button>
+    </el-form-item>
   </el-form>
 </template>
 

@@ -2,6 +2,7 @@ package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.Project;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -45,6 +46,11 @@ public interface IssuesPlatform {
      * 测试平台联通性
      */
     void testAuth();
+
+    /**
+     * 用户信息测试
+     */
+    void userAuth(UserDTO.PlatformInfo userInfo);
 
     /**
      * 获取缺陷平台项目下的相关人员

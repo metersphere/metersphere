@@ -268,7 +268,18 @@ public class JiraPlatform extends AbstractIssuePlatform {
     @Override
     public void testAuth() {
         setConfig();
-        jiraClientV2.getIssueCreateMetadata();
+        jiraClientV2.auth();
+    }
+
+    @Override
+    public void userAuth(UserDTO.PlatformInfo userInfo) {
+        String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
+        JiraConfig jiraConfig = JSONObject.parseObject(config, JiraConfig.class);
+        jiraConfig.setAccount(userInfo.getJiraAccount());
+        jiraConfig.setPassword(userInfo.getJiraPassword());
+        validateConfig(jiraConfig);
+        jiraClientV2.setConfig(jiraConfig);
+        jiraClientV2.auth();
     }
 
     @Override
