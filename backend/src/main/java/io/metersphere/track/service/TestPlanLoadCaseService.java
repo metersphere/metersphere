@@ -139,7 +139,13 @@ public class TestPlanLoadCaseService {
             try {
                 serialRun(request);
             } catch (Exception e) {
-                MSException.throwException(e.getMessage());
+                String message = e.getMessage();
+                if (StringUtils.isNotEmpty(message)) {
+                    message = message.replace("io.metersphere.commons.exception.MSException:", "");
+                    MSException.throwException(message);
+                }else{
+                    MSException.throwException("请求参数错误，请刷新后执行");
+                }
             }
         } else {
             ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
