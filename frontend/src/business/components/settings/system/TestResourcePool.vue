@@ -62,7 +62,7 @@
       v-loading="result.loading"
     >
       <div style="height: 60vh;overflow: auto;">
-        <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rule"
+        <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
                  ref="testResourcePoolForm">
           <el-form-item :label="$t('commons.name')" prop="name">
             <el-input v-model="form.name" autocomplete="off"/>
@@ -87,8 +87,8 @@
               <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
             </el-select>
           </el-form-item>
-          <div v-for="(item,index) in infoList " :key="index">
-            <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
+          <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
+            <div v-for="(item,index) in infoList " :key="index">
               <el-row>
                 <el-col>
                   <el-form-item label="Master URL"
@@ -134,47 +134,66 @@
                   </el-form-item>
                 </el-col>
               </el-row>
-            </div>
-            <div class="node-line" v-if="form.type === 'NODE'">
-              <el-row>
-                <el-col :span="6">
-                  <el-form-item label="IP" :rules="requiredRules">
-                    <el-input v-model="item.ip" autocomplete="off"/>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="4">
-                  <el-form-item label="Port" label-width="60px" :rules="requiredRules">
-                    <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="4">
-                  <el-form-item label="Monitor" label-width="100px" :rules="requiredRules">
-                    <el-input-number v-model="item.monitorPort" :min="1" :max="65535"></el-input-number>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="6">
-                  <el-form-item :label="$t('test_resource_pool.max_threads')"
-                                :rules="requiredRules"
-                                style="padding-left: 20px">
-                    <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
-                  </el-form-item>
-                </el-col>
-                <el-col :offset="2" :span="2">
-                <span class="box">
-                    <el-button @click="addResourceInfo()" type="success" size="mini" circle>
-                        <font-awesome-icon :icon="['fas', 'plus']"/>
-                    </el-button>
-                </span>
-                  <span class="box">
-                    <el-button @click="removeResourceInfo(index)" type="danger" size="mini" circle>
-                        <font-awesome-icon :icon="['fas', 'minus']"/>
-                    </el-button>
-                </span>
-                </el-col>
-              </el-row>
+
+
             </div>
           </div>
+          <div class="node-line" v-if="form.type === 'NODE'">
+            <el-row>
+              <el-col :span="22" :offset="2">
+                <el-row style="margin-bottom: 10px;">
+                  <el-col :span="8">
+                    <el-button icon="el-icon-circle-plus-outline" plain size="mini"
+                               @click="addResourceInfo()">
+                      {{ $t('commons.add') }}
+                    </el-button>
+                  </el-col>
+                </el-row>
+                <el-table :data="infoList" class="tb-edit" align="center" border highlight-current-row>
+                  <el-table-column
+                    align="center"
+                    prop="ip"
+                    label="IP">
+                    <template v-slot:default="{row}">
+                      <el-input size="small" v-model="row.ip" autocomplete="off"/>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="port"
+                    label="Port">
+                    <template v-slot:default="{row}">
+                      <el-input-number size="small" v-model="row.port" :min="1" :max="65535"></el-input-number>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="monitorPort"
+                    label="Monitor">
+                    <template v-slot:default="{row}">
+                      <el-input-number size="small" v-model="row.monitorPort" :min="1" :max="65535"></el-input-number>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    align="center"
+                    prop="maxConcurrency"
+                    :label="$t('test_resource_pool.max_threads')">
+                    <template v-slot:default="{row}">
+                      <el-input-number size="small" v-model="row.maxConcurrency" :min="1"
+                                       :max="1000000000"></el-input-number>
+                    </template>
+                  </el-table-column>
+                  <el-table-column align="center" :label="$t('commons.operating')">
+                    <template v-slot:default="{row, $index}">
+                      <el-button @click="removeResourceInfo($index)" type="danger" icon="el-icon-delete" size="mini"
+                                 circle/>
+                    </template>
+                  </el-table-column>
 
+                </el-table>
+              </el-col>
+            </el-row>
+          </div>
         </el-form>
       </div>
       <template v-slot:footer>
