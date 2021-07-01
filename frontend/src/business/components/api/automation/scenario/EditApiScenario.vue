@@ -105,7 +105,7 @@
         <el-row>
           <el-col :span="21">
             <!-- 调试部分 -->
-            <div class="ms-debug-div" @click="showAll">
+            <div class="ms-debug-div" @click="showAll" :class="{'is-top' : isTop}" ref="debugHeader">
               <el-row style="margin: 5px">
                 <el-col :span="4" class="ms-col-one ms-font">
                   <el-tooltip placement="top" effect="light">
@@ -136,6 +136,7 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="onSampleError">{{ $t('commons.failure_continues') }}</el-checkbox>
                 </el-col>
+
                 <el-col :span="8">
                   <div style="float: right;width: 300px">
                     <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap"
@@ -143,12 +144,14 @@
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                  :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                  :project-list="projectList" ref="envPopover" class="ms-message-right"/>
-                    <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand" v-if="!debugLoading">
-                      {{ $t('api_test.request.debug') }}
-                      <el-dropdown-menu slot="dropdown">
-                        <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
-                      </el-dropdown-menu>
-                    </el-dropdown>
+                    <el-tooltip v-if="!debugLoading" content="Ctrl + R">
+                      <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand">
+                        {{ $t('api_test.request.debug') }}
+                        <el-dropdown-menu slot="dropdown">
+                          <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
+                        </el-dropdown-menu>
+                      </el-dropdown>
+                    </el-tooltip>
                     <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
                     <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
                       <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
@@ -162,8 +165,9 @@
                 </el-col>
               </el-row>
             </div>
+
             <!-- 场景步骤内容 -->
-            <div>
+            <div ref="stepInfo">
               <el-tooltip :content="$t('api_test.automation.open_expansion')" placement="top" effect="light">
                 <i class="el-icon-circle-plus-outline ms-open-btn ms-open-btn-left" v-prevent-re-click @click="openExpansion"/>
               </el-tooltip>
@@ -281,7 +285,14 @@ import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
 import MsApiCustomize from "./ApiCustomize";
-import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent, getCurrentProjectID} from "@/common/js/utils";
+import {
+  getUUID,
+  objToStrMap,
+  strMapToObj,
+  handleCtrlSEvent,
+  getCurrentProjectID,
+  handleCtrlREvent
+} from "@/common/js/utils";
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 import MsInputTag from "./MsInputTag";
 import MsRun from "./DebugRun";
@@ -403,6 +414,7 @@ export default {
       reqTotalTime: 0,
       reloadDebug: "",
       stopDebug: "",
+      isTop: false
     }
   },
   created() {
@@ -415,8 +427,11 @@ export default {
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
-    this.addListener(); //  添加 ctrl s 监听
-
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.addListener();
+    });
   },
   directives: {OutsideClick},
   computed: {
@@ -578,13 +593,19 @@ export default {
     },
     addListener() {
       document.addEventListener("keydown", this.createCtrlSHandle);
-      // document.addEventListener("keydown", (even => handleCtrlSEvent(even, this.$refs.httpApi.saveApi)));
+      document.addEventListener("keydown", this.createCtrlRHandle);
+      document.addEventListener("scroll", this.handleScroll, true);
     },
     removeListener() {
       document.removeEventListener("keydown", this.createCtrlSHandle);
+      document.removeEventListener("keydown", this.createCtrlRHandle);
+      document.removeEventListener("scroll", this.handleScroll);
     },
     createCtrlSHandle(event) {
       handleCtrlSEvent(event, this.editScenario);
+    },
+    createCtrlRHandle(event) {
+      handleCtrlREvent(event, this.runDebug);
     },
     getIdx(index) {
       return index - 0.33
@@ -843,7 +864,7 @@ export default {
       this.stopDebug = "";
       this.clearDebug();
       /*触发执行操作*/
-      this.$refs['currentScenario'].validate((valid) => {
+      this.$refs.currentScenario.validate((valid) => {
         if (valid) {
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
@@ -1227,6 +1248,17 @@ export default {
     disableAll() {
       this.stepEnable = false;
       this.stepNode();
+    },
+    handleScroll() {
+      let stepInfo = this.$refs.stepInfo;
+      let debugHeader = this.$refs.debugHeader;
+      let originWidth = debugHeader.clientWidth;
+      if (stepInfo.getBoundingClientRect().top <= 178) {
+        this.isTop = true;
+        debugHeader.style.width = originWidth + 'px';
+      } else {
+        this.isTop = false;
+      }
     }
   }
 }
@@ -1402,7 +1434,15 @@ export default {
   margin-left: 35px;
 }
 
+
 .ms-message-right {
   margin-right: 10px;
+}
+
+.is-top {
+  position: fixed;
+  top: 125px;
+  background: white;
+  z-index: 999;
 }
 </style>
