@@ -33,6 +33,12 @@
           {{ $t('organization.integration.link_the_project_now') }}
         </router-link>
       </div>
+      <div>
+        3. {{ $t('organization.integration.use_tip_three') }}
+        <router-link :to="{name: 'PersonSetting', params: { open: true }}" style="margin-left: 5px">
+          {{ $t('organization.integration.link_the_info_now') }}
+        </router-link>
+      </div>
     </div>
   </div>
 </template>

@@ -160,6 +160,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
+    public void userAuth(UserDTO.PlatformInfo userInfo) {
+        testAuth();
+    }
+
+    @Override
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
         String id = getProjectId(projectId);
