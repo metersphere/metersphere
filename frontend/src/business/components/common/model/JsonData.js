@@ -87,7 +87,7 @@ export const Test_Plan_Function_Test_Case = [
 //测试计划-api用例
 export const Test_Plan_Api_Case = [
   {id: 'num', label: i18n.t('commons.id')},
-  {id: 'name', label: i18n.t('api_test.definition.api_name')},
+  {id: 'name', label: i18n.t('test_track.case.name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
   {id: 'path', label: i18n.t('api_test.definition.api_path')},
   {id: 'createUser', label: '创建人'},
