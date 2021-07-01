@@ -947,6 +947,6 @@ export default {
 }
 
 /deep/ .el-table__fixed-body-wrapper {
-  top: 60px !important;
+  top: 48px !important;
 }
 </style>
