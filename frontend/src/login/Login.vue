@@ -1,5 +1,5 @@
 <template>
-  <div class="container" v-loading="result.loading" v-if="ready">
+  <div class="container" v-if="ready">
     <el-row type="flex">
       <el-col :span="12">
 
