@@ -212,7 +212,7 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
-        select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,
+        select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,api_definition.original_state,
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
