@@ -183,7 +183,6 @@
                                @deleteClick="handleDelete(scope.row)">
               <template v-slot:middle>
                 <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                                          style="background-color: #85888E;border-color: #85888E"
                                           v-if="!scope.row.reportId"
                                           :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
                                           @exec="openTestReportTemplate(scope.row)"/>
