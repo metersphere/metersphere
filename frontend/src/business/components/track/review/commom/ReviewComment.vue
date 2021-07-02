@@ -110,14 +110,14 @@ export default {
         this.$refs.md.toolbar_left_click('trash');
       });
     },
-    inputLight() {
-      this.$refs.test.focus();
-    },
+    /* inputLight() {
+       this.$refs.md.focus();
+     },*/
     refresh() {
       this.$emit('getComments');
     },
     //富文本框
-    imgAdd(pos, file){
+    imgAdd(pos, file) {
       let param = {
         id: getUUID().substring(0, 8)
       };
