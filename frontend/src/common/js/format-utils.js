@@ -93,7 +93,7 @@ export function formatXml(text) {
   //去掉多余的空格
   text = '\n' + text.replace(/(<\w+)(\s.*?>)/g, function ($0, name, props) {
     return name + ' ' + props.replace(/\s+(\w+=)/g, " $1");
-  }).replace(/>\s*?</g, ">\n<");
+  });
   //把注释编码
   text = text.replace(/<!--(.+?)-->/g, function ($0, text) {
     var ret = '<!--' + escape(text) + '-->';
