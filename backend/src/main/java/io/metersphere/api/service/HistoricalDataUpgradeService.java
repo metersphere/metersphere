@@ -64,7 +64,7 @@ public class HistoricalDataUpgradeService {
 
     private int getNextNum(String projectId) {
         ApiScenario apiScenario = extApiScenarioMapper.getNextNum(projectId);
-        if (apiScenario == null) {
+        if (apiScenario == null || apiScenario.getNum() == null) {
             return 100001;
         } else {
             return Optional.of(apiScenario.getNum() + 1).orElse(100001);

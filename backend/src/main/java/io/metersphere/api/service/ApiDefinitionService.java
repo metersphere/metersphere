@@ -361,7 +361,7 @@ public class ApiDefinitionService {
 
     private int getNextNum(String projectId) {
         ApiDefinition apiDefinition = extApiDefinitionMapper.getNextNum(projectId);
-        if (apiDefinition == null) {
+        if (apiDefinition == null || apiDefinition.getNum() == null) {
             return 100001;
         } else {
             return Optional.of(apiDefinition.getNum() + 1).orElse(100001);
