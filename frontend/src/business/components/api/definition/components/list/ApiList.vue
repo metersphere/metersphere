@@ -264,6 +264,7 @@ export default {
           tip: this.$t('api_test.automation.execute'),
           icon: "el-icon-video-play",
           exec: this.runApi,
+          class: "run-button",
           permissions: ['PROJECT_API_DEFINITION:READ+RUN']
         },
         {
@@ -299,6 +300,7 @@ export default {
           tip: this.$t('api_test.automation.execute'),
           icon: "el-icon-video-play",
           exec: this.runApi,
+          class: "run-button",
           permissions: ['PROJECT_API_DEFINITION:READ+RUN']
         },
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reductionApi},
