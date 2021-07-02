@@ -984,7 +984,7 @@ public class TestCaseService {
      */
     private int getNextNum(String projectId) {
         TestCase testCase = extTestCaseMapper.getMaxNumByProjectId(projectId);
-        if (testCase == null) {
+        if (testCase == null || testCase.getNum() == null) {
             return 100001;
         } else {
             return Optional.ofNullable(testCase.getNum() + 1).orElse(100001);
