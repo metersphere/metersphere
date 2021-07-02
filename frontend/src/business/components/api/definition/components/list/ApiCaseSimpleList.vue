@@ -218,6 +218,7 @@ export default {
           tip: this.$t('api_test.automation.execute'),
           icon: "el-icon-video-play",
           exec: this.runTestCase,
+          class: "run-button",
           permissions: ['PROJECT_API_DEFINITION:READ+RUN']
         },
         {
