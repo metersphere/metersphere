@@ -27,6 +27,9 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.safety.Whitelist;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.util.CollectionUtils;
@@ -206,6 +209,21 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             return JSONArray.parseArray(customFieldsStr, CustomFieldItemDTO.class);
         }
         return new ArrayList<>();
+    }
+
+    /**
+     * 将html格式的缺陷描述转成ms平台的格式
+     * @param htmlDesc
+     * @return
+     */
+    protected String htmlDesc2MsDesc(String htmlDesc) {
+        Document document = Jsoup.parse(htmlDesc);
+        document.outputSettings(new Document.OutputSettings().prettyPrint(false));
+        document.select("br").append("\\n");
+        document.select("p").prepend("\\n\\n");
+        String s = document.html().replaceAll("\\\\n", "\n");
+        String desc = Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
+        return desc.replace("&nbsp;", "");
     }
 
     protected UserDTO.PlatformInfo getUserPlatInfo(String orgId) {

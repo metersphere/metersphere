@@ -109,7 +109,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
-        paramMap.add("description", issuesRequest.getDescription());
+        paramMap.add("description", msDescription2Tapd(issuesRequest.getDescription()));
         paramMap.add("current_owner", usersStr);
 
         customFields.forEach(item -> {
@@ -137,6 +137,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
         // todo 调用接口
         request.setDescription(null);
         handleIssueUpdate(request);
+    }
+
+    private String msDescription2Tapd(String msDescription) {
+        return msDescription.replaceAll("\\n", "<br/>");
     }
 
     @Override
@@ -212,6 +216,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 IssuesDao issuesDao = new IssuesDao();
                 BeanUtils.copyBean(issuesDao, bug);
                 issuesDao.setPlatformStatus(statusMap.get(bug.getStatus()));
+                issuesDao.setDescription(htmlDesc2MsDesc(issuesDao.getDescription()));
                 issuesMapper.updateByPrimaryKeySelective(issuesDao);
                 ids.remove(issue.getBug().getId());
             });
