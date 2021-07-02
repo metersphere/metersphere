@@ -133,7 +133,16 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                 if(isUseCustomId){
                     checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
                 }else {
-                    checkResult = testCaseService.checkIdExist(Integer.parseInt(data.getCustomNum()), projectId);
+                    int customNumId = -1;
+                    try{
+                        customNumId = Integer.parseInt(data.getCustomNum());
+                    }catch (Exception e){
+                    }
+                    if(customNumId < 0){
+                        stringBuilder.append(Translator.get("id_not_rightful") + "["+data.getCustomNum()+"]; ");
+                    }else {
+                        checkResult = testCaseService.checkIdExist(customNumId, projectId);
+                    }
                 }
                 if (null != checkResult) {  //该ID在当前项目中存在
                     //如果前面所经过的校验都没报错
