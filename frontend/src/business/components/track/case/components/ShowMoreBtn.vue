@@ -2,11 +2,7 @@
   <div v-if="isShow">
     <el-dropdown placement="bottom" trigger="click" size="medium">
       <div @click.stop class="show-more-btn">
-        <el-tooltip :value="showTool" class="item" effect="dark" :content="$t('test_track.case.batch_operate')"
-                    placement="top-start">
           <i class="el-icon-more ms-icon-more"/>
-        </el-tooltip>
-
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
