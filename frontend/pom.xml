@@ -55,12 +55,30 @@
           </execution>
           <!-- Build and minify static files -->
           <execution>
-            <id>yarn build</id>
+            <id>yarn build business</id>
             <goals>
               <goal>yarn</goal>
             </goals>
             <configuration>
-              <arguments>build</arguments>
+              <arguments>build business</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>yarn build login</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>build login</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>yarn build document</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <configuration>
+              <arguments>build document</arguments>
             </configuration>
           </execution>
         </executions>
