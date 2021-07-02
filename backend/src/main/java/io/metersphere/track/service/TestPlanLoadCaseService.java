@@ -135,23 +135,21 @@ public class TestPlanLoadCaseService {
     }
 
     public void runBatch(RunBatchTestPlanRequest request) {
-        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            try {
+        try {
+            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 serialRun(request);
-            } catch (Exception e) {
-                String message = e.getMessage();
-                if (StringUtils.isNotEmpty(message)) {
-                    message = message.replace("io.metersphere.commons.exception.MSException:", "");
-                    MSException.throwException(message);
-                }else{
-                    MSException.throwException("请求参数错误，请刷新后执行");
-                }
+            } else {
+                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+                request.getRequests().forEach(item -> {
+                    executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
+                });
             }
-        } else {
-            ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
-            request.getRequests().forEach(item -> {
-                executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
-            });
+        } catch (Exception e) {
+            if (StringUtils.isNotEmpty(e.getMessage())) {
+                MSException.throwException("测试正在运行, 请等待！");
+            } else {
+                MSException.throwException("请求参数错误，请刷新后执行！");
+            }
         }
     }
 
