@@ -522,9 +522,9 @@ export default {
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
-        this.$emit('refreshTable');
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
+        this.$emit('decrease', testCase.nodeId);
       });
     },
     refresh() {
