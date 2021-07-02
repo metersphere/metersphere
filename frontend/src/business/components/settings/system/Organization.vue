@@ -40,8 +40,10 @@
     <el-dialog :close-on-click-modal="false" :visible.sync="dialogOrgMemberVisible" width="70%" :destroy-on-close="true"
                @close="closeFunc"
                class="dialog-css">
-      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
-                       :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      <template v-slot:title>
+        <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
+                         :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      </template>
       <!-- organization member table -->
       <el-table :border="true" class="adjust-table" :data="memberLineData" style="width: 100%;margin-top:5px;">
         <el-table-column prop="id" label="ID"/>
@@ -211,7 +213,7 @@ export default {
       pageSize: 10,
       total: 0,
       dialogCurrentPage: 1,
-      dialogPageSize: 10,
+      dialogPageSize: 5,
       dialogTotal: 0,
       currentRow: {},
       screenHeight: 'calc(100vh - 195px)',
@@ -467,8 +469,8 @@ export default {
   width: 100%;
 }
 
-.dialog-css >>> .el-dialog__header {
-  padding: 0;
-}
+/*.dialog-css >>> .el-dialog__header {*/
+/*  padding: 0;*/
+/*}*/
 
 </style>
