@@ -47,6 +47,7 @@ import {saveScenario} from "@/business/components/api/automation/api-automation"
         saveScenario('/api/automation/run/debug', reqObj, this.runData.hashTree, (response) => {
           this.runId = response.data;
           this.$emit('runRefresh', {});
+          this.$emit("changeDebugButton");
         });
       },
     }
