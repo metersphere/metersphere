@@ -146,7 +146,7 @@
                 <el-col :span="4">
                   <el-tooltip content="Ctrl + R">
                     <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click
-                               @click="runDebug">{{ $t('api_test.request.debug') }}
+                               @click="runDebug" :loading="buttonIsLoading">{{ $t('api_test.request.debug') }}
                     </el-button>
                   </el-tooltip>
                   <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">
@@ -231,6 +231,7 @@
       <!--执行组件-->
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId"
               :run-data="debugData"
+              @changeDebugButton="changeDebugButton"
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
@@ -386,6 +387,7 @@ export default {
       path: "/api/automation/create",
       debugData: {},
       reportId: "",
+      buttonIsLoading:false,
       enableCookieShare: false,
 
       globalOptions: {
@@ -891,6 +893,7 @@ export default {
     runDebug() {
       /*触发执行操作*/
       this.$refs.currentScenario.validate((valid) => {
+        this.buttonIsLoading = true;
         if (valid) {
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
@@ -915,14 +918,20 @@ export default {
                 onSampleError: this.onSampleError,
               };
               this.reportId = getUUID().substring(0, 8);
+
               // this.editScenario().then(() => {
               //
               // })
             })
 
           })
+        }else {
+          this.buttonIsLoading = false;
         }
       })
+    },
+    changeDebugButton(){
+      this.buttonIsLoading = false;
     },
     getEnvironments() {
       if (this.projectId) {
