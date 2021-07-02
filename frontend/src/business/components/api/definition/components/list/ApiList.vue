@@ -361,6 +361,7 @@ export default {
       screenHeight: 'calc(100vh - 250px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
+      projectName:"",
     };
   },
   props: {
@@ -411,6 +412,9 @@ export default {
     }
   },
   created: function () {
+    if(!this.projectName || this.projectName === ""){
+      this.getProjectName();
+    }
     if (this.trashEnable) {
       this.tableOperatorButtons = this.tableTrashOperatorButtons;
       this.condition.filters = {status: ["Trash"]};
@@ -455,6 +459,14 @@ export default {
     }
   },
   methods: {
+    getProjectName (){
+      this.$get('project/get/' + this.projectId, response => {
+        let project = response.data;
+        if(project){
+          this.projectName = project.name;
+        }
+      });
+    },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
@@ -773,9 +785,9 @@ export default {
         if (type == 'MS') {
           obj.protocol = this.currentProtocol;
           this.buildApiPath(obj.data);
-          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+          downloadFile("Metersphere_Api_" + this.projectName + ".json", JSON.stringify(obj));
         } else {
-          downloadFile("Swagger_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+          downloadFile("Swagger_Api_" + this.projectName+ ".json", JSON.stringify(obj));
         }
       });
     },
