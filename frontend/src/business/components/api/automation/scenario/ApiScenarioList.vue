@@ -431,10 +431,12 @@ export default {
         principal: [],
         environmentId: [],
         projectEnv: [],
+        projectId: ''
       },
     };
   },
   created() {
+    this.projectId = getCurrentProjectID();
     if(!this.projectName || this.projectName === ""){
       this.getProjectName();
     }
@@ -477,9 +479,6 @@ export default {
   computed: {
     isNotRunning() {
       return "Running" !== this.report.status;
-    },
-    projectId() {
-      return getCurrentProjectID();
     },
   },
   methods: {
