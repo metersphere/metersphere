@@ -589,7 +589,7 @@ public class PerformanceTestService {
 
     private int getNextNum(String projectId) {
         LoadTest loadTest = extLoadTestMapper.getNextNum(projectId);
-        if (loadTest == null) {
+        if (loadTest == null || loadTest.getNum() == null) {
             return 100001;
         } else {
             return Optional.of(loadTest.getNum() + 1).orElse(100001);
