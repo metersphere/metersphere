@@ -283,6 +283,7 @@ export default {
   },
   data() {
     return {
+      projectName:"",
       result: {},
       tableHeaderKey:"API_SCENARIO",
       type: API_SCENARIO_LIST,
@@ -433,6 +434,9 @@ export default {
     };
   },
   created() {
+    if(!this.projectName || this.projectName === ""){
+      this.getProjectName();
+    }
     this.operators = this.unTrashOperators;
     this.buttons = this.unTrashButtons;
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
@@ -478,6 +482,14 @@ export default {
     },
   },
   methods: {
+    getProjectName (){
+      this.$get('project/get/' + this.projectId, response => {
+        let project = response.data;
+        if(project){
+          this.projectName = project.name;
+        }
+      });
+    },
     selectByParam() {
       this.changeSelectDataRangeAll();
       this.search();
@@ -807,7 +819,7 @@ export default {
         this.result.loading = false;
         let obj = response.data;
         this.buildApiPath(obj.data);
-        downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
       });
     },
     exportJmx() {
