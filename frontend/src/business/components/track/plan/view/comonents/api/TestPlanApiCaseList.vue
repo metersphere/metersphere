@@ -29,7 +29,8 @@
                                         @selectAll="isSelectDataAll(true)"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn :is-show-tool="scope.row.showTool" :is-show="scope.row.showMore && !isReadOnly"
+                           :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
