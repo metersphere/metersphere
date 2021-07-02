@@ -71,9 +71,12 @@
     <el-dialog :close-on-click-modal="false" :visible.sync="dialogWsMemberVisible" width="70%" :destroy-on-close="true"
                @close="close"
                class="dialog-css">
-      <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
-                       :create-permission="['ORGANIZATION_WORKSPACE:READ+CREATE', 'ORGANIZATION_WORKSPACE:READ+EDIT']"
-                       :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      <template v-slot:title>
+        <ms-table-header :condition.sync="dialogCondition" @create="addMember" @search="dialogSearch"
+                         :create-permission="['ORGANIZATION_WORKSPACE:READ+CREATE', 'ORGANIZATION_WORKSPACE:READ+EDIT']"
+                         :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      </template>
+
       <!-- organization member table -->
       <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
         <el-table-column prop="name" :label="$t('commons.username')"/>
@@ -418,7 +421,7 @@ export default {
       pageSize: 10,
       total: 0,
       dialogCurrentPage: 1,
-      dialogPageSize: 10,
+      dialogPageSize: 5,
       dialogTotal: 0,
       memberLineData: [],
       memberForm: {},
@@ -481,9 +484,9 @@ export default {
   font-size: 13px;
 }
 
-.dialog-css >>> .el-dialog__header {
-  padding: 0px;
-}
+/*.dialog-css >>> .el-dialog__header {*/
+/*  padding: 0px;*/
+/*}*/
 
 .input-with-autocomplete {
   width: 100%;
