@@ -26,9 +26,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
 import org.commonmark.parser.Parser;
 import org.commonmark.renderer.html.HtmlRenderer;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.safety.Whitelist;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -217,20 +214,17 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
         jiraClientV2.setConfig(config);
-//        List<JiraField> jiraFields = JiraClientV2.getFields();
-//        Map<String, Boolean> isCustomMap = jiraFields.stream().
-//                collect(Collectors.toMap(JiraField::getId, JiraField::isCustom));
 
         customFields.forEach(item -> {
             if (StringUtils.isNotBlank(item.getCustomData())) {
-//                if (isCustomMap.get(item.getCustomData())) {
-//                    fields.put(item.getCustomData(), item.getValue());
-//                } else {
-                  // Jira文档说明中自定义字段和系统字段参数格式有区别，实测是一样的
+                if (StringUtils.isNotBlank(item.getType()) &&
+                        StringUtils.equalsAny(item.getType(), "select", "multipleSelect", "checkbox", "radio", "member", "multipleMember")) {
                     JSONObject param = new JSONObject();
                     param.put("id", item.getValue());
                     fields.put(item.getCustomData(), param);
-//                }
+                } else {
+                    fields.put(item.getCustomData(), item.getValue());
+                }
             }
         });
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
@@ -255,16 +249,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
     @Override
     public void deleteIssue(String id) {
-    }
-
-    private String jiraDescription2Ms(String jiraDescription) {
-        Document document = Jsoup.parse(jiraDescription);
-        document.outputSettings(new Document.OutputSettings().prettyPrint(false));
-        document.select("br").append("\\n");
-        document.select("p").prepend("\\n\\n");
-        String s = document.html().replaceAll("\\\\n", "\n");
-        String desc = Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
-        return desc.replace("&nbsp;", "");
     }
 
     @Override
@@ -295,7 +279,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
             setConfig();
             try {
                 parseIssue(item, jiraClientV2.getIssues(item.getId()));
-                item.setDescription(jiraDescription2Ms(item.getDescription()));
+                item.setDescription(htmlDesc2MsDesc(item.getDescription()));
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {

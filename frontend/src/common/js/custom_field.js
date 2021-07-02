@@ -114,6 +114,7 @@ export function buildCustomFields(data, param, template) {
           id: item.id,
           name: item.name,
           value: item.defaultValue,
+          type: item.type,
           customData: item.customData,
         };
         customFields.push(customField);
