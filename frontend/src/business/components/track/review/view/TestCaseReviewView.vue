@@ -13,17 +13,11 @@
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect"
                  :default-active="activeIndex">
           <el-menu-item index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
-<!--          <el-menu-item index="api">接口测试用例</el-menu-item>
-          <el-menu-item index="load">性能测试用例</el-menu-item>-->
-          <!--          <el-menu-item index="report">报告统计</el-menu-item>-->
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
     <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
                           :clickType="clickType" :review-id="reviewId"></test-review-function>
-    <!--    <test-review-api v-if="activeIndex === 'api'" :review-id="reviewId"></test-review-api>
-        <test-review-load v-if="activeIndex === 'load'" :review-id="reviewId"></test-review-load>-->
-
   </div>
 
 </template>
