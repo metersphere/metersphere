@@ -215,13 +215,15 @@ public class JiraPlatform extends AbstractIssuePlatform {
 
         customFields.forEach(item -> {
             if (StringUtils.isNotBlank(item.getCustomData())) {
-                if (StringUtils.isNotBlank(item.getType()) &&
-                        StringUtils.equalsAny(item.getType(), "select", "multipleSelect", "checkbox", "radio", "member", "multipleMember")) {
-                    JSONObject param = new JSONObject();
-                    param.put("id", item.getValue());
-                    fields.put(item.getCustomData(), param);
-                } else {
-                    fields.put(item.getCustomData(), item.getValue());
+                if (StringUtils.isNotBlank(item.getValue())) {
+                    if (StringUtils.isNotBlank(item.getType()) &&
+                            StringUtils.equalsAny(item.getType(), "select", "multipleSelect", "checkbox", "radio", "member", "multipleMember")) {
+                        JSONObject param = new JSONObject();
+                        param.put("id", item.getValue());
+                        fields.put(item.getCustomData(), param);
+                    } else {
+                        fields.put(item.getCustomData(), item.getValue());
+                    }
                 }
             }
         });
