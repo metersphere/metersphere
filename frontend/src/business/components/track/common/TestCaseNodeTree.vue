@@ -138,6 +138,12 @@ export default {
         });
       }
     },
+    increase(id) {
+      this.$refs.nodeTree.increase(id);
+    },
+    decrease(id) {
+      this.$refs.nodeTree.decrease(id);
+    },
     edit(param) {
       param.projectId = this.projectId;
       this.$post("/case/node/edit", param, () => {
