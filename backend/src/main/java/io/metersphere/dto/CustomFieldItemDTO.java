@@ -7,5 +7,6 @@ public class CustomFieldItemDTO {
     private String id;
     private String name;
     private String value;
+    private String type;
     private String customData;
 }
