@@ -1252,12 +1252,14 @@ export default {
     handleScroll() {
       let stepInfo = this.$refs.stepInfo;
       let debugHeader = this.$refs.debugHeader;
-      let originWidth = debugHeader.clientWidth;
-      if (stepInfo.getBoundingClientRect().top <= 178) {
-        this.isTop = true;
-        debugHeader.style.width = originWidth + 'px';
-      } else {
-        this.isTop = false;
+      if (debugHeader) {
+        let originWidth = debugHeader.clientWidth;
+        if (stepInfo.getBoundingClientRect().top <= 178) {
+          this.isTop = true;
+          debugHeader.style.width = originWidth + 'px';
+        } else {
+          this.isTop = false;
+        }
       }
     }
   }
