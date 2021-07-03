@@ -2,17 +2,15 @@
   <div class="container" v-if="ready">
     <el-row type="flex">
       <el-col :span="12">
-
-        <div class="title">
-          <div class="title-img">
-            <img :src="'/display/file/loginLogo'" alt="">
-          </div>
-          <div class="welcome">
-            <span>{{ loginTitle }}</span>
-          </div>
-        </div>
-
         <div class="content">
+          <div class="title">
+            <div class="title-img">
+              <img :src="'/display/file/loginLogo'" alt="">
+            </div>
+            <div class="welcome">
+              <span>{{ loginTitle }}</span>
+            </div>
+          </div>
           <div class="form">
             <el-form :model="form" :rules="rules" ref="form">
               <el-form-item v-slot:default>
@@ -29,7 +27,8 @@
                           autocomplete="off"/>
               </el-form-item>
               <el-form-item prop="password">
-                <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
+                <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password
+                          autocomplete="off"
                           maxlength="30" show-word-limit/>
               </el-form-item>
             </el-form>
@@ -48,7 +47,9 @@
       <div class="divider"/>
 
       <el-col :span="12">
-        <img class="login-image" :src="'/display/file/loginImage'" alt="">
+        <div class="content">
+          <img class="login-image" :src="'/display/file/loginImage'" alt="">
+        </div>
       </el-col>
 
     </el-row>
@@ -214,9 +215,18 @@ export default {
 <style scoped>
 .container {
   width: 1200px;
-  height: 810px;
-  margin: calc((100vh - 860px) / 2) auto 0;
+  height: 730px;
+  margin: 0 auto;
   background-color: #FFFFFF;
+}
+
+.content {
+  margin-left: 10px;
+}
+
+.el-row--flex {
+  height: 730px;
+  margin-top: calc((100vh - 800px) / 2);
 }
 
 .el-col:nth-child(3) {
