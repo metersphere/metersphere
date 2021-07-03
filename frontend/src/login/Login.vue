@@ -215,7 +215,7 @@ export default {
 .container {
   width: 1200px;
   height: 810px;
-  margin: calc((100vh - 810px) / 2) auto 0;
+  margin: calc((100vh - 860px) / 2) auto 0;
   background-color: #FFFFFF;
 }
 
