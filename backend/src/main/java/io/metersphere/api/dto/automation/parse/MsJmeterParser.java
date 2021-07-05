@@ -240,7 +240,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             Body body = new Body();
             body.init();
             body.initKvs();
+            body.getKvs().clear();
             body.initBinary();
+            body.getBinary().clear();
             samplerProxy.setBody(body);
             if (source != null && source.getHTTPFiles().length > 0) {
                 samplerProxy.getBody().initBinary();
@@ -278,7 +280,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                         samplerProxy.getBody().setRaw(v);
                     });
                     samplerProxy.getBody().initKvs();
-                } else if (StringUtils.isNotEmpty(bodyType)) {
+                } else if (StringUtils.isNotEmpty(bodyType) || (source.getMethod().equalsIgnoreCase("POST") && source.getArguments().getArgumentsAsMap().size() > 0)) {
                     samplerProxy.getBody().setType(Body.WWW_FROM);
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
                         KeyValue keyValue = new KeyValue(k, v);
@@ -309,6 +311,8 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
+            body.getKvs().add(new KeyValue());
+            body.getBinary().add(new KeyValue());
 
         } catch (Exception e) {
             e.printStackTrace();
