@@ -91,7 +91,7 @@
   import {createComponent} from "../../jmeter/components";
   import {Assertions, Extract} from "../../../model/ApiTestModel";
   import {parseEnvironment} from "../../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import {getCurrentProjectID} from "@/common/js/utils";
   import {getUUID} from "@/common/js/utils";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
