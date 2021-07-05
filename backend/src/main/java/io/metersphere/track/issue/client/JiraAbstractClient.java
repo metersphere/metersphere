@@ -51,7 +51,7 @@ public abstract class JiraAbstractClient extends BaseClient {
 
     public void auth() {
         try {
-            restTemplate.exchange(getBaseUrl() + "/permissions", HttpMethod.GET, getAuthHttpEntity(), String.class);
+            restTemplate.exchange(getBaseUrl() + "/myself", HttpMethod.GET, getAuthHttpEntity(), String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e.getMessage());
