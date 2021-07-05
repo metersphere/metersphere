@@ -142,9 +142,11 @@
     <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
                @close="close"
                class="dialog-css">
-      <div style="height: 60vh;overflow: auto">
+      <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="open" @search="list" :have-search="false"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      </template>
+      <div>
         <!-- organization member table -->
         <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
           <el-table-column prop="name" :label="$t('commons.username')"/>
@@ -302,7 +304,7 @@ export default {
       memberLineData: [],
       memberForm: {},
       dialogCurrentPage: 1,
-      dialogPageSize: 10,
+      dialogPageSize: 5,
       dialogTotal: 0,
       currentProjectId: "",
       userList: [],
@@ -629,9 +631,9 @@ pre {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
 }
 
-.dialog-css >>> .el-dialog__header {
-  padding: 0px;
-}
+/*.dialog-css >>> .el-dialog__header {*/
+/*  padding: 0px;*/
+/*}*/
 
 .select-width {
   width: 100%;
