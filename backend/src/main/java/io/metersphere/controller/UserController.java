@@ -322,10 +322,10 @@ public class UserController {
         userService.userTemplateExport(response);
     }
 
-    @PostMapping("/import/{userId}")
+    @PostMapping("/import")
     @MsAuditLog(module = "system_user", type = OperLogConstants.IMPORT)
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
-        return userService.userImport(file, userId, request);
+    public ExcelResponse testCaseImport(MultipartFile file, HttpServletRequest request) {
+        return userService.userImport(file, request);
     }
 
     @PostMapping("/special/batchProcessUserInfo")
