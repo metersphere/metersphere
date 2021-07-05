@@ -111,7 +111,7 @@ public class ProjectService {
         // 创建项目为当前用户添加用户组
         UserGroup userGroup = new UserGroup();
         userGroup.setId(UUID.randomUUID().toString());
-        userGroup.setUserId(project.getCreateUser());
+        userGroup.setUserId(SessionUtils.getUserId());
         userGroup.setCreateTime(System.currentTimeMillis());
         userGroup.setUpdateTime(System.currentTimeMillis());
         userGroup.setGroupId(UserGroupConstants.PROJECT_ADMIN);
@@ -119,7 +119,7 @@ public class ProjectService {
         userGroupMapper.insert(userGroup);
 
         // 创建新项目检查当前用户 last_project_id
-        extUserMapper.updateLastProjectIdIfNull(project.getId(), project.getCreateUser());
+        extUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
 
         return project;
     }
