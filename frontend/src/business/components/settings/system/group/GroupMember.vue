@@ -4,8 +4,10 @@
                :destroy-on-close="true" @close="close" v-loading="result.loading"
                class="group-member"
     >
-      <ms-table-header :condition.sync="condition" @create="addMemberBtn" @search="search"
-                       :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      <template v-slot:title>
+        <ms-table-header :condition.sync="condition" @create="addMemberBtn" @search="search"
+                         :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      </template>
       <el-table :border="true" class="adjust-table" :data="memberData" style="width: 100%;margin-top:5px;">
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')" show-overflow-tooltip/>
@@ -291,9 +293,9 @@ export default {
 </script>
 
 <style scoped>
-.group-member >>> .el-dialog__header {
-  padding: 0;
-}
+/*.group-member >>> .el-dialog__header {*/
+/*  padding: 0;*/
+/*}*/
 
 .user-select-left {
   float: left;
