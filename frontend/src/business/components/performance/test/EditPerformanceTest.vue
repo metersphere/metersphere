@@ -6,24 +6,26 @@
           <el-col :span="10">
             <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="test.name"
                       class="input-with-select"
+                      size="small"
                       maxlength="30" show-word-limit
             >
               <template slot="prepend">{{ $t('load_test.name') }}</template>
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
-            <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="test.id">
+            <el-link type="primary" size="small" style="margin-right: 20px" @click="openHis" v-if="test.id">
               {{ $t('operating_log.change_history') }}
             </el-link>
-            <el-button :disabled="isReadOnly" type="primary" plain @click="save"
+            <el-button :disabled="isReadOnly" type="primary" size="small" plain @click="save"
                        v-permission="['PROJECT_PERFORMANCE_TEST:READ+EDIT']"
             >{{ $t('commons.save') }}
             </el-button>
-            <el-button :disabled="isReadOnly" type="primary" plain @click="saveAndRun"
+            <el-button :disabled="isReadOnly" size="small" type="primary" plain @click="saveAndRun"
                        v-permission="['PROJECT_PERFORMANCE_TEST:READ+RUN']">
               {{ $t('load_test.save_and_run') }}
             </el-button>
-            <el-button :disabled="isReadOnly" type="warning" plain @click="cancel">{{ $t('commons.cancel') }}
+            <el-button :disabled="isReadOnly" size="small" type="warning" plain @click="cancel">
+              {{ $t('commons.cancel') }}
             </el-button>
 
             <ms-schedule-config :schedule="test.schedule" :save="saveCronExpression" @scheduleChange="saveSchedule"
@@ -171,11 +173,11 @@ export default {
         }
         this.active = '1';
         this.$store.commit("clearTest");
-      }else {
+      } else {
         let scenarioJmxs = this.$store.state.scenarioJmxs;
-        if(scenarioJmxs && scenarioJmxs.name){
+        if (scenarioJmxs && scenarioJmxs.name) {
           this.$set(this.test, "name", scenarioJmxs.name);
-          if(scenarioJmxs.jmxs){
+          if (scenarioJmxs.jmxs) {
             scenarioJmxs.jmxs.forEach(item => {
               if (item.scenarioId) {
                 this.$refs.basicConfig.importScenario(item.scenarioId);
