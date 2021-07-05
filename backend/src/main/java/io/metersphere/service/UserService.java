@@ -843,10 +843,9 @@ public class UserService {
         return list;
     }
 
-    public ExcelResponse userImport(MultipartFile multipartFile, String userId, HttpServletRequest request) {
+    public ExcelResponse userImport(MultipartFile multipartFile, HttpServletRequest request) {
 
         ExcelResponse excelResponse = new ExcelResponse();
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         List<ExcelErrData<TestCaseExcelData>> errList = null;
         if (multipartFile == null) {
             MSException.throwException(Translator.get("upload_fail"));
