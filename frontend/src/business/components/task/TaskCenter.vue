@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-permission="['PROJECT_API_SCENARIO:READ']">
     <el-menu :unique-opened="true" class="header-user-menu align-right header-top-menu"
              mode="horizontal"
              :background-color="color"
@@ -11,7 +11,8 @@
             <span>{{ $t('commons.task_center') }}</span>
           </template>
           <el-badge :value="runningTotal" class="item" type="primary" v-if="runningTotal > 0">
-            <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" style="font-size: 18px"/>
+            <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']"
+                               style="font-size: 18px"/>
           </el-badge>
           <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
         </el-tooltip>
@@ -19,7 +20,8 @@
     </el-menu>
 
     <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
-               :withHeader="true" :modal="false" :title="$t('commons.task_center')" size="600px" custom-class="ms-drawer-task">
+               :withHeader="true" :modal="false" :title="$t('commons.task_center')" size="600px"
+               custom-class="ms-drawer-task">
       <div style="color: #2B415C;margin: 0px 20px 0px">
         <el-form label-width="68px">
           <el-row>
@@ -45,7 +47,9 @@
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
             <span>{{ item.name }} </span><br/>
-            <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{ item.executionTime | timestampFormatDate }} {{ getMode(item.triggerMode) }}</span><br/>
+            <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{
+                item.executionTime | timestampFormatDate
+              }} {{ getMode(item.triggerMode) }}</span><br/>
             <el-row>
               <el-col :span="20">
                 <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
@@ -69,7 +73,7 @@
 
 <script>
 import MsDrawer from "../common/components/MsDrawer";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, hasPermissions} from "@/common/js/utils";
 import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 
 export default {
@@ -114,7 +118,9 @@ export default {
     color: String
   },
   created() {
-    this.getTaskRunning();
+    if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
+      this.getTaskRunning();
+    }
   },
   methods: {
     format(item) {
@@ -215,7 +221,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style>
