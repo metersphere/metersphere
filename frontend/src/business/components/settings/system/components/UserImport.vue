@@ -109,7 +109,7 @@ export default {
       this.fileList.push(file.file);
       let user = JSON.parse(localStorage.getItem(TokenKey));
 
-      this.result = this.$fileUpload('/user/import/' + user.id, file.file, null, {}, response => {
+      this.result = this.$fileUpload('/user/import', file.file, null, {}, response => {
         let res = response.data;
         if (res.success) {
           this.$success(this.$t('commons.import_success'));
