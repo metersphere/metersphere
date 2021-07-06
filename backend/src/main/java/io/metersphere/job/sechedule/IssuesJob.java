@@ -47,7 +47,7 @@ public class IssuesJob {
                 }
             });
         }
-        LogUtil.info("测试计划-测试用例同步缺陷信息开始");
+        LogUtil.info("测试计划-测试用例同步缺陷信息结束");
     }
 }
 
