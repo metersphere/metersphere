@@ -91,6 +91,7 @@
                            min-width="80px"
                            show-overflow-tooltip :key="index"/>
           <el-table-column v-if="item.id == 'lastResult'" prop="lastResult" min-width="100px"
+                           column-key="lastResult"
                            :filters="RESULT_FILTERS"
                            :label="$t('api_test.automation.last_result')" :key="index">
             <template v-slot:default="{row}">
