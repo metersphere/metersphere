@@ -155,6 +155,7 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
+        deleteUser.name AS delete_user_id,test_case.delete_time,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
@@ -170,6 +171,7 @@
             test_case.custom_fields
         </if>
         from test_case left join user u on test_case.create_user=u.id
+        left join user deleteUser on test_case.delete_user_id=deleteUser.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -307,6 +309,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='status'">
+                            and test_case.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                         <when test="key=='method'">
                             and test_case.method in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -315,7 +323,13 @@
                         </when>
                     </choose>
                 </if>
+                <if test="key=='status' and values.size == 0">
+                    and (test_case.status is null or test_case.status != 'Trash')
+                </if>
             </foreach>
+        </if>
+        <if test="request.filters == null || request.filters.size() == 0 ">
+            and (test_case.status is null or test_case.status != 'Trash')
         </if>
     </sql>
 
@@ -490,4 +504,23 @@
             </foreach>
         </where>
     </select>
+
+    <update id="deleteToGc">
+        update test_case set original_status=status,
+        status = 'Trash',
+        delete_time = #{request.deleteTime},
+        delete_user_id = #{request.deleteUserId}
+        where id = #{request.id}
+    </update>
+    <update id="reduction">
+        update test_case
+        set
+        status = original_status,
+        delete_user_id = null,
+        delete_time = null
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
 </mapper>

@@ -213,7 +213,19 @@ public class ApiDefinitionService {
     }
 
     public void removeToGc(List<String> apiIds) {
-        extApiDefinitionMapper.removeToGc(apiIds);
+        ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
+        example.createCriteria().andIdIn(apiIds);
+        example.setOperator(SessionUtils.getUserId());
+        example.setOperationTime(System.currentTimeMillis());
+        extApiDefinitionMapper.removeToGcByExample(example);
+
+        List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(apiIds);
+        if(CollectionUtils.isNotEmpty(apiCaseIds)){
+            ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
+            apiTestBatchRequest.setIds(apiCaseIds);
+            apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
+            apiTestCaseService.deleteToGcByParam(apiTestBatchRequest);
+        }
     }
 
     public void reduction(ApiBatchRequest request) {
@@ -221,6 +233,14 @@ public class ApiDefinitionService {
                 (query) -> extApiDefinitionMapper.selectIds(query));
         if (request.getIds() != null || !request.getIds().isEmpty()) {
             extApiDefinitionMapper.reduction(request.getIds());
+
+            List<String> apiCaseIds = apiTestCaseService.selectCaseIdsByApiIds(request.getIds());
+            if(CollectionUtils.isNotEmpty(apiCaseIds)){
+                ApiTestBatchRequest apiTestBatchRequest = new ApiTestBatchRequest();
+                apiTestBatchRequest.setIds(apiCaseIds);
+                apiTestBatchRequest.setUnSelectIds(new ArrayList<>());
+                apiTestCaseService.reduction(apiTestBatchRequest);
+            }
         }
     }
 
@@ -879,7 +899,13 @@ public class ApiDefinitionService {
     public void removeToGcByParams(ApiBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
-        extApiDefinitionMapper.removeToGc(request.getIds());
+
+        this.removeToGc(request.getIds());
+//        ApiDefinitionExampleWithOperation example = new ApiDefinitionExampleWithOperation();
+//        example.createCriteria().andIdIn(request.getIds());
+//        example.setOperator(SessionUtils.getUserId());
+//        example.setOperationTime(System.currentTimeMillis());
+//        extApiDefinitionMapper.removeToGcByExample(example);
     }
 
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
@@ -921,7 +947,7 @@ public class ApiDefinitionService {
                     res.setCaseStatus("-");
                 }
 
-                apiDefinitionMapper.updateByPrimaryKey(res);
+                apiDefinitionMapper.updateByPrimaryKeySelective(res);
                 if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
                     esbApiParamService.handleApiEsbParams(res);
                 }

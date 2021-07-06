@@ -306,6 +306,13 @@ public class TestCaseService {
         testCaseTestMapper.deleteByExample(examples);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
+    public int deleteTestCaseToGc(String testCaseId){
+        TestCase testCase = new TestCase();
+        testCase.setId(testCaseId);
+        testCase.setDeleteUserId(SessionUtils.getUserId());
+        testCase.setDeleteTime(System.currentTimeMillis());
+        return extTestCaseMapper.deleteToGc(testCase);
+    }
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
         this.initRequest(request, true);
@@ -316,7 +323,12 @@ public class TestCaseService {
         order.setType("desc");
         orderList.add(order);
         request.setOrders(orderList);
-        return extTestCaseMapper.list(request);
+
+        if(request.getFilters()!=null && !request.getFilters().containsKey("status")){
+            request.getFilters().put("status",new ArrayList<>(0));
+        }
+        List<TestCaseDTO> returnList = extTestCaseMapper.list(request);
+        return returnList;
     }
 
     /**
@@ -1443,5 +1455,21 @@ public class TestCaseService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public void reduction(TestCaseBatchRequest request) {
+        TestCaseExample example = this.getBatchExample(request);
+        if(CollectionUtils.isNotEmpty(request.getIds())){
+            extTestCaseMapper.reduction(request.getIds());
+        }
+    }
+
+    public void deleteToGcBatch(TestCaseBatchRequest request) {
+        TestCaseExample example = this.getBatchExample(request);
+        if(CollectionUtils.isNotEmpty(request.getIds())){
+            for(String id : request.getIds()){
+                this.deleteTestCaseToGc(id);
+            }
+        }
     }
 }

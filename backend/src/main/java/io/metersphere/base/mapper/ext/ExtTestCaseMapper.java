@@ -101,4 +101,7 @@ public interface ExtTestCaseMapper {
     List<Map<String, Object>> moduleCountByCollection(@Param("request")QueryTestCaseRequest request);
 
     List<TestCaseWithBLOBs> getCustomFieldsByIds(@Param("ids") List<String> ids);
+
+    int deleteToGc(@Param("request") TestCase testCase);
+    int reduction(@Param("ids") List<String> ids);
 }

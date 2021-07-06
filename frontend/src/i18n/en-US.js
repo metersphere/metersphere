@@ -59,6 +59,8 @@ export default {
     test: 'Test',
     create_time: 'Created Time',
     update_time: 'Updated Time',
+    delete_time: 'Delete Time',
+    delete_user: 'Deleted by',
     add: 'Add',
     preview: 'Preview',
     member: 'Member',
