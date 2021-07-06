@@ -323,7 +323,7 @@ public class JSONSchemaGenerator {
                 JSONObject root = new JSONObject();
                 generator(jsonSchema, root);
                 // 格式化返回
-                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
                 if (root.get("MS-OBJECT") != null) {
                     return gson.toJson(root.get("MS-OBJECT"));
                 }
