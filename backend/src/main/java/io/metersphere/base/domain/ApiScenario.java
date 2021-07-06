@@ -51,5 +51,9 @@ public class ApiScenario implements Serializable {
 
     private Integer version;
 
+    private Long deleteTime;
+
+    private String deleteUserId;
+
     private static final long serialVersionUID = 1L;
 }

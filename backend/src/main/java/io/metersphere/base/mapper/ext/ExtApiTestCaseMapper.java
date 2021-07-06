@@ -38,4 +38,12 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCaseInfo> getCaseInfo(@Param("request") ApiTestCaseRequest request);
 
     ApiDefinition findApiUrlAndMethodById(String id);
+
+    int deleteToGc(ApiTestCaseRequest request);
+
+    int reduction(@Param("ids") List<String> ids);
+
+    List<ApiTestCaseDTO> getCannotReductionApiCaseList(@Param("ids") List<String> ids);
+
+    List<String> selectCaseIdsByApiIds(@Param("ids")List<String> apiIds);
 }

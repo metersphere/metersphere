@@ -498,7 +498,7 @@ public class ApiTestCaseService {
     public void deleteBatchByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),null);
         }
         this.deleteBatch(ids);
     }
@@ -506,7 +506,7 @@ public class ApiTestCaseService {
     public void editApiBathByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),null);
         }
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
@@ -567,7 +567,7 @@ public class ApiTestCaseService {
         }
     }
 
-    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status) {
+    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status,String apiId) {
         ApiTestCaseRequest selectRequest = new ApiTestCaseRequest();
         selectRequest.setFilters(filters);
         selectRequest.setModuleIds(moduleIds);
@@ -576,8 +576,9 @@ public class ApiTestCaseService {
         selectRequest.setProtocol(protocol);
         selectRequest.setStatus(status);
         selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        List<ApiTestCaseResult> list = extApiTestCaseMapper.list(selectRequest);
-        List<String> allIds = list.stream().map(ApiTestCaseResult::getId).collect(Collectors.toList());
+        selectRequest.setApiDefinitionId(apiId);
+        List<ApiTestCaseDTO> list = extApiTestCaseMapper.listSimple(selectRequest);
+        List<String> allIds = list.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
         List<String> ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
         return ids;
     }
@@ -760,5 +761,66 @@ public class ApiTestCaseService {
 
     public ApiDefinition findApiUrlAndMethodById(String id) {
         return extApiTestCaseMapper.findApiUrlAndMethodById(id);
+    }
+
+    public void deleteToGc(String id) {
+        ApiTestCaseRequest request = new ApiTestCaseRequest();
+        List<String> ids = new ArrayList<>();
+        ids.add(id);
+        request.setIds(ids);
+        request.setDeleteUserId(SessionUtils.getUserId());
+        request.setDeleteTime(System.currentTimeMillis());
+        extApiTestCaseMapper.deleteToGc(request);
+    }
+
+    public void deleteToGc(List<String> ids) {
+        if(CollectionUtils.isNotEmpty(ids)){
+            ApiTestCaseRequest request = new ApiTestCaseRequest();
+            request.setIds(ids);
+            request.setDeleteUserId(SessionUtils.getUserId());
+            request.setDeleteTime(System.currentTimeMillis());
+            extApiTestCaseMapper.deleteToGc(request);
+        }
+    }
+
+    public void deleteToGcByParam(ApiTestBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.isSelectAll()) {
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),request.getApiDefinitionId());
+        }
+        this.deleteToGc(ids);
+    }
+
+    public List<String> reduction(ApiTestBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.isSelectAll()) {
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),null);
+        }
+
+        List<String> cannotReductionAPiName = new ArrayList<>();
+        if(CollectionUtils.isNotEmpty(ids)){
+            List<ApiTestCaseDTO> cannotReductionApiCaseList = extApiTestCaseMapper.getCannotReductionApiCaseList(ids);
+            List<String> cannotReductionCaseId = new ArrayList<>();
+            for (ApiTestCaseDTO apiTestCaseDTO:cannotReductionApiCaseList) {
+                if(!cannotReductionAPiName.contains(apiTestCaseDTO.getApiName())){
+                    cannotReductionAPiName.add(apiTestCaseDTO.getApiName());
+                }
+                cannotReductionCaseId.add(apiTestCaseDTO.getId());
+            }
+            cannotReductionApiCaseList.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
+            List<String> deleteIds = ids.stream().filter(id -> !cannotReductionCaseId.contains(id)).collect(Collectors.toList());
+            if(CollectionUtils.isNotEmpty(deleteIds)){
+                extApiTestCaseMapper.reduction(deleteIds);
+            }
+        }
+        return cannotReductionAPiName;
+    }
+
+    public List<String> selectCaseIdsByApiIds(List<String> apiIds) {
+        if(CollectionUtils.isEmpty(apiIds)){
+            return  new ArrayList<>(0);
+        }else {
+            return extApiTestCaseMapper.selectCaseIdsByApiIds(apiIds);
+        }
     }
 }

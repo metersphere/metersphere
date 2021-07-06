@@ -106,6 +106,10 @@ public class UserService {
         return extUserMapper.queryNameByIds(userIds);
     }
 
+    public Map<String, User> queryName() {
+        return extUserMapper.queryName();
+    }
+
     public UserDTO insert(UserRequest user) {
         checkUserParam(user);
         //

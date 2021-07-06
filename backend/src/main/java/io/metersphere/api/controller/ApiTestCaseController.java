@@ -96,6 +96,11 @@ public class ApiTestCaseController {
         apiTestCaseService.delete(id);
     }
 
+    @GetMapping("/deleteToGc/{id}")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
+    public void deleteToGc(@PathVariable String id) {
+        apiTestCaseService.deleteToGc(id);
+    }
     @PostMapping("/removeToGc")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiTestCaseService.class)
     public void removeToGc(@RequestBody List<String> ids) {
@@ -117,6 +122,12 @@ public class ApiTestCaseController {
     public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.editApiBathByParam(request);
     }
+    @PostMapping("/reduction")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
+    public List<String> reduction(@RequestBody ApiTestBatchRequest request) {
+        List<String> cannotReductionTestCaseApiName = apiTestCaseService.reduction(request);
+        return cannotReductionTestCaseApiName;
+    }
 
     @PostMapping("/deleteBatch")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiTestCaseService.class)
@@ -128,6 +139,12 @@ public class ApiTestCaseController {
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     public void deleteBatchByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteBatchByParam(request);
+    }
+
+    @PostMapping("/deleteToGcByParam")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
+    public void deleteToGcByParam(@RequestBody ApiTestBatchRequest request) {
+        apiTestCaseService.deleteToGcByParam(request);
     }
 
     @PostMapping("/relevance")
