@@ -126,6 +126,32 @@ export default {
     format(item) {
       return '';
     },
+    initWebSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/task/center/count/running/" + getCurrentProjectID();
+      this.websocket = new WebSocket(uri);
+      this.websocket.onmessage = this.onMessage;
+      this.websocket.onopen = this.onOpen;
+      this.websocket.onerror = this.onError;
+      this.websocket.onclose = this.onClose;
+    },
+    onOpen() {
+    },
+    onError(e) {
+    },
+    onMessage(e) {
+      let taskTotal = e.data;
+      this.runningTotal = taskTotal;
+    },
+    onClose(e) {
+      if (e.code === 1005) {
+        // 强制删除之后关闭socket，不用刷新report
+        return;
+      }
+    },
     showTaskCenter() {
       this.getTaskRunning();
       this.init();
@@ -207,11 +233,7 @@ export default {
       return mode;
     },
     getTaskRunning() {
-      this.condition.projectId = getCurrentProjectID();
-      this.$post('/task/center/count/running', this.condition, response => {
-        this.runningTotal = response.data;
-        setTimeout(this.getTaskRunning, 5000);
-      });
+      this.initWebSocket();
     },
     init() {
       this.result.loading = true;
