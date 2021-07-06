@@ -69,7 +69,7 @@ import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem"
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import HomeBaseComponent from "./HomeBaseComponent";
 import MsTableButton from "../../../common/components/MsTableButton";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "../../../../../common/js/utils";
 
 export default {
   name: "ReviewList",
@@ -94,10 +94,13 @@ export default {
       if (!type) {
         type = 'reviewer'
       }
-      if (!getCurrentProjectID()) {
+      let projectId = getCurrentProjectID();
+      let workspaceId = getCurrentWorkspaceId();
+      if (!projectId) {
         return;
       }
-      this.result = this.$get('/test/case/review/list/all/relate/' + type, response => {
+      let param = {type, projectId, workspaceId};
+      this.result = this.$post('/test/case/review/list/all/relate', param , response => {
         this.tableData = response.data;
       });
     },

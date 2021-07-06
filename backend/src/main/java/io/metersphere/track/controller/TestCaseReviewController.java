@@ -7,7 +7,6 @@ import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -15,15 +14,10 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
-import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
-import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
-import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
-import io.metersphere.track.request.testreview.TestReviewRelevanceRequest;
+import io.metersphere.track.request.testreview.*;
 import io.metersphere.track.service.TestCaseReviewService;
 import io.metersphere.track.service.TestReviewProjectService;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -128,8 +122,8 @@ public class TestCaseReviewController {
         testCaseReviewService.editTestReviewStatus(reviewId);
     }
 
-    @GetMapping("/list/all/relate/{type}")
-    public List<TestReviewDTOWithMetric> listRelateAll(@PathVariable String type) {
-        return testCaseReviewService.listRelateAll(type);
+    @PostMapping("/list/all/relate")
+    public List<TestReviewDTOWithMetric> listRelateAll(@RequestBody ReviewRelateRequest request) {
+        return testCaseReviewService.listRelateAll(request);
     }
 }
