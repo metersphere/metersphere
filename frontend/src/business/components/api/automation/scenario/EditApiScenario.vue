@@ -182,9 +182,9 @@
               </el-tooltip>
               <div class="ms-debug-result" v-if="debug">
                 <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
-                <span class="ms-message-right">{{$t('api_test.automation.request_total')}} {{ reqTotal }}</span>
-                <span class="ms-message-right">{{$t('api_test.automation.request_success')}} {{ reqSuccess }}</span>
-                <span class="ms-message-right"> {{$t('api_test.automation.request_error')}} {{ reqError }}</span>
+                <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
+                <span class="ms-message-right">{{ $t('api_test.automation.request_success') }} {{ reqSuccess }}</span>
+                <span class="ms-message-right"> {{ $t('api_test.automation.request_error') }} {{ reqError }}</span>
               </div>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
@@ -475,23 +475,38 @@ export default {
         })
       }
     },
-    getReport() {
-      if (this.debug) {
-        let url = "/api/scenario/report/get/real/" + this.reportId;
-        this.$get(url, response => {
-          if (response.data) {
-            this.formatResult(response.data);
-            if (response.data.end) {
-              this.removeReport();
-              this.debugLoading = false;
-              this.stopDebug = "stop";
-            } else {
-              setTimeout(this.getReport, 2000)
-            }
-          } else {
-            setTimeout(this.getReport, 2000)
-          }
-        });
+    initWebSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/api/scenario/report/get/real/" + this.reportId;
+      this.websocket = new WebSocket(uri);
+      this.websocket.onmessage = this.onMessage;
+      this.websocket.onopen = this.onOpen;
+      this.websocket.onerror = this.onError;
+      this.websocket.onclose = this.onClose;
+    },
+    onOpen() {
+    },
+    onError(e) {
+      window.console.error(e)
+    },
+    onMessage(e) {
+      if (e.data) {
+        let data = JSON.parse(e.data);
+        this.formatResult(data);
+        if (data.end) {
+          this.removeReport();
+          this.debugLoading = false;
+          this.stopDebug = "stop";
+        }
+      }
+    },
+    onClose(e) {
+      if (e.code === 1005) {
+        // 强制删除之后关闭socket，不用刷新report
+        return;
       }
     },
     formatResult(res) {
@@ -1103,7 +1118,7 @@ export default {
         this.debugVisible = true;
         this.loading = false;
       } else {
-        this.getReport();
+        this.initWebSocket();
       }
     },
     showScenarioParameters() {
