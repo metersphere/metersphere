@@ -145,6 +145,10 @@ public class IssuesService {
         issueRequest.setTestCaseId(caseId);
         ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         Project project = getProjectByCaseId(caseId);
+        // project 不存在
+        if (project == null) {
+            return null;
+        }
         String workspaceId = project.getWorkspaceId();
         Workspace workspace = workspaceMapper.selectByPrimaryKey(workspaceId);
         TestCase testCase = testCaseMapper.selectByPrimaryKey(caseId);
@@ -229,8 +233,11 @@ public class IssuesService {
 
     private Project getProjectByCaseId(String testCaseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
-        Project project = projectService.getProjectById(testCase.getProjectId());
-        return project;
+        // testCase 不存在
+        if (testCase == null) {
+            return null;
+        }
+        return projectService.getProjectById(testCase.getProjectId());
     }
 
     private String getTapdProjectId(String testCaseId) {
@@ -454,7 +461,7 @@ public class IssuesService {
     }
 
     public List<IssuesDao> relateList(IssuesRequest request) {
-       return extIssuesMapper.getRelateIssues(request);
+        return extIssuesMapper.getRelateIssues(request);
     }
 
     public void userAuth(AuthUserIssueRequest authUserIssueRequest) {
