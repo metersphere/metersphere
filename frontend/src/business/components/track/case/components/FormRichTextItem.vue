@@ -1,7 +1,7 @@
 <template>
   <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
     <mavon-editor v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
-                  :subfield="disabled ? false : true" :toolbars="toolbars"  @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
+                  :subfield="disabled ? false : true" :toolbars="toolbars" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
 </template>
 
