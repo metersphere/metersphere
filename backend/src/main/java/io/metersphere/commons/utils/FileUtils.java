@@ -24,6 +24,7 @@ import java.util.UUID;
 
 public class FileUtils {
     public static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    public static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
 
     private static void create(List<String> bodyUploadIds, List<MultipartFile> bodyFiles, String path) {
         String filePath = BODY_FILE_DIR;

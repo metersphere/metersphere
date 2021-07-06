@@ -17,15 +17,12 @@ import java.util.Date;
 @Transactional(rollbackFor = Exception.class)
 public class ResourceService {
 
-//    private static final String RESOURCE_DIR = "/opt/metersphere/data/resource/";
-    private static final String MD_IMAGE_DIR = "/opt/metersphere/data/image/markdown";
-
     public void mdUpload(MdUploadRequest request, MultipartFile file) {
-        FileUtils.uploadFile(file, MD_IMAGE_DIR, request.getId() + "_" + file.getOriginalFilename());
+        FileUtils.uploadFile(file, FileUtils.MD_IMAGE_DIR, request.getId() + "_" + file.getOriginalFilename());
     }
 
     public ResponseEntity<FileSystemResource> getMdImage(String name) {
-        File file = new File(MD_IMAGE_DIR + "/" + name);
+        File file = new File(FileUtils.MD_IMAGE_DIR + "/" + name);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Cache-Control", "no-cache, no-store, must-revalidate");
         headers.add("Content-Disposition", "attachment; filename=" + file.getName());
@@ -41,6 +38,6 @@ public class ResourceService {
     }
 
     public void mdDelete(String fileName) {
-        FileUtils.deleteFile(MD_IMAGE_DIR + "/" + fileName);
+        FileUtils.deleteFile(FileUtils.MD_IMAGE_DIR + "/" + fileName);
     }
 }
