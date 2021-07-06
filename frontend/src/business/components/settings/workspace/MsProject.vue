@@ -15,6 +15,7 @@
                 @sort-change="sort"
                 @filter-change="filter"
                 :height="screenHeight"
+                @row-click="jumpPage"
       >
         <el-table-column prop="name" :label="$t('commons.name')" min-width="100" show-overflow-tooltip/>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
@@ -343,6 +344,10 @@ export default {
     this.createVisible = false;
   },
   methods: {
+    jumpPage(row) {
+      window.sessionStorage.setItem(PROJECT_ID, row.id);
+      this.$router.push('/track/home');
+    },
     getMaintainerOptions() {
       let workspaceId = getCurrentWorkspaceId();
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
