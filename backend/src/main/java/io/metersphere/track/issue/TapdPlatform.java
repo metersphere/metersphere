@@ -11,11 +11,13 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.dto.CustomFieldItemDTO;
 import io.metersphere.dto.UserDTO;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.client.TapdClient;
 import io.metersphere.track.issue.domain.PlatformUser;
@@ -140,6 +142,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     private String msDescription2Tapd(String msDescription) {
+        SystemParameterService parameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+        msDescription = msImg2HtmlImg(msDescription, parameterService.getValue("base.url"));
         return msDescription.replaceAll("\\n", "<br/>");
     }
 
