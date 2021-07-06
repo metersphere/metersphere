@@ -741,7 +741,7 @@ public class TestCaseService {
             data.setPrerequisite(Translator.get("preconditions_optional"));
             data.setStepDesc("1. " + Translator.get("step_tip_separate") +
                     "\n2. " + Translator.get("step_tip_order") + "\n3. " + Translator.get("step_tip_optional"));
-            data.setStepResult("1. " + Translator.get("step_tip_order") + "\n2. " + Translator.get("result_tip_order") + "\n3. " + Translator.get("result_tip_optional"));
+            data.setStepResult("1. " + Translator.get("result_tip_separate") + "\n2. " + Translator.get("result_tip_order") + "\n3. " + Translator.get("result_tip_optional"));
             data.setMaintainer(user.getId());
             data.setRemark(Translator.get("remark_optional"));
             list.add(data);
@@ -840,8 +840,8 @@ public class TestCaseService {
                     if (CollectionUtils.isNotEmpty(jsonArray)) {
                         for (int j = 0; j < jsonArray.size(); j++) {
                             int num = j + 1;
-                            step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
-                            result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
+                            step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");
+                            result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\n");
 
                         }
                     }

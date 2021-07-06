@@ -425,7 +425,8 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         List<String> stepResList = new ArrayList<>();
         ListUtils<String> listUtils = new ListUtils<String>();
         if (data.getStepDesc() != null) {
-            String[] stepDesc = data.getStepDesc().split("\r\n|\n");
+            String desc = data.getStepDesc().replaceAll("\\n([1-9]\\.)", "\r\n$1");
+            String [] stepDesc = desc.split("\r\n");
             StringBuffer stepBuffer = new StringBuffer();
             int lastStepIndex = 1;
             for (String row : stepDesc) {
@@ -449,7 +450,8 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         }
 
         if (data.getStepResult() != null) {
-            String [] stepRes = data.getStepResult().split("\r\n|\n");
+            String stepResult = data.getStepResult().replaceAll("\\n([1-9]\\.)", "\r\n$1");
+            String [] stepRes = stepResult.split("\r\n");
             StringBuffer stepBuffer = new StringBuffer();
             int lastStepIndex = 1;
             for (String row : stepRes) {
