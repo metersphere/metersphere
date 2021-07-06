@@ -36,6 +36,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
+import java.io.File;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
@@ -219,12 +220,12 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
      * @return
      */
     protected String htmlDesc2MsDesc(String htmlDesc) {
-        Document document = Jsoup.parse(htmlDesc);
+        String desc = htmlImg2MsImg(htmlDesc);
+        Document document = Jsoup.parse(desc);
         document.outputSettings(new Document.OutputSettings().prettyPrint(false));
         document.select("br").append("\\n");
         document.select("p").prepend("\\n\\n");
-        String s = document.html().replaceAll("\\\\n", "\n");
-        String desc = htmlImg2MsImg(s);
+        desc = document.html().replaceAll("\\\\n", "\n");
         desc = Jsoup.clean(desc, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
         return desc.replace("&nbsp;", "");
     }
@@ -247,9 +248,19 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return result;
     }
 
+    protected String removeImage(String input) {
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        Matcher matcher = Pattern.compile(regex).matcher(input);
+        while (matcher.find()) {
+            matcher.group();
+            return matcher.replaceAll("");
+        }
+        return input;
+    }
+
     protected String htmlImg2MsImg(String input) {
         // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
-        String regex = "(<img\\s*src=\\\"(.*?)\\\"/?>)";
+        String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(input);
         String result = input;
@@ -257,13 +268,32 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             String url = matcher.group(2);
             if (url.contains("/resource/md/get/")) {
                 String path = url.substring(url.indexOf("/resource/md/get/"));
-                String name = path.substring(path.lastIndexOf("/") + 10);
+                String name = path.substring(path.indexOf("/resource/md/get/") + 26);
                 String mdLink = "![" + name + "](" + path +  ")";
                 result = matcher.replaceFirst(mdLink);
                 matcher = pattern.matcher(result);
             }
         }
         return result;
+    }
+
+    public List<File> getImageFiles(String input) {
+        List<File> files = new ArrayList<>();
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        while (matcher.find()) {
+            try {
+                String path = matcher.group(2);
+                if (path.contains("/resource/md/get/")) {
+                    String name = path.substring(path.indexOf("/resource/md/get/") + 17);
+                    files.add(new File(FileUtils.MD_IMAGE_DIR + "/" + name));
+                }
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+            }
+        }
+        return files;
     }
 
     protected UserDTO.PlatformInfo getUserPlatInfo(String orgId) {
