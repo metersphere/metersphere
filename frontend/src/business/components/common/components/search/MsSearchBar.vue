@@ -37,7 +37,11 @@
 </template>
 
 <script>
+
+import moduleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
+
 export default {
+  components:{moduleTrashButton},
   name: "MsSearchBar",
   props: {
     condition: {
@@ -64,7 +68,7 @@ export default {
       if (item.callback) {
         item.callback();
       }
-    }
+    },
   }
 }
 </script>

@@ -13,4 +13,6 @@ public class ApiTestCaseDTO extends ApiTestCase {
     private String casePath;
     private String updateUser;
     private String createUser;
+    private String deleteUser;
+    private String apiName;
 }

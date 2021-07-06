@@ -155,6 +155,14 @@ public class TestCaseController {
         return testCaseService.deleteTestCase(testCaseId);
     }
 
+    @PostMapping("/deleteToGc/{testCaseId}")
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    public int deleteToGC(@PathVariable String testCaseId) {
+        checkPermissionService.checkTestCaseOwner(testCaseId);
+        return testCaseService.deleteTestCaseToGc(testCaseId);
+    }
+
+
     @PostMapping("/import/{projectId}/{userId}/{importType}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
@@ -201,6 +209,20 @@ public class TestCaseController {
     public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteTestCaseBath(request);
     }
+
+    @PostMapping("/batch/deleteToGc")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
+    public void deleteToGcBatch(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.deleteToGcBatch(request);
+    }
+
+    @PostMapping("/reduction")
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    public void reduction(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.reduction(request);
+    }
+
 
     @GetMapping("/file/metadata/{caseId}")
     public List<FileMetadata> getFileMetadata(@PathVariable String caseId) {

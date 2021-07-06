@@ -335,8 +335,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public int deleteNode(List<String> nodeIds) {
-        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        ApiDefinitionExampleWithOperation apiDefinitionExample = new ApiDefinitionExampleWithOperation();
         apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
+        apiDefinitionExample.setOperator(SessionUtils.getUserId());
+        apiDefinitionExample.setOperationTime(System.currentTimeMillis());
         extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
 
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();

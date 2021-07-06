@@ -549,6 +549,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
         QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
         testCaseRequest.setNodeIds(nodeIds);
+        if(testCaseRequest.getFilters()!=null && !testCaseRequest.getFilters().containsKey("status")){
+            testCaseRequest.getFilters().put("status",new ArrayList<>(0));
+        }
         return extTestCaseMapper.list(testCaseRequest);
     }
 

@@ -93,6 +93,11 @@
         </foreach>
     </select>
 
+    <select id="queryName" resultType="io.metersphere.base.domain.User">
+        select id, name
+        from `user`
+    </select>
+
     <select id="selectAllId" resultType="java.lang.String">
         select id from `user`
     </select>

@@ -17,7 +17,24 @@
                 :field-key="tableHeaderKey"
                 @saveSortField="saveSortField"
                 ref="table">
+        <ms-table-column
+          prop="deleteTime"
+          sortable
+          v-if="this.trashEnable"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.delete_time')"
+          min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.deleteTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
 
+        <ms-table-column
+          prop="deleteUser"
+          :fields-width="fieldsWidth"
+          v-if="this.trashEnable"
+          :label="$t('commons.delete_user')"
+          min-width="120"/>
         <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
                prop="num"
@@ -296,21 +313,7 @@ export default {
         },
       ],
       tableTrashOperatorButtons: [
-        {
-          tip: this.$t('api_test.automation.execute'),
-          icon: "el-icon-video-play",
-          exec: this.runApi,
-          class: "run-button",
-          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
-        },
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reductionApi},
-        {
-          tip: "CASE",
-          exec: this.handleTestCase,
-          isDivButton: true,
-          type: "primary",
-          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_CASE']
-        },
         {
           tip: this.$t('commons.delete'),
           exec: this.handleDelete,

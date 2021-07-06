@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionExample;
+import io.metersphere.base.domain.ApiDefinitionExampleWithOperation;
 import io.metersphere.controller.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
@@ -24,9 +25,9 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
-    int removeToGc(@Param("ids") List<String> ids);
+//    int removeToGc(@Param("ids") List<String> ids);
 
-    int removeToGcByExample(ApiDefinitionExample example);
+    int removeToGcByExample(ApiDefinitionExampleWithOperation example);
 
     int reduction(@Param("ids") List<String> ids);
 
