@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <template v-slot:header>
       <span class="title">
         {{$t('api_test.home_page.running_task_list.title')}}
