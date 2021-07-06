@@ -124,7 +124,6 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
     @Override
     public void sampleOccurred(SampleEvent event) {
         SampleResult result = event.getResult();
-        System.out.println(event.getThreadGroup() + " === " + this.getName());
         if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
             msResultService.setCache(this.getName(), result);
         }

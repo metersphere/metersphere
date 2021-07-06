@@ -52,7 +52,6 @@ public class MsResultService {
 
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        System.out.println(key + "=======" + result.getURL());
         this.cache.put(key, testResult);
     }
 
