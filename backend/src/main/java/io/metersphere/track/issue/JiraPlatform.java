@@ -33,6 +33,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -197,6 +198,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
         JSONObject project = new JSONObject();
 
         String desc = issuesRequest.getDescription();
+        List<File> imageFiles = getImageFiles(desc);
+        desc = removeImage(desc);
 
         fields.put("project", project);
         project.put("key", jiraKey);
@@ -231,6 +234,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
         });
         JiraAddIssueResponse result = jiraClientV2.addIssue(JSONObject.toJSONString(addJiraIssueParam));
         JiraIssue issues = jiraClientV2.getIssues(result.getId());
+
+        imageFiles.forEach(img -> {
+            jiraClientV2.uploadAttachment(result.getKey(), img);
+        });
         String status = getStatus(issues.getFields());
         issuesRequest.setPlatformStatus(status);
 

@@ -7,9 +7,12 @@ import io.metersphere.track.issue.domain.Jira.JiraConfig;
 import io.metersphere.track.issue.domain.Jira.JiraField;
 import io.metersphere.track.issue.domain.Jira.JiraIssue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
+import java.io.File;
 import java.util.List;
 
 public abstract class JiraAbstractClient extends BaseClient {
@@ -47,6 +50,25 @@ public abstract class JiraAbstractClient extends BaseClient {
             MSException.throwException(e.getMessage());
         }
         return (JiraAddIssueResponse) getResultForObject(JiraAddIssueResponse.class, response);
+    }
+
+    public void uploadAttachment(String issueKey, File file) {
+        HttpHeaders authHeader = getAuthHeader();
+        authHeader.add("X-Atlassian-Token", "no-check");
+        authHeader.setContentType(MediaType.parseMediaType("multipart/form-data; charset=UTF-8"));
+
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        FileSystemResource fileResource = new FileSystemResource(file);
+        paramMap.add("file", fileResource);
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(paramMap, authHeader);
+        ResponseEntity<String> response = null;
+        try {
+            response = restTemplate.exchange(getBaseUrl() + "/issue/" + issueKey + "/attachments", HttpMethod.POST, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+        System.out.println(response);
     }
 
     public void auth() {
