@@ -10,19 +10,21 @@
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="schedule" jdbcType="VARCHAR" property="schedule" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="module_id" jdbcType="VARCHAR" property="moduleId"/>
-    <result column="user_id" jdbcType="VARCHAR" property="userId"/>
-    <result column="create_time" jdbcType="BIGINT" property="createTime"/>
-    <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
-    <result column="protocol" jdbcType="VARCHAR" property="protocol"/>
-    <result column="path" jdbcType="VARCHAR" property="path"/>
-    <result column="num" jdbcType="INTEGER" property="num"/>
-    <result column="tags" jdbcType="VARCHAR" property="tags"/>
-    <result column="original_state" jdbcType="VARCHAR" property="originalState"/>
-    <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
-    <result column="case_total" jdbcType="VARCHAR" property="caseTotal"/>
-    <result column="case_status" jdbcType="VARCHAR" property="caseStatus"/>
-    <result column="case_passing_rate" jdbcType="VARCHAR" property="casePassingRate"/>
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="protocol" jdbcType="VARCHAR" property="protocol" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="original_state" jdbcType="VARCHAR" property="originalState" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="case_total" jdbcType="VARCHAR" property="caseTotal" />
+    <result column="case_status" jdbcType="VARCHAR" property="caseStatus" />
+    <result column="case_passing_rate" jdbcType="VARCHAR" property="casePassingRate" />
+    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+    <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -90,7 +92,7 @@
   <sql id="Base_Column_List">
     id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
     module_id, user_id, create_time, update_time, protocol, `path`, num, tags, original_state, 
-    create_user, case_total, case_status, case_passing_rate
+    create_user, case_total, case_status, case_passing_rate, delete_time, delete_user_id
   </sql>
   <sql id="Blob_Column_List">
     description, request, response
@@ -144,22 +146,24 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
-    insert into api_definition (id, project_id, `name`,
-                                `method`, module_path, environment_id,
-                                schedule, `status`, module_id,
-                                user_id, create_time, update_time,
-                                protocol, `path`, num,
-                                tags, original_state, create_user,
-                                case_total, case_status, case_passing_rate,
-                                description, request, response)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-            #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR},
-            #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR},
-            #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-            #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER},
-            #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
-            #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR},
-            #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
+    insert into api_definition (id, project_id, `name`, 
+      `method`, module_path, environment_id, 
+      schedule, `status`, module_id, 
+      user_id, create_time, update_time, 
+      protocol, `path`, num, 
+      tags, original_state, create_user, 
+      case_total, case_status, case_passing_rate, 
+      delete_time, delete_user_id, description, 
+      request, response)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
+      #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{tags,jdbcType=VARCHAR}, #{originalState,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{caseTotal,jdbcType=VARCHAR}, #{caseStatus,jdbcType=VARCHAR}, #{casePassingRate,jdbcType=VARCHAR}, 
+      #{deleteTime,jdbcType=BIGINT}, #{deleteUserId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -226,6 +230,12 @@
       </if>
       <if test="casePassingRate != null">
         case_passing_rate,
+      </if>
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+      <if test="deleteUserId != null">
+        delete_user_id,
       </if>
       <if test="description != null">
         description,
@@ -300,6 +310,12 @@
       </if>
       <if test="casePassingRate != null">
         #{casePassingRate,jdbcType=VARCHAR},
+      </if>
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUserId != null">
+        #{deleteUserId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -384,6 +400,12 @@
       <if test="record.casePassingRate != null">
         case_passing_rate = #{record.casePassingRate,jdbcType=VARCHAR},
       </if>
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleteUserId != null">
+        delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -408,22 +430,24 @@
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-    module_id = #{record.moduleId,jdbcType=VARCHAR},
-    user_id = #{record.userId,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    protocol = #{record.protocol,jdbcType=VARCHAR},
-    `path` = #{record.path,jdbcType=VARCHAR},
-    num = #{record.num,jdbcType=INTEGER},
-    tags = #{record.tags,jdbcType=VARCHAR},
-    original_state = #{record.originalState,jdbcType=VARCHAR},
-    create_user = #{record.createUser,jdbcType=VARCHAR},
-    case_total = #{record.caseTotal,jdbcType=VARCHAR},
-    case_status = #{record.caseStatus,jdbcType=VARCHAR},
-    case_passing_rate = #{record.casePassingRate,jdbcType=VARCHAR},
-    description = #{record.description,jdbcType=LONGVARCHAR},
-    request = #{record.request,jdbcType=LONGVARCHAR},
-    response = #{record.response,jdbcType=LONGVARCHAR}
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      protocol = #{record.protocol,jdbcType=VARCHAR},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      original_state = #{record.originalState,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      case_total = #{record.caseTotal,jdbcType=VARCHAR},
+      case_status = #{record.caseStatus,jdbcType=VARCHAR},
+      case_passing_rate = #{record.casePassingRate,jdbcType=VARCHAR},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR},
+      request = #{record.request,jdbcType=LONGVARCHAR},
+      response = #{record.response,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -437,20 +461,22 @@
       module_path = #{record.modulePath,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
-    `status` = #{record.status,jdbcType=VARCHAR},
-    module_id = #{record.moduleId,jdbcType=VARCHAR},
-    user_id = #{record.userId,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    protocol = #{record.protocol,jdbcType=VARCHAR},
-    `path` = #{record.path,jdbcType=VARCHAR},
-    num = #{record.num,jdbcType=INTEGER},
-    tags = #{record.tags,jdbcType=VARCHAR},
-    original_state = #{record.originalState,jdbcType=VARCHAR},
-    create_user = #{record.createUser,jdbcType=VARCHAR},
-    case_total = #{record.caseTotal,jdbcType=VARCHAR},
-    case_status = #{record.caseStatus,jdbcType=VARCHAR},
-    case_passing_rate = #{record.casePassingRate,jdbcType=VARCHAR}
+      `status` = #{record.status,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      protocol = #{record.protocol,jdbcType=VARCHAR},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      tags = #{record.tags,jdbcType=VARCHAR},
+      original_state = #{record.originalState,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      case_total = #{record.caseTotal,jdbcType=VARCHAR},
+      case_status = #{record.caseStatus,jdbcType=VARCHAR},
+      case_passing_rate = #{record.casePassingRate,jdbcType=VARCHAR},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -518,6 +544,12 @@
       <if test="casePassingRate != null">
         case_passing_rate = #{casePassingRate,jdbcType=VARCHAR},
       </if>
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUserId != null">
+        delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -532,53 +564,57 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     update api_definition
-    set project_id        = #{projectId,jdbcType=VARCHAR},
-        `name`            = #{name,jdbcType=VARCHAR},
-        `method`          = #{method,jdbcType=VARCHAR},
-        module_path       = #{modulePath,jdbcType=VARCHAR},
-        environment_id    = #{environmentId,jdbcType=VARCHAR},
-        schedule          = #{schedule,jdbcType=VARCHAR},
-        `status`          = #{status,jdbcType=VARCHAR},
-        module_id         = #{moduleId,jdbcType=VARCHAR},
-        user_id           = #{userId,jdbcType=VARCHAR},
-        create_time       = #{createTime,jdbcType=BIGINT},
-        update_time       = #{updateTime,jdbcType=BIGINT},
-        protocol          = #{protocol,jdbcType=VARCHAR},
-        `path`            = #{path,jdbcType=VARCHAR},
-        num               = #{num,jdbcType=INTEGER},
-        tags              = #{tags,jdbcType=VARCHAR},
-        original_state    = #{originalState,jdbcType=VARCHAR},
-        create_user       = #{createUser,jdbcType=VARCHAR},
-        case_total        = #{caseTotal,jdbcType=VARCHAR},
-        case_status       = #{caseStatus,jdbcType=VARCHAR},
-        case_passing_rate = #{casePassingRate,jdbcType=VARCHAR},
-        description       = #{description,jdbcType=LONGVARCHAR},
-        request           = #{request,jdbcType=LONGVARCHAR},
-        response          = #{response,jdbcType=LONGVARCHAR}
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `method` = #{method,jdbcType=VARCHAR},
+      module_path = #{modulePath,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      schedule = #{schedule,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      protocol = #{protocol,jdbcType=VARCHAR},
+      `path` = #{path,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
+      tags = #{tags,jdbcType=VARCHAR},
+      original_state = #{originalState,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      case_total = #{caseTotal,jdbcType=VARCHAR},
+      case_status = #{caseStatus,jdbcType=VARCHAR},
+      case_passing_rate = #{casePassingRate,jdbcType=VARCHAR},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR},
+      request = #{request,jdbcType=LONGVARCHAR},
+      response = #{response,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiDefinition">
     update api_definition
-    set project_id        = #{projectId,jdbcType=VARCHAR},
-        `name`            = #{name,jdbcType=VARCHAR},
-        `method`          = #{method,jdbcType=VARCHAR},
-        module_path       = #{modulePath,jdbcType=VARCHAR},
-        environment_id    = #{environmentId,jdbcType=VARCHAR},
-        schedule          = #{schedule,jdbcType=VARCHAR},
-        `status`          = #{status,jdbcType=VARCHAR},
-        module_id         = #{moduleId,jdbcType=VARCHAR},
-        user_id           = #{userId,jdbcType=VARCHAR},
-        create_time       = #{createTime,jdbcType=BIGINT},
-        update_time       = #{updateTime,jdbcType=BIGINT},
-        protocol          = #{protocol,jdbcType=VARCHAR},
-        `path`            = #{path,jdbcType=VARCHAR},
-        num               = #{num,jdbcType=INTEGER},
-        tags              = #{tags,jdbcType=VARCHAR},
-        original_state    = #{originalState,jdbcType=VARCHAR},
-        create_user       = #{createUser,jdbcType=VARCHAR},
-        case_total        = #{caseTotal,jdbcType=VARCHAR},
-        case_status       = #{caseStatus,jdbcType=VARCHAR},
-        case_passing_rate = #{casePassingRate,jdbcType=VARCHAR}
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `method` = #{method,jdbcType=VARCHAR},
+      module_path = #{modulePath,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      schedule = #{schedule,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      protocol = #{protocol,jdbcType=VARCHAR},
+      `path` = #{path,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
+      tags = #{tags,jdbcType=VARCHAR},
+      original_state = #{originalState,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      case_total = #{caseTotal,jdbcType=VARCHAR},
+      case_status = #{caseStatus,jdbcType=VARCHAR},
+      case_passing_rate = #{casePassingRate,jdbcType=VARCHAR},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

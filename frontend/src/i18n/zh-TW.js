@@ -60,6 +60,8 @@ export default {
     test: '測試',
     create_time: '創建時間',
     update_time: '更新時間',
+    delete_time: '刪除時間',
+    delete_user: '删除人',
     add: '添加',
     preview: '預覽',
     member: '成員',

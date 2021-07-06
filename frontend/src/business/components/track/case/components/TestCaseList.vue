@@ -13,7 +13,7 @@
       :page-size.sync="page.pageSize"
       :operators="operators"
       :screen-height="screenHeight"
-      :batch-operators="buttons"
+      :batch-operators="batchButtons"
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
@@ -23,8 +23,26 @@
       :custom-fields="testCaseTemplate.customFields"
       ref="table">
 
-      <span v-for="item in fields" :key="item.key">
+      <ms-table-column
+        prop="deleteTime"
+        sortable
+        v-if="this.trashEnable"
+        :fields-width="fieldsWidth"
+        :label="$t('commons.delete_time')"
+        min-width="150px">
+        <template v-slot:default="scope">
+          <span>{{ scope.row.deleteTime | timestampFormatDate }}</span>
+        </template>
+      </ms-table-column>
 
+      <ms-table-column
+        prop="deleteUserId"
+        :fields-width="fieldsWidth"
+        v-if="this.trashEnable"
+        :label="$t('commons.delete_user')"
+        min-width="120"/>
+
+      <span v-for="item in fields" :key="item.key">
         <ms-table-column
             v-if="!customNum"
             :field="item"
@@ -251,7 +269,8 @@ export default {
         {text: '进行中', value: 'Underway'},
         {text: '已完成', value: 'Completed'},
       ],
-      buttons: [
+      batchButtons:[],
+      simpleButtons: [
         {
           name: this.$t('test_track.case.batch_edit_case'),
           handleClick: this.handleBatchEdit,
@@ -262,11 +281,23 @@ export default {
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         }, {
           name: this.$t('test_track.case.batch_delete_case'),
+          handleClick: this.handleDeleteBatchToGc,
+          permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+        }
+      ],
+      trashButtons: [
+        {
+          name: this.$t('commons.reduction'),
+          handleClick: this.batchReduction,
+          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+        }, {
+          name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatch,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
         }
       ],
-      operators: [
+      operators: [],
+      simpleOperators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
@@ -277,6 +308,17 @@ export default {
           exec: this.handleCopy,
           permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
         },
+        {
+          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
+          exec: this.handleDeleteToGc,
+          permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
+        }
+      ],
+      trashOperators: [
+        {
+          tip: this.$t('commons.reduction'),
+          icon: "el-icon-refresh-left",
+          exec: this.reduction},
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
@@ -327,6 +369,13 @@ export default {
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
+    if(this.trashEnable){
+      this.operators = this.trashOperators;
+      this.batchButtons = this.trashButtons;
+    }else {
+      this.operators = this.simpleOperators;
+      this.batchButtons = this.simpleButtons;
+    }
     if(!this.projectName || this.projectName === ""){
       this.getProjectName();
     }
@@ -339,11 +388,31 @@ export default {
   watch: {
     selectNodeIds() {
       this.page.currentPage = 1;
+      if(!this.trashEnable){
+        this.condition.filters.status = [];
+      }
       initCondition(this.condition, false);
       this.initTableData();
     },
     condition() {
       this.$emit('setCondition', this.condition);
+    },
+    trashEnable() {
+      if (this.trashEnable) {
+        //更改表格按钮
+        this.operators = this.trashOperators;
+        this.batchButtons = this.trashButtons;
+        //更改查询条件
+        this.condition.filters = {status: ["Trash"]};
+        this.condition.moduleIds = [];
+        initCondition(this.condition, false);
+        this.initTableData();
+      } else {
+        //更改各种按钮
+        this.operators = this.simpleOperators;
+        this.batchButtons = this.simpleButtons;
+        this.condition.filters.status = [];
+      }
     }
   },
   methods: {
@@ -504,6 +573,33 @@ export default {
         }
       });
     },
+    reduction(testCase){
+      let param = {};
+      param.ids = [testCase.id];
+      this.$post('/test/case/reduction', param, () => {
+        this.$emit('refreshTable');
+        this.initTableData();
+        this.$success(this.$t('commons.save_success'));
+      });
+    },
+    handleDeleteToGc(testCase) {
+      this.$alert(this.$t('test_track.case.delete_confirm') + '\'' + testCase.name + '\'' + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleDeleteToGc(testCase);
+          }
+        }
+      });
+    },
+    batchReduction(){
+      let param = buildBatchParam(this, this.$refs.table.selectIds);
+      this.$post('/test/case/reduction', param, () => {
+        this.$emit('refreshTable');
+        this.initTableData();
+        this.$success(this.$t('commons.save_success'));
+      });
+    },
     handleDeleteBatch() {
       this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
@@ -519,12 +615,35 @@ export default {
         }
       });
     },
+    handleDeleteBatchToGc() {
+      this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let param = buildBatchParam(this, this.$refs.table.selectIds);
+            this.$post('/test/case/batch/deleteToGc', param, () => {
+              this.$refs.table.clear();
+              this.$emit("refresh");
+              this.$success(this.$t('commons.delete_success'));
+            });
+          }
+        }
+      });
+    },
     _handleDelete(testCase) {
       let testCaseId = testCase.id;
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
         this.$emit('decrease', testCase.nodeId);
+      });
+    },
+    _handleDeleteToGc(testCase) {
+      let testCaseId = testCase.id;
+      this.$post('/test/case/deleteToGc/' + testCaseId, {}, () => {
+        this.$emit('refreshTable');
+        this.initTableData();
+        this.$success(this.$t('commons.delete_success'));
       });
     },
     refresh() {

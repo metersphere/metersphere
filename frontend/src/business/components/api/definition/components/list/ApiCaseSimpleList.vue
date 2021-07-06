@@ -20,6 +20,24 @@
                 @refresh="initTable"
                 ref="caseTable"
       >
+        <ms-table-column
+          prop="deleteTime"
+          sortable
+          v-if="this.trashEnable"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.delete_time')"
+          min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.deleteTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+          prop="deleteUser"
+          :fields-width="fieldsWidth"
+          v-if="this.trashEnable"
+          :label="$t('commons.delete_user')"
+          min-width="120"/>
         <span v-for="(item) in fields" :key="item.key">
 
           <ms-table-column
@@ -109,7 +127,7 @@
           </ms-table-column >
         </span>
 
-        <template v-slot:opt-behind="scope">
+        <template v-if="!trashEnable" v-slot:opt-behind="scope">
           <ms-api-case-table-extend-btns @showCaseRef="showCaseRef"
                                          @showEnvironment="showEnvironment"
                                          @createPerformance="createPerformance" :row="scope.row"/>
@@ -207,13 +225,18 @@ export default {
       result: {},
       moduleId: "",
       selectDataRange: "all",
-      deletePath: "/test/case/delete",
       clickRow: {},
-      buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+      buttons: [],
+      simpleButtons: [
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
         {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
       ],
-      operators: [
+      trashButtons: [
+        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+      ],
+      operators: [],
+      simpleOperators: [
         {
           tip: this.$t('api_test.automation.execute'),
           icon: "el-icon-video-play",
@@ -227,6 +250,16 @@ export default {
           exec: this.handleTestCase,
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
         },
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.deleteToGc,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
+      ],
+      trashOperators: [
+        {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reduction},
         {
           tip: this.$t('commons.delete'),
           exec: this.handleDelete,
@@ -297,6 +330,15 @@ export default {
     if(orderArr){
       this.condition.orders = orderArr;
     }
+
+    if(this.trashEnable){
+      this.operators = this.trashOperators;
+      this.buttons = this.trashButtons;
+    }else {
+      this.operators = this.simpleOperators;
+      this.buttons = this.simpleButtons;
+    }
+
     this.initTable();
     // this.$nextTick(() => {
     //   this.$refs.caseTable.bodyWrapper.scrollTop = 5
@@ -316,6 +358,13 @@ export default {
       this.initTable();
     },
     trashEnable() {
+      if(this.trashEnable){
+        this.operators = this.trashOperators;
+        this.buttons = this.trashButtons;
+      }else {
+        this.operators = this.simpleOperators;
+        this.buttons = this.simpleButtons;
+      }
       if (this.trashEnable) {
         this.selectAll = false;
         this.unSelection = [];
@@ -350,8 +399,24 @@ export default {
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
-        this.condition.status = "Trash";
+        // this.condition.status = "Trash";
         this.condition.moduleIds = [];
+        if(this.condition.filters){
+          if(this.condition.filters.status){
+            this.condition.filters.status = ["Trash"];
+          }else{
+            this.condition.filters = {status: ["Trash"]};
+          }
+        }else{
+          this.condition.filters = {};
+          this.condition.filters = {status: ["Trash"]};
+        }
+      }else {
+        if(this.condition.filters){
+          if(this.condition.filters.status){
+            this.condition.filters.status = [];
+          }
+        }
       }
       if (!this.selectAll) {
         this.selectAll = false;
@@ -373,7 +438,7 @@ export default {
       } else if (this.selectDataRange != null) {
         let selectParamArr = this.selectDataRange.split("single:");
 
-        if (selectParamArr.length == 2) {
+        if (selectParamArr.length === 2) {
           this.condition.id = selectParamArr[1];
         }
       }
@@ -462,16 +527,8 @@ export default {
         this.$refs.caseList.open(selectApi, testCase.id);
       });
     },
-    reductionApi(row) {
-      let ids = [row.id];
-      this.$post('/api/testcase/reduction/', ids, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
-      });
-    },
     handleDeleteBatch() {
-      // if (this.trashEnable) {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
@@ -482,6 +539,26 @@ export default {
             obj.ids = Array.from(this.selectRows).map(row => row.id);
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
+              this.$refs.caseTable.clearSelectRows();
+              this.initTable();
+              this.$success(this.$t('commons.delete_success'));
+            });
+          }
+        }
+      });
+    },
+    handleDeleteToGcBatch() {
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let obj = {};
+            obj.projectId = this.projectId;
+            obj.selectAllDate = this.selectAll;
+            obj.unSelectIds = this.unSelection;
+            obj.ids = Array.from(this.selectRows).map(row => row.id);
+            obj = Object.assign(obj, this.condition);
+            this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
               this.initTable();
               this.$success(this.$t('commons.delete_success'));
@@ -518,8 +595,7 @@ export default {
       });
     },
     handleDelete(apiCase) {
-      // if (this.trashEnable) {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + apiCase.name + " ？", '', {
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
@@ -531,6 +607,66 @@ export default {
         }
       });
       return;
+    },
+    deleteToGc(apiCase){
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTable();
+            });
+          }
+        }
+      });
+      return;
+    },
+    reduction(row) {
+      let tmp = JSON.parse(JSON.stringify(row));
+      let rows = {ids: [tmp.id]};
+      this.$post('/api/testcase/reduction/', rows, response => {
+        let cannotReductionApiNameArr = response.data;
+        if(cannotReductionApiNameArr.length > 0){
+          let apiNames = "";
+          cannotReductionApiNameArr.forEach(item => {
+            if(apiNames === ""){
+              apiNames+= item
+            }else{
+              apiNames+= ";"+item;
+            }
+          });
+          this.$error("请先恢复["+apiNames+"]接口");
+        }else{
+          this.$success(this.$t('commons.save_success'));
+        }
+        this.search();
+      });
+    },
+    handleBatchRestore() {
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = this.selectAll;
+      obj.unSelectIds = this.unSelection;
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj = Object.assign(obj, this.condition);
+      this.$post('/api/testcase/reduction/', obj, response => {
+        let cannotReductionApiNameArr = response.data;
+        if(cannotReductionApiNameArr.length > 0){
+          let apiNames = "";
+          cannotReductionApiNameArr.forEach(item => {
+            if(apiNames === ""){
+              apiNames+= item
+            }else{
+              apiNames+= ";"+item;
+            }
+          });
+          this.$error("请先恢复["+apiNames+"]接口");
+        }else{
+          this.$success(this.$t('commons.save_success'));
+        }
+        this.search();
+      });
     },
     setEnvironment(data) {
       this.environmentId = data.id;

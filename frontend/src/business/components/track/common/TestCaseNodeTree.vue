@@ -21,6 +21,7 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
+          <module-trash-button :condition="condition" :exe="enableTrash"/>
       </template>
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
@@ -44,10 +45,11 @@ import MsSearchBar from "@/business/components/common/components/search/MsSearch
 import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import {getCurrentProjectID} from "@/common/js/utils";
+import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
 
 export default {
   name: "TestCaseNodeTree",
-  components: {MsSearchBar, TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit},
+  components: {MsSearchBar, TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit,ModuleTrashButton},
   data() {
     return {
       defaultProps: {
@@ -123,6 +125,10 @@ export default {
     },
     refreshAll() {
       this.$emit('refreshAll');
+    },
+    enableTrash(){
+      this.condition.trashEnable = true;
+      this.$emit('enableTrash', this.condition.trashEnable);
     },
     list() {
       if (this.projectId) {

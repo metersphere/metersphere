@@ -11,6 +11,7 @@
         :show-operator="true"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
+        @enableTrash="enableTrash"
         :type="'edit'"
         ref="nodeTree"
       />
@@ -31,6 +32,7 @@
               :checkRedirectID="checkRedirectID"
               :isRedirectEdit="isRedirectEdit"
               :tree-nodes="treeNodes"
+              :trash-enable="trashEnable"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -128,6 +130,7 @@ export default {
       projects: [],
       treeNodes: [],
       testCaseReadOnly: true,
+      trashEnable: false,
       condition: {},
       activeName: 'default',
       tabs: [],
@@ -302,6 +305,8 @@ export default {
       }
     },
     nodeChange(node) {
+      this.condition.trashEnable = false;
+      this.trashEnable = false;
       this.activeName = "default";
     },
     refreshTable(data) {
@@ -406,7 +411,11 @@ export default {
           this.custom_num = data.customNum;
         }
       });
-    }
+    },
+    enableTrash(data) {
+      this.initApiTableOpretion = "trashEnable";
+      this.trashEnable = data;
+    },
   }
 };
 </script>
