@@ -1,8 +1,9 @@
 package io.metersphere.websocket;
 
+import com.alibaba.fastjson.JSON;
+import io.metersphere.api.jmeter.TestResult;
+import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.task.dto.TaskCenterRequest;
-import io.metersphere.task.service.TaskService;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -13,25 +14,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
-@ServerEndpoint("/task/center/count/running/{projectId}")
+@ServerEndpoint("/api/scenario/report/get/real/{reportId}")
 @Component
-public class TaskCenterWebSocket {
-    private static TaskService taskService;
+public class ApiDebugResultWebSocket {
+
+    private static MsResultService resultService;
     private static ConcurrentHashMap<Session, Timer> refreshTasks = new ConcurrentHashMap<>();
 
     @Resource
-    public void setTaskService(TaskService taskService) {
-        TaskCenterWebSocket.taskService = taskService;
+    public void setReportService(MsResultService resultService) {
+        ApiDebugResultWebSocket.resultService = resultService;
     }
 
     /**
      * 开启连接的操作
      */
     @OnOpen
-    public void onOpen(@PathParam("projectId") String projectId, Session session) {
+    public void onOpen(@PathParam("reportId") String reportId, Session session) {
         Timer timer = new Timer(true);
-        TaskCenterWebSocket.TaskCenter task = new TaskCenterWebSocket.TaskCenter(session, projectId);
-        timer.schedule(task, 0, 3 * 1000);
+        ApiDebugResultTask task = new ApiDebugResultTask(session, reportId);
+        timer.schedule(task, 0, 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
 
@@ -48,21 +50,17 @@ public class TaskCenterWebSocket {
     }
 
     /**
-     * 推送消息
+     * 给服务器发送消息告知数据库发生变化
      */
     @OnMessage
-    public void onMessage(@PathParam("projectId") String projectId, Session session, String message) {
-        int refreshTime = 10;
-        try {
-            refreshTime = Integer.parseInt(message);
-        } catch (Exception e) {
-        }
+    public void onMessage(@PathParam("reportId") String reportId, Session session, String message) {
         try {
             Timer timer = refreshTasks.get(session);
-            timer.cancel();
-
+            if (timer != null) {
+                timer.cancel();
+            }
             Timer newTimer = new Timer(true);
-            newTimer.schedule(new TaskCenterWebSocket.TaskCenter(session, projectId), 0, refreshTime * 1000L);
+            newTimer.schedule(new ApiDebugResultTask(session, reportId), 0, 1000L);
             refreshTasks.put(session, newTimer);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -78,25 +76,28 @@ public class TaskCenterWebSocket {
         error.printStackTrace();
     }
 
-    public static class TaskCenter extends TimerTask {
+    public static class ApiDebugResultTask extends TimerTask {
         private Session session;
-        private TaskCenterRequest request;
+        private String reportId;
 
-        TaskCenter(Session session, String projectId) {
+        ApiDebugResultTask(Session session, String reportId) {
             this.session = session;
-            TaskCenterRequest request = new TaskCenterRequest();
-            request.setProjectId(projectId);
-            this.request = request;
+            this.reportId = reportId;
         }
 
         @Override
         public void run() {
             try {
-                int taskTotal = taskService.getRunningTasks(request).size();
+                TestResult report = resultService.getResult(reportId);
                 if (!session.isOpen()) {
                     return;
                 }
-                session.getBasicRemote().sendText(taskTotal + "");
+                if (report != null) {
+                    session.getBasicRemote().sendText(JSON.toJSONString(report));
+                    if (report.isEnd()) {
+                        session.close();
+                    }
+                }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
