@@ -41,6 +41,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
@@ -222,8 +224,46 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         document.select("br").append("\\n");
         document.select("p").prepend("\\n\\n");
         String s = document.html().replaceAll("\\\\n", "\n");
-        String desc = Jsoup.clean(s, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
+        String desc = htmlImg2MsImg(s);
+        desc = Jsoup.clean(desc, "", Whitelist.none(), new Document.OutputSettings().prettyPrint(false));
         return desc.replace("&nbsp;", "");
+    }
+
+    protected String msImg2HtmlImg(String input, String endpoint) {
+        // ![中心主题.png](/resource/md/get/a0b19136_中心主题.png) -> <img src="xxx/resource/md/get/a0b19136_中心主题.png"/>
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        String result = "";
+        while (matcher.find()) {
+            String path = matcher.group(2);
+            if (endpoint.endsWith("/")) {
+                endpoint = endpoint.substring(0, endpoint.length() -1);
+            }
+            path = " <img src=\"" + endpoint + path + "\"/>";
+            result = matcher.replaceFirst(path);
+            matcher = pattern.matcher(result);
+        }
+        return result;
+    }
+
+    protected String htmlImg2MsImg(String input) {
+        // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
+        String regex = "(<img\\s*src=\\\"(.*?)\\\"/?>)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(input);
+        String result = input;
+        while (matcher.find()) {
+            String url = matcher.group(2);
+            if (url.contains("/resource/md/get/")) {
+                String path = url.substring(url.indexOf("/resource/md/get/"));
+                String name = path.substring(path.lastIndexOf("/") + 10);
+                String mdLink = "![" + name + "](" + path +  ")";
+                result = matcher.replaceFirst(mdLink);
+                matcher = pattern.matcher(result);
+            }
+        }
+        return result;
     }
 
     protected UserDTO.PlatformInfo getUserPlatInfo(String orgId) {
