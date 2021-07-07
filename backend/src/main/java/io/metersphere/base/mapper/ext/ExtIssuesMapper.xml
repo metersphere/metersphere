@@ -25,13 +25,13 @@
     </select>
     <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
         select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
-        issues.description, issues.status, issues.platform, issues.custom_fields,
+        issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.test_case_id,
         issues.lastmodify
         from issues
         left join
         test_case_issues on issues.id = test_case_issues.issues_id
         <include refid="queryWhereCondition"/>
-        and test_case_issues.issues_id is null
+        and (test_case_issues.test_case_id is null or test_case_issues.test_case_id != #{request.caseId})
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getIssueForSync" resultType="io.metersphere.base.domain.IssuesDao">
