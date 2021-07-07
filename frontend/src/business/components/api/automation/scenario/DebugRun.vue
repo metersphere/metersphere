@@ -49,7 +49,6 @@ import {saveScenario} from "@/business/components/api/automation/api-automation"
           this.runId = response.data;
           this.$emit('runRefresh', {});
         });
-        alert("123");
       },
     }
   }
