@@ -871,11 +871,9 @@ public class JmeterDocumentParser implements DocumentParser {
         switch (unit) {
             case "M":
                 duration = String.valueOf(Long.parseLong(duration) * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
                 duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;
             default:
                 break;
@@ -988,11 +986,9 @@ public class JmeterDocumentParser implements DocumentParser {
         switch (unit) {
             case "M":
                 hold = String.valueOf(Long.parseLong(hold) * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
                 hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;
             default:
                 break;
