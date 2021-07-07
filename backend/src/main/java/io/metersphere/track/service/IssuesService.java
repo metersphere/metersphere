@@ -287,10 +287,13 @@ public class IssuesService {
     }
 
     public void deleteIssue(IssuesRequest request) {
+        issuesMapper.deleteByPrimaryKey(request.getId());
+        deleteIssueRelate(request);
+    }
+
+    public void deleteIssueRelate(IssuesRequest request) {
         String caseId = request.getCaseId();
         String id = request.getId();
-        issuesMapper.deleteByPrimaryKey(id);
-
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(caseId).andIssuesIdEqualTo(id);
         testCaseIssuesMapper.deleteByExample(example);
