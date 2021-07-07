@@ -610,11 +610,13 @@ export default {
       document.addEventListener("keydown", this.createCtrlSHandle);
       document.addEventListener("keydown", this.createCtrlRHandle);
       document.addEventListener("scroll", this.handleScroll, true);
+      window.addEventListener("resize", this.handleScroll);
     },
     removeListener() {
       document.removeEventListener("keydown", this.createCtrlSHandle);
       document.removeEventListener("keydown", this.createCtrlRHandle);
-      document.removeEventListener("scroll", this.handleScroll);
+      document.removeEventListener("scroll", this.handleScroll, true);
+      window.removeEventListener("onresize", this.handleScroll);
     },
     createCtrlSHandle(event) {
       handleCtrlSEvent(event, this.editScenario);
@@ -1269,7 +1271,7 @@ export default {
       let stepInfo = this.$refs.stepInfo;
       let debugHeader = this.$refs.debugHeader;
       if (debugHeader) {
-        let originWidth = debugHeader.clientWidth;
+        let originWidth = debugHeader.parentElement.clientWidth;
         if (stepInfo.getBoundingClientRect().top <= 178) {
           this.isTop = true;
           if (originWidth > 0) {
