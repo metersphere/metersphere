@@ -18,6 +18,7 @@
                issues.lastmodify
         from issues
         <include refid="queryWhereCondition"/>
+        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getNextNum" resultType="io.metersphere.base.domain.Issues">
@@ -25,13 +26,14 @@
     </select>
     <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
         select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
-        issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.test_case_id,
+        issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.test_case_id,issues.platform_status,
         issues.lastmodify
         from issues
         left join
         test_case_issues on issues.id = test_case_issues.issues_id
         <include refid="queryWhereCondition"/>
         and (test_case_issues.test_case_id is null or test_case_issues.test_case_id != #{request.caseId})
+        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getIssueForSync" resultType="io.metersphere.base.domain.IssuesDao">

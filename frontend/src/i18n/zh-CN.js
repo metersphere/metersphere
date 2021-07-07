@@ -1643,6 +1643,7 @@ export default {
     issue: {
       issue: "缺陷",
       issue_management: "缺陷管理",
+      platform_status: "平台状态",
       issue_resource: "缺陷来源",
       create_issue: "创建缺陷",
       add_issue: "添加缺陷",

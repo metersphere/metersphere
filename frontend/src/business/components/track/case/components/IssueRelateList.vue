@@ -31,6 +31,16 @@
       </ms-table-column>
 
       <ms-table-column
+        :label="$t('test_track.issue.platform_status')"
+        v-if="isThirdPart"
+        prop="platformStatus">
+        <template v-slot="scope">
+          {{ scope.row.platformStatus ? scope.row.platformStatus : '--'}}
+        </template>
+      </ms-table-column>
+
+      <ms-table-column
+        v-else
         :label="$t('test_track.issue.status')"
         prop="status">
         <template v-slot="scope">
@@ -79,7 +89,7 @@ export default {
       return getCurrentProjectID();
     }
   },
-  props: ['caseId'],
+  props: ['caseId', 'isThirdPart'],
   methods: {
     open() {
       this.getIssues();
