@@ -481,9 +481,14 @@
             issues_count=#{count},
             issues = #{issues}
         </set>
+        where
+        case_id=#{caseId,jdbcType=VARCHAR}
+        <if test="id != null and id != ''">
+            and plan_id=#{id,jdbcType=VARCHAR}
+        </if>
 
-        where plan_id=#{id,jdbcType=VARCHAR} and case_id=#{caseId,jdbcType=VARCHAR}
     </update>
+
 
     <delete id="deleteByTestCaseID" parameterType="java.lang.String">
         delete

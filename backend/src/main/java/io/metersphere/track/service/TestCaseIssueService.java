@@ -31,6 +31,7 @@ public class TestCaseIssueService {
     @Resource
     private IssuesMapper issuesMapper;
 
+
     public void delTestCaseIssues(String testCaseId) {
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(testCaseId);
