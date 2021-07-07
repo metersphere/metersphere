@@ -19,5 +19,5 @@ ALTER TABLE `user`
 ALTER TABLE issues ADD platform_status varchar(50) NULL COMMENT '第三方平台状态';
 
 -- 定时同步缺陷
-INSERT INTO metersphere.schedule (id,`key`,`type`,value,`group`,job,enable,resource_id,user_id,workspace_id,create_time,update_time,project_id,name)
+INSERT INTO schedule (id,`key`,`type`,value,`group`,job,enable,resource_id,user_id,workspace_id,create_time,update_time,project_id,name)
 VALUES ('7a23d4db-9909-438d-9e36-58e432c8c4ae','ISSUE_SYNC','CRON','0 0 3 * * ?','ISSUE_SYNC','io.metersphere.job.sechedule.IssueSyncJob',1,'system','admin','system',unix_timestamp() * 1000,unix_timestamp() * 1000,'system','ISSUE_SYNC');
