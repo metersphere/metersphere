@@ -2,6 +2,7 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunRequest;
+import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.TestResource;
@@ -123,9 +124,11 @@ public class JMeterService {
 
     public void runLocal(String testId, HashTree testPlan, String debugReportId, String runMode) {
         init();
-        FixedTask.tasks.put(testId,System.currentTimeMillis());
+        FixedTask.tasks.put(testId, System.currentTimeMillis());
         addBackendListener(testId, debugReportId, runMode, testPlan);
-        addResultCollector(testId, testPlan);
+        if (ExecuteType.Debug.name().equals(debugReportId)) {
+            addResultCollector(testId, testPlan);
+        }
         LocalRunner runner = new LocalRunner(testPlan);
         runner.run();
     }

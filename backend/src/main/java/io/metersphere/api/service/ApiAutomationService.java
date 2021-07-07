@@ -1380,7 +1380,7 @@ public class ApiAutomationService {
         FileUtils.createBodyFiles(request.getScenarioFileIds(), scenarioFiles);
 
         // 调用执行方法
-        jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        jMeterService.runLocal(request.getId(), hashTree, request.getExecuteType(), ApiRunMode.SCENARIO.name());
         return request.getId();
     }
 
