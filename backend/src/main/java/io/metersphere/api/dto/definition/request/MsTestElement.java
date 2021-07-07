@@ -108,7 +108,7 @@ public abstract class MsTestElement {
     @JSONField(ordinal = 13)
     private boolean isMockEnvironment;
     @JSONField(ordinal = 14)
-    private String useEnviroment;
+    private String useEnvironment;
     private MsTestElement parent;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
