@@ -105,8 +105,19 @@
             </template>
           </ms-table-column >
 
-
           <issue-description-table-item :fields-width="fieldsWidth" :field="item"/>
+
+         <ms-table-column
+           :field="item"
+           :fields-width="fieldsWidth"
+           :label="item.label"
+           prop="caseCount">
+            <template v-slot="scope">
+               <router-link :to="'/track/case/all'">
+                 {{scope.row.caseCount}}
+               </router-link>
+            </template>
+         </ms-table-column>
 
           <ms-table-column v-for="field in issueTemplate.customFields" :key="field.id"
                            :field="item"
