@@ -1290,7 +1290,9 @@ export default {
         let originWidth = debugHeader.clientWidth;
         if (stepInfo.getBoundingClientRect().top <= 178) {
           this.isTop = true;
-          debugHeader.style.width = originWidth + 'px';
+          if (originWidth > 0) {
+            debugHeader.style.width = originWidth + 'px';
+          }
         } else {
           this.isTop = false;
         }
