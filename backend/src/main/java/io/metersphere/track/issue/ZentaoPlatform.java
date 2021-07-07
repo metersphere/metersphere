@@ -4,10 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
-import io.metersphere.base.domain.IssuesDao;
-import io.metersphere.base.domain.IssuesExample;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
@@ -143,13 +140,13 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         }
         IssuesDao issues = new IssuesDao();
         issues.setId(bug.getId());
+        issues.setPlatformStatus(bug.getStatus());
         if (StringUtils.equals(bug.getDeleted(),"1")) {
             issues.setPlatformStatus(IssuesStatus.DELETE.toString());
             issuesMapper.updateByPrimaryKeySelective(issues);
         }
         issues.setTitle(bug.getTitle());
         issues.setDescription(steps);
-        issues.setPlatformStatus(bug.getStatus());
         issues.setReporter(bug.getOpenedBy());
         return issues;
     }

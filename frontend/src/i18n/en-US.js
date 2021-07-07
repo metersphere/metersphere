@@ -1618,6 +1618,7 @@ export default {
     issue: {
       issue: "Issue",
       issue_management: "Issue Management",
+      platform_status: "Platform Status",
       issue_resource: "Issue source",
       create_issue: "Create Issue",
       add_issue: "Add Issue",
