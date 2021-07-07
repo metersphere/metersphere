@@ -2,8 +2,11 @@
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
       <ms-table-header :condition.sync="condition"
-                       @search="initTableData" :showCreate="false"
-                       :title="$t('test_track.plan.test_plan')">
+                       @search="initTableData"
+                       :title="$t('test_track.plan.test_plan')"
+                       @create="testPlanCreate"
+                       :create-tip="$t('test_track.plan.create_plan')"
+      >
       </ms-table-header>
     </template>
     <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
@@ -118,7 +121,7 @@
         </template>
       </el-table-column>
     </el-table>
-
+    <test-plans-edit ref="testPlanEditDialog" @refresh="initTableData"></test-plans-edit>
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
 
@@ -151,9 +154,14 @@ import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-com
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import EnvPopover from "@/business/components/track/common/EnvPopover";
+import TestPlanEdit from "@/business/components/track/plan/components/TestPlanEdit";
+import TestPlansEdit from "@/business/components/api/automation/scenario/testplan/TestPlansEdit";
+
 export default {
   name: "TestPlanList",
   components: {
+    TestPlansEdit,
+    TestPlanEdit,
     MsDeleteConfirm,
     TestCaseReportView,
     TestReportTemplateList,
@@ -167,6 +175,7 @@ export default {
   },
   data() {
       return {
+        dialogVisible: false,
         result: {},
         selection: [],
         enableDeleteTip: false,
@@ -281,7 +290,7 @@ export default {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
       testPlanCreate() {
-        this.$emit('openTestPlanEditDialog');
+        this.$refs.testPlanEditDialog.openTestPlanEditDialog();
       },
       handleEdit(testPlan) {
         this.$emit('testPlanEdit', testPlan);
