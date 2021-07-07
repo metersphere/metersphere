@@ -239,9 +239,6 @@ public class ProjectService {
         if (BooleanUtils.isTrue(project.getCustomNum())) {
             testCaseService.updateTestCaseCustomNumByProjectId(project.getId());
         }
-        if (BooleanUtils.isTrue(project.getScenarioCustomNum())) {
-            apiAutomationService.updateCustomNumByProjectId(project.getId());
-        }
         projectMapper.updateByPrimaryKeySelective(project);
     }
 

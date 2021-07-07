@@ -134,7 +134,7 @@
         formData: {
           file: undefined,
           swaggerUrl: '',
-          modeId: this.$t('commons.not_cover'),
+          modeId: 'incrementalMerge',
           moduleId: '',
         },
         rules: {},
