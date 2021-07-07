@@ -83,10 +83,6 @@
         <div v-else>
           <api-response-component :currentProtocol="request.protocol" :apiActive="apiActive" :result="request.requestResult"/>
         </div>
-        <!-- 保存操作 -->
-        <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)" v-if="!request.referenced">
-          {{ $t('commons.save') }}
-        </el-button>
       </template>
     </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
