@@ -243,12 +243,16 @@ public class ApiAutomationService {
     public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
+        int nextNum = getNextNum(request.getProjectId());
+        if (StringUtils.isBlank(request.getCustomNum())) {
+            request.setCustomNum(String.valueOf(nextNum));
+        }
         checkScenarioNum(request);
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         scenario.setVersion(0);
 
         scenario.setCreateTime(System.currentTimeMillis());
-        scenario.setNum(getNextNum(request.getProjectId()));
+        scenario.setNum(nextNum);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
 
@@ -281,20 +285,16 @@ public class ApiAutomationService {
     }
 
     private void checkScenarioNum(SaveApiScenarioRequest request) {
-        if (StringUtils.isNotBlank(request.getCustomNum())) {
-            String projectId = request.getProjectId();
-            Project project = projectMapper.selectByPrimaryKey(projectId);
-            if (project != null) {
-                Boolean customNum = project.getScenarioCustomNum();
-                // 未开启自定义ID
-                if (!customNum) {
-                    request.setCustomNum(null);
-                } else {
-                    checkCustomNumExist(request);
-                }
-            } else {
-                MSException.throwException("add scenario fail, project is not find.");
-            }
+        String projectId = request.getProjectId();
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+
+        if (project == null) {
+            MSException.throwException("add scenario fail, project is not find.");
+        }
+
+        Boolean openCustomNum = project.getScenarioCustomNum();
+        if (BooleanUtils.isTrue(openCustomNum)) {
+            checkCustomNumExist(request);
         }
     }
 
@@ -306,7 +306,7 @@ public class ApiAutomationService {
                 .andIdNotEqualTo(request.getId());
         List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            MSException.throwException("自定义ID已存在！");
+            MSException.throwException("自定义ID "+ request.getCustomNum() +" 已存在！");
         }
     }
 
@@ -1655,6 +1655,34 @@ public class ApiAutomationService {
         scenarioWithBLOBs.setDescription(request.getDescription());
 
         List<ApiScenarioWithBLOBs> sameRequest = getWithBLOBs(scenarioWithBLOBs);
+
+        Boolean openCustomNum = apiTestImportRequest.getOpenCustomNum();
+        List<ApiScenario> list = new ArrayList<>();
+        if (BooleanUtils.isTrue(openCustomNum)) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            ApiScenarioExample.Criteria criteria = example.createCriteria();
+            if (CollectionUtils.isEmpty(sameRequest)) {
+                criteria.andCustomNumEqualTo(scenarioWithBLOBs.getCustomNum())
+                        .andProjectIdEqualTo(scenarioWithBLOBs.getProjectId());
+            } else {
+                if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
+                    criteria.andNameEqualTo(scenarioWithBLOBs.getName())
+                            .andCustomNumEqualTo(scenarioWithBLOBs.getCustomNum())
+                            .andProjectIdEqualTo(scenarioWithBLOBs.getProjectId())
+                            .andIdNotEqualTo(sameRequest.get(0).getId());
+                }
+
+            }
+            if (criteria.isValid()) {
+                list = apiScenarioMapper.selectByExample(example);
+            }
+        }
+
+        if (CollectionUtils.isNotEmpty(list)) {
+            LogUtil.error("import scenario fail, custom num is exist: " + scenarioWithBLOBs.getCustomNum());
+            return scenarioWithBLOBs;
+        }
+
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             _importCreate(sameRequest, batchMapper, scenarioWithBLOBs, apiTestImportRequest);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
@@ -1679,16 +1707,23 @@ public class ApiAutomationService {
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
             project = projectMapper.selectByPrimaryKey(data.get(0).getProjectId());
+            request.setOpenCustomNum(project.getScenarioCustomNum());
         }
         for (int i = 0; i < data.size(); i++) {
             ApiScenarioWithBLOBs item = data.get(i);
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
             }
-            item.setNum(num++);
-            if (BooleanUtils.isTrue(project.getScenarioCustomNum()) && StringUtils.isBlank(item.getCustomNum())) {
+            item.setNum(num);
+            if (BooleanUtils.isFalse(project.getScenarioCustomNum())) {
+                // 如果未开启，即使有自定值也直接覆盖
                 item.setCustomNum(String.valueOf(num));
+            } else {
+                if (StringUtils.isBlank(item.getCustomNum())) {
+                    item.setCustomNum(String.valueOf(num));
+                }
             }
+            num++;
             importCreate(item, batchMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
