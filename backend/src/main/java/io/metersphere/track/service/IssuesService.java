@@ -341,6 +341,10 @@ public class IssuesService {
             if (planMap.get(item.getResourceId()) != null) {
                 item.setResourceName(planMap.get(item.getResourceId()));
             }
+            TestCaseIssuesExample example = new TestCaseIssuesExample();
+            example.createCriteria().andIssuesIdEqualTo(item.getId());
+            long caseCount = testCaseIssuesMapper.countByExample(example);
+            item.setCaseCount(caseCount);
         });
         return issues;
     }

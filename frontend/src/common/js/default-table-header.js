@@ -185,6 +185,7 @@ export const CUSTOM_TABLE_HEADER = {
     {id: 'creatorName', key: '5', label: i18n.t('custom_field.issue_creator')},
     {id: 'resourceName', key: '6', label: i18n.t('test_track.issue.issue_resource')},
     {id: 'description', key: '7', label: i18n.t('test_track.issue.description')},
+    {id: 'caseCount', key: '9', label: i18n.t('api_test.definition.api_case_number')},
     {id: 'createTime', key: '8', label: i18n.t('commons.create_time')},
   ]
 
