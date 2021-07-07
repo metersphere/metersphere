@@ -87,6 +87,7 @@ export default {
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
+      this.page.condition.caseId = this.caseId;
       this.page.result = getRelateIssues(this.page);
     },
     save() {
