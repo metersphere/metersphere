@@ -52,6 +52,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
         initOperate(issuesService::syncThirdPartyIssues, "init.issue");
+        initOperate(issuesService::issuesCount, "init.issueCount");
 
         try {
             Thread.sleep(1 * 60 * 1000);
