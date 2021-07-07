@@ -32,17 +32,17 @@ public class MsJSR223PreProcessor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if(StringUtils.isEmpty(this.getUseEnvironment())){
+        if(StringUtils.isEmpty(this.getEnvironmentId())){
             if(config.getConfig() != null){
                 if(config.getProjectId() != null){
                     String evnId = config.getConfig().get(config.getProjectId()).getApiEnvironmentid();
-                    this.setUseEnvironment(evnId);
+                    this.setEnvironmentId(evnId);
                 }else {
                     Collection<EnvironmentConfig> evnConfigList = config.getConfig().values();
                     if(evnConfigList!=null && !evnConfigList.isEmpty()){
                         for (EnvironmentConfig configItem : evnConfigList) {
                             String evnId = configItem.getApiEnvironmentid();
-                            this.setUseEnvironment(evnId);
+                            this.setEnvironmentId(evnId);
                             break;
                         }
                     }
@@ -50,7 +50,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
             }
         }
         //替换Metersphere环境变量
-        script = StringUtils.replace(script,RunningParamKeys.API_ENVIRONMENT_ID,"\""+RunningParamKeys.RUNNING_PARAMS_PREFIX+this.getUseEnvironment()+".\"");
+        script = StringUtils.replace(script,RunningParamKeys.API_ENVIRONMENT_ID,"\""+RunningParamKeys.RUNNING_PARAMS_PREFIX+this.getEnvironmentId()+".\"");
 
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {

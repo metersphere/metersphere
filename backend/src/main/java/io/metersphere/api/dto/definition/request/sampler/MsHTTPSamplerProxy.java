@@ -161,6 +161,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if(StringUtils.isEmpty(this.getEnvironmentId())){
+            this.setEnvironmentId(this.useEnvironment);
+        }
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -252,7 +255,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                el.setUseEnvironment(useEnvironment);
+                el.setEnvironmentId(useEnvironment);
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
@@ -266,8 +269,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private HttpConfig getHttpConfig(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
             String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
-            if(StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId,this.getUseEnvironment())){
-                this.setUseEnvironment(useEvnId);
+            if(StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId,this.getEnvironmentId())){
+                this.setEnvironmentId(useEvnId);
             }
             return getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
         }
