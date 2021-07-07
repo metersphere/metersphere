@@ -4,4 +4,4 @@ CREATE TABLE `license` (
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   `license_code` longtext DEFAULT NULL COMMENT 'license_code',
   PRIMARY KEY (`id`)
-) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

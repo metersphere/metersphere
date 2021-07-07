@@ -16,15 +16,19 @@
             t2.`name` projectName
         FROM
             operating_log t
-            LEFT JOIN USER t1 ON t.oper_user = t1.id
+            LEFT JOIN `user` t1 ON t.oper_user = t1.id
             LEFT JOIN project t2 ON t.project_id = t2.id
             LEFT JOIN workspace w on t2.workspace_id = w.id
         <where>
-            ( t.project_id in
-                <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
-                    #{projectId}
-                </foreach>
-                or t.project_id is null
+            (
+                <if test="request.projectIds != null and request.projectIds.size > 0 ">
+                    t.project_id in
+                    <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
+                        #{projectId}
+                    </foreach>
+                    or
+                </if>
+                t.project_id is null
                 or t.project_id = ""
             )
             <if test="request.operUser != null and request.operUser != ''">
@@ -63,7 +67,7 @@
         t2.`name` projectName
         FROM
         operating_log t
-        LEFT JOIN USER t1 ON t.oper_user = t1.id
+        LEFT JOIN `user` t1 ON t.oper_user = t1.id
         LEFT JOIN project t2 ON t.project_id = t2.id
         LEFT JOIN workspace w on t2.workspace_id = w.id
         <where>

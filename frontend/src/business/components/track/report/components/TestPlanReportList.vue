@@ -2,8 +2,7 @@
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
       <ms-table-header :condition.sync="condition" :show-create="false"
-                       @search="initTableData"
-                       :title="$t('test_track.report.name')"/>
+                       @search="initTableData"/>
     </template>
     <el-table border :data="tableData"
               @select-all="handleSelectAll"
@@ -20,6 +19,7 @@
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
                                       :select-data-counts="selectDataCounts"
+                                      :table-data-count-in-page="tableData.length"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
@@ -54,10 +54,13 @@
       </el-table-column>
       <el-table-column min-width="150" :label="$t('commons.operating')">
         <template v-slot:default="scope">
-          <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
-            @exec="openReport(scope.row.id)"/>
-          <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']" type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
-                                    @exec="handleDelete(scope.row)"/>
+          <div>
+            <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
+                                      @exec="openReport(scope.row.id)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_REPORT:READ+DELETE']" type="danger"
+                                      :tip="$t('commons.delete')" icon="el-icon-delete"
+                                      @exec="handleDelete(scope.row)"/>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -85,9 +88,10 @@ import {
   _sort, checkTableRowIsSelect,
   getSelectDataCounts,
   initCondition,
-  setUnSelectIds, toggleAllSelection,
+  setUnSelectIds, toggleAllSelection,saveLastTableSortField,getLastTableSortField
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestPlanReportList",
@@ -102,6 +106,7 @@ export default {
     return {
       result: {},
       enableDeleteTip: false,
+      tableHeaderKey:"TRACK_REPORT_TABLE",
       queryPath: "/test/plan/report/list",
       condition: {
         components: TEST_PLAN_REPORT_CONFIGS
@@ -110,7 +115,7 @@ export default {
       pageSize: 10,
       isTestManagerOrTestUser: false,
       selectRows: new Set(),
-      screenHeight: 'calc(100vh - 295px)', //屏幕高度
+      screenHeight: 'calc(100vh - 200px)', //屏幕高度
       total: 0,
       tableData: [],
       statusFilters: [
@@ -124,7 +129,7 @@ export default {
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_PLAN:READ+REPORT_DELETE']},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch, permission: ['PROJECT_TRACK_REPORT:READ+DELETE']},
       ],
       selectDataCounts: 0,
     }
@@ -139,14 +144,19 @@ export default {
   created() {
     this.projectId = this.$route.params.projectId;
     if (!this.projectId) {
-      this.projectId = this.$store.state.projectId;
+      this.projectId = getCurrentProjectID();
     }
     this.isTestManagerOrTestUser = true;
+
     this.initTableData();
   },
   methods: {
     initTableData() {
       initCondition(this.condition, this.condition.selectAll);
+      let orderArr = this.getSortField();
+      if(orderArr){
+        this.condition.orders = orderArr;
+      }
       this.selectRows = new Set();
       if (this.planId) {
         this.condition.planId = this.planId;
@@ -227,7 +237,12 @@ export default {
       this.initTableData();
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
     openReport(planId) {
@@ -246,6 +261,21 @@ export default {
       //更新统计信息
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
 }
 </script>

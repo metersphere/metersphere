@@ -3,6 +3,7 @@ package io.metersphere.performance.engine;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.Application;
+import io.metersphere.api.dto.RunRequest;
 import io.metersphere.base.domain.FileContent;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
@@ -88,6 +89,16 @@ public class EngineFactory {
         return null;
     }
 
+    public static Engine createApiEngine(RunRequest runRequest) {
+        try {
+            return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, runRequest);
+        } catch (Exception e) {
+            LogUtil.error(e);
+            MSException.throwException(e.getMessage());
+        }
+        return null;
+    }
+
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, double[] ratios, String reportId, int resourceIndex) {
         final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
@@ -106,6 +117,7 @@ public class EngineFactory {
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
         engineContext.setReportId(reportId);
         engineContext.setResourceIndex(resourceIndex);
+        engineContext.setRatios(ratios);
 
         if (StringUtils.isNotEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -155,6 +167,15 @@ public class EngineFactory {
             MSException.throwException("File type unknown");
         }
 
+        if (CollectionUtils.isNotEmpty(resourceFiles)) {
+            Map<String, byte[]> data = new HashMap<>();
+            resourceFiles.forEach(cf -> {
+                FileContent csvContent = fileService.getFileContent(cf.getId());
+                data.put(cf.getName(), csvContent.getFile());
+            });
+            engineContext.setTestResourceFiles(data);
+        }
+
         try (ByteArrayInputStream source = new ByteArrayInputStream(jmxBytes)) {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
@@ -164,15 +185,6 @@ public class EngineFactory {
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
-        }
-
-        if (CollectionUtils.isNotEmpty(resourceFiles)) {
-            Map<String, byte[]> data = new HashMap<>();
-            resourceFiles.forEach(cf -> {
-                FileContent csvContent = fileService.getFileContent(cf.getId());
-                data.put(cf.getName(), csvContent.getFile());
-            });
-            engineContext.setTestResourceFiles(data);
         }
 
         return engineContext;

@@ -25,7 +25,7 @@ export default {
     {
       path: 'usergroup',
       component: () => import('@/business/components/settings/system/group/UserGroup'),
-      meta: {system: true, title: '用户组与权限', permissions: ['SYSTEM_GROUP:READ', 'ORGANIZATION_GROUP:READ']}
+      meta: {system: true, title: 'group.group_permission', permissions: ['SYSTEM_GROUP:READ', 'ORGANIZATION_GROUP:READ']}
     },
     {
       path: 'workspace/template/field',
@@ -96,6 +96,7 @@ export default {
     },
     {
       path: 'personsetting',
+      name: 'PersonSetting',
       component: () => import('@/business/components/settings/personal/PersonSetting'),
       meta: {person: true, title: 'commons.personal_setting'}
     },

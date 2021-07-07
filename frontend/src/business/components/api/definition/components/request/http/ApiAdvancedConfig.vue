@@ -16,7 +16,7 @@
     </el-row>
     <el-row style="margin: 20px">
       <span style="margin-right: 10px">
-           认证别名:
+           {{$t('api_test.request.cert_alias')}}:
       </span>
       <span style="margin-right: 10px">
         <el-input size="small" style="width: 350px" v-model="request.alias"/>

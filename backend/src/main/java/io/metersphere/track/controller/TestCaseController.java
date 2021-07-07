@@ -62,6 +62,13 @@ public class TestCaseController {
         return testCaseService.listTestCase(request);
     }
 
+    @PostMapping("/list")
+    @RequiresPermissions("PROJECT_TRACK_CASE:READ")
+    public List<TestCaseDTO> list(@RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkProjectOwner(request.getProjectId());
+        return testCaseService.listTestCase(request);
+    }
+
     @PostMapping("/list/minder")
     public List<TestCaseWithBLOBs> listDetail(@RequestBody QueryTestCaseRequest request) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
@@ -89,11 +96,6 @@ public class TestCaseController {
         request.setWorkspaceId(currentWorkspaceId);
         request.setUserId(SessionUtils.getUserId());
         return testCaseService.recentTestPlans(request, count);
-    }
-
-    @PostMapping("/list")
-    public List<TestCase> getTestCaseByNodeId(@RequestBody List<String> nodeIds) {
-        return testCaseService.getTestCaseByNodeId(nodeIds);
     }
 
     @PostMapping("/relate/{goPage}/{pageSize}")
@@ -129,20 +131,20 @@ public class TestCaseController {
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+    public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         request.setId(UUID.randomUUID().toString());
         return testCaseService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+    public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.edit(request, files);
     }
 
     @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogBeforeDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.editTestCase(request, files);
     }
 
@@ -152,6 +154,14 @@ public class TestCaseController {
         checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.deleteTestCase(testCaseId);
     }
+
+    @PostMapping("/deleteToGc/{testCaseId}")
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    public int deleteToGC(@PathVariable String testCaseId) {
+        checkPermissionService.checkTestCaseOwner(testCaseId);
+        return testCaseService.deleteTestCaseToGc(testCaseId);
+    }
+
 
     @PostMapping("/import/{projectId}/{userId}/{importType}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
@@ -199,6 +209,20 @@ public class TestCaseController {
     public void deleteTestCaseBath(@RequestBody TestCaseBatchRequest request) {
         testCaseService.deleteTestCaseBath(request);
     }
+
+    @PostMapping("/batch/deleteToGc")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_DELETE)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)
+    public void deleteToGcBatch(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.deleteToGcBatch(request);
+    }
+
+    @PostMapping("/reduction")
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    public void reduction(@RequestBody TestCaseBatchRequest request) {
+        testCaseService.reduction(request);
+    }
+
 
     @GetMapping("/file/metadata/{caseId}")
     public List<FileMetadata> getFileMetadata(@PathVariable String caseId) {

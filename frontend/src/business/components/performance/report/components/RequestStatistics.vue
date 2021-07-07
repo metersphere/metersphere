@@ -10,6 +10,7 @@
         <el-table-column
           prop="label"
           label="Label"
+          sortable
           min-width="150">
           <template v-slot:header="{column}">
             <span>Label</span>
@@ -39,6 +40,7 @@
         <el-table-column
           prop="fail"
           label="FAIL"
+          sortable
           align="center"
           min-width="60"
         />
@@ -46,6 +48,7 @@
         <el-table-column
           prop="error"
           label="Error%"
+          sortable
           align="center"
         />
       </el-table-column>
@@ -54,36 +57,43 @@
         <el-table-column
           prop="average"
           label="Avg"
+          sortable
           min-width="60"
         />
         <el-table-column
           prop="min"
           label="Min"
+          sortable
           min-width="60"
         />
         <el-table-column
           prop="max"
           label="Max"
+          sortable
           min-width="60"
         />
         <el-table-column
           prop="median"
           label="Med"
+          sortable
           min-width="60"
         />
         <el-table-column
           prop="tp90"
           label="90%"
+          sortable
           min-width="60"
         />
         <el-table-column
           prop="tp95"
           label="95%"
+          sortable
           min-width="60"
         />
         <el-table-column
           prop="tp99"
           label="99%"
+          sortable
           min-width="60"
         />
       </el-table-column>
@@ -92,6 +102,7 @@
         <el-table-column
           prop="transactions"
           label="Trans/s"
+          sortable
           width="100"
         />
       </el-table-column>
@@ -99,13 +110,15 @@
       <el-table-column label="NetWork(KB/sec)" align="center">
         <el-table-column
           prop="received"
-          label="Received"
+          label="Recd"
+          sortable
           align="center"
           width="100"
         />
         <el-table-column
           prop="sent"
           label="Sent"
+          sortable
           align="center"
           width="100"
         />

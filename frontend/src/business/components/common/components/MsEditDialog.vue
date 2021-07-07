@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false"
+  <el-dialog :close-on-click-modal="closeOnClickModal"
              :title="title"
              :width="width"
              :visible="visible"
@@ -13,7 +13,7 @@
 
     <template v-slot:footer>
       <slot name="footer">
-        <div class="dialog-footer">
+        <div v-if="withFooter" class="dialog-footer">
           <ms-dialog-footer
             @cancel="handleCancel"
             @confirm="handleConfirm"/>
@@ -53,7 +53,17 @@ export default {
       default() {
         return "50%";
       }
-    }
+    },
+    withFooter: {
+      type: Boolean,
+      default() {
+        return true;
+      }
+    },
+    closeOnClickModal: {
+      type: Boolean,
+      default: false
+    },
   },
   methods: {
     handleConfirm() {

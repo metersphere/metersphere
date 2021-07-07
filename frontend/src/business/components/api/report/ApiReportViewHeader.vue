@@ -5,7 +5,7 @@
         <span>{{ report.projectName }} / </span>
         <router-link :to="path">{{ report.testName }}</router-link>
         <span class="time"> {{ report.createTime | timestampFormatDate }}</span>
-        <el-button :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)"
+        <el-button v-permission="['PROJECT_API_REPORT:READ+EXPORT']" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)"
                    style="margin-left: 1200px">
           {{$t('test_track.plan_view.export_report')}}
         </el-button>

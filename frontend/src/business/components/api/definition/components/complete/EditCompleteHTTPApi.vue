@@ -128,6 +128,7 @@
   import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
   import MsChangeHistory from "../../../../history/ChangeHistory";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "MsAddCompleteHttpApi",
@@ -193,7 +194,7 @@
     computed: {
       getUrlPrefix() {
         if (this.httpForm.path == null) {
-          return this.mockBaseUrl + "/mock/" + this.projectId;
+          return this.mockBaseUrl;
         } else {
           let path = this.httpForm.path;
           let prefix = "";
@@ -226,7 +227,7 @@
             }
           }
 
-          return this.mockBaseUrl + "/mock/" + this.projectId + path + prefix;
+          return this.mockBaseUrl + path + prefix;
         }
       }
     },
@@ -245,8 +246,7 @@
         });
       },
       getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.maintainerOptions = response.data;
         });
       },
@@ -363,14 +363,6 @@
 
   .base-info .ms-http-select {
     width: 100%;
-  }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 20px 0;
   }
 
   .ms-http-textarea {

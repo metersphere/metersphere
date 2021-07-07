@@ -7,7 +7,6 @@ import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -23,9 +22,7 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.testplan.FileOperationRequest;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -79,11 +76,17 @@ public class PerformanceTestController {
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,
-            @RequestPart(value = "file") List<MultipartFile> files
+            @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
         request.setId(UUID.randomUUID().toString());
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return performanceTestService.save(request, files);
+    }
+
+    @PostMapping(value = "/sync/scenario")
+    @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
+    public void syncScenario(@RequestBody EditTestPlanRequest request) {
+        performanceTestService.syncScenario(request);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
@@ -130,7 +133,7 @@ public class PerformanceTestController {
     public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
                                                      @PathVariable int goPage, @PathVariable int pageSize,
                                                      @RequestBody QueryProjectFileRequest request) {
-        checkPermissionService.checkProjectOwner(projectId);
+//        checkPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType, request));
     }

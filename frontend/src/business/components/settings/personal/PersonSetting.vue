@@ -22,17 +22,19 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
-                                      type="primary" @exec="edit(scope.row)"/>
-            <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="isLocalUser"
-                                      type="success" @exec="editPassword(scope.row)"/>
+            <div>
+              <ms-table-operator-button :tip="$t('member.edit_information')" icon="el-icon-edit"
+                                        type="primary" @exec="edit(scope.row)"/>
+              <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools" v-if="isLocalUser"
+                                        type="success" @exec="editPassword(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
     </el-card>
 
     <!--Modify personal details-->
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="30%"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify_personal_info')" :visible.sync="updateVisible" width="40%"
                :destroy-on-close="true" @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
                ref="updateUserForm">
@@ -49,6 +51,9 @@
           <el-input v-model="form.phone" autocomplete="off"/>
         </el-form-item>
       </el-form>
+      <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo"/>
+      <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
+      <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="updateVisible = false"
@@ -59,7 +64,7 @@
     <!--Change personal password-->
     <el-dialog :close-on-click-modal="false" :title="$t('member.edit_password')" :visible.sync="editPasswordVisible" width="35%"
                :destroy-on-close="true" @close="handleClose" left>
-      <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="120px" class="demo-ruleForm">
+      <el-form :model="ruleForm" :rules="rules" ref="editPasswordForm" label-width="100px" class="demo-ruleForm">
         <el-form-item :label="$t('member.old_password')" prop="password" style="margin-bottom: 29px">
           <el-input v-model="ruleForm.password" autocomplete="off" show-password/>
         </el-form-item>
@@ -77,20 +82,31 @@
         </span>
     </el-dialog>
 
-
   </div>
 </template>
 
 <script>
-import {TokenKey} from "../../../../common/js/constants";
+import {TokenKey, ZEN_TAO} from "../../../../common/js/constants";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import {
+  getCurrentOrganizationId,
+  getCurrentUser,
+  listenGoBack,
+  removeGoBackListener
+} from "../../../../common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-import {PHONE_REGEX} from "@/common/js/regex";
+import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
+import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
+import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
+import {getIntegrationService} from "@/network/organization";
+import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
 
 export default {
   name: "MsPersonSetting",
-  components: {MsDialogFooter, MsTableOperatorButton},
+  components: {ZentaoUserInfo, TapdUserInfo, JiraUserInfo, MsDialogFooter, MsTableOperatorButton},
+  inject: [
+    'reload'
+  ],
   data() {
     return {
       result: {},
@@ -100,8 +116,18 @@ export default {
       tableData: [],
       updatePath: '/user/update/current',
       updatePasswordPath: '/user/update/password',
-      form: {},
+      form: {platformInfo: {}},
+      currentPlatformInfo: {
+        jiraAccount: '',
+        jiraPassword: '',
+        tapdUserName: '',
+        zentaoUserName: '',
+        zentaoPassword: ''
+      },
       ruleForm: {},
+      hasJira: false,
+      hasTapd: false,
+      hasZentao: false,
       rule: {
         name: [
           {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -124,7 +150,7 @@ export default {
           {required: true, message: this.$t('member.input_email'), trigger: 'blur'},
           {
             required: true,
-            pattern: /^([A-Za-z0-9_\-.])+@([A-Za-z0-9]+\.)+[A-Za-z]{2,6}$/,
+            pattern: EMAIL_REGEX,
             message: this.$t('member.email_format_is_incorrect'),
             trigger: 'blur'
           }
@@ -163,10 +189,35 @@ export default {
     currentUser: () => {
       return getCurrentUser();
     },
-    edit(row) {
+    edit: function (row) {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
+      this.getPlatformInfo(row);
       listenGoBack(this.handleClose);
+    },
+    getPlatformInfo(row) {
+      if (row.platformInfo) {
+        this.form.platformInfo = JSON.parse(row.platformInfo);
+      } else {
+        this.form.platformInfo = {};
+      }
+      let orgId = getCurrentOrganizationId();
+      if (!this.form.platformInfo[orgId]) {
+        this.form.platformInfo[orgId] = {};
+      }
+      this.currentPlatformInfo = this.form.platformInfo[orgId];
+      this.result = getIntegrationService((data) => {
+        let platforms = data.map(d => d.platform);
+        if (platforms.indexOf("Tapd") !== -1) {
+          this.hasTapd = true;
+        }
+        if (platforms.indexOf("Jira") !== -1) {
+          this.hasJira = true;
+        }
+        if (platforms.indexOf("Zentao") !== -1) {
+          this.hasZentao = true;
+        }
+      });
     },
     editPassword(row) {
       this.editPasswordVisible = true;
@@ -185,12 +236,15 @@ export default {
     updateUser(updateUserForm) {
       this.$refs[updateUserForm].validate(valid => {
         if (valid) {
-          this.result = this.$post(this.updatePath, this.form, response => {
+          let param = {};
+          Object.assign(param, this.form);
+          param.platformInfo = JSON.stringify(this.form.platformInfo);
+          this.result = this.$post(this.updatePath, param, response => {
             this.$success(this.$t('commons.modify_success'));
             localStorage.setItem(TokenKey, JSON.stringify(response.data));
             this.updateVisible = false;
             this.initTableData();
-            window.location.reload();
+            this.reload();
           });
         } else {
           return false;
@@ -208,7 +262,7 @@ export default {
             this.$success(this.$t('commons.modify_success'));
             this.editPasswordVisible = false;
             this.initTableData();
-            window.location.reload();
+            this.reload();
           });
         } else {
           return false;
@@ -222,7 +276,23 @@ export default {
         let dataList = [];
         dataList[0] = data;
         this.tableData = dataList;
+        this.handleRouteOpen();
       })
+    },
+    handleRouteOpen() {
+      let params = this.$route.params;
+      if (params.open) {
+        this.edit(this.tableData[0]);
+        params.open = false;
+      }
+    },
+    handleAuth(type) {
+      let param = {...this.currentPlatformInfo};
+      param.orgId = getCurrentOrganizationId();
+      param.platform = type
+      this.$parent.result = this.$post("issues/user/auth", param, () => {
+        this.$success(this.$t('organization.integration.verified'));
+      });
     },
     handleClose() {
       this.form = {};

@@ -3,6 +3,7 @@
     <ms-table-operator-button v-for="(btn, index) in buttons" :key="index"
                               v-permission="btn.permissions"
                               :disabled="isDisable(btn)"
+                              :class="btn.class"
                               :tip="btn.tip" :icon="btn.icon" :type="btn.type" :isDivButton="btn.isDivButton"
                               @exec="click(btn)" @click.stop="clickStop(btn)"/>
   </span>

@@ -6,9 +6,9 @@
           {{$t('operating_log.title')}}
         </div>
         <div>
-          <el-form :model="condition" label-position="right" label-width="80px" size="small" ref="basicForm" style="margin-right: 20px">
+          <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm" style="margin-right: 20px">
             <el-row>
-              <el-col :span="6">
+              <el-col :span="5">
                 <el-form-item :label="$t('operating_log.time')" prop="times">
                   <el-date-picker
                     size="small"
@@ -16,14 +16,28 @@
                     type="datetimerange"
                     value-format="timestamp"
                     :range-separator="$t('commons.date.range_separator')"
-                    :start-placeholder="$t('commons.date.start_date')"
-                    :end-placeholder="$t('commons.date.end_date')" style="width: 100%">
+                    :start-placeholder="$t('schedule.cron.start')"
+                    :end-placeholder="$t('variables.end')" style="width: 100%">
                   </el-date-picker>
                 </el-form-item>
               </el-col>
               <el-col :span="4">
                 <el-form-item :label="$t('operating_log.user')" prop="user">
-                  <el-input size="small" v-model="condition.operUser"/>
+                  <el-autocomplete
+                    class="input-with-autocomplete"
+                    v-model="condition.operUser"
+                    :placeholder="$t('member.input_id_or_email')"
+                    :trigger-on-focus="false"
+                    :fetch-suggestions="querySearch"
+                    size="small"
+                    highlight-first-item
+                    value-key="email"
+                    @select="handleSelect">
+                    <template v-slot:default="scope">
+                      <span class="ws-member-name">{{scope.item.name}}</span>
+                      <span class="ws-member-email">{{scope.item.email}}</span>
+                    </template>
+                  </el-autocomplete>
                 </el-form-item>
               </el-col>
 
@@ -43,9 +57,15 @@
                 </el-form-item>
               </el-col>
 
-              <el-col :span="3">
+              <el-col :span="4">
                 <el-form-item :label="$t('operating_log.object')" prop="module">
-                  <el-input size="small" v-model="condition.operModule"/>
+                  <el-cascader v-model="condition.operModules"
+                               show-all-levels filterable
+                               :options="sysList"
+                               :placeholder="$t('operating_log.object')"
+                               :props="props"
+                               class="ms-case"
+                               @change="initTableData" ref="cascade"/>
                 </el-form-item>
               </el-col>
 
@@ -54,7 +74,9 @@
                   <el-button type="primary" size="small" style="float: right" @click="search">
                     {{ $t('commons.adv_search.search') }}
                   </el-button>
-                  <el-button size="small" @click="reset">{{$t('commons.adv_search.reset')}}</el-button>
+                  <el-button size="small" @click="reset">
+                    {{$t('commons.adv_search.reset')}}
+                  </el-button>
                 </div>
               </el-col>
             </el-row>
@@ -84,8 +106,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
     </el-card>
 
     <ms-log-detail ref="logDetail" :title="$t('report.test_log_details')"/>
@@ -95,7 +116,7 @@
 <script>
   import MsTablePagination from "../../common/pagination/TablePagination";
   import MsTableOperator from "../../common/components/MsTableOperator";
-  import {getCurrentProjectID, getCurrentUser, hasRoles} from "@/common/js/utils";
+  import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId, hasRoles} from "@/common/js/utils";
   import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER, WORKSPACE_ID} from "@/common/js/constants";
   import MsLogDetail from "./LogDetail";
 
@@ -106,6 +127,9 @@
     },
     data() {
       return {
+        props: {
+          multiple: false,
+        },
         result: {},
         form: {},
         currentPage: 0,
@@ -114,7 +138,8 @@
         items: [],
         condition: {},
         tableData: [],
-        screenHeight: 'calc(100vh - 275px)',
+        userList: [],
+        screenHeight: 'calc(100vh - 215px)',
         LOG_TYPE: [
           {id: 'CREATE', label: this.$t('api_test.definition.request.create_info')},
           {id: 'DELETE', label: this.$t('commons.delete')},
@@ -162,22 +187,75 @@
           ['BATCH_ADD', this.$t('commons.batch_add')],
           ['BATCH_RESTORE', "批量恢复"],
           ['BATCH_GC', "批量回收"],
-        ])
+        ]),
+        sysList: [
+          {
+            label: "测试跟踪", value: "测试跟踪", children: [
+              {label: "测试用例", value: "测试用例", leaf: true},
+              {label: "用例评审", value: "用例评审", leaf: true},
+              {label: "测试计划", value: "测试计划", leaf: true},
+              {label: "缺陷管理", value: "缺陷管理", leaf: true},
+              {label: "报告", value: "报告", leaf: true}]
+          },
+          {
+            label: "接口测试", value: "api", children: [
+              {label: "接口定义", value: "接口定义", leaf: true},
+              {label: "接口自动化", value: "接口自动化", leaf: true},
+              {label: "测试报告", value: "测试报告", leaf: true}]
+          },
+          {
+            label: "性能测试", value: "性能测试", children: [
+              {label: "性能测试", value: "性能测试", leaf: true},
+              {label: "性能测试报告", value: "性能测试报告", leaf: true}]
+          },
+          {
+            label: "系统设置", value: "系统设置", children: [
+              {label: "系统-用户", value: "系统-用户", leaf: true},
+              {label: "系统-组织", value: "系统-组织", leaf: true},
+              {label: "工作空间", value: "工作空间", leaf: true},
+              {label: "系统-测试资源池", value: "系统-测试资源池", leaf: true},
+              {label: "系统-系统参数设置", value: "系统-系统参数设置", leaf: true},
+              {label: "系统-配额管理", value: "系统-配额管理", leaf: true},
+              {label: "系统-授权管理", value: "系统-授权管理", leaf: true},
+              {label: "组织-成员", value: "组织-成员", leaf: true},
+              {label: "组织-服务集成", value: "组织-服务集成", leaf: true},
+              {label: "组织-消息设置", value: "组织-消息设置", leaf: true},
+
+              {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
+              {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
+              {label: "工作空间-模版设置", value: "工作空间-模版设置", leaf: true},
+              {label: "工作空间-项目管理", value: "工作空间-项目管理", leaf: true},
+              {label: "项目-项目管理", value: "项目-项目管理", leaf: true},
+              {label: "项目-成员", value: "项目-成员", leaf: true},
+              {label: "工作空间-成员", value: "工作空间-成员", leaf: true},
+
+              {label: "項目-JAR包管理", value: "項目-JAR包管理", leaf: true},
+              {label: "项目-环境设置", value: "项目-环境设置", leaf: true},
+              {label: "项目-文件管理", value: "项目-文件管理", leaf: true},
+              {label: "个人信息-个人设置", value: "个人信息-个人设置", leaf: true},
+              {label: "个人信息-API Keys", value: "个人信息-API Keys", leaf: true}
+            ]
+          },
+        ],
       }
     },
     mounted() {
       switch (this.$route.name) {
         case "system":
           this.initProject("/project/listAll");
+          this.getMember();
           break;
         case "organization":
-          this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
+          this.getMember();
           break;
         case "workspace":
-          this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+          this.initProject("/project/listAll/" + getCurrentWorkspaceId());
+          this.getMember();
           break;
         case "project":
           this.getProject();
+          this.getMember();
           break;
       }
     },
@@ -186,21 +264,47 @@
         switch (to.name) {
           case "system":
             this.initProject("/project/listAll");
+            this.getMember();
             break;
           case "organization":
-            this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
+            this.getMember();
             break;
           case "workspace":
-            this.initProject("/project/listAll/" + getCurrentUser().lastWorkspaceId);
+            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
+            this.getMember();
             break;
           case "project":
             this.getProject();
+            this.getMember();
             break;
         }
       }
     },
     methods: {
+      handleSelect(item) {
+        this.$set(this.condition, "operUser", item.id);
+      },
+      getMember() {
+        this.result = this.$get('/user/list/', response => {
+          this.userList = response.data;
+        });
+      },
+      createFilter(queryString) {
+        return (user) => {
+          return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      querySearch(queryString, cb) {
+        let userList = this.userList;
+        let results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
       initTableData() {
+        if (this.condition.operModules && this.condition.operModules.length > 0) {
+          this.condition.operModule = this.condition.operModules[1];
+        }
         let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
         this.result.loading = true;
         this.$post(url, this.condition, response => {
@@ -208,6 +312,7 @@
           this.total = response.data.itemCount;
           this.result.loading = false;
         })
+
       },
 
       reset() {
@@ -234,13 +339,13 @@
       },
       getProject() {
         this.condition.projectIds = [];
-        this.result = this.$get("/project/get/" + this.$store.state.projectId, response => {
+        this.result = this.$get("/project/get/" + getCurrentProjectID(), response => {
           let project = response.data;
           this.items = [{id: project.id, label: project.name}];
           this.condition.projectIds = [project.id];
           this.condition.projectId = project.id;
           this.initTableData();
-        })
+        });
       },
       getType(type) {
         return this.LOG_TYPE_MAP.get(type);

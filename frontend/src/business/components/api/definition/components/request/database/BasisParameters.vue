@@ -91,7 +91,7 @@
   import {createComponent} from "../../jmeter/components";
   import {Assertions, Extract} from "../../../model/ApiTestModel";
   import {parseEnvironment} from "../../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import {getCurrentProjectID} from "@/common/js/utils";
   import {getUUID} from "@/common/js/utils";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
@@ -137,7 +137,7 @@
     },
     computed: {
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {
@@ -291,13 +291,5 @@
 
   /deep/ .el-form-item {
     margin-bottom: 15px;
-  }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 0px 20px 0px;
   }
 </style>

@@ -2,11 +2,12 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
-import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
-import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
-import io.metersphere.base.mapper.ext.ExtWorkspaceMapper;
+import io.metersphere.base.mapper.GroupMapper;
+import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.UserGroupMapper;
+import io.metersphere.base.mapper.WorkspaceMapper;
+import io.metersphere.base.mapper.ext.*;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.WorkspaceRequest;
@@ -41,8 +42,6 @@ public class WorkspaceService {
     @Resource
     private ExtUserRoleMapper extUserRoleMapper;
     @Resource
-    private UserRoleMapper userRoleMapper;
-    @Resource
     private GroupMapper groupMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
@@ -51,19 +50,21 @@ public class WorkspaceService {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private UserService userService;
-    @Resource
     private UserGroupMapper userGroupMapper;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
             MSException.throwException(Translator.get("workspace_name_is_null"));
         }
         // set organization id
-        String currentOrgId = SessionUtils.getCurrentOrganizationId();
-        workspace.setOrganizationId(currentOrgId);
+        if (StringUtils.isBlank(workspace.getOrganizationId())) {
+            String currentOrgId = SessionUtils.getCurrentOrganizationId();
+            workspace.setOrganizationId(currentOrgId);
+        }
 
         long currentTime = System.currentTimeMillis();
 
@@ -75,6 +76,17 @@ public class WorkspaceService {
             workspace.setUpdateTime(currentTime);
             workspace.setCreateUser(SessionUtils.getUserId());
             workspaceMapper.insertSelective(workspace);
+            // 创建工作空间为当前用户添加用户组
+            UserGroup userGroup = new UserGroup();
+            userGroup.setId(UUID.randomUUID().toString());
+            userGroup.setUserId(SessionUtils.getUserId());
+            userGroup.setCreateTime(System.currentTimeMillis());
+            userGroup.setUpdateTime(System.currentTimeMillis());
+            userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
+            userGroup.setSourceId(workspace.getId());
+            userGroupMapper.insert(userGroup);
+            // 新项目创建新工作空间时设置
+            extUserMapper.updateLastWorkspaceIdIfNull(workspace.getId(), SessionUtils.getUserId());
         } else {
             workspace.setUpdateTime(currentTime);
             workspaceMapper.updateByPrimaryKeySelective(workspace);
@@ -190,9 +202,8 @@ public class WorkspaceService {
         return workspaceMapper.selectByExample(workspaceExample);
     }
 
-    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String orgId) {
-        String useId = SessionUtils.getUser().getId();
-        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(useId);
+    public List<Workspace> getWorkspaceListByOrgIdAndUserId(String userId, String orgId) {
+        List<RelatedSource> relatedSource = extUserGroupMapper.getRelatedSource(userId);
         List<String> wsIds = relatedSource
                 .stream()
                 .filter(r -> StringUtils.equals(r.getOrganizationId(), orgId))
@@ -209,6 +220,10 @@ public class WorkspaceService {
 
     public List<String> getWorkspaceIdsOrgId(String orgId) {
         return extWorkspaceMapper.getWorkspaceIdsByOrgId(orgId);
+    }
+
+    public List<WorkspaceDTO> getWorkspaceIdsByOrgId(String orgId) {
+        return extWorkspaceMapper.getWorkspaceIdsOrgId(orgId);
     }
 
     public void updateWorkspaceMember(WorkspaceMemberDTO memberDTO) {
@@ -260,6 +275,17 @@ public class WorkspaceService {
         workspace.setUpdateTime(System.currentTimeMillis());
         workspace.setCreateUser(SessionUtils.getUserId());
         workspaceMapper.insertSelective(workspace);
+
+        // 创建工作空间为当前用户添加用户组
+        UserGroup userGroup = new UserGroup();
+        userGroup.setId(UUID.randomUUID().toString());
+        userGroup.setUserId(SessionUtils.getUserId());
+        userGroup.setCreateTime(System.currentTimeMillis());
+        userGroup.setUpdateTime(System.currentTimeMillis());
+        userGroup.setGroupId(UserGroupConstants.WS_ADMIN);
+        userGroup.setSourceId(workspace.getId());
+        userGroupMapper.insert(userGroup);
+
         return workspace;
     }
 

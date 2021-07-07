@@ -7,7 +7,7 @@
             <span class="ms-card-data-digital">{{ maxUsers }}</span>
             <span class="ms-card-data-unit"> VU</span>
           </span>
-          <span class="ms-card-desc">Max Users</span>
+          <span class="ms-card-desc">{{ $t('load_test.report.ActiveThreadsChart') }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -16,7 +16,7 @@
             <span class="ms-card-data-digital">{{ avgTransactions }}</span>
             <span class="ms-card-data-unit"> TPS</span>
           </span>
-          <span class="ms-card-desc">Avg.Transactions</span>
+          <span class="ms-card-desc">{{ $t('load_test.report.TransactionsChart') }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -25,7 +25,7 @@
             <span class="ms-card-data-digital">{{ errors }}</span>
             <span class="ms-card-data-unit"> %</span>
           </span>
-          <span class="ms-card-desc">Errors</span>
+          <span class="ms-card-desc">{{ $t('load_test.report.ErrorsChart') }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -34,7 +34,7 @@
             <span class="ms-card-data-digital">{{ avgResponseTime }}</span>
             <span class="ms-card-data-unit"> s</span>
           </span>
-          <span class="ms-card-desc">Avg.Response Time</span>
+          <span class="ms-card-desc">{{ $t('load_test.report.ResponseTimeChart') }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -43,7 +43,7 @@
             <span class="ms-card-data-digital">{{ responseTime90 }}</span>
             <span class="ms-card-data-unit"> s</span>
           </span>
-          <span class="ms-card-desc">90% Response Time</span>
+          <span class="ms-card-desc">90% {{ $t('load_test.report.ResponseTimeChart') }}</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -52,7 +52,7 @@
             <span class="ms-card-data-digital">{{ avgBandwidth }}</span>
             <span class="ms-card-data-unit"> KiB/s</span>
           </span>
-          <span class="ms-card-desc">Avg.Bandwidth</span>
+          <span class="ms-card-desc">{{ $t('load_test.report.Network') }}</span>
         </el-card>
       </el-col>
     </el-row>
@@ -78,6 +78,15 @@
 
 <script>
 import MsChart from "@/business/components/common/chart/MsChart";
+
+const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+
+const groupBy = function (xs, key) {
+  return xs.reduce(function (rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+};
 
 export default {
   name: "TestOverview",
@@ -127,17 +136,9 @@ export default {
     getLoadChart() {
       this.$get("/performance/report/content/load_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
-        let yAxisListMax = this._getChartMax(yAxisList);
-        let yAxis2ListMax = this._getChartMax(yAxis2List);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
-        let yAxisIndex1List = data.filter(m => m.yAxis === -1).map(m => m.groupName);
-        yAxisIndex1List = this._unique(yAxisIndex1List);
 
         let loadOption = {
+          color: color,
           title: {
             text: 'Load',
             left: 'center',
@@ -154,51 +155,50 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [{
-            name: 'User',
-            type: 'value',
-            min: 0,
-            max: yAxisListMax,
-            splitNumber: 5,
-            interval: yAxisListMax / 5
-          },
-            {
-              name: 'Transactions/s',
-              type: 'value',
-              splitNumber: 5,
-              min: 0,
-              max: yAxis2ListMax,
-              interval: yAxis2ListMax / 5
-            }
-          ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            },
-            {
-              name: 'hits',
-              yAxisIndex: '1',
-              color: '#65A2FF',
-            },
-            {
-              name: 'errors',
-              yAxisIndex: '1',
-              color: '#E6113C',
-            }
-          ]
-        };
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
 
-        yAxisIndex1List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'});
-        });
-        this.loadOption = this.generateOption(loadOption, data, setting);
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+          let yAxis2 = result[xAxis].filter(a => a.yAxis === -1).map(a => a.yAxis2).reduce((a, b) => a + b, 0);
+          allData.push({
+            groupName: 'users',
+            xAxis: xAxis,
+            yAxis: yAxis1,
+            yAxis2: -1,
+            yAxisIndex: 0,
+          }, {
+            groupName: 'transactions/s',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis2,
+            yAxisIndex: 1,
+          });
+        }
+        let yAxisList = allData.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
+        let yAxis2List = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        let yAxis2ListMax = this._getChartMax(yAxis2List);
+        loadOption.yAxis = [{
+          name: 'User',
+          type: 'value',
+          min: 0,
+          max: yAxisListMax,
+          splitNumber: 5,
+          interval: yAxisListMax / 5
+        },
+          {
+            name: 'Transactions/s',
+            type: 'value',
+            splitNumber: 5,
+            min: 0,
+            max: yAxis2ListMax,
+            interval: yAxis2ListMax / 5
+          }
+        ]
+        this.loadOption = this.generateOption(loadOption, allData);
       }).catch(() => {
         this.loadOption = {};
       });
@@ -206,17 +206,9 @@ export default {
     getResChart() {
       this.$get("/performance/report/content/res_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxis2List = data.filter(m => m.yAxis === -1).map(m => m.yAxis2);
-        let yAxisListMax = this._getChartMax(yAxisList);
-        let yAxis2ListMax = this._getChartMax(yAxis2List);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
-        let yAxisIndex1List = data.filter(m => m.yAxis === -1).map(m => m.groupName);
-        yAxisIndex1List = this._unique(yAxisIndex1List);
 
         let resOption = {
+          color: color,
           title: {
             text: 'Response Time',
             left: 'center',
@@ -249,41 +241,36 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [{
-            name: 'User',
+          series: []
+        };
+
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
+          yAxis1 = yAxis1 / result[xAxis].length;
+
+          allData.push({
+            groupName: 'response',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis1,
+            yAxisIndex: 0,
+          });
+        }
+
+        let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        resOption.yAxis = [
+          {
+            name: 'Response Time',
             type: 'value',
             min: 0,
             max: yAxisListMax,
             interval: yAxisListMax / 5
-          },
-            {
-              name: 'Response Time',
-              type: 'value',
-              min: 0,
-              max: yAxis2ListMax,
-              interval: yAxis2ListMax / 5
-            }
-          ],
-          series: []
-        };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            }
-          ]
-        };
-
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
-
-        yAxisIndex1List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '1'});
-        });
-
-        this.resOption = this.generateOption(resOption, data, setting);
+          }
+        ];
+        this.resOption = this.generateOption(resOption, allData);
       }).catch(() => {
         this.resOption = {};
       });
@@ -291,13 +278,9 @@ export default {
     getErrorChart() {
       this.$get("/performance/report/content/error_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxisListMax = this._getChartMax(yAxisList);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
 
         let errorOption = {
+          color: color,
           title: {
             text: 'Errors',
             left: 'center',
@@ -330,31 +313,35 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [
-            {
-              name: 'No',
-              type: 'value',
-              min: 0,
-              max: yAxisListMax,
-              interval: yAxisListMax / 5
-            }
-          ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            }
-          ]
-        };
 
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
 
-        this.errorOption = this.generateOption(errorOption, data, setting);
+          allData.push({
+            groupName: 'errors',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis1,
+            yAxisIndex: 0,
+          });
+        }
+        let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        errorOption.yAxis = [
+          {
+            name: 'No',
+            type: 'value',
+            min: 0,
+            max: yAxisListMax,
+            interval: yAxisListMax / 5
+          }
+        ]
+
+        this.errorOption = this.generateOption(errorOption, allData);
       }).catch(() => {
         this.errorOption = {};
       });
@@ -362,13 +349,9 @@ export default {
     getResponseCodeChart() {
       this.$get("/performance/report/content/response_code_chart/" + this.id).then(res => {
         let data = res.data.data;
-        let yAxisList = data.filter(m => m.yAxis2 === -1).map(m => m.yAxis);
-        let yAxisListMax = this._getChartMax(yAxisList);
-
-        let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-        yAxisIndex0List = this._unique(yAxisIndex0List);
 
         let resCodeOption = {
+          color: color,
           title: {
             text: 'Response code',
             left: 'center',
@@ -401,52 +384,48 @@ export default {
           },
           legend: {},
           xAxis: {},
-          yAxis: [
-            {
-              name: 'No',
-              type: 'value',
-              min: 0,
-              max: yAxisListMax,
-              interval: yAxisListMax / 5
-            }
-          ],
           series: []
         };
-        let setting = {
-          series: [
-            {
-              name: 'users',
-              color: '#0CA74A',
-            }
-          ]
-        };
 
-        yAxisIndex0List.forEach(item => {
-          setting["series"].splice(0, 0, {name: item, yAxisIndex: '0'});
-        });
+        let allData = [];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis1 = result[xAxis].filter(a => a.yAxis2 === -1).map(a => a.yAxis).reduce((a, b) => a + b, 0);
 
-        this.resCodeOption = this.generateOption(resCodeOption, data, setting);
+          allData.push({
+            groupName: 'codes',
+            xAxis: xAxis,
+            yAxis: -1,
+            yAxis2: yAxis1,
+            yAxisIndex: 0,
+          });
+        }
+        let yAxisList = allData.filter(m => m.yAxis === -1).map(m => m.yAxis2);
+        let yAxisListMax = this._getChartMax(yAxisList);
+        resCodeOption.yAxis = [
+          {
+            name: 'No',
+            type: 'value',
+            min: 0,
+            max: yAxisListMax,
+            interval: yAxisListMax / 5
+          }
+        ];
+        this.resCodeOption = this.generateOption(resCodeOption, allData);
       }).catch(() => {
         this.resCodeOption = {};
       });
     },
-    generateOption(option, data, setting) {
+    generateOption(option, data) {
       let chartData = data;
-      let seriesArray = [];
-      for (let set in setting) {
-        if (set === "series") {
-          seriesArray = setting[set];
-          continue;
-        }
-        this.$set(option, set, setting[set]);
-      }
-      let legend = [], series = {}, xAxis = [], seriesData = [];
+      let legend = [], series = {}, xAxis = [], seriesData = [], yAxisIndex = {};
       chartData.forEach(item => {
         if (!xAxis.includes(item.xAxis)) {
           xAxis.push(item.xAxis);
         }
         xAxis.sort();
         let name = item.groupName;
+        yAxisIndex[name] = item.yAxisIndex;
         if (!legend.includes(name)) {
           legend.push(name);
           series[name] = [];
@@ -471,16 +450,8 @@ export default {
           smooth: true,
           sampling: 'lttb',
           animation: !this.export,
+          yAxisIndex: yAxisIndex[name]
         };
-        let seriesArrayNames = seriesArray.map(m => m.name);
-        if (seriesArrayNames.includes(name)) {
-          for (let j = 0; j < seriesArray.length; j++) {
-            let seriesObj = seriesArray[j];
-            if (seriesObj['name'] === name) {
-              Object.assign(items, seriesObj);
-            }
-          }
-        }
         seriesData.push(items);
       }
       this.$set(option, "series", seriesData);

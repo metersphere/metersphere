@@ -121,7 +121,7 @@ public class ApiDocumentService {
                             JSONArray headArr = requestObj.getJSONArray("rest");
                             for (int index = 0; index < headArr.size(); index++) {
                                 JSONObject headObj = headArr.getJSONObject(index);
-                                if (headObj.containsKey("name") && headObj.containsKey("value")) {
+                                if (headObj.containsKey("name")) {
                                     urlParamArr.add(headObj);
                                 }
                             }
@@ -176,9 +176,13 @@ public class ApiDocumentService {
                                         Map<String, String> previewObjMap = new LinkedHashMap<>();
                                         for (int i = 0; i < kvsArr.size(); i++) {
                                             JSONObject kv = kvsArr.getJSONObject(i);
-                                            if (kv.containsKey("name") && kv.containsKey("value")) {
+                                            if (kv.containsKey("name")) {
+                                                String value = "";
+                                                if(kv.containsKey("value")){
+                                                    value = String.valueOf(kv.get("value"));
+                                                }
                                                 bodyParamArr.add(kv);
-                                                previewObjMap.put(String.valueOf(kv.get("name")), String.valueOf(kv.get("value")));
+                                                previewObjMap.put(String.valueOf(kv.get("name")), value);
                                             }
                                         }
                                         this.setPreviewData(previewJsonArray, JSONObject.toJSONString(previewObjMap));
@@ -257,10 +261,32 @@ public class ApiDocumentService {
                                 apiInfoDTO.setResponseBodyParamType(type);
                             }
                             if (StringUtils.equalsAny(type, "JSON", "XML", "Raw")) {
-                                if (bodyObj.containsKey("raw")) {
-                                    String raw = bodyObj.getString("raw");
-                                    apiInfoDTO.setResponseBodyStrutureData(raw);
+
+                                //判断是否是JsonSchema
+                                boolean isJsonSchema = false;
+                                if (bodyObj.containsKey("format")) {
+                                    String foramtValue = String.valueOf(bodyObj.get("format"));
+                                    if (StringUtils.equals("JSON-SCHEMA", foramtValue)) {
+                                        isJsonSchema = true;
+                                    }
                                 }
+                                if (isJsonSchema) {
+//                                    apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
+                                    apiInfoDTO.setResponseBodyParamType("JSON-SCHEMA");
+                                    apiInfoDTO.setJsonSchemaResponseBody(bodyObj);
+//                                    apiInfoDTO.setJsonSchemaBody(bodyObj);
+                                } else {
+                                    if (bodyObj.containsKey("raw")) {
+                                        String raw = bodyObj.getString("raw");
+                                        apiInfoDTO.setResponseBodyStrutureData(raw);
+                                        //转化jsonObje 或者 jsonArray
+                                        this.setPreviewData(previewJsonArray, raw);
+                                    }
+                                }
+//                                if (bodyObj.containsKey("raw")) {
+//                                    String raw = bodyObj.getString("raw");
+//                                    apiInfoDTO.setResponseBodyStrutureData(raw);
+//                                }
                             } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                                 if (bodyObj.containsKey("kvs")) {
                                     JSONArray bodyParamArr = new JSONArray();

@@ -243,7 +243,7 @@
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
-      this.getResult();
+      //this.getResult();
     }
   }
 </script>
@@ -251,13 +251,6 @@
 <style scoped>
   .ms-htt-width {
     width: 350px;
-  }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
   }
 
   /deep/ .el-drawer {

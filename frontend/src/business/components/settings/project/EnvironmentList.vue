@@ -35,14 +35,17 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['PROJECT_ENVIRONMENT:READ+EDIT']"
-                               :delete-permission="['PROJECT_ENVIRONMENT:READ+DELETE']"
-              @editClick="editEnv(scope.row)" @deleteClick="deleteEnv(scope.row)">
-              <template v-slot:middle>
-                <ms-table-operator-button v-permission="['PROJECT_ENVIRONMENT:READ+COPY']" :tip="$t('commons.copy')" @exec="copyEnv(scope.row)"
-                                          icon="el-icon-document-copy" type="info"/>
-              </template>
-            </ms-table-operator>
+            <div>
+              <ms-table-operator :edit-permission="['PROJECT_ENVIRONMENT:READ+EDIT']"
+                                 :delete-permission="['PROJECT_ENVIRONMENT:READ+DELETE']"
+                                 @editClick="editEnv(scope.row)" @deleteClick="deleteEnv(scope.row)">
+                <template v-slot:middle>
+                  <ms-table-operator-button v-permission="['PROJECT_ENVIRONMENT:READ+COPY']" :tip="$t('commons.copy')"
+                                            @exec="copyEnv(scope.row)"
+                                            icon="el-icon-document-copy" type="info"/>
+                </template>
+              </ms-table-operator>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -146,7 +149,7 @@
         total: 0,
         projectIds: [],   //当前工作空间所拥有的所有项目id
         projectFilters: [],
-        screenHeight: 'calc(100vh - 255px)',
+        screenHeight: 'calc(100vh - 195px)',
       }
     },
     created() {

@@ -1,13 +1,20 @@
 package io.metersphere.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.Organization;
+import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.PermissionConstants;
+import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.GroupRequest;
 import io.metersphere.controller.request.group.EditGroupRequest;
+import io.metersphere.controller.request.group.EditGroupUserRequest;
 import io.metersphere.dto.GroupDTO;
 import io.metersphere.dto.GroupPermissionDTO;
 import io.metersphere.service.GroupService;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.List;
@@ -22,28 +29,38 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/get/{goPage}/{pageSize}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
     public Pager<List<GroupDTO>> getGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
         return groupService.getGroupList(request);
     }
 
+    @GetMapping("/get/all")
+    public List<Group> getAllGroup() {
+        return groupService.getAllGroup();
+    }
+
     @PostMapping("/get")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
     public List<Group> getGroupByType(@RequestBody EditGroupRequest request) {
         return groupService.getGroupByType(request);
     }
 
     @PostMapping("/add")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_CREATE)
     public Group addGroup(@RequestBody EditGroupRequest request) {
         return groupService.addGroup(request);
     }
 
     @PostMapping("/edit")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_EDIT)
     public void editGroup(@RequestBody EditGroupRequest request) {
         groupService.editGroup(request);
     }
 
     @GetMapping("/delete/{id}")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_DELETE)
     public void deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
     }
@@ -54,7 +71,8 @@ public class GroupController {
     }
 
     @PostMapping("/permission/edit")
-    public void EditGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_SETTING_PERMISSION)
+    public void editGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
         groupService.editGroupPermission(editGroupRequest);
     }
 
@@ -64,6 +82,7 @@ public class GroupController {
     }
 
     @PostMapping("/list")
+    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
     public List<Group> getGroupsByType(@RequestBody GroupRequest request) {
         return groupService.getGroupsByType(request);
     }
@@ -86,5 +105,36 @@ public class GroupController {
     @GetMapping("/org/{userId}")
     public List<Organization> getOrganization(@PathVariable String userId) {
         return groupService.getOrganization(userId);
+    }
+
+    @GetMapping("/{type}/{id}")
+    public List<?> getResource(@PathVariable String type, @PathVariable String id) {
+        return groupService.getResource(type, id);
+    }
+
+    @PostMapping("/user/{goPage}/{pageSize}")
+    public Pager<List<User>> getGroupUser(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest editGroupRequest) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, groupService.getGroupUser(editGroupRequest));
+    }
+
+    @GetMapping("/rm/{userId}/{groupId}")
+    public void removeGroupMember(@PathVariable String userId, @PathVariable String groupId) {
+        groupService.removeGroupMember(userId, groupId);
+    }
+
+    @GetMapping("/source/{userId}/{groupId}")
+    public List<?> getGroupSource(@PathVariable String userId, @PathVariable String groupId) {
+        return groupService.getGroupSource(userId, groupId);
+    }
+
+    @PostMapping("/add/member")
+    public void addGroupUser(@RequestBody EditGroupUserRequest request) {
+        groupService.addGroupUser(request);
+    }
+
+    @PostMapping("/edit/member")
+    public void editGroupUser(@RequestBody EditGroupUserRequest request) {
+        groupService.editGroupUser(request);
     }
 }

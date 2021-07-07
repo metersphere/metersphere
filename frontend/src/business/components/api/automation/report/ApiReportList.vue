@@ -4,7 +4,6 @@
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
-                           :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
@@ -58,11 +57,13 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
-                                        @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :tip="$t('api_report.delete')"
-                                        v-permission="['PROJECT_API_REPORT:READ+DELETE']"
-                                        icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              <div>
+                <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
+                                          @exec="handleView(scope.row)" type="primary"/>
+                <ms-table-operator-button :tip="$t('api_report.delete')"
+                                          v-permission="['PROJECT_API_REPORT:READ+DELETE']"
+                                          icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -131,7 +132,7 @@ export default {
       selectAll: false,
       unSelection: [],
       selectDataCounts: 0,
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
     }
   },
 

@@ -64,7 +64,7 @@
         <el-col :span="4">
           <span @click.stop>
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle/>
+                          class="run-button" size="mini" :disabled="!apiCase.id" circle/>
             <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
@@ -107,7 +107,7 @@
           <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
-          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
+          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase" :result="runResult"/>
         </div>
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
@@ -192,6 +192,7 @@
       }
     },
     props: {
+      runResult:{},
       apiCase: {
         type: Object,
         default() {
@@ -221,7 +222,7 @@
     },
     watch: {},
     methods: {
-      openHis(row){
+      openHis(row) {
         this.$refs.changeHistory.open(row.id);
       },
       handleRunBatch() {
@@ -249,7 +250,7 @@
         });
       },
       singleRun(data) {
-        if (this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
+        if (this.api.protocol !== "SQL" && this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
@@ -258,10 +259,13 @@
         this.$emit('singleRun', data);
       },
       copyCase(data) {
-        let uuid = getUUID();
-        data.request.id = uuid;
-        let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: data.request, uuid: uuid};
-        this.$emit('copyCase', obj);
+        if (data && data.request) {
+          let uuid = getUUID();
+          let request = JSON.parse(JSON.stringify(data.request));
+          request.id = uuid;
+          let obj = {name: "copy_" + data.name, priority: data.priority, active: true, tags: data.tags, request: request, uuid: uuid};
+          this.$emit('copyCase', obj);
+        }
       },
       selectTestCase(item, $event) {
         if (!item.id || !this.loaded) {
@@ -426,14 +430,6 @@
     border-color: #7C3985;
     margin-right: 10px;
     color: white;
-  }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 20px 0;
   }
 
   .is-selected {

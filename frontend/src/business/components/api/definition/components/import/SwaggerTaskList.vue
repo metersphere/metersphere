@@ -1,21 +1,33 @@
 <template>
-  <el-table border :data="tableData" class="adjust-table table-content" height="300px">
-    <el-table-column prop="index" :label="$t('api_test.home_page.running_task_list.table_coloum.index')"
-                     width="50"
+  <el-table border
+            v-loading="result.loading"
+            highlight-current-row
+            @row-click="handleRowClick"
+            :data="tableData"
+            class="adjust-table table-content"
+            height="300px">
+    <el-table-column prop="index"
+                     width="60"
+                     :label="$t('api_test.home_page.running_task_list.table_coloum.index')"
                      show-overflow-tooltip/>
-    <el-table-column prop="SwaggerUrlId">
-    </el-table-column>
-    <el-table-column prop="swaggerUrl" :label="$t('swaggerUrl')" width="100" show-overflow-tooltip>
+<!--    <el-table-column prop="SwaggerUrlId">-->
+<!--    </el-table-column>-->
+    <el-table-column
+      prop="swaggerUrl"
+      :label="$t('swaggerUrl')"
+      min-width="170" show-overflow-tooltip>
     </el-table-column>
     <el-table-column prop="modulePath" :label="$t('导入模块')"
-                     width="100" show-overflow-tooltip/>
-    <el-table-column prop="rule" label="同步规则" width="120"
+                     min-width="100"
+                     show-overflow-tooltip/>
+    <el-table-column prop="rule" label="同步规则"
+                     min-width="140"
                      show-overflow-tooltip/>
     <el-table-column width="100" :label="$t('api_test.home_page.running_task_list.table_coloum.task_status')">
       <template v-slot:default="scope">
         <div>
           <el-switch
-            v-model="scope.row.taskStatus"
+            v-model="scope.row.enable"
             class="captcha-img"
             @click.native="closeTaskConfirm(scope.row)"
           ></el-switch>
@@ -48,6 +60,7 @@ export default {
   data() {
     return {
       tableData: [],
+      result: {}
     }
   },
   methods: {
@@ -57,33 +70,43 @@ export default {
         this.tableData = response.data;
       })
     },
+    handleRowClick(row) {
+      this.$emit('rowClick', row);
+    },
     closeTaskConfirm(row) {
-      let flag = row.taskStatus;
-      row.taskStatus = !flag;
-      if (row.taskStatus) {
+      let flag = row.enable;
+      row.enable = !flag;
+      if (row.enable) {
         this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          row.taskStatus = !row.taskStatus
+          row.enable = !row.enable
           this.updateTask(row);
         }).catch(() => {
         });
       } else {
-        row.taskStatus = !row.taskStatus
+        row.enable = !row.enable
         this.updateTask(row);
       }
 
     },
     updateTask(taskRow) {
-      this.result = this.$post('/api/definition/schedule/updateByPrimyKey', taskRow, response => {
+      let schedule = {
+        resourceId: taskRow.id,
+        id: taskRow.taskId,
+        enable: taskRow.enable,
+        value: taskRow.rule
+      }
+      this.result = this.$post('/api/definition/schedule/switch', schedule, response => {
         this.search();
       });
     },
     deleteRowTask(row) {
-      this.result = this.$post('/api/definition/schedule/deleteByPrimyKey', row, response => {
+      this.result = this.$post('/api/definition/schedule/delete', row, response => {
         this.search();
+        this.$emit('clear');
       });
     }
 

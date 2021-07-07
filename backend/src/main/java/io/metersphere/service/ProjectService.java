@@ -10,6 +10,8 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
+import io.metersphere.base.mapper.ext.ExtUserMapper;
+import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -80,6 +82,8 @@ public class ProjectService {
     private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private ExtUserGroupMapper extUserGroupMapper;
+    @Resource
+    private ExtUserMapper extUserMapper;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -87,19 +91,36 @@ public class ProjectService {
         }
         ProjectExample example = new ProjectExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                .andWorkspaceIdEqualTo(project.getWorkspaceId())
                 .andNameEqualTo(project.getName());
         if (projectMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("project_name_already_exists"));
         }
         project.setId(UUID.randomUUID().toString());
+
+
+        long allCount = projectMapper.countByExample(null);
+        String systemId = String.valueOf(100001 + allCount);
+
         long createTime = System.currentTimeMillis();
         project.setCreateTime(createTime);
         project.setUpdateTime(createTime);
-        // set workspace id
-        project.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        project.setCreateUser(SessionUtils.getUserId());
+        project.setSystemId(systemId);
         projectMapper.insertSelective(project);
+
+        // 创建项目为当前用户添加用户组
+        UserGroup userGroup = new UserGroup();
+        userGroup.setId(UUID.randomUUID().toString());
+        userGroup.setUserId(SessionUtils.getUserId());
+        userGroup.setCreateTime(System.currentTimeMillis());
+        userGroup.setUpdateTime(System.currentTimeMillis());
+        userGroup.setGroupId(UserGroupConstants.PROJECT_ADMIN);
+        userGroup.setSourceId(project.getId());
+        userGroupMapper.insert(userGroup);
+
+        // 创建新项目检查当前用户 last_project_id
+        extUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
+
         return project;
     }
 
@@ -111,12 +132,12 @@ public class ProjectService {
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
-    public List<ProjectDTO> getSwitchProject(ProjectRequest request) {
+    public List<ProjectDTO> getUserProject(ProjectRequest request) {
         if (StringUtils.isNotBlank(request.getName())) {
             request.setName(StringUtils.wrapIfMissing(request.getName(), "%"));
         }
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extProjectMapper.getSwitchProject(request);
+        return extProjectMapper.getUserProject(request);
     }
 
     public List<Project> getProjectByIds(List<String> ids) {
@@ -414,5 +435,24 @@ public class ProjectService {
 
     public Integer checkSourceRole(String workspaceId, String userId, String roleId) {
         return extOrganizationMapper.checkSourceRole(workspaceId, userId, roleId);
+    }
+
+    public String getSystemIdByProjectId(String projectId) {
+        return extProjectMapper.getSystemIdByProjectId(projectId);
+    }
+
+    public Project findBySystemId(String systemId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andSystemIdEqualTo(systemId);
+        List<Project> returnList = projectMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(returnList)) {
+            return null;
+        } else {
+            return returnList.get(0);
+        }
+    }
+
+    public List<String> getProjectIds() {
+        return extProjectMapper.getProjectIds();
     }
 }

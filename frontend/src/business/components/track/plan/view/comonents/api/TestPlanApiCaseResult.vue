@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="'测试结果'" width="30%"
+  <el-dialog :close-on-click-modal="false" :title="'测试结果'" width="60%"
              :visible.sync="visible" class="api-import" @close="close">
   <ms-request-result-tail :response="response" ref="debugResult"/>
   </el-dialog>

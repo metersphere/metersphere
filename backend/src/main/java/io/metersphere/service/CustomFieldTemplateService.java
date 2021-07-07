@@ -113,4 +113,9 @@ public class CustomFieldTemplateService {
         sqlSession.flushStatements();
         sqlSession.close();
     }
+
+
+    public void update(CustomFieldTemplate request) {
+        customFieldTemplateMapper.updateByPrimaryKeySelective(request);
+    }
 }

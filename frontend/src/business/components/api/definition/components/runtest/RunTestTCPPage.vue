@@ -33,7 +33,8 @@
 
         <div v-if="api.method=='TCP'">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+<!--          <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>-->
+          <ms-tcp-format-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
           <!--返回结果-->
           <!-- HTTP 请求返回数据 -->
           <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
@@ -74,7 +75,7 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import MsRequestResultTail from "../response/RequestResultTail";
 import MsRun from "../Run";
-import MsBasisParameters from "../request/tcp/TcpBasisParameters";
+import MsTcpFormatParameters from "@/business/components/api/definition/components/request/tcp/TcpFormatParameters";
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
 import MsJmxStep from "../step/JmxStep";
@@ -92,7 +93,7 @@ export default {
     MsBottomContainer,
     MsRequestResultTail,
     MsRun,
-    MsBasisParameters,
+    MsTcpFormatParameters,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default
   },
@@ -254,13 +255,6 @@ export default {
 .environment-button {
   margin-left: 20px;
   padding: 7px;
-}
-
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
 }
 
 /deep/ .el-drawer {

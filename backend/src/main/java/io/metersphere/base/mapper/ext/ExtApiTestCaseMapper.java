@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCase;
 import org.apache.ibatis.annotations.Param;
 
@@ -35,4 +36,14 @@ public interface ExtApiTestCaseMapper {
     List<String> idSimple(@Param("request") ApiTestCaseRequest request);
 
     List<ApiTestCaseInfo> getCaseInfo(@Param("request") ApiTestCaseRequest request);
+
+    ApiDefinition findApiUrlAndMethodById(String id);
+
+    int deleteToGc(ApiTestCaseRequest request);
+
+    int reduction(@Param("ids") List<String> ids);
+
+    List<ApiTestCaseDTO> getCannotReductionApiCaseList(@Param("ids") List<String> ids);
+
+    List<String> selectCaseIdsByApiIds(@Param("ids")List<String> apiIds);
 }

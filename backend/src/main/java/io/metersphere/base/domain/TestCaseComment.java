@@ -15,6 +15,8 @@ public class TestCaseComment implements Serializable {
 
     private Long updateTime;
 
+    private String status;
+
     private String description;
 
     private static final long serialVersionUID = 1L;

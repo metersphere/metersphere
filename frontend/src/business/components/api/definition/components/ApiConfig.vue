@@ -32,7 +32,7 @@
   import MsEditCompleteSqlApi from "./complete/EditCompleteSQLApi";
 
   import {Body} from "../model/ApiTestModel";
-  import {getUUID} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
   import {createComponent, Request} from "./jmeter/components";
   import Sampler from "./jmeter/components/sampler/sampler";
   import {WORKSPACE_ID} from '@/common/js/constants';
@@ -116,8 +116,7 @@
         this.$emit("createRootModel");
       },
       getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.maintainerOptions = response.data;
         });
       },

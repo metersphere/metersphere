@@ -2,7 +2,7 @@
   <div>
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
-      <el-form :model="form" ref="form" label-width="120px" size="small" :disabled="show" :rules="rules">
+      <el-form :model="form" ref="form" label-width="100px" size="small" :disabled="show" :rules="rules">
         <el-form-item :label="$t('organization.integration.account')" prop="account">
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
@@ -36,13 +36,19 @@
           {{ $t('organization.integration.link_the_project_now') }}
         </router-link>
       </div>
+      <div>
+        3. {{ $t('organization.integration.use_tip_three') }}
+        <router-link :to="{name: 'PersonSetting', params: { open: true }}" style="margin-left: 5px">
+          {{ $t('organization.integration.link_the_info_now') }}
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
 
 export default {
@@ -139,7 +145,7 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           if (this.form.account && this.form.password) {
-            this.$parent.result = this.$get("issues/auth/" + ZEN_TAO, () => {
+            this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + ZEN_TAO, () => {
               this.$success(this.$t('organization.integration.verified'));
             });
           } else {

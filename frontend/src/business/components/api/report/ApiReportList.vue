@@ -43,10 +43,12 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
-                                        @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :tip="$t('api_report.delete')"
-                                        icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              <div>
+                <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
+                                          @exec="handleView(scope.row)" type="primary"/>
+                <ms-table-operator-button :tip="$t('api_report.delete')"
+                                          icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -68,6 +70,7 @@ import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem"
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   components: {
@@ -119,7 +122,7 @@ export default {
       if (this.testId !== 'all') {
         this.condition.testId = this.testId;
       }
-
+      this.condition.projectId = getCurrentProjectID();
       let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;

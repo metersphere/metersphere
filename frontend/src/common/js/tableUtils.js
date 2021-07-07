@@ -1,13 +1,25 @@
 import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils";
+import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
+import {updateCustomFieldTemplate} from "@/network/custom-field-template";
+import i18n from "@/i18n/i18n";
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
     if (selection.length === 1) {
       selection.hashTree = [];
-      selectRows.add(selection[0]);
+      tableData.forEach((item, index) => {
+        if (index === 0) {
+          component.$set(item, "showTool", true);
+        }
+        component.$set(item, "showMore", true);
+        selectRows.add(item);
+      });
     } else {
-      tableData.forEach(item => {
+      tableData.forEach((item, index) => {
         item.hashTree = [];
+        if (index === 0) {
+          component.$set(item, "showTool", true);
+        }
         component.$set(item, "showMore", true);
         selectRows.add(item);
       });
@@ -15,25 +27,29 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
   } else {
     selectRows.clear();
     tableData.forEach(item => {
+      component.$set(item, "showTool", false);
       component.$set(item, "showMore", false);
     });
-  }
-  if (selectRows.size < 1 && condition) {
-    condition.selectAll = false;
+    if (condition) {
+      condition.selectAll = false;
+    }
   }
 }
 
 export function _handleSelect(component, selection, row, selectRows) {
   row.hashTree = [];
   if (selectRows.has(row)) {
+    component.$set(row, "showTool", false);
     component.$set(row, "showMore", false);
     selectRows.delete(row);
   } else {
+    component.$set(row, "showTool", true);
     component.$set(row, "showMore", true);
     selectRows.add(row);
   }
   let arr = Array.from(selectRows);
   arr.forEach(row => {
+    component.$set(row, "showTool", true);
     component.$set(row, "showMore", true);
   });
 }
@@ -101,6 +117,15 @@ export function checkTableRowIsSelect(component, condition, tableData, table, se
   }
 }
 
+// nexttick:表格加载完成之后触发。判断是否需要勾选行
+export function checkTableRowIsSelected(veuObj, table) {
+  veuObj.$nextTick(function () {
+    if (table) {
+      table.checkTableRowIsSelect();
+      table.doLayout();
+    }
+  });
+}
 
 //表格数据过滤
 export function _filter(filters, condition) {
@@ -136,9 +161,9 @@ export function _sort(column, condition) {
       hasProp = true;
     }
   });
-  if (column.prop === 'case_passing_rate' || column.prop === 'case_total') {
+ /* if (column.prop === 'case_passing_rate' || column.prop === 'case_total') {
     hasProp = true;
-  }
+  }*/
   if (!hasProp) {
     condition.orders.push({name: column.prop, type: column.order});
   }
@@ -171,9 +196,9 @@ export function getLabel(vueObj, type) {
 }
 
 
-export function buildBatchParam(vueObj) {
+export function buildBatchParam(vueObj, selectIds) {
   let param = {};
-  param.ids = Array.from(vueObj.selectRows).map(row => row.id);
+  param.ids = selectIds ? selectIds: Array.from(vueObj.selectRows).map(row => row.id);
   param.projectId = getCurrentProjectID();
   param.condition = vueObj.condition;
   return param;
@@ -195,14 +220,14 @@ export function deepClone(source) {
   return targetObj;
 }
 
-export function getPageInfo() {
+export function getPageInfo(condition) {
   return {
     total: 0,
     pageSize: 10,
     currentPage: 1,
     result: {},
     data: [],
-    condition: {},
+    condition: condition ? condition : {},
   }
 }
 
@@ -214,4 +239,239 @@ export function getPageDate(response, page) {
   let data = response.data;
   page.total = data.itemCount;
   page.data = data.listObject;
+}
+
+/**
+ * 获取自定义表头
+ * 如果 localStorage 没有，获取默认表头
+ * @param key
+ * @returns {[]|*}
+ */
+export function getCustomTableHeader(key, customFields) {
+  let fieldSetting = getAllFieldWithCustomFields(key, customFields);
+  return getCustomTableHeaderByFiledSetting(key, fieldSetting);
+}
+
+/**
+ * 获取 localStorage 的值，过滤
+ * @param key
+ * @param fieldSetting
+ * @returns {[]|*}
+ */
+function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
+  let fieldStr = localStorage.getItem(key);
+  if (fieldStr !== null) {
+    let fields = [];
+    for (let i = 0; i < fieldStr.length; i++) {
+      let fieldKey = fieldStr[i];
+      for (let j = 0; j < fieldSetting.length; j++) {
+        let item = fieldSetting[j];
+        if (item.key === fieldKey) {
+          fields.push(item);
+          break;
+        }
+      }
+    }
+    return fields;
+  }
+  return fieldSetting;
+}
+
+/**
+ * 获取带自定义字段的表头
+ * @param key
+ * @param customFields
+ * @returns {[]|*}
+ */
+export function getTableHeaderWithCustomFields(key, customFields) {
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]]; // 复制
+  let keys = getCustomFieldsKeys(customFields);
+  customFields.forEach(item => {
+    if (!item.key) {
+      // 兼容旧版，更新key
+      item.key = generateTableHeaderKey(keys, customFields);
+      updateCustomFieldTemplate({id: item.id, key: item.key});
+    }
+    let field = {
+      id: item.name,
+      key: item.key,
+      label: item.name,
+      isCustom: true
+    }
+    fieldSetting.push(field);
+  });
+  return getCustomTableHeaderByFiledSetting(key, fieldSetting);
+}
+
+/**
+ * 获取所有字段
+ * @param key
+ * @param customFields
+ * @returns {*[]}
+ */
+export function getAllFieldWithCustomFields(key, customFields) {
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+  if (customFields) {
+    customFields.forEach(item => {
+      let field = {
+        id: item.name,
+        key: item.key,
+        label: item.name,
+        isCustom: true
+      }
+      fieldSetting.push(field);
+    });
+  }
+  return fieldSetting;
+}
+
+export function generateTableHeaderKey(keys) {
+  let customFieldKeys = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  for (let i = 0; i < customFieldKeys.length; i++) {
+    let key =  customFieldKeys[i];
+    if (keys.has(key)) {
+      continue;
+    }
+    keys.add(key);
+    return key;
+  }
+  return '';
+}
+
+export function getCustomFieldsKeys(customFields) {
+  let keys = new Set();
+  customFields.forEach(item => {
+    if (item.key) {
+      keys.add(item.key);
+    }
+  });
+  return keys;
+}
+
+/**
+ * 将自定义表头存在 localStorage
+ * 格式简化，减小占用
+ * @param key
+ * @param fields
+ */
+export function saveCustomTableHeader(key, fields) {
+  let result = '';
+  if (fields) {
+    fields.forEach(item => {
+      result += item.key;
+    });
+  }
+  localStorage.setItem(key, result);
+}
+/**
+ * 将上一次的表格排序字段存在 localStorage
+ * @param key
+ * @param fields
+ */
+export function saveLastTableSortField(key, field) {
+  let result = field;
+  localStorage.setItem(key+"_SORT", result);
+}
+
+export function getLastTableSortField(key) {
+  let fieldStr = localStorage.getItem(key+"_SORT");
+  return fieldStr;
+}
+
+
+/**
+ * 获取对应表格的列宽
+ * @param key
+ * @returns {{}|any}
+ */
+export function getCustomTableWidth(key) {
+  let fieldStr = localStorage.getItem(key + '_WITH');
+  if (fieldStr !== null) {
+    let fields = JSON.parse(fieldStr);
+    return fields;
+  }
+  return {};
+}
+
+/**
+ * 存储表格的列宽
+ * @param key
+ * @param fieldKey
+ * @param colWith
+ */
+export function saveCustomTableWidth(key, fieldKey, colWith) {
+  let fields = getCustomTableWidth(key);
+  fields[fieldKey] = colWith + '';
+  localStorage.setItem(key + '_WITH', JSON.stringify(fields));
+}
+
+/**
+ * 获取列表的自定义字段的显示值
+ * @param row
+ * @param field
+ * @param members
+ * @returns {VueI18n.TranslateResult|*}
+ */
+export function getCustomFieldValue(row, field, members) {
+  if (row.customFields) {
+    for (let i = 0; i < row.customFields.length; i++) {
+      let item = row.customFields[i];
+      if (item.name === field.name) {
+        if (field.type === 'member' || field.type === 'multipleMember') {
+          for (let j = 0; j < members.length; j++) {
+            let member = members[j];
+            if (member.id === item.value) {
+              return member.name;
+            }
+          }
+        } else if (['radio', 'select', 'multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+          for (let j = 0; j < field.options.length; j++) {
+            let option = field.options[j];
+            if (option.value === item.value) {
+              return field.system ? i18n.t(option.text) : option.text;
+            }
+          }
+        }
+        return item.value;
+      }
+    }
+  }
+}
+
+/**
+ * 获取批量编辑的自定义字段选项
+ * @param customFields
+ * @param typeArr
+ * @param valueArr
+ * @param members
+ */
+export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, members) {
+
+  customFields.forEach(item => {
+    if (item.options) {
+      typeArr.push({
+        id: item.name,
+        name: item.name,
+        uuid: item.id
+      });
+
+      let options = [];
+      if (['multipleMember', 'member'].indexOf(item.type) > -1) {
+        members.forEach(member => {
+          options.push({
+            id: member.id,
+            name: member.name
+          });
+        });
+      } else {
+        item.options.forEach((option) => {
+          options.push({
+            id: option.value,
+            name: option.system ? i18n.t(option.text) : option.text
+          });
+        });
+      }
+      valueArr[item.name] = options;
+    }
+  });
 }

@@ -8,6 +8,7 @@ import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ListUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
@@ -132,7 +133,16 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                 if(isUseCustomId){
                     checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
                 }else {
-                    checkResult = testCaseService.checkIdExist(Integer.parseInt(data.getCustomNum()), projectId);
+                    int customNumId = -1;
+                    try{
+                        customNumId = Integer.parseInt(data.getCustomNum());
+                    }catch (Exception e){
+                    }
+                    if(customNumId < 0){
+                        stringBuilder.append(Translator.get("id_not_rightful") + "["+data.getCustomNum()+"]; ");
+                    }else {
+                        checkResult = testCaseService.checkIdExist(customNumId, projectId);
+                    }
                 }
                 if (null != checkResult) {  //该ID在当前项目中存在
                     //如果前面所经过的校验都没报错
@@ -157,36 +167,38 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         /*
         校验用例
          */
-//        if (testCaseNames.contains(data.getName())) {
-//            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-//            BeanUtils.copyBean(testCase, data);
-//            testCase.setProjectId(projectId);
-//            String steps = getSteps(data);
-//            testCase.setSteps(steps);
-//            testCase.setType("functional");
-//
-//            boolean dbExist = testCaseService.exist(testCase);
-//            boolean excelExist = false;
-//
-//            if (dbExist) {
-//                // db exist
-//                stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
-//            } else {
-//                // @Data 重写了 equals 和 hashCode 方法
-//                excelExist = excelDataList.contains(data);
-//            }
-//
-//            if (excelExist) {
-//                // excel exist
-//                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
-//            } else {
-//                excelDataList.add(data);
-//            }
-//
-//        } else {
+        if (testCaseNames.contains(data.getName())) {
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            BeanUtils.copyBean(testCase, data);
+            testCase.setProjectId(projectId);
+            String steps = getSteps(data);
+            testCase.setSteps(steps);
+            testCase.setType("functional");
+
+            boolean dbExist = testCaseService.exist(testCase);
+            boolean excelExist = false;
+
+            if (dbExist) {
+                // db exist
+                stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
+            } else {
+                // @Data 重写了 equals 和 hashCode 方法
+                excelExist = excelDataList.contains(data);
+            }
+
+            if (excelExist) {
+                // excel exist
+                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+            } else {
+                if(!dbExist){
+                    excelDataList.add(data);
+                }
+            }
+
+        } else {
             testCaseNames.add(data.getName());
             excelDataList.add(data);
-//        }
+        }
         return stringBuilder.toString();
     }
 
@@ -269,6 +281,37 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         testCase.setTags(modifiedTags);
         testCase.setType("functional");
 
+        JSONArray customArr = new JSONArray();
+        String caseStatusValue = "";
+        if(StringUtils.equalsAny(data.getStatus(),"Underway","进行中","進行中")){
+            caseStatusValue = "Underway";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","未开始","未開始")){
+            caseStatusValue = "Prepare";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","已完成","已完成")){
+            caseStatusValue = "Completed";
+        }
+        if(StringUtils.isNotEmpty(caseStatusValue)){
+            JSONObject  statusObj = new JSONObject();
+            statusObj.put("id",UUID.randomUUID().toString());
+            statusObj.put("name","用例状态");
+            statusObj.put("value",caseStatusValue);
+            statusObj.put("customData",null);
+            customArr.add(statusObj);
+        }
+
+        if(StringUtils.isNotEmpty(data.getMaintainer())){
+            JSONObject  obj = new JSONObject();
+            obj.put("id",UUID.randomUUID().toString());
+            obj.put("name","责任人");
+            obj.put("value",data.getMaintainer());
+            obj.put("customData",null);
+            customArr.add(obj);
+        }
+
+        if(customArr.size()>0){
+            testCase.setCustomFields(customArr.toString());
+        }
+
         if (StringUtils.isNotBlank(data.getStepModel())
                 && StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
             testCase.setStepDescription(data.getStepDesc());
@@ -304,6 +347,37 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
         String steps = getSteps(data);
         testCase.setSteps(steps);
+
+        JSONArray customArr = new JSONArray();
+        String caseStatusValue = "";
+        if(StringUtils.equalsAny(data.getStatus(),"Underway","进行中","進行中")){
+            caseStatusValue = "Underway";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","未开始","未開始")){
+            caseStatusValue = "Prepare";
+        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","已完成","已完成")){
+            caseStatusValue = "Completed";
+        }
+        if(StringUtils.isNotEmpty(caseStatusValue)){
+            JSONObject  statusObj = new JSONObject();
+            statusObj.put("id",UUID.randomUUID().toString());
+            statusObj.put("name","用例状态");
+            statusObj.put("value",caseStatusValue);
+            statusObj.put("customData",null);
+            customArr.add(statusObj);
+        }
+
+        if(StringUtils.isNotEmpty(data.getMaintainer())){
+            JSONObject  obj = new JSONObject();
+            obj.put("id",UUID.randomUUID().toString());
+            obj.put("name","责任人");
+            obj.put("value",data.getMaintainer());
+            obj.put("customData",null);
+            customArr.add(obj);
+        }
+
+        if(customArr.size()>0){
+            testCase.setCustomFields(customArr.toString());
+        }
 
         //将标签设置为前端可解析的格式
         String modifiedTags = modifyTagPattern(data);
@@ -349,66 +423,57 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
         List<String> stepDescList = new ArrayList<>();
         List<String> stepResList = new ArrayList<>();
-//        String[] stepDesc = new String[1];
-//        String[] stepRes = new String[1];
-
+        ListUtils<String> listUtils = new ListUtils<String>();
         if (data.getStepDesc() != null) {
-            String[] stepDesc = data.getStepDesc().split("\r\n|\n");
+            String desc = data.getStepDesc().replaceAll("\\n([1-9]\\.)", "\r\n$1");
+            String [] stepDesc = desc.split("\r\n");
             StringBuffer stepBuffer = new StringBuffer();
-            int stepIndex = 1;
+            int lastStepIndex = 1;
             for (String row : stepDesc) {
-                if(StringUtils.startsWithAny(row,
-                        stepIndex+")","("+stepIndex+")","（\"+stepIndex+\"）",
-                        stepIndex+".",stepIndex+",",stepIndex+"，")){
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepDescList.add(stepBuffer.toString());
-                    }
+                RowInfo rowInfo = this.parseIndexInRow(row);
+                int rowIndex = rowInfo.index;
+                String rowMessage = rowInfo.rowInfo;
+                if(rowIndex > -1){
+                    listUtils.set(stepDescList,lastStepIndex-1,stepBuffer.toString(),"");
                     stepBuffer = new StringBuffer();
-                    stepIndex++;
-                    stepBuffer.append(row);
+                    lastStepIndex = rowIndex;
+                    stepBuffer.append(rowMessage);
                 }else {
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepBuffer.append("\r\n");
-                    }
                     stepBuffer.append(row);
                 }
             }
             if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                stepDescList.add(stepBuffer.toString());
+                listUtils.set(stepDescList,lastStepIndex-1,stepBuffer.toString(),"");
             }
         } else {
             stepDescList.add("");
         }
 
         if (data.getStepResult() != null) {
-            String [] stepRes = data.getStepResult().split("\r\n|\n");
+            String stepResult = data.getStepResult().replaceAll("\\n([1-9]\\.)", "\r\n$1");
+            String [] stepRes = stepResult.split("\r\n");
             StringBuffer stepBuffer = new StringBuffer();
-            int stepIndex = 1;
+            int lastStepIndex = 1;
             for (String row : stepRes) {
-                if(StringUtils.startsWithAny(row,
-                        stepIndex+")","("+stepIndex+")","（\"+stepIndex+\"）",
-                        stepIndex+".",stepIndex+",",stepIndex+"，")){
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepResList.add(stepBuffer.toString());
-                    }
+                RowInfo rowInfo = this.parseIndexInRow(row);
+                int rowIndex = rowInfo.index;
+                String rowMessage = rowInfo.rowInfo;
+                if(rowIndex > -1){
+                    listUtils.set(stepResList,lastStepIndex-1,stepBuffer.toString(),"");
                     stepBuffer = new StringBuffer();
-                    stepIndex++;
-                    stepBuffer.append(row);
+                    lastStepIndex = rowIndex;
+                    stepBuffer.append(rowMessage);
                 }else {
-                    if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                        stepBuffer.append("\r\n");
-                    }
                     stepBuffer.append(row);
                 }
             }
             if(StringUtils.isNotEmpty(stepBuffer.toString())){
-                stepResList.add(stepBuffer.toString());
+                listUtils.set(stepResList,lastStepIndex-1,stepBuffer.toString(),"");
             }
         } else {
             stepResList.add("");
         }
 
-        String pattern = "(^\\d+)(\\.)?";
         int index = stepDescList.size() > stepResList.size() ? stepDescList.size() : stepResList.size();
 
         for (int i = 0; i < index; i++) {
@@ -416,31 +481,54 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             // 保持插入顺序，判断用例是否有相同的steps
             JSONObject step = new JSONObject(true);
             step.put("num", i + 1);
-
-            Pattern descPattern = Pattern.compile(pattern);
-            Pattern resPattern = Pattern.compile(pattern);
-
             if (i < stepDescList.size()) {
-                Matcher descMatcher = descPattern.matcher(stepDescList.get(i));
-                if (descMatcher.find()) {
-                    step.put("desc", descMatcher.replaceAll(""));
-                } else {
-                    step.put("desc", stepDescList.get(i));
-                }
+                step.put("desc", stepDescList.get(i));
             }
 
             if (i < stepResList.size()) {
-                Matcher resMatcher = resPattern.matcher(stepResList.get(i));
-                if (resMatcher.find()) {
-                    step.put("result", resMatcher.replaceAll(""));
-                } else {
-                    step.put("result", stepResList.get(i));
-                }
+                step.put("result", stepResList.get(i));
             }
 
             jsonArray.add(step);
         }
         return jsonArray.toJSONString();
+    }
+
+    private RowInfo parseIndexInRow(String row) {
+        RowInfo rowInfo = new RowInfo();
+        String parseString = row;
+        int index = -1;
+        String rowMessage = row;
+        String [] indexSplitCharArr = new String[]{")","）","]","】",".",",","，","。"};
+        if(StringUtils.startsWithAny(row,"(","（","[","【")){
+            parseString = parseString.substring(1);
+        }
+        for (String splitChar : indexSplitCharArr) {
+            if(StringUtils.contains(parseString,splitChar)){
+                String[] rowSplit = StringUtils.split(parseString,splitChar);
+                if(rowSplit.length > 0){
+                    String indexString = rowSplit[0];
+                    if(StringUtils.isNumeric(indexString)){
+                        try {
+                            index = Integer.parseInt(indexString);
+                            rowMessage = StringUtils.substring(parseString,indexString.length()+splitChar.length());
+                        }catch (Exception e){}
+
+                        if(index > -1){
+                            break;
+                        }else {
+                            rowMessage = row;
+                        }
+                    }
+                }
+            }
+        }
+        rowInfo.index = index;
+        if(rowMessage == null){
+            rowMessage = "";
+        }
+        rowInfo.rowInfo = rowMessage;
+        return rowInfo;
     }
 
     @Override
@@ -477,4 +565,10 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             list.clear();
         }
     }
+
+    class RowInfo{
+       public int index;
+        public String rowInfo;
+    }
 }
+

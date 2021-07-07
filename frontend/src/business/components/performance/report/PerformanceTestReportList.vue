@@ -4,7 +4,6 @@
       <el-card class="table-card">
         <template v-slot:header>
           <ms-table-header :condition.sync="condition" @search="search"
-                           :title="$t('commons.report')"
                            :show-create="false"/>
         </template>
 
@@ -136,7 +135,7 @@ import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem"
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort,saveLastTableSortField,getLastTableSortField} from "@/common/js/tableUtils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 
@@ -160,6 +159,7 @@ export default {
   },
   data() {
     return {
+      tableHeaderKey:"PERFORMANCE_REPORT_TABLE",
       result: {},
       deletePath: "/performance/report/delete/",
       condition: {
@@ -173,7 +173,7 @@ export default {
       total: 0,
       loading: false,
       testId: null,
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
       statusFilters: [
         {text: 'Starting', value: 'Starting'},
         {text: 'Running', value: 'Running'},
@@ -250,6 +250,10 @@ export default {
       } else {
         this.condition.testId = null;
       }
+      let orderArr = this.getSortField();
+      if(orderArr){
+        this.condition.orders = orderArr;
+      }
       if (!getCurrentProjectID()) {
         return;
       }
@@ -324,7 +328,12 @@ export default {
       });
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
     filter(filters) {
@@ -339,6 +348,21 @@ export default {
         this.$set(row, "showMore", true);
         this.selectRows.add(row);
       }
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {

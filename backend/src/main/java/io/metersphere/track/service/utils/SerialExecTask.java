@@ -38,6 +38,7 @@ public class SerialExecTask<T> implements Callable<T> {
             TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
             testPlanLoadCase.setId(request.getTestPlanLoadId());
             testPlanLoadCase.setLoadReportId(reportId);
+            testPlanLoadCase.setStatus("run");
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
             LoadTestReportWithBLOBs report = null;
             // 轮询查看报告状态，最多200次，防止死循环

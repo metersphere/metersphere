@@ -24,4 +24,8 @@ public class ScheduleRequest extends Schedule {
 
     private String modeId;
 
+    private String swaggerUrl;
+
+    private String taskId;
+
 }

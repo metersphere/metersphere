@@ -32,8 +32,6 @@ public class TestPlanReportController {
     private TestPlanReportService testPlanReportService;
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanReportDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanReportRequest request) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        request.setWorkspaceId(currentWorkspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanReportService.list(request));
     }
@@ -46,7 +44,14 @@ public class TestPlanReportController {
     public String sendTask(@PathVariable String planId) {
         TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
         testPlanReportService.update(report);
-        return  "sucess";
+        return "sucess";
+    }
+
+    @GetMapping("/status/{planId}")
+    public String getStatus(@PathVariable String planId) {
+        TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
+        String status = report.getStatus();
+        return status;
     }
 
     @PostMapping("/delete")
@@ -66,7 +71,7 @@ public class TestPlanReportController {
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,ReportTriggerMode.API.name());
         TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name());
+        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name(),null);
     }
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
@@ -75,7 +80,7 @@ public class TestPlanReportController {
         String reportId = UUID.randomUUID().toString();
         TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,triggerMode);
         TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode,null);
         return "success";
     }
 }

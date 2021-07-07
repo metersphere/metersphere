@@ -1,7 +1,9 @@
 <template>
   <ms-table-column
     :label="$t('test_track.issue.description')"
-    prop="description">
+    prop="description"
+    :field="field"
+    :fields-width="fieldsWidth">
     <template v-slot:default="scope">
       <el-popover
         placement="right"
@@ -9,8 +11,8 @@
         trigger="hover"
         popper-class="issues-popover"
       >
-        <ckeditor :editor="editor" disabled :config="readConfig"
-                  v-model="scope.row.description"/>
+        <mavon-editor :editable="false" default-open="preview" class="mavon-editor"
+                      :subfield="false" :toolbarsFlag="false" v-model="scope.row.description" ref="md"/>
         <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
       </el-popover>
     </template>
@@ -18,16 +20,18 @@
 </template>
 
 <script>
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 export default {
   name: "IssueDescriptionTableItem",
   components: {MsTableColumn},
   data() {
     return {
-      editor: ClassicEditor,
       readConfig: {toolbar: []},
-    }
+    };
+  },
+  props: {
+    field: Object,
+    fieldsWidth: Object
   }
 }
 </script>

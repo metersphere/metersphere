@@ -63,6 +63,7 @@ export default {
         jmxObj.attachFiles = response.data.attachFiles;
         jmxObj.attachByteFiles = response.data.attachByteFiles;
         jmxObj.scenarioId = row.id;
+        jmxObj.version = row.version;
         this.$store.commit('setTest', {
           name: row.name,
           jmx: jmxObj

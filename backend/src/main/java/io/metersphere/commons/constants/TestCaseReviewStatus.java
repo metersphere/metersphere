@@ -1,5 +1,5 @@
 package io.metersphere.commons.constants;
 
 public enum TestCaseReviewStatus {
-    Prepare, Underway, Completed
+    Prepare, Underway, Completed, Finished
 }

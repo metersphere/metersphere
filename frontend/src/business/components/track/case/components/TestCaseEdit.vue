@@ -1,4 +1,4 @@
-<template>
+ <template>
   <el-card>
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
@@ -6,7 +6,7 @@
         <!--操作按钮-->
         <div class="ms-opt-btn">
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="form.id">{{$t('operating_log.change_history')}}</el-link>
-          <ms-table-button v-if="type!='add'"
+          <ms-table-button v-if="this.path!='/test/case/add'"
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.save')"
@@ -79,7 +79,7 @@
           <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
           <form-rich-text-item :disabled="readOnly" :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
 
-          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
+          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel" :form="form" :read-only="readOnly"/>
 
           <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
@@ -122,6 +122,7 @@
   import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
   import {
+    getCurrentProjectID,
     getCurrentUser,
     getNodePath,
     handleCtrlSEvent, hasPermission,
@@ -153,6 +154,7 @@
   import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
   import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
   import MsChangeHistory from "../../../history/ChangeHistory";
+  import {getTestTemplate} from "@/network/custom-field-template";
 
   export default {
     name: "TestCaseEdit",
@@ -172,6 +174,7 @@
     },
     data() {
       return {
+        path: "/test/case/add",
         testCaseTemplate: {},
         // sysList: [],//一级选择框的数据
         options: REVIEW_STATUS,
@@ -231,7 +234,7 @@
         },
         customFieldRules: {},
         customFieldForm: {},
-        formLabelWidth: "120px",
+        formLabelWidth: "100px",
         operationType: '',
         isCreateContinue: false,
         isStepTableAlive: true,
@@ -270,7 +273,7 @@
     },
     computed: {
       projectIds() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
       moduleOptions() {
         return this.$store.state.testCaseModuleOptions;
@@ -279,7 +282,8 @@
         return SYSTEM_FIELD_NAME_MAP;
       },
       readOnly() {
-        return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+        return !hasPermission('PROJECT_TRACK_CASE:READ+CREATE') &&
+          !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
       }
     },
     mounted() {
@@ -308,7 +312,7 @@
     created() {
       this.projectId = this.projectIds;
       let initAddFuc = this.initAddFuc;
-      getTemplate('field/template/case/get/relate/', this)
+      getTestTemplate()
         .then((template) => {
           this.testCaseTemplate = template;
           initAddFuc();
@@ -386,10 +390,11 @@
             if (!valid) {
               this.saveCase();
             } else {
-              this.saveCase();
-              let tab = {}
-              tab.name = 'add'
-              this.$emit('addTab', tab)
+              this.saveCase(function(t) {
+                let tab = {};
+                tab.name = 'add';
+                t.$emit('addTab', tab);
+              });
             }
           })
         } else {
@@ -499,17 +504,33 @@
         });
       },
       getTestCase(index) {
+        let id = "";
         this.showInputTag = false;
         let testCase = this.testCases[index];
-        this.result = this.$get('/test/case/get/' + testCase.id, response => {
+        if (typeof (index) == "undefined") {
+          id = this.currentTestCaseInfo.id;
+
+        } else {
+          id = testCase.id;
+        }
+        this.result = this.$get('/test/case/get/' + id, response => {
+          if (response.data) {
+            this.path = "/test/case/edit";
+            if (this.currentTestCaseInfo.isCopy) {
+              this.path = "/test/case/add";
+            }
+          } else {
+            this.path = "/test/case/add";
+          }
           let testCase = response.data;
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
           this.reload();
           this.$nextTick(() => {
-            this.showInputTag = true
+            this.showInputTag = true;
           });
+
         });
       },
       async setFormData(testCase) {
@@ -552,7 +573,7 @@
         removeGoBackListener(this.close);
         this.dialogFormVisible = false;
       },
-      saveCase() {
+      saveCase(callback) {
         let isValidate = true;
         this.$refs['caseFrom'].validate((valid) => {
           if (!valid) {
@@ -567,21 +588,23 @@
           }
         });
         if (isValidate) {
-          this._saveCase();
+          this._saveCase(callback);
         }
       },
-      _saveCase() {
+      _saveCase(callback) {
         let param = this.buildParam();
         if (this.validate(param)) {
           let option = this.getOption(param);
           this.result = this.$request(option, (response) => {
             this.$success(this.$t('commons.save_success'));
-            this.operationType = "edit"
+            this.path = "/test/case/edit";
+            // this.operationType = "edit"
             this.form.id = response.id;
-            this.$emit("refreshTestCase",)
-            this.tableType = 'edit';
+            this.$emit("refreshTestCase",);
+            //this.tableType = 'edit';
             this.$emit("refresh", this.form);
-            this.form.id = response.data
+            this.form.id = response.data;
+
             if (this.type === 'add' || this.type === 'copy') {
               param.id = response.data;
               this.$emit("caseCreate", param);
@@ -589,6 +612,12 @@
             } else {
               this.$emit("caseEdit", param);
             }
+
+            if (callback) {
+              callback(this);
+            }
+            // 保存用例后刷新附件
+            this.$refs.otherInfo.getFileMetaData(this.form.id);
           });
         }
       },
@@ -601,9 +630,9 @@
         if (this.projectId) {
           param.projectId = this.projectId;
         }
-        if (this.type === 'copy') {
-          param.num = "";
-        }
+        /*  if (this.type === 'copy') {
+            param.num = "";
+          }*/
         param.name = param.name.trim();
 
         if (this.form.tags instanceof Array) {
@@ -634,17 +663,16 @@
         }
       },
       getOption(param) {
-        let type = {}
-        if (this.tableType === 'edit') {
-          type = 'edit'
-        } else if (this.type === 'copy') {
-          type = 'add'
-        } else {
-          type = this.type
-        }
+        /* let type = {}
+         if (this.tableType === 'edit') {
+           type = 'edit'
+         } else if (this.type === 'copy') {
+           type = 'add'
+         } else {
+           type = this.type
+         }*/
         let formData = new FormData();
-        let url = '/test/case/' + type;
-
+        //let url = '/test/case/' + type;
         if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
           this.$refs.otherInfo.uploadList.forEach(f => {
             formData.append("file", f);
@@ -669,10 +697,9 @@
         formData.append('request', new Blob([requestJson], {
           type: "application/json"
         }));
-
         return {
           method: 'POST',
-          url: url,
+          url: this.path,
           data: formData,
           headers: {
             'Content-Type': undefined
@@ -698,8 +725,7 @@
         this.form.testId = '';
       },
       getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
           this.maintainerOptions = response.data;
         });
       },

@@ -28,7 +28,7 @@ public class ApiModuleController {
 
     @GetMapping("/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId, @PathVariable String protocol) {
-        checkPermissionService.checkProjectOwner(projectId);
+//        checkPermissionService.checkProjectOwner(projectId);
         String userId = SessionUtils.getUserId();
         ApiDefinitionDefaultApiTypeUtil.addUserSelectApiType(userId, protocol);
         return apiModuleService.getNodeTreeByProjectId(projectId, protocol);
@@ -36,7 +36,7 @@ public class ApiModuleController {
 
     @GetMapping("/getModuleByName/{projectId}/{protocol}")
     public ApiModule getModuleByName(@PathVariable String projectId, @PathVariable String protocol) {
-        checkPermissionService.checkProjectOwner(projectId);
+//        checkPermissionService.checkProjectOwner(projectId);
         return apiModuleService.getModuleByName(projectId, protocol);
     }
 

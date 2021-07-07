@@ -30,10 +30,7 @@ import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
-import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
-import io.metersphere.track.request.testreview.QueryTestReviewRequest;
-import io.metersphere.track.request.testreview.ReviewRelevanceRequest;
-import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
+import io.metersphere.track.request.testreview.*;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -114,7 +111,9 @@ public class TestCaseReviewService {
         reviewRequest.setUpdateTime(System.currentTimeMillis());
         reviewRequest.setCreator(SessionUtils.getUser().getId());//创建人
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
-        reviewRequest.setProjectId(SessionUtils.getCurrentProjectId());
+        if (StringUtils.isBlank(reviewRequest.getProjectId())) {
+            reviewRequest.setProjectId(SessionUtils.getCurrentProjectId());
+        }
         testCaseReviewMapper.insert(reviewRequest);
         // 发送通知
         String context = getReviewContext(reviewRequest, NoticeConstants.Event.CREATE);
@@ -460,6 +459,10 @@ public class TestCaseReviewService {
                 testCaseReview.setStatus(TestCaseReviewStatus.Underway.name());
                 testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
                 return;
+            } else if (StringUtils.equals(status, TestReviewCaseStatus.UnPass.name())) {
+                testCaseReview.setStatus(TestCaseReviewStatus.Finished.name());
+                testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
+                return;
             }
         }
         testCaseReview.setStatus(TestCaseReviewStatus.Completed.name());
@@ -488,7 +491,10 @@ public class TestCaseReviewService {
         }
     }
 
-    public List<TestReviewDTOWithMetric> listRelateAll(String type) {
+    public List<TestReviewDTOWithMetric> listRelateAll(ReviewRelateRequest relateRequest) {
+        String type = relateRequest.getType();
+        String projectId = relateRequest.getProjectId();
+        String workspaceId = relateRequest.getWorkspaceId();
         SessionUser user = SessionUtils.getUser();
         QueryTestReviewRequest request = new QueryTestReviewRequest();
         if (StringUtils.equals("creator", type)) {
@@ -496,11 +502,12 @@ public class TestCaseReviewService {
         } else {
             request.setReviewerId(user.getId());
         }
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setProjectId(SessionUtils.getCurrentProjectId());
-        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), SessionUtils.getCurrentWorkspaceId(), user.getLastProjectId()));
 
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setWorkspaceId(workspaceId);
+        request.setProjectId(projectId);
+        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), workspaceId, projectId));
+
+        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(workspaceId);
 
         List<TestReviewDTOWithMetric> testReviews = extTestCaseReviewMapper.listRelate(request);
 
@@ -524,7 +531,7 @@ public class TestCaseReviewService {
                 testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(testReview.getId());
                 List<String> userIds = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample)
                         .stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
-                String reviewName = getReviewName(userIds);
+                String reviewName = getReviewName(userIds, projectId);
                 testReview.setReviewerName(reviewName);
 
                 User u = userMapper.selectByPrimaryKey(testReview.getCreator());
@@ -552,10 +559,10 @@ public class TestCaseReviewService {
         return testReviews;
     }
 
-    private String getReviewName(List<String> userIds) {
+    private String getReviewName(List<String> userIds, String projectId) {
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
-        queryMemberRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        Map<String, String> userMap = userService.getMemberList(queryMemberRequest)
+        queryMemberRequest.setProjectId(projectId);
+        Map<String, String> userMap = userService.getProjectMember(queryMemberRequest)
                 .stream().collect(Collectors.toMap(User::getId, User::getName));
         StringBuilder stringBuilder = new StringBuilder();
         String name = "";
@@ -566,7 +573,9 @@ public class TestCaseReviewService {
                     stringBuilder.append(userMap.get(id)).append("、");
                 }
             }
-            name = stringBuilder.substring(0, stringBuilder.length() - 1);
+            if (StringUtils.isNotBlank(stringBuilder)) {
+                name = stringBuilder.substring(0, stringBuilder.length() - 1);
+            }
         }
         return name;
     }

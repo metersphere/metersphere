@@ -1,11 +1,14 @@
 package io.metersphere.controller;
 
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.RsaKey;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.BaseDisplayService;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
@@ -31,16 +34,19 @@ public class LoginController {
     @GetMapping(value = "/isLogin")
     public ResultHolder isLogin() {
         if (SecurityUtils.getSubject().isAuthenticated()) {
-            SessionUser user = SessionUtils.getUser();
+            UserDTO user = userService.getUserDTO(SessionUtils.getUserId());
             if (StringUtils.isBlank(user.getLanguage())) {
                 user.setLanguage(LocaleContextHolder.getLocale().toString());
             }
-            return ResultHolder.success(user);
+            SessionUser sessionUser = SessionUser.fromUser(user);
+            SessionUtils.putUser(sessionUser);
+            return ResultHolder.success(sessionUser);
         }
         return ResultHolder.error(rsaKey.getPublicKey());
     }
 
     @PostMapping(value = "/signin")
+    @MsAuditLog(module = "auth_title", type = OperLogConstants.LOGIN, title = "登录")
     public ResultHolder login(@RequestBody LoginRequest request) {
         SessionUser sessionUser = SessionUtils.getUser();
         if (sessionUser != null) {
@@ -58,6 +64,7 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
+    @MsAuditLog(module = "auth_title", type = OperLogConstants.LOGIN, title = "登出")
     public ResultHolder logout() throws Exception {
         userService.logout();
         SecurityUtils.getSubject().logout();

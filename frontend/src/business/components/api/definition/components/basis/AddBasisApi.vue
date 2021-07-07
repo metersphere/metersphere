@@ -59,7 +59,7 @@
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD} from "../../model/JsonData";
-  import {getCurrentUser} from "../../../../../../common/js/utils";
+  import {getCurrentProjectID, getCurrentUser} from "../../../../../../common/js/utils";
   import {createComponent, Request} from "../jmeter/components";
 
   export default {
@@ -97,7 +97,7 @@
     },
     computed: {
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {
@@ -178,8 +178,7 @@
         this.httpForm.request = createComponent("DubboSampler");
       },
       getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.maintainerOptions = response.data;
         });
       },

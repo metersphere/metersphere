@@ -5,39 +5,43 @@
         <ms-table-header :create-permission="['WORKSPACE_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
-      <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%"
                 @select-all="handleSelectAll"
                 @select="handleSelect"
                 :height="screenHeight"
                 ref="userTable">
 
         <el-table-column type="selection" width="50"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize>total?total:pageSize"
-                                        :total="total"
-                                        :select-data-counts="selectDataCounts"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
-          <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
-          </template>
-        </el-table-column>
+<!--        <ms-table-header-select-popover v-show="total>0"-->
+<!--                                        :page-size="pageSize>total?total:pageSize"-->
+<!--                                        :total="total"-->
+<!--                                        :select-data-counts="selectDataCounts"-->
+<!--                                        :table-data-count-in-page="tableData.length"-->
+<!--                                        @selectPageAll="isSelectDataAll(false)"-->
+<!--                                        @selectAll="isSelectDataAll(true)"/>-->
+<!--        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">-->
+<!--          <template v-slot:default="scope">-->
+<!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
 
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="groups" label="用户组" width="120">
+        <el-table-column prop="groups" :label="$t('commons.group')" width="150">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.groups" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['WORKSPACE_USER:READ+EDIT']"
-                               :delete-permission="['WORKSPACE_USER:READ+DELETE']"
-                               :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <div>
+              <ms-table-operator :edit-permission="['WORKSPACE_USER:READ+EDIT']"
+                                 :delete-permission="['WORKSPACE_USER:READ+DELETE']"
+                                 :tip2="$t('commons.remove')" @editClick="edit(scope.row)"
+                                 @deleteClick="del(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -45,44 +49,7 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
-               @close="handleClose">
-      <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'change'}">
-          <el-autocomplete
-            class="input-with-autocomplete"
-            v-model="form.memberSign"
-            :placeholder="$t('member.input_id_or_email')"
-            :trigger-on-focus="false"
-            :fetch-suggestions="querySearch"
-            size="small"
-            highlight-first-item
-            value-key="email"
-            @select="handleSelect"
-          >
-            <template v-slot:default="scope">
-              <span class="workspace-member-name">{{scope.item.id}}</span>
-              <span class="workspace-member-email">{{scope.item.email}}</span>
-            </template>
-          </el-autocomplete>
-        </el-form-item>
-        <el-form-item label="用户组" prop="groupIds">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
-            <el-option
-              v-for="item in form.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="createVisible = false"
-          @confirm="submitForm('form')"/>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'WORKSPACE'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
@@ -99,8 +66,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -129,7 +96,7 @@
   import MsDialogFooter from "../../common/components/MsDialogFooter";
   import {
     getCurrentOrganizationId, getCurrentProjectID,
-    getCurrentUser,
+    getCurrentUser, getCurrentWorkspaceId,
     listenGoBack,
     removeGoBackListener
   } from "../../../../common/js/utils";
@@ -144,10 +111,12 @@
   import UserCascader from "@/business/components/settings/system/components/UserCascader";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import {GROUP_WORKSPACE} from "@/common/js/constants";
+  import AddMember from "@/business/components/settings/common/AddMember";
 
   export default {
     name: "MsMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
+    components: {
+      AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
       MsTableHeaderSelectPopover,UserCascader,ShowMoreBtn},
     data() {
       return {
@@ -164,10 +133,10 @@
             {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
           groupIds: [
-            {required: true, message: "请选择用户组", trigger: ['blur']}
+            {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
           ]
         },
-        screenHeight: 'calc(100vh - 255px)',
+        screenHeight: 'calc(100vh - 195px)',
         multipleSelection: [],
         currentPage: 1,
         pageSize: 10,
@@ -185,6 +154,11 @@
         ],
       }
     },
+    computed: {
+      orgId() {
+        return getCurrentOrganizationId();
+      }
+    },
     activated: function () {
       this.initTableData();
     },
@@ -193,19 +167,19 @@
         return getCurrentUser();
       },
       initTableData() {
-        if (this.currentUser().lastWorkspaceId === null) {
+        if (getCurrentWorkspaceId() === null) {
           return false;
         }
         this.loading = true;
         let param = {
           name: this.condition.name,
-          workspaceId: this.currentUser().lastWorkspaceId
+          workspaceId: getCurrentWorkspaceId()
         };
 
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/user/group/list/ws/" + this.currentUser().lastWorkspaceId;
+          let url = "/user/group/list/ws/" + getCurrentWorkspaceId();
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
               let groups = response.data;
@@ -256,7 +230,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/ws/member/delete/' + this.currentUser().lastWorkspaceId + '/' + encodeURIComponent(row.id),() => {
+          this.result = this.$get('/user/ws/member/delete/' + getCurrentWorkspaceId() + '/' + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });
@@ -268,7 +242,7 @@
         this.updateVisible = true;
         this.form = Object.assign({}, row);
         let groupIds = this.form.groups.map(r => r.id);
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.currentUser().lastWorkspaceId}, response => {
+        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: getCurrentOrganizationId()}, response => {
           this.$set(this.form, "allgroups", response.data);
         })
         // 编辑使填充角色信息
@@ -282,7 +256,7 @@
           email: this.form.email,
           phone: this.form.phone,
           groupIds: this.form.groupIds,
-          workspaceId: this.currentUser().lastWorkspaceId
+          workspaceId: getCurrentWorkspaceId()
         }
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -295,55 +269,22 @@
         });
       },
       create() {
-        this.form = {};
-        // let param = {
-        //   name: this.condition.name,
-        //   organizationId: this.currentUser().lastOrganizationId
-        // };
-        let wsId = this.currentUser().lastWorkspaceId;
+        let wsId = getCurrentWorkspaceId();
         if (typeof wsId == "undefined" || wsId == null || wsId == "") {
           this.$warning(this.$t('workspace.please_select_a_workspace_first'));
           return false;
         }
-        // this.$post('/user/org/member/list/all', param, response => {
-        //   this.createVisible = true;
-        //   this.userList = response.data;
-        // })
-        this.$get('/user/list/', response => {
-          this.createVisible = true;
-          this.userList = response.data;
-        })
-        this.result = this.$post('/user/group/list', {type: GROUP_WORKSPACE, resourceId: this.currentUser().lastWorkspaceId}, response => {
-          this.$set(this.form, "groups", response.data);
-        })
+        this.$refs.addMember.open();
         listenGoBack(this.handleClose);
       },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            let userIds = [];
-            let userId = this.form.userId;
-            let email  = this.form.memberSign;
-            let member = this.userList.find(user => user.id === email || user.email === email);
-            if (!member) {
-              this.$warning(this.$t('member.no_such_user'));
-              return false;
-            } else {
-              userId = member.id;
-            }
-            userIds.push(userId);
-            let param = {
-              userIds: userIds,
-              groupIds: this.form.groupIds,
-              workspaceId: this.currentUser().lastWorkspaceId
-            };
-            this.result = this.$post("user/ws/member/add", param, () => {
-              this.$success(this.$t('commons.save_success'));
-              this.initTableData();
-              this.createVisible = false;
-            })
-          }
-        });
+      submitForm(param) {
+        param['workspaceId'] = getCurrentWorkspaceId();
+        this.result = this.$post("user/ws/member/add", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initTableData();
+          this.selectRows.clear();
+          this.$refs.addMember.close();
+        })
       },
       querySearch(queryString, cb) {
         var userList = this.userList;

@@ -219,9 +219,9 @@
         api_test_case t1
         LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
         inner join api_definition a on  t1.api_definition_id = a.id
-        LEFT JOIN USER u1 ON t1.update_user_id = u1.id
-        LEFT JOIN USER u2 ON t1.create_user_id = u2.id
-        LEFT JOIN USER u3 ON t2.user_id = u3.id
+        LEFT JOIN `user` u1 ON t1.update_user_id = u1.id
+        LEFT JOIN `user` u2 ON t1.create_user_id = u2.id
+        LEFT JOIN `user` u3 ON t2.user_id = u3.id
         <where>
             <if test="request.name != null and request.name!=''">
                 and t1.name like CONCAT('%', #{request.name},'%')
@@ -265,22 +265,19 @@
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
         t1.id, t1.project_id, t1.name, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
-        a.module_id, a.path, a.protocol, t1.tags,TRIM('"' from JSON_EXTRACT(t1.request, '$.path') )as casePath
+        a.module_id, a.path, a.protocol, t1.tags,TRIM('"' from JSON_EXTRACT(t1.request, '$.path') )as casePath,
+        t1.delete_time, deleteUser.name AS deleteUser
         from
         api_test_case t1
         LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
+        LEFT JOIN user deleteUser ON t1.delete_user_id = deleteUser.id
         inner join api_definition a on  t1.api_definition_id = a.id
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
         </if>
-        <choose>
-            <when test="request.status == 'Trash'">
-                and a.status = 'Trash'
-            </when>
-            <otherwise>
-                and a.status != 'Trash'
-            </otherwise>
-        </choose>
+        <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+            and t1.api_definition_id = #{request.apiDefinitionId}
+        </if>
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -328,9 +325,21 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='status'">
+                                and t1.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
+                    <if test="key=='status' and values.size == 0">
+                        and (t1.status is null or t1.status != 'Trash')
+                    </if>
                 </foreach>
+            </if>
+            <if test="request.filters == null || request.filters.size() == 0 ">
+                and (t1.status is null or t1.status != 'Trash')
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
@@ -409,12 +418,12 @@
                 </foreach>
             </if>
         </where>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
-            </foreach>
-        </if>
+<!--        <if test="request.orders != null and request.orders.size() > 0">-->
+<!--            order by-->
+<!--            <foreach collection="request.orders" separator="," item="order">-->
+<!--                ${order.name} ${order.type}-->
+<!--            </foreach>-->
+<!--        </if>-->
     </select>
     <select id="selectIdsNotExistsInPlan" resultType="java.lang.String">
         select c.id
@@ -441,6 +450,11 @@
         INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
         WHERE testCase.project_id = #{0} AND apiDef.status != "Trash"
         GROUP BY apiDef.protocol
+    </select>
+    <select id="findApiUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
+        SELECT method,path FROM api_definition WHERE id IN (
+            SELECT api_definition_id FROM api_test_case WHERE id = #{0}
+        )
     </select>
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
@@ -491,4 +505,40 @@
         select id,api_definition_id from api_test_case where project_id = #{projectId}
     </select>
 
+    <select id="getCannotReductionApiCaseList" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+        SELECT testCase.id,testCase.`name`,ad.`name` AS apiName FROM api_test_case testCase
+            INNER JOIN api_definition ad ON testCase.api_definition_id = ad.id
+        WHERE ad.`status` = 'Trash'
+        AND testCase.id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
+    <select id="selectCaseIdsByApiIds" resultType="java.lang.String">
+        SELECT testCase.id FROM api_test_case testCase
+        WHERE testCase.api_definition_id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
+    <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">
+        update api_test_case
+        set original_status=status,
+        status = 'Trash',delete_time = #{deleteTime},delete_user_id = #{deleteUserId}
+        where id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+
+    <update id="reduction">
+        update api_test_case
+        set status = original_status
+        where id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
 </mapper>

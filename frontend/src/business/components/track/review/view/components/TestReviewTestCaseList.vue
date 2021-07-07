@@ -35,12 +35,14 @@
       <ms-table-header-select-popover v-show="total>0"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
+                                      :table-data-count-in-page="tableData.length"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
       <el-table-column width="40" :resizable="false" align="center">
         <template v-slot:default="scope">
-          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          <show-more-btn :is-show-tool="scope.row.showTool" :is-show="scope.row.showMore" :buttons="buttons"
+                         :size="selectDataCounts"/>
         </template>
       </el-table-column>
       <template v-for="(item, index) in tableLabel">
@@ -78,26 +80,34 @@
         </el-table-column>
 
         <el-table-column
-            v-if="item.id == 'type'"
-            prop="type"
-            :filters="typeFilters"
-            column-key="type"
-            min-width="100"
-            :label="$t('test_track.case.type')"
-            show-overflow-tooltip
-            :key="index">
+          v-if="item.id == 'type'"
+          prop="type"
+          :filters="typeFilters"
+          column-key="type"
+          min-width="100"
+          :label="$t('test_track.case.type')"
+          show-overflow-tooltip
+          :key="index">
           <template v-slot:default="scope">
             <type-table-item :value="scope.row.type"/>
           </template>
         </el-table-column>
-
         <el-table-column
-            v-if="item.id=='nodePath'"
-            prop="nodePath"
-            min-width="180"
-            :label="$t('test_track.case.module')"
-            show-overflow-tooltip
-            :key="index"
+          v-if="item.id == 'maintainer'"
+          prop="maintainer"
+          :label="$t('custom_field.case_maintainer')"
+          show-overflow-tooltip
+          :key="index"
+          min-width="120"
+        >
+        </el-table-column>
+        <el-table-column
+          v-if="item.id=='nodePath'"
+          prop="nodePath"
+          min-width="180"
+          :label="$t('test_track.case.module')"
+          show-overflow-tooltip
+          :key="index"
         >
         </el-table-column>
 
@@ -156,12 +166,14 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator-button v-permission="['PROJECT_TRACK_CASE:READ+EDIT']" :tip="$t('commons.edit')"
-                                    icon="el-icon-edit"
-                                    @exec="handleEdit(scope.row)"/>
-          <ms-table-operator-button v-permission="['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']"
-                                    :tip="$t('test_track.plan_view.cancel_relevance')"
-                                    icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+          <div>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_CASE:READ+EDIT']" :tip="$t('commons.edit')"
+                                      icon="el-icon-edit"
+                                      @exec="handleEdit(scope.row)"/>
+            <ms-table-operator-button v-permission="['PROJECT_TRACK_REVIEW:READ+RELEVANCE_OR_CANCEL']"
+                                      :tip="$t('test_track.plan_view.cancel_relevance')"
+                                      icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)"/>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -237,7 +249,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_CASE_LIST,
       headerItems: Test_Case_Review_Case_List,
-      screenHeight: 'calc(100vh - 330px)',
+      screenHeight: 'calc(100vh - 270px)',
       tableLabel: [],
       result: {},
       condition: {},
@@ -536,7 +548,7 @@ export default {
 }
 
 /deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+  top: 48px !important;
 }
 </style>
 

@@ -77,7 +77,6 @@ public class APITestService {
 
     public List<APITestResult> recentTest(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestMapper.list(request);
     }
 
@@ -204,7 +203,7 @@ public class APITestService {
         }
         deleteFileByTestId(testId);
         apiReportService.deleteByTestId(testId);
-        scheduleService.deleteByResourceId(testId);
+        scheduleService.deleteByResourceId(testId, ScheduleGroup.API_TEST.name());
         apiTestMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }
@@ -237,7 +236,7 @@ public class APITestService {
             mailService.sendHtml(reportId,notice,"api");
         }*/
         changeStatus(request.getId(), APITestStatus.Running);
-        jMeterService.run(request.getId(), null, is);
+        jMeterService.runOld(request.getId(), null, is);
         return reportId;
     }
 
@@ -412,8 +411,8 @@ public class APITestService {
             ApiTestExample example = new ApiTestExample();
             ApiTestExample.Criteria criteria = example.createCriteria();
             criteria.andIdIn(resourceIds);
-            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            if (StringUtils.isNotBlank(request.getProjectId())) {
+                criteria.andProjectIdEqualTo(request.getProjectId());
             }
             List<ApiTest> apiTests = apiTestMapper.selectByExample(example);
             Map<String, String> apiTestMap = apiTests.stream().collect(Collectors.toMap(ApiTest::getId, ApiTest::getName));
@@ -446,7 +445,7 @@ public class APITestService {
             LogUtil.error(e.getMessage(), e);
         }
 
-        jMeterService.run(request.getId(), reportId, is);
+        jMeterService.runOld(request.getId(), reportId, is);
         return reportId;
     }
 
@@ -467,7 +466,6 @@ public class APITestService {
     /**
      * 更新jmx数据，处理jmx里的各种参数
      * <p>
-     * 注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
      *
      * @param jmxString      原JMX文件
      * @param testNameParam  某些节点要替换的testName
@@ -476,7 +474,6 @@ public class APITestService {
      * @author song tianyang
      */
     public JmxInfoDTO updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
-        //注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
         String attribute_testName = "testname";
         String[] requestElementNameArr = new String[]{"HTTPSamplerProxy", "TCPSampler", "JDBCSampler", "DubboSample"};
 
@@ -533,11 +530,13 @@ public class APITestService {
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
 
+        List<FileMetadata> fileMetadataList = new ArrayList<>();
         for (String filePath: attachmentFilePathList) {
             File file  = new File(filePath);
             if(file.exists() && file.isFile()){
                 try{
                     FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file));
+                    fileMetadataList.add(fileMetadata);
                     attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
                 }catch (Exception e){
                     e.printStackTrace();
@@ -546,7 +545,7 @@ public class APITestService {
         }
 
         JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx",jmxString,attachmentFiles);
-
+        returnDTO.setFileMetadataList(fileMetadataList);
         return returnDTO;
     }
 

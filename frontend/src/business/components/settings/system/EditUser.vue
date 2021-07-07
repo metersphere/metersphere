@@ -4,9 +4,9 @@
              @closed="handleClose" class="edit-user-dialog"
              :destroy-on-close="true">
     <div v-loading="result.loading">
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
+      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
-          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')"/>
+          <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')" :disabled="type === 'Edit'"/>
         </el-form-item>
         <el-form-item :label="$t('commons.username')" prop="name">
           <el-input v-model="form.name" autocomplete="off" :placeholder="$t('user.input_name')"/>
@@ -93,7 +93,7 @@
         <el-form-item>
           <template>
             <el-button type="success" style="width: 100%;" @click="addGroup('createUserForm')" :disabled="btnAddRole">
-              {{ $t('role.add') }}
+              {{ $t('group.add') }}
             </el-button>
           </template>
         </el-form-item>
@@ -111,7 +111,7 @@
 </template>
 
 <script>
-import {PHONE_REGEX} from "@/common/js/regex";
+import {EMAIL_REGEX, PHONE_REGEX} from "@/common/js/regex";
 import {GROUP_ORGANIZATION, GROUP_PROJECT, GROUP_SYSTEM, GROUP_WORKSPACE} from "@/common/js/constants";
 
 export default {
@@ -159,7 +159,7 @@ export default {
           {required: true, message: this.$t('user.input_email'), trigger: 'blur'},
           {
             required: true,
-            pattern: /^[a-zA-Z0-9_._-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/,
+            pattern: EMAIL_REGEX,
             message: this.$t('user.email_format_is_incorrect'),
             trigger: 'blur'
           }

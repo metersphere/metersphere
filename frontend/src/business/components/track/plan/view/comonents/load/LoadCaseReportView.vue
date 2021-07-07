@@ -54,6 +54,9 @@
             <el-tab-pane :label="$t('report.test_overview')">
               <ms-report-test-overview :report="report" ref="testOverview"/>
             </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_details')">
+              <ms-report-test-details :report="report" ref="testDetails"/>
+            </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
               <ms-report-request-statistics :report="report" ref="requestStatistics"/>
             </el-tab-pane>
@@ -101,6 +104,7 @@ import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsPerformancePressureConfig from "@/business/components/performance/report/components/PerformancePressureConfig";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
+import MsReportTestDetails from '@/business/components/performance/report/components/TestDetails';
 
 
 export default {
@@ -112,6 +116,7 @@ export default {
     MsReportLogDetails,
     MsReportRequestStatistics,
     MsReportTestOverview,
+    MsReportTestDetails,
     MsContainer,
     MsMainContainer,
     MsPerformancePressureConfig
@@ -286,10 +291,14 @@ export default {
 
       this.$nextTick(function () {
         setTimeout(() => {
-          html2canvas(document.getElementById('performanceReportExport'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
+          let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog'];
+          let promises = [];
+          ids.forEach(id => {
+            let promise = html2canvas(document.getElementById(id), {scale: 2});
+            promises.push(promise);
+          });
+          Promise.all(promises).then(function (canvas) {
+            exportPdf(name, canvas);
             reset();
           });
         }, 1000);
@@ -312,7 +321,7 @@ export default {
           // 非IE下载
           //  chrome/firefox
           let aTag = document.createElement('a');
-          aTag.download = this.reportId + ".jtl";
+          aTag.download = this.reportName + ".jtl";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
           URL.revokeObjectURL(aTag.href)

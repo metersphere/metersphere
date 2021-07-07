@@ -34,4 +34,6 @@ public interface ExtTestReviewCaseMapper {
     List<String> selectIds(@Param("request") QueryCaseReviewRequest request);
 
     List<String> selectTestCaseIds(@Param("request") QueryCaseReviewRequest request);
+
+    List<TestReviewCaseDTO> listForMinder(@Param("request") QueryCaseReviewRequest request);
 }

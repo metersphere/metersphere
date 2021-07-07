@@ -4,6 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
+      :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
@@ -29,6 +30,7 @@
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
+          @schedule="$emit('schedule')"
           @refresh="refresh"
           @debug="debug"/>
       </template>
@@ -46,7 +48,8 @@
   import ApiImport from "../import/ApiImport";
   import MsNodeTree from "../../../../track/common/NodeTree";
   import ApiModuleHeader from "./ApiModuleHeader";
-  import {buildNodePath, buildTree} from "../../model/NodeTree";
+  import {buildTree} from "../../model/NodeTree";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: 'MsApiModule',
@@ -59,6 +62,7 @@
     },
     data() {
       return {
+        openType: 'relevance',
         result: {},
         condition: {
           protocol: OPTIONS[0].value,
@@ -79,7 +83,8 @@
       showOperator: Boolean,
       planId: String,
       relevanceProjectId: String,
-      reviewId: String
+      reviewId: String,
+      pageSource:String,
     },
     computed: {
       isPlanModel() {
@@ -92,8 +97,15 @@
         return this.reviewId ? true : false;
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
+      getIsRelevance(){
+        if(this.pageSource !== 'definition'){
+          return this.openType;
+        }else {
+          return "definition";
+        }
+      }
     },
     mounted() {
       this.initProtocol();

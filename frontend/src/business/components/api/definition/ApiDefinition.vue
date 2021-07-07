@@ -13,7 +13,9 @@
           @setModuleOptions="setModuleOptions"
           @setNodeTree="setNodeTree"
           @enableTrash="enableTrash"
+          @schedule="handleTabsEdit($t('api_test.api_import.timing_synchronization'), 'SCHEDULE')"
           :type="'edit'"
+          page-source="definition"
           ref="nodeTree"/>
       </ms-aside-container>
 
@@ -54,6 +56,8 @@
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
                 @refreshTable="refresh"
+                :init-api-table-opretion="initApiTableOpretion"
+                @updateInitApiTableOpretion="updateInitApiTableOpretion"
                 ref="apiList"/>
               <!--测试用例列表-->
               <api-case-simple-list
@@ -115,12 +119,18 @@
                                       :project-id="projectId"
                                       @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
             </div>
+
+            <!-- 定时任务 -->
+            <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
+              <api-schedule :module-options="nodeTree"/>
+            </div>
+
             <div v-else-if="item.type=== 'MOCK'" class="ms-api-div">
               <mock-config :base-mock-config-data="item.mock"></mock-config>
             </div>
           </el-tab-pane>
 
-          <el-tab-pane name="add">
+          <el-tab-pane name="add" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
             <template v-slot:label>
               <el-dropdown @command="handleCommand">
                 <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
@@ -160,17 +170,16 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentUser, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
 import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
-import {getLabel} from "@/common/js/tableUtils";
-import {API_CASE_LIST, API_LIST} from "@/common/js/constants";
 
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
+import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
 
 export default {
   name: "ApiDefinition",
@@ -185,10 +194,11 @@ export default {
       return false;
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   components: {
+    ApiSchedule,
     MsTabButton,
     MsTableButton,
     ApiCaseSimpleList,
@@ -241,18 +251,14 @@ export default {
       syncTabs: [],
       nodeTree: [],
       currentModulePath: "",
+      //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
+      initApiTableOpretion: 'init',
     };
   },
   created() {
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
-    }
-    if (this.activeDom === 'left') {
-      getLabel(this, API_LIST);
-    } else if (this.activeDom === 'right') {
-      getLabel(this, API_CASE_LIST);
-
     }
   },
   watch: {
@@ -281,6 +287,7 @@ export default {
   },
 
   methods: {
+    hasPermission,
     getPath(id, arr) {
       if (id === null) {
         return null;
@@ -456,7 +463,7 @@ export default {
     },
     refresh(data) {
       this.$refs.apiList[0].initTable(data);
-      this.$refs.nodeTree.list();
+      //this.$refs.nodeTree.list();
     },
     refreshTree() {
       this.$refs.nodeTree.list();
@@ -487,9 +494,11 @@ export default {
       this.debug(row);
     },
     nodeChange(node, nodeIds, pNodes) {
+      this.initApiTableOpretion = "selectNodeIds";
       this.selectNodeIds = nodeIds;
     },
     handleProtocolChange(protocol) {
+      this.initApiTableOpretion = "currentProtocol";
       this.currentProtocol = protocol;
     },
     setModuleOptions(data) {
@@ -502,7 +511,11 @@ export default {
       this.$route.params.dataSelectRange = 'all';
     },
     enableTrash(data) {
+      this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
+    },
+    updateInitApiTableOpretion(param){
+      this.initApiTableOpretion = param;
     }
   }
 };

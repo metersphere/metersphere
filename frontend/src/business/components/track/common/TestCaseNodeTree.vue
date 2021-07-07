@@ -21,6 +21,7 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
+          <module-trash-button :condition="condition" :exe="enableTrash"/>
       </template>
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
@@ -43,10 +44,12 @@ import TestCaseImport from "@/business/components/track/case/components/TestCase
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
+import {getCurrentProjectID} from "@/common/js/utils";
+import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
 
 export default {
   name: "TestCaseNodeTree",
-  components: {MsSearchBar, TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit},
+  components: {MsSearchBar, TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit,ModuleTrashButton},
   data() {
     return {
       defaultProps: {
@@ -100,7 +103,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {
@@ -123,6 +126,10 @@ export default {
     refreshAll() {
       this.$emit('refreshAll');
     },
+    enableTrash(){
+      this.condition.trashEnable = true;
+      this.$emit('enableTrash', this.condition.trashEnable);
+    },
     list() {
       if (this.projectId) {
         this.result = this.$get("/case/node/list/" + this.projectId, response => {
@@ -136,6 +143,12 @@ export default {
           }
         });
       }
+    },
+    increase(id) {
+      this.$refs.nodeTree.increase(id);
+    },
+    decrease(id) {
+      this.$refs.nodeTree.decrease(id);
     },
     edit(param) {
       param.projectId = this.projectId;

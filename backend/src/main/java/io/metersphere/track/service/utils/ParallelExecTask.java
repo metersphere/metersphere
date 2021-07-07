@@ -30,6 +30,7 @@ public class ParallelExecTask<T> implements Callable<T> {
             TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
             testPlanLoadCase.setId(request.getTestPlanLoadId());
             testPlanLoadCase.setLoadReportId(reportId);
+            testPlanLoadCase.setStatus("run");
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
             return (T) reportId;
 

@@ -37,7 +37,10 @@
             <div v-if="timeDates.indexOf(n.columnName)!==-1">
               {{n.columnTitle}}：{{ n.originalValue | timestampFormatDate }}
             </div>
-            <div style="overflow: auto" v-else>
+            <div v-else-if="isJson(n.originalValue)">
+              {{n.columnTitle}}：<pre>{{n.originalValue}}</pre>
+            </div>
+            <div style="margin-top: 10px" v-else>
               {{n.columnTitle}}：{{n.originalValue}}
             </div>
           </span>
@@ -116,6 +119,19 @@
       }
     },
     methods: {
+      isJson(jsonStr) {
+        try {
+          let numRe = new RegExp("^[0-9]*$");
+          if (!jsonStr || "null" === jsonStr || numRe.test(jsonStr)) {
+            return false;
+          } else {
+            JSON.parse(jsonStr);
+            return true;
+          }
+        } catch (e) {
+          return false;
+        }
+      },
       handleClose() {
         this.infoVisible = false;
       },
@@ -127,10 +143,6 @@
         this.result = this.$get("/operating/log/get/" + id, response => {
           let data = response.data;
           this.detail = data;
-          //let delta = jsondiffpatch.diff(this.d1, this.d2);/
-          //document.getElementById('visual').innerHTML = formattersHtml.format(delta, this.d1);
-          // self-explained json
-          //document.getElementById('annotated').innerHTML = jsondiffpatch.formatters.annotated.format(delta, this.d1);
         })
       },
       open(id) {
@@ -147,11 +159,4 @@
 <style scoped>
   @import "~jsondiffpatch/dist/formatters-styles/html.css";
   @import "~jsondiffpatch/dist/formatters-styles/annotated.css";
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-  }
 </style>

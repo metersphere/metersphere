@@ -9,6 +9,7 @@
                 v-for="item in resourcePools"
                 :key="item.id"
                 :label="item.name"
+                :disabled="!item.performance"
                 :value="item.id">
               </el-option>
             </el-select>
@@ -65,7 +66,7 @@
                   :disabled="isReadOnly"
                   v-model="threadGroup.threadNumber"
                   @change="calculateTotalChart()"
-                  :min="resourcePoolResourceLength"
+                  :min="1"
                   :max="maxThreadNumbers"
                   size="mini"/>
               </el-form-item>
@@ -245,7 +246,6 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-      resourcePoolResourceLength: 1,
       maxThreadNumbers: 5000,
       serializeThreadGroups: false,
       autoStop: false,
@@ -265,7 +265,9 @@ export default {
   },
   watch: {
     test(n) {
-      this.resourcePool = n.testResourcePoolId;
+      if (n.testResourcePoolId) {
+        this.resourcePool = n.testResourcePoolId;
+      }
     },
     testId() {
       if (this.testId) {
@@ -403,11 +405,6 @@ export default {
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
       }
-      // 线程数不能小于资源池节点的数量
-      let resourcePool = this.resourcePools.filter(v => v.id === this.resourcePool)[0];
-      if (resourcePool) {
-        this.resourcePoolResourceLength = resourcePool.resources.length;
-      }
       let color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
       handler.options = {
         color: color,
@@ -528,11 +525,7 @@ export default {
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
       }
-      // 线程数不能小于资源池节点的数量
-      let resourcePool = this.resourcePools.filter(v => v.id === this.resourcePool)[0];
-      if (resourcePool) {
-        this.resourcePoolResourceLength = resourcePool.resources.length;
-      }
+
       handler.options = {
         xAxis: {
           type: 'category',
@@ -747,7 +740,6 @@ export default {
 }
 
 .el-col {
-  margin-top: 5px;
   text-align: left;
 }
 

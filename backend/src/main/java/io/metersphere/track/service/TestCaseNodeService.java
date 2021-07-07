@@ -142,14 +142,58 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setUserId(SessionUtils.getUserId());
         request.setProjectId(projectId);
+//        for (TestCaseNodeDTO node : testCaseNodes) {
+//            List<String> nodeIds = new ArrayList<>();
+//            nodeIds = this.nodeList(testCaseNodes, node.getId(), nodeIds);
+//            nodeIds.add(node.getId());
+//            request.setNodeIds(nodeIds);
+//            node.setCaseNum(extTestCaseMapper.moduleCount(request));
+//        }
+        //优化：将for循环内的SQL抽出来，只差一次
+        List<String> allModuleIdList = new ArrayList<>();
         for (TestCaseNodeDTO node : testCaseNodes) {
-            List<String> nodeIds = new ArrayList<>();
-            nodeIds = this.nodeList(testCaseNodes, node.getId(), nodeIds);
-            nodeIds.add(node.getId());
-            request.setNodeIds(nodeIds);
-            node.setCaseNum(extTestCaseMapper.moduleCount(request));
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(testCaseNodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            for (String moduleId : moduleIds) {
+                if(!allModuleIdList.contains(moduleId)){
+                    allModuleIdList.add(moduleId);
+                }
+            }
         }
+        request.setModuleIds(allModuleIdList);
+        List<Map<String,Object>> moduleCountList = extTestCaseMapper.moduleCountByCollection(request);
+        Map<String,Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
+        testCaseNodes.forEach(node -> {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(testCaseNodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            int countNum = 0;
+            for (String moduleId : moduleIds) {
+                if(moduleCountMap.containsKey(moduleId)){
+                    countNum += moduleCountMap.get(moduleId).intValue();
+                }
+            }
+            node.setCaseNum(countNum);
+        });
         return getNodeTrees(testCaseNodes);
+    }
+
+    private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
+        Map<String,Integer> returnMap = new HashMap<>();
+        for (Map<String, Object> map: moduleCountList){
+            Object moduleIdObj = map.get("moduleId");
+            Object countNumObj = map.get("countNum");
+            if(moduleIdObj!= null && countNumObj != null){
+                String moduleId = String.valueOf(moduleIdObj);
+                try {
+                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
+                    returnMap.put(moduleId,countNumInteger);
+                }catch (Exception e){
+                }
+            }
+        }
+        return returnMap;
     }
 
     public static List<String> nodeList(List<TestCaseNodeDTO> testCaseNodes, String pid, List<String> list) {
@@ -505,6 +549,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
         QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
         testCaseRequest.setNodeIds(nodeIds);
+        if(testCaseRequest.getFilters()!=null && !testCaseRequest.getFilters().containsKey("status")){
+            testCaseRequest.getFilters().put("status",new ArrayList<>(0));
+        }
         return extTestCaseMapper.list(testCaseRequest);
     }
 

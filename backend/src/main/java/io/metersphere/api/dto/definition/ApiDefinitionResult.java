@@ -17,4 +17,6 @@ public class ApiDefinitionResult extends ApiDefinitionWithBLOBs {
     private String caseStatus;
 
     private String casePassingRate;
+
+    private String deleteUser;
 }

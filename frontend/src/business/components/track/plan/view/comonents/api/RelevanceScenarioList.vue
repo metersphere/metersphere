@@ -8,8 +8,8 @@
             <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
                       @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
           </el-col>
-
           <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                        :project-list="projectList" ref="envPopover" class="env-popover"/>
         </el-row>
       </template>
@@ -64,7 +64,6 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../../../common/components/MsTag";
-  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
   import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
@@ -92,6 +91,7 @@
     data() {
       return {
         result: {},
+        showConfigButtonWithOutPermission:false,
         condition: {},
         currentScenario: {},
         schedule: {},

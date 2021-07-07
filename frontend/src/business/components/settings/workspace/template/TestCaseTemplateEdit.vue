@@ -54,6 +54,7 @@ import FieldTemplateEdit from "@/business/components/settings/workspace/template
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
 import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
+import {listenGoBack} from "@/common/js/utils";
 
 export default {
   name: "TestCaseTemplateEdit",
@@ -117,6 +118,9 @@ export default {
         } else {
           this.url = 'field/template/case/update';
         }
+        listenGoBack(() => {
+          this.showDialog = false;
+        });
       } else {
         this.form = {
           id: "",

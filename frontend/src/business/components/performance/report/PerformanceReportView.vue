@@ -26,7 +26,8 @@
                          @click="rerun(testId)">
                 {{ $t('report.test_execute_again') }}
               </el-button>
-              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
+              <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)"
+                         v-permission="['PROJECT_PERFORMANCE_REPORT:READ+EXPORT']">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
@@ -84,6 +85,9 @@
             <el-tab-pane :label="$t('report.test_overview')">
               <ms-report-test-overview :report="report" ref="testOverview"/>
             </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_details')">
+              <ms-report-test-details :report="report" ref="testDetails"/>
+            </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
               <ms-report-request-statistics :report="report" ref="requestStatistics"/>
             </el-tab-pane>
@@ -122,6 +126,7 @@
 import MsReportErrorLog from './components/ErrorLog';
 import MsReportLogDetails from './components/LogDetails';
 import MsReportRequestStatistics from './components/RequestStatistics';
+import MsReportTestDetails from './components/TestDetails';
 import MsReportTestOverview from './components/TestOverview';
 import MsPerformancePressureConfig from "./components/PerformancePressureConfig";
 import MsContainer from "../../common/components/MsContainer";
@@ -147,6 +152,7 @@ export default {
     MsReportTestOverview,
     MsContainer,
     MsMainContainer,
+    MsReportTestDetails,
     MsPerformancePressureConfig
   },
   data() {
@@ -322,10 +328,14 @@ export default {
 
       this.$nextTick(function () {
         setTimeout(() => {
-          html2canvas(document.getElementById('performanceReportExport'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
+          let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog'];
+          let promises = [];
+          ids.forEach(id => {
+            let promise = html2canvas(document.getElementById(id), {scale: 2});
+            promises.push(promise);
+          });
+          Promise.all(promises).then(function (canvas) {
+            exportPdf(name, canvas);
             reset();
           });
         }, 1000);
@@ -348,7 +358,7 @@ export default {
           // 非IE下载
           //  chrome/firefox
           let aTag = document.createElement('a');
-          aTag.download = this.reportId + ".zip";
+          aTag.download = this.reportName + ".zip";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
           URL.revokeObjectURL(aTag.href);

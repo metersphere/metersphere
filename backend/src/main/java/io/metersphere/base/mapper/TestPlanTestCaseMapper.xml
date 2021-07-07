@@ -12,6 +12,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="issues_count" jdbcType="INTEGER" property="issuesCount" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     <result column="results" jdbcType="LONGVARCHAR" property="results" />
@@ -78,7 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, plan_id, case_id, executor, `status`, remark, create_time, update_time, report_id, 
-    create_user
+    create_user, issues_count
   </sql>
   <sql id="Blob_Column_List">
     results, issues, actual_result
@@ -135,13 +136,13 @@
     insert into test_plan_test_case (id, plan_id, case_id, 
       executor, `status`, remark, 
       create_time, update_time, report_id, 
-      create_user, results, issues, 
-      actual_result)
+      create_user, issues_count, results, 
+      issues, actual_result)
     values (#{id,jdbcType=VARCHAR}, #{planId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{executor,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{reportId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{results,jdbcType=LONGVARCHAR}, #{issues,jdbcType=LONGVARCHAR}, 
-      #{actualResult,jdbcType=LONGVARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{issuesCount,jdbcType=INTEGER}, #{results,jdbcType=LONGVARCHAR}, 
+      #{issues,jdbcType=LONGVARCHAR}, #{actualResult,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanTestCaseWithBLOBs">
     insert into test_plan_test_case
@@ -175,6 +176,9 @@
       </if>
       <if test="createUser != null">
         create_user,
+      </if>
+      <if test="issuesCount != null">
+        issues_count,
       </if>
       <if test="results != null">
         results,
@@ -216,6 +220,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="issuesCount != null">
+        #{issuesCount,jdbcType=INTEGER},
       </if>
       <if test="results != null">
         #{results,jdbcType=LONGVARCHAR},
@@ -267,6 +274,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.issuesCount != null">
+        issues_count = #{record.issuesCount,jdbcType=INTEGER},
+      </if>
       <if test="record.results != null">
         results = #{record.results,jdbcType=LONGVARCHAR},
       </if>
@@ -293,6 +303,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
+      issues_count = #{record.issuesCount,jdbcType=INTEGER},
       results = #{record.results,jdbcType=LONGVARCHAR},
       issues = #{record.issues,jdbcType=LONGVARCHAR},
       actual_result = #{record.actualResult,jdbcType=LONGVARCHAR}
@@ -311,7 +322,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       report_id = #{record.reportId,jdbcType=VARCHAR},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      issues_count = #{record.issuesCount,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -346,6 +358,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="issuesCount != null">
+        issues_count = #{issuesCount,jdbcType=INTEGER},
+      </if>
       <if test="results != null">
         results = #{results,jdbcType=LONGVARCHAR},
       </if>
@@ -369,6 +384,7 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       report_id = #{reportId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
+      issues_count = #{issuesCount,jdbcType=INTEGER},
       results = #{results,jdbcType=LONGVARCHAR},
       issues = #{issues,jdbcType=LONGVARCHAR},
       actual_result = #{actualResult,jdbcType=LONGVARCHAR}
@@ -384,7 +400,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       report_id = #{reportId,jdbcType=VARCHAR},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      issues_count = #{issuesCount,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

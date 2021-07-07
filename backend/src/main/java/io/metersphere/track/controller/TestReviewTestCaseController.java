@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestCaseReviewTestCase;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
@@ -13,8 +12,6 @@ import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import io.metersphere.track.service.TestReviewTestCaseService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -57,9 +54,9 @@ public class TestReviewTestCaseController {
         testReviewTestCaseService.editTestCaseForMinder(testCases);
     }
 
-    @PostMapping("/list/all")
-    public List<TestReviewCaseDTO> getTestReviewCases(@RequestBody QueryCaseReviewRequest request) {
-        return testReviewTestCaseService.list(request);
+    @PostMapping("/list/minder")
+    public List<TestReviewCaseDTO> listForMinder(@RequestBody QueryCaseReviewRequest request) {
+        return testReviewTestCaseService.listForMinder(request);
     }
 
     @PostMapping("/edit")

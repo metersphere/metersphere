@@ -145,14 +145,7 @@ public class UserController {
     @PostMapping("/update/current")
     @MsAuditLog(module = "personal_information_personal_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#user.id)", content = "#msClass.getLogDetails(#user.id)", msClass = UserService.class)
     public UserDTO updateCurrentUser(@RequestBody User user) {
-        String currentUserId = SessionUtils.getUserId();
-        if (!StringUtils.equals(currentUserId, user.getId())) {
-            MSException.throwException(Translator.get("not_authorized"));
-        }
-        userService.updateUser(user);
-        UserDTO userDTO = userService.getUserDTO(user.getId());
-        SessionUtils.putUser(SessionUser.fromUser(userDTO));
-        return SessionUtils.getUser();
+        return userService.updateCurrentUser(user);
     }
 
     @PostMapping("/switch/source/org/{sourceId}")
@@ -278,11 +271,11 @@ public class UserController {
     }
 
     /**
-     * 组织成员列表不分页
+     * 组织下所有相关人员
      */
     @PostMapping("/org/member/list/all")
     public List<User> getOrgMemberList(@RequestBody QueryOrgMemberRequest request) {
-        return userService.getOrgMemberList(request);
+        return userService.getOrgAllMember(request);
     }
 
     @GetMapping("/besideorg/list/{orgId}")
@@ -314,6 +307,11 @@ public class UserController {
         return userService.getTestManagerAndTestUserList(request);
     }
 
+    @PostMapping("/project/member/tester/list")
+    public List<User> getProjectMember(@RequestBody QueryMemberRequest request) {
+        return userService.getProjectMember(request);
+    }
+
     @GetMapping("/search/{condition}")
     public List<User> searchUser(@PathVariable String condition) {
         return userService.searchUser(condition);
@@ -324,10 +322,10 @@ public class UserController {
         userService.userTemplateExport(response);
     }
 
-    @PostMapping("/import/{userId}")
+    @PostMapping("/import")
     @MsAuditLog(module = "system_user", type = OperLogConstants.IMPORT)
-    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId, HttpServletRequest request) {
-        return userService.userImport(file, userId, request);
+    public ExcelResponse testCaseImport(MultipartFile file, HttpServletRequest request) {
+        return userService.userImport(file, request);
     }
 
     @PostMapping("/special/batchProcessUserInfo")

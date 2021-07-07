@@ -7,15 +7,13 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -27,6 +25,8 @@ public class APIScenarioReportController {
 
     @Resource
     private ApiScenarioReportService apiReportService;
+    @Resource
+    private MsResultService resultService;
 
     @GetMapping("/get/{reportId}")
     public APIScenarioReportResult get(@PathVariable String reportId) {
@@ -36,7 +36,6 @@ public class APIScenarioReportController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<APIScenarioReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiReportService.list(request));
     }
 
@@ -56,6 +55,16 @@ public class APIScenarioReportController {
     @MsAuditLog(module = "api_automation_report", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#reportRequest.ids)", msClass = ApiScenarioReportService.class)
     public void deleteAPIReportBatch(@RequestBody APIReportBatchRequest reportRequest) {
         apiReportService.deleteAPIReportBatch(reportRequest);
+    }
+
+    @GetMapping("/get/real/{reportId}")
+    public TestResult getRealReport(@PathVariable String reportId) {
+        return resultService.getResult(reportId);
+    }
+
+    @GetMapping("/remove/real/{reportId}")
+    public void removeRealReport(@PathVariable String reportId) {
+        resultService.delete(reportId);
     }
 
 }

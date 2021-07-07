@@ -10,11 +10,17 @@
                   AND w.name LIKE #{request.name,jdbcType=VARCHAR}
               </if>
           </where>
-          order by w.update_time desc
+        order by w.update_time desc
     </select>
 
     <select id="getWorkspaceIdsByOrgId" resultType="java.lang.String">
-        select id from workspace
+        select id
+        from workspace
+        where organization_id = #{orgId}
+    </select>
+    <select id="getWorkspaceIdsOrgId" resultType="io.metersphere.dto.WorkspaceDTO">
+        select *
+        from workspace
         where organization_id = #{orgId}
     </select>
 

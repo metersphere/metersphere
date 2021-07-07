@@ -93,6 +93,11 @@
         </foreach>
     </select>
 
+    <select id="queryName" resultType="io.metersphere.base.domain.User">
+        select id, name
+        from `user`
+    </select>
+
     <select id="selectAllId" resultType="java.lang.String">
         select id from `user`
     </select>
@@ -102,4 +107,14 @@
         from user
         <include refid="queryWhereCondition"/>
     </select>
+
+    <update id="updateLastProjectIdIfNull">
+        update user set last_project_id = #{projectId} where id = #{userId}
+        and (last_project_id is null or last_project_id = '')
+    </update>
+
+    <update id="updateLastWorkspaceIdIfNull">
+        update user set last_workspace_id = #{workspaceId} where id = #{userId}
+        and (last_workspace_id is null or last_workspace_id = '')
+    </update>
 </mapper>

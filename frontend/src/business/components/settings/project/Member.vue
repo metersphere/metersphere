@@ -13,16 +13,19 @@
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="groups" label="用户组" width="120">
+        <el-table-column prop="groups" :label="$t('commons.group')" width="150">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.groups" type="success"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['PROJECT_USER:READ+EDIT']"
-                               :delete-permission="['PROJECT_USER:READ+DELETE']"
-              :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <div>
+              <ms-table-operator :edit-permission="['PROJECT_USER:READ+EDIT']"
+                                 :delete-permission="['PROJECT_USER:READ+DELETE']"
+                                 :tip2="$t('commons.remove')" @editClick="edit(scope.row)"
+                                 @deleteClick="del(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -32,7 +35,7 @@
 
 
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
-               @close="handleClose">
+               @close="handleClose" v-loading="dialogResult.loading">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :disabled="true"/>
@@ -46,8 +49,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -81,7 +84,7 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import EditMember from "@/business/components/settings/project/EditMember";
 import {GROUP_PROJECT, GROUP_WORKSPACE} from "@/common/js/constants";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "Member",
@@ -100,8 +103,9 @@ export default {
     return {
       condition: {},
       result: {},
+      dialogResult: {},
       tableData: [],
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -140,7 +144,7 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: this.projectId}, response => {
+      this.dialogResult = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.form, "allgroups", response.data);
       })
       // 编辑使填充角色信息

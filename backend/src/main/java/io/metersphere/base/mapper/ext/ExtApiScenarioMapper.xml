@@ -136,17 +136,24 @@
         select count(id) from api_scenario
         <include refid="queryWhereCondition"/>
     </select>
+
+    <select id="listModuleByCollection" resultType="java.util.Map">
+        select api_scenario_module_id AS moduleId,count(id) AS countNum from api_scenario
+        <include refid="queryWhereCondition"/>
+        GROUP BY api_scenario_module_id
+    </select>
     <select id="list" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
-        api_scenario.custom_num,
+        api_scenario.custom_num, api_scenario.version,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
-        project.name as project_name, user.name as user_name
+        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time
         from api_scenario
         left join project on api_scenario.project_id = project.id
         left join user on api_scenario.user_id = user.id
+        left join user deleteUser on api_scenario.delete_user_id = deleteUser.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -230,6 +237,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='project_id'">
+                                and api_scenario.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -301,10 +314,10 @@
         </foreach>
     </update>
 
-    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
+    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExampleWithOperation">
         update api_scenario
         set original_state=status,
-        status = 'Trash', module_path = null, api_scenario_module_id = null
+        status = 'Trash', module_path = null, api_scenario_module_id = null,delete_user_id = #{operator},delete_time = #{operationTime}
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
@@ -313,7 +326,7 @@
     <update id="reduction">
         update api_scenario
         set
-        status = original_state
+        status = original_state,delete_user_id = null,delete_time = null
         where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
@@ -328,6 +341,9 @@
     </select>
     <select id="selectIdAndScenarioByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         SELECT id,scenario_definition FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
+    </select>
+    <select id="selectIdAndUseUrlByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        SELECT id,use_url FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber FROM api_scenario
@@ -359,7 +375,6 @@
         from api_scenario
         left join project on api_scenario.project_id = project.id
         <include refid="queryWhereCondition"/>
-        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listReview" resultMap="BaseResultMap">
         select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
@@ -375,6 +390,17 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
+    <select id="selectIdsByUseUrlIsNull" resultType="java.lang.String">
+        select id
+        from api_scenario
+        WHERE use_url IS NULL
+    </select>
+    <select id="selectTrash" resultType="java.lang.Integer">
+        select count(1)
+        from api_scenario
+        where project_id = #{projectId}
+          and status = 'Trash'
+    </select>
     <sql id="queryWhereConditionReview">
         <where>
             <if test="request.combine != null">

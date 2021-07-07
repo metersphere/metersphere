@@ -21,4 +21,14 @@ public class UserDTO extends User {
 
     private static final long serialVersionUID = 1L;
 
+    @Getter
+    @Setter
+    public static class PlatformInfo {
+        private String  jiraAccount;
+        private String  jiraPassword;
+        private String  tapdUserName;
+        private String  zentaoUserName;
+        private String  zentaoPassword;
+    }
+
 }

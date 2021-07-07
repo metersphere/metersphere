@@ -1,11 +1,9 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading">
+  <el-card class="table-card" v-loading="cardResult.loading">
     <template v-slot:header>
       <ms-table-header :create-permission="['PROJECT_TRACK_PLAN:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testPlanCreate"
-                       :create-tip="$t('test_track.plan.create_plan')"
-                       :title="$t('test_track.plan.test_plan')"
-      />
+                       :create-tip="$t('test_track.plan.create_plan')"/>
 
     </template>
 
@@ -16,6 +14,7 @@
       @filter-change="filter"
       @sort-change="sort"
       :height="screenHeight"
+      v-loading="result.loading"
       @row-click="intoPlan">
       <template v-for="(item, index) in tableLabel">
         <el-table-column
@@ -34,17 +33,10 @@
         </el-table-column>
         <el-table-column
           v-if="item.id == 'createUser'"
-          prop="creator"
+          prop="createUser"
           :label="$t('commons.create_user')"
           show-overflow-tooltip
           :key="index">
-          <template slot-scope="scope">
-            <span
-              :value="item.creator"
-            >
-              {{ scope.row.createUser }}
-            </span>
-          </template>
         </el-table-column>
         <el-table-column
           v-if="item.id == 'status'"
@@ -184,32 +176,34 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :edit-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                             :delete-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"
-                             @editClick="handleEdit(scope.row)"
-                             @deleteClick="handleDelete(scope.row)">
-            <template v-slot:middle>
-              <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                                        style="background-color: #85888E;border-color: #85888E"
-                                        v-if="!scope.row.reportId"
-                                        :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
-                                        @exec="openTestReportTemplate(scope.row)"/>
-              <ms-table-operator-button v-if="scope.row.reportId"
-                                        v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                                        :tip="$t('test_track.plan_view.view_report')" icon="el-icon-s-data"
-                                        @exec="openReport(scope.row.id, scope.row.reportId)"/>
-            </template>
-          </ms-table-operator>
-          <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;"
-                                    v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-                                    v-if="!scope.row.scheduleOpen" type="text"
-                                    :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
-                                    @exec="scheduleTask(scope.row)"/>
-          <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;"
-                                    v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-                                    v-if="scope.row.scheduleOpen" type="text"
-                                    :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
-                                    @exec="scheduleTask(scope.row)"/>
+          <div>
+            <ms-table-operator :edit-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
+                               :delete-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"
+                               @editClick="handleEdit(scope.row)"
+                               @deleteClick="handleDelete(scope.row)">
+              <template v-slot:middle>
+                <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
+                                          v-if="!scope.row.reportId"
+                                          :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
+                                          @exec="openTestReportTemplate(scope.row)"/>
+                <ms-table-operator-button v-if="scope.row.reportId"
+                                          v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
+                                          :tip="$t('test_track.plan_view.view_report')" icon="el-icon-s-data"
+                                          @exec="openReport(scope.row.id, scope.row.reportId)"/>
+              </template>
+            </ms-table-operator>
+            <ms-table-operator-button class="schedule-btn"
+                                      v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
+                                      v-if="!scope.row.scheduleOpen" type="text"
+                                      :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
+                                      @exec="scheduleTask(scope.row)"/>
+            <ms-table-operator-button
+              class="schedule-btn"
+              v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
+              v-if="scope.row.scheduleOpen" type="text"
+              :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
+              @exec="scheduleTask(scope.row)"/>
+          </div>
         </template>
       </el-table-column>
     </el-table>
@@ -242,14 +236,21 @@ import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
-import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
+import {
+  _filter,
+  _sort,
+  deepClone,
+  getLabel,
+  getLastTableSortField,
+  saveLastTableSortField
+} from "@/common/js/tableUtils";
 import {TEST_PLAN_LIST} from "@/common/js/constants";
 import {Test_Plan_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
 
 export default {
   name: "TestPlanList",
@@ -270,8 +271,10 @@ export default {
       createUser: "",
       type: TEST_PLAN_LIST,
       headerItems: Test_Plan_List,
+      tableHeaderKey:"TEST_PLAN_LIST",
       tableLabel: [],
       result: {},
+      cardResult: {},
       enableDeleteTip: false,
       queryPath: "/test/plan/list",
       deletePath: "/test/plan/delete",
@@ -283,7 +286,7 @@ export default {
       hasEditPermission: false,
       total: 0,
       tableData: [],
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
@@ -307,9 +310,13 @@ export default {
   created() {
     this.projectId = this.$route.params.projectId;
     if (!this.projectId) {
-      this.projectId = this.$store.state.projectId;
+      this.projectId = getCurrentProjectID();
     }
     this.hasEditPermission = hasPermission('PROJECT_TRACK_PLAN:READ+EDIT');
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTableData();
   },
   methods: {
@@ -330,7 +337,8 @@ export default {
       if (!this.projectId) {
         return;
       }
-      this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+      this.condition.projectId = getCurrentProjectID();
+      this.cardResult = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
@@ -339,12 +347,12 @@ export default {
             item.tags = JSON.parse(item.tags);
           }
           item.passRate = item.passRate + '%';
-          if (item.creator) {
-            this.$get("user/info/" + item.creator, response => {
-              let name = response.data.name;
-              item.createUser = name;
-            });
-          }
+          // if (item.creator) {
+          //   this.$get("user/info/" + item.creator, response => {
+          //     let name = response.data.name;
+          //     item.createUser = name;
+          //   });
+          // }
         });
       });
       getLabel(this, TEST_PLAN_LIST);
@@ -413,7 +421,12 @@ export default {
       this.initTableData();
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
     openTestReportTemplate(data) {
@@ -428,6 +441,21 @@ export default {
       row.redirectFrom = "testPlan";
       this.$refs.scheduleMaintain.open(row);
     },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
 };
 </script>
@@ -442,5 +470,12 @@ export default {
 
 .el-table {
   cursor: pointer;
+}
+
+.schedule-btn >>> .el-button {
+  margin-left: 10px;
+  color:#85888E;
+  border-color: #85888E;
+  border-width: thin;
 }
 </style>

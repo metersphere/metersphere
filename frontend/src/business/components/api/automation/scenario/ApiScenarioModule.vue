@@ -4,6 +4,7 @@
     <slot name="header"></slot>
 
     <ms-node-tree
+      :is-display="getIsRelevance"
       v-loading="result.loading"
       :tree-nodes="data"
       :allLabel="$t('commons.all_module_title')"
@@ -24,7 +25,7 @@
           :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
-        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
+        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash" :total='total'/>
       </template>
 
     </ms-node-tree>
@@ -47,6 +48,7 @@
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
   import ApiImport from "./common/ScenarioImport";
   import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: 'MsApiScenarioModule',
@@ -62,12 +64,14 @@
       isReadOnly: {
         type: Boolean,
         default() {
-          return false
+          return false;
         }
       },
       showOperator: Boolean,
       relevanceProjectId: String,
-      planId: String
+      planId: String,
+      pageSource: String,
+      total: Number,
     },
     computed: {
       isPlanModel() {
@@ -77,11 +81,19 @@
         return this.relevanceProjectId ? true : false;
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
+      getIsRelevance(){
+        if(this.pageSource !== 'scenario'){
+          return this.openType;
+        }else {
+          return "scenario";
+        }
+      }
     },
     data() {
       return {
+        openType: 'relevance',
         result: {},
         condition: {
           filterText: "",

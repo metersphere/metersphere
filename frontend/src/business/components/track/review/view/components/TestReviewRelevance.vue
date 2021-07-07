@@ -14,6 +14,7 @@
             :title="$t('test_track.switch_project')"
             @dataChange="changeProject"/>
           <node-tree class="node-tree"
+                     :is-display="openType"
                      :all-label="$t('commons.all_label.review')"
                      v-loading="result.loading"
                      @nodeSelectEvent="nodeChange"
@@ -66,7 +67,7 @@
 
               <el-table-column
                 :filters="statusFilters"
-                column-key="status"
+                column-key="reviewStatus"
                 :label="$t('test_track.case.status')"
                 show-overflow-tooltip>
                 <template v-slot:default="scope">
@@ -107,6 +108,7 @@ import ReviewStatus from "@/business/components/track/case/components/ReviewStat
 import elTableInfiniteScroll from 'el-table-infinite-scroll';
 import SelectMenu from "../../../common/SelectMenu";
 import {_filter} from "@/common/js/tableUtils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
 
 export default {
@@ -129,6 +131,7 @@ export default {
     },
     data() {
       return {
+        openType: 'relevance',
         checked: true,
         result: {},
         currentProject: {},
@@ -310,11 +313,11 @@ export default {
       },
       getProject() {
         if (this.reviewId) {
-          this.$post("/test/case/review/projects", {reviewId: this.reviewId}, res => {
+          this.$post("/project/list/related", {userId: getCurrentUserId(), workspaceId: getCurrentWorkspaceId()}, res => {
             let data = res.data;
             if (data) {
               this.projects = data;
-              const index = data.findIndex(d => d.id === this.$store.state.projectId);
+              const index = data.findIndex(d => d.id === getCurrentProjectID());
               if (index !== -1) {
                 this.projectId = data[index].id;
                 this.projectName = data[index].name;

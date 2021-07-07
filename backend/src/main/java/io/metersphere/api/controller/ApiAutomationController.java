@@ -13,15 +13,13 @@ import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -43,7 +41,7 @@ public class ApiAutomationController {
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
@@ -51,6 +49,11 @@ public class ApiAutomationController {
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.listAll(request);
+    }
+
+    @PostMapping("/list/all/trash")
+    public int listAllTrash(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.listAllTrash(request);
     }
 
     @PostMapping("/listWithIds/all")
@@ -70,7 +73,6 @@ public class ApiAutomationController {
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioDTO> list(@PathVariable String projectId) {
         ApiScenarioRequest request = new ApiScenarioRequest();
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         request.setProjectId(projectId);
         return apiAutomationService.list(request);
     }
@@ -78,16 +80,16 @@ public class ApiAutomationController {
     @PostMapping(value = "/create")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE)
-    public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles,
-                              @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
+    public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
+                              @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         return apiAutomationService.create(request, bodyFiles, scenarioFiles);
     }
 
     @PostMapping(value = "/update")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
-    public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles,
-                       @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
+    public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
+                       @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         apiAutomationService.update(request, bodyFiles, scenarioFiles);
     }
 
@@ -156,8 +158,11 @@ public class ApiAutomationController {
     @PostMapping(value = "/run/debug")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.DEBUG, title = "#request.scenarioName", project = "#request.projectId")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request,
-                         @RequestPart(value = "bodyFiles") List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles") List<MultipartFile> scenarioFiles) {
+                         @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         request.setExecuteType(ExecuteType.Debug.name());
+        if (request.isSaved()) {
+            request.setExecuteType(ExecuteType.Saved.name());
+        }
         apiAutomationService.debugRun(request, bodyFiles, scenarioFiles);
     }
 
@@ -165,7 +170,7 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
-        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setTriggerMode(TriggerMode.MANUAL.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
@@ -174,7 +179,7 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
     public String runByJenkins(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setTriggerMode(ApiRunMode.API.name());
+        request.setTriggerMode(TriggerMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
@@ -183,7 +188,7 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setTriggerMode(TriggerMode.BATCH.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
@@ -239,6 +244,17 @@ public class ApiAutomationController {
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
 
+    @PostMapping("/batchGenPerformanceTestJmx")
+    public List<JmxInfoDTO> batchGenPerformanceTestJmx(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.batchGenPerformanceTestJmx(request);
+    }
+
+    @PostMapping("/batchCopy")
+    public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.batchCopy(request);
+    }
+
+
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = apiAutomationService.loadFileAsBytes(fileOperationRequest);
@@ -268,6 +284,5 @@ public class ApiAutomationController {
     public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
     }
-
 }
 

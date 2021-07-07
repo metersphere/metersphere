@@ -34,9 +34,10 @@
 
     <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber" resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
         SELECT * FROM (
+            -- api_test_case 只查找测试计划执行的结果
             SELECT testCase.testCaseID,testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (
-            SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
+            SELECT testPlanCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
             FROM api_test_case apiCase
             inner join api_definition on api_definition.id = apiCase.api_definition_id
            INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
@@ -46,11 +47,13 @@
             ORDER BY apiCase.create_time DESC
             )testCase
             INNER JOIN (
-                SELECT resource_id AS testCaseID,COUNT(id) AS dataCountNumber,start_time AS executeTime FROM api_definition_exec_result
+                SELECT resource_id AS testPlanCaseID,COUNT(id) AS dataCountNumber,start_time AS executeTime FROM api_definition_exec_result
                 WHERE resource_id IN (
-                SELECT id FROM api_test_case WHERE project_id = #{projectId}
+                SELECT t2.id FROM api_test_case t1
+                INNER JOIN test_plan_api_case t2 ON t1.id = t2.api_case_id
+                WHERE t1.project_id = #{projectId}
                 ) and `status` = 'error' GROUP BY resource_id
-            ) caseErrorCountData ON caseErrorCountData.testCaseID =testCase.testCaseID
+            ) caseErrorCountData ON caseErrorCountData.testPlanCaseID =testCase.testCaseID
             WHERE testCase.updateTime >= #{startTimestamp}
             UNION
             SELECT scene.id AS testCaseID,scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
@@ -81,4 +84,7 @@
           ) showTable
         ORDER BY showTable.failureTimes DESC
     </select>
+    <select id="selectExecResult" resultType="java.lang.String">
+        select ader.status from api_definition_exec_result ader where ader.resource_id=#{resourceId}
+     </select>
 </mapper>

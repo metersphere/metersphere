@@ -1,7 +1,7 @@
 package io.metersphere.api.parse.old;
 
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -158,7 +158,7 @@ public class JmeterDocumentParser {
                     }
                     // 排除 jmeter 内置的函数
                     if (!v.startsWith("$")) {
-                        v = ScriptEngineUtils.calculate(v);
+                        v = ScriptEngineUtils.buildFunctionCallString(v);
                         // urlencoder
                         try {
                             v = URLEncoder.encode(v, "UTF-8");
@@ -176,7 +176,7 @@ public class JmeterDocumentParser {
                         if (item.endsWith("/")) {
                             item = item.substring(0, item.length() - 1);
                         }
-                        url = url.replace("@" + item, ScriptEngineUtils.calculate("@" + item));
+                        url = url.replace("@" + item, ScriptEngineUtils.buildFunctionCallString("@" + item));
                     }
                 }
                 ele.setTextContent(url + ((params != null && !params.equals("?")) ? params : ""));
@@ -184,7 +184,7 @@ public class JmeterDocumentParser {
             case "Argument.value":
                 String textContent = ele.getTextContent();
                 if (StringUtils.startsWith(textContent, "@")) {
-                    ele.setTextContent(ScriptEngineUtils.calculate(textContent));
+                    ele.setTextContent(ScriptEngineUtils.buildFunctionCallString(textContent));
                 }
                 break;
             default:

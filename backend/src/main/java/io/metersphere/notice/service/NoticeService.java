@@ -14,6 +14,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.MessageDetail;
 import org.apache.commons.collections.CollectionUtils;
@@ -224,7 +225,8 @@ public class NoticeService {
         }
         if (task != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null, task.getTaskType(), task.getUserId(), columns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
+                    StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), task.getUserId(), columns);
             return JSON.toJSONString(details);
         }
         return null;

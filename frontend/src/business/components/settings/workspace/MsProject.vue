@@ -15,6 +15,7 @@
                 @sort-change="sort"
                 @filter-change="filter"
                 :height="screenHeight"
+                @row-click="jumpPage"
       >
         <el-table-column prop="name" :label="$t('commons.name')" min-width="100" show-overflow-tooltip/>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
@@ -60,24 +61,26 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="180">
           <template v-slot:default="scope">
-            <ms-table-operator
-              :edit-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
-              :delete-permission="['WORKSPACE_PROJECT_MANAGER:READ+DELETE']"
-              :show-delete="projectId !== scope.row.id"
-              @editClick="edit(scope.row)"
-              @deleteClick="handleDelete(scope.row)">
-              <template v-slot:behind>
-                <ms-table-operator-button
-                  v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
-                  :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
-                  type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                <ms-table-operator-button
-                  v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
-                  :tip="$t('load_test.other_resource')"
-                  icon="el-icon-files"
-                  type="success" @exec="openFiles(scope.row)"/>
-              </template>
-            </ms-table-operator>
+            <div>
+              <ms-table-operator
+                :edit-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
+                :delete-permission="['WORKSPACE_PROJECT_MANAGER:READ+DELETE']"
+                :show-delete="projectId !== scope.row.id"
+                @editClick="edit(scope.row)"
+                @deleteClick="handleDelete(scope.row)">
+                <template v-slot:behind>
+                  <ms-table-operator-button
+                    v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
+                    :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
+                    type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                  <ms-table-operator-button
+                    v-permission="['WORKSPACE_PROJECT_MANAGER:READ+EDIT']"
+                    :tip="$t('load_test.other_resource')"
+                    icon="el-icon-files"
+                    type="success" @exec="openFiles(scope.row)"/>
+                </template>
+              </ms-table-operator>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -87,39 +90,44 @@
 
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close
                @close="handleClose">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="140px" size="small">
-        <el-form-item :label="$t('commons.name')" prop="name">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="80px" size="small">
+        <el-form-item :label-width="labelWidth" :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
 
-        <el-form-item :label="$t('用例模板')" prop="caseTemplateId">
+        <el-form-item :label-width="labelWidth" :label="$t('用例模板')" prop="caseTemplateId">
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
-        <el-form-item :label="$t('缺陷模板')" prop="issueTemplateId">
+        <el-form-item :label-width="labelWidth" :label="$t('缺陷模板')" prop="issueTemplateId">
           <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
         </el-form-item>
 
 
-        <el-form-item :label="$t('commons.description')" prop="description">
+        <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('project.tapd_id')" v-if="tapd">
+        <el-form-item :label-width="labelWidth" :label="$t('project.tapd_id')" v-if="tapd">
           <el-input v-model="form.tapdId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('project.jira_key')" v-if="jira">
-          <el-input v-model="form.jiraKey" autocomplete="off"></el-input>
+        <el-form-item :label-width="labelWidth" :label="$t('project.jira_key')" v-if="jira">
+          <el-input v-model="form.jiraKey" autocomplete="off"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../assets/jira-key.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
-        <el-form-item :label="$t('project.zentao_id')" v-if="zentao">
+        <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item :label="$t('project.repeatable')" prop="repeatable">
+        <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
-        <el-form-item label="测试用例自定义ID" prop="customNum">
+        <el-form-item :label-width="labelWidth" label="测试用例自定义ID" prop="customNum">
           <el-switch v-model="form.customNum"></el-switch>
         </el-form-item>
-        <el-form-item label="场景自定义ID" prop="scenarioCustomNum">
+        <el-form-item :label-width="labelWidth" label="场景自定义ID" prop="scenarioCustomNum">
           <el-switch v-model="form.scenarioCustomNum"></el-switch>
         </el-form-item>
       </el-form>
@@ -132,24 +140,30 @@
       </template>
     </el-dialog>
 
-    <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true" @close="close"
+    <el-dialog :close-on-click-modal="false" :visible.sync="memberVisible" width="70%" :destroy-on-close="true"
+               @close="close"
                class="dialog-css">
-      <div style="height: 60vh;overflow: auto">
+      <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="open" @search="list" :have-search="false"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
+      </template>
+      <div>
         <!-- organization member table -->
         <el-table :data="memberLineData" style="width: 100%;margin-top: 5px;">
           <el-table-column prop="name" :label="$t('commons.username')"/>
           <el-table-column prop="email" :label="$t('commons.email')"/>
           <el-table-column prop="phone" :label="$t('commons.phone')"/>
-          <el-table-column label="用户组" width="120">
+          <el-table-column :label="$t('commons.group')" width="150">
             <template v-slot:default="scope">
               <ms-roles-tag :roles="scope.row.groups" type="success"/>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)" @deleteClick="delMember(scope.row)"/>
+              <div>
+                <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)"
+                                   @deleteClick="delMember(scope.row)"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -159,7 +173,8 @@
       </div>
     </el-dialog>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%"
+               :destroy-on-close="true"
                @close="handleClose">
       <el-form :model="form" label-position="right" label-width="100px" size="small" ref="updateUserForm">
         <el-form-item label="ID" prop="id">
@@ -174,8 +189,8 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item label="用户组" prop="groupIds" :rules="{required: true, message: '请选择用户组', trigger: 'change'}">
-          <el-select v-model="form.groupIds" multiple placeholder="请选择用户组" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds" :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" style="width: 100%">
             <el-option
               v-for="item in form.allgroups"
               :key="item.id"
@@ -192,52 +207,11 @@
       </template>
     </el-dialog>
 
-
-    <el-dialog :close-on-click-modal="false" title="添加成员" :visible.sync="dialogMemberVisible" width="30%" :destroy-on-close="true"
-               @close="handleMemberClose">
-      <el-form :model="memberForm" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="memberSign" :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'change'}">
-          <el-autocomplete
-            class="input-with-autocomplete"
-            v-model="memberForm.memberSign"
-            :placeholder="$t('member.input_id_or_email')"
-            :trigger-on-focus="false"
-            :fetch-suggestions="querySearch"
-            size="small"
-            highlight-first-item
-            value-key="email"
-            style="width: 100%"
-          >
-            <template v-slot:default="scope">
-              <span class="workspace-member-name">{{scope.item.id}}</span>
-              <span class="workspace-member-email">{{scope.item.email}}</span>
-            </template>
-          </el-autocomplete>
-        </el-form-item>
-        <el-form-item label="用户组" prop="groupIds">
-          <el-select v-model="memberForm.groupIds" multiple placeholder="请选择用户组" style="width: 100%">
-            <el-option
-              v-for="item in memberForm.groups"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template v-slot:footer>
-        <div class="dialog-footer">
-          <el-button @click="dialogMemberVisible = false" size="medium">{{ $t('commons.cancel') }}</el-button>
-          <el-button type="primary" @click="submitForm('form')" @keydown.enter.native.prevent size="medium">
-            {{ $t('commons.confirm') }}
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'PROJECT'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <ms-delete-confirm :title="$t('project.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
-    <api-environment-config ref="environmentConfig"/>
+    <api-environment-config ref="environmentConfig" :type="'workspace'"/>
 
     <ms-jar-config ref="jarConfig"/>
 
@@ -253,8 +227,9 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {
+  getCurrentOrganizationId,
   getCurrentProjectID,
-  getCurrentUser,
+  getCurrentUser, getCurrentUserId,
   getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
@@ -273,10 +248,13 @@ import MsResourceFiles from "@/business/components/performance/test/components/R
 import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsRolesTag from "@/business/components/common/components/MsRolesTag";
+import AddMember from "@/business/components/settings/common/AddMember";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "MsProject",
   components: {
+    MsInstructionsIcon,
     TemplateSelect,
     MsResourceFiles,
     MsTableButton,
@@ -285,9 +263,13 @@ export default {
     ApiEnvironmentConfig,
     MsTableOperatorButton,
     MsDeleteConfirm,
-    MsMainContainer,MsRolesTag,
-    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+    MsMainContainer, MsRolesTag,
+    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter,
+    AddMember
   },
+  inject: [
+    'reloadTopMenus'
+  ],
   data() {
     return {
       createVisible: false,
@@ -317,16 +299,17 @@ export default {
         // caseTemplateId: [{required: true}],
         // issueTemplateId: [{required: true}],
       },
-      screenHeight: 'calc(100vh - 255px)',
+      screenHeight: 'calc(100vh - 195px)',
       dialogCondition: {},
       memberVisible: false,
       memberLineData: [],
       memberForm: {},
       dialogCurrentPage: 1,
-      dialogPageSize: 10,
+      dialogPageSize: 5,
       dialogTotal: 0,
       currentProjectId: "",
-      userList: []
+      userList: [],
+      labelWidth: '150px'
     };
   },
   props: {
@@ -352,22 +335,29 @@ export default {
     },
     projectId() {
       return getCurrentProjectID();
+    },
+    orgId() {
+      return getCurrentOrganizationId();
     }
   },
   destroyed() {
     this.createVisible = false;
   },
   methods: {
+    jumpPage(row) {
+      window.sessionStorage.setItem(PROJECT_ID, row.id);
+      this.$router.push('/track/home');
+    },
     getMaintainerOptions() {
       let workspaceId = getCurrentWorkspaceId();
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
         });
       });
     },
     create() {
-      let workspaceId = this.currentUser.lastWorkspaceId;
+      let workspaceId = getCurrentWorkspaceId();
       this.getOptions();
       if (!workspaceId) {
         this.$warning(this.$t('project.please_choose_workspace'));
@@ -393,7 +383,7 @@ export default {
       this.createVisible = true;
       listenGoBack(this.handleClose);
       this.form = Object.assign({}, row);
-      this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
+      this.$get("/service/integration/all/" + getCurrentOrganizationId(), response => {
         let data = response.data;
         let platforms = data.map(d => d.platform);
         if (platforms.indexOf("Tapd") !== -1) {
@@ -417,10 +407,16 @@ export default {
           var protocol = document.location.protocol;
           protocol = protocol.substring(0, protocol.indexOf(":"));
           this.form.protocal = protocol;
+          this.form.workspaceId = getCurrentWorkspaceId();
+          this.form.createUser = getCurrentUserId();
           this.result = this.$post("/project/" + saveType, this.form, () => {
             this.createVisible = false;
-            this.list();
             Message.success(this.$t('commons.save_success'));
+            if (saveType === 'add') {
+              this.reloadTopMenus();
+            } else {
+              this.list();
+            }
           });
         } else {
           return false;
@@ -468,6 +464,7 @@ export default {
       this.list();
     },
     list() {
+      this.condition.workspaceId = getCurrentWorkspaceId();
       let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
       this.result = this.$post(url, this.condition, (response) => {
         let data = response.data;
@@ -476,12 +473,12 @@ export default {
           let param = {
             name: '',
             workspaceId: this.items[i].id
-          }
+          };
           let path = "user/ws/member/list/all";
           this.$post(path, param, res => {
             let member = res.data;
             this.$set(this.items[i], "memberSize", member.length);
-          })
+          });
         }
         this.total = data.itemCount;
       });
@@ -520,7 +517,7 @@ export default {
           this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
             let groups = response.data;
             this.$set(this.memberLineData[i], "groups", groups);
-          })
+          });
         }
         this.dialogTotal = data.itemCount;
       });
@@ -543,7 +540,7 @@ export default {
           this.$get(url + "/" + encodeURIComponent(this.memberLineData[i].id), response => {
             let groups = response.data;
             this.$set(this.memberLineData[i], "groups", groups);
-          })
+          });
         }
         this.dialogTotal = data.itemCount;
       });
@@ -552,9 +549,9 @@ export default {
       this.updateVisible = true;
       this.form = Object.assign({}, row);
       let groupIds = this.form.groups.map(r => r.id);
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: this.projectId}, response => {
+      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: getCurrentOrganizationId()}, response => {
         this.$set(this.form, "allgroups", response.data);
-      })
+      });
       // 编辑使填充角色信息
       this.$set(this.form, 'groupIds', groupIds);
     },
@@ -564,7 +561,7 @@ export default {
         cancelButtonText: this.$t('commons.cancel'),
         type: 'warning'
       }).then(() => {
-        this.result = this.$get('/user/project/member/delete/' + this.currentProjectId + '/' + encodeURIComponent(row.id),() => {
+        this.result = this.$get('/user/project/member/delete/' + this.currentProjectId + '/' + encodeURIComponent(row.id), () => {
           this.$success(this.$t('commons.remove_success'));
           this.dialogSearch();
         });
@@ -585,7 +582,7 @@ export default {
         phone: this.form.phone,
         groupIds: this.form.groupIds,
         projectId: this.currentProjectId
-      }
+      };
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.result = this.$post("/project/member/update", param, () => {
@@ -596,41 +593,16 @@ export default {
         }
       });
     },
-    submitForm() {
-      this.$refs['form'].validate((valid) => {
-        if (valid) {
-          let userIds = [];
-          let userId = this.memberForm.userId;
-          let email  = this.memberForm.memberSign;
-          let member = this.userList.find(user => user.id === email || user.email === email);
-          if (!member) {
-            this.$warning(this.$t('member.no_such_user'));
-            return false;
-          } else {
-            userId = member.id;
-          }
-          userIds.push(userId);
-          let param = {
-            userIds: userIds,
-            groupIds: this.memberForm.groupIds,
-            projectId: this.currentProjectId
-          };
-          this.result = this.$post("user/project/member/add", param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.dialogSearch();
-            this.dialogMemberVisible = false;
-          })
-        }
+    submitForm(param) {
+      param['projectId'] = this.currentProjectId;
+      this.result = this.$post("user/project/member/add", param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.dialogSearch();
+        this.$refs.addMember.close();
       });
     },
     open() {
-      this.$get('/user/list/', response => {
-        this.dialogMemberVisible = true;
-        this.userList = response.data;
-      })
-      this.result = this.$post('/user/group/list', {type: GROUP_PROJECT, resourceId: this.currentProjectId}, response => {
-        this.$set(this.memberForm, "groups", response.data);
-      })
+      this.$refs.addMember.open();
     },
     handleMemberClose() {
       this.dialogMemberVisible = false;
@@ -664,8 +636,12 @@ pre {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
 }
 
-.dialog-css >>> .el-dialog__header {
-  padding: 0px;
+/*.dialog-css >>> .el-dialog__header {*/
+/*  padding: 0px;*/
+/*}*/
+
+.select-width {
+  width: 100%;
 }
 
 .workspace-member-name {
@@ -676,5 +652,9 @@ pre {
   float: right;
   color: #8492a6;
   font-size: 13px;
+}
+
+.el-input,.el-textarea {
+  width: 95%;
 }
 </style>

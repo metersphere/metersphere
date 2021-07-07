@@ -4,18 +4,16 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
-import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -66,4 +64,8 @@ public class TestPlanApiCaseController {
         testPlanApiCaseService.batchUpdateEnv(request);
     }
 
+    @PostMapping(value = "/run")
+    public String run(@RequestBody BatchRunDefinitionRequest request) {
+        return testPlanApiCaseService.run(request);
+    }
 }

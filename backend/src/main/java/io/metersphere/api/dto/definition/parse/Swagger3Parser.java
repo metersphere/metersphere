@@ -356,7 +356,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else {
             if(schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
                 if(StringUtils.equals(schema.getType(), "string")) {
-                    String example = (String) schema.getExample();
+                    Object exampleObj = schema.getExample();
+                    String example = null;
+                    if (exampleObj != null) {
+                        example = exampleObj.toString();
+                    }
                     return example == null ? "" : example;
                 } else if(StringUtils.equals(schema.getType(), "boolean")) {
                     return schema.getExample();
@@ -736,7 +740,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 } catch (Exception e1) {    //  若请求体 json 不合法，则忽略错误，原样字符串导出/导入
                     bodyInfo = new JSONObject();
                     ((JSONObject) bodyInfo).put("type", "string");
-                    ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+                    if (body != null && body.get("raw") != null) {
+                        ((JSONObject) bodyInfo).put("example", body.get("raw").toString());
+                    }
                 }
             } else if(bodyType.equals("XML")) {
                 String xmlText = body.getString("raw");

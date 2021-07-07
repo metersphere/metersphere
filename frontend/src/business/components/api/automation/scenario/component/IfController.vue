@@ -23,6 +23,11 @@
       <el-input draggable size="mini" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" class="ms-btn"/>
     </template>
 
+    <template v-slot:debugStepCode>
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+        {{ getCode() }}
+      </span>
+    </template>
   </api-base-component>
 </template>
 
@@ -88,6 +93,16 @@
       }
     },
     methods: {
+      getCode() {
+        if (this.node && this.node.data.debug) {
+          if (this.node.data.code && this.node.data.code === 'error') {
+            return 'error';
+          } else {
+            return 'success';
+          }
+        }
+        return '';
+      },
       remove() {
         this.$emit('remove', this.controller, this.node);
       },
@@ -117,5 +132,23 @@
   .ms-select {
     width: 15%;
     margin-left: 5px;
+  }
+
+  .ms-req-error {
+    color: #F56C6C;
+  }
+
+  .ms-req-success {
+    color: #67C23A;
+  }
+  .ms-step-debug-code {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 100px;
   }
 </style>

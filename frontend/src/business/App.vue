@@ -5,7 +5,7 @@
         <component :is="licenseHeader"></component>
       </el-col>
     </el-row>
-    <el-row id="header-top" type="flex" justify="space-between" align="middle">
+    <el-row id="header-top" type="flex" justify="space-between" align="middle" v-if="isMenuShow">
       <el-col :span="12">
         <img :src="'/display/file/logo'" class="logo" alt="">
         <ms-top-menus :color="color"/>
@@ -13,13 +13,14 @@
 
       <el-col :span="12" class="align-right">
         <!-- float right -->
-        <ms-user/>
+        <ms-user ref="headerUser"/>
         <ms-language-switch :color="color"/>
         <ms-header-org-ws :color="color"/>
+        <ms-task-center :color="color"/>
       </el-col>
     </el-row>
 
-    <ms-view/>
+    <ms-view v-if="isShow"/>
 
     <theme/>
   </el-col>
@@ -34,11 +35,12 @@ import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
 import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
-
+import MsTaskCenter from "@/business/components/task/TaskCenter";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
 const theme = requireComponent.keys().length > 0 ? requireComponent("./display/Theme.vue") : {};
+let timer = null;
 
 export default {
   name: 'app',
@@ -49,11 +51,15 @@ export default {
       auth: false,
       header: {},
       logoId: '_blank',
-      color: ''
-    }
+      color: '',
+      sessionTimer: null,
+      isShow: true,
+      isMenuShow: true,
+    };
   },
   created() {
     registerRequestHeaders();
+    this.initSessionTimer();
     if (!hasLicense()) {
       setDefaultTheme();
       this.color = ORIGIN_COLOR;
@@ -63,20 +69,20 @@ export default {
         this.color = res.data ? res.data : ORIGIN_COLOR;
         setColor(this.color, this.color, this.color, this.color, this.color);
         this.$store.commit('setTheme', res.data);
-      })
+      });
     }
     if (localStorage.getItem("store")) {
-      this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))))
+      this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))));
       this.$get("/project/listAll", response => {
         let projectIds = response.data;
         if (projectIds && projectIds.length <= 0) {
           this.$store.commit('setProjectId', undefined);
         }
-      })
+      });
     }
     window.addEventListener("beforeunload", () => {
-      localStorage.setItem("store", JSON.stringify(this.$store.state))
-    })
+      localStorage.setItem("store", JSON.stringify(this.$store.state));
+    });
   },
   beforeCreate() {
     this.$get("/isLogin").then(response => {
@@ -93,13 +99,83 @@ export default {
           display.default.showHome(this);
         }
       } else {
-        window.location.href = "/login"
+        window.location.href = "/login";
       }
     }).catch(() => {
-      window.location.href = "/login"
+      window.location.href = "/login";
     });
   },
+  // 提供可注入子组件属性
+  provide() {
+    return {
+      reload: this.reload,
+      reloadTopMenus: this.reloadTopMenus,
+    };
+  },
+  methods: {
+    initSessionTimer() {
+      this.$get('/system/timeout')
+        .then(response => {
+          let timeout = response.data.data;
+          this.initTimer(timeout);
+          window.addEventListener('click', () => {
+            this.currentTime(timeout);
+          });
+        })
+        .catch(() => {
+        });
+    },
+    initTimer(timeout) {
+      setTimeout(() => {
+        this.$get("/isLogin")
+          .then(response => {
+            if (!response.data.success) {
+              this.$refs.headerUser.logout();
+            }
+          })
+          .catch(() => {
+            window.location.href = "/login";
+          });
+      }, 1000 * (timeout + 10));
+    },
+    currentTime(timeout) { // 超时退出
+      if (timer) {
+        window.clearTimeout(timer);
+        timer = null;
+      }
+      timer = window.setTimeout(() => {
+        this.$refs.headerUser.logout();
+      }, 1000 * timeout);
+    },
+    reload() {
+      // 先隐藏
+      this.isShow = false;
+      this.$nextTick(() => {
+        this.isShow = true;
+      });
+    },
+    reloadTopMenus() {
+      this.$get("/isLogin").then(response => {
+        if (response.data.success) {
+          this.$setLang(response.data.data.language);
+          saveLocalStorage(response.data);
+          // 先隐藏
+          this.isMenuShow = false;
+          this.isShow = false;
+          this.$nextTick(() => {
+            this.isShow = true;
+            this.isMenuShow = true;
+          });
+        } else {
+          window.location.href = "/login";
+        }
+      }).catch(() => {
+        window.location.href = "/login";
+      });
+    }
+  },
   components: {
+    MsTaskCenter,
     MsLanguageSwitch,
     MsUser,
     MsView,
@@ -108,7 +184,7 @@ export default {
     "LicenseMessage": header.default,
     "Theme": theme.default
   }
-}
+};
 </script>
 
 

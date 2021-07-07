@@ -51,11 +51,11 @@
 
 <style scoped>
   .metric-container {
-    padding: 20px;
+    padding: 5px 10px;
   }
 
   .metric {
-    padding: 20px;
+    padding: 10px;
     border: 1px solid #EBEEF5;
     min-width: 120px;
     height: 114px;

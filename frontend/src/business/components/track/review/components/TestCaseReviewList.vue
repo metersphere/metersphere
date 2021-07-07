@@ -3,8 +3,7 @@
     <template v-slot:header>
       <ms-table-header :create-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
-                       :create-tip="$t('test_track.review.create_review')"
-                       :title="$t('test_track.review.test_review')"/>
+                       :create-tip="$t('test_track.review.create_review')"/>
     </template>
 
     <el-table
@@ -95,11 +94,15 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
-                             :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
-                             @editClick="handleEdit(scope.row)"
-                             @deleteClick="handleDelete(scope.row)">
-          </ms-table-operator>
+          <div>
+
+            <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
+                               :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
+                               @editClick="handleEdit(scope.row)"
+                               @deleteClick="handleDelete(scope.row)">
+            </ms-table-operator>
+          </div>
+
         </template>
       </el-table-column>
       <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
@@ -121,8 +124,8 @@ import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
-import {_filter, _sort, deepClone, getLabel} from "@/common/js/tableUtils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {_filter, _sort, deepClone, getLabel, getLastTableSortField,saveLastTableSortField} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
@@ -150,6 +153,7 @@ export default {
       type: TEST_CASE_REVIEW_LIST,
       headerItems: Test_Case_Review,
       tableLabel: [],
+      tableHeaderKey:"TEST_CASE_REVIEW",
       result: {},
       condition: {},
       tableData: [],
@@ -157,7 +161,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 295px)',
+      screenHeight: 'calc(100vh - 200px)',
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
@@ -174,11 +178,15 @@ export default {
   },
   created() {
     this.isTestManagerOrTestUser = true;
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTableData();
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
   },
   methods: {
@@ -252,9 +260,29 @@ export default {
       this.initTableData();
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
 };
 </script>

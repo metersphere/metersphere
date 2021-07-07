@@ -11,5 +11,4 @@ CREATE TABLE IF NOT EXISTS `quota`
     `use_default`     tinyint(1)    DEFAULT NULL,
     `update_time`     bigint(13)    DEFAULT NULL,
     PRIMARY KEY (`id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

@@ -1,6 +1,6 @@
 <template>
 
-  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content">
+  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content" :disabled="isReadOnly">
     <div class="ms-border">
       <el-form-item prop="socket">
         <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
@@ -69,10 +69,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
           <template v-slot:default="{row}">
-            <ms-table-operator-button :tip="$t('api_test.automation.copy')"
-                                      icon="el-icon-document-copy" @exec="copy(row)"/>
-            <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                      icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            <div>
+              <ms-table-operator-button :tip="$t('api_test.automation.copy')"
+                                        icon="el-icon-document-copy" @exec="copy(row)"/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')"
+                                        icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -96,6 +98,10 @@
     props: {
       httpConfig: new HttpConfig(),
       projectId: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
     created() {
       this.list();

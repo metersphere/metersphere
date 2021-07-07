@@ -2,10 +2,15 @@ package io.metersphere.listener;
 
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
+import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.RunInterface;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.service.IssuesService;
+import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +30,12 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private JMeterService jMeterService;
     @Resource
     private JarConfigService jarConfigService;
+    @Resource
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private SystemParameterService systemParameterService;
+    @Resource
+    private IssuesService issuesService;
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -39,13 +50,29 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initPythonEnv();
 
+        initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
+        initOperate(issuesService::syncThirdPartyIssues, "init.issue");
+
         try {
-            Thread.sleep(3 * 60 * 1000);
+            Thread.sleep(1 * 60 * 1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
         scheduleService.startEnableSchedules();
+    }
+
+
+    private void initOperate(RunInterface initFuc, final String key) {
+        try {
+            String value = systemParameterService.getValue(key);
+            if (StringUtils.isBlank(value)) {
+                initFuc.run();
+                systemParameterService.saveInitParam(key);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 
     /**

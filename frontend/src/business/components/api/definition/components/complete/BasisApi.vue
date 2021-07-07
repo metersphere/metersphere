@@ -64,6 +64,7 @@
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "MsBasisApi",
@@ -106,8 +107,7 @@
     },
     methods: {
       getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
           this.maintainerOptions = response.data;
         });
       },

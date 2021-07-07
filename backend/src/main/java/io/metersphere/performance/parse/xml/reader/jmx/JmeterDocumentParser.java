@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.parse.xml.reader.DocumentParser;
 import org.apache.commons.lang3.BooleanUtils;
@@ -22,8 +22,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
@@ -267,10 +269,74 @@ public class JmeterDocumentParser implements DocumentParser {
                 if (StringUtils.equals(filenameTag, "filename")) {
                     // 截取文件名
                     handleFilename(item);
+                    // 切割CSV文件
+                    splitCsvFile(item);
                     break;
                 }
             }
         }
+    }
+
+    private void splitCsvFile(Node item) {
+        Object csvConfig = context.getProperty("csvConfig");
+        if (csvConfig == null) {
+            return;
+        }
+        double[] ratios = context.getRatios();
+        int resourceIndex = context.getResourceIndex();
+        String filename = item.getTextContent();
+        byte[] content = context.getTestResourceFiles().get(filename);
+        StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
+        if (!tokenizer.hasMoreTokens()) {
+            return;
+        }
+        StringBuilder csv = new StringBuilder();
+        Object config = ((JSONObject) csvConfig).get(filename);
+        boolean csvSplit = ((JSONObject) (config)).getBooleanValue("csvSplit");
+        if (!csvSplit) {
+            return;
+        }
+        boolean csvHasHeader = ((JSONObject) (config)).getBooleanValue("csvHasHeader");
+        if (csvHasHeader) {
+            String header = tokenizer.nextToken();
+            csv.append(header).append("\n");
+        }
+        int count = tokenizer.countTokens();
+
+        long current, offset = 0;
+
+        // 计算偏移量
+        for (int k = 0; k < resourceIndex; k++) {
+            offset += Math.round(count * ratios[k]);
+        }
+
+        if (resourceIndex + 1 == ratios.length) {
+            current = count - offset; // 最后一个点可以分到的数量
+        } else {
+            current = Math.round(count * ratios[resourceIndex]); // 当前节点可以分到的数量
+        }
+
+        long index = 1;
+        while (tokenizer.hasMoreTokens()) {
+            if (current == 0) { // 节点一个都没有分到，把所有的数据都给这个节点（极端情况）
+                String line = tokenizer.nextToken();
+                csv.append(line).append("\n");
+            } else {
+                if (index < offset) {
+                    tokenizer.nextToken();
+                    index++;
+                    continue;
+                }
+                if (index > current + offset) {
+                    break;
+                }
+                String line = tokenizer.nextToken();
+                csv.append(line).append("\n");
+            }
+            index++;
+        }
+        // 替换文件
+        context.getTestResourceFiles().put(filename, csv.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     private void processResponseAssertion(Element element) {
@@ -528,7 +594,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         elementProp.appendChild(createStringProp(document, "Argument.name", jsonObject.getString("name")));
                         // 处理 mock data
                         String value = jsonObject.getString("value");
-                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.calculate(value)));
+                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.buildFunctionCallString(value)));
                         elementProp.appendChild(createStringProp(document, "Argument.metadata", "="));
                         item.appendChild(elementProp);
                     }
@@ -742,6 +808,23 @@ public class JmeterDocumentParser implements DocumentParser {
       </ThreadGroup>
          */
         removeChildren(threadGroup);
+        // 避免出现配置错位
+        Object iterateNum = context.getProperty("iterateNum");
+        if (iterateNum instanceof List) {
+            ((List<?>) iterateNum).remove(0);
+        }
+        Object iterateRampUpTimes = context.getProperty("iterateRampUpTime");
+        if (iterateRampUpTimes instanceof List) {
+            ((List<?>) iterateRampUpTimes).remove(0);
+        }
+        Object steps = context.getProperty("Steps");
+        if (steps instanceof List) {
+            ((List<?>) steps).remove(0);
+        }
+        Object holds = context.getProperty("Hold");
+        if (holds instanceof List) {
+            ((List<?>) holds).remove(0);
+        }
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
@@ -838,6 +921,19 @@ public class JmeterDocumentParser implements DocumentParser {
         <stringProp name="Unit">S</stringProp>
          */
         removeChildren(threadGroup);
+        // 避免出现配置错位
+        Object iterateNum = context.getProperty("iterateNum");
+        if (iterateNum instanceof List) {
+            ((List<?>) iterateNum).remove(0);
+        }
+        Object iterateRampUpTimes = context.getProperty("iterateRampUpTime");
+        if (iterateRampUpTimes instanceof List) {
+            ((List<?>) iterateRampUpTimes).remove(0);
+        }
+        Object durations = context.getProperty("duration");
+        if (durations instanceof List) {
+            ((List<?>) durations).remove(0);
+        }
         // elementProp
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
@@ -970,6 +1066,27 @@ public class JmeterDocumentParser implements DocumentParser {
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
          */
         // elementProp
+        // 避免出现配置错位
+        Object durations = context.getProperty("duration");
+        if (durations instanceof List) {
+            ((List<?>) durations).remove(0);
+        }
+        Object units = context.getProperty("unit");
+        if (units instanceof List) {
+            ((List<?>) units).remove(0);
+        }
+        Object holds = context.getProperty("Hold");
+        if (holds instanceof List) {
+            ((List<?>) holds).remove(0);
+        }
+        Object steps = context.getProperty("Steps");
+        if (steps instanceof List) {
+            ((List<?>) steps).remove(0);
+        }
+        Object arampUps = context.getProperty("RampUp");
+        if (arampUps instanceof List) {
+            ((List<?>) arampUps).remove(0);
+        }
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {

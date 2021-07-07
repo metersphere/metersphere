@@ -107,6 +107,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='project_id'">
+                                and ltr.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <otherwise>
                                 and ltr.trigger_mode in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">

@@ -96,22 +96,26 @@ public class PerformanceReportService {
 
         LogUtil.info("Delete report started, report ID: %s" + reportId);
 
-        try {
-            final Engine engine = EngineFactory.createEngine(loadTest);
-            if (engine == null) {
-                MSException.throwException(String.format("Delete report fail. create engine fail，report ID：%s", reportId));
-            }
+        if (loadTest != null) {
+            try {
+                final Engine engine = EngineFactory.createEngine(loadTest);
+                if (engine == null) {
+                    MSException.throwException(String.format("Delete report fail. create engine fail，report ID：%s", reportId));
+                }
 
-            String reportStatus = loadTestReport.getStatus();
-            boolean isRunning = StringUtils.equals(reportStatus, PerformanceTestStatus.Running.name());
-            boolean isStarting = StringUtils.equals(reportStatus, PerformanceTestStatus.Starting.name());
-            boolean isError = StringUtils.equals(reportStatus, PerformanceTestStatus.Error.name());
-            if (isRunning || isStarting || isError) {
-                LogUtil.info("Start stop engine, report status: %s" + reportStatus);
-                stopEngine(loadTest, engine);
+                String reportStatus = loadTestReport.getStatus();
+                boolean isRunning = StringUtils.equals(reportStatus, PerformanceTestStatus.Running.name());
+                boolean isStarting = StringUtils.equals(reportStatus, PerformanceTestStatus.Starting.name());
+                boolean isError = StringUtils.equals(reportStatus, PerformanceTestStatus.Error.name());
+                if (isRunning || isStarting || isError) {
+                    LogUtil.info("Start stop engine, report status: %s" + reportStatus);
+                    stopEngine(loadTest, engine);
+                }
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
+                loadTest.setStatus(PerformanceTestStatus.Saved.name());
+                loadTestMapper.updateByPrimaryKeySelective(loadTest);
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
         }
 
         // delete load_test_report_result
@@ -389,5 +393,15 @@ public class PerformanceReportService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<ChartsData> getReportChart(String reportKey, String reportId) {
+        checkReportStatus(reportId);
+        try {
+            String content = getContent(reportId, ReportKeys.valueOf(reportKey));
+            return JSON.parseArray(content, ChartsData.class);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
     }
 }

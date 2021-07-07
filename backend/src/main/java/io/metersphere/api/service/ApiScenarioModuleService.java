@@ -87,16 +87,58 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put("status", list);
         request.setFilters(filters);
+        //优化：所有SQL统一查出来
+//        nodes.forEach(node -> {
+//            List<String> scenarioNodes = new ArrayList<>();
+//            scenarioNodes = this.nodeList(nodes, node.getId(), scenarioNodes);
+//            scenarioNodes.add(node.getId());
+//            request.setModuleIds(scenarioNodes);
+//            node.setCaseNum(extApiScenarioMapper.listModule(request));
+//        });
+        List<String> allModuleIdList = new ArrayList<>();
+        for (ApiScenarioModuleDTO node : nodes) {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            for (String moduleId : moduleIds) {
+                if(!allModuleIdList.contains(moduleId)){
+                    allModuleIdList.add(moduleId);
+                }
+            }
+        }
+        request.setModuleIds(allModuleIdList);
+        List<Map<String,Object>> moduleCountList = extApiScenarioMapper.listModuleByCollection(request);
+        Map<String,Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
         nodes.forEach(node -> {
-            List<String> scenarioNodes = new ArrayList<>();
-            scenarioNodes = this.nodeList(nodes, node.getId(), scenarioNodes);
-            scenarioNodes.add(node.getId());
-            request.setModuleIds(scenarioNodes);
-            node.setCaseNum(extApiScenarioMapper.listModule(request));
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(nodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            int countNum = 0;
+            for (String moduleId : moduleIds) {
+                if(moduleCountMap.containsKey(moduleId)){
+                    countNum += moduleCountMap.get(moduleId).intValue();
+                }
+            }
+            node.setCaseNum(countNum);
         });
         return getNodeTrees(nodes);
     }
-
+    private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
+        Map<String,Integer> returnMap = new HashMap<>();
+        for (Map<String, Object> map: moduleCountList){
+            Object moduleIdObj = map.get("moduleId");
+            Object countNumObj = map.get("countNum");
+            if(moduleIdObj!= null && countNumObj != null){
+                String moduleId = String.valueOf(moduleIdObj);
+                try {
+                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
+                    returnMap.put(moduleId,countNumInteger);
+                }catch (Exception e){
+                }
+            }
+        }
+        return returnMap;
+    }
 
     public static List<String> nodeList(List<ApiScenarioModuleDTO> nodes, String pid, List<String> list) {
         for (ApiScenarioModuleDTO node : nodes) {
@@ -230,7 +272,8 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         checkApiScenarioModuleExist(request);
         List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
         apiScenarios.forEach(apiScenario -> {
-            StringBuilder path = new StringBuilder(apiScenario.getModulePath());
+            String modulePath = apiScenario.getModulePath();
+            StringBuilder path = new StringBuilder(modulePath == null ? "" : modulePath);
             List<String> pathLists = Arrays.asList(path.toString().split("/"));
             if (pathLists.size() > request.getLevel()) {
                 pathLists.set(request.getLevel(), request.getName());

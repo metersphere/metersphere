@@ -68,7 +68,7 @@ public class XmindCaseParser {
 
     private String importType;
 
-    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames,boolean isUseCustomId,String importType) {
+    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames, boolean isUseCustomId, String importType) {
         this.testCaseService = testCaseService;
         this.maintainer = userId;
         this.projectId = projectId;
@@ -85,10 +85,10 @@ public class XmindCaseParser {
     }
 
     private static final String TC_REGEX = "(?:tc:|tc：|tc)";
-    private static final String PC_REGEX = "(?:pc:|pc：|pc)";
-    private static final String RC_REGEX = "(?:rc:|rc：|rc)";
-    private static final String ID_REGEX = "(?:id:|id：|id)";
-    private static final String TAG_REGEX = "(?:tag:|tag：|tag)";
+    private static final String PC_REGEX = "(?:pc:|pc：)";
+    private static final String RC_REGEX = "(?:rc:|rc：)";
+    private static final String ID_REGEX = "(?:id:|id：)";
+    private static final String TAG_REGEX = "(?:tag:|tag：)";
 
     public void clear() {
         compartDatas.clear();
@@ -99,18 +99,18 @@ public class XmindCaseParser {
     }
 
     public List<TestCaseWithBLOBs> getTestCase() {
-        if(StringUtils.equals(this.importType,FunctionCaseImportEnum.Create.name())){
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Create.name())) {
             return this.testCases;
-        }else {
-            return  new ArrayList<>();
+        } else {
+            return new ArrayList<>();
         }
     }
 
     public List<TestCaseWithBLOBs> getUpdateTestCase() {
-        if(StringUtils.equals(this.importType,FunctionCaseImportEnum.Update.name())){
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
             return this.updateTestCases;
-        }else {
-            return  new ArrayList<>();
+        } else {
+            return new ArrayList<>();
         }
     }
 
@@ -233,13 +233,13 @@ public class XmindCaseParser {
 
 
         //自定义ID判断
-        if(StringUtils.isEmpty(data.getCustomNum())){
-            if(StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())){
+        if (StringUtils.isEmpty(data.getCustomNum())) {
+            if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
                 validatePass = false;
                 process.add(Translator.get("id_required"), nodePath + "/" + compartData.getName());
                 return false;
-            }else{
-                if(isUseCustomId){
+            } else {
+                if (isUseCustomId) {
                     validatePass = false;
                     process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
                     return false;
@@ -248,7 +248,7 @@ public class XmindCaseParser {
         }
 
         //判断更新
-        if(StringUtils.equals(this.importType,FunctionCaseImportEnum.Update.name())) {
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
             String checkResult = null;
             if (isUseCustomId) {
                 checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
@@ -257,13 +257,13 @@ public class XmindCaseParser {
             }
             if (null != checkResult) {  //该ID在当前项目中存在
                 //如果前面所经过的校验都没报错
-                if(!isUseCustomId){
+                if (!isUseCustomId) {
                     data.setNum(Integer.parseInt(data.getCustomNum()));
                     data.setCustomNum(null);
                 }
                 data.setId(checkResult);
                 updateTestCases.add(data);
-            }else {
+            } else {
                 process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
                 validatePass = false;
             }
@@ -406,7 +406,7 @@ public class XmindCaseParser {
             });
         }
         testCase.setRemark(rc.toString());
-        if(isUseCustomId || StringUtils.equals(importType,FunctionCaseImportEnum.Update.name())){
+        if (isUseCustomId || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
             testCase.setCustomNum(customId.toString());
         }
 

@@ -2,7 +2,7 @@
   <div>
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
-      <el-form :model="form" ref="form" label-width="120px" size="small" :disabled="show" :rules="rules">
+      <el-form :model="form" ref="form" label-width="100px" size="small" :disabled="show" :rules="rules">
         <el-form-item :label="$t('organization.integration.account')" prop="account">
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
@@ -15,9 +15,19 @@
         </el-form-item>
         <el-form-item :label="$t('organization.integration.jira_issuetype')" prop="issuetype">
           <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.jira_storytype')" prop="storytype">
           <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_jira_storytype')"/>
+          <ms-instructions-icon effect="light">
+            <template>
+              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
       </el-form>
     </div>
@@ -42,18 +52,25 @@
           {{ $t('organization.integration.link_the_project_now') }}
         </router-link>
       </div>
+      <div>
+        3. {{ $t('organization.integration.use_tip_three') }}
+        <router-link :to="{name: 'PersonSetting', params: { open: true }}" style="margin-left: 5px">
+          {{ $t('organization.integration.link_the_info_now') }}
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {JIRA} from "@/common/js/constants";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "JiraSetting",
-  components: {BugManageBtn},
+  components: {MsInstructionsIcon, BugManageBtn},
   created() {
     this.init();
   },
@@ -156,7 +173,7 @@ export default {
     },
     testConnection() {
       if (this.form.account && this.form.password) {
-        this.$parent.result = this.$get("issues/auth/" + JIRA, () => {
+        this.$parent.result = this.$get("issues/auth/" + getCurrentOrganizationId() + '/' + JIRA, () => {
           this.$success(this.$t('organization.integration.verified'));
         });
       } else {
@@ -202,5 +219,9 @@ export default {
   margin: 10px 0;
   padding: 10px;
   border-radius: 3px;
+}
+
+.el-input {
+  width: 80%;
 }
 </style>

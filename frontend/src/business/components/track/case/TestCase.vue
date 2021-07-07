@@ -11,6 +11,7 @@
         :show-operator="true"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
+        @enableTrash="enableTrash"
         :type="'edit'"
         ref="nodeTree"
       />
@@ -31,6 +32,7 @@
               :checkRedirectID="checkRedirectID"
               :isRedirectEdit="isRedirectEdit"
               :tree-nodes="treeNodes"
+              :trash-enable="trashEnable"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -38,6 +40,7 @@
               @refresh="refresh"
               @refreshAll="refreshAll"
               @setCondition="setCondition"
+              @decrease="decrease"
               :custom-num="custom_num"
               ref="testCaseList">
             </test-case-list>
@@ -72,10 +75,10 @@
             </test-case-edit>
           </div>
         </el-tab-pane>
-        <el-tab-pane name="add">
+        <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
           <template v-slot:label>
             <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
-              <el-button type="primary" plain icon="el-icon-plus" size="mini" />
+              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
                   {{ $t('test_track.case.create') }}
@@ -105,7 +108,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getUUID} from "../../../../common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -127,6 +130,7 @@ export default {
       projects: [],
       treeNodes: [],
       testCaseReadOnly: true,
+      trashEnable: false,
       condition: {},
       activeName: 'default',
       tabs: [],
@@ -163,7 +167,14 @@ export default {
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
-    }
+    },
+    activeDom(newVal, oldVal) {
+      this.$nextTick(() => {
+        if (oldVal !== 'left' && newVal === 'left' && this.$refs.testCaseList) {
+          this.$refs.testCaseList.getTemplateField();
+        }
+      });
+    },
   },
   computed: {
     checkRedirectID: function () {
@@ -177,7 +188,7 @@ export default {
     },
 
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;
@@ -190,6 +201,7 @@ export default {
     }
   },
   methods: {
+    hasPermission,
     handleCommand(e) {
       switch (e) {
         case "ADD":
@@ -257,7 +269,7 @@ export default {
     },
     exportTestCase() {
       if (this.activeDom !== 'left') {
-        this.$warning('请切换成接口列表导出！');
+        this.$warning(this.$t('test_track.case.export.export_tip'));
         return;
       }
       this.$refs.testCaseList.exportTestCase();
@@ -293,13 +305,22 @@ export default {
       }
     },
     nodeChange(node) {
+      this.condition.trashEnable = false;
+      this.trashEnable = false;
       this.activeName = "default";
     },
-    refreshTable() {
+    refreshTable(data) {
       if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
       this.$refs.nodeTree.list();
+      this.setTable(data);
+    },
+    increase(id) {
+      this.$refs.nodeTree.increase(id);
+    },
+    decrease(id) {
+      this.$refs.nodeTree.decrease(id);
     },
     editTestCase(testCase) {
       this.type = "edit";
@@ -344,15 +365,16 @@ export default {
     refresh(data) {
       this.$store.commit('setTestCaseSelectNode', {});
       this.$store.commit('setTestCaseSelectNodeIds', []);
-      this.refreshTable();
-      this.setTable(data);
+      this.refreshTable(data);
     },
     setTable(data) {
-      for (let index in this.tabs) {
-        let tab = this.tabs[index];
-        if (tab.name === this.activeName) {
-          tab.label = data.name;
-          break;
+      if (data) {
+        for (let index in this.tabs) {
+          let tab = this.tabs[index];
+          if (tab.name === this.activeName) {
+            tab.label = data.name;
+            break;
+          }
         }
       }
     },
@@ -389,7 +411,11 @@ export default {
           this.custom_num = data.customNum;
         }
       });
-    }
+    },
+    enableTrash(data) {
+      this.initApiTableOpretion = "trashEnable";
+      this.trashEnable = data;
+    },
   }
 };
 </script>
@@ -397,7 +423,7 @@ export default {
 <style scoped>
 
 .el-main {
-  padding: 15px;
+  padding: 5px 10px;
 }
 
 /deep/ .el-button-group > .el-button:first-child {

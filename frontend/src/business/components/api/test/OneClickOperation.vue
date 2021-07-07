@@ -7,7 +7,7 @@
     :destroy-on-close="true"
     show-close
     @closed="handleClose">
-    <el-form :model="ruleForm" label-position="right" label-width="120px" size="small" :rules="rule">
+    <el-form :model="ruleForm" label-position="right" label-width="100px" size="small" :rules="rule">
       <el-form-item :label="$t('test_track.case.test_name')" prop="testName">
         <el-input v-model="ruleForm.testName" autocomplete="off" clearable show-word-limit></el-input>
       </el-form-item>

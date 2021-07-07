@@ -54,7 +54,7 @@
   import TemplateComponentBar from "./TemplateComponentBar";
   import TemplateComponentEditHeader from "./TemplateComponentEditHeader";
   import {WORKSPACE_ID} from '../../../../../../../common/js/constants';
-  import {jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
+  import {getCurrentWorkspaceId, jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
   import TemplateComponent from "./TemplateComponent/TemplateComponent";
 
     export default {
@@ -262,10 +262,10 @@
           if (this.type == 'edit') {
             param.id = this.template.id;
           } else {
-            param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+            param.workspaceId = getCurrentWorkspaceId();
           }
           if (this.template.workspaceId) {
-            param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+            param.workspaceId = getCurrentWorkspaceId();
           }
           if (this.metric && this.metric.startTime) {
             param.startTime = this.metric.startTime.getTime();

@@ -13,9 +13,9 @@ export default {
 p {
   padding: 3px 5px;
   font-size: 16px;
-  border-radius: 4px;
+  border-radius: 0px;
   border-left: 4px solid #783887;
-  margin: 20px 0;
+  margin: 5px 5px 10px 5px;
 }
 
 </style>

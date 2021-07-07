@@ -17,15 +17,16 @@
 
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
-      t.id, t.environment_id, t.create_time, t.update_time,
-      c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.num, c.tags,
-      a.module_id, a.path, a.protocol, t.status execResult
+    t.id, t.environment_id, t.create_time, t.update_time,
+    c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id,
+    c.update_user_id, c.num, c.tags,
+    a.module_id, a.path, a.protocol, t.status execResult, a.user_id
     from
-      test_plan_api_case t
+    test_plan_api_case t
     inner join
     api_test_case c
     on t.api_case_id = c.id
-      <if test="request.planId != null and request.planId!=''">
+    <if test="request.planId != null and request.planId!=''">
         and t.test_plan_id = #{request.planId}
       </if>
     inner join

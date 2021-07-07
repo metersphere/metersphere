@@ -10,6 +10,7 @@ import io.metersphere.track.response.TrackCountResult;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface ExtTestCaseMapper {
@@ -96,4 +97,11 @@ public interface ExtTestCaseMapper {
     void updateTestCaseCustomNumByProjectId(@Param("projectId") String projectId);
 
     List<String> selectRelateIdsByQuery(@Param("request") BaseQueryRequest query);
+
+    List<Map<String, Object>> moduleCountByCollection(@Param("request")QueryTestCaseRequest request);
+
+    List<TestCaseWithBLOBs> getCustomFieldsByIds(@Param("ids") List<String> ids);
+
+    int deleteToGc(@Param("request") TestCase testCase);
+    int reduction(@Param("ids") List<String> ids);
 }

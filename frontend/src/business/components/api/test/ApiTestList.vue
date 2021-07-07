@@ -45,7 +45,9 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operators :buttons="buttons" :row="scope.row"/>
+              <div>
+                <ms-table-operators :buttons="buttons" :row="scope.row"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>

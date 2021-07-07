@@ -137,6 +137,9 @@ export default {
     updateRemark(text) {
       this.form.remark = text;
     },
+    reset() {
+      this.tabActiveName = "remark";
+    },
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
@@ -220,15 +223,17 @@ export default {
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
     },
-    getFileMetaData() {
-      if (this.uploadList && this.uploadList.length > 0) {
+    getFileMetaData(id) {
+      // 保存用例后传入用例id，刷新文件列表，可以预览和下载
+      if (this.uploadList && this.uploadList.length > 0 && !id) {
         return;
       }
       this.fileList = [];
       this.tableData = [];
       this.uploadList = [];
-      if (this.caseId) {
-        this.result = this.$get("test/case/file/metadata/" + this.caseId, response => {
+      let testCaseId = id ? id : this.caseId;
+      if (testCaseId) {
+        this.result = this.$get("test/case/file/metadata/" + testCaseId, response => {
           let files = response.data;
 
           if (!files) {

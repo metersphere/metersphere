@@ -155,6 +155,7 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
+        deleteUser.name AS delete_user_id,test_case.delete_time,
         <if test="request.selectFields != null and request.selectFields.size() > 0">
             <foreach collection="request.selectFields" item="field" separator=",">
                 ${field}
@@ -166,15 +167,23 @@
             test_case.create_time, test_case.update_time, test_case.test_id, test_case.sort, test_case.num,
             test_case.other_test_name, test_case.review_status, test_case.tags,
             test_case.demand_id, test_case.demand_name, test_case.follow_people, test_case.`status`,
-            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName
+            test_case.custom_num, test_case.step_model, test_case.create_user,u.name as createName,
+            test_case.custom_fields
         </if>
         from test_case left join user u on test_case.create_user=u.id
+        left join user deleteUser on test_case.delete_user_id=deleteUser.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="moduleCount" resultType="java.lang.Integer">
         select count(id) from test_case
         <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="moduleCountByCollection" resultType="java.util.Map">
+        select node_id AS moduleId,count(id) AS countNum from test_case
+        <include refid="queryWhereCondition"/>
+        GROUP BY node_id
     </select>
     <select id="listIds" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
@@ -294,8 +303,14 @@
                                 #{value}
                             </foreach>
                         </when>
-                        <when test="key=='reviewStatus'">
+                        <when test="key=='review_status'">
                             and test_case.review_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='status'">
+                            and test_case.status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
@@ -308,7 +323,13 @@
                         </when>
                     </choose>
                 </if>
+                <if test="key=='status' and values.size == 0">
+                    and (test_case.status is null or test_case.status != 'Trash')
+                </if>
             </foreach>
+        </if>
+        <if test="request.filters == null || request.filters.size() == 0 ">
+            and (test_case.status is null or test_case.status != 'Trash')
         </if>
     </sql>
 
@@ -334,17 +355,15 @@
             <if test="request.createTime >0">
                 and test_case.create_time >= #{request.createTime}
             </if>
-            <choose>
-                <when test="request.nodeIds != null and request.nodeIds.size() > 0">
-                    and test_case.node_id in
-                    <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
-                        #{nodeId}
-                    </foreach>
-                </when>
-                <when test="request.projectId != null">
-                    and test_case.project_id = #{request.projectId}
-                </when>
-            </choose>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.projectId != null">
+                and test_case.project_id = #{request.projectId}
+            </if>
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
                 and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
@@ -446,6 +465,9 @@
         <include refid="io.metersphere.base.mapper.TestCaseMapper.Blob_Column_List"/>
         from test_case
         <include refid="queryWhereCondition"/>
+        <if test="request.nodeId != null">
+            and test_case.node_id = #{request.nodeId}
+        </if>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="getTestCaseByNotInIssue" resultType="io.metersphere.track.dto.TestCaseDTO">
@@ -472,4 +494,33 @@
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
     </select>
+    <select id="getCustomFieldsByIds" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
+        select id, custom_fields
+        from test_case
+        <where>
+            test_case.id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <update id="deleteToGc">
+        update test_case set original_status=status,
+        status = 'Trash',
+        delete_time = #{request.deleteTime},
+        delete_user_id = #{request.deleteUserId}
+        where id = #{request.id}
+    </update>
+    <update id="reduction">
+        update test_case
+        set
+        status = original_status,
+        delete_user_id = null,
+        delete_time = null
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
 </mapper>

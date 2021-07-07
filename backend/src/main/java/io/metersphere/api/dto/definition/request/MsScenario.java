@@ -61,6 +61,9 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 27)
     private Map<String, String> environmentMap;
 
+    @JSONField(ordinal = 24)
+    private Boolean onSampleError;
+
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public MsScenario() {

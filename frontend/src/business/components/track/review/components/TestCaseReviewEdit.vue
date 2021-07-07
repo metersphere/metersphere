@@ -7,13 +7,12 @@
                :visible.sync="dialogFormVisible"
                @close="close"
                v-loading="result.loading"
-               width="65%"
-               v-if="isStepTableAlive">
+               width="60%">
 
       <el-form :model="form" :rules="rules" ref="reviewForm">
 
         <el-row>
-          <el-col :span="8" :offset="1">
+          <el-col :span="10">
             <el-form-item
               :placeholder="$t('test_track.review.input_review_name')"
               :label="$t('test_track.review.review_name')"
@@ -22,20 +21,21 @@
               <el-input v-model="form.name"/>
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="1">
+          <el-col :span="12" :offset="1">
             <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-              <ms-input-tag :currentScenario="form" ref="tag"/>
+              <ms-input-tag :currentScenario="form" ref="tag" size="-" v-if="isStepTableAlive"/>
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-row>
-          <el-col :span="10" :offset="1">
+          <el-col :span="10">
             <el-form-item :label="$t('test_track.review.reviewer')" :label-width="formLabelWidth" prop="userIds">
               <el-select
                 v-model="form.userIds"
                 :placeholder="$t('test_track.review.input_reviewer')"
                 filterable multiple
+                style="width: 100%"
               >
                 <el-option
                   v-for="item in reviewerOptions"
@@ -47,17 +47,17 @@
             </el-form-item>
           </el-col>
 
-          <el-col :span="10">
+          <el-col :span="12" :offset="1">
             <el-form-item :label="$t('test_track.review.end_time')" :label-width="formLabelWidth" prop="endTime">
               <el-date-picker @change="endTimeChange" type="datetime" :placeholder="$t('commons.select_date')"
-                              v-model="form.endTime"/>
+                              v-model="form.endTime" style="width: 100%"/>
             </el-form-item>
           </el-col>
         </el-row>
 
 
         <el-row type="flex" justify="left" style="margin-top: 10px;">
-          <el-col :span="23" :offset="1">
+          <el-col :span="23">
             <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
               <el-input v-model="form.description"
                         type="textarea"
@@ -69,7 +69,7 @@
         </el-row>
 
         <el-row v-if="operationType === 'edit'" type="flex" justify="left" style="margin-top: 10px;">
-          <el-col :span="19" :offset="1">
+          <el-col :span="19">
             <el-form-item :label="$t('test_track.review.review_status')" :label-width="formLabelWidth" prop="status">
               <test-plan-status-button :status="form.status" @statusChange="statusChange"/>
             </el-form-item>
@@ -102,7 +102,7 @@
 
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
@@ -133,14 +133,14 @@ export default {
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
         endTime: [{required: true, message: '请选择截止时间', trigger: 'blur'}]
       },
-      formLabelWidth: "120px",
+      formLabelWidth: "100px",
       operationType: '',
       reviewerOptions: []
     };
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
   methods: {
@@ -232,8 +232,7 @@ export default {
       });
     },
     setReviewerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.result = this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.result = this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
         this.reviewerOptions = response.data;
       });
     },

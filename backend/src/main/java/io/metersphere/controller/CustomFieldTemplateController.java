@@ -1,11 +1,8 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.CustomFieldTemplate;
-import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.dto.CustomFieldTemplateDao;
 import io.metersphere.service.CustomFieldTemplateService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,5 +21,10 @@ public class CustomFieldTemplateController {
     @PostMapping("/list")
     public List<CustomFieldTemplateDao> list(@RequestBody CustomFieldTemplate request) {
         return customFieldTemplateService.list(request);
+    }
+
+    @PostMapping("/update")
+    public void update(@RequestBody CustomFieldTemplate request) {
+        customFieldTemplateService.update(request);
     }
 }

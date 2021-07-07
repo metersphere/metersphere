@@ -134,7 +134,7 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
@@ -206,7 +206,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
@@ -272,7 +272,7 @@ export default {
             }
           });
         } else {
-          this.$refs.reviewComment.inputLight();
+         /* this.$refs.reviewComment.inputLight();*/
           this.$warning(this.$t('test_track.comment.description_is_null'));
         }
       } else {
@@ -389,7 +389,11 @@ export default {
         id = this.testCase.caseId;
       }
       this.result = this.$get('/test/case/comment/list/' + id, res => {
-        this.comments = res.data;
+        if(res.data){
+          this.comments = null;
+          this.comments = res.data;
+        }
+
       })
     },
     initData(testCase) {
@@ -490,7 +494,7 @@ export default {
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 70px);
+  height: calc(100vh - 50px);
 }
 
 .comment-card >>> .el-card__header {
@@ -498,7 +502,7 @@ export default {
 }
 
 .comment-card >>> .el-card__body {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
 }
 
 .tb-edit >>> .el-textarea__inner {
@@ -510,5 +514,9 @@ export default {
 .step-info {
   padding-left: 40px;
   padding-right: 15px;
+}
+
+.el-divider__text {
+  line-height: normal;
 }
 </style>

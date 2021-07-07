@@ -2,7 +2,7 @@
   <div v-if="isShow">
     <el-dropdown placement="bottom" trigger="click" size="medium">
       <div @click.stop class="show-more-btn">
-        <i class="el-icon-more ms-icon-more"/>
+          <i class="el-icon-more ms-icon-more"/>
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
@@ -19,14 +19,34 @@
 
   export default {
     name: "ShowMoreBtn",
+    data() {
+      return {
+        disabled: false,
+        showTool: false
+      };
+    },
     props: {
       isShow: {
+        type: Boolean,
+        default: false
+      },
+      isShowTool: {
         type: Boolean,
         default: false
       },
       buttons: Array,
       row: Object,
       size: Number
+    },
+    watch: {
+      isShowTool(val) {
+        if (val) {
+          this.showTool = val;
+          setTimeout(() => {
+            this.showTool = false;
+          }, 1000);
+        }
+      }
     },
     created() {
       if (this.trashEnable) {

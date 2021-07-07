@@ -28,7 +28,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -135,17 +135,21 @@ public class TestPlanLoadCaseService {
     }
 
     public void runBatch(RunBatchTestPlanRequest request) {
-        if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
-            try {
+        try {
+            if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
                 serialRun(request);
-            } catch (Exception e) {
-                MSException.throwException(e.getMessage());
+            } else {
+                ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+                request.getRequests().forEach(item -> {
+                    executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
+                });
             }
-        } else {
-            ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
-            request.getRequests().forEach(item -> {
-                executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
-            });
+        } catch (Exception e) {
+            if (StringUtils.isNotEmpty(e.getMessage())) {
+                MSException.throwException("测试正在运行, 请等待！");
+            } else {
+                MSException.throwException("请求参数错误，请刷新后执行！");
+            }
         }
     }
 
@@ -325,5 +329,17 @@ public class TestPlanLoadCaseService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public Boolean hasFailCase(String planId, List<String> performanceIds) {
+        if (CollectionUtils.isEmpty(performanceIds)) {
+            return false;
+        }
+        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(planId)
+                .andLoadCaseIdIn(performanceIds)
+                .andStatusEqualTo("error");
+        return testPlanLoadCaseMapper.countByExample(example) > 0 ? true : false;
     }
 }

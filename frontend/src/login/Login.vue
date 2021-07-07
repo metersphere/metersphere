@@ -1,25 +1,25 @@
 <template>
-  <div class="container" v-loading="result.loading" v-if="ready">
+  <div class="container" v-if="ready">
     <el-row type="flex">
       <el-col :span="12">
-
-        <div class="title">
-          <div class="title-img">
-            <img :src="'/display/file/loginLogo'" alt="">
-          </div>
-          <div class="welcome">
-            <span>{{ loginTitle }}</span>
-          </div>
-        </div>
-
         <div class="content">
+          <div class="title">
+            <div class="title-img">
+              <img :src="'/display/file/loginLogo'" alt="">
+            </div>
+            <div class="welcome">
+              <span>{{ loginTitle }}</span>
+            </div>
+          </div>
           <div class="form">
             <el-form :model="form" :rules="rules" ref="form">
               <el-form-item v-slot:default>
                 <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
                   <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
                   <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
-                  <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
+                  <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }}
+                    {{ auth.name }}
+                  </el-radio>
                 </el-radio-group>
               </el-form-item>
               <el-form-item prop="username">
@@ -27,7 +27,8 @@
                           autocomplete="off"/>
               </el-form-item>
               <el-form-item prop="password">
-                <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
+                <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password
+                          autocomplete="off"
                           maxlength="30" show-word-limit/>
               </el-form-item>
             </el-form>
@@ -46,7 +47,9 @@
       <div class="divider"/>
 
       <el-col :span="12">
-        <img class="login-image" :src="'/display/file/loginImage'" alt="">
+        <div class="content">
+          <img class="login-image" :src="'/display/file/loginImage'" alt="">
+        </div>
       </el-col>
 
     </el-row>
@@ -88,13 +91,20 @@ export default {
       loginTitle: this.$t("commons.welcome"),
       authSources: [],
       loginUrl: 'signin',
-    }
+    };
   },
   beforeCreate() {
     this.$get('/system/theme', res => {
       this.color = res.data ? res.data : PRIMARY_COLOR;
       document.body.style.setProperty('--primary_color', this.color);
-    })
+    });
+    // 保存当前站点url
+    this.$get('/system/save/baseurl?baseurl=' + window.location.origin)
+      .then(() => {
+      })
+      .catch(() => {
+      });
+
     this.result = this.$get("/isLogin").then(response => {
 
       if (display.default !== undefined) {
@@ -118,17 +128,17 @@ export default {
     });
     this.$get("/ldap/open", response => {
       this.openLdap = response.data;
-      if (this.openLdap){
+      if (this.openLdap) {
         this.form.authenticate = 'LDAP';
       }
-    })
+    });
   },
   created: function () {
     // 主页添加键盘事件,注意,不能直接在焦点事件上添加回车
     document.addEventListener("keydown", this.watchEnter);
     //
     if (license.default) {
-      license.default.valid(this)
+      license.default.valid(this);
     }
   },
 
@@ -187,10 +197,10 @@ export default {
         this.$get("language", response => {
           language = response.data;
           localStorage.setItem(DEFAULT_LANGUAGE, language);
-          window.location.href = "/"
-        })
+          window.location.href = "/";
+        });
       } else {
-        window.location.href = "/"
+        window.location.href = "/";
       }
     },
     redirectAuth(authId) {
@@ -199,15 +209,24 @@ export default {
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
 .container {
   width: 1200px;
-  height: 810px;
-  margin: calc((100vh - 810px) / 2) auto 0;
+  height: 730px;
+  margin: 0 auto;
   background-color: #FFFFFF;
+}
+
+.content {
+  margin-left: 10px;
+}
+
+.el-row--flex {
+  height: 730px;
+  margin-top: calc((100vh - 800px) / 2);
 }
 
 .el-col:nth-child(3) {

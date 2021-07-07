@@ -27,7 +27,10 @@
                     </el-col>
 
                     <el-col class="head-right" :span="20">
-                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true)" :list="testCases"/>
+                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true, true)" :list="testCases"/>
+                      <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
+                        {{$t('test_track.save')}} & 下一条
+                      </el-button>
                     </el-col>
 
                   </el-row>
@@ -35,7 +38,7 @@
                   <el-row class="head-bar">
                     <el-col>
                       <el-divider content-position="left">
-                        <el-button type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
+                        <el-button class="test-case-name" type="text" @click="openTestTestCase(testCase)">{{ testCase.name }}</el-button>
                       </el-divider>
                     </el-col>
                   </el-row>
@@ -122,7 +125,7 @@ import ApiTestDetail from "../test/ApiTestDetail";
 import ApiTestResult from "../test/ApiTestResult";
 import PerformanceTestDetail from "../test/PerformanceTestDetail";
 import PerformanceTestResult from "../test/PerformanceTestResult";
-import {getUUID, hasPermission, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
@@ -186,7 +189,7 @@ export default {
       formLabelWidth: "100px",
       isCustomFiledActive: false,
       otherInfoActive: true,
-      isReadOnly: false
+      isReadOnly: false,
     };
   },
   props: {
@@ -199,7 +202,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
@@ -266,7 +269,7 @@ export default {
         }
       };
     },
-    saveCase(next) {
+    saveCase(next, noTip) {
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
@@ -292,7 +295,9 @@ export default {
         this.$request(option, (response) => {
 
         });
-        this.$success(this.$t('commons.save_success'));
+        if (!noTip) {
+          this.$success(this.$t('commons.save_success') + ' -> ' + this.$t('test_track.plan_view.next_case'));
+        }
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
         if (next && this.index < this.testCases.length - 1) {
@@ -336,7 +341,7 @@ export default {
         Object.assign(item, response.data);
         if (item.results) {
           item.results = JSON.parse(item.results);
-        } else {
+        } else if (item.steps) {
           item.results = [item.steps.length];
         }
         if (item.issues) {
@@ -389,6 +394,9 @@ export default {
           this.testCaseTemplate = template;
           initFuc(testCase);
         });
+      if (this.$refs.otherInfo) {
+        this.$refs.otherInfo.reset();
+      }
     },
     testRun(reportId) {
       this.testCase.reportId = reportId;
@@ -493,7 +501,7 @@ export default {
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 70px);
+  height: calc(100vh - 50px);
 }
 
 .comment-card >>> .el-card__header {
@@ -501,7 +509,7 @@ export default {
 }
 
 .comment-card >>> .el-card__body {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
 }
 
 .case_container > .el-row {
@@ -530,5 +538,18 @@ p {
 .issues-popover {
   height: 550px;
   overflow: auto;
+}
+
+.save-btn {
+  margin-left: 10px;
+}
+
+
+.el-divider__text {
+  line-height: normal;
+}
+
+.test-case-name {
+  padding: 0;
 }
 </style>

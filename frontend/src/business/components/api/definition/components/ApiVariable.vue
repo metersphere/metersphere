@@ -74,17 +74,26 @@
           </el-input>
         </el-col>
 
+        <el-col v-if="withMorSetting" class="item kv-setting">
+          <el-tooltip effect="dark" :content="$t('schema.adv_setting')" placement="top">
+            <i class="el-icon-setting" @click="openApiVariableSetting(item)"/>
+          </el-tooltip>
+        </el-col>
+
         <el-col class="item kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
                      :disabled="isDisable(index) || isReadOnly"/>
         </el-col>
-
 
       </el-row>
     </div>
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
                              :parameters="parameters"
                              :current-item="currentItem"/>
+
+    <api-variable-setting
+      ref="apiVariableSetting"/>
+
   </div>
 </template>
 
@@ -95,10 +104,11 @@
   import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
   import {REQUIRED} from "../model/JsonData";
   import Vue from 'vue';
+  import ApiVariableSetting from "@/business/components/api/definition/components/ApiVariableSetting";
 
   export default {
     name: "MsApiVariable",
-    components: {MsApiBodyFileUpload, MsApiVariableAdvance},
+    components: {ApiVariableSetting, MsApiBodyFileUpload, MsApiVariableAdvance},
     props: {
       keyPlaceholder: String,
       valuePlaceholder: String,
@@ -119,7 +129,8 @@
         type: Boolean,
         default: true
       },
-      suggestions: Array
+      suggestions: Array,
+      withMorSetting: Boolean
     },
     data() {
       return {
@@ -249,6 +260,9 @@
         this.$nextTick(() => {
           this.isActive = true;
         });
+      },
+      openApiVariableSetting(item) {
+        this.$refs.apiVariableSetting.open(item);
       }
     },
     created() {
@@ -306,5 +320,10 @@
   .pointer {
     cursor: pointer;
     color: #1E90FF;
+  }
+
+  .kv-setting {
+    width: 40px;
+    padding: 0px !important;
   }
 </style>

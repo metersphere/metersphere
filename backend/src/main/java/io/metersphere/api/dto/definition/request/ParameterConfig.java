@@ -3,7 +3,7 @@ package io.metersphere.api.dto.definition.request;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.ssl.MsKeyStore;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import lombok.Data;
 import org.apache.jmeter.config.Arguments;
 
@@ -30,6 +30,10 @@ public class ParameterConfig {
      * 公共Cookie
      */
     private boolean enableCookieShare;
+    /**
+     * 是否停止继续
+     */
+    private Boolean onSampleError;
 
     /**
      * 是否是导入/导出操作
@@ -53,7 +57,7 @@ public class ParameterConfig {
     static public Arguments valueSupposeMock(Arguments arguments) {
         for(int i = 0; i < arguments.getArguments().size(); ++i) {
             String argValue = arguments.getArgument(i).getValue();
-            arguments.getArgument(i).setValue(ScriptEngineUtils.calculate(argValue));
+            arguments.getArgument(i).setValue(ScriptEngineUtils.buildFunctionCallString(argValue));
         }
         return arguments;
     }

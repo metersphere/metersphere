@@ -2,17 +2,18 @@ import {
   COUNT_NUMBER,
   COUNT_NUMBER_SHALLOW,
   LicenseKey,
+  ORGANIZATION_ID,
   ORIGIN_COLOR,
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
   PROJECT_ID,
-  REFRESH_SESSION_USER_URL,
   ROLE_ADMIN,
   ROLE_ORG_ADMIN,
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey
+  TokenKey,
+  WORKSPACE_ID
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -178,13 +179,15 @@ export function checkoutTestManagerOrTestUser() {
 }
 
 export function getCurrentOrganizationId() {
-  let user = getCurrentUser();
-  return user.lastOrganizationId;
+  return sessionStorage.getItem(ORGANIZATION_ID);
 }
 
 export function getCurrentWorkspaceId() {
-  let user = getCurrentUser();
-  return user.lastWorkspaceId;
+  return sessionStorage.getItem(WORKSPACE_ID);
+}
+
+export function getCurrentProjectID() {
+  return sessionStorage.getItem(PROJECT_ID);
 }
 
 export function getCurrentUser() {
@@ -194,11 +197,6 @@ export function getCurrentUser() {
 export function getCurrentUserId() {
   let user = JSON.parse(localStorage.getItem(TokenKey));
   return user.id;
-}
-
-export function getCurrentProjectID() {
-  let user = getCurrentUser();
-  return user.lastProjectId;
 }
 
 export function enableModules(...modules) {
@@ -214,6 +212,15 @@ export function enableModules(...modules) {
 export function saveLocalStorage(response) {
   // 登录信息保存 cookie
   localStorage.setItem(TokenKey, JSON.stringify(response.data));
+  if (!sessionStorage.getItem(PROJECT_ID)) {
+    sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+  }
+  if (!sessionStorage.getItem(ORGANIZATION_ID)) {
+    sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
+  }
+  if (!sessionStorage.getItem(WORKSPACE_ID)) {
+    sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
+  }
   let rolesArray = response.data.roles;
   let roles = rolesArray.map(r => r.id);
   // 保存角色
@@ -224,15 +231,6 @@ export function saveLicense(data) {
   // 保存License
   localStorage.setItem(LicenseKey, data);
 }
-
-
-export function refreshSessionAndCookies(sign, sourceId) {
-  axios.post(REFRESH_SESSION_USER_URL + "/" + sign + "/" + sourceId).then(r => {
-    saveLocalStorage(r.data);
-    window.location.reload();
-  });
-}
-
 
 export function jsonToMap(jsonStr) {
   let obj = JSON.parse(jsonStr);
@@ -338,6 +336,10 @@ export function exportPdf(name, canvasList) {
       let blankHeight = a4Height - currentHeight;
 
       if (leftHeight > blankHeight) {
+        if (blankHeight < 200) {
+          pdf.addPage();
+          currentHeight = 0;
+        }
         //页面偏移
         let position = 0;
         while (leftHeight > 0) {
@@ -348,10 +350,10 @@ export function exportPdf(name, canvasList) {
           leftHeight -= occupation;
           position -= occupation;
           //避免添加空白页
-          if (leftHeight > 0) {
-            pdf.addPage();
-            currentHeight = 0;
-          }
+          // if (leftHeight > 0) {
+          // pdf.addPage();
+          // currentHeight = 0;
+          // }
         }
       } else {
         pdf.addImage(pageData, 'JPEG', 0, currentHeight, imgWidth, imgHeight);
@@ -442,6 +444,15 @@ export function handleCtrlSEvent(event, func) {
   }
 }
 
+export function handleCtrlREvent(event, func) {
+  if (event.keyCode === 82 && event.ctrlKey) {
+    func();
+    event.preventDefault();
+    event.returnValue = false;
+    return false;
+  }
+}
+
 export function strMapToObj(strMap) {
   if (strMap) {
     let obj = Object.create(null);
@@ -495,5 +506,5 @@ export function getNodePath(id, moduleOptions) {
 }
 
 export function getDefaultTableHeight() {
-  return document.documentElement.clientHeight - 280;
+  return document.documentElement.clientHeight - 200;
 }

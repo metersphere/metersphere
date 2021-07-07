@@ -1,10 +1,12 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.EnvironmentDTO;
 import io.metersphere.api.dto.SaveHistoricalDataUpgrade;
 import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.dto.datacount.ApiMethodUrlDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertionDuration;
@@ -53,6 +55,8 @@ public class HistoricalDataUpgradeService {
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
+    private ApiAutomationService apiAutomationService;
+    @Resource
     SqlSessionFactory sqlSessionFactory;
     @Resource
     ApiTestEnvironmentService apiTestEnvironmentService;
@@ -60,7 +64,7 @@ public class HistoricalDataUpgradeService {
 
     private int getNextNum(String projectId) {
         ApiScenario apiScenario = extApiScenarioMapper.getNextNum(projectId);
-        if (apiScenario == null) {
+        if (apiScenario == null || apiScenario.getNum() == null) {
             return 100001;
         } else {
             return Optional.of(apiScenario.getNum() + 1).orElse(100001);
@@ -360,6 +364,8 @@ public class HistoricalDataUpgradeService {
             scenario.setUpdateTime(System.currentTimeMillis());
             scenario.setStatus(ScenarioStatus.Underway.name());
             scenario.setUserId(SessionUtils.getUserId());
+            List<ApiMethodUrlDTO> useUrl = apiAutomationService.parseUrl(scenario);
+            scenario.setUseUrl(JSONArray.toJSONString(useUrl));
             mapper.updateByPrimaryKeySelective(scenario);
         } else {
             scenario = new ApiScenarioWithBLOBs();
@@ -378,6 +384,8 @@ public class HistoricalDataUpgradeService {
             scenario.setStatus(ScenarioStatus.Underway.name());
             scenario.setUserId(SessionUtils.getUserId());
             scenario.setNum(num);
+            List<ApiMethodUrlDTO> useUrl = apiAutomationService.parseUrl(scenario);
+            scenario.setUseUrl(JSONArray.toJSONString(useUrl));
             mapper.insert(scenario);
         }
     }

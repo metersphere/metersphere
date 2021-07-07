@@ -88,14 +88,59 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         Map<String, List<String>> filters = new LinkedHashMap<>();
         filters.put("status", list);
         request.setFilters(filters);
+//        apiModules.forEach(node -> {
+//            List<String> moduleIds = new ArrayList<>();
+//            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+//            moduleIds.add(node.getId());
+//            request.setModuleIds(moduleIds);
+//            node.setCaseNum(extApiDefinitionMapper.moduleCount(request));
+//        });
+
+        //优化： 所有统计SQL一次查询出来
+        List<String> allModuleIdList = new ArrayList<>();
+        for (ApiModuleDTO node : apiModules) {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            for (String moduleId : moduleIds) {
+                if(!allModuleIdList.contains(moduleId)){
+                    allModuleIdList.add(moduleId);
+                }
+            }
+        }
+        request.setModuleIds(allModuleIdList);
+        List<Map<String,Object>> moduleCountList = extApiDefinitionMapper.moduleCountByCollection(request);
+        Map<String,Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
         apiModules.forEach(node -> {
             List<String> moduleIds = new ArrayList<>();
             moduleIds = this.nodeList(apiModules, node.getId(), moduleIds);
             moduleIds.add(node.getId());
-            request.setModuleIds(moduleIds);
-            node.setCaseNum(extApiDefinitionMapper.moduleCount(request));
+            int countNum = 0;
+            for (String moduleId : moduleIds) {
+                if(moduleCountMap.containsKey(moduleId)){
+                    countNum += moduleCountMap.get(moduleId).intValue();
+                }
+            }
+            node.setCaseNum(countNum);
         });
         return getNodeTrees(apiModules);
+    }
+
+    private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
+        Map<String,Integer> returnMap = new HashMap<>();
+        for (Map<String, Object> map: moduleCountList){
+            Object moduleIdObj = map.get("moduleId");
+            Object countNumObj = map.get("countNum");
+            if(moduleIdObj!= null && countNumObj != null){
+                String moduleId = String.valueOf(moduleIdObj);
+                try {
+                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
+                    returnMap.put(moduleId,countNumInteger);
+                }catch (Exception e){
+                }
+            }
+        }
+        return returnMap;
     }
 
     public static List<String> nodeList(List<ApiModuleDTO> apiNodes, String pid, List<String> list) {
@@ -139,7 +184,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
-        node.setCreateUser(SessionUtils.getUserId());
+        if (StringUtils.isBlank(node.getCreateUser())) {
+            node.setCreateUser(SessionUtils.getUserId());
+        }
         double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
         node.setPos(pos);
         apiModuleMapper.insertSelective(node);
@@ -288,8 +335,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public int deleteNode(List<String> nodeIds) {
-        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        ApiDefinitionExampleWithOperation apiDefinitionExample = new ApiDefinitionExampleWithOperation();
         apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
+        apiDefinitionExample.setOperator(SessionUtils.getUserId());
+        apiDefinitionExample.setOperationTime(System.currentTimeMillis());
         extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
 
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();

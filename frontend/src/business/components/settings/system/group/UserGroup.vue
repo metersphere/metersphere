@@ -2,41 +2,53 @@
   <div v-loading="result.loading">
     <el-card>
       <template v-slot:header>
-        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']" :condition.sync="condition" @search="initData" @create="create"
-                         create-tip="创建用户组" title="用户组与权限" :have-search="false"/>
+        <ms-table-header :create-permission="['SYSTEM_GROUP:READ+CREATE','ORGANIZATION_GROUP:READ+CREATE']"
+                         :condition.sync="condition" @search="initData" @create="create"
+                         :create-tip="$t('group.create')" :title="$t('group.group_permission')"/>
       </template>
 
       <el-table :data="groups" border class="adjust-table" style="width: 100%"
-                :height="screenHeight">
-        <el-table-column prop="name" :label="$t('commons.name')"/>
-        <el-table-column prop="type" label="所属类型">
+                :height="screenHeight" @sort-change="sort">
+        <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
+        <el-table-column prop="type" :label="$t('group.type')">
           <template v-slot="scope">
             <span>{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="scopeName" label="应用范围"/>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')">
+        <el-table-column :label="$t('commons.member')" width="100">
+          <template v-slot:default="scope">
+            <el-link type="primary" class="member-size" @click="memberClick(scope.row)">
+              {{ scope.row.memberSize || 0 }}
+            </el-link>
+          </template>
+        </el-table-column>
+        <el-table-column prop="scopeName" :label="$t('group.scope')"/>
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" sortable show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="updateTime" :label="$t('commons.update_time')">
+        <el-table-column prop="updateTime" :label="$t('commons.update_time')" sortable show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="creator" label="操作人"/>
-        <el-table-column prop="description" label="描述"/>
+        <el-table-column prop="creator" :label="$t('group.operator')"/>
+        <el-table-column prop="description" :label="$t('group.description')"/>
         <el-table-column :label="$t('commons.operating')" min-width="120">
           <template v-slot:default="scope">
-            <ms-table-operator :edit-permission="['SYSTEM_GROUP:READ+EDIT', 'ORGANIZATION_GROUP:READ+EDIT']"
-                               :delete-permission="['SYSTEM_GROUP:READ+DELETE', 'ORGANIZATION_GROUP:READ+DELETE']"
-              @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
-              <template v-slot:middle>
-                <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
-                <ms-table-operator-button v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION', 'ORGANIZATION_GROUP:READ+SETTING_PERMISSION']" tip="设置权限" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
-              </template>
-            </ms-table-operator>
+            <div>
+              <ms-table-operator :edit-permission="['SYSTEM_GROUP:READ+EDIT', 'ORGANIZATION_GROUP:READ+EDIT']"
+                                 :delete-permission="['SYSTEM_GROUP:READ+DELETE', 'ORGANIZATION_GROUP:READ+DELETE']"
+                                 @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
+                <template v-slot:middle>
+                  <!--                <ms-table-operator-button tip="复制" icon="el-icon-document-copy" @exec="copy(scope.row)"/>-->
+                  <ms-table-operator-button
+                    v-permission="['SYSTEM_GROUP:READ+SETTING_PERMISSION', 'ORGANIZATION_GROUP:READ+SETTING_PERMISSION']"
+                    :tip="$t('group.set_permission')" icon="el-icon-s-tools" @exec="setPermission(scope.row)"/>
+                </template>
+              </ms-table-operator>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -44,10 +56,10 @@
       <ms-table-pagination :change="initData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
-
+    <group-member ref="groupMember" @refresh="initData"/>
     <edit-user-group ref="editUserGroup" @refresh="initData"/>
     <edit-permission ref="editPermission"/>
-    <ms-delete-confirm title="删除用户组" @delete="_handleDel" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('group.delete')" @delete="_handleDel" ref="deleteConfirm"/>
   </div>
 </template>
 
@@ -60,10 +72,13 @@ import EditUserGroup from "@/business/components/settings/system/group/EditUserG
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import EditPermission from "@/business/components/settings/system/group/EditPermission";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
+import {_sort} from "@/common/js/tableUtils";
+import GroupMember from "@/business/components/settings/system/group/GroupMember";
 
 export default {
   name: "UserGroup",
   components: {
+    GroupMember,
     EditUserGroup,
     MsTableHeader,
     MsTableOperator,
@@ -79,8 +94,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 275px)',
-      groups: []
+      screenHeight: 'calc(100vh - 200px)',
+      groups: [],
+      currentGroup: {}
     };
   },
   activated() {
@@ -96,20 +112,21 @@ export default {
       this.result = this.$post("/user/group/get/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         if (data) {
-          this.total = data.itemCount;
-          this.groups = data.listObject;
+          let {itemCount, listObject} = data;
+          this.total = itemCount;
+          this.groups = listObject;
         }
       });
     },
     create() {
-      this.$refs.editUserGroup.open({}, 'create', '创建用户组');
+      this.$refs.editUserGroup.open({}, 'create', this.$t('group.create'));
     },
     edit(row) {
       if (row.id === "admin") {
-        this.$warning("系统管理员不支持编辑！");
-        return ;
+        this.$warning(this.$t('group.admin_not_allow_edit'));
+        return;
       }
-      this.$refs.editUserGroup.open(row, 'edit', '编辑用户组');
+      this.$refs.editUserGroup.open(row, 'edit', this.$t('group.edit'));
     },
     _handleDel(row) {
       this.result = this.$get("/user/group/delete/" + row.id, () => {
@@ -119,8 +136,8 @@ export default {
     },
     del(row) {
       if (row.system) {
-        this.$warning("系统用户组不支持删除！");
-        return ;
+        this.$warning(this.$t('group.admin_not_allow_delete'));
+        return;
       }
       this.$refs.deleteConfirm.open(row);
     },
@@ -130,6 +147,17 @@ export default {
     setPermission(row) {
       this.$refs.editPermission.open(row);
     },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initData();
+    },
+    memberClick(row) {
+      this.$refs.groupMember.open(row);
+    }
   }
 };
 </script>

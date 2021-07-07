@@ -56,6 +56,18 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key == 'project_id'">
+                                AND p.id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'workspace_id'">
+                                AND p.workspace_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -82,17 +94,26 @@
           from project
           where workspace_id = #{workspaceId}
     </select>
-    <select id="getSwitchProject" resultType="io.metersphere.dto.ProjectDTO">
+    <select id="getUserProject" resultType="io.metersphere.dto.ProjectDTO">
         select distinct p.* from `group` g join user_group ug on g.id = ug.group_id
         join project p on p.id = ug.source_id
         <where>
             g.type = 'PROJECT' and ug.user_id = #{proRequest.userId}
-            and p.workspace_id = #{proRequest.workspaceId}
+            <if test="proRequest.workspaceId != null and proRequest.workspaceId != ''">
+                and p.workspace_id = #{proRequest.workspaceId}
+            </if>
             <if test="proRequest.name != null and proRequest.name != ''">
                 and p.name like #{proRequest.name, jdbcType=VARCHAR}
             </if>
         </where>
     </select>
+    <select id="getSystemIdByProjectId" resultType="java.lang.String">
+        SELECT system_id FROM project WHERE id = #{0}
+    </select>
+    <select id="getProjectIds" resultType="java.lang.String">
+        select id from project;
+    </select>
+
 
     <update id="removeIssuePlatform">
         update project

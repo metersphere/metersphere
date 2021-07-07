@@ -212,14 +212,15 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
-        select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,
+        select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,api_definition.original_state,
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
-        project_name, user.name as user_name
+        project_name, user.name as user_name,deleteUser.name AS delete_user,api_definition.delete_time
         from api_definition
         left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
+        left join user deleteUser on api_definition.delete_user_id = deleteUser.id
         <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -258,11 +259,10 @@
             #{v}
         </foreach>
     </update>
-
-    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExample">
+    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExampleWithOperation">
         update api_definition
         set original_state=status,
-        status = 'Trash', module_path = null, module_id = null
+        status = 'Trash', module_path = null, module_id = null,delete_user_id = #{operator},delete_time = #{operationTime}
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
@@ -271,7 +271,7 @@
     <update id="reduction">
         update api_definition
         set
-        status = original_state
+        status = original_state,delete_time = null,delete_user_id = null
         where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
@@ -299,7 +299,9 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiDefinition">
         SELECT * FROM api_definition WHERE api_definition.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
-
+    <select id="selectUrlAndMethodById" resultType="io.metersphere.base.domain.ApiDefinition">
+        SELECT method,path FROM api_definition WHERE id = #{0}
+    </select>
     <select id="listRelevance" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
         select
         <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Base_Column_List"/>
@@ -482,7 +484,7 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
-        select id,path
+        select id,path,method
         from api_definition
         WHERE project_id = #{0} AND status != 'Trash' AND protocol = 'HTTP'
     </select>
@@ -490,6 +492,12 @@
     <select id="moduleCount" resultType="java.lang.Integer">
         select count(id) from api_definition
         <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="moduleCountByCollection" resultType="java.util.Map">
+        select module_id AS moduleId,count(id) AS countNum from api_definition
+        <include refid="queryWhereCondition"/>
+        GROUP BY module_id
     </select>
 
     <sql id="filter">
@@ -515,6 +523,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='case_status'">
+                            and api_definition.case_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                     </choose>
                 </if>
             </foreach>
@@ -533,7 +547,8 @@
             <if test="request.name != null">
                 and (api_definition.name like CONCAT('%', #{request.name},'%')
                 or api_definition.tags like CONCAT('%', #{request.name},'%')
-                or api_definition.num like CONCAT('%', #{request.name},'%'))
+                or api_definition.num like CONCAT('%', #{request.name},'%')
+                or api_definition.path like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.protocol != null">
                 AND api_definition.protocol = #{request.protocol}

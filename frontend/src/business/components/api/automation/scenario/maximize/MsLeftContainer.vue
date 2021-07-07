@@ -34,7 +34,7 @@
   .ms-aside-container {
     border: 1px solid #E6E6E6;
     padding: 10px;
-    min-width: 600px;
+    min-width: 690px;
     border-radius: 2px;
     box-sizing: border-box;
     background-color: #FFF;

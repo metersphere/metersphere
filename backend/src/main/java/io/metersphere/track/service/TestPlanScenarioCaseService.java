@@ -17,7 +17,7 @@ import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -235,5 +235,21 @@ public class TestPlanScenarioCaseService {
             }
         }
         return null;
+    }
+
+    public TestPlanApiScenario get(String id) {
+        return testPlanApiScenarioMapper.selectByPrimaryKey(id);
+    }
+
+    public Boolean hasFailCase(String planId, List<String> automationIds) {
+        if (CollectionUtils.isEmpty(automationIds)) {
+            return false;
+        }
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(planId)
+                .andApiScenarioIdIn(automationIds)
+                .andLastResultEqualTo("Fail");
+        return testPlanApiScenarioMapper.countByExample(example) > 0 ? true : false;
     }
 }
