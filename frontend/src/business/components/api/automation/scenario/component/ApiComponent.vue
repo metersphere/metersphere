@@ -80,10 +80,6 @@
         <div v-else>
           <api-response-component :currentProtocol="request.protocol" :result="request.requestResult"/>
         </div>
-        <!-- 保存操作 -->
-        <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)" v-if="!request.referenced">
-          {{ $t('commons.save') }}
-        </el-button>
       </template>
     </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
@@ -94,7 +90,6 @@
 
 <script>
 import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-// import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
 import MsTcpFormatParameters from  "../../../definition/components/request/tcp/TcpFormatParameters";
 import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
 import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
