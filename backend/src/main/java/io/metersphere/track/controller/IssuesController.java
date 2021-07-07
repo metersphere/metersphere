@@ -76,6 +76,11 @@ public class IssuesController {
         issuesService.deleteIssue(request);
     }
 
+    @PostMapping("/delete/relate")
+    public void deleteRelate(@RequestBody IssuesRequest request) {
+        issuesService.deleteIssueRelate(request);
+    }
+
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = "track_bug", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = IssuesService.class)
     public void delete(@PathVariable String id) {
