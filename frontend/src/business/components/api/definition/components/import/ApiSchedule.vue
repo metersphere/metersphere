@@ -4,10 +4,10 @@
       <el-form :model="formData" :rules="rules" v-loading="result.loading" label-width="80px" ref="form">
         <el-row>
           <el-col :span="12">
-            <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
+            <el-form-item :label-width="labelWith" :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
               <el-input size="small" v-model="formData.swaggerUrl" clearable/>
             </el-form-item>
-            <el-form-item :label="'Cron表达式'" prop="rule">
+            <el-form-item :label-width="labelWith" :label="'Cron表达式'" prop="rule">
               <el-input :disabled="isReadOnly"
                         v-model="formData.rule"
                         size="small"
@@ -15,7 +15,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item :label="$t('commons.import_module')" prop="moduleId">
+            <el-form-item :label-width="labelWith" :label="$t('commons.import_module')" prop="moduleId">
               <select-tree class="select-tree" size="small"
                            :data="moduleOptions"
                            :defaultKey="formData.moduleId"
@@ -24,7 +24,7 @@
 <!--              <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"-->
 <!--                              @getValue="setModule" clearable checkStrictly size="small"/>-->
             </el-form-item>
-            <el-form-item :label="$t('commons.import_mode')" prop="modeId">
+            <el-form-item :label-width="labelWith" :label="$t('commons.import_mode')" prop="modeId">
               <el-select size="small" v-model="formData.modeId" clearable >
                 <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
               </el-select>
@@ -107,6 +107,7 @@ export default {
       }
     };
     return {
+      labelWith: '150px',
       operation: true,
       schedule: {
         value: "",
