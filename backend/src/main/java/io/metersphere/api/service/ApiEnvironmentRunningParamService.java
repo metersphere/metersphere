@@ -102,8 +102,9 @@ public class ApiEnvironmentRunningParamService {
                         String envId = envAndKeyArr[0];
                         String [] keyArr = ArrayUtils.remove(envAndKeyArr,0);
                         String key = StringUtils.join(keyArr,".");
-                        String [] valueArr = ArrayUtils.remove(envItem,0);
-                        String value = StringUtils.join(valueArr,"=");
+//                        String [] valueArr = ArrayUtils.remove(envItem,0);
+//                        String value = StringUtils.join(valueArr,"=");
+                        String value = StringUtils.substring(env,jmeterVarKey.length()+1);
                         if(StringUtils.isNoneEmpty(envId,key,value)){
                             this.addParam(envId,key,value);
                         }

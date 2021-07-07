@@ -49,6 +49,7 @@ import {saveScenario} from "@/business/components/api/automation/api-automation"
           this.$emit('runRefresh', {});
           this.$emit("changeDebugButton");
         });
+        alert("123");
       },
     }
   }

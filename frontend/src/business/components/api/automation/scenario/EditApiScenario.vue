@@ -902,6 +902,7 @@ export default {
             promise.then(() => {
               let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
               if (!sign) {
+                this.buttonIsLoading = false;
                 return;
               }
               //调试时不再保存

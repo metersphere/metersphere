@@ -252,7 +252,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                el.setUseEnviroment(useEnvironment);
+                el.setUseEnvironment(useEnvironment);
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
@@ -265,6 +265,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private HttpConfig getHttpConfig(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
+            String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
+            if(StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId,this.getUseEnvironment())){
+                this.setUseEnvironment(useEvnId);
+            }
             return getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
         }
         return null;

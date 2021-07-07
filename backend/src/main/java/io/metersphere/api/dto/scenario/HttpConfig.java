@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 @Data
 public class HttpConfig {
+    private String apiEnvironmentid;
     private String socket;
     private String domain;
     private String protocol = "https";
