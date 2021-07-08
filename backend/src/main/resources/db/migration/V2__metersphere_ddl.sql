@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS `api_test` (
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_test_file` (
     `test_id` varchar(64) DEFAULT NULL,
