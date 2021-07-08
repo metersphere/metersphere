@@ -243,6 +243,13 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='principal'">
+                                and api_scenario.principal in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+
                         </choose>
                     </if>
                 </foreach>
