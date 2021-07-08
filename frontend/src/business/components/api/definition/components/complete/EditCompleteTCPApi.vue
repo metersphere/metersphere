@@ -26,7 +26,7 @@
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 <!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
-      <ms-tcp-format-parameters :show-script="false" :request="request"/>
+      <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter"/>
     </div>
     <div v-else-if="apiProtocol=='ESB'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -153,6 +153,8 @@ export default {
           if(this.request.backScript != null){
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
+        }else{
+          this.$refs.tcpFormatParameter.validateXmlDataStruct();
         }
         this.$emit('saveApi', this.basisData);
       }
@@ -179,6 +181,8 @@ export default {
           if (this.request.backScript != null) {
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
+        }else{
+          this.$refs.tcpFormatParameter.validateXmlDataStruct();
         }
         this.$emit('runTest', this.basisData);
       }
