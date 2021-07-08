@@ -35,7 +35,7 @@
       buttons: Array,
       row: Object,
       size: Number,
-      hasShowed: Object
+      hasShowed: Boolean
     },
     created() {
       if (this.trashEnable) {

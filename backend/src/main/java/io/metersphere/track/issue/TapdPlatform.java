@@ -201,6 +201,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 .map(Issues::getId)
                 .collect(Collectors.toList());
 
+        LogUtil.info("ids: " + ids);
+
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
