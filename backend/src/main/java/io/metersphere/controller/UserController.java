@@ -229,11 +229,10 @@ public class UserController {
     @GetMapping("/project/member/delete/{projectId}/{userId}")
 //    @MsAuditLog(module = "workspace_member", type = OperLogConstants.DELETE, title = "删除工作空间成员")
     public void deleteProjectMember(@PathVariable String projectId, @PathVariable String userId) {
-//        workspaceService.checkWorkspaceOwner(workspaceId);
-//        String currentUserId = SessionUtils.getUser().getId();
-//        if (StringUtils.equals(userId, currentUserId)) {
-//            MSException.throwException(Translator.get("cannot_remove_current"));
-//        }
+        String currentUserId = SessionUtils.getUser().getId();
+        if (StringUtils.equals(userId, currentUserId)) {
+            MSException.throwException(Translator.get("cannot_remove_current"));
+        }
         userService.deleteProjectMember(projectId, userId);
     }
 
