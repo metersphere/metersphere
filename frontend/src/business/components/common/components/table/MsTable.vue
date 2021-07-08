@@ -229,6 +229,14 @@ export default {
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     headerDragend(newWidth, oldWidth, column, event) {
+      if(column){
+        if(column.minWidth){
+          let minWidth = column.minWidth;
+          if(minWidth > newWidth){
+            column.width = minWidth;
+          }
+        }
+      }
       // 保存列宽
       saveCustomTableWidth(this.fieldKey, column.columnKey, newWidth);
     },
