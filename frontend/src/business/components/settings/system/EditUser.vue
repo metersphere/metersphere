@@ -4,7 +4,7 @@
              @closed="handleClose" class="edit-user-dialog"
              :destroy-on-close="true">
     <div v-loading="result.loading">
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule" ref="createUserForm">
+      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule" ref="createUserForm">
         <el-form-item label="ID" prop="id">
           <el-input v-model="form.id" autocomplete="off" :placeholder="$t('user.input_id_placeholder')" :disabled="type === 'Edit'"/>
         </el-form-item>

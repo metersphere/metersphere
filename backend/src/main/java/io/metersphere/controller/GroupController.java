@@ -82,7 +82,6 @@ public class GroupController {
     }
 
     @PostMapping("/list")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
     public List<Group> getGroupsByType(@RequestBody GroupRequest request) {
         return groupService.getGroupsByType(request);
     }
