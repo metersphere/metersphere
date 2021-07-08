@@ -144,7 +144,7 @@
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                  :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                  :project-list="projectList" ref="envPopover" class="ms-message-right"/>
-                    <el-tooltip v-if="!debugLoading" content="Ctrl + R">
+                    <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand">
                         {{ $t('api_test.request.debug') }}
                         <el-dropdown-menu slot="dropdown">
@@ -521,7 +521,14 @@ export default {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
               let name = req.name.split('<->')[0];
-              resMap.set(req.id + name, req);
+              let key = req.id + name;
+              if (resMap.get(key)) {
+                if (resMap.get(key).indexOf(req) === -1) {
+                  resMap.get(key).push(req);
+                }
+              } else {
+                resMap.set(key, [req]);
+              }
               if (req.success) {
                 this.reqSuccess++;
               } else {
@@ -555,6 +562,7 @@ export default {
       /*触发执行操作*/
       this.$refs['currentScenario'].validate((valid) => {
         if (valid) {
+          this.debugLoading = true;
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
           this.getEnv(JSON.stringify(definition)).then(() => {
@@ -577,6 +585,7 @@ export default {
                   hashTree: this.scenarioDefinition
                 };
                 this.reportId = getUUID().substring(0, 8);
+                this.debugLoading = false;
               })
             })
           })
@@ -708,8 +717,10 @@ export default {
           this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(arr[i].id + arr[i].name)) {
-          arr[i].requestResult = this.debugResult.get(arr[i].id + arr[i].name);
+        let key = arr[i].id + arr[i].name;
+        if (this.debugResult && this.debugResult.get(key)) {
+          arr[i].requestResult = this.debugResult.get(key);
+          arr[i].result = null;
           arr[i].debug = this.debug;
           this.findNode(arr[i].name, arr[i].index, arr[i].requestResult.success);
         }
@@ -742,6 +753,7 @@ export default {
         }
         // 添加debug结果
         if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
+          this.scenarioDefinition[i].result = null;
           this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
           this.scenarioDefinition[i].debug = this.debug;
         }

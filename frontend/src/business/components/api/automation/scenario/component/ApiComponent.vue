@@ -81,7 +81,9 @@
                                    :show-options-button="false" :show-header="true" :result="request.requestResult"/>
         </div>
         <div v-else>
-          <api-response-component :currentProtocol="request.protocol" :apiActive="apiActive" :result="request.requestResult"/>
+          <div v-for="(item,i) in request.requestResult" :key="i" style="margin-bottom: 5px">
+            <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+          </div>
         </div>
       </template>
     </api-base-component>
@@ -404,7 +406,7 @@ export default {
       this.loading = false;
     },
     runRefresh(data) {
-      this.request.requestResult = data;
+      this.request.requestResult =[data] ;
       this.request.result = undefined;
       this.loading = false;
       this.$emit('refReload', this.request, this.node);
