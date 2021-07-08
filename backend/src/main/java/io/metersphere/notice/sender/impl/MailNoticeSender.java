@@ -24,9 +24,16 @@ public class MailNoticeSender extends AbstractNoticeSender {
         JavaMailSenderImpl javaMailSender = mailService.getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-        helper.setFrom(javaMailSender.getUsername());
-        LogUtil.info("发件人地址"+javaMailSender.getUsername());
-        LogUtil.info("helper"+helper);
+        //helper.setFrom(javaMailSender.getUsername());
+        if (javaMailSender.getUsername().contains("@")) {
+            helper.setFrom(javaMailSender.getUsername());
+        } else {
+            String mailHost = javaMailSender.getHost();
+            String domainName = mailHost.substring(mailHost.indexOf(".") + 1, mailHost.length());
+            helper.setFrom(javaMailSender.getUsername() + "@" + domainName);
+        }
+        LogUtil.info("发件人地址" + javaMailSender.getUsername());
+        LogUtil.info("helper" + helper);
         helper.setSubject("MeterSphere " + noticeModel.getSubject());
         List<String> emails = super.getUserEmails(messageDetail.getUserIds());
         String[] users = emails.toArray(new String[0]);
