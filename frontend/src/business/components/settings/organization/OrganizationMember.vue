@@ -170,12 +170,12 @@
       initTableData() {
         let param = {
           name: this.condition.name,
-          organizationId: this.currentUser().lastOrganizationId
+          organizationId: this.orgId
         };
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/user/group/list/org/" + this.currentUser().lastOrganizationId;
+          let url = "/user/group/list/org/" + this.orgId;
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
               let groups = response.data;
@@ -227,7 +227,7 @@
         this.updateVisible = true;
         this.form = Object.assign({}, row);
         let groupIds = this.form.groups.map(r => r.id);
-        this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: this.currentUser().lastOrganizationId}, response => {
+        this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: this.orgId}, response => {
           this.$set(this.form, "allgroups", response.data);
         })
         // 编辑使填充角色信息
@@ -241,7 +241,7 @@
           email: this.form.email,
           phone: this.form.phone,
           groupIds: this.form.groupIds,
-          organizationId: this.currentUser().lastOrganizationId
+          organizationId: this.orgId
         };
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -259,7 +259,7 @@
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/org/member/delete/' + this.currentUser().lastOrganizationId + '/' + encodeURIComponent(row.id), () => {
+          this.result = this.$get('/user/org/member/delete/' + this.orgId + '/' + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });
