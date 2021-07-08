@@ -5,6 +5,16 @@
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 10px">
           <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly" style="margin: 20px">
             <el-tabs v-model="activeName" class="request-tabs">
+              <!--test-->
+              <el-tab-pane name="parameters">
+                <template v-slot:label>
+                  {{$t('api_test.definition.request.req_param')}}
+                  <ms-instructions-icon :content="$t('api_test.definition.request.tcp_parameter_tip')"/>
+                </template>
+                <ms-api-variable :is-read-only="isReadOnly" :parameters="request.parameters"/>
+              </el-tab-pane>
+              <!--test-->
+
               <!--query 参数-->
               <el-tab-pane :label="$t('api_test.definition.document.request_body')" name="request">
                 <el-radio-group v-model="reportType" size="mini" style="margin: 10px 0px;">
@@ -20,6 +30,7 @@
                 </el-radio-group>
                 <div style="min-width: 1200px;" v-if="request.reportType === 'xml'">
                   <tcp-xml-table :table-data="request.xmlDataStruct" :show-options-button="true"
+                                 @xmlTablePushRow="xmlTablePushRow"
                                  @initXmlTableData="initXmlTableData"
                                  @saveTableData="saveXmlTableData" ref="treeTable"></tcp-xml-table>
                 </div>
@@ -221,6 +232,13 @@
       this.getEnvironments();
 
       if(this.request){
+
+        //处理各种旧数据
+        if(!this.request.xmlDataStruct && !this.request.jsonDataStruct && !this.request.rawDataStruct){
+          this.request.rawDataStruct = this.request.request;
+          this.request.reportType = "raw";
+        }
+
         if(!this.request.reportType){
           this.request.reportType = "raw";
         }else {
@@ -229,7 +247,6 @@
           }
         }
         this.reportType = this.request.reportType;
-
         if(!this.request.xmlDataStruct){
           this.initXmlTableData();
         }
@@ -358,10 +375,12 @@
           this.refreshXmlTable();
         }
       },
-      validateXmlDataStruct(dataStruct){
-        this.refreshXmlTableDataStruct(dataStruct);
-        let result = this.checkXmlTableDataStructData(dataStruct);
-        return result;
+      validateXmlDataStruct(){
+        if(this.request.xmlDataStruct){
+          this.refreshXmlTableDataStruct(this.request.xmlDataStruct);
+          let result = this.checkXmlTableDataStructData(this.request.xmlDataStruct);
+          return result;
+        }
       },
       refreshXmlTableDataStruct(dataStruct){
         if(dataStruct && dataStruct.length > 0){
@@ -438,6 +457,9 @@
         this.$nextTick(() => {
           this.refreshedXmlTable = false
         })
+      },
+      xmlTablePushRow(row){
+        this.request.xmlDataStruct.push(row);
       }
     }
 

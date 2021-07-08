@@ -168,7 +168,11 @@ public class TcpTreeTableDataStruct {
 
         if (element != null) {
             if (this.children == null || this.children.isEmpty()) {
-                element.addText(this.value);
+                if(this.value == null){
+                    element.addText("");
+                }else {
+                    element.addText(this.value);
+                }
             } else {
                 for (TcpTreeTableDataStruct child : children) {
                     child.genXmlElementByChildren(element);
