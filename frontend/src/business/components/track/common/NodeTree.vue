@@ -22,7 +22,7 @@
       <span class="custom-tree-node father" @click="handleNodeSelect(node)">
 
         <span v-if="data.isEdit" @click.stop>
-          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur" v-model="data.name"
+          <el-input @blur.stop="save(node, data)" @keyup.enter.native.stop="$event.target.blur()" v-model="data.name"
                     class="name-input" size="mini" ref="nameInput"/>
         </span>
 
