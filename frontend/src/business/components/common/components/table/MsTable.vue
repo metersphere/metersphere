@@ -234,6 +234,7 @@ export default {
           let minWidth = column.minWidth;
           if(minWidth > newWidth){
             column.width = minWidth;
+            newWidth = minWidth;
           }
         }
       }
@@ -306,6 +307,9 @@ export default {
     resetHeader() {
       this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
       this.reloadTable();
+    },
+    toggleRowSelection() {
+      this.$refs.table.toggleRowSelection();
     },
     reloadTable() {
       this.tableActive = false;

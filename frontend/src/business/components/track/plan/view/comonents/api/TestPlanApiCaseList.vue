@@ -71,28 +71,8 @@
             :label="$t('custom_field.case_maintainer')"
             min-width="120"/>
 
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            sortable
-            min-width="160"
-            :label="$t('api_test.definition.api_last_time')"
-            prop="updateTime">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </ms-table-column>
-          <ms-table-column
-            :field="item"
-            :fields-width="fieldsWidth"
-            sortable
-            min-width="160"
-            :label="$t('commons.create_time')"
-            prop="createTime">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-            </template>
-          </ms-table-column>
+          <ms-update-time-column :field="item" :fields-width="fieldsWidth"/>
+          <ms-create-time-column :field="item" :fields-width="fieldsWidth"/>
 
           <ms-table-column
             :field="item"
@@ -180,11 +160,15 @@ import MsTaskCenter from "../../../../../task/TaskCenter";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunMode";
+import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 
 export default {
   name: "TestPlanApiCaseList",
   components: {
     MsPlanRunMode,
+    MsCreateTimeColumn,
+    MsUpdateTimeColumn,
     MsTableColumn,
     MsTable,
     BatchEdit,
@@ -378,10 +362,10 @@ export default {
           if (this.$refs.table) {
             this.$refs.table.clear();
             setTimeout(this.$refs.table.doLayout, 200);
+            this.$nextTick(() => {
+              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
+            });
           }
-          this.$nextTick(() => {
-            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-          });
         });
       }
       if (this.planId) {
@@ -397,10 +381,10 @@ export default {
           if (this.$refs.table) {
             this.$refs.table.clear();
             setTimeout(this.$refs.table.doLayout, 200);
+            this.$nextTick(() => {
+              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
+            });
           }
-          this.$nextTick(() => {
-            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
-          });
         });
       }
     },
