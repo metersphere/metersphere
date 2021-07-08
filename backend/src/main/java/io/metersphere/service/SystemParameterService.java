@@ -112,6 +112,8 @@ public class SystemParameterService {
         }
         if (BooleanUtils.toBoolean(hashMap.get(ParamConstants.MAIL.TLS.getValue()))) {
             props.put("mail.smtp.starttls.enable", "true");
+            props.put("mail.smtp.ssl.trust", hashMap.get(ParamConstants.MAIL.SERVER.getValue()));
+
         }
         props.put("mail.smtp.timeout", "30000");
         props.put("mail.smtp.connectiontimeout", "5000");
@@ -127,7 +129,13 @@ public class SystemParameterService {
             MimeMessageHelper helper = null;
             try {
                 helper = new MimeMessageHelper(mimeMessage, true);
-                helper.setFrom(javaMailSender.getUsername());
+                if (javaMailSender.getUsername().contains("@")) {
+                    helper.setFrom(javaMailSender.getUsername());
+                } else {
+                    String mailHost = javaMailSender.getHost();
+                    String domainName = mailHost.substring(mailHost.indexOf(".") + 1, mailHost.length());
+                    helper.setFrom(javaMailSender.getUsername() + "@" + domainName);
+                }
                 helper.setSubject("MeterSphere测试邮件 ");
                 helper.setText("这是一封测试邮件，邮件发送成功", true);
                 helper.setTo(recipients);
