@@ -56,7 +56,11 @@
           :field="item"
           :fields-width="fieldsWidth"
           :label="$t('commons.create_user')"
-          min-width="120"/>
+          min-width="120">
+          <template v-slot:default="scope">
+            {{memberMap.get(scope.row.createUser)}}
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="reviewStatus"
@@ -291,6 +295,7 @@ export default {
       page: getPageInfo(),
       fields: [],
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
+      memberMap: new Map()
     };
   },
   props: {
@@ -351,6 +356,9 @@ export default {
       this.page.result.loading = true;
       let p1 = getProjectMember((data) => {
         this.members = data;
+        this.members.forEach(item => {
+          this.memberMap.set(item.id, item.name);
+        });
       });
       let p2 = getTestTemplate();
       Promise.all([p1, p2]).then((data) => {
