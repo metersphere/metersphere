@@ -89,7 +89,7 @@
                     size="mini"/>
                 </el-form-item>
                 <el-form-item>
-                  <el-radio-group v-model="threadGroup.unit">
+                  <el-radio-group v-model="threadGroup.unit" @change="changeUnit(threadGroup)">
                     <el-radio label="S">{{ $t('schedule.cron.seconds') }}</el-radio>
                     <el-radio label="M">{{ $t('schedule.cron.minutes') }}</el-radio>
                     <el-radio label="H">{{ $t('schedule.cron.hours') }}</el-radio>
@@ -113,7 +113,8 @@
                     <el-input-number
                       :disabled="isReadOnly"
                       :min="1"
-                      :max="threadGroup.duration"
+                      v-if="rampUpTimeVisible"
+                      :max="getMaxRampUp(threadGroup)"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart()"
                       size="mini"/>
@@ -134,8 +135,9 @@
                   <el-form-item :label="$t('load_test.ramp_up_time_within')">
                     <el-input-number
                       :disabled="isReadOnly"
+                      v-if="rampUpTimeVisible"
                       :min="1"
-                      :max="threadGroup.duration"
+                      :max="getMaxRampUp(threadGroup)"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart()"
                       size="mini"/>
@@ -251,6 +253,7 @@ export default {
       autoStop: false,
       autoStopDelay: 30,
       isReadOnly: false,
+      rampUpTimeVisible: true,
     };
   },
   mounted() {
@@ -651,6 +654,24 @@ export default {
       }
 
       return true;
+    },
+    getMaxRampUp(tg) {
+      if (tg.unit === 'S') {
+        return tg.duration;
+      }
+      if (tg.unit === 'M') {
+        return tg.duration * 60;
+      }
+      if (tg.unit === 'H') {
+        return tg.duration * 60 * 60;
+      }
+      return tg.duration;
+    },
+    changeUnit(tg) {
+      this.rampUpTimeVisible = false;
+      this.$nextTick(() => {
+        this.rampUpTimeVisible = true;
+      });
     },
     getUnitLabel(tg) {
       if (tg.unit === 'S') {
