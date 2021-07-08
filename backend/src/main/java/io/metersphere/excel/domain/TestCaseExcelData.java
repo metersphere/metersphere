@@ -1,11 +1,11 @@
 package io.metersphere.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelIgnore;
+import io.metersphere.dto.CustomFieldDao;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Getter
 @Setter
@@ -20,10 +20,6 @@ public class TestCaseExcelData {
     private String name;
     @ExcelIgnore
     private String nodePath;
-    @ExcelIgnore
-    private String maintainer;
-    @ExcelIgnore
-    private String priority;
     @ExcelIgnore
     private String tags;
     @ExcelIgnore
@@ -44,6 +40,12 @@ public class TestCaseExcelData {
      */
     @ExcelIgnore
     private String status;
+    @ExcelIgnore
+    private String maintainer;
+    @ExcelIgnore
+    private String priority;
+    @ExcelIgnore
+    Map<String,String> customDatas = new LinkedHashMap<>();
 
     public Set<String> getExcludeColumnFiledNames(boolean needNum){
         Set<String> excludeColumnFiledNames = new HashSet<>();
@@ -53,5 +55,9 @@ public class TestCaseExcelData {
         excludeColumnFiledNames.add("id");
         excludeColumnFiledNames.add("num");
         return excludeColumnFiledNames;
+    }
+
+    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields){
+        return new ArrayList<>();
     }
 }
