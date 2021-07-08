@@ -1,9 +1,9 @@
 <template>
-  <div style="margin-left: 120px">
+  <div style="margin-left: 100px">
     <el-button type="primary" size="mini" :disabled="!show" @click="testConnection">
       {{ $t('ldap.test_connect') }}
     </el-button>
-    <el-button v-if="showEdit" size="mini" @click="edit">
+    <el-button v-if="showEdit" size="mini" @click="edit" v-permission="editPermission">
       {{ $t('commons.edit') }}
     </el-button>
     <el-button type="primary" v-if="showSave" size="mini" @click="save">
@@ -12,7 +12,7 @@
     <el-button v-if="showCancel" size="mini" @click="cancelEdit">
       {{ $t('organization.integration.cancel_edit') }}
     </el-button>
-    <el-button type="info" size="mini" :disabled="!show" @click="cancelIntegration">
+    <el-button type="info" size="mini" :disabled="!show" @click="cancelIntegration" v-permission="editPermission">
       {{ $t('organization.integration.cancel_integration') }}
     </el-button>
   </div>
@@ -35,6 +35,12 @@ export default {
       default: true
     },
     form: Object,
+    editPermission: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
   },
   methods: {
     testConnection() {
