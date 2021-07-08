@@ -540,15 +540,11 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-drawer__header {
-  margin-bottom: 0px;
-}
+/*/deep/ .el-drawer__header {*/
+/*  margin-bottom: 0px;*/
+/*}*/
 
 .ms-select-all-fixed >>> th:nth-child(2) .el-icon-arrow-down {
   top: -4px;
-}
-
-/deep/ .el-table__fixed-body-wrapper {
- top: 48px !important;
 }
 </style>
