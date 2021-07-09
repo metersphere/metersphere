@@ -125,7 +125,9 @@ export default {
       this.$set(this.form, 'account', '');
       this.$set(this.form, 'password', '');
       this.$nextTick(() => {
-        this.$refs.form.clearValidate();
+        if (this.$refs.form) {
+          this.$refs.form.clearValidate();
+        }
       });
     },
     testConnection() {
