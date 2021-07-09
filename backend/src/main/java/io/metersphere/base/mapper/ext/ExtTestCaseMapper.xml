@@ -348,6 +348,12 @@
                 or test_case.tags like CONCAT('%', #{request.name},'%')
                 or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
+            <if test="request.ids != null">
+                and test_case.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
             <if test="request.relevanceCreateTime >0">
                 and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >=
                 #{request.createTime})

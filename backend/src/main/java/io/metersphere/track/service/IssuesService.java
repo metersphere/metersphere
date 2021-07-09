@@ -363,8 +363,12 @@ public class IssuesService {
             }
             TestCaseIssuesExample example = new TestCaseIssuesExample();
             example.createCriteria().andIssuesIdEqualTo(item.getId());
-            long caseCount = testCaseIssuesMapper.countByExample(example);
-            item.setCaseCount(caseCount);
+            List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
+            List<String> caseIds = testCaseIssues.stream()
+                    .map(TestCaseIssues::getTestCaseId)
+                    .collect(Collectors.toList());
+            item.setCaseIds(caseIds);
+            item.setCaseCount(testCaseIssues.size());
         });
         return issues;
     }
