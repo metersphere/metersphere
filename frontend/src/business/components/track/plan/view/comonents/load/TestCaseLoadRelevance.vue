@@ -135,14 +135,6 @@ export default {
     planId() {
       this.condition.planId = this.planId;
     },
-    selectNodeIds() {
-      this.search();
-    },
-    projectId() {
-      this.condition.projectId = this.projectId;
-      this.getProjectNode();
-      this.search();
-    },
     reviewId() {
       this.condition.reviewId = this.reviewId;
     },
@@ -157,6 +149,9 @@ export default {
     },
     setProject(projectId) {
       this.projectId = projectId;
+      this.condition.projectId = this.projectId;
+      this.getProjectNode();
+      this.search();
     },
     saveCaseRelevance() {
       let param = {};
@@ -238,6 +233,7 @@ export default {
     nodeChange(node, nodeIds, nodeNames) {
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
+      this.search();
     },
     refresh() {
       this.close();
