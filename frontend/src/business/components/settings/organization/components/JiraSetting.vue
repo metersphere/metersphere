@@ -169,7 +169,9 @@ export default {
       this.$set(this.form, 'issuetype', '');
       this.$set(this.form, 'storytype', '');
       this.$nextTick(() => {
-        this.$refs.form.clearValidate();
+        if (this.$refs.form) {
+          this.$refs.form.clearValidate();
+        }
       });
     },
     testConnection() {
