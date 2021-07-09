@@ -194,8 +194,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public void syncIssues(Project project, List<IssuesDao> tapdIssues) {
         int pageNum = 1;
-        int limit = 200;
-        int count = 200;
+        int limit = 50;
+        int count = 50;
 
         List<String> ids = tapdIssues.stream()
                 .map(Issues::getId)
