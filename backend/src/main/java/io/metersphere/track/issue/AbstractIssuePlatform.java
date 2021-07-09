@@ -234,6 +234,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         // ![中心主题.png](/resource/md/get/a0b19136_中心主题.png) -> <img src="xxx/resource/md/get/a0b19136_中心主题.png"/>
         String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
         Pattern pattern = Pattern.compile(regex);
+        if (StringUtils.isBlank(input)) {
+            return "";
+        }
         Matcher matcher = pattern.matcher(input);
         String result = "";
         while (matcher.find()) {
@@ -250,6 +253,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected String removeImage(String input) {
         String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        if (StringUtils.isBlank(input)) {
+            return "";
+        }
         Matcher matcher = Pattern.compile(regex).matcher(input);
         while (matcher.find()) {
             matcher.group();
@@ -262,6 +268,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
         String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
         Pattern pattern = Pattern.compile(regex);
+        if (StringUtils.isBlank(input)) {
+            return "";
+        }
         Matcher matcher = pattern.matcher(input);
         String result = input;
         while (matcher.find()) {
@@ -281,6 +290,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         List<File> files = new ArrayList<>();
         String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
         Pattern pattern = Pattern.compile(regex);
+        if (StringUtils.isBlank(input)) {
+            return new ArrayList<>();
+        }
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
             try {
