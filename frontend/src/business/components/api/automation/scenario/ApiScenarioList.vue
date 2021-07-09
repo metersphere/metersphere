@@ -88,6 +88,7 @@
                            :field="item"
                            :fields-width="fieldsWidth"
                            min-width="120px"
+                           :showOverflowTooltip="false"
                            :label="$t('api_test.automation.tag')">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
