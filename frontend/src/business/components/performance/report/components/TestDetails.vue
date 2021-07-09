@@ -227,8 +227,61 @@
           </el-collapse-item>
         </el-collapse>
       </el-col>
-      <el-col :span="18">
-        <ms-chart ref="chart2" :options="totalOption" class="chart-config" :autoresize="true"></ms-chart>
+      <el-col :span="18" v-loading="result.loading">
+        <el-row>
+          <el-col :span="24">
+            <ms-chart ref="chart2"
+                      class="chart-config"
+                      :options="totalOption"
+                      @datazoom="changeDataZoom"
+                      :autoresize="true"/>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :offset="2" :span="20">
+            <el-table
+              :data="tableData"
+              stripe
+              border
+              style="width: 100%">
+              <el-table-column
+                prop="label"
+                label="Label"
+                sortable
+              />
+              <el-table-column
+                prop="avg"
+                label="Avg."
+                width="100"
+                sortable
+              />
+              <el-table-column
+                prop="min"
+                label="Min."
+                width="100"
+                sortable
+              />
+              <el-table-column
+                prop="max"
+                label="Max."
+                width="100"
+                sortable
+              />
+              <el-table-column
+                prop="startTime"
+                label="Start"
+                width="160"
+                sortable
+              />
+              <el-table-column
+                prop="endTime"
+                label="End"
+                width="160"
+                sortable
+              />
+            </el-table>
+          </el-col>
+        </el-row>
       </el-col>
     </el-row>
   </div>
@@ -263,6 +316,7 @@ export default {
   props: ['report', 'export'],
   data() {
     return {
+      result: {},
       activeNames: 'users',
       minLength: 35,
       loadOption: {},
@@ -279,6 +333,7 @@ export default {
         label: 'label'
       },
       init: false,
+      tableData: [],
       baseOption: {
         color: color,
         grid: {
@@ -338,10 +393,10 @@ export default {
       this.checkList['TransactionsChart'] = ['ALL'];
       this.checkList['ResponseTimeChart'] = ['ALL'];
       //
-      // this.checkList['ResponseTimePercentilesChart'] = ['ALL'];
-      // this.checkList['ErrorsChart'] = ['ALL'];
-      // this.checkList['LatencyChart'] = ['ALL'];
-      // this.checkList['BytesThroughputChart'] = ['ALL'];
+      this.checkList['ResponseTimePercentilesChart'] = [];
+      this.checkList['ErrorsChart'] = [];
+      this.checkList['LatencyChart'] = [];
+      this.checkList['BytesThroughputChart'] = [];
 
       this.getTotalChart();
     },
@@ -409,19 +464,28 @@ export default {
         });
     },
     getTotalChart() {
+      this.result.loading = true;
+
       this.totalOption = {};
       this.seriesData = [];
       this.baseOption.yAxis = [];
       this.legend = [];
+      let promises = [];
       for (let name in this.checkList) {
-        this.getChart(name, this.checkList[name]);
+        promises.push(this.getChart(name, this.checkList[name]));
       }
+      Promise.all(promises).then(() => {
+        this.changeDataZoom({start: 0, end: 100});
+        this.result.loading = false;
+      }).catch(() => {
+        this.result.loading = false;
+      });
     },
     getChart(reportKey, checkList) {
       if (!checkList || checkList.length === 0) {
         return;
       }
-      this.$get("/performance/report/content/" + reportKey + "/" + this.id)
+      return this.$get("/performance/report/content/" + reportKey + "/" + this.id)
         .then(res => {
           let data = res.data.data;
           let allData = [];
@@ -526,6 +590,55 @@ export default {
       }
       this.$set(option, "series", this.seriesData);
       return option;
+    },
+    changeDataZoom(params) {
+      let start = params.start / 100;
+      let end = params.end / 100;
+      if (params.batch) {
+        start = params.batch[0].start / 100;
+        end = params.batch[0].end / 100;
+      }
+
+      let tableData = [];
+      for (let i = 0; i < this.seriesData.length; i++) {
+        let sub = this.seriesData[i].data, label = this.seriesData[i].name;
+        let len = 0;
+        let min, avg, max, sum = 0, startTime, endTime;
+        for (let j = 0; j < sub.length; j++) {
+          let time = sub[j][0];
+          let value = Number.parseFloat(sub[j][1]);
+          let index = (j / (sub.length - 1)).toFixed(2);
+          if (index < start) {
+            continue;
+          }
+          if (index >= end) {
+            endTime = time;
+            break;
+          }
+
+          if (!startTime) {
+            startTime = time;
+          }
+
+          if (!min && !max) {
+            min = max = value;
+          }
+
+          if (min > value) {
+            min = value;
+          }
+          if (max < value) {
+            max = value;
+          }
+          sum += value;
+
+          len++; // 实际 len
+        }
+
+        avg = (sum / len).toFixed(2);
+        tableData.push({label, min, max, avg, startTime, endTime});
+      }
+      this.tableData = tableData;
     },
     _getChartMax(arr) {
       const max = Math.max(...arr);
