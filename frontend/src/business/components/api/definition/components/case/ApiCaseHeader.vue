@@ -50,7 +50,7 @@
               :project-id="projectId"
               :is-read-only="isReadOnly"
               :useEnvironment='useEnvironment'
-              @setEnvironment="setEnvironment"/>
+              @setEnvironment="setEnvironment" ref="environmentSelect"/>
           </div>
         </el-col>
         <el-col :span="1" v-if="!(isReadOnly || isCaseEdit)">
@@ -106,6 +106,9 @@
       },
     },
     methods: {
+      refreshEnvironment(){
+        this.$refs.environmentSelect.refreshEnvironment();
+      },
       setEnvironment(data) {
         this.$emit('setEnvironment', data.id);
       },
@@ -124,6 +127,7 @@
       },
       addCase() {
         this.$emit('addCase');
+        this.refreshEnvironment();
       },
       getColor(enable, method) {
         if (enable) {
