@@ -15,11 +15,12 @@
                       </span>
       </el-col>
       <el-col v-else :span="7" style="margin-top: 10px;">
-        <el-form-item :label="$t('test_track.case.relate_test')" :label-width="labelWidth">
-          <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')" show-all-levels
+        <el-form-item :label="$t('test_track.case.relate_test')">
+          <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')"
+                       show-all-levels
                        v-model="form.selected" :props="props"
                        :disabled="readOnly"
-                       class="ms-case" ref="cascade"></el-cascader>
+                       ref="cascade"></el-cascader>
         </el-form-item>
       </el-col>
     </el-tab-pane>
@@ -293,14 +294,48 @@ export default {
       this.form.type = val;
       this.testOptions = [];
       let url = '';
-      if (this.form.type === 'testcase' || this.form.type === 'automation') {
+      if (this.form.type === 'testcase') {
         url = '/api/' + this.form.type + '/list/' + this.projectId;
+        if (!url) {
+          return;
+        }
+        this.buildValue(url);
       } else if (this.form.type === 'performance' || this.form.type === 'api') {
         url = '/' + this.form.type + '/list/' + this.projectId;
+        if (!url) {
+          return;
+        }
+        this.buildValue(url);
+      } else if (this.form.type === 'automation') {
+        //url = '/api/' + this.form.type + '/list/' + this.projectId;
+        url = '/api/automation/module/list/' + this.projectId;
+        if (!url) {
+          return;
+        }
+        this.result.loading = true;
+        return new Promise((resolve, reject) => {
+          this.$get("/api/automation/module/list/" + this.projectId, response => {
+            if (response.data != undefined && response.data != null) {
+              this.buildTreeValue(response.data);
+            }
+            this.result.loading = false;
+            resolve(response.data);
+          });
+        });
       }
-      if (!url) {
-        return;
-      }
+    },
+
+    buildTreeValue(list) {
+      list.forEach(item => {
+        item.value = item.id,
+            item.label = item.name,
+            item.leaf = true;
+        if (item.children) {
+          this.buildTreeValue(item.children);
+        }
+      });
+    },
+    buildValue(url) {
       this.result.loading = true;
       return new Promise((resolve, reject) => {
         this.$get(url).then(res => {
@@ -315,7 +350,7 @@ export default {
           reject(err);
         });
       });
-    },
+    }
   }
 };
 </script>
@@ -332,5 +367,10 @@ export default {
 
 .remark-item {
   padding: 0px 15px;
+}
+
+.el-cascader >>> .el-input {
+  cursor: pointer;
+  width: 300px;
 }
 </style>

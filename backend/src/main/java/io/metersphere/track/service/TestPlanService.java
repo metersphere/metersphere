@@ -522,20 +522,23 @@ public class TestPlanService {
                         if (StringUtils.equals(l.getTestType(), TestCaseStatus.automation.name())) {
                             TestPlanApiScenario t = new TestPlanApiScenario();
                             ApiScenarioWithBLOBs testPlanApiScenario = apiScenarioMapper.selectByPrimaryKey(l.getTestId());
-                            t.setId(UUID.randomUUID().toString());
-                            t.setTestPlanId(request.getPlanId());
-                            t.setApiScenarioId(l.getTestId());
-                            t.setLastResult(testPlanApiScenario.getLastResult());
-                            t.setPassRate(testPlanApiScenario.getPassRate());
-                            t.setReportId(testPlanApiScenario.getReportId());
-                            t.setStatus(testPlanApiScenario.getStatus());
-                            t.setCreateTime(System.currentTimeMillis());
-                            t.setUpdateTime(System.currentTimeMillis());
-                            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
-                            if (testPlanApiScenarioMapper.countByExample(example) <= 0) {
-                                testPlanApiScenarioMapper.insert(t);
+                            if (testPlanApiScenario != null) {
+                                t.setId(UUID.randomUUID().toString());
+                                t.setTestPlanId(request.getPlanId());
+                                t.setApiScenarioId(l.getTestId());
+                                t.setLastResult(testPlanApiScenario.getLastResult());
+                                t.setPassRate(testPlanApiScenario.getPassRate());
+                                t.setReportId(testPlanApiScenario.getReportId());
+                                t.setStatus(testPlanApiScenario.getStatus());
+                                t.setCreateTime(System.currentTimeMillis());
+                                t.setUpdateTime(System.currentTimeMillis());
+                                TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+                                example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
+                                if (testPlanApiScenarioMapper.countByExample(example) <= 0) {
+                                    testPlanApiScenarioMapper.insert(t);
+                                }
                             }
+
                         }
                     });
                 });
