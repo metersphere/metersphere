@@ -120,7 +120,7 @@
            :label="item.label"
            prop="caseCount">
             <template v-slot="scope">
-               <router-link :to="'/track/case/all'">
+               <router-link :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
                  {{scope.row.caseCount}}
                </router-link>
             </template>
