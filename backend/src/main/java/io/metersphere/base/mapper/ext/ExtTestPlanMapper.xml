@@ -155,7 +155,7 @@
     </select>
     <select id="planList" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
+        SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
         <where>
             <if test="request.workspaceId != null">
                 AND p.workspace_id = #{request.workspaceId}
@@ -186,7 +186,7 @@
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap" parameterType="java.util.List">
-        SELECT * FROM TEST_PLAN p where p.id in
+        SELECT * FROM test_plan p where p.id in
         <foreach collection="list" item="planId" open="(" close=")" separator=",">
             #{planId}
         </foreach>
@@ -215,7 +215,7 @@
     </select>
 
     <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
+        SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
         <where>
             AND (t.project_id = #{request.projectId} or p.project_id = #{request.projectId})
             <if test="request.scenarioId != null">
@@ -230,7 +230,7 @@
         </where>
     </select>
     <select id="findTestProjectNameByTestPlanID" resultType="java.lang.String">
-        SELECT p.name FROM TEST_PLAN tp INNER JOIN project p ON p.id =tp.project_id
+        SELECT p.name FROM test_plan tp INNER JOIN project p ON p.id =tp.project_id
         WHERE tp.id = #{0} limit 1;
     </select>
     <select id="findScheduleCreateUserById" resultType="java.lang.String">

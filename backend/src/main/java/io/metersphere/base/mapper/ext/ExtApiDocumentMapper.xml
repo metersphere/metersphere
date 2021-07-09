@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtApiDocumentMapper">
     <select id="findApiDocumentSimpleInfoByRequest" resultType="io.metersphere.api.dto.document.ApiDocumentInfoDTO">
-        SELECT api.id,api.name FROM Api_definition api WHERE api.protocol = 'HTTP'
+        SELECT api.id,api.name FROM api_definition api WHERE api.protocol = 'HTTP'
         <if test="request.trashEnable == true">
             AND api.status = 'Trash'
         </if>
