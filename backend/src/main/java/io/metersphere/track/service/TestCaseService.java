@@ -1078,7 +1078,7 @@ public class TestCaseService {
             TestCaseTest test = new TestCaseTest();
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
-                test.setTestId(id.get(1));
+                test.setTestId(id.get(id.size() - 1));
                 test.setTestCaseId(request.getId());
                 test.setCreateTime(System.currentTimeMillis());
                 test.setUpdateTime(System.currentTimeMillis());
@@ -1125,7 +1125,7 @@ public class TestCaseService {
             TestCaseTest test = new TestCaseTest();
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
-                test.setTestId(id.get(1));
+                test.setTestId(id.get(id.size() - 1));
                 test.setCreateTime(System.currentTimeMillis());
                 test.setUpdateTime(System.currentTimeMillis());
                 test.setTestCaseId(request.getId());
