@@ -9,13 +9,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-@Component
-public class ZentaoClient extends BaseClient {
+public abstract class ZentaoClient extends BaseClient {
 
     protected  String ENDPOINT;
 
@@ -23,15 +21,29 @@ public class ZentaoClient extends BaseClient {
 
     protected  String PASSWD;
 
+    public RequestUrl requestUrl;
+    protected String url;
+
+    public ZentaoClient(String url) {
+        ENDPOINT = url;
+    }
+
     public String login() {
-        String sessionId = getSessionId();
-        String url = getBaseUrl() + "/user-login.json?zentaosid=" + sessionId;
-        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
-        paramMap.add("account", USER_NAME);
-        paramMap.add("password", PASSWD);
-        HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
-        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
-        GetUserResponse getUserResponse = (GetUserResponse) getResultForObject(GetUserResponse.class, response);
+        GetUserResponse getUserResponse = new GetUserResponse();
+        String sessionId = "";
+        try {
+            sessionId = getSessionId();
+            String loginUrl = requestUrl.getLogin();
+            MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
+            paramMap.add("account", USER_NAME);
+            paramMap.add("password", PASSWD);
+            HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());
+            ResponseEntity<String> response = restTemplate.exchange(loginUrl + sessionId, HttpMethod.POST, requestEntity, String.class);
+            getUserResponse = (GetUserResponse) getResultForObject(GetUserResponse.class, response);
+        } catch (Exception e) {
+            LogUtil.error("get result for object error," + e.getMessage());
+            MSException.throwException("zentao login fail");
+        }
         GetUserResponse.User user = getUserResponse.getUser();
         if (user == null) {
             LogUtil.error(JSONObject.toJSON(getUserResponse));
@@ -46,7 +58,8 @@ public class ZentaoClient extends BaseClient {
     }
 
     public String getSessionId() {
-        ResponseEntity<String> response = restTemplate.exchange(getBaseUrl() + "/api-getsessionid.json",
+        String getSessionUrl = requestUrl.getSessionGet();
+        ResponseEntity<String> response = restTemplate.exchange(getSessionUrl,
                 HttpMethod.GET, null, String.class);
         GetSessionResponse getSessionResponse = (GetSessionResponse) getResultForObject(GetSessionResponse.class, response);
         return JSONObject.parseObject(getSessionResponse.getData(), GetSessionResponse.Session.class).getSessionID();
@@ -58,7 +71,8 @@ public class ZentaoClient extends BaseClient {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = null;
         try {
-           response = restTemplate.exchange(getBaseUrl() + "/api-getModel-bug-create.json?zentaosid=" + sessionId,
+            String bugCreate = requestUrl.getBugCreate();
+           response = restTemplate.exchange(bugCreate + sessionId,
                     HttpMethod.POST, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -70,8 +84,8 @@ public class ZentaoClient extends BaseClient {
 
     public GetIssueResponse.Issue getBugById(String id) {
         String sessionId = login();
-        String url = getBaseUrl() + "/api-getModel-bug-getById-bugID={1}?zentaosid={2}";
-        ResponseEntity<String> response = restTemplate.exchange(url,
+        String bugGet = requestUrl.getBugGet();
+        ResponseEntity<String> response = restTemplate.exchange(bugGet,
                 HttpMethod.GET, null, String.class, id, sessionId);
         GetIssueResponse getIssueResponse = (GetIssueResponse) getResultForObject(GetIssueResponse.class, response);
         return JSONObject.parseObject(getIssueResponse.getData(), GetIssueResponse.Issue.class);

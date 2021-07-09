@@ -395,6 +395,8 @@ export default {
       input_jira_issuetype: 'Please enter the issue type',
       input_jira_storytype: 'Please enter the story type',
       zentao_url: 'Zentao url',
+      zentao_request: 'Zentao request',
+      input_zentao_request: 'Please enter zentao request type',
       input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
