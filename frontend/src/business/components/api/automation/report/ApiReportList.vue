@@ -122,6 +122,8 @@ export default {
         {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
         {text: this.$t('commons.trigger_mode.api'), value: 'API'},
         {text: this.$t('commons.trigger_mode.case'), value: 'CASE'},
+        {text: this.$t('api_test.automation.batch_execute'), value: 'BATCH'},
+
       ],
       buttons: [
         {
