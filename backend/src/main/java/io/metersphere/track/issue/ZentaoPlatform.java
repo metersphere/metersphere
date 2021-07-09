@@ -49,9 +49,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
      */
     private final String url;
 
-    private ZentaoClient zentaoClient = new ZentaoClient();
-
-    private static final Pattern PATTERN = Pattern.compile("file-read-(.*?)\"/>");
+    private final ZentaoClient zentaoClient;
 
     protected String key = IssuesManagePlatform.Zentao.toString();
 
@@ -66,7 +64,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         this.account = object.getString("account");
         this.password = object.getString("password");
         this.url = object.getString("url");
+        String type = object.getString("request");
         this.orgId = issuesRequest.getOrganizationId();
+        this.zentaoClient = new ZentaoFactory().getInstance(this.url, type);
     }
 
     @Override
@@ -101,7 +101,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             String key = getProjectId(projectId);
             HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(new HttpHeaders());
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-story-getProductStories-productID={key}?zentaosid=" + session,
+            String storyGet = zentaoClient.requestUrl.getStoryGet();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(storyGet + session,
                     HttpMethod.POST, requestEntity, String.class, key);
             String body = responseEntity.getBody();
             JSONObject obj = JSONObject.parseObject(body);
@@ -278,7 +279,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String,String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-user-getList?zentaosid=" + session,
+        String getUser = zentaoClient.requestUrl.getUserGet();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(getUser + session,
                 HttpMethod.GET, requestEntity, String.class);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
@@ -316,7 +318,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-build-getProductBuildPairs-productID={projectId}?zentaosid=" + session,
+        String buildGet = zentaoClient.requestUrl.getBuildsGet();
+        ResponseEntity<String> responseEntity = restTemplate.exchange(buildGet + session,
                 HttpMethod.GET, requestEntity, String.class, projectId1);
         String body = responseEntity.getBody();
         JSONObject obj = JSONObject.parseObject(body);
@@ -349,7 +352,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         paramMap.add("files", resource);
         RestTemplate restTemplate = new RestTemplate();
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-file-saveUpload.json?zentaosid=" + session,
+            String fileUpload = zentaoClient.requestUrl.getFileUpload();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(fileUpload + session,
                     HttpMethod.POST, requestEntity, String.class);
             String body = responseEntity.getBody();
             JSONObject obj = JSONObject.parseObject(body);
@@ -367,8 +371,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     private String ms2ZentaoDescription(String msDescription) {
         String imgUrlRegex = "!\\[.*?]\\(/resource/md/get/(.*?\\..*?)\\)";
-        String zentaoSteps = msDescription.replaceAll(imgUrlRegex, "<img src=\"/zentao/file-read-$1\"/>");
-        Matcher matcher = PATTERN.matcher(zentaoSteps);
+        String zentaoSteps = msDescription.replaceAll(imgUrlRegex, zentaoClient.requestUrl.getReplaceImgUrl());
+        Matcher matcher = zentaoClient.requestUrl.getImgPattern().matcher(zentaoSteps);
         while (matcher.find()) {
             // get file name
             String fileName = matcher.group(1);
