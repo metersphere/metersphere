@@ -18,7 +18,7 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <span class="ms-tag">{{ getProjectName(request.projectId) }}</span>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
 
       <template v-slot:button>
@@ -447,7 +447,16 @@ export default {
   margin: 20px;
   float: right;
 }
-
+.ms-step-name-api {
+  display: inline-block;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 60px;
+}
 .ms-tag {
   margin-left: 20px;
 }
