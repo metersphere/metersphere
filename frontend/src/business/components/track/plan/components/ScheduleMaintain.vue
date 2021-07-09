@@ -61,7 +61,7 @@
                     <el-checkbox v-model="runConfig.onSampleError">失败停止</el-checkbox>
                   </div>
                   <div v-if="scheduleTaskType === 'TEST_PLAN_TEST'" style="padding-top: 10px">
-                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;" @change="applyResourcePoolId">
                       {{ $t('run_mode.run_with_resource_pool') }}
                     </el-checkbox>
                     <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
@@ -367,6 +367,11 @@ export default {
       this.result = this.$get('/testresourcepool/list/quota/valid', response => {
         this.resourcePools = response.data;
       });
+    },
+    applyResourcePoolId(val) {
+      if (!val) {
+        this.runConfig.resourcePoolId = null;
+      }
     },
   },
   computed: {
