@@ -15,8 +15,12 @@
 
       <el-table-column :label="$t('commons.operating')" min-width="100">
         <template v-slot:default="scope">
-          <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')" icon="el-icon-document-copy" type="success" @exec="handleCopy(scope.$index, scope.row)"/>
-          <ms-table-operator-button :isTesterPermission="true" :tip="$t('commons.delete')" icon="el-icon-delete" type="danger" @exec="handleDelete(scope.$index)"/>
+          <div>
+            <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-document-copy" type="success"
+                                      @exec="handleCopy(scope.$index, scope.row)"/>
+            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" type="danger"
+                                      @exec="handleDelete(scope.$index)"/>
+          </div>
         </template>
       </el-table-column>
 

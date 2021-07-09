@@ -11,6 +11,8 @@
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="actuator" jdbcType="VARCHAR" property="actuator" />
+    <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionExecResult">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -74,7 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, resource_id, `status`, user_id, start_time, end_time, create_time, `type`
+    id, `name`, resource_id, `status`, user_id, start_time, end_time, create_time, `type`, 
+    actuator, trigger_mode
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -131,11 +134,13 @@
     insert into api_definition_exec_result (id, `name`, resource_id, 
       `status`, user_id, start_time, 
       end_time, create_time, `type`, 
-      content)
+      actuator, trigger_mode, content
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, 
-      #{content,jdbcType=LONGVARCHAR})
+      #{actuator,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result
@@ -166,6 +171,12 @@
       </if>
       <if test="type != null">
         `type`,
+      </if>
+      <if test="actuator != null">
+        actuator,
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode,
       </if>
       <if test="content != null">
         content,
@@ -199,6 +210,12 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
+      <if test="actuator != null">
+        #{actuator,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        #{triggerMode,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -209,9 +226,6 @@
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
-  </select>
-  <select id="selectExecResult" resultType="java.lang.String">
-    select ader.status from api_definition_exec_result ader where ader.resource_id=#{resourceId}
   </select>
   <update id="updateByExampleSelective" parameterType="map">
     update api_definition_exec_result
@@ -243,6 +257,12 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
+      <if test="record.actuator != null">
+        actuator = #{record.actuator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.triggerMode != null">
+        trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -262,6 +282,8 @@
       end_time = #{record.endTime,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       `type` = #{record.type,jdbcType=VARCHAR},
+      actuator = #{record.actuator,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -277,7 +299,9 @@
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      `type` = #{record.type,jdbcType=VARCHAR}
+      `type` = #{record.type,jdbcType=VARCHAR},
+      actuator = #{record.actuator,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -309,6 +333,12 @@
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
+      <if test="actuator != null">
+        actuator = #{actuator,jdbcType=VARCHAR},
+      </if>
+      <if test="triggerMode != null">
+        trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -325,6 +355,8 @@
       end_time = #{endTime,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
       `type` = #{type,jdbcType=VARCHAR},
+      actuator = #{actuator,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -337,7 +369,9 @@
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
-      `type` = #{type,jdbcType=VARCHAR}
+      `type` = #{type,jdbcType=VARCHAR},
+      actuator = #{actuator,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

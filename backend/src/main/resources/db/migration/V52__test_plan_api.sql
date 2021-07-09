@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `test_plan_api_case` (
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`),
     UNIQUE KEY `plan_id_case_id` (`test_plan_id`, `api_case_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 
 CREATE TABLE IF NOT EXISTS `test_plan_api_scenario` (
@@ -24,6 +24,6 @@ CREATE TABLE IF NOT EXISTS `test_plan_api_scenario` (
     `report_id` varchar(50) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `plan_id_scenario_id` (`test_plan_id`, `api_scenario_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 ALTER TABLE api_definition_exec_result ADD `type` varchar(20) NULL;

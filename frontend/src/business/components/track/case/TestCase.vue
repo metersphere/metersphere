@@ -11,6 +11,7 @@
         :show-operator="true"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
+        @enableTrash="enableTrash"
         :type="'edit'"
         ref="nodeTree"
       />
@@ -26,25 +27,29 @@
             :right-tip="$t('test_track.case.minder')"
             :right-content="$t('test_track.case.minder')"
             :middle-button-enable="false">
-          <test-case-list
-            v-if="activeDom === 'left'"
-            :checkRedirectID="checkRedirectID"
-            :isRedirectEdit="isRedirectEdit"
-            :tree-nodes="treeNodes"
-            @testCaseEdit="editTestCase"
-            @testCaseCopy="copyTestCase"
-            @testCaseDetail="showTestCaseDetail"
-            @refresh="refresh"
-            @refreshAll="refreshAll"
-            @setCondition="setCondition"
-            :custom-num="custom_num"
-            ref="testCaseList">
-          </test-case-list>
-          <test-case-minder
-            :tree-nodes="treeNodes"
-            :project-id="projectId"
-            v-if="activeDom === 'right'"
-            ref="minder"/>
+            <test-case-list
+              v-if="activeDom === 'left'"
+              :checkRedirectID="checkRedirectID"
+              :isRedirectEdit="isRedirectEdit"
+              :tree-nodes="treeNodes"
+              :trash-enable="trashEnable"
+              @refreshTable="refresh"
+              @testCaseEdit="editTestCase"
+              @testCaseCopy="copyTestCase"
+              @testCaseDetail="showTestCaseDetail"
+              @refresh="refresh"
+              @refreshAll="refreshAll"
+              @setCondition="setCondition"
+              @decrease="decrease"
+              :custom-num="custom_num"
+              ref="testCaseList">
+            </test-case-list>
+            <test-case-minder
+              :tree-nodes="treeNodes"
+              :project-id="projectId"
+              :condition="condition"
+              v-if="activeDom === 'right'"
+              ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane
@@ -70,12 +75,14 @@
             </test-case-edit>
           </div>
         </el-tab-pane>
-        <el-tab-pane name="add">
+        <el-tab-pane name="add" v-if="hasPermission('PROJECT_TRACK_CASE:READ+CREATE')">
           <template v-slot:label>
-            <el-dropdown @command="handleCommand" v-tester>
-              <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
+            <el-dropdown @command="handleCommand" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
+              <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="ADD">{{ $t('test_track.case.create') }}</el-dropdown-item>
+                <el-dropdown-item command="ADD" v-permission="['PROJECT_TRACK_CASE:READ+CREATE']">
+                  {{ $t('test_track.case.create') }}
+                </el-dropdown-item>
                 <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -101,7 +108,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, getUUID} from "../../../../common/js/utils";
+import {getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -123,15 +130,16 @@ export default {
       projects: [],
       treeNodes: [],
       testCaseReadOnly: true,
+      trashEnable: false,
       condition: {},
       activeName: 'default',
       tabs: [],
-      renderComponent:true,
+      renderComponent: true,
       loading: false,
-      type:'',
+      type: '',
       activeDom: 'left',
       custom_num: false
-    }
+    };
   },
   mounted() {
     this.getProject();
@@ -159,7 +167,14 @@ export default {
       if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
         this.$refs.minder.refresh();
       }
-    }
+    },
+    activeDom(newVal, oldVal) {
+      this.$nextTick(() => {
+        if (oldVal !== 'left' && newVal === 'left' && this.$refs.testCaseList) {
+          this.$refs.testCaseList.getTemplateField();
+        }
+      });
+    },
   },
   computed: {
     checkRedirectID: function () {
@@ -171,8 +186,9 @@ export default {
       let redirectParam = this.$route.params.dataSelectRange;
       return redirectParam;
     },
+
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;
@@ -185,6 +201,7 @@ export default {
     }
   },
   methods: {
+    hasPermission,
     handleCommand(e) {
       switch (e) {
         case "ADD":
@@ -219,7 +236,7 @@ export default {
         let label = this.$t('test_track.case.create');
         let name = getUUID().substring(0, 8);
         this.activeName = name;
-        this.type='add'
+        this.type = 'add';
         this.tabs.push({label: label, name: name, testCaseInfo: {testCaseModuleId: "", id: getUUID()}});
       }
       if (tab.name === 'edit') {
@@ -247,15 +264,15 @@ export default {
         this.activeName = this.tabs[this.tabs.length - 1].name;
         this.addListener(); //  自动切换当前标签时，也添加监听
       } else {
-        this.activeName = "default"
+        this.activeName = "default";
       }
     },
-    exportTestCase(){
+    exportTestCase() {
       if (this.activeDom !== 'left') {
-        this.$warning('请切换成接口列表导出！');
+        this.$warning(this.$t('test_track.case.export.export_tip'));
         return;
       }
-      this.$refs.testCaseList.exportTestCase()
+      this.$refs.testCaseList.exportTestCase();
     },
     addListener() {
       let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
@@ -271,9 +288,6 @@ export default {
       let path = route.path;
       if (path.indexOf("/track/case/edit") >= 0 || path.indexOf("/track/case/create") >= 0) {
         this.testCaseReadOnly = false;
-        if (!checkoutTestManagerOrTestUser()) {
-          this.testCaseReadOnly = true;
-        }
         let caseId = this.$route.params.caseId;
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
@@ -282,7 +296,7 @@ export default {
         if (caseId) {
           this.$get('test/case/get/' + caseId, response => {
             let testCase = response.data;
-            this.editTestCase(testCase)
+            this.editTestCase(testCase);
           });
         } else {
           this.addTab({name: 'add'});
@@ -291,19 +305,31 @@ export default {
       }
     },
     nodeChange(node) {
+      this.condition.trashEnable = false;
+      this.trashEnable = false;
       this.activeName = "default";
     },
-    refreshTable() {
-      if ( this.$refs.testCaseList) {
+    refreshTable(data) {
+      if (this.$refs.testCaseList) {
         this.$refs.testCaseList.initTableData();
       }
+      this.$refs.nodeTree.list();
+      this.setTable(data);
+    },
+    increase(id) {
+      this.$refs.nodeTree.increase(id);
+    },
+    decrease(id) {
+      this.$refs.nodeTree.decrease(id);
     },
     editTestCase(testCase) {
-      this.type="edit"
+      this.type = "edit";
       this.testCaseReadOnly = false;
-      if (this.treeNodes.length < 1) {
-        this.$warning(this.$t('test_track.case.create_module_first'));
-        return;
+      if (testCase.label !== "redirect") {
+        if (this.treeNodes.length < 1) {
+          this.$warning(this.$t('test_track.case.create_module_first'));
+          return;
+        }
       }
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },
@@ -328,7 +354,7 @@ export default {
       }
     },
     copyTestCase(testCase) {
-      this.type="copy"
+      this.type = "copy";
       this.testCaseReadOnly = false;
       testCase.isCopy = true;
       this.addTab({name: 'edit', testCaseInfo: testCase});
@@ -339,15 +365,16 @@ export default {
     refresh(data) {
       this.$store.commit('setTestCaseSelectNode', {});
       this.$store.commit('setTestCaseSelectNodeIds', []);
-      this.refreshTable();
-      this.setTable(data);
+      this.refreshTable(data);
     },
     setTable(data) {
-      for (let index in this.tabs) {
-        let tab = this.tabs[index];
-        if (tab.name === this.activeName) {
-          tab.label = data.name;
-          break;
+      if (data) {
+        for (let index in this.tabs) {
+          let tab = this.tabs[index];
+          if (tab.name === this.activeName) {
+            tab.label = data.name;
+            break;
+          }
         }
       }
     },
@@ -383,19 +410,23 @@ export default {
         if (data) {
           this.custom_num = data.customNum;
         }
-      })
-    }
+      });
+    },
+    enableTrash(data) {
+      this.initApiTableOpretion = "trashEnable";
+      this.trashEnable = data;
+    },
   }
-}
+};
 </script>
 
 <style scoped>
 
 .el-main {
-  padding: 15px;
+  padding: 5px 10px;
 }
 
-/deep/ .el-button-group>.el-button:first-child {
+/deep/ .el-button-group > .el-button:first-child {
   padding: 4px 1px !important;
 }
 

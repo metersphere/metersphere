@@ -7,6 +7,7 @@ import lombok.Setter;
 @Getter
 public class ApiTestImportRequest {
     private String name;
+    private String id;
     private String moduleId;
     private String modulePath;
     private String environmentId;
@@ -20,4 +21,6 @@ public class ApiTestImportRequest {
     private String userId;
     //调用类型
     private String type;
+    // 是否开启自定义ID
+    private Boolean openCustomNum = false;
 }

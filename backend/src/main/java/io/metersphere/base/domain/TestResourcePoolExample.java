@@ -783,6 +783,196 @@ public class TestResourcePoolExample {
             addCriterion("gc_algo not between", value1, value2, "gcAlgo");
             return (Criteria) this;
         }
+
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiIsNull() {
+            addCriterion("api is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiIsNotNull() {
+            addCriterion("api is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiEqualTo(Boolean value) {
+            addCriterion("api =", value, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiNotEqualTo(Boolean value) {
+            addCriterion("api <>", value, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiGreaterThan(Boolean value) {
+            addCriterion("api >", value, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("api >=", value, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiLessThan(Boolean value) {
+            addCriterion("api <", value, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiLessThanOrEqualTo(Boolean value) {
+            addCriterion("api <=", value, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiIn(List<Boolean> values) {
+            addCriterion("api in", values, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiNotIn(List<Boolean> values) {
+            addCriterion("api not in", values, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiBetween(Boolean value1, Boolean value2) {
+            addCriterion("api between", value1, value2, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("api not between", value1, value2, "api");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceIsNull() {
+            addCriterion("performance is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceIsNotNull() {
+            addCriterion("performance is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceEqualTo(Boolean value) {
+            addCriterion("performance =", value, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceNotEqualTo(Boolean value) {
+            addCriterion("performance <>", value, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceGreaterThan(Boolean value) {
+            addCriterion("performance >", value, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("performance >=", value, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceLessThan(Boolean value) {
+            addCriterion("performance <", value, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceLessThanOrEqualTo(Boolean value) {
+            addCriterion("performance <=", value, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceIn(List<Boolean> values) {
+            addCriterion("performance in", values, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceNotIn(List<Boolean> values) {
+            addCriterion("performance not in", values, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceBetween(Boolean value1, Boolean value2) {
+            addCriterion("performance between", value1, value2, "performance");
+            return (Criteria) this;
+        }
+
+        public Criteria andPerformanceNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("performance not between", value1, value2, "performance");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

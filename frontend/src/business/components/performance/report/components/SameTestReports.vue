@@ -81,17 +81,16 @@ export default {
     close() {
       this.loadReportVisible = false;
     },
-    getCompareReports(report) {
-
+    getCompareReports() {
       let condition = {
-        testId: report.testId,
+        testId: this.report.testId,
         filters: {status: ["Completed"]}
       };
       this.reportLoadingResult = this.$post('/performance/report/list/all/' + this.currentPage + "/" + this.pageSize, condition, res => {
         let data = res.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-      })
+      });
     },
     handleCompare() {
       let reportIds = [...this.selectIds];

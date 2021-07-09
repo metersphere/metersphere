@@ -7,8 +7,8 @@ CREATE TABLE IF NOT EXISTS `user_header`
     type    varchar(150)  null,
     constraint user_header_pk
         primary key (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- create table test_case_review_api_case
 create table test_case_review_api_case
 (
@@ -20,8 +20,8 @@ create table test_case_review_api_case
     create_time         bigint(13)  null,
     update_time         bigint(13)  null,
     primary key (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- create table test_case_review_scenario
 create table test_case_review_scenario
 (
@@ -36,8 +36,8 @@ create table test_case_review_scenario
     last_result         varchar(100) null,
     report_id           varchar(50)  null,
     primary key (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- create table test_case_review_load
 create table test_case_review_load
 (
@@ -49,8 +49,8 @@ create table test_case_review_load
     update_time         bigint(13)  null,
     load_report_id      varchar(50) null,
     primary key (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- test_resource_pool add column
 ALTER TABLE test_resource_pool ADD heap VARCHAR(200) NULL;
 ALTER TABLE test_resource_pool ADD gc_algo VARCHAR(200) NULL;
@@ -170,8 +170,8 @@ CREATE TABLE IF NOT EXISTS `esb_api_params`
     backed_script        LONGTEXT    null,
     primary key (id),
     UNIQUE KEY `resource_id` (`resource_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- add execution_times testPlan
 alter table test_plan
     add execution_times int null;
@@ -187,8 +187,7 @@ CREATE TABLE IF NOT EXISTS test_case_test
     create_time  bigint(13)  null,
     update_time  bigint(13)  null,
     UNIQUE KEY test_case_test_unique_key (test_case_id, test_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4 COMMENT ='测试用例和关联用例的关系表';
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci COMMENT ='测试用例和关联用例的关系表';
 
 alter table test_case
     modify test_id varchar(2000) null;
@@ -207,8 +206,8 @@ create table system_header
     type  varchar(150)  null,
     props varchar(1000) null
 
-)ENGINE = InnoDB
- DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
 -- init system_header
 insert into system_header (type, props)
 values ('api_scenario_list',

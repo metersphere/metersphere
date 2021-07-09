@@ -27,7 +27,7 @@
 
 <script>
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
-import {checkoutTestManagerOrTestUser, getUUID} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseComment",
@@ -45,7 +45,7 @@ export default {
     }
   },
   created() {
-    this.isReadOnly = !checkoutTestManagerOrTestUser();
+
   },
   methods: {
     open() {

@@ -1,7 +1,7 @@
 <template>
   <div class="failure-cases-list">
     <div class="failure-cases-list-header">
-      功能测试用例
+      {{ $t('test_track.functional_test_case') }}
     </div>
 
     <el-table
@@ -10,7 +10,7 @@
       :data="functionalTestCases">
 
       <el-table-column
-        prop="num"
+        prop="customNum"
         :label="$t('commons.id')"
         show-overflow-tooltip>
       </el-table-column>

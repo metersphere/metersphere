@@ -1,8 +1,8 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+
+import lombok.Data;
 
 @Data
 public class TestResourcePool implements Serializable {
@@ -25,6 +25,12 @@ public class TestResourcePool implements Serializable {
     private String heap;
 
     private String gcAlgo;
+
+    private String createUser;
+
+    private Boolean api;
+
+    private Boolean performance;
 
     private static final long serialVersionUID = 1L;
 }

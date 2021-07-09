@@ -44,8 +44,9 @@
         :label="$t('custom_field.field_option')"
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
-          :disable="form.name === '用例等级'"
-          :data="form.options"/>
+            :is-kv="form.scene === 'ISSUE'"
+            :disable="form.name === '用例等级'"
+            :data="form.options"/>
       </el-form-item>
 
     </el-form>
@@ -142,6 +143,18 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.workspaceId = getCurrentWorkspaceId();
+          if (['select','multipleSelect','radio','checkbox'].indexOf(param.type) > -1) {
+            if (param.options.length < 1) {
+              this.$warning(this.$t('custom_field.option_check'));
+              return;
+            }
+            for (const item of param.options) {
+              if (!item.text || !item.value) {
+                this.$warning(this.$t('custom_field.option_value_check'));
+                return;
+              }
+            }
+          }
           param.options = JSON.stringify(this.form.options);
           this.result = this.$post(this.url, param, (response) => {
             this.visible = false;

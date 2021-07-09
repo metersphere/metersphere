@@ -5,52 +5,28 @@
       <project-change :project-name="currentProject"/>
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
-                 :default-active='$route.path'>
+                 :default-active="pathName">
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-menu-item :index="'/track/case/all'">
+          <el-menu-item :index="'/track/case/all'" v-permission="['PROJECT_TRACK_CASE:READ']">
             {{ $t("test_track.case.test_case") }}
           </el-menu-item>
-          <!--
-                    <el-submenu v-permission="['test_manager','test_user','test_viewer']"
-                                index="6" popper-class="submenu">
-                      <template v-slot:title>{{ $t('test_track.case.test_case') }}</template>
-                      <ms-recent-list ref="caseRecent" :options="caseRecent"/>
-                      <el-divider/>
-                      <ms-show-all :index="'/track/case/all'"/>
-                      <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
-                      <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
-                      <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/case/create'"
-                                        :title="$t('test_track.case.create_case')"/>
-                    </el-submenu>
-          -->
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
-                      index="8" popper-class="submenu">
-            <template v-slot:title>{{$t('test_track.review.test_review')}}</template>
-            <ms-recent-list ref="reviewRecent" :options="reviewRecent"/>
-            <el-divider/>
-            <ms-show-all :index="'/track/review/all'"/>
-            <el-menu-item :index="testCaseReviewEditPath" class="blank_item"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/review/create'" :title="$t('test_track.review.create_review')"/>
-          </el-submenu>
-
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="7" popper-class="submenu">
-            <template v-slot:title>{{ $t('test_track.plan.test_plan') }}</template>
-            <ms-recent-list ref="planRecent" :options="planRecent"/>
-            <el-divider/>
-            <ms-show-all :index="'/track/plan/all'"/>
-            <el-menu-item :index="testPlanViewPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/plan/create'"
-                              :title="$t('test_track.plan.create_plan')"/>
-          </el-submenu>
-
-          <el-menu-item :index="'/track/issue'">
-            {{ $t("缺陷管理") }}
+          <el-menu-item :index="'/track/review/all'" v-permission="['PROJECT_TRACK_REVIEW:READ']"
+                        popper-class="submenu">
+            {{ $t('test_track.review.test_review') }}
+          </el-menu-item>
+          <el-menu-item :index="'/track/plan/all'" v-permission="['PROJECT_TRACK_PLAN:READ']"
+                        popper-class="submenu">
+            {{ $t('test_track.plan.test_plan') }}
           </el-menu-item>
 
-          <el-menu-item :index="'/track/testPlan/reportList'">
+          <el-menu-item :index="'/track/issue'" popper-class="submenu" v-permission="['PROJECT_TRACK_ISSUE:READ']">
+            {{ $t('test_track.issue.issue_management') }}
+          </el-menu-item>
+
+          <el-menu-item :index="'/track/testPlan/reportList'" popper-class="submenu">
             {{ $t("commons.report") }}
           </el-menu-item>
         </el-menu>
@@ -65,9 +41,9 @@
 import MsShowAll from "../../common/head/ShowAll";
 import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TrackHeaderMenus",
@@ -101,23 +77,33 @@ export default {
       },
       planRecent: {
         title: this.$t('test_track.recent_plan'),
-        url: this.$store.state.projectId === '' ? "/test/plan/recent/5/" + undefined : "/test/plan/recent/5/" + this.$store.state.projectId,
+        url: getCurrentProjectID() === '' ? "/test/plan/recent/5/" + undefined : "/test/plan/recent/5/" + getCurrentProjectID(),
         index: function (item) {
           return '/track/plan/view/' + item.id;
         },
         router: function (item) {
         }
-      }
-    }
+      },
+      pathName: '',
+    };
   },
   watch: {
-    '$route'(to) {
-      this.init();
+    '$route': {
+      immediate: true,
+      handler(to, from) {
+        if (to.params && to.params.reviewId) {
+          this.pathName = '/track/review/all';
+        } else if (to.params && to.params.planId) {
+          this.pathName = '/track/plan/all';
+        } else {
+          this.pathName = to.path;
+        }
+        this.init();
+      }
     }
   },
   mounted() {
     this.init();
-    this.registerEvents();
   },
   methods: {
     reload() {
@@ -141,17 +127,11 @@ export default {
         this.reload();
       }
     },
-    registerEvents() {
-      TrackEvent.$on(LIST_CHANGE, () => {
-        this.$refs.planRecent.recent();
-        // this.$refs.caseRecent.recent();
-      });
-    }
+
   },
   beforeDestroy() {
-    TrackEvent.$off(LIST_CHANGE);
   }
-}
+};
 
 </script>
 

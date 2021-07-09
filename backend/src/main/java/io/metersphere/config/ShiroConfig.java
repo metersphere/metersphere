@@ -101,6 +101,7 @@ public class ShiroConfig implements EnvironmentAware {
     }
 
     @Bean
+    @DependsOn({"lifecycleBeanPostProcessor"})
     public DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator() {
         DefaultAdvisorAutoProxyCreator daap = new DefaultAdvisorAutoProxyCreator();
         daap.setProxyTargetClass(true);
@@ -119,7 +120,7 @@ public class ShiroConfig implements EnvironmentAware {
     public AuthorizationAttributeSourceAdvisor getAuthorizationAttributeSourceAdvisor(DefaultWebSecurityManager sessionManager) {
         AuthorizationAttributeSourceAdvisor aasa = new AuthorizationAttributeSourceAdvisor();
         aasa.setSecurityManager(sessionManager);
-        return new AuthorizationAttributeSourceAdvisor();
+        return aasa;
     }
 
     @Bean

@@ -5,13 +5,13 @@
                     {{ $t('test_track.case.change_type') }} <i class="el-icon-arrow-down el-icon--right"/>
                   </span>
       <el-dropdown-menu>
-        <el-dropdown-item command="STEP">
+        <el-dropdown-item :disabled="disable" command="STEP">
           <div>{{ $t('test_track.case.step_describe') }}</div>
-          <div>{{ $t('test_track.case.step_describe_tip') }}</div>
+<!--          <div>{{ $t('test_track.case.step_describe_tip') }}</div>-->
         </el-dropdown-item>
-        <el-dropdown-item command="TEXT">
+        <el-dropdown-item :disabled="disable" command="TEXT">
           <div>{{  $t('test_track.case.text_describe') }}</div>
-          <div>{{ $t('test_track.case.text_describe_tip') }}</div>
+<!--          <div>{{ $t('test_track.case.text_describe_tip') }}</div>-->
         </el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
@@ -21,7 +21,7 @@
 <script>
 export default {
   name: "StepChangeItem",
-  props: ['form','labelWidth'],
+  props: ['form','labelWidth', 'disable'],
   created() {
     if (!this.form.stepModel) {
       this.form.stepModel = "STEP";
@@ -29,6 +29,9 @@ export default {
   },
   methods: {
     handleCommand(value) {
+      if (this.disable) {
+        return;
+      }
       this.form.stepModel = value;
     }
   }

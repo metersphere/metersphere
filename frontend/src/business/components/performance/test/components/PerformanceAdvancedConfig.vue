@@ -1,5 +1,110 @@
 <template>
   <div>
+    <!--  基本配置  -->
+    <el-row>
+      <el-col :span="6">
+        <el-form :inline="true">
+          <el-form-item>
+            <div>{{ $t('load_test.connect_timeout') }}</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input-number
+              :disabled="readOnly" size="mini" v-model="timeout"
+              :min="0"/>
+          </el-form-item>
+          <el-form-item>
+            ms
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="6">
+        <el-form :inline="true">
+          <el-form-item>
+            <div>{{ $t('load_test.response_timeout') }}</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input-number
+              :disabled="readOnly" size="mini" :min="0"
+              v-model="responseTimeout"/>
+          </el-form-item>
+          <el-form-item>
+            ms
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="6">
+        <el-form :inline="true">
+          <el-form-item>
+            <div>
+              {{ $t('load_test.granularity') }}
+              <el-popover
+                placement="left"
+                width="300"
+                trigger="hover">
+                <el-table :data="granularityData">
+                  <el-table-column property="start" :label="$t('load_test.duration')">
+                    <template v-slot:default="scope">
+                      <span>{{ scope.row.start }}S - {{ scope.row.end }}S</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column property="granularity" :label="$t('load_test.granularity')"/>
+                </el-table>
+                <i slot="reference" class="el-icon-info pointer"/>
+              </el-popover>
+            </div>
+          </el-form-item>
+          <el-form-item>
+            <el-select v-model="granularity" :placeholder="$t('commons.please_select')" size="mini"
+                       clearable>
+              <el-option v-for="op in granularityData" :key="op.granularity" :label="op.granularity"
+                         :value="op.granularity"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="6">
+        <el-form :inline="true">
+          <el-form-item>
+            <div>{{ $t('load_test.custom_http_code') }}</div>
+          </el-form-item>
+          <el-form-item>
+            <el-input
+              :disabled="readOnly" size="mini" v-model="statusCodeStr"
+              :placeholder="$t('load_test.separated_by_commas')"
+              @input="checkStatusCode"></el-input>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
+    <!--  csv 配置  -->
+    <el-row>
+      <el-col :span="8">
+        <h3>CSVDataSet</h3>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-table :data="csvFiles" size="mini" class="tb-edit" align="center" border highlight-current-row>
+          <el-table-column
+            align="center"
+            prop="name"
+            :label="$t('commons.name')">
+          </el-table-column>
+          <el-table-column align="center" prop="csvSplit" :label="$t('load_test.csv_split')">
+            <template v-slot:default="{row}">
+              <el-switch :disabled="readOnly" v-model="row.csvSplit"/>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" prop="csvHasHeader" :label="$t('load_test.csv_has_header')">
+            <template v-slot:default="{row}">
+              <el-switch :disabled="readOnly || !row.csvSplit" v-model="row.csvHasHeader"/>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
+
+    <!-- 参数列表 -->
     <el-row>
       <el-col :span="8">
         <h3>{{ $t('load_test.params') }}</h3>
@@ -76,134 +181,63 @@
 
     <el-row>
       <el-col :span="8">
-        <el-form :inline="true">
-          <el-form-item>
-            <div>{{ $t('load_test.connect_timeout') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input-number :disabled="readOnly" size="mini" v-model="timeout" :min="10"
-                             :max="100000"></el-input-number>
-          </el-form-item>
-          <el-form-item>
-            ms
-          </el-form-item>
-        </el-form>
-      </el-col>
-      <el-col :span="8">
-        <el-form :inline="true">
-          <el-form-item>
-            <div>{{ $t('load_test.response_timeout') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input-number :disabled="readOnly" size="mini" v-model="responseTimeout"></el-input-number>
-          </el-form-item>
-          <el-form-item>
-            ms
-          </el-form-item>
-        </el-form>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="8">
-        <el-form :inline="true">
-          <el-form-item>
-            <div>{{ $t('load_test.custom_http_code') }}</div>
-          </el-form-item>
-          <el-form-item>
-            <el-input :disabled="readOnly" size="mini" v-model="statusCodeStr"
-                      :placeholder="$t('load_test.separated_by_commas')"
-                      @input="checkStatusCode"></el-input>
-          </el-form-item>
-        </el-form>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="8">
-        <el-form :inline="true">
-          <el-form-item>
-            <div>
-              {{ $t('load_test.granularity') }}
-              <el-popover
-                placement="bottom"
-                width="400"
-                trigger="hover">
-                <el-table :data="granularityData">
-                  <el-table-column property="start" :label="$t('load_test.duration')">
-                    <template v-slot:default="scope">
-                      <span>{{ scope.row.start }}S - {{ scope.row.end }}S</span>
-                    </template>
-                  </el-table-column>
-                  <el-table-column property="granularity" :label="$t('load_test.granularity')"/>
-                </el-table>
-                <i slot="reference" class="el-icon-info pointer"/>
-              </el-popover>
-            </div>
-          </el-form-item>
-          <el-form-item>
-            <el-select v-model="granularity" :placeholder="$t('commons.please_select')" size="mini" clearable>
-              <el-option v-for="op in granularityData" :key="op.granularity" :label="op.granularity" :value="op.granularity"></el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-col>
-    </el-row>
-
-    <el-row>
-      <el-col :span="8">
         <h3>监控集成</h3>
         <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="addMonitor">
           {{ $t('commons.add') }}
         </el-button>
       </el-col>
     </el-row>
-    <el-col :span="24">
-      <el-table :data="monitorParams" size="mini" class="tb-edit" align="center" border highlight-current-row>
-        <el-table-column
-          align="center"
-          prop="name"
-          label="名称">
-        </el-table-column>
-<!--        <el-table-column-->
-<!--          align="center"-->
-<!--          prop="environmentName"-->
-<!--          label="所属环境">-->
-<!--        </el-table-column>-->
-<!--        <el-table-column-->
-<!--          align="center"-->
-<!--          prop="authStatus"-->
-<!--          label="认证状态">-->
-<!--        </el-table-column>-->
-<!--        <el-table-column-->
-<!--          align="center"-->
-<!--          prop="monitorStatus"-->
-<!--          label="监控状态">-->
+    <el-row>
+
+      <el-col :span="24">
+        <el-table :data="monitorParams" size="mini" class="tb-edit" align="center" border highlight-current-row>
           <el-table-column
-          align="center"
-          prop="ip"
-          label="IP">
+            align="center"
+            prop="name"
+            label="名称">
+          </el-table-column>
+          <!--        <el-table-column-->
+          <!--          align="center"-->
+          <!--          prop="environmentName"-->
+          <!--          label="所属环境">-->
+          <!--        </el-table-column>-->
+          <!--        <el-table-column-->
+          <!--          align="center"-->
+          <!--          prop="authStatus"-->
+          <!--          label="认证状态">-->
+          <!--        </el-table-column>-->
+          <!--        <el-table-column-->
+          <!--          align="center"-->
+          <!--          prop="monitorStatus"-->
+          <!--          label="监控状态">-->
+          <el-table-column
+            align="center"
+            prop="ip"
+            label="IP">
           </el-table-column>
           <el-table-column
-          align="center"
-          prop="port"
-          label="Port">
-        </el-table-column>
-        <el-table-column
-          align="center"
-          prop="description"
-          label="描述">
-        </el-table-column>
-        <el-table-column align="center" :label="$t('load_test.operating')">
-          <template v-slot:default="{row, $index}">
-            <ms-table-operator-button :disabled="readOnly" tip="编辑" icon="el-icon-edit"
-                                      type="primary"
-                                      @exec="modifyMonitor(row, $index)"/>
-            <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
-                                      type="danger"
-                                      @exec="delMonitor(row, $index)"/>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-col>
+            align="center"
+            prop="port"
+            label="Port">
+          </el-table-column>
+          <el-table-column
+            align="center"
+            prop="description"
+            label="描述">
+          </el-table-column>
+          <el-table-column align="center" :label="$t('load_test.operating')">
+            <template v-slot:default="{row, $index}">
+              <ms-table-operator-button :disabled="readOnly" tip="编辑" icon="el-icon-edit"
+                                        type="primary"
+                                        @exec="modifyMonitor(row, $index)"/>
+              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        type="danger"
+                                        @exec="delMonitor(row, $index)"/>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
 
     <edit-monitor ref="monitorDialog" :testId="testId" :list.sync="monitorParams"/>
   </div>
@@ -212,18 +246,21 @@
 <script>
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import EditMonitor from "@/business/components/performance/test/components/EditMonitor";
+import {hasPermission} from "@/common/js/utils";
 
 export default {
   name: "PerformanceAdvancedConfig",
   components: {EditMonitor, MsTableOperatorButton},
   data() {
     return {
-      timeout: 60000,
-      responseTimeout: 60000,
+      timeout: undefined,
+      responseTimeout: undefined,
       statusCode: [],
       domains: [],
       params: [],
       monitorParams: [],
+      csvFiles: [],
+      csvConfig: [],
       statusCodeStr: '',
       granularity: undefined,
       granularityData: [
@@ -236,25 +273,31 @@ export default {
         {start: 30001, end: 60000, granularity: 600},
         {start: 60001, end: 180000, granularity: 1800},
         {start: 180001, end: 360000, granularity: 3600},
-      ]
-    }
+      ],
+      readOnly: false,
+    };
   },
   props: {
-    readOnly: {
-      type: Boolean,
-      default: false
-    },
     testId: String,
   },
   mounted() {
     if (this.testId) {
       this.getAdvancedConfig();
     }
+    this.readOnly = !hasPermission('PROJECT_PERFORMANCE_TEST:READ+EDIT');
   },
   watch: {
     testId() {
       if (this.testId) {
         this.getAdvancedConfig();
+      }
+    },
+    csvFiles() {
+      if (this.csvConfig && this.csvFiles) {
+        this.csvFiles.forEach(f => {
+          f.csvSplit = this.csvConfig[f.name]?.csvSplit;
+          f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
+        });
       }
     }
   },
@@ -263,7 +306,7 @@ export default {
       this.$get('/performance/get-advanced-config/' + this.testId, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
-          this.timeout = data.timeout || 10;
+          this.timeout = data.timeout;
           this.responseTimeout = data.responseTimeout;
           this.statusCode = data.statusCode || [];
           this.statusCodeStr = this.statusCode.join(',');
@@ -271,6 +314,7 @@ export default {
           this.params = data.params || [];
           this.granularity = data.granularity;
           this.monitorParams = data.monitorParams || [];
+          this.csvConfig = data.csvConfig;
         }
       });
     },
@@ -293,7 +337,7 @@ export default {
       }
     },
     edit(row) {
-      row.edit = !row.edit
+      row.edit = !row.edit;
     },
     del(row, dataName, index) {
       this[dataName].splice(index, 1);
@@ -356,6 +400,10 @@ export default {
         responseTimeout: this.responseTimeout,
         statusCode: statusCode,
         params: this.params,
+        csvConfig: this.csvFiles.reduce((result, curr) => {
+          result[curr.name] = {csvHasHeader: curr.csvHasHeader, csvSplit: curr.csvSplit};
+          return result;
+        }, {}),
         domains: this.domains,
         granularity: this.granularity,
         monitorParams: this.monitorParams
@@ -374,7 +422,7 @@ export default {
 
     },
   }
-}
+};
 </script>
 
 <style scoped>

@@ -5,17 +5,16 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.automation.parse.EsbDataParser;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiTestCaseResult;
-import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
-import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.EsbApiParamsExample;
 import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
 import io.metersphere.base.mapper.EsbApiParamsMapper;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,11 +39,9 @@ public class EsbApiParamService {
 
     public EsbApiParamsWithBLOBs createEsbApiParam(String resourceId, String esbDataStruct, String backedEsbDataStrcut, String backedScript) {
         EsbApiParamsWithBLOBs model = null;
-
         EsbApiParamsExample example = new EsbApiParamsExample();
         example.createCriteria().andResourceIdEqualTo(resourceId);
         List<EsbApiParamsWithBLOBs> list = esbApiParamsMapper.selectByExampleWithBLOBs(example);
-
         if (list.isEmpty()) {
             String uuid = UUID.randomUUID().toString();
             model = new EsbApiParamsWithBLOBs();
@@ -399,5 +396,34 @@ public class EsbApiParamService {
                 }
             }
         }
+    }
+
+    public RunDefinitionRequest checkIsEsbRequest(RunDefinitionRequest request) {
+        try {
+            //修改reqeust.parameters
+            //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
+            //业务逻辑：   发送ESB接口数据时，使用报文模板中的数据，同时报文模板中的${取值}目的是为了拼接数据结构(比如xml的子节点)
+            //代码实现:    此处打算解析前端传来的EsbDataStruct数据结构，将数据结构按照报文模板中的${取值}为最高优先级组装keyValue对象。这样Jmeter会自动拼装为合适的xml
+            if(request.getTestElement() != null ){
+                MsTestPlan testPlan = (MsTestPlan) request.getTestElement();
+                if(CollectionUtils.isNotEmpty(testPlan.getHashTree())){
+                    for (MsTestElement testElement: testPlan.getHashTree()) {
+                        if(CollectionUtils.isNotEmpty(testElement.getHashTree())){
+                            for (MsTestElement apiElement:testElement.getHashTree()) {
+                                if(apiElement instanceof  MsTCPSampler){
+                                    MsTCPSampler tcpSampler = (MsTCPSampler) apiElement;
+                                    tcpSampler.setProtocol("ESB");
+                                    List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, tcpSampler.getEsbDataStruct());
+                                    tcpSampler.setParameters(keyValueList);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return request;
     }
 }

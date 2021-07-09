@@ -17,7 +17,7 @@
           </el-col>
         </el-row>
 
-        <el-tabs class="test-config" v-model="active" type="border-card" :stretch="true">
+        <el-tabs class="test-config" v-model="active">
           <el-tab-pane :label="$t('load_test.basic_config')">
             <performance-basic-config :is-read-only="true" :test="test" ref="basicConfig"/>
           </el-tab-pane>

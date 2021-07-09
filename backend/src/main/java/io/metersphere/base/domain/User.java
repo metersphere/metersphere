@@ -31,5 +31,9 @@ public class User implements Serializable {
 
     private String lastProjectId;
 
+    private String createUser;
+
+    private String platformInfo;
+
     private static final long serialVersionUID = 1L;
 }

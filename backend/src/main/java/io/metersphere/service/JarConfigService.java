@@ -1,22 +1,28 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.JarConfigExample;
 import io.metersphere.base.mapper.JarConfigMapper;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,7 +71,7 @@ public class JarConfigService {
 
     public void delete(String id) {
         JarConfig JarConfig = jarConfigMapper.selectByPrimaryKey(id);
-        deleteJarFile(JarConfig.getPath());
+        FileUtils.deleteFile(JarConfig.getPath());
         jarConfigMapper.deleteByPrimaryKey(id);
     }
 
@@ -81,8 +87,8 @@ public class JarConfigService {
         }
         jarConfigMapper.updateByPrimaryKey(jarConfig);
         if (file != null) {
-            deleteJarFile(deletePath);
-            createJarFiles(file);
+            FileUtils.deleteFile(deletePath);
+            FileUtils.uploadFile(file, JAR_FILE_DIR);
             NewDriverManager.loadJar(jarConfig.getPath());
         }
     }
@@ -98,48 +104,13 @@ public class JarConfigService {
         jarConfig.setPath(getJarPath(file));
         jarConfig.setFileName(file.getOriginalFilename());
         jarConfigMapper.insert(jarConfig);
-        createJarFiles(file);
+        FileUtils.uploadFile(file, JAR_FILE_DIR);
         NewDriverManager.loadJar(jarConfig.getPath());
         return jarConfig.getId();
     }
 
-    public void deleteJarFiles(String testId) {
-        File file = new File(JAR_FILE_DIR + "/" + testId);
-        FileUtil.deleteContents(file);
-        if (file.exists()) {
-            file.delete();
-        }
-    }
-
-    public void deleteJarFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
-        }
-    }
-
     public String getJarPath(MultipartFile file) {
         return JAR_FILE_DIR + "/" + file.getOriginalFilename();
-    }
-
-    private String createJarFiles(MultipartFile jar) {
-        if (jar == null) {
-            return null;
-        }
-        File testDir = new File(JAR_FILE_DIR);
-        if (!testDir.exists()) {
-            testDir.mkdirs();
-        }
-        String filePath = testDir + "/" + jar.getOriginalFilename();
-        File file = new File(filePath);
-        try (InputStream in = jar.getInputStream(); OutputStream out = new FileOutputStream(file)) {
-            file.createNewFile();
-            FileUtil.copyStream(in, out);
-        } catch (IOException e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("upload_fail"));
-        }
-        return filePath;
     }
 
     private void checkExist(JarConfig jarConfig) {
@@ -155,4 +126,14 @@ public class JarConfigService {
             }
         }
     }
+    public String getLogDetails(String id) {
+        JarConfig jarConfig = jarConfigMapper.selectByPrimaryKey(id);
+        if (jarConfig != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(jarConfig, SystemReference.jarColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(jarConfig.getId()), null, jarConfig.getName(), jarConfig.getCreator(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
 }

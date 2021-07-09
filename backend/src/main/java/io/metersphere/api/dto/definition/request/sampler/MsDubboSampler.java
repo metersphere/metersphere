@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,6 +20,7 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -31,6 +33,7 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -133,11 +136,14 @@ public class MsDubboSampler extends MsTestElement {
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            sampler.setName(this.getName() + "<->" + name);
+            sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
+        List<String> id_names = new LinkedList<>();
+        this.getScenarioSet(this, id_names);
+        sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         sampler.addTestElement(configCenter(this.getConfigCenter()));
         sampler.addTestElement(registryCenter(this.getRegistryCenter()));

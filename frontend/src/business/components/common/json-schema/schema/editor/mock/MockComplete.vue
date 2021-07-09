@@ -47,6 +47,14 @@
         this.$delete(this.schema, 'mock')
       }
     },
+    watch: {
+      schema: {
+        handler(newValue, oldValue) {
+          this.schema.mock = this.mock;
+        },
+        deep: true
+      }
+    },
     mounted() {
     },
     methods: {

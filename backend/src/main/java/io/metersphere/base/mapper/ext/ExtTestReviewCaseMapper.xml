@@ -99,15 +99,35 @@
     <select id="list" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
         select test_case_review_test_case.id as id, test_case_review_test_case.reviewer,
         test_case_review_test_case.update_time, test_case_review_test_case.review_id as reviewId,
-        test_case.id as caseId, test_case.name, test_case.priority,  test_case.test_id as testId,
-        test_case.type, test_case.node_path, test_case.method, if(project.custom_num = 0, cast(test_case.num as char), test_case.custom_num) as customNum, test_case.review_status,
-        test_case.remark as remark,  test_case.steps as steps, test_case.node_id as nodeId,
+        test_case.id as caseId, test_case.name, test_case.priority, test_case.test_id as testId,
+        test_case.type, test_case.node_path, test_case.method, if(project.custom_num = 0, cast(test_case.num as char),
+        test_case.custom_num) as customNum, test_case.review_status,
+        test_case.remark as remark, test_case.maintainer, test_case.steps as steps, test_case.node_id as nodeId,
         test_case_node.name as model,
         project.name as projectName
         from test_case_review_test_case
         inner join test_case on test_case_review_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id
         inner join project on project.id = test_case.project_id
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <choose>
+                    <when test="order.name == 'custom_num'">
+                        customNum ${order.type}
+                    </when>
+                    <when test="order.name == 'priority'">
+                        test_case.priority ${order.type}
+                    </when>
+                    <otherwise>
+                        test_case_review_test_case.${order.name} ${order.type}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </select>
+    <sql id="queryWhereCondition">
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -117,9 +137,9 @@
             </if>
             <if test="request.name != null">
                 and (test_case.name like CONCAT('%', #{request.name},'%')
-                         or test_case.num like CONCAT('%', #{request.name},'%')
-                        or test_case.custom_num like CONCAT('%', #{request.name},'%')
-                    )
+                or test_case.num like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%')
+                )
             </if>
             <if test="request.id != null">
                 and test_case.id = #{request.id}
@@ -142,56 +162,43 @@
             <if test="request.method != null">
                 and test_case.method = #{request.method}
             </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='priority'">
-                                and test_case.priority in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='type'">
-                                and test_case.type in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='method'">
-                                and test_case.method in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='status'">
-                                and test_case.review_status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
+            <include refid="filter"/>
         </where>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                <choose>
-<!--                    <when test="order.name == 'num'">-->
-<!--                        test_case.num ${order.type}-->
-<!--                    </when>-->
-                    <when test="order.name == 'custom_num'">
-                        test_case.num ${order.type}, test_case.custom_num ${order.type}
-                    </when>
-                    <otherwise>
-                        test_case_review_test_case.${order.name} ${order.type}
-                    </otherwise>
-                </choose>
+    </sql>
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='priority'">
+                            and test_case.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='type'">
+                            and test_case.type in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='method'">
+                            and test_case.method in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                        <when test="key=='status'">
+                            and test_case.review_status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
             </foreach>
         </if>
-    </select>
+    </sql>
 
     <select id="selectIds" resultType="java.lang.String">
         select test_case_review_test_case.id as id
@@ -393,5 +400,22 @@
         <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
             #{id}
         </foreach>
+    </select>
+    <select id="listForMinder" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
+        select tcrtc.id as id,
+        tcrtc.review_id as reviewId,
+               test_case.id as caseId, test_case.name, test_case.priority,
+               test_case.type, test_case.node_path, test_case.method, test_case.review_status,
+               test_case.remark as remark, test_case.maintainer, test_case.steps as steps,
+               test_case.node_id as nodeId,
+               test_case.prerequisite, test_case.step_description, test_case.expected_result, test_case.step_model
+        from test_case_review_test_case tcrtc
+        inner join test_case
+        on tcrtc.case_id = test_case.id
+        <where>
+            tcrtc.review_id = #{request.reviewId}
+            and test_case.node_id = #{request.nodeId}
+        </where>
+        order by tcrtc.update_time desc;
     </select>
 </mapper>

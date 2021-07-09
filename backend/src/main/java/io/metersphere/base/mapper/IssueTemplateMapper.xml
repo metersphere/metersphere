@@ -12,6 +12,7 @@
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.IssueTemplate">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, platform, description, title, `system`, `global`, workspace_id, create_time, 
-    update_time
+    update_time, create_user
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -133,11 +134,13 @@
     insert into issue_template (id, `name`, platform, 
       description, title, `system`, 
       `global`, workspace_id, create_time, 
-      update_time, content)
+      update_time, create_user, content
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, 
       #{global,jdbcType=BIT}, #{workspaceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.IssueTemplate">
     insert into issue_template
@@ -171,6 +174,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="content != null">
         content,
@@ -206,6 +212,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -251,6 +260,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -271,6 +283,7 @@
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -287,7 +300,8 @@
       `global` = #{record.global,jdbcType=BIT},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -322,6 +336,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -339,6 +356,7 @@
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -352,7 +370,8 @@
       `global` = #{global,jdbcType=BIT},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

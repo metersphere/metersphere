@@ -1,10 +1,9 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <ms-table-header :is-tester-permission="true" :condition.sync="condition"
+      <ms-table-header :create-permission="['PROJECT_TRACK_REVIEW:READ+CREATE']" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
-                       :create-tip="$t('test_track.review.create_review')"
-                       :title="$t('test_track.review.test_review')"/>
+                       :create-tip="$t('test_track.review.create_review')"/>
     </template>
 
     <el-table
@@ -12,6 +11,7 @@
       class="adjust-table"
       :data="tableData"
       @filter-change="filter"
+      :height="screenHeight"
       @sort-change="sort"
       @row-click="intoReview">
       <template v-for="(item, index) in tableLabel">
@@ -94,9 +94,15 @@
           <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
-                             @deleteClick="handleDelete(scope.row)">
-          </ms-table-operator>
+          <div>
+
+            <ms-table-operator :edit-permission="['PROJECT_TRACK_REVIEW:READ+EDIT']"
+                               :delete-permission="['PROJECT_TRACK_REVIEW:READ+DELETE']"
+                               @editClick="handleEdit(scope.row)"
+                               @deleteClick="handleDelete(scope.row)">
+            </ms-table-operator>
+          </div>
+
         </template>
       </el-table-column>
       <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
@@ -118,14 +124,11 @@ import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
-import {
-  checkoutTestManagerOrTestUser,
-  getCurrentWorkspaceId
-} from "../../../../../common/js/utils";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {_filter, _sort, deepClone, getLabel, getLastTableSortField,saveLastTableSortField} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
-import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
+import {TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
@@ -150,6 +153,7 @@ export default {
       type: TEST_CASE_REVIEW_LIST,
       headerItems: Test_Case_Review,
       tableLabel: [],
+      tableHeaderKey:"TEST_CASE_REVIEW",
       result: {},
       condition: {},
       tableData: [],
@@ -157,12 +161,13 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      screenHeight: 'calc(100vh - 200px)',
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
       ],
-    }
+    };
   },
   watch: {
     '$route'(to) {
@@ -172,17 +177,22 @@ export default {
     }
   },
   created() {
-    this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    this.isTestManagerOrTestUser = true;
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTableData();
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      const list = deepClone(this.tableLabel);
+      this.$refs.headerCustom.open(list);
     },
 
     initTableData() {
@@ -200,7 +210,7 @@ export default {
           if (item.tags && item.tags.length > 0) {
             item.tags = JSON.parse(item.tags);
           }
-        })
+        });
         for (let i = 0; i < this.tableData.length; i++) {
           let path = "/test/case/review/project";
           this.$post(path, {id: this.tableData[i].id}, res => {
@@ -214,7 +224,7 @@ export default {
             let userIds = arr.map(data => data.id);
             this.$set(this.tableData[i], "reviewer", reviewer);
             this.$set(this.tableData[i], "userIds", userIds);
-          })
+          });
         }
       });
       getLabel(this, TEST_CASE_REVIEW_LIST);
@@ -250,11 +260,31 @@ export default {
       this.initTableData();
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
+    }
   }
-}
+};
 </script>
 
 <style scoped>

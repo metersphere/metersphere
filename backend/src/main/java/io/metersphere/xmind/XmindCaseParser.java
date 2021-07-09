@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
+import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.xmind.parser.XmindParser;
@@ -59,7 +60,15 @@ public class XmindCaseParser {
      */
     private List<String> nodePaths;
 
-    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames) {
+    private List<TestCaseWithBLOBs> continueValidatedCase;
+
+    private List<String> errorPath;
+
+    private boolean isUseCustomId;
+
+    private String importType;
+
+    public XmindCaseParser(TestCaseService testCaseService, String userId, String projectId, Set<String> testCaseNames, boolean isUseCustomId, String importType) {
         this.testCaseService = testCaseService;
         this.maintainer = userId;
         this.projectId = projectId;
@@ -69,12 +78,17 @@ public class XmindCaseParser {
         compartDatas = new ArrayList<>();
         process = new DetailUtil();
         nodePaths = new ArrayList<>();
+        continueValidatedCase = new ArrayList<>();
+        errorPath = new ArrayList<>();
+        this.isUseCustomId = isUseCustomId;
+        this.importType = importType;
     }
 
     private static final String TC_REGEX = "(?:tc:|tc：|tc)";
-    private static final String PC_REGEX = "(?:pc:|pc：|pc)";
-    private static final String RC_REGEX = "(?:rc:|rc：|rc)";
-    private static final String TAG_REGEX = "(?:tag:|tag：|tag)";
+    private static final String PC_REGEX = "(?:pc:|pc：)";
+    private static final String RC_REGEX = "(?:rc:|rc：)";
+    private static final String ID_REGEX = "(?:id:|id：)";
+    private static final String TAG_REGEX = "(?:tag:|tag：)";
 
     public void clear() {
         compartDatas.clear();
@@ -85,11 +99,19 @@ public class XmindCaseParser {
     }
 
     public List<TestCaseWithBLOBs> getTestCase() {
-        return this.testCases;
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Create.name())) {
+            return this.testCases;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public List<TestCaseWithBLOBs> getUpdateTestCase() {
-        return this.updateTestCases;
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+            return this.updateTestCases;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     public List<String> getNodePaths() {
@@ -126,6 +148,7 @@ public class XmindCaseParser {
      * 验证用例的合规性
      */
     private boolean validate(TestCaseWithBLOBs data) {
+        boolean validatePass = true;
         String nodePath = data.getNodePath();
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -137,48 +160,65 @@ public class XmindCaseParser {
 
 
         if (data.getName().length() > 200) {
+            validatePass = false;
             process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "200", nodePath + data.getName());
         }
 
         if (!StringUtils.isEmpty(nodePath)) {
             String[] nodes = nodePath.split("/");
             if (nodes.length > TestCaseConstants.MAX_NODE_DEPTH + 1) {
+                validatePass = false;
                 process.add(Translator.get("test_case_node_level_tip") +
                         TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"), nodePath);
+                if (!errorPath.contains(nodePath)) {
+                    errorPath.add(nodePath);
+                }
             }
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
+                    validatePass = false;
                     process.add(Translator.get("test_case") + Translator.get("module_not_null"), nodePath + data.getName());
+                    if (!errorPath.contains(nodePath)) {
+                        errorPath.add(nodePath);
+                    }
                     break;
                 } else if (nodes[i].trim().length() > 100) {
+                    validatePass = false;
                     process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "100 ", nodes[i].trim());
+                    if (!errorPath.contains(nodePath)) {
+                        errorPath.add(nodePath);
+                    }
                     break;
                 }
             }
         }
 
         if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+            validatePass = false;
             process.add(Translator.get("functional_method_tip"), nodePath + data.getName());
         }
 
-        if (testCaseNames.contains(data.getName())) {
-            TestCaseWithBLOBs bloBs = testCaseService.checkTestCaseExist(data);
-            if (bloBs != null) {
-                // process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
-                // 记录需要变更的用例
-                BeanUtils.copyBean(bloBs, data, "id");
-                updateTestCases.add(bloBs);
-                return false;
-            }
-        } else {
-            testCaseNames.add(data.getName());
-        }
+//        if (testCaseNames.contains(data.getName())) {
+//            TestCaseWithBLOBs bloBs = testCaseService.checkTestCaseExist(data);
+//            if (bloBs != null) {
+//                // process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
+//                // 记录需要变更的用例
+//                BeanUtils.copyBean(bloBs, data, "id");
+//                updateTestCases.add(bloBs);
+//                return false;
+//            }
+//
+//        } else {
+//            testCaseNames.add(data.getName());
+//        }
 
         // 用例等级和用例性质处理
         if (!priorityList.contains(data.getPriority())) {
+            validatePass = false;
             process.add(Translator.get("test_case_priority") + Translator.get("incorrect_format"), nodePath + data.getName());
         }
         if (data.getType() == null) {
+            validatePass = false;
             process.add(Translator.get("test_case_type") + Translator.get("incorrect_format"), nodePath + data.getName());
         }
 
@@ -186,9 +226,52 @@ public class XmindCaseParser {
         TestCaseExcelData compartData = new TestCaseExcelData();
         BeanUtils.copyBean(compartData, data);
         if (compartDatas.contains(compartData)) {
+            validatePass = false;
             process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + compartData.getName());
         }
         compartDatas.add(compartData);
+
+
+        //自定义ID判断
+        if (StringUtils.isEmpty(data.getCustomNum())) {
+            if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+                validatePass = false;
+                process.add(Translator.get("id_required"), nodePath + "/" + compartData.getName());
+                return false;
+            } else {
+                if (isUseCustomId) {
+                    validatePass = false;
+                    process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
+                    return false;
+                }
+            }
+        }
+
+        //判断更新
+        if (StringUtils.equals(this.importType, FunctionCaseImportEnum.Update.name())) {
+            String checkResult = null;
+            if (isUseCustomId) {
+                checkResult = testCaseService.checkCustomIdExist(data.getCustomNum().toString(), projectId);
+            } else {
+                checkResult = testCaseService.checkIdExist(Integer.parseInt(data.getCustomNum()), projectId);
+            }
+            if (null != checkResult) {  //该ID在当前项目中存在
+                //如果前面所经过的校验都没报错
+                if (!isUseCustomId) {
+                    data.setNum(Integer.parseInt(data.getCustomNum()));
+                    data.setCustomNum(null);
+                }
+                data.setId(checkResult);
+                updateTestCases.add(data);
+            } else {
+                process.add(Translator.get("custom_num_is_not_exist"), nodePath + "/" + compartData.getName());
+                validatePass = false;
+            }
+        }
+
+        if (validatePass) {
+            this.continueValidatedCase.add(data);
+        }
         return true;
     }
 
@@ -201,7 +284,7 @@ public class XmindCaseParser {
                 item.setParent(parent);
                 this.formatTestCase(item.getTitle(), parent.getPath(), item.getChildren() != null ? item.getChildren().getAttached() : null);
             } else {
-                String nodePath = parent.getPath() + "/" + item.getTitle();
+                String nodePath = parent.getPath().trim() + "/" + item.getTitle().trim();
                 item.setPath(nodePath);
                 item.setParent(parent);
                 if (item.getChildren() != null && CollectionUtils.isNotEmpty(item.getChildren().getAttached())) {
@@ -286,7 +369,7 @@ public class XmindCaseParser {
         // 用例名称
         String name = title.replace(tcArrs[0] + "：", "").replace(tcArrs[0] + ":", "");
         testCase.setName(name);
-        testCase.setNodePath(nodePath);
+        testCase.setNodePath(nodePath.trim());
 
         // 用例等级和用例性质处理
         if (tcArrs[0].indexOf("-") != -1) {
@@ -305,6 +388,7 @@ public class XmindCaseParser {
         List<Attached> steps = new LinkedList<>();
         StringBuilder rc = new StringBuilder();
         List<String> tags = new LinkedList<>();
+        StringBuilder customId = new StringBuilder();
         if (attacheds != null && !attacheds.isEmpty()) {
             attacheds.forEach(item -> {
                 if (isAvailable(item.getTitle(), PC_REGEX)) {
@@ -314,12 +398,18 @@ public class XmindCaseParser {
                     rc.append("\n");
                 } else if (isAvailable(item.getTitle(), TAG_REGEX)) {
                     tags.add(replace(item.getTitle(), TAG_REGEX));
+                } else if (isAvailable(item.getTitle(), ID_REGEX)) {
+                    customId.append(replace(item.getTitle(), ID_REGEX));
                 } else {
                     steps.add(item);
                 }
             });
         }
         testCase.setRemark(rc.toString());
+        if (isUseCustomId || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
+            testCase.setCustomNum(customId.toString());
+        }
+
         testCase.setTags(JSON.toJSONString(tags));
         testCase.setSteps(this.getSteps(steps));
         // 校验合规性
@@ -364,8 +454,23 @@ public class XmindCaseParser {
             //检查目录合规性
             this.validate();
         } catch (Exception ex) {
+            ex.printStackTrace();
             return process.parse(ex.getMessage());
         }
         return process.parse();
+    }
+
+    public List<TestCaseWithBLOBs> getContinueValidatedCase() {
+        return this.continueValidatedCase;
+    }
+
+    public List<String> getValidatedNodePath() {
+        List<String> returnPathList = new ArrayList<>(nodePaths);
+        if (CollectionUtils.isNotEmpty(returnPathList)) {
+            if (CollectionUtils.isNotEmpty(errorPath)) {
+                returnPathList.removeAll(errorPath);
+            }
+        }
+        return returnPathList;
     }
 }

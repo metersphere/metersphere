@@ -59,7 +59,11 @@ public class TestPlanTestJob extends MsScheduleJob {
 
     @Override
     void businessExecute(JobExecutionContext context) {
-        testPlanService.run(this.resourceId, this.projectID, this.userId, ReportTriggerMode.SCHEDULE.name());
+
+        JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
+        String config = jobDataMap.getString("config");
+
+        testPlanService.run(this.resourceId, this.projectID, this.userId, ReportTriggerMode.SCHEDULE.name(),config);
     }
 
     public static JobKey getJobKey(String testId) {

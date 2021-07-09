@@ -38,7 +38,7 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, exportPdf, jsonToMap, mapToJson} from "../../../../../../../../common/js/utils";
+  import {exportPdf, jsonToMap, mapToJson} from "../../../../../../../../common/js/utils";
   import BaseInfoComponent from "../TemplateComponent/BaseInfoComponent";
   import TestResultChartComponent from "../TemplateComponent/TestResultChartComponent";
   import TestResultComponent from "../TemplateComponent/TestResultComponent";
@@ -80,7 +80,7 @@
       }
     },
     mounted() {
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+      this.isTestManagerOrTestUser = true;
       this.getReport();
     },
     watch: {
@@ -222,7 +222,7 @@
 <style scoped>
 
   .el-main {
-    height: calc(100vh - 70px);
+    height: calc(100vh - 50px);
     width: 100%;
   }
 

@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReportTemplate">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, workspace_id
+    id, `name`, workspace_id, create_user
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -122,10 +123,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
-    insert into test_case_report_template (id, name, workspace_id, 
-      content)
+    insert into test_case_report_template (id, `name`, workspace_id, 
+      create_user, content)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
-      #{content,jdbcType=LONGVARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     insert into test_case_report_template
@@ -134,10 +135,13 @@
         id,
       </if>
       <if test="name != null">
-        name,
+        `name`,
       </if>
       <if test="workspaceId != null">
         workspace_id,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="content != null">
         content,
@@ -152,6 +156,9 @@
       </if>
       <if test="workspaceId != null">
         #{workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -171,10 +178,13 @@
         id = #{record.id,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
-        name = #{record.name,jdbcType=VARCHAR},
+        `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.workspaceId != null">
         workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
@@ -187,8 +197,9 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_case_report_template
     set id = #{record.id,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -197,8 +208,9 @@
   <update id="updateByExample" parameterType="map">
     update test_case_report_template
     set id = #{record.id,jdbcType=VARCHAR},
-      name = #{record.name,jdbcType=VARCHAR},
-      workspace_id = #{record.workspaceId,jdbcType=VARCHAR}
+      `name` = #{record.name,jdbcType=VARCHAR},
+      workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -207,10 +219,13 @@
     update test_case_report_template
     <set>
       <if test="name != null">
-        name = #{name,jdbcType=VARCHAR},
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="workspaceId != null">
         workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
@@ -220,15 +235,17 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     update test_case_report_template
-    set name = #{name,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseReportTemplate">
     update test_case_report_template
-    set name = #{name,jdbcType=VARCHAR},
-      workspace_id = #{workspaceId,jdbcType=VARCHAR}
+    set `name` = #{name,jdbcType=VARCHAR},
+      workspace_id = #{workspaceId,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

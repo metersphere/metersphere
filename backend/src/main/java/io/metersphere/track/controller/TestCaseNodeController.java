@@ -1,7 +1,9 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.TestCaseNode;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
@@ -17,7 +19,6 @@ import java.util.List;
 
 @RequestMapping("/case/node")
 @RestController
-@RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
 public class TestCaseNodeController {
 
     @Resource
@@ -70,26 +71,26 @@ public class TestCaseNodeController {
     }
 
     @PostMapping("/add")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = TestCaseNodeService.class)
     public String addNode(@RequestBody TestCaseNode node) {
         return testCaseNodeService.addNode(node);
     }
 
     @PostMapping("/edit")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = TestCaseNodeService.class)
     public int editNode(@RequestBody DragNodeRequest node) {
         return testCaseNodeService.editNode(node);
     }
 
     @PostMapping("/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#nodeIds)", msClass = TestCaseNodeService.class)
     public int deleteNode(@RequestBody List<String> nodeIds) {
         //nodeIds 包含删除节点ID及其所有子节点ID
         return testCaseNodeService.deleteNode(nodeIds);
     }
 
     @PostMapping("/drag")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#node)", title = "#node.name", content = "#msClass.getLogDetails(#node)", msClass = TestCaseNodeService.class)
     public void dragNode(@RequestBody DragNodeRequest node) {
         testCaseNodeService.dragNode(node);
     }

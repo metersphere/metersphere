@@ -1,6 +1,6 @@
 <template>
   <ms-report-export-template :title="title" :type="$t('report.api_test_report')">
-    <ms-metric-chart :content="content" :totalTime="totalTime"/>
+    <ms-metric-chart :content="content" :is-export="true" :totalTime="totalTime"/>
     <div class="scenario-result" v-for="(scenario, index) in content.scenarios" :key="index" :scenario="scenario">
       <div>
         <el-card>

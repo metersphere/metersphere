@@ -2,6 +2,15 @@
   <el-dialog class="user-import" :title="$t('commons.import_user')" :visible.sync="dialogVisible"
              @close="close">
         <el-row>
+          <el-alert
+            title="用户组只支持系统默认用户组"
+            type="info"
+            show-icon
+            :closable="false"
+          >
+          </el-alert>
+        </el-row>
+        <el-row>
           <el-link type="primary" class="download-template"
                    @click="downloadTemplate"
           >{{$t('test_track.case.import.download_template')}}
@@ -100,7 +109,7 @@ export default {
       this.fileList.push(file.file);
       let user = JSON.parse(localStorage.getItem(TokenKey));
 
-      this.result = this.$fileUpload('/user/import/' + user.id, file.file, null, {}, response => {
+      this.result = this.$fileUpload('/user/import', file.file, null, {}, response => {
         let res = response.data;
         if (res.success) {
           this.$success(this.$t('commons.import_success'));
@@ -124,12 +133,16 @@ export default {
 <style scoped>
 
 .download-template {
-  padding-top: 0px;
-  padding-bottom: 10px;
+  padding-top: 10px;
+  padding-bottom: 5px;
 }
 
 .user-import >>> .el-dialog {
   width: 400px;
+}
+
+.user-import >>> .el-dialog__body {
+  padding: 5px 20px;
 }
 
 

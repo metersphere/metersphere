@@ -11,6 +11,10 @@
     <result column="lastmodify" jdbcType="VARCHAR" property="lastmodify" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="platform_status" jdbcType="VARCHAR" property="platformStatus" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.IssuesWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -75,7 +79,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, title, `status`, create_time, update_time, reporter, lastmodify, platform, project_id
+    id, title, `status`, create_time, update_time, reporter, lastmodify, platform, project_id, 
+    creator, resource_id, num, platform_status
   </sql>
   <sql id="Blob_Column_List">
     description, custom_fields
@@ -132,11 +137,15 @@
     insert into issues (id, title, `status`, 
       create_time, update_time, reporter, 
       lastmodify, platform, project_id, 
-      description, custom_fields)
+      creator, resource_id, num, 
+      platform_status, description, custom_fields
+      )
     values (#{id,jdbcType=VARCHAR}, #{title,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{reporter,jdbcType=VARCHAR}, 
       #{lastmodify,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR}, #{customFields,jdbcType=LONGVARCHAR})
+      #{creator,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
+      #{platformStatus,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{customFields,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.IssuesWithBLOBs">
     insert into issues
@@ -167,6 +176,18 @@
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="num != null">
+        num,
+      </if>
+      <if test="platformStatus != null">
+        platform_status,
       </if>
       <if test="description != null">
         description,
@@ -202,6 +223,18 @@
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
+      </if>
+      <if test="platformStatus != null">
+        #{platformStatus,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -247,6 +280,18 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
+      <if test="record.creator != null">
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
+      <if test="record.platformStatus != null">
+        platform_status = #{record.platformStatus,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -269,6 +314,10 @@
       lastmodify = #{record.lastmodify,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      platform_status = #{record.platformStatus,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       custom_fields = #{record.customFields,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -285,7 +334,11 @@
       reporter = #{record.reporter,jdbcType=VARCHAR},
       lastmodify = #{record.lastmodify,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=INTEGER},
+      platform_status = #{record.platformStatus,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -317,6 +370,18 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
+      <if test="platformStatus != null">
+        platform_status = #{platformStatus,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -336,6 +401,10 @@
       lastmodify = #{lastmodify,jdbcType=VARCHAR},
       platform = #{platform,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
+      platform_status = #{platformStatus,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       custom_fields = #{customFields,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -349,7 +418,11 @@
       reporter = #{reporter,jdbcType=VARCHAR},
       lastmodify = #{lastmodify,jdbcType=VARCHAR},
       platform = #{platform,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR}
+      project_id = #{projectId,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      num = #{num,jdbcType=INTEGER},
+      platform_status = #{platformStatus,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

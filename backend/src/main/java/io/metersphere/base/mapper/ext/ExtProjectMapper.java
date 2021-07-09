@@ -13,4 +13,10 @@ public interface ExtProjectMapper {
     List<String> getProjectIdByWorkspaceId(String workspaceId);
 
     int removeIssuePlatform(@Param("platform") String platform, @Param("orgId") String orgId);
+
+    List<ProjectDTO> getUserProject(@Param("proRequest") ProjectRequest request);
+
+    String getSystemIdByProjectId(String projectId);
+
+    List<String> getProjectIds();
 }

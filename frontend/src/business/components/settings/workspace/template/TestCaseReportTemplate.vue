@@ -22,6 +22,7 @@
     import TestcaseTemplateItem from "../../../track/plan/view/comonents/report/TestcaseTemplateItem";
     import {WORKSPACE_ID} from '../../../../../common/js/constants';
     import MsMainContainer from "../../../common/components/MsMainContainer";
+    import {getCurrentWorkspaceId} from "@/common/js/utils";
 
     export default {
       name: "TestCaseReportTemplate",
@@ -45,7 +46,7 @@
       },
       methods: {
         initData() {
-          this.condition.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          this.condition.workspaceId = getCurrentWorkspaceId();
           this.result = this.$post('/case/report/template/list', this.condition, response => {
             this.templates = response.data;
           });

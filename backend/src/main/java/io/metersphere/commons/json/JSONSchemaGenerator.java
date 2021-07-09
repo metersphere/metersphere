@@ -7,7 +7,7 @@ import com.github.fge.jsonschema.cfg.ValidationConfiguration;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 import com.google.gson.*;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
@@ -125,7 +125,7 @@ public class JSONSchemaGenerator {
                     concept.put(propertyName, object.get("default"));
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString()) && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                    String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
                     concept.put(propertyName, value);
                 }
                 if (object.has("maxLength")) {
@@ -143,15 +143,20 @@ public class JSONSchemaGenerator {
                     // TODO 6.3.3 in json-schema-validation
                 }
 
-            } else if (propertyObjType.equals("integer") || propertyObjType.equals("number")) {
+            } else if (propertyObjType.equals("integer")) {
                 // 先设置空值
                 concept.put(propertyName, 0);
                 if (object.has("default")) {
                     concept.put(propertyName, object.get("default"));
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
-                    concept.put(propertyName, value);
+                    try {
+                        int value = object.get("mock").getAsJsonObject().get("mock").getAsInt();
+                        concept.put(propertyName, value);
+                    } catch (Exception e) {
+                        String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        concept.put(propertyName, value);
+                    }
                 }
                 if (object.has("multipleOf")) {
 
@@ -178,6 +183,25 @@ public class JSONSchemaGenerator {
                 }
                 // Section 6.2.5 in json-schema-validation. Resolved as OCL
 
+            } else if (propertyObjType.equals("number")) {
+                // 先设置空值
+                concept.put(propertyName, 0);
+                if (object.has("default")) {
+                    concept.put(propertyName, object.get("default"));
+                }
+                if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                    try {
+                        Number value = object.get("mock").getAsJsonObject().get("mock").getAsNumber();
+                        if (value.toString().indexOf(".") == -1) {
+                            concept.put(propertyName, value.intValue());
+                        } else {
+                            concept.put(propertyName, value.floatValue());
+                        }
+                    } catch (Exception e) {
+                        String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").getAsString());
+                        concept.put(propertyName, value);
+                    }
+                }
             } else if (propertyObjType.equals("boolean")) {
                 // 先设置空值
                 concept.put(propertyName, false);
@@ -185,7 +209,7 @@ public class JSONSchemaGenerator {
                     concept.put(propertyName, object.get("default"));
                 }
                 if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                    String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
+                    String value = ScriptEngineUtils.buildFunctionCallString(object.get("mock").getAsJsonObject().get("mock").toString());
                     concept.put(propertyName, value);
                 }
             } else if (propertyObjType.equals("array")) {
@@ -201,22 +225,22 @@ public class JSONSchemaGenerator {
 
                 if (object.has("items")) {
                     if (itemsObject.has("enum")) {
-                        array.add(analyzeEnumProperty(object));
+                        array.add(analyzeEnumProperty(itemsObject));
                     } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("string")) {
-                        if (object.has("default")) {
-                            array.add(object.get("default"));
-                        } else if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
-                            array.add(object.get(value));
+                        if (itemsObject.has("default")) {
+                            array.add(itemsObject.get("default"));
+                        } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                            array.add(value);
                         } else {
                             array.add(null);
                         }
                     } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("number")) {
-                        if (object.has("default")) {
-                            array.add(object.get("default"));
-                        } else if (object.has("mock") && object.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(object.get("mock").getAsJsonObject().get("mock").getAsString())) {
-                            String value = ScriptEngineUtils.calculate(object.get("mock").getAsJsonObject().get("mock").toString());
-                            array.add(object.get(value));
+                        if (itemsObject.has("default")) {
+                            array.add(itemsObject.get("default"));
+                        } else if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                            String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                            array.add(value);
                         } else {
                             array.add(0);
                         }
@@ -299,7 +323,7 @@ public class JSONSchemaGenerator {
                 JSONObject root = new JSONObject();
                 generator(jsonSchema, root);
                 // 格式化返回
-                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
                 if (root.get("MS-OBJECT") != null) {
                     return gson.toJson(root.get("MS-OBJECT"));
                 }

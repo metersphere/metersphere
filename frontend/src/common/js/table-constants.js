@@ -1,4 +1,6 @@
 // 模板
+import i18n from "@/i18n/i18n";
+
 export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'input',text: '输入框'},
   {value: 'textarea',text: '文本框'},
@@ -24,9 +26,9 @@ export const CASE_TYPE_OPTION = [
 
 export const ISSUE_PLATFORM_OPTION = [
   {value: 'metersphere',text: 'Metersphere'},
-  // {value: 'Jira',text: 'JIRA'},
-  // {value: 'Tapd',text: 'Tapd'},
-  // {value: 'Zentao',text: '禅道'},
+  {value: 'Jira',text: 'JIRA'},
+  {value: 'Tapd',text: 'Tapd'},
+  {value: 'Zentao',text: '禅道'},
 ];
 
 export const FIELD_TYPE_MAP = {
@@ -67,4 +69,37 @@ export const ISSUE_STATUS_MAP = {
   'resolved': '已解决',
   'active': '激活',
   'delete': '已删除'
+}
+
+export const API_SCENARIO_FILTERS = {
+  LEVEL_FILTERS: [
+    {text: 'P0', value: 'P0'},
+    {text: 'P1', value: 'P1'},
+    {text: 'P2', value: 'P2'},
+    {text: 'P3', value: 'P3'}
+  ],
+  RESULT_FILTERS: [
+    {text: 'Fail', value: 'Fail'},
+    {text: 'Success', value: 'Success'}
+  ],
+  STATUS_FILTERS: [
+    {text: i18n.t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+    {text: i18n.t('test_track.plan.plan_status_running'), value: 'Underway'},
+    {text: i18n.t('test_track.plan.plan_status_completed'), value: 'Completed'},
+    {text: i18n.t('test_track.plan.plan_status_trash'), value: 'Trash'},
+  ],
+}
+
+export const USER_GROUP_SCOPE = {
+  // todo i18n
+  'SYSTEM': '系统',
+  'ORGANIZATION': '组织',
+  'WORKSPACE': '工作空间',
+  'PROJECT': '项目'
+}
+
+export const PROJECT_GROUP_SCOPE = {
+  'TRACK': '测试跟踪',
+  'API': '接口测试',
+  'PERFORMANCE': '性能测试'
 }

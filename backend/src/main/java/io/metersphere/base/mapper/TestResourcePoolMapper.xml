@@ -12,6 +12,9 @@
     <result column="image" jdbcType="VARCHAR" property="image" />
     <result column="heap" jdbcType="VARCHAR" property="heap" />
     <result column="gc_algo" jdbcType="VARCHAR" property="gcAlgo" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="api" jdbcType="BIT" property="api" />
+    <result column="performance" jdbcType="BIT" property="performance" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, description, `status`, create_time, update_time, image, `heap`, 
-    gc_algo
+    gc_algo, create_user, api, performance
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestResourcePoolExample" resultMap="BaseResultMap">
     select
@@ -109,11 +112,13 @@
     insert into test_resource_pool (id, `name`, `type`, 
       description, `status`, create_time, 
       update_time, image, `heap`, 
-      gc_algo)
+      gc_algo, create_user, api, 
+      performance)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{image,jdbcType=VARCHAR}, #{heap,jdbcType=VARCHAR}, 
-      #{gcAlgo,jdbcType=VARCHAR})
+      #{gcAlgo,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{api,jdbcType=BIT}, 
+      #{performance,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestResourcePool">
     insert into test_resource_pool
@@ -148,6 +153,15 @@
       <if test="gcAlgo != null">
         gc_algo,
       </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="api != null">
+        api,
+      </if>
+      <if test="performance != null">
+        performance,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -179,6 +193,15 @@
       </if>
       <if test="gcAlgo != null">
         #{gcAlgo,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="api != null">
+        #{api,jdbcType=BIT},
+      </if>
+      <if test="performance != null">
+        #{performance,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -221,6 +244,15 @@
       <if test="record.gcAlgo != null">
         gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.api != null">
+        api = #{record.api,jdbcType=BIT},
+      </if>
+      <if test="record.performance != null">
+        performance = #{record.performance,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +269,10 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       image = #{record.image,jdbcType=VARCHAR},
       `heap` = #{record.heap,jdbcType=VARCHAR},
-      gc_algo = #{record.gcAlgo,jdbcType=VARCHAR}
+      gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      api = #{record.api,jdbcType=BIT},
+      performance = #{record.performance,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +307,15 @@
       <if test="gcAlgo != null">
         gc_algo = #{gcAlgo,jdbcType=VARCHAR},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="api != null">
+        api = #{api,jdbcType=BIT},
+      </if>
+      <if test="performance != null">
+        performance = #{performance,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -285,7 +329,10 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       image = #{image,jdbcType=VARCHAR},
       `heap` = #{heap,jdbcType=VARCHAR},
-      gc_algo = #{gcAlgo,jdbcType=VARCHAR}
+      gc_algo = #{gcAlgo,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      api = #{api,jdbcType=BIT},
+      performance = #{performance,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

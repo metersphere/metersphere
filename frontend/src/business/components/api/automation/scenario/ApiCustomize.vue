@@ -26,7 +26,7 @@
   import MsDebugJdbcPage from "../../definition/components/debug/DebugJdbcPage";
   import MsDebugTcpPage from "../../definition/components/debug/DebugTcpPage";
   import MsDebugDubboPage from "../../definition/components/debug/DebugDubboPage";
-  import {getUUID} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
   export default {
     name: "ApiCustomize",
@@ -57,11 +57,18 @@
         Object.assign(this.request, row.request);
         this.request.name = name;
         if (this.request.protocol === 'HTTP') {
-          this.request.url = row.url;
+          if (row.url) {
+            // 自定义请求根据是否勾选判断是否需要引用环境
+            this.request.url = row.url;
+            this.request.path = row.url;
+          } else {
+            this.request.url = row.path;
+            this.request.path = row.path;
+          }
           this.request.method = row.method;
         }
         this.request.resourceId = getUUID();
-        this.request.projectId = this.$store.state.projectId;
+        this.request.projectId = getCurrentProjectID();
         let obj = {};
         Object.assign(obj, this.request);
         this.$emit('addCustomizeApi', obj);
@@ -77,12 +84,5 @@
 </script>
 
 <style scoped>
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 20px 0;
-  }
 
 </style>

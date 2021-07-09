@@ -12,6 +12,7 @@ import {
   HTTPsamplerFiles,
   HTTPSamplerProxy,
   IfController as JMXIfController,
+  TransactionController as JMXTransactionController,
   JDBCDataSource,
   JDBCSampler,
   JSONPathAssertion,
@@ -755,6 +756,7 @@ export class KeyValue extends BaseConfig {
     this.files = undefined;
     this.enable = undefined;
     this.uuid = undefined;
+    this.time = undefined;
     this.contentType = undefined;
     this.set(options);
   }
@@ -1044,6 +1046,34 @@ export class LoopController extends Controller {
       let label = this.variable;
       if (this.operator) label += " " + this.operator;
       if (this.value) label += " " + this.value;
+      return label;
+    }
+    return "";
+  }
+}
+
+export class TransactionController extends Controller {
+  constructor(options = {}) {
+    super("TransactionController", options);
+    this.type = "TransactionController";
+    this.name;
+    this.hashTree = [];
+    this.set(options);
+  }
+
+  isValid() {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
+      return !!this.variable && !!this.operator;
+    }
+    return !!this.variable && !!this.operator && !!this.value;
+  }
+
+  label() {
+    if (this.isValid()) {
+      let label = this.$t('api_test.automation.transcation_controller');
+      if(this.name != null && this.name !== ""){
+        label = this.name;
+      }
       return label;
     }
     return "";

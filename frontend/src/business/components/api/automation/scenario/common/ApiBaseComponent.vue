@@ -8,6 +8,7 @@
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
         <el-tag size="mini" v-if="data.method">{{getMethod()}}</el-tag>
       </slot>
+      <slot name="behindHeaderLeft" v-if="!isMax"></slot>
 
       <span>
         <slot name="headerLeft">
@@ -18,15 +19,18 @@
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           </span>
           <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
-            {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
+            <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
+               v-if="data.referenced!='REF' && !data.disabled"/>
+            <el-tooltip placement="top" :content="data.name">
+              <span>{{data.name}}</span>
+            </el-tooltip>
           </span>
         </slot>
-        <slot name="behindHeaderLeft" v-if="!isMax"></slot>
       </span>
 
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
+        <slot name="debugStepCode"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root" style="width: 30px"/>
         </el-tooltip>
@@ -129,8 +133,6 @@
     },
     methods: {
       active() {
-        // 这种写法性能极差，不要再放开了
-        //this.$set(this.data, 'active', !this.data.active);
         this.$emit('active');
       },
       getMethod() {
@@ -201,15 +203,19 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 180px;
+    width: 140px;
   }
 
   .scenario-name {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    display: inline-block;
     font-size: 13px;
-    width: 100%;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: calc(100% - 35rem);
   }
 
   /deep/ .el-step__icon {
@@ -224,6 +230,16 @@
     min-width: 100%;
     min-inline-size: 0px;
     border: 0px;
+  }
+  .ms-step-name-width {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 400px;
   }
 
 </style>

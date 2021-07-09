@@ -7,6 +7,7 @@
     <result column="author" jdbcType="VARCHAR" property="author" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="status" jdbcType="VARCHAR" property="status"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseComment">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, author, create_time, update_time
+    id, case_id, author, create_time, update_time, `status`
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -124,12 +125,12 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseComment">
-    insert into test_case_comment (id, case_id, author, 
-      create_time, update_time, description
-      )
-    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{description,jdbcType=LONGVARCHAR}
-      )
+    insert into test_case_comment (id, case_id, author,
+                                   create_time, update_time, `status`,
+                                   description)
+    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR},
+            #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR},
+            #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseComment">
     insert into test_case_comment
@@ -148,6 +149,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="status != null">
+        `status`,
       </if>
       <if test="description != null">
         description,
@@ -168,6 +172,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -198,6 +205,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -209,11 +219,12 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_case_comment
     set id = #{record.id,jdbcType=VARCHAR},
-      case_id = #{record.caseId,jdbcType=VARCHAR},
-      author = #{record.author,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT},
-      description = #{record.description,jdbcType=LONGVARCHAR}
+    case_id = #{record.caseId,jdbcType=VARCHAR},
+    author = #{record.author,jdbcType=VARCHAR},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    update_time = #{record.updateTime,jdbcType=BIGINT},
+    `status` = #{record.status,jdbcType=VARCHAR},
+    description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -221,10 +232,11 @@
   <update id="updateByExample" parameterType="map">
     update test_case_comment
     set id = #{record.id,jdbcType=VARCHAR},
-      case_id = #{record.caseId,jdbcType=VARCHAR},
-      author = #{record.author,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+    case_id = #{record.caseId,jdbcType=VARCHAR},
+    author = #{record.author,jdbcType=VARCHAR},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    update_time = #{record.updateTime,jdbcType=BIGINT},
+    `status` = #{record.status,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -244,6 +256,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -252,19 +267,21 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseComment">
     update test_case_comment
-    set case_id = #{caseId,jdbcType=VARCHAR},
-      author = #{author,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT},
-      description = #{description,jdbcType=LONGVARCHAR}
+    set case_id     = #{caseId,jdbcType=VARCHAR},
+        author      = #{author,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=BIGINT},
+        update_time = #{updateTime,jdbcType=BIGINT},
+        `status`    = #{status,jdbcType=VARCHAR},
+        description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseComment">
     update test_case_comment
-    set case_id = #{caseId,jdbcType=VARCHAR},
-      author = #{author,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+    set case_id     = #{caseId,jdbcType=VARCHAR},
+        author      = #{author,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=BIGINT},
+        update_time = #{updateTime,jdbcType=BIGINT},
+        `status`    = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

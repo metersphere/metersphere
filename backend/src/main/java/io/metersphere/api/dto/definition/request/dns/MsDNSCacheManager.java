@@ -3,6 +3,7 @@ package io.metersphere.api.dto.definition.request.dns;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.Host;
@@ -40,9 +41,9 @@ public class MsDNSCacheManager extends MsTestElement {
         samplerHashTree.add(arguments(name, config.getCommonConfig().getVariables()));
     }
 
-    public static void addEnvironmentDNS(HashTree samplerHashTree, String name, EnvironmentConfig config) {
-        if (config.getCommonConfig().isEnableHost() && CollectionUtils.isNotEmpty(config.getCommonConfig().getHosts())) {
-            String domain = config.getHttpConfig().getDomain().trim();
+    public static void addEnvironmentDNS(HashTree samplerHashTree, String name, EnvironmentConfig config, HttpConfig httpConfig) {
+        if (config.getCommonConfig().isEnableHost() && CollectionUtils.isNotEmpty(config.getCommonConfig().getHosts()) && httpConfig != null) {
+            String domain = httpConfig.getDomain().trim();
             List<Host> hosts = new ArrayList<>();
             config.getCommonConfig().getHosts().forEach(host -> {
                 if (StringUtils.isNotBlank(host.getDomain())) {

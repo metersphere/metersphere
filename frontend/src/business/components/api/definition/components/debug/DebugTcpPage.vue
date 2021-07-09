@@ -27,8 +27,8 @@
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- TCP 请求参数 -->
-      <tcp-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>
-
+<!--      <tcp-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>-->
+      <ms-tcp-format-parameters :request="request" @callback="runDebug" ref="requestForm"/>
       <!-- TCP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
       <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
@@ -58,7 +58,7 @@
   import {createComponent} from "../jmeter/components";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
-  import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
+  import MsTcpFormatParameters from "@/business/components/api/definition/components/request/tcp/TcpFormatParameters";
   import MsJmxStep from "../step/JmxStep";
   import MsApiCaseList from "../case/ApiCaseList";
 
@@ -66,7 +66,7 @@
     name: "ApiConfig",
     components: {
       MsJmxStep,
-      TcpBasisParameters,
+      MsTcpFormatParameters,
       MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsApiCaseList
     },
     props: {
@@ -94,14 +94,16 @@
     },
     created() {
       if (this.testCase) {
-        // 执行结果信息
-        let url = "/api/definition/report/getReport/" + this.testCase.id;
-        this.$get(url, response => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
+        if (this.testCase.id) {
+          // 执行结果信息
+          let url = "/api/definition/report/getReport/" + this.testCase.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.responseData = data;
+            }
+          });
+        }
         this.request = this.testCase.request;
         if (this.request) {
           this.debugForm.method = this.request.method;
@@ -167,11 +169,5 @@
 </script>
 
 <style scoped>
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 0px;
-  }
+
 </style>

@@ -4,8 +4,10 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.TestPlanLoadCase;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
@@ -32,6 +34,7 @@ public class TestPlanLoadCaseController {
     }
 
     @PostMapping("/relevance")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#request.caseIds,#request.testPlanId)", msClass = TestPlanLoadCaseService.class)
     public void relevanceCase(@RequestBody LoadCaseRequest request) {
         testPlanLoadCaseService.relevanceCase(request);
     }
@@ -48,16 +51,19 @@ public class TestPlanLoadCaseController {
     }
 
     @GetMapping("/delete/{id}")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanLoadCaseService.class)
     public void delete(@PathVariable String id) {
         testPlanLoadCaseService.delete(id);
     }
 
     @PostMapping("/run")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.testPlanLoadId)", msClass = TestPlanLoadCaseService.class)
     public String run(@RequestBody RunTestPlanRequest request) {
         return testPlanLoadCaseService.run(request);
     }
 
     @PostMapping("/run/batch")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getRunLogDetails(#request.requests)", msClass = TestPlanLoadCaseService.class)
     public void runBatch(@RequestBody RunBatchTestPlanRequest request) {
         testPlanLoadCaseService.runBatch(request);
     }
@@ -68,16 +74,19 @@ public class TestPlanLoadCaseController {
     }
 
     @PostMapping("/batch/delete")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanLoadCaseService.class)
     public void batchDelete(@RequestBody LoadCaseReportBatchRequest request) {
         testPlanLoadCaseService.batchDelete(request);
     }
 
     @PostMapping("/update")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE,  content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
     public void update(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.update(testPlanLoadCase);
     }
 
     @PostMapping("/update/api")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE,  content = "#msClass.getLogDetails(#testPlanLoadCase.id)", msClass = TestPlanLoadCaseService.class)
     public void updateByApi(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.updateByApi(testPlanLoadCase);
     }

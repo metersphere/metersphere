@@ -26,7 +26,7 @@ public interface ExtTestPlanMapper {
      */
     List<TestPlanDTO> selectTestPlanByRelevancy(@Param("request") QueryTestPlanRequest params);
 
-    int checkIsHave(@Param("planId") String planId, @Param("workspaceIds") Set<String> workspaceIds);
+    int checkIsHave(@Param("planId") String planId, @Param("projectIds") Set<String> projectIds);
 
     String findTestProjectNameByTestPlanID(String testPlanId);
 

@@ -1,7 +1,7 @@
 <template>
-  <el-main v-loading="result.loading" class="container">
+  <el-main v-loading="result.loading" class="container" :style="isPlan ? '' : 'height: calc(100vh - 62px)'">
     <el-scrollbar>
-      <el-form :model="form" :rules="rules" label-position="right" label-width="140px" ref="form">
+      <el-form :model="form" :rules="rules" label-position="right" label-width="80px" ref="form">
 
         <el-form-item :label="$t('commons.title')" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
@@ -76,6 +76,8 @@ import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/cust
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import TestCaseIssueList from "@/business/components/track/issue/TestCaseIssueList";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
+import {getCurrentOrganizationId, getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getIssueTemplate} from "@/network/custom-field-template";
 
 export default {
   name: "IssueEditDetail",
@@ -94,7 +96,7 @@ export default {
       result: {},
       relateFields: [],
       isFormAlive: true,
-      formLabelWidth: "120px",
+      formLabelWidth: "100px",
       issueTemplate: {},
       customFieldForm: {},
       customFieldRules: {},
@@ -111,7 +113,8 @@ export default {
       url: '',
       form: {
         title: '',
-        description: ''
+        description: '',
+        creator: null
       },
       tapdUsers: [],
       zentaoUsers: [],
@@ -127,7 +130,8 @@ export default {
         return false;
       }
     },
-    caseId: String
+    caseId: String,
+    planId: String
   },
   computed: {
     isSystem() {
@@ -137,13 +141,13 @@ export default {
       return SYSTEM_FIELD_NAME_MAP;
     },
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     }
   },
   methods: {
     open(data) {
       let initAddFuc = this.initEdit;
-      getTemplate('field/template/issue/get/relate/', this)
+      getIssueTemplate()
         .then((template) => {
           this.issueTemplate = template;
           this.getThirdPartyInfo();
@@ -154,16 +158,18 @@ export default {
       let platform = this.issueTemplate.platform;
       if (platform === 'Zentao') {
         this.hasZentaoId = true;
-        this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId}, response => {
-          this.Builds = response.data;
-        });
-        this.result = this.$post("/issues/zentao/user", {projectId: this.projectId}, response => {
-          this.zentaoUsers = response.data;
+        this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, response => {
+          if (response.data) {
+            this.Builds = response.data;
+          }
+          this.result = this.$post("/issues/zentao/user", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, response => {
+            this.zentaoUsers = response.data;
+          });
         });
       }
       if (platform === 'Tapd') {
         this.hasTapdId = true;
-        this.result = this.$post("/issues/tapd/user", {projectId: this.projectId}, (response) => {
+        this.result = this.$post("/issues/tapd/user", {projectId: this.projectId, organizationId: getCurrentOrganizationId()}, (response) => {
           this.tapdUsers = response.data;
         });
       }
@@ -180,6 +186,10 @@ export default {
         } else {
           //copy
           this.url = 'issues/add';
+          if (!this.form.creator) {
+            this.form.creator = getCurrentUserId();
+          }
+          this.form.title = data.title + '_copy';
         }
       } else {
         this.form = {
@@ -187,6 +197,9 @@ export default {
           description: this.issueTemplate.content
         }
         this.url = 'issues/add';
+        if (!this.form.creator) {
+          this.form.creator = getCurrentUserId();
+        }
       }
       parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules, null);
       this.$nextTick(() => {
@@ -221,11 +234,15 @@ export default {
       let param = {};
       Object.assign(param, this.form);
       param.projectId = this.projectId;
+      param.organizationId = getCurrentOrganizationId();
       buildCustomFields(this.form, param, this.issueTemplate);
       if (this.isPlan) {
         param.testCaseIds = [this.caseId];
       } else {
         param.testCaseIds = Array.from(this.testCaseContainIds);
+      }
+      if (this.planId) {
+        param.resourceId = this.planId;
       }
       return param;
     },
@@ -255,9 +272,6 @@ export default {
 
 <style scoped>
 
-.container {
-  height: calc(100vh - 62px);
-}
 
 .filed-list {
   margin-top: 30px;

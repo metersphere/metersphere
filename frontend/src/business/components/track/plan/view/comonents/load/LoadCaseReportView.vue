@@ -28,25 +28,34 @@
           </el-col>
           <el-col :span="8">
             <span class="ms-report-time-desc">
-              {{ $t('report.test_duration', [this.minutes, this.seconds]) }}
+              {{ $t('report.test_duration', [minutes, seconds]) }}
             </span>
-            <span class="ms-report-time-desc">
-              {{ $t('report.test_start_time') }}：{{ startTime }}
+            <span class="ms-report-time-desc" v-if="startTime !== '0'">
+              {{ $t('report.test_start_time') }}：{{ startTime | timestampFormatDate }}
             </span>
-            <span class="ms-report-time-desc">
-              {{ $t('report.test_end_time') }}：{{ endTime }}
+            <span class="ms-report-time-desc" v-else>
+              {{ $t('report.test_start_time') }}：-
+            </span>
+            <span class="ms-report-time-desc" v-if="report.status === 'Completed' && endTime !== '0'">
+              {{ $t('report.test_end_time') }}：{{ endTime | timestampFormatDate }}
+            </span>
+            <span class="ms-report-time-desc" v-else>
+              {{ $t('report.test_end_time') }}：-
             </span>
           </el-col>
         </el-row>
 
         <el-divider/>
         <div ref="resume">
-          <el-tabs v-model="active" type="border-card" :stretch="true">
+          <el-tabs v-model="active">
             <el-tab-pane :label="$t('load_test.pressure_config')">
               <ms-performance-pressure-config :is-read-only="true" :report="report"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_overview')">
               <ms-report-test-overview :report="report" ref="testOverview"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_details')">
+              <ms-report-test-details :report="report" ref="testDetails"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
               <ms-report-request-statistics :report="report" ref="requestStatistics"/>
@@ -56,6 +65,9 @@
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
+            </el-tab-pane>
+            <el-tab-pane :label="$t('report.test_monitor_details')" v-if="poolType === 'NODE'">
+              <monitor-card :report="report"/>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -80,7 +92,7 @@
 
 <script>
 
-import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
+import {exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import {Message} from "element-ui";
 import MsPerformanceReportExport from "@/business/components/performance/report/PerformanceReportExport";
@@ -91,16 +103,20 @@ import MsReportTestOverview from "@/business/components/performance/report/compo
 import MsContainer from "@/business/components/common/components/MsContainer";
 import MsMainContainer from "@/business/components/common/components/MsMainContainer";
 import MsPerformancePressureConfig from "@/business/components/performance/report/components/PerformancePressureConfig";
+import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
+import MsReportTestDetails from '@/business/components/performance/report/components/TestDetails';
 
 
 export default {
   name: "LoadCaseReportView",
   components: {
+    MonitorCard,
     MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
     MsReportRequestStatistics,
     MsReportTestOverview,
+    MsReportTestDetails,
     MsContainer,
     MsMainContainer,
     MsPerformancePressureConfig
@@ -125,7 +141,8 @@ export default {
       dialogFormVisible: false,
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
-      show: true
+      show: true,
+      poolType: "",
     }
   },
   props: {
@@ -274,10 +291,14 @@ export default {
 
       this.$nextTick(function () {
         setTimeout(() => {
-          html2canvas(document.getElementById('performanceReportExport'), {
-            scale: 2
-          }).then(function (canvas) {
-            exportPdf(name, [canvas]);
+          let ids = ['testOverview', 'testDetails', 'requestStatistics', 'errorLog'];
+          let promises = [];
+          ids.forEach(id => {
+            let promise = html2canvas(document.getElementById(id), {scale: 2});
+            promises.push(promise);
+          });
+          Promise.all(promises).then(function (canvas) {
+            exportPdf(name, canvas);
             reset();
           });
         }, 1000);
@@ -300,7 +321,7 @@ export default {
           // 非IE下载
           //  chrome/firefox
           let aTag = document.createElement('a');
-          aTag.download = this.reportId + ".jtl";
+          aTag.download = this.reportName + ".jtl";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
           URL.revokeObjectURL(aTag.href)
@@ -316,10 +337,6 @@ export default {
       });
     },
     init() {
-      this.isReadOnly = false;
-      if (!checkoutTestManagerOrTestUser()) {
-        this.isReadOnly = true;
-      }
       this.clearData();
       this.result = this.$get("/performance/report/" + this.reportId, res => {
         let data = res.data;
@@ -336,13 +353,22 @@ export default {
           this.initBreadcrumb();
           this.initWebSocket();
         } else {
-          this.$error(this.$t('report.not_exist'))
+          this.$error(this.$t('report.not_exist'));
+        }
+      });
+    },
+    getPoolType(reportId) {
+      this.$get("/performance/report/pool/type/" + reportId, result => {
+        let data = result.data;
+        if (data) {
+          this.poolType = data;
         }
       });
     }
   },
   created() {
     this.init();
+    this.getPoolType(this.reportId);
   }
 }
 </script>

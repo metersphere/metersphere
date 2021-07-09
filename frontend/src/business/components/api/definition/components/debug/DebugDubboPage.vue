@@ -85,14 +85,16 @@
     },
     created() {
       if (this.testCase) {
-        // 执行结果信息
-        let url = "/api/definition/report/getReport/" + this.testCase.id;
-        this.$get(url, response => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
+        if (this.testCase.id) {
+          // 执行结果信息
+          let url = "/api/definition/report/getReport/" + this.testCase.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.responseData = data;
+            }
+          });
+        }
         this.request = this.testCase.request;
         if (this.request) {
           this.debugForm.method = this.request.method;
@@ -157,11 +159,5 @@
 </script>
 
 <style scoped>
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 0px;
-  }
+
 </style>

@@ -1,11 +1,11 @@
-const path = require('path')
+const path = require('path');
 
 function resolve(dir) {
-  return path.join(__dirname, dir)
+  return path.join(__dirname, dir);
 }
 
 module.exports = {
-  productionSourceMap: true,
+  productionSourceMap: false,
   devServer: {
     port: 8080,
     proxy: {
@@ -43,6 +43,6 @@ module.exports = {
     }
   },
   chainWebpack(config) {
-    config.plugins.delete('prefetch')
+    config.plugins.delete('prefetch');
   }
 };

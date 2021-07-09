@@ -14,7 +14,7 @@
 MeterSphere 是一站式开源持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
 -   测试跟踪: 远超 TestLink 的使用体验，覆盖从编写用例到生成测试报告的完整流程；
--   接口测试: 集 Postman 的易用与 JMeter 的灵活于一体，接口管理、多协议支持、场景自动化，你想要的全都有；
+-   接口测试: 集 Postman 的易用与 JMeter 的灵活于一体，接口管理、接口 Mock、多协议支持、场景自动化，你想要的全都有；
 -   性能测试: 兼容 JMeter，支持 Kubernetes 和云环境，轻松支持高并发、分布式的性能测试；
 -   团队协作: 用户管理、租户管理、权限管理、资源管理，无论团队规模如何，总有适合的落地方式。
 
@@ -316,19 +316,13 @@ v1.1.0 是 v1.0.0 之后的功能版本。
 -   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
 -   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
 
-## 加入 MeterSphere 团队
-
-我们正在招聘 MeterSphere 技术布道师，一起打造开源明星项目，请发简历到 metersphere@fit2cloud.com
-
-点击查看 [岗位详情](https://www.zhipin.com/job_detail/b151c4b3d594688733Ny3dy1GFI~.html)
-
 ## 微信群
 
 ![wechat-group](https://metersphere.oss-cn-hangzhou.aliyuncs.com/img/wechat-group.png)
 
 ## License & Copyright
 
-Copyright (c) 2014-2020 飞致云 FIT2CLOUD, All rights reserved.
+Copyright (c) 2014-2021 飞致云 FIT2CLOUD, All rights reserved.
 
 Licensed under The GNU General Public License version 2 (GPLv2)  (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 

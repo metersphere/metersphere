@@ -128,9 +128,6 @@
 </style>
 
 <style scoped>
-  .adv-search-bar {
-    margin-left: 5px;
-  }
 
   .dialog-footer {
     text-align: center;

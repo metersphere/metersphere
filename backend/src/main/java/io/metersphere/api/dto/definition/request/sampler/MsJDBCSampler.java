@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
@@ -17,7 +18,9 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -33,6 +36,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -88,8 +92,8 @@ public class MsJDBCSampler extends MsTestElement {
         } else {
             // 1.8 之前 数据
             if (config.getConfig() != null) {
-                if (config.getConfig().containsKey("historyProjectID")) {
-                    this.setProjectId("historyProjectID");
+                if (config.getConfig().containsKey(RunModeConstants.HIS_PRO_ID.toString())) {
+                    this.setProjectId(RunModeConstants.HIS_PRO_ID.toString());
                 } else {
                     // 测试计划执行
                     Iterator<String> it = config.getConfig().keySet().iterator();
@@ -231,11 +235,14 @@ public class MsJDBCSampler extends MsTestElement {
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
-            sampler.setName(this.getName() + "<->" + name);
+            sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         sampler.setProperty("MS-ID", this.getId());
+        List<String> id_names = new LinkedList<>();
+        this.getScenarioSet(this, id_names);
+        sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         // request.getDataSource() 是ID，需要转换为Name
         sampler.setProperty("dataSource", this.dataSource.getName());

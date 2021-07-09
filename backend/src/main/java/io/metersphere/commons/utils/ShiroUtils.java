@@ -29,10 +29,13 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/display/file/**", "anon");
         filterChainDefinitionMap.put("/jmeter/download/**", "anon");
         filterChainDefinitionMap.put("/jmeter/ping", "anon");
+        filterChainDefinitionMap.put("/jmeter/ready/**", "anon");
         filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
         filterChainDefinitionMap.put("/sso/signin", "anon");
         filterChainDefinitionMap.put("/sso/callback", "anon");
         filterChainDefinitionMap.put("/license/valid", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download", "anon");
+        filterChainDefinitionMap.put("/api/jmeter/download/jar", "anon");
 
         // for swagger
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");
@@ -46,6 +49,8 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/api/document/**", "anon");
         filterChainDefinitionMap.put("/document/**", "anon");
         filterChainDefinitionMap.put("/system/theme", "anon");
+        filterChainDefinitionMap.put("/system/save/baseurl/**", "anon");
+        filterChainDefinitionMap.put("/system/timeout", "anon");
 
         filterChainDefinitionMap.put("/v1/catalog/**", "anon");
         filterChainDefinitionMap.put("/v1/agent/**", "anon");
@@ -60,6 +65,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
         filterChainDefinitionMap.put("/test/case/file/preview/**", "apikey, authc"); // 预览测试用例附件 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
+        filterChainDefinitionMap.put("/resource/md/get/**", "apikey, authc");
     }
 
     public static Cookie getSessionIdCookie(){

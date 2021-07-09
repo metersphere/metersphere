@@ -17,7 +17,6 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
               </el-row>
-
               <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
             </el-tab-pane>
 
@@ -32,7 +31,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
               </el-row>
-              <ms-api-variable :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
+              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
@@ -48,7 +47,7 @@
               <el-row>
                 <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
               </el-row>
-              <ms-api-variable :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
+              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
@@ -111,6 +110,7 @@
       MsApiAssertions
     },
     props: {
+      method: String,
       request: {},
       response: {},
       showScript: {
@@ -145,7 +145,7 @@
         }
       };
       return {
-        activeName: "headers",
+        activeName: this.request.method === "POST" ? "body" : "parameters",
         rules: {
           name: [
             {max: 300, message: this.$t('commons.input_limit', [1, 300]), trigger: 'blur'}
@@ -188,6 +188,7 @@
         })
       },
       init() {
+
         if (!this.request.body) {
           this.request.body = new Body();
         }

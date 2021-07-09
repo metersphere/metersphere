@@ -15,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/monitor")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class ApiMonitorController {
 
     @Resource

@@ -15,6 +15,9 @@
     <result column="case_template_id" jdbcType="VARCHAR" property="caseTemplateId" />
     <result column="issue_template_id" jdbcType="VARCHAR" property="issueTemplateId" />
     <result column="custom_num" jdbcType="BIT" property="customNum" />
+    <result column="scenario_custom_num" jdbcType="BIT" property="scenarioCustomNum" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="system_id" jdbcType="VARCHAR" property="systemId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +79,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
-    zentao_id, `repeatable`, case_template_id, issue_template_id, custom_num
+    zentao_id, `repeatable`, case_template_id, issue_template_id, custom_num, scenario_custom_num, 
+    create_user, system_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -113,12 +117,14 @@
       description, create_time, update_time, 
       tapd_id, jira_key, zentao_id, 
       `repeatable`, case_template_id, issue_template_id, 
-      custom_num)
+      custom_num, scenario_custom_num, create_user, 
+      system_id)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
       #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, #{issueTemplateId,jdbcType=VARCHAR}, 
-      #{customNum,jdbcType=BIT})
+      #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
+      #{systemId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -162,6 +168,15 @@
       <if test="customNum != null">
         custom_num,
       </if>
+      <if test="scenarioCustomNum != null">
+        scenario_custom_num,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="systemId != null">
+        system_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +217,15 @@
       </if>
       <if test="customNum != null">
         #{customNum,jdbcType=BIT},
+      </if>
+      <if test="scenarioCustomNum != null">
+        #{scenarioCustomNum,jdbcType=BIT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="systemId != null">
+        #{systemId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -253,6 +277,15 @@
       <if test="record.customNum != null">
         custom_num = #{record.customNum,jdbcType=BIT},
       </if>
+      <if test="record.scenarioCustomNum != null">
+        scenario_custom_num = #{record.scenarioCustomNum,jdbcType=BIT},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.systemId != null">
+        system_id = #{record.systemId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +305,10 @@
       `repeatable` = #{record.repeatable,jdbcType=BIT},
       case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
       issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
-      custom_num = #{record.customNum,jdbcType=BIT}
+      custom_num = #{record.customNum,jdbcType=BIT},
+      scenario_custom_num = #{record.scenarioCustomNum,jdbcType=BIT},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      system_id = #{record.systemId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +352,15 @@
       <if test="customNum != null">
         custom_num = #{customNum,jdbcType=BIT},
       </if>
+      <if test="scenarioCustomNum != null">
+        scenario_custom_num = #{scenarioCustomNum,jdbcType=BIT},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="systemId != null">
+        system_id = #{systemId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -332,7 +377,10 @@
       `repeatable` = #{repeatable,jdbcType=BIT},
       case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
       issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},
-      custom_num = #{customNum,jdbcType=BIT}
+      custom_num = #{customNum,jdbcType=BIT},
+      scenario_custom_num = #{scenarioCustomNum,jdbcType=BIT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      system_id = #{systemId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -19,9 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class DockerTestEngine extends AbstractEngine {
     private static final String BASE_URL = "http://%s:%d";
@@ -50,20 +48,20 @@ public class DockerTestEngine extends AbstractEngine {
         if (threadNum > totalThreadNum - runningSumThreadNum) {
             MSException.throwException(Translator.get("max_thread_insufficient"));
         }
-        List<Integer> resourceRatio = resourceList.stream()
+        Object[] resourceRatios = resourceList.stream()
                 .filter(r -> ResourceStatusEnum.VALID.name().equals(r.getStatus()))
                 .map(r -> JSON.parseObject(r.getConfiguration(), NodeDTO.class).getMaxConcurrency())
-                .collect(Collectors.toList());
+                .map(r -> r * 1.0 / totalThreadNum)
+                .map(r -> String.format("%.2f", r))
+                .toArray();
 
         for (int i = 0, size = resourceList.size(); i < size; i++) {
-            int ratio = resourceRatio.get(i);
-//            double realThreadNum = ((double) ratio / totalThreadNum) * threadNum;
-            runTest(resourceList.get(i), ((double) ratio / totalThreadNum), i);
+            runTest(resourceList.get(i), resourceRatios, i);
         }
 
     }
 
-    private void runTest(TestResource resource, double ratio, int resourceIndex) {
+    private void runTest(TestResource resource, Object[] ratios, int resourceIndex) {
 
         String configuration = resource.getConfiguration();
         NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
@@ -84,7 +82,7 @@ public class DockerTestEngine extends AbstractEngine {
         }
 
         Map<String, String> env = new HashMap<>();
-        env.put("RATIO", "" + ratio);
+        env.put("RATIO", StringUtils.join(ratios, ","));
         env.put("RESOURCE_INDEX", "" + resourceIndex);
         env.put("METERSPHERE_URL", metersphereUrl);
         env.put("START_TIME", "" + this.getStartTime());

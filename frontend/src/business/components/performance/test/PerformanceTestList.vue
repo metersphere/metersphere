@@ -3,14 +3,15 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
-                           :title="$t('commons.test')"
+          <ms-table-header :condition.sync="condition" @search="search"
+                           :create-permission="['PROJECT_PERFORMANCE_TEST:READ+CREATE']"
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
 
         <el-table border :data="tableData" class="adjust-table test-content"
                   @sort-change="sort"
                   @filter-change="filter"
+                  :height="screenHeight"
         >
           <el-table-column
             prop="num"
@@ -76,7 +77,9 @@
             width="150"
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operators :buttons="buttons" :row="scope.row"/>
+              <div>
+                <ms-table-operators :buttons="buttons" :row="scope.row"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -97,9 +100,7 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
-import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort,saveLastTableSortField,getLastTableSortField} from "@/common/js/tableUtils";
 
 export default {
   components: {
@@ -113,6 +114,7 @@ export default {
   },
   data() {
     return {
+      tableHeaderKey:"PERFORMANCE_TEST_TABLE",
       result: {},
       deletePath: "/performance/delete",
       condition: {
@@ -129,13 +131,16 @@ export default {
       buttons: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
-          exec: this.handleEdit
+          exec: this.handleEdit,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+EDIT']
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
-          exec: this.handleCopy
+          exec: this.handleCopy,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+COPY']
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete
+          exec: this.handleDelete,
+          permissions: ['PROJECT_PERFORMANCE_TEST:READ+DELETE']
         }
       ],
       statusFilters: [
@@ -147,10 +152,14 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       userFilters: [],
+      screenHeight: 'calc(100vh - 200px)',
     };
   },
   watch: {
     '$route'(to) {
+      if (to.name !== 'perPlan') {
+        return;
+      }
       this.projectId = to.params.projectId;
       this.initTableData();
     }
@@ -163,13 +172,17 @@ export default {
   methods: {
     getMaintainerOptions() {
       let workspaceId = getCurrentWorkspaceId();
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
         });
       });
     },
     initTableData() {
+      let orderArr = this.getSortField();
+      if(orderArr){
+        this.condition.orders = orderArr;
+      }
       this.condition.projectId = getCurrentProjectID();
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.result = this.$post(this.buildPagePath('/performance/list'), this.condition, response => {
@@ -222,12 +235,15 @@ export default {
       this.result = this.$post(this.deletePath, data, () => {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
-        // 发送广播，刷新 head 上的最新列表
-        PerformanceEvent.$emit(LIST_CHANGE);
       });
     },
     sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
       _sort(column, this.condition);
+      this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
     filter(filters) {
@@ -250,6 +266,21 @@ export default {
         return;
       }
       this.$router.push('/performance/test/create');
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     }
   }
 };

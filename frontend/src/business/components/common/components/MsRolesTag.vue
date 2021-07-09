@@ -1,10 +1,9 @@
 <template>
   <div>
-    <ms-tag v-for="(role, index) in roles"
-            :key="index"
-            :effect="effect"
-            :type="type"
-            :content="$t('role.' + role.id)"/>
+    <span v-for="(role, index) in roles" :key="index">
+      <el-tag :type="type" :effect="effect" color="" size="mini">{{role.name}}</el-tag>
+      <br>
+    </span>
   </div>
 </template>
 

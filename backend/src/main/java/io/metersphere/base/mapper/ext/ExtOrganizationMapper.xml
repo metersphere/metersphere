@@ -4,10 +4,10 @@
 
     <select id="checkSourceRole" resultType="Integer">
         select count(id)
-          from user_role ur
-         where ur.user_id = #{userId}
-           and ur.source_id = #{sourceId}
-           and ur.role_id = #{roleId}
+          from user_group ug
+         where ug.user_id = #{userId}
+           and ug.source_id = #{sourceId}
+           and ug.group_id = #{groupId}
     </select>
 
 

@@ -8,14 +8,14 @@
     </el-row>
     <el-row type="flex" justify="space-between" align="middle">
       <span class="operate-button">
-        <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
+        <ms-table-button v-permission="createPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
-        <ms-table-button :is-tester-permission="true" icon="el-icon-download" v-if="showImport"
+        <ms-table-button icon="el-icon-download" v-if="showImport"
                          :content="importTip" @click="importData"/>
-        <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
+        <ms-table-button v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
-          <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-circle-plus-outline"
+          <ms-table-button v-if="showRun" icon="el-icon-circle-plus-outline"
                            content="转场景测试" @click="historicalDataUpgrade"/>
 
         <slot name="button"></slot>
@@ -70,6 +70,12 @@
         type: String,
         default() {
           return this.$t('commons.import');
+        }
+      },
+      createPermission: {
+        type: Array,
+        default() {
+          return []
         }
       },
       runTip: {

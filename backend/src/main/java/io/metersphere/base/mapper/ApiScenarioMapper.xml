@@ -22,10 +22,16 @@
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="original_state" jdbcType="VARCHAR" property="originalState" />
+    <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="version" jdbcType="INTEGER" property="version" />
+    <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+    <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <result column="use_url" jdbcType="LONGVARCHAR" property="useUrl" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -88,10 +94,11 @@
   <sql id="Base_Column_List">
     id, project_id, tags, user_id, api_scenario_module_id, module_path, `name`, `level`, 
     `status`, principal, step_total, follow_people, schedule, create_time, update_time, 
-    pass_rate, last_result, report_id, num, original_state
+    pass_rate, last_result, report_id, num, original_state, custom_num, create_user, 
+    version, delete_time, delete_user_id
   </sql>
   <sql id="Blob_Column_List">
-    scenario_definition, description
+    scenario_definition, description, use_url
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioExample" resultMap="ResultMapWithBLOBs">
     select
@@ -148,16 +155,20 @@
       principal, step_total, follow_people, 
       schedule, create_time, update_time, 
       pass_rate, last_result, report_id, 
-      num, original_state, scenario_definition, 
-      description)
+      num, original_state, custom_num, 
+      create_user, version, delete_time, 
+      delete_user_id, scenario_definition, description, 
+      use_url)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{followPeople,jdbcType=VARCHAR}, 
       #{schedule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{originalState,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR})
+      #{num,jdbcType=INTEGER}, #{originalState,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{deleteTime,jdbcType=BIGINT}, 
+      #{deleteUserId,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
+      #{useUrl,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
     insert into api_scenario
@@ -222,11 +233,29 @@
       <if test="originalState != null">
         original_state,
       </if>
+      <if test="customNum != null">
+        custom_num,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="version != null">
+        version,
+      </if>
+      <if test="deleteTime != null">
+        delete_time,
+      </if>
+      <if test="deleteUserId != null">
+        delete_user_id,
+      </if>
       <if test="scenarioDefinition != null">
         scenario_definition,
       </if>
       <if test="description != null">
         description,
+      </if>
+      <if test="useUrl != null">
+        use_url,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -290,11 +319,29 @@
       <if test="originalState != null">
         #{originalState,jdbcType=VARCHAR},
       </if>
+      <if test="customNum != null">
+        #{customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="deleteTime != null">
+        #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUserId != null">
+        #{deleteUserId,jdbcType=VARCHAR},
+      </if>
       <if test="scenarioDefinition != null">
         #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="useUrl != null">
+        #{useUrl,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -367,11 +414,29 @@
       <if test="record.originalState != null">
         original_state = #{record.originalState,jdbcType=VARCHAR},
       </if>
+      <if test="record.customNum != null">
+        custom_num = #{record.customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.version != null">
+        version = #{record.version,jdbcType=INTEGER},
+      </if>
+      <if test="record.deleteTime != null">
+        delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.deleteUserId != null">
+        delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+      </if>
       <if test="record.scenarioDefinition != null">
         scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.useUrl != null">
+        use_url = #{record.useUrl,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -400,8 +465,14 @@
       report_id = #{record.reportId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       original_state = #{record.originalState,jdbcType=VARCHAR},
+      custom_num = #{record.customNum,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=INTEGER},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
-      description = #{record.description,jdbcType=LONGVARCHAR}
+      description = #{record.description,jdbcType=LONGVARCHAR},
+      use_url = #{record.useUrl,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -427,7 +498,12 @@
       last_result = #{record.lastResult,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
-      original_state = #{record.originalState,jdbcType=VARCHAR}
+      original_state = #{record.originalState,jdbcType=VARCHAR},
+      custom_num = #{record.customNum,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=INTEGER},
+      delete_time = #{record.deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -492,11 +568,29 @@
       <if test="originalState != null">
         original_state = #{originalState,jdbcType=VARCHAR},
       </if>
+      <if test="customNum != null">
+        custom_num = #{customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="deleteTime != null">
+        delete_time = #{deleteTime,jdbcType=BIGINT},
+      </if>
+      <if test="deleteUserId != null">
+        delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      </if>
       <if test="scenarioDefinition != null">
         scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="useUrl != null">
+        use_url = #{useUrl,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -522,8 +616,14 @@
       report_id = #{reportId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       original_state = #{originalState,jdbcType=VARCHAR},
+      custom_num = #{customNum,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
-      description = #{description,jdbcType=LONGVARCHAR}
+      description = #{description,jdbcType=LONGVARCHAR},
+      use_url = #{useUrl,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenario">
@@ -546,7 +646,12 @@
       last_result = #{lastResult,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
-      original_state = #{originalState,jdbcType=VARCHAR}
+      original_state = #{originalState,jdbcType=VARCHAR},
+      custom_num = #{customNum,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
+      delete_time = #{deleteTime,jdbcType=BIGINT},
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

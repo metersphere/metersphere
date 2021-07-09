@@ -54,6 +54,9 @@
         }
       },
       methods: {
+        refreshEnvironment(){
+          this.$emit('setEnvironment', this.environment);
+        },
         getEnvironments() {
           if (this.projectId) {
             this.$get('/api/environment/list/' + this.projectId, response => {

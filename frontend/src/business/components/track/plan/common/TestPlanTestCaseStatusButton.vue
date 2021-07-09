@@ -41,6 +41,9 @@
     },
     methods: {
       setStatus(status) {
+        if (this.isReadOnly) {
+          return;
+        }
         this.$emit('statusChange', status);
       }
     }

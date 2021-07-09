@@ -1,27 +1,30 @@
 <template>
-  <el-main v-loading="result.loading" class="environment-edit">
+  <el-main v-loading="result.loading" class="environment-edit" style="margin-left: 0px">
     <el-form :model="environment" :rules="rules" ref="environment">
 
       <span>{{$t('api_test.environment.name')}}</span>
       <el-form-item prop="name">
-        <el-input v-model="environment.name" :placeholder="this.$t('commons.input_name')" clearable/>
+        <el-input v-model="environment.name" :disabled="isReadOnly" :placeholder="this.$t('commons.input_name')" clearable/>
       </el-form-item>
 
 
       <el-tabs v-model="activeName">
 
         <el-tab-pane :label="$t('api_test.environment.common_config')" name="common">
-          <ms-environment-common-config :common-config="environment.config.commonConfig" ref="commonConfig"/>
+          <ms-environment-common-config :common-config="environment.config.commonConfig" ref="commonConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.environment.http_config')" name="http">
-          <ms-environment-http-config :project-id="projectId" :http-config="environment.config.httpConfig" ref="httpConfig"/>
+          <ms-environment-http-config :project-id="projectId" :http-config="environment.config.httpConfig" ref="httpConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.environment.database_config')" name="sql">
-          <ms-database-config :configs="environment.config.databaseConfigs"/>
+          <ms-database-config :configs="environment.config.databaseConfigs" :is-read-only="isReadOnly"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.environment.tcp_config')" name="tcp">
-          <ms-tcp-config :config="environment.config.tcpConfig"/>
+          <ms-tcp-config :config="environment.config.tcpConfig" :is-read-only="isReadOnly"/>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('commons.ssl.config')" name="ssl">
+          <ms-environment-s-s-l-config :project-id="projectId" :ssl-config="environment.config.sslConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
       </el-tabs>
 
@@ -44,7 +47,10 @@
   import MsDatabaseConfig from "../request/database/DatabaseConfig";
   import MsEnvironmentHttpConfig from "./EnvironmentHttpConfig";
   import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
+  import MsEnvironmentSSLConfig from "./EnvironmentSSLConfig";
+
   import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "EnvironmentEdit",
@@ -52,11 +58,16 @@
       MsTcpConfig,
       MsEnvironmentCommonConfig,
       MsEnvironmentHttpConfig,
+      MsEnvironmentSSLConfig,
       MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables
     },
     props: {
       environment: new Environment(),
       projectId: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
     data() {
 
@@ -97,13 +108,32 @@
         });
         return isValidate;
       },
+      geFiles(obj) {
+        let uploadFiles = [];
+        obj.uploadIds = [];
+        if (obj.config && obj.config.sslConfig && obj.config.sslConfig.files) {
+          obj.config.sslConfig.files.forEach(item => {
+            if (item.file && item.file.size > 0) {
+              if (!item.id) {
+                item.name = item.file.name;
+                item.id = getUUID();
+              }
+              obj.uploadIds.push(item.id);
+              uploadFiles.push(item.file);
+            }
+          })
+        }
+        return uploadFiles;
+      },
       _save(environment) {
+        let bodyFiles = this.geFiles(environment);
         let param = this.buildParam(environment);
         let url = '/api/environment/add';
         if (param.id) {
           url = '/api/environment/update';
         }
-        this.result = this.$post(url, param, response => {
+        this.$fileUpload(url, null, bodyFiles, param, response => {
+          //this.result = this.$post(url, param, response => {
           if (!param.id) {
             environment.id = response.data;
           }

@@ -58,8 +58,9 @@
 
 <script>
   import {WORKSPACE_ID} from '@/common/js/constants';
-  import {getCurrentUser, getUUID} from "@/common/js/utils";
+  import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
   import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+  import {saveScenario} from "@/business/components/api/automation/api-automation";
 
   export default {
     name: "MsAddBasisScenario",
@@ -86,7 +87,7 @@
     },
     computed: {
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {
@@ -100,7 +101,7 @@
               this.$emit('saveAsEdit', this.scenarioForm);
               this.visible = false;
             } else {
-              this.$fileUpload(path, null, [], this.scenarioForm, () => {
+              saveScenario(path, this.scenarioForm, [], () => {
                 this.visible = false;
                 this.$emit('refresh');
               });
@@ -124,8 +125,7 @@
         }
       },
       getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.userOptions = response.data;
         });
       },

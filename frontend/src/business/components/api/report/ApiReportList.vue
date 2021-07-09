@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+          <ms-table-header :condition.sync="condition" @search="search"
                            :title="$t('api_report.title')"
                            :show-create="false"/>
         </template>
@@ -15,7 +15,7 @@
             type="selection"/>
           <el-table-column width="40" :resizable="false" align="center">
             <template v-slot:default="scope">
-              <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
@@ -43,10 +43,12 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
-                                        @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
-                                        icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              <div>
+                <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
+                                          @exec="handleView(scope.row)" type="primary"/>
+                <ms-table-operator-button :tip="$t('api_report.delete')"
+                                          icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -66,9 +68,9 @@ import MsApiReportStatus from "./ApiReportStatus";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   components: {
@@ -120,7 +122,7 @@ export default {
       if (this.testId !== 'all') {
         this.condition.testId = this.testId;
       }
-
+      this.condition.projectId = getCurrentProjectID();
       let url = "/api/report/list/" + this.currentPage + "/" + this.pageSize;
       this.result = this.$post(url, this.condition, response => {
         let data = response.data;
@@ -145,8 +147,6 @@ export default {
             this.result = this.$post("/api/report/delete", {id: report.id}, () => {
               this.$success(this.$t('commons.delete_success'));
               this.search();
-              // 发送广播，刷新 head 上的最新列表
-              ApiEvent.$emit(LIST_CHANGE);
             });
           }
         }
@@ -196,8 +196,6 @@ export default {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));
               this.search();
-              // 发送广播，刷新 head 上的最新列表
-              ApiEvent.$emit(LIST_CHANGE);
             });
           }
         }

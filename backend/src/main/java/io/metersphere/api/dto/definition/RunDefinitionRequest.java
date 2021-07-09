@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.response.Response;
 import lombok.Getter;
@@ -15,6 +16,10 @@ public class RunDefinitionRequest {
     private String id;
 
     private String reportId;
+
+    private boolean saved;
+
+    private String requestId;
 
     private String name;
 
@@ -34,7 +39,11 @@ public class RunDefinitionRequest {
 
     private Response response;
 
-    private List<String> bodyUploadIds;
+    List<String> bodyFileRequestIds;
+
+    List<String> scenarioFileIds;
+
+    private RunModeConfig config;
 
     private Map<String, String> environmentMap;
 }

@@ -35,4 +35,6 @@ public class SchedulePlanScenarioExecuteRequest {
     private Map<String,Map<String,String>> testPlanScenarioIDMap;
 
     private String testPlanReportId;
+
+    private RunModeConfig config;
 }

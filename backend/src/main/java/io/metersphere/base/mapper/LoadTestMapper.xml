@@ -12,6 +12,9 @@
     <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="scenario_version" jdbcType="INTEGER" property="scenarioVersion" />
+    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
@@ -77,7 +80,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, description, create_time, update_time, `status`, test_resource_pool_id, 
-    user_id, num
+    user_id, num, create_user, scenario_version, scenario_id
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, advanced_configuration
@@ -134,12 +137,14 @@
     insert into load_test (id, project_id, `name`, 
       description, create_time, update_time, 
       `status`, test_resource_pool_id, user_id, 
-      num, load_configuration, advanced_configuration
+      num, create_user, scenario_version, 
+      scenario_id, load_configuration, advanced_configuration
       )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      #{num,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{scenarioVersion,jdbcType=INTEGER}, 
+      #{scenarioId,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
@@ -174,6 +179,15 @@
       </if>
       <if test="num != null">
         num,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="scenarioVersion != null">
+        scenario_version,
+      </if>
+      <if test="scenarioId != null">
+        scenario_id,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -212,6 +226,15 @@
       </if>
       <if test="num != null">
         #{num,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioVersion != null">
+        #{scenarioVersion,jdbcType=INTEGER},
+      </if>
+      <if test="scenarioId != null">
+        #{scenarioId,jdbcType=VARCHAR},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARCHAR},
@@ -260,6 +283,15 @@
       <if test="record.num != null">
         num = #{record.num,jdbcType=INTEGER},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scenarioVersion != null">
+        scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
+      </if>
+      <if test="record.scenarioId != null">
+        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -283,6 +315,9 @@
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -300,7 +335,10 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=INTEGER}
+      num = #{record.num,jdbcType=INTEGER},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -335,6 +373,15 @@
       <if test="num != null">
         num = #{num,jdbcType=INTEGER},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioVersion != null">
+        scenario_version = #{scenarioVersion,jdbcType=INTEGER},
+      </if>
+      <if test="scenarioId != null">
+        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      </if>
       <if test="loadConfiguration != null">
         load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -355,6 +402,9 @@
       test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      scenario_version = #{scenarioVersion,jdbcType=INTEGER},
+      scenario_id = #{scenarioId,jdbcType=VARCHAR},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -369,7 +419,10 @@
       `status` = #{status,jdbcType=VARCHAR},
       test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
-      num = #{num,jdbcType=INTEGER}
+      num = #{num,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      scenario_version = #{scenarioVersion,jdbcType=INTEGER},
+      scenario_id = #{scenarioId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

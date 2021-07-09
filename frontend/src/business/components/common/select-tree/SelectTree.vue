@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <div class="mask" v-show="isShowSelect"></div>
     <el-popover placement="bottom-start" :width="popoverWidth" trigger="manual" v-model="isShowSelect" @hide="popoverHide" v-outside-click="outsideClick">
       <el-input
@@ -40,7 +40,7 @@
   import OutsideClick from "@/common/js/outside-click";
 
   export default {
-    name: 'test-code',
+    name: 'SelectTree',
     directives: {OutsideClick},
     props: {
       // 树结构数据
@@ -145,6 +145,7 @@
         returnDatas: [],//返回给父组件数组对象
         returnDataKeys: [],//返回父组件数组主键值
         filterText: "",
+        loading:false,
       };
     },
     computed: {
@@ -256,6 +257,7 @@
         thisKeys.map((item) => {//设置option选项
           let node = this.$refs.tree.getNode(item); // 所有被选中的节点对应的node
           t.push(node.data);
+          this.options.push({label: node.label, value: node.key});
           return {label: node.label, value: node.key};
         });
         this.returnDatas = t;
@@ -338,7 +340,14 @@
         }
         return false;
       },
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        });
+      },
     },
+
     watch: {
       // eslint-disable-next-line no-unused-vars
       isShowSelect(val) {

@@ -647,13 +647,6 @@ export default {
   margin: 20px 10px;
 }
 
-.tip {
-  padding: 3px 5px;
-  font-size: 14px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-}
-
 .apiInfoRow {
   margin: 20px 10px;
 }

@@ -1,5 +1,7 @@
 package io.metersphere.service;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
@@ -13,6 +15,10 @@ import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.dto.UpdatePoolDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,6 +124,7 @@ public class TestResourcePoolService {
 
     /**
      * 禁用资源池时，检查是否有测试正在使用
+     *
      * @param poolId 资源池ID
      * @return UpdatePoolDTO
      */
@@ -231,4 +238,47 @@ public class TestResourcePoolService {
         return list;
     }
 
+    public String getLogDetails(String id) {
+        TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(id);
+        if (pool != null) {
+            TestResourceExample example = new TestResourceExample();
+            example.createCriteria().andTestResourcePoolIdEqualTo(pool.getId());
+            List<TestResource> resources = testResourceMapper.selectByExampleWithBLOBs(example);
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(pool, SystemReference.poolColumns);
+            if (pool.getType().equals("NODE")) {
+                for (TestResource resource : resources) {
+                    JSONObject object = JSONObject.parseObject(resource.getConfiguration());
+                    DetailColumn ip = new DetailColumn("IP", "ip", object.get("ip"), null);
+                    columns.add(ip);
+                    DetailColumn port = new DetailColumn("Port", "port", object.get("port"), null);
+                    columns.add(port);
+                    DetailColumn monitorPort = new DetailColumn("Monitor", "monitorPort", object.get("monitorPort"), null);
+                    columns.add(monitorPort);
+                    DetailColumn maxConcurrency = new DetailColumn("最大并发数", "maxConcurrency", object.get("maxConcurrency"), null);
+                    columns.add(maxConcurrency);
+                }
+            } else {
+                if (CollectionUtils.isNotEmpty(resources)) {
+                    TestResource resource = resources.get(0);
+                    JSONObject object = JSONObject.parseObject(resource.getConfiguration());
+                    DetailColumn masterUrl = new DetailColumn("Master Url", "masterUrl", object.get("masterUrl"), null);
+                    columns.add(masterUrl);
+                    DetailColumn token = new DetailColumn("Token", "token", object.get("token"), null);
+                    columns.add(token);
+                    DetailColumn monitorPort = new DetailColumn("Namespace", "namespace", object.get("namespace"), null);
+                    columns.add(monitorPort);
+                    DetailColumn maxConcurrency = new DetailColumn("最大并发数", "maxConcurrency", object.get("maxConcurrency"), null);
+                    columns.add(maxConcurrency);
+                    DetailColumn podThreadLimit = new DetailColumn("单POD最大线程数", "podThreadLimit", object.get("podThreadLimit"), null);
+                    columns.add(podThreadLimit);
+                    DetailColumn nodeSelector = new DetailColumn("nodeSelector", "nodeSelector", object.get("nodeSelector"), null);
+                    columns.add(nodeSelector);
+                }
+            }
+
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(pool.getId()), null, pool.getName(), pool.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

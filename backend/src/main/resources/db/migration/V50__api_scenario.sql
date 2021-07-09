@@ -23,7 +23,7 @@ CREATE TABLE `api_scenario` (
   `last_result` varchar(100) DEFAULT NULL,
   `report_id` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 
 CREATE TABLE `api_scenario_module` (
@@ -36,7 +36,7 @@ CREATE TABLE `api_scenario_module` (
   `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 
 CREATE TABLE `api_scenario_report` (
@@ -51,11 +51,11 @@ CREATE TABLE `api_scenario_report` (
   `trigger_mode` varchar(64) DEFAULT NULL,
   `execute_type` varchar(200) NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE `api_scenario_report_detail` (
   `report_id` varchar(64) NOT NULL COMMENT 'API Test Report ID',
   `project_id` varchar(64) NOT NULL COMMENT 'scenario ID',
   `content` longblob COMMENT 'Report Content',
   PRIMARY KEY (`report_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

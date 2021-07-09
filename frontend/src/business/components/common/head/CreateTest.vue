@@ -1,6 +1,6 @@
 <template>
-  <router-link class="create-test" :to="this.to" v-permission="this.permission">
-    <el-button type="primary" size="small">{{this.title}}</el-button>
+  <router-link class="create-test" :to="this.to" v-roles="this.permission">
+    <el-button type="primary" size="small">{{ this.title }}</el-button>
   </router-link>
 </template>
 

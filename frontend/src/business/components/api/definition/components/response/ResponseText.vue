@@ -85,7 +85,7 @@
 
   .text-container .pane {
     background-color: white;
-    padding: 0 10px;
+  padding: 1px 0;
     height: 250px;
     overflow-y: auto;
   }

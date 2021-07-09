@@ -23,5 +23,9 @@ public class TestPlanTestCase implements Serializable {
 
     private String reportId;
 
+    private String createUser;
+
+    private Integer issuesCount;
+
     private static final long serialVersionUID = 1L;
 }

@@ -2,27 +2,23 @@ package io.metersphere.track.controller;
 
 
 import io.metersphere.base.domain.TestCase;
-import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.i18n.Translator;
 import io.metersphere.performance.base.ChartsData;
 import io.metersphere.track.response.BugStatustics;
 import io.metersphere.track.response.TrackCountResult;
 import io.metersphere.track.response.TrackStatisticsDTO;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TrackService;
-import org.apache.shiro.authz.annotation.Logical;
-import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
 import java.util.List;
 
 @RestController
 @RequestMapping("/track")
-@RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER, RoleConstants.ORG_ADMIN}, logical = Logical.OR)
 public class TrackController {
 
     @Resource
@@ -79,9 +75,9 @@ public class TrackController {
             statistics.setCoverageRage(df.format(coverageRageNumber) + "%");
         }
 
-        statistics.setApiCaseCountStr("接口用例&nbsp;&nbsp;<br/><br/>" + statistics.getApiCaseCount());
-        statistics.setPerformanceCaseCountStr("性能用例&nbsp;&nbsp;<br/><br/>" + statistics.getPerformanceCaseCount());
-        statistics.setScenarioCaseStr("场景用例&nbsp;&nbsp;<br/><br/>" + statistics.getScenarioCaseCount());
+        statistics.setApiCaseCountStr(Translator.get("api_case") + "&nbsp;&nbsp;<br/><br/>" + statistics.getApiCaseCount());
+        statistics.setPerformanceCaseCountStr(Translator.get("performance_case") + "&nbsp;&nbsp;<br/><br/>" + statistics.getPerformanceCaseCount());
+        statistics.setScenarioCaseStr(Translator.get("scenario_case") + "&nbsp;&nbsp;<br/><br/>" + statistics.getScenarioCaseCount());
 
         return statistics;
     }

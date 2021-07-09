@@ -92,7 +92,7 @@
 
                     <form-rich-text-item :label-width="formLabelWidth" :disabled="true" :title="$t('test_track.case.prerequisite')"
                                          :data="testCase" prop="prerequisite"/>
-                    <step-change-item :label-width="formLabelWidth" :form="testCase"/>
+                    <step-change-item :disable="true" :label-width="formLabelWidth" :form="testCase"/>
                     <form-rich-text-item :label-width="formLabelWidth" :disabled="true" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDescription"/>
                     <form-rich-text-item  :label-width="formLabelWidth" :disabled="true" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="testCase" prop="expectedResult"/>
 
@@ -115,7 +115,7 @@
                    style="margin-left:10px;font-size: 14px; cursor: pointer"/>
               </template>
               <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
-                              @getComments="getComments"/>
+                              @getComments="getComments" :review-status="testCase.reviewStatus" ref="reviewComment"/>
             </el-card>
           </el-col>
         </div>
@@ -134,7 +134,7 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
@@ -206,7 +206,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
@@ -256,18 +256,40 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.status = status;
-      this.$post('/test/review/case/edit', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.updateTestCases(param);
-        this.setReviewStatus(this.testCase.reviewId);
-        // 修改当前用例的评审状态
-        this.testCase.reviewStatus = status;
-        // 修改当前用例在整个用例列表的状态
-        this.testCases[this.index].reviewStatus = status;
-        if (this.index < this.testCases.length - 1) {
-          this.handleNext();
+      //reviewComment
+      if (status === 'UnPass') {
+        if (this.comments.length > 0) {
+          this.$post('/test/review/case/edit', param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.updateTestCases(param);
+            this.setReviewStatus(this.testCase.reviewId);
+            // 修改当前用例的评审状态
+            this.testCase.reviewStatus = status;
+            // 修改当前用例在整个用例列表的状态
+            this.testCases[this.index].reviewStatus = status;
+            if (this.index < this.testCases.length - 1) {
+              this.handleNext();
+            }
+          });
+        } else {
+         /* this.$refs.reviewComment.inputLight();*/
+          this.$warning(this.$t('test_track.comment.description_is_null'));
         }
-      });
+      } else {
+        this.$post('/test/review/case/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.updateTestCases(param);
+          this.setReviewStatus(this.testCase.reviewId);
+          // 修改当前用例的评审状态
+          this.testCase.reviewStatus = status;
+          // 修改当前用例在整个用例列表的状态
+          this.testCases[this.index].reviewStatus = status;
+          if (this.index < this.testCases.length - 1) {
+            this.handleNext();
+          }
+        });
+      }
+
     },
     updateTestCases(param) {
       for (let i = 0; i < this.testCases.length; i++) {
@@ -367,7 +389,11 @@ export default {
         id = this.testCase.caseId;
       }
       this.result = this.$get('/test/case/comment/list/' + id, res => {
-        this.comments = res.data;
+        if(res.data){
+          this.comments = null;
+          this.comments = res.data;
+        }
+
       })
     },
     initData(testCase) {
@@ -468,7 +494,7 @@ export default {
 }
 
 .container >>> .el-card__body {
-  height: calc(100vh - 70px);
+  height: calc(100vh - 50px);
 }
 
 .comment-card >>> .el-card__header {
@@ -476,7 +502,7 @@ export default {
 }
 
 .comment-card >>> .el-card__body {
-  height: calc(100vh - 120px);
+  height: calc(100vh - 100px);
 }
 
 .tb-edit >>> .el-textarea__inner {
@@ -485,12 +511,12 @@ export default {
   color: #060505;
 }
 
-.tb-edit >>> *[disabled] {
-  opacity: 0.7;
-}
-
 .step-info {
   padding-left: 40px;
   padding-right: 15px;
+}
+
+.el-divider__text {
+  line-height: normal;
 }
 </style>

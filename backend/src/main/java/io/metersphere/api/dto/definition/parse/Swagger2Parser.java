@@ -77,7 +77,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 parseParameters(operation, request);
                 addBodyHeader(request);
                 if (StringUtils.isNotBlank(basePath)) {
-                    String pathStr = basePath + apiDefinition.getPath().replaceAll("//","/");
+                    String pathStr = (basePath + apiDefinition.getPath()).replaceAll("//","/");
                     apiDefinition.setPath(pathStr);
                     request.setPath(pathStr);
                 }
@@ -166,7 +166,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), "", getDefaultStringValue(parameter.getDescription())));
+        rests.add(new KeyValue(pathParameter.getName(), "", getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
     }
 
     private String getDefaultStringValue(String val) {
@@ -294,7 +294,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                             propertyList.add(new JSONObject());
                         }
                         jsonObject.put(key, propertyList);
-                    } else {
+                    } else if (items instanceof ObjectProperty) {
+                        JSONArray propertyList = new JSONArray();
+                        if (items != null) {
+                            propertyList.add(getBodyParameters(((ObjectProperty) items).getProperties(), refSet));
+                        }
+                        jsonObject.put(key, propertyList);
+                    }
+                    else {
                         jsonObject.put(key, new ArrayList<>());
                     }
                 } else if (value instanceof RefProperty) {

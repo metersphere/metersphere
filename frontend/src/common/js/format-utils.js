@@ -93,13 +93,13 @@ export function formatXml(text) {
   //去掉多余的空格
   text = '\n' + text.replace(/(<\w+)(\s.*?>)/g, function ($0, name, props) {
     return name + ' ' + props.replace(/\s+(\w+=)/g, " $1");
-  }).replace(/>\s*?</g, ">\n<");
+  });
   //把注释编码
-  text = text.replace(/\n/g, '\r').replace(/<!--(.+?)-->/g, function ($0, text) {
+  text = text.replace(/<!--(.+?)-->/g, function ($0, text) {
     var ret = '<!--' + escape(text) + '-->';
     //alert(ret);
     return ret;
-  }).replace(/\r/g, '\n');
+  });
   //调整格式
   var rgx = /\n(<(([^\?]).+?)(?:\s|\s*?>|\s*?(\/)>)(?:.*?(?:(?:(\/)>)|(?:<(\/)\2>)))?)/mg;
   var nodeStack = [];
@@ -127,10 +127,8 @@ export function formatXml(text) {
   });
   var prefixSpace = -1;
   var outputText = output.substring(1);
-  //alert(outputText);
   //把注释还原并解码，调格式
-  outputText = outputText.replace(/\n/g, '\r').replace(/(\s*)<!--(.+?)-->/g, function ($0, prefix, text) {
-    //alert(['[',prefix,']=',prefix.length].join(''));
+  outputText = outputText.replace(/(\s*)<!--(.+?)-->/g, function ($0, prefix, text) {
     if (prefix.charAt(0) == '\r')
       prefix = prefix.substring(1);
     text = unescape(text).replace(/\r/g, '\n');

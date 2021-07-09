@@ -18,9 +18,9 @@
   <select id="list" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
     select
       t.id, t.environment, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id, c.scenario_definition,
-      c.id as case_id, c.project_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
-      c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description, c.tags, c.num,
-      p.name as project_name, p.id as project_id, u.name as user_name
+      c.id as case_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
+      c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description, c.tags,
+      p.name as project_name, p.id as project_id, u.name as user_name, if(p.scenario_custom_num = 0, cast(c.num as char), c.custom_num) as custom_num
     from
       test_plan_api_scenario t
     inner join
@@ -46,6 +46,7 @@
     <if test="request.name != null and request.name!=''">
       and (c.name like CONCAT('%', #{request.name},'%')
             or c.num like CONCAT('%', #{request.name},'%')
+            or c.custom_num like CONCAT('%', #{request.name},'%')
             or c.tags like CONCAT('%', #{request.name},'%'))
     </if>
     <if test="request.status != null and request.status!=''">
@@ -59,20 +60,8 @@
         #{nodeId}
       </foreach>
     </if>
-    <if test="request.filters != null and request.filters.size() > 0">
-      <foreach collection="request.filters.entrySet()" index="key" item="values">
-        <if test="values != null and values.size() > 0">
-          <choose>
-            <when test="key == 'priority'">
-              and c.priority in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
-            </when>
-          </choose>
-        </if>
-      </foreach>
-    </if>
+
+    <include refid="filers"/>
     <if test="request.orders != null and request.orders.size() > 0">
       order by
       <foreach collection="request.orders" separator="," item="order">
@@ -132,20 +121,7 @@
         #{nodeId}
       </foreach>
     </if>
-    <if test="request.filters != null and request.filters.size() > 0">
-      <foreach collection="request.filters.entrySet()" index="key" item="values">
-        <if test="values != null and values.size() > 0">
-          <choose>
-            <when test="key == 'priority'">
-              and c.priority in
-              <foreach collection="values" item="value" separator="," open="(" close=")">
-                #{value}
-              </foreach>
-            </when>
-          </choose>
-        </if>
-      </foreach>
-    </if>
+    <include refid="filers"/>
     <if test="request.orders != null and request.orders.size() > 0">
       order by
       <foreach collection="request.orders" separator="," item="order">
@@ -160,6 +136,29 @@
       </foreach>
     </if>
   </select>
+
+  <sql id="filers">
+    <if test="request.filters != null and request.filters.size() > 0">
+      <foreach collection="request.filters.entrySet()" index="key" item="values">
+        <if test="values != null and values.size() > 0">
+          <choose>
+            <when test="key == 'level'">
+              and c.level in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+            <when test="key == 'last_result'">
+              and t.last_result in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+          </choose>
+        </if>
+      </foreach>
+    </if>
+  </sql>
 
     <select id="getExecResultByPlanId" resultType="java.lang.String">
       select last_result

@@ -1,6 +1,8 @@
 package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.Project;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -16,12 +18,6 @@ public interface IssuesPlatform {
      * @return platform issues list
      */
     List<IssuesDao> getIssue(IssuesRequest request);
-
-    /**
-     * 过滤分页数据
-     * @param issues
-     */
-    void filter(List<IssuesDao> issues);
 
     /*获取平台相关需求*/
     List<DemandDTO> getDemandList(String projectId);
@@ -52,8 +48,20 @@ public interface IssuesPlatform {
     void testAuth();
 
     /**
+     * 用户信息测试
+     */
+    void userAuth(UserDTO.PlatformInfo userInfo);
+
+    /**
      * 获取缺陷平台项目下的相关人员
      * @return platform user list
      */
     List<PlatformUser> getPlatformUser();
+
+    /**
+     * 同步缺陷最新变更
+     * @param project
+     * @param tapdIssues
+     */
+    void syncIssues(Project project, List<IssuesDao> tapdIssues);
 }

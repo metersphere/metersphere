@@ -1,6 +1,6 @@
 <template>
 
-  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content">
+  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content" :disabled="isReadOnly">
     <div class="ms-border">
       <el-form-item prop="socket">
         <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
@@ -15,7 +15,7 @@
       </el-form-item>
       <el-form-item prop="enable">
         <span class="ms-env-span">{{$t('api_test.environment.condition_enable')}}</span>
-        <el-radio-group v-model="condition.type" @change="typeChange" :disabled="condition.id!==undefined && condition.id!==''">
+        <el-radio-group v-model="condition.type" @change="typeChange">
           <el-radio label="NONE">{{ $t('api_test.definition.document.data_set.none') }}</el-radio>
           <el-radio label="MODULE">{{$t('test_track.module.module')}}</el-radio>
           <el-radio label="PATH">{{$t('api_test.definition.api_path')}}</el-radio>
@@ -46,7 +46,7 @@
       </el-form-item>
     </div>
     <div class="ms-border">
-      <el-table :data="httpConfig.conditions" highlight-current-row @current-change="selectRow" v-if="!loading">
+      <el-table :data="httpConfig.conditions" highlight-current-row @current-change="selectRow">
         <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
           <template v-slot:default="{row}">
             {{getUrl(row)}}
@@ -69,10 +69,12 @@
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
           <template v-slot:default="{row}">
-            <ms-table-operator-button :tip="$t('api_test.automation.copy')"
-                                      icon="el-icon-document-copy" @exec="copy(row)"/>
-            <ms-table-operator-button :tip="$t('api_test.automation.remove')"
-                                      icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
+            <div>
+              <ms-table-operator-button :tip="$t('api_test.automation.copy')"
+                                        icon="el-icon-document-copy" @exec="copy(row)"/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')"
+                                        icon="el-icon-delete" @exec="remove(row)" type="danger"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -96,6 +98,10 @@
     props: {
       httpConfig: new HttpConfig(),
       projectId: String,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
     created() {
       this.list();
@@ -123,6 +129,7 @@
         loading: false,
         pathDetails: new KeyValue({name: "", value: "contains"}),
         condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]},
+        beforeCondition: {}
       };
     },
     watch: {
@@ -183,7 +190,7 @@
         }
       },
       selectRow(row) {
-        this.condition = {};
+        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
         if (row) {
           this.httpConfig.socket = row.socket;
           this.httpConfig.protocol = row.protocol;
@@ -201,8 +208,15 @@
             });
           }
         }
+        this.beforeCondition = JSON.parse(JSON.stringify(this.condition));
+        this.reload();
       },
       typeChange() {
+        if (this.condition.type === "NONE" && this.condition.id  &&  this.checkNode(this.condition.id)) {
+          this.condition.type = this.beforeCondition.type;
+          this.$warning("启用条件为 '无' 的域名已经存在！");
+          return;
+        }
         switch (this.condition.type) {
           case "NONE":
             this.condition.details = [];
@@ -263,11 +277,13 @@
           this.loading = false
         });
       },
-      checkNode() {
+      checkNode(id) {
         let index = 1;
         this.httpConfig.conditions.forEach(item => {
           if (item.type === "NONE") {
-            index++;
+            if(!id || id !== item.id) {
+              index++;
+            }
           }
         })
         return index > 1;

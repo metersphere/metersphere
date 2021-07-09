@@ -3,13 +3,13 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
-                           :title="$t('api_report.title')"
+          <ms-table-header :condition.sync="condition" @search="search"
                            :show-create="false"/>
         </template>
         <el-table ref="reportListTable" border :data="tableData" class="adjust-table table-content" @sort-change="sort"
                   @select-all="handleSelectAll"
                   @select="handleSelect"
+                  :height="screenHeight"
                   @filter-change="filter" @row-click="handleView">
           <el-table-column
             type="selection"/>
@@ -28,7 +28,7 @@
               </el-dropdown-menu>
             </el-dropdown>
             <template v-slot:default="scope">
-              <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
@@ -57,10 +57,13 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
-                                        @exec="handleView(scope.row)" type="primary"/>
-              <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
-                                        icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              <div>
+                <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
+                                          @exec="handleView(scope.row)" type="primary"/>
+                <ms-table-operator-button :tip="$t('api_report.delete')"
+                                          v-permission="['PROJECT_API_REPORT:READ+DELETE']"
+                                          icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -81,7 +84,6 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import ShowMoreBtn from "../../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
 
@@ -120,6 +122,8 @@ export default {
         {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
         {text: this.$t('commons.trigger_mode.api'), value: 'API'},
         {text: this.$t('commons.trigger_mode.case'), value: 'CASE'},
+        {text: this.$t('api_test.automation.batch_execute'), value: 'BATCH'},
+
       ],
       buttons: [
         {
@@ -130,6 +134,7 @@ export default {
       selectAll: false,
       unSelection: [],
       selectDataCounts: 0,
+      screenHeight: 'calc(100vh - 200px)',
     }
   },
 
@@ -178,8 +183,6 @@ export default {
             this.result = this.$post("/api/scenario/report/delete", {id: report.id}, () => {
               this.$success(this.$t('commons.delete_success'));
               this.search();
-              // 发送广播，刷新 head 上的最新列表
-              ApiEvent.$emit(LIST_CHANGE);
             });
           }
         }
@@ -236,8 +239,6 @@ export default {
               this.selectRows.clear();
               this.$success(this.$t('commons.delete_success'));
               this.search();
-              // 发送广播，刷新 head 上的最新列表
-              ApiEvent.$emit(LIST_CHANGE);
             });
           }
         }

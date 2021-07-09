@@ -7,7 +7,7 @@
     append-to-body
     ref="msEditDialog">
     <template v-slot:default="scope">
-      <issue-edit-detail :case-id="caseId" :is-plan="true" @refresh="$emit('refresh')" @close="handleClose" ref="issueEditDetail"/>
+      <issue-edit-detail :plan-id="planId" :case-id="caseId" :is-plan="true" @refresh="$emit('refresh')" @close="handleClose" ref="issueEditDetail"/>
     </template>
   </ms-edit-dialog>
 </template>
@@ -17,6 +17,7 @@ import TemplateComponentEditHeader
   from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
 import IssueEditDetail from "@/business/components/track/issue/IssueEditDetail";
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
+import {getCurrentProjectID} from "@/common/js/utils";
 export default {
   name: "TestPlanIssueEdit",
   components: {MsEditDialog, IssueEditDetail, TemplateComponentEditHeader},
@@ -27,10 +28,10 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     }
   },
-  props: ['caseId'],
+  props: ['caseId', 'planId'],
   methods: {
     open(data) {
       this.visible = true;

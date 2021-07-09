@@ -8,6 +8,10 @@ import lombok.Setter;
 @Setter
 public class RunRequest {
     private String testId;
+    private String poolId;
+    // api / case 或有这个属性值
+    private String reportId;
+    private String url;
     private String userId;
     private boolean isDebug;
     private String runMode;

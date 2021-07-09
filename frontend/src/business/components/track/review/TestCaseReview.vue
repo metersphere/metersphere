@@ -18,6 +18,7 @@ import TestCaseReviewList from "./components/TestCaseReviewList";
 import TestCaseReviewEdit from "./components/TestCaseReviewEdit";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsContainer from "../../common/components/MsContainer";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestCaseReview",
@@ -34,7 +35,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   mounted() {

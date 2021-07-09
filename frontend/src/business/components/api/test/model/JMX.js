@@ -552,6 +552,15 @@ export class IfController extends DefaultTestElement {
   }
 }
 
+export class TransactionController extends DefaultTestElement {
+  constructor(testName, controller = {}) {
+    super('TransactionController', 'TransactionControllerPanel', 'TransactionController', testName);
+
+    this.stringProp('TransactionController.comments', controller.comments);
+    this.boolProp('TransactionController.parent', controller.parent, true);
+  }
+}
+
 export class ConstantTimer extends DefaultTestElement {
   constructor(testName, timer = {}) {
     super('ConstantTimer', 'ConstantTimerGui', 'ConstantTimer', testName);

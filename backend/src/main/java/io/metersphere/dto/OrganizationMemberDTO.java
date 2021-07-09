@@ -19,5 +19,6 @@ public class OrganizationMemberDTO {
     private String language;
     private String organizationId;
     private List<String> roleIds = new ArrayList<>();
+    private List<String> groupIds = new ArrayList<>();
 
 }

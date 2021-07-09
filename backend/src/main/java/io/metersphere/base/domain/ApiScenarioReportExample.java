@@ -853,6 +853,146 @@ public class ApiScenarioReportExample {
             addCriterion("scenario_id not between", value1, value2, "scenarioId");
             return (Criteria) this;
         }
+
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorIsNull() {
+            addCriterion("actuator is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorIsNotNull() {
+            addCriterion("actuator is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorEqualTo(String value) {
+            addCriterion("actuator =", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotEqualTo(String value) {
+            addCriterion("actuator <>", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorGreaterThan(String value) {
+            addCriterion("actuator >", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorGreaterThanOrEqualTo(String value) {
+            addCriterion("actuator >=", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorLessThan(String value) {
+            addCriterion("actuator <", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorLessThanOrEqualTo(String value) {
+            addCriterion("actuator <=", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorLike(String value) {
+            addCriterion("actuator like", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotLike(String value) {
+            addCriterion("actuator not like", value, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorIn(List<String> values) {
+            addCriterion("actuator in", values, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotIn(List<String> values) {
+            addCriterion("actuator not in", values, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorBetween(String value1, String value2) {
+            addCriterion("actuator between", value1, value2, "actuator");
+            return (Criteria) this;
+        }
+
+        public Criteria andActuatorNotBetween(String value1, String value2) {
+            addCriterion("actuator not between", value1, value2, "actuator");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

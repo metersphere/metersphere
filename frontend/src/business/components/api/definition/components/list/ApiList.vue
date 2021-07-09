@@ -1,152 +1,171 @@
 <template>
   <div>
     <div>
-
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{ $t('commons.adv_search.title') }}
       </el-link>
-      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" class="search-input" size="small"
-                @keyup.enter.native="search"
-                v-model="condition.name"/>
+      <el-input :placeholder="$t('commons.search_by_id_name_tag_path')" @blur="search" class="search-input" size="small"
+                @keyup.enter.native="enterSearch"
+                v-model="condition.name" ref="inputVal"/>
 
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
-                :batch-operators="trashEnable ? trashButtons : buttons" :screenHeight="screenHeight"
-                :operators="tableOperatorButtons" operator-width="170px"
+                :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
+                :operators="tableOperatorButtons" operator-width="200px"
                 @refresh="initTable"
-                @openCustomHeader="customHeader"
-                ref="apiDefinitionTable"
-      >
-        <template v-for="(item, index) in tableLabel">
+                :fields.sync="fields"
+                :table-is-loading="this.result.loading"
+                :field-key="tableHeaderKey"
+                @saveSortField="saveSortField"
+                ref="table">
+        <ms-table-column
+          prop="deleteTime"
+          sortable
+          v-if="this.trashEnable"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.delete_time')"
+          min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.deleteTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+          prop="deleteUser"
+          :fields-width="fieldsWidth"
+          v-if="this.trashEnable"
+          :label="$t('commons.delete_user')"
+          min-width="120"/>
+        <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
-            v-if="item.id == 'num'"
-            prop="num"
-            label="ID"
-            show-overflow-tooltip
-            min-width="80px"
-            sortable=true
-            :key="index">
+               prop="num"
+               label="ID"
+               :field="item"
+               min-width="100px"
+               :fields-width="fieldsWidth"
+               sortable>
+
             <template slot-scope="scope">
-              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
-              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
+              <el-tooltip content="编辑">
                 <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
           </ms-table-column>
-          <ms-table-column
-            v-if="item.id == 'name'"
-            prop="name"
-            :label="$t('api_test.definition.api_name')"
-            show-overflow-tooltip
-            sortable="custom"
-            width="120px"
-            :key="index"/>
-          <ms-table-column
-            v-if="item.id == 'status'"
-            prop="status"
-            column-key="status"
-            sortable="custom"
-            :filters="statusFilters"
-            :label="$t('api_test.definition.api_status')"
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope">
-            <span class="el-dropdown-link">
-              <api-status :value="scope.row.status"/>
-            </span>
-            </template>
-          </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'method'"
-            prop="method"
-            sortable="custom"
-            column-key="method"
-            :filters="methodFilters"
-            :label="$t('api_test.definition.api_type')"
-            show-overflow-tooltip
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope" class="request-method">
-              <el-tag size="mini"
-                      :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
-                      class="api-el-tag">
-                {{ scope.row.method }}
-              </el-tag>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="name"
+          :label="$t('api_test.definition.api_name')"
+          sortable="custom"
+          :fields-width="fieldsWidth"
+          min-width="120"
+          :field="item"/>
 
-          <ms-table-column
-            v-if="item.id == 'userName'"
-            prop="userName"
-            sortable="custom"
-            :filters="userFilters"
-            column-key="user_id"
-            :label="$t('api_test.definition.api_principal')"
-            show-overflow-tooltip
-            width="145px"
-            :key="index"/>
+        <ms-table-column
+          prop="status"
+          sortable="custom"
+          :filters="statusFilters"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="120px"
+          :label="$t('api_test.definition.api_status')">
 
-          <ms-table-column
-            v-if="item.id == 'path'"
-            prop="path"
-            width="120px"
-            :label="$t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+          <template v-slot:default="scope">
+          <span class="el-dropdown-link">
+            <api-status :value="scope.row.status"/>
+          </span>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'tags'"
-            prop="tags"
-            :label="$t('commons.tag')"
-            width="120px"
-            :key="index">
-            <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                      :show-tooltip="true" :content="itemName"
-                      style="margin-left: 0px; margin-right: 2px"/>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="method"
+          sortable="custom"
+          :field="item"
+          :filters="methodFilters"
+          :fields-width="fieldsWidth"
+          min-width="120px"
+          :label="getApiRequestTypeName">
+          <template v-slot:default="scope" class="request-method">
+            <el-tag size="mini"
+                    :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
+                    class="api-el-tag">
+              {{ scope.row.method }}
+            </el-tag>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'updateTime'"
-            width="200"
-            :label="$t('api_test.definition.api_last_time')"
-            sortable="custom"
-            prop="updateTime"
-            :key="index">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </ms-table-column>
+        <ms-table-column
+          prop="userName"
+          sortable="custom"
+          :filters="userFilters"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('api_test.definition.api_principal')"/>\
+        <ms-table-column
+          prop="path"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('api_test.definition.api_path')"/>
 
-          <ms-table-column
-            v-if="item.id == 'caseTotal'"
-            prop="caseTotal"
-            width="140px"
-            :label="$t('api_test.definition.api_case_number')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          prop="tags"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :show-tooltip="true" :content="itemName"
+                    style="margin-left: 0px; margin-right: 2px"/>
+          </template>
+        </ms-table-column>
 
-          <ms-table-column
-            v-if="item.id == 'caseStatus'"
-            prop="caseStatus"
-            width="130px"
-            :label="$t('api_test.definition.api_case_status')"
-            show-overflow-tooltip
-            :key="index"/>
+        <ms-table-column
+          :label="$t('api_test.definition.api_last_time')"
+          :field="item"
+          :fields-width="fieldsWidth"
+          sortable="custom"
+          min-width="140px"
+          prop="updateTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+        <ms-table-column prop="createTime"
+                         :field="item"
+                         :fields-width="fieldsWidth"
+                         :label="$t('commons.create_time')"
+                         sortable
+                         min-width="180px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column >
 
-          <ms-table-column
-            v-if="item.id == 'casePassingRate'"
-            width="150px"
-            prop="casePassingRate"
-            :label="$t('api_test.definition.api_case_passing_rate')"
-            show-overflow-tooltip
-            :key="index"/>
-        </template>
+        <ms-table-column
+          prop="caseTotal"
+          :field="item"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          sortable
+          :label="$t('api_test.definition.api_case_number')"/>
+
+        <ms-table-column
+          :field="item"
+          prop="caseStatus"
+          :fields-width="fieldsWidth"
+          min-width="100px"
+          :label="$t('api_test.definition.api_case_status')"/>
+
+        <ms-table-column
+          prop="casePassingRate"
+          :field="item"
+          min-width="120px"
+          sortable
+          :fields-width="fieldsWidth"
+          :label="$t('api_test.definition.api_case_passing_rate')"/>
+        </span>
       </ms-table>
-      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
-                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </div>
@@ -171,12 +190,11 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTag from "../../../../common/components/MsTag";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsBottomContainer from "../BottomContainer";
-import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
 import {API_LIST, PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -185,19 +203,10 @@ import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/se
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import {
-  _filter,
-  _handleSelect,
-  _handleSelectAll,
-  _sort,
-  buildBatchParam,
-  getLabel,
-  getSelectDataCounts,
   initCondition,
-  setUnSelectIds,
-  toggleAllSelection
+  getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected,
+  saveLastTableSortField,getLastTableSortField
 } from "@/common/js/tableUtils";
-import {Api_List} from "@/business/components/common/model/JsonData";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
@@ -207,7 +216,6 @@ export default {
   name: "ApiList",
   components: {
     HeaderLabelOperate,
-    HeaderCustom,
     CaseBatchMove,
     ApiStatus,
     MsTableHeaderSelectPopover,
@@ -220,7 +228,6 @@ export default {
     MsApiCaseList,
     MsContainer,
     MsBottomContainer,
-    ShowMoreBtn,
     MsBatchEdit,
     MsTipButton,
     MsTableAdvSearchBar,
@@ -230,8 +237,9 @@ export default {
   data() {
     return {
       type: API_LIST,
-      headerItems: Api_List,
-      tableLabel: [],
+      tableHeaderKey:"API_DEFINITION",
+      fields: getCustomTableHeader('API_DEFINITION'),
+      fieldsWidth: getCustomTableWidth('API_DEFINITION'),
       condition: {
         components: API_DEFINITION_CONFIGS
       },
@@ -241,30 +249,78 @@ export default {
       selectDataRange: "all",
       deletePath: "/test/case/delete",
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
         {
-          name: this.$t('api_test.definition.request.batch_move'), handleClick: this.handleBatchMove
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_edit'),
+          handleClick: this.handleEditBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        },
+        {
+          name: this.$t('api_test.definition.request.batch_move'),
+          handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
         }
       ],
       trashButtons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {
+          name: this.$t('api_test.definition.request.batch_delete'),
+          handleClick: this.handleDeleteBatch,
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
         {
           name: "批量恢复", handleClick: this.handleBatchRestore
         },
       ],
       tableOperatorButtons: [],
       tableUsualOperatorButtons: [
-        {tip: this.$t('api_test.automation.execute'), icon: "el-icon-video-play", exec: this.runApi},
-        {tip: this.$t('commons.edit'), icon: "el-icon-edit", exec: this.editApi},
-        {tip: "CASE", exec: this.handleTestCase, isDivButton: true, type: "primary"},
-        {tip: this.$t('commons.delete'), exec: this.handleDelete, icon: "el-icon-delete", type: "danger"},
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.runApi,
+          class: "run-button",
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
+        {
+          tip: this.$t('commons.edit'),
+          icon: "el-icon-edit",
+          exec: this.editApi,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_API']
+        },
+        {
+          tip: "CASE",
+          exec: this.handleTestCase,
+          isDivButton: true,
+          type: "primary",
+          permissions: ['PROJECT_API_DEFINITION:READ+CREATE_CASE']
+        },
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.handleDelete,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
+        {
+          tip: this.$t('commons.copy'),
+          exec: this.handleCopy,
+          icon: "el-icon-document-copy",
+          type: "primary",
+          permissions: ['PROJECT_API_DEFINITION:READ+COPY_API']
+        },
       ],
       tableTrashOperatorButtons: [
-        {tip: this.$t('api_test.automation.execute'), icon: "el-icon-video-play", exec: this.runApi},
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reductionApi},
-        {tip: "CASE", exec: this.handleTestCase, isDivButton: true, type: "primary"},
-        {tip: this.$t('commons.delete'), exec: this.handleDelete, icon: "el-icon-delete", type: "danger"},
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.handleDelete,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_API']
+        },
       ],
       typeArr: [
         {id: 'status', name: this.$t('api_test.definition.api_status')},
@@ -276,6 +332,11 @@ export default {
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
         {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
+      ],
+      caseStatusFilters: [
+        {text: this.$t('api_test.home_page.detail_card.unexecute'), value: '未执行'},
+        {text: this.$t('test_track.review.pass'), value: '通过'},
+        {text: this.$t('test_track.review.un_pass'), value: '未通过'},
       ],
       methodFilters: [
         {text: 'GET', value: 'GET'},
@@ -302,16 +363,18 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
+      screenHeight: 'calc(100vh - 250px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
-    }
+      projectName:"",
+    };
   },
   props: {
     currentProtocol: String,
     selectNodeIds: Array,
     isSelectThisWeek: String,
     activeDom: String,
+    initApiTableOpretion: String,
     visible: {
       type: Boolean,
       default: false,
@@ -331,25 +394,32 @@ export default {
     moduleTree: {
       type: Array,
       default() {
-        return []
+        return [];
       },
     },
     moduleOptions: {
       type: Array,
       default() {
-        return []
+        return [];
       },
     }
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
-    selectRows() {
-      return this.$refs.apiDefinitionTable.getSelectRows();
+    getApiRequestTypeName(){
+      if(this.currentProtocol === 'TCP'){
+        return this.$t('api_test.definition.api_agreement');
+      }else{
+        return this.$t('api_test.definition.api_type');
+      }
     }
   },
   created: function () {
+    if(!this.projectName || this.projectName === ""){
+      this.getProjectName();
+    }
     if (this.trashEnable) {
       this.tableOperatorButtons = this.tableTrashOperatorButtons;
       this.condition.filters = {status: ["Trash"]};
@@ -357,18 +427,26 @@ export default {
       this.tableOperatorButtons = this.tableUsualOperatorButtons;
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     }
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
     this.initTable();
     this.getMaintainerOptions();
   },
   watch: {
     selectNodeIds() {
       initCondition(this.condition, false);
+      this.currentPage = 1;
       this.condition.moduleIds = [];
       this.condition.moduleIds.push(this.selectNodeIds);
+      this.closeCaseModel();
       this.initTable();
     },
     currentProtocol() {
+      this.currentPage = 1;
       initCondition(this.condition, false);
+      this.closeCaseModel();
       this.initTable();
     },
     trashEnable() {
@@ -381,20 +459,33 @@ export default {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
       initCondition(this.condition, false);
+      this.closeCaseModel();
       this.initTable();
     }
   },
   methods: {
-    customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+    getProjectName (){
+      this.$get('project/get/' + this.projectId, response => {
+        let project = response.data;
+        if(project){
+          this.projectName = project.name;
+        }
+      });
     },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
-    initTable() {
-      if (this.$refs.apiDefinitionTable) {
-        this.$refs.apiDefinitionTable.clearSelectRows();
+    closeCaseModel(){
+      //关闭案例弹窗
+      if(this.$refs.caseList){
+        this.$refs.caseList.handleClose();
       }
+    },
+    initTable() {
+      if (this.$refs.table) {
+        this.$refs.table.clear();
+      }
+
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
       this.condition.moduleIds = this.selectNodeIds;
@@ -436,18 +527,14 @@ export default {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
-          })
+          });
 
-          // nexttick:表格加载完成之后触发。判断是否需要勾选行
-          this.$nextTick(function () {
-            if (this.$refs.apiDefinitionTable) {
-              this.$refs.apiDefinitionTable.checkTableRowIsSelect();
-              this.$refs.apiDefinitionTable.doLayout();
-            }
-          })
+          checkTableRowIsSelected(this, this.$refs.table);
         });
       }
-      getLabel(this, API_LIST);
+      if(this.needRefreshModule()){
+        this.$emit("refreshTree");
+      }
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {
@@ -492,13 +579,16 @@ export default {
       }
     },
     getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
         this.valueArr.userId = response.data;
         this.userFilters = response.data.map(u => {
-          return {text: u.name, value: u.id}
+          return {text: u.name, value: u.id};
         });
       });
+    },
+    enterSearch(){
+      this.$refs.inputVal.blur();
+      this.search();
     },
     search() {
       this.changeSelectDataRangeAll();
@@ -511,13 +601,17 @@ export default {
     editApi(row) {
       this.$emit('editApi', row);
     },
+    handleCopy(row) {
+      row.isCopy = true;
+      this.$emit('editApi', row);
+    },
     runApi(row) {
 
       let request = row ? JSON.parse(row.request) : {};
       if (row.tags instanceof Array) {
         row.tags = JSON.stringify(row.tags);
       }
-      let response = ""
+      let response = "";
       if (row.response != null && row.response != 'null' && row.response != undefined) {
         if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
           response = row.response;
@@ -541,8 +635,8 @@ export default {
         }
         response.body = body;
       }
-      row.request = request
-      row.response = response
+      row.request = request;
+      row.response = response;
       this.$emit('runTest', row);
     },
     reductionApi(row) {
@@ -554,7 +648,7 @@ export default {
       });
     },
     handleBatchRestore() {
-      this.$post('/api/definition/reduction/', buildBatchParam(this), () => {
+      this.$post('/api/definition/reduction/', buildBatchParam(this, this.$refs.table.selectIds), () => {
         this.$success(this.$t('commons.save_success'));
         this.search();
       });
@@ -565,8 +659,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this), () => {
-                this.$refs.apiDefinitionTable.clearSelectRows();
+              this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
+                this.$refs.table.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
               });
@@ -578,8 +672,8 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this), () => {
-                this.$refs.apiDefinitionTable.clearSelectRows();
+              this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
+                this.$refs.table.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();
@@ -602,7 +696,7 @@ export default {
       this.$refs.batchEdit.open();
     },
     batchEdit(form) {
-      let param = buildBatchParam(this);
+      let param = buildBatchParam(this, this.$refs.table.selectIds);
       param[form.type] = form.value;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -610,15 +704,10 @@ export default {
       });
     },
     moveSave(param) {
-      let arr = Array.from(this.selectRows);
-      let ids = arr.map(row => row.id);
+      let ids = this.$refs.table.selectIds;
       param.ids = ids;
       param.projectId = this.projectId;
-      param.moduleId = param.nodeId;
       param.condition = this.condition;
-      param.selectAllDate = this.isSelectAllDate;
-      param.unSelectIds = this.unSelection;
-      param = Object.assign(param, this.condition);
       param.moduleId = param.nodeId;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -662,6 +751,7 @@ export default {
         }
       });
     },
+
     getColor(enable, method) {
       if (enable) {
         return this.methodColorMap.get(method);
@@ -684,12 +774,12 @@ export default {
       this.$emit("changeSelectDataRangeAll", "api");
     },
     getIds(rowSets) {
-      let rowArray = Array.from(rowSets)
+      let rowArray = Array.from(rowSets);
       let ids = rowArray.map(s => s.id);
       return ids;
     },
     exportApi(type) {
-      let param = buildBatchParam(this);
+      let param = buildBatchParam(this, this.$refs.table.selectIds);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
         this.$warning(this.$t("api_test.definition.check_select"));
@@ -700,9 +790,9 @@ export default {
         if (type == 'MS') {
           obj.protocol = this.currentProtocol;
           this.buildApiPath(obj.data);
-          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+          downloadFile("Metersphere_Api_" + this.projectName + ".json", JSON.stringify(obj));
         } else {
-          downloadFile("Swagger_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+          downloadFile("Swagger_Api_" + this.projectName+ ".json", JSON.stringify(obj));
         }
       });
     },
@@ -717,23 +807,11 @@ export default {
             if (api.moduleId === item.id) {
               api.modulePath = item.path;
             }
-          })
+          });
         });
       } catch (e) {
         console.log(e);
       }
-    },
-    sort(column) {
-      // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      this.initTable();
-    },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.initTable();
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;
@@ -745,9 +823,32 @@ export default {
     },
     open() {
       this.$refs.searchBar.open();
+    },
+    needRefreshModule(){
+      if(this.initApiTableOpretion === '0'){
+        return true;
+      }else {
+        this.$emit('updateInitApiTableOpretion','0');
+        return false;
+      }
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     }
   },
-}
+};
 </script>
 
 <style scoped>
@@ -783,8 +884,8 @@ export default {
   top: -2px;
 }
 
-/deep/ .el-table__fixed-body-wrapper {
+/* /deep/ .el-table__fixed-body-wrapper {
   top: 60px !important;
-}
+} */
 
 </style>

@@ -15,6 +15,8 @@ public class IssuesRelevanceRequest {
      */
     private String issuesId;
 
+    private String caseId;
+
     /**
      * 当选择关联全部用例时把加载条件送到后台，从后台查询
      */
@@ -24,6 +26,8 @@ public class IssuesRelevanceRequest {
      * 具体要关联的用例
      */
     private List<String> testCaseIds = new ArrayList<>();
+
+    private List<String> issueIds;
 
     private Boolean checked;
 }

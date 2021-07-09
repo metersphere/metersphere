@@ -31,7 +31,11 @@ public class Project implements Serializable {
 
     private Boolean customNum;
 
-    private static final long serialVersionUID = 1L;
+    private Boolean scenarioCustomNum;
 
-    private String protocal;
+    private String createUser;
+
+    private String systemId;
+
+    private static final long serialVersionUID = 1L;
 }

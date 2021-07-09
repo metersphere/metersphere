@@ -2,38 +2,45 @@
   <div v-loading="result.loading">
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="initTableData" @create="create"
+        <ms-table-header :create-permission="['ORGANIZATION_USER:READ+CREATE']" :condition.sync="condition" @search="initTableData" @create="create"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
-      <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
+      <el-table border class="adjust-table" :data="tableData" style="width: 100%"
                 @select-all="handleSelectAll"
                 @select="handleSelect"
+                :height="screenHeight"
                 ref="userTable">
         <el-table-column type="selection" width="50"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize>total?total:pageSize"
-                                        :total="total"
-                                        :select-data-counts="selectDataCounts"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
-          <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
-          </template>
-        </el-table-column>
+<!--        <ms-table-header-select-popover v-show="total>0"-->
+<!--                                        :page-size="pageSize>total?total:pageSize"-->
+<!--                                        :total="total"-->
+<!--                                        :select-data-counts="selectDataCounts"-->
+<!--                                        :table-data-count-in-page="tableData.length"-->
+<!--                                        @selectPageAll="isSelectDataAll(false)"-->
+<!--                                        @selectAll="isSelectDataAll(true)"/>-->
+<!--        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">-->
+<!--          <template v-slot:default="scope">-->
+<!--            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
 
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.username')"/>
         <el-table-column prop="email" :label="$t('commons.email')"/>
         <el-table-column prop="phone" :label="$t('commons.phone')"/>
-        <el-table-column prop="roles" :label="$t('commons.role')" width="140">
+        <el-table-column prop="roles" :label="$t('commons.group')" width="140">
           <template v-slot:default="scope">
-            <ms-roles-tag :roles="scope.row.roles"/>
+            <ms-roles-tag :roles="scope.row.groups"/>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
           <template v-slot:default="scope">
-            <ms-table-operator :tip2="$t('commons.remove')" @editClick="edit(scope.row)" @deleteClick="del(scope.row)"/>
+            <div>
+              <ms-table-operator :edit-permission="['ORGANIZATION_USER:READ+EDIT']"
+                                 :delete-permission="['ORGANIZATION_USER:READ+DELETE']"
+                                 :tip2="$t('commons.remove')" @editClick="edit(scope.row)"
+                                 @deleteClick="del(scope.row)"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -41,53 +48,7 @@
                            :total="total"/>
     </el-card>
 
-    <el-dialog :close-on-click-modal="false" :title="$t('member.create')" :visible.sync="createVisible" width="30%" :destroy-on-close="true"
-               @close="handleClose">
-      <el-form :model="form" ref="form" :rules="rules" label-position="right" label-width="100px" size="small">
-        <el-form-item :label="$t('commons.member')" prop="ids"
-                      :rules="{required: true, message: $t('member.input_id_or_email'), trigger: 'blur'}">
-          <el-select
-            v-model="form.ids"
-            multiple
-            filterable
-            remote
-            reserve-keyword
-            :popper-append-to-body="false"
-            class="select-width"
-            :placeholder="$t('member.input_id_or_email')"
-            :remote-method="remoteMethod"
-            :loading="loading">
-            <el-option
-              v-for="item in options"
-              :key="item.id"
-              :label="item.id"
-              :value="item.id">
-              <template>
-                <span class="org-member-name">{{item.id}}</span>
-                <span class="org-member-email">{{item.email}}</span>
-              </template>
-            </el-option>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item :label="$t('commons.role')" prop="roleIds">
-          <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
-            <el-option
-              v-for="item in form.roles"
-              :key="item.id"
-              :label="$t('role.' + item.id)"
-              :value="item.id">
-            </el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="createVisible = false"
-          @confirm="submitForm('form')"/>
-      </template>
-    </el-dialog>
+    <add-member :group-type="'ORGANIZATION'" :group-scope-id="orgId" ref="addMember" @submit="submitForm"/>
 
     <el-dialog :close-on-click-modal="false" :title="$t('member.modify')" :visible.sync="updateVisible" width="30%" :destroy-on-close="true"
                @close="handleClose">
@@ -104,13 +65,13 @@
         <el-form-item :label="$t('commons.phone')" prop="phone">
           <el-input v-model="form.phone" autocomplete="off" :disabled="true"/>
         </el-form-item>
-        <el-form-item :label="$t('commons.role')" prop="roleIds"
-                      :rules="{required: true, message: $t('role.please_choose_role'), trigger: 'change'}">
-          <el-select v-model="form.roleIds" multiple :placeholder="$t('role.please_choose_role')" class="select-width">
+        <el-form-item :label="$t('commons.group')" prop="groupIds"
+                      :rules="{required: true, message: $t('group.please_select_group'), trigger: 'change'}">
+          <el-select v-model="form.groupIds" multiple :placeholder="$t('group.please_select_group')" class="select-width">
             <el-option
-              v-for="item in form.allroles"
+              v-for="item in form.allgroups"
               :key="item.id"
-              :label="$t('role.' + item.id)"
+              :label="item.name"
               :value="item.id">
             </el-option>
           </el-select>
@@ -144,10 +105,13 @@
   } from "@/common/js/tableUtils";
   import UserCascader from "@/business/components/settings/system/components/UserCascader";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
+  import {GROUP_ORGANIZATION} from "@/common/js/constants";
+  import AddMember from "@/business/components/settings/common/AddMember";
 
   export default {
     name: "MsOrganizationMember",
-    components: {MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
+    components: {
+      AddMember, MsCreateBox, MsTablePagination, MsTableHeader, MsRolesTag, MsTableOperator, MsDialogFooter,
       MsTableHeaderSelectPopover,UserCascader,ShowMoreBtn},
     activated() {
       this.initTableData();
@@ -157,6 +121,7 @@
         result: {},
         createVisible: false,
         updateVisible: false,
+        screenHeight: 'calc(100vh - 195px)',
         form: {},
         queryPath: "/user/org/member/list",
         condition: {},
@@ -165,8 +130,8 @@
           userIds: [
             {required: true, message: this.$t('member.please_choose_member'), trigger: ['blur']}
           ],
-          roleIds: [
-            {required: true, message: this.$t('role.please_choose_role'), trigger: ['blur']}
+          groupIds: [
+            {required: true, message: this.$t('group.please_select_group'), trigger: ['blur']}
           ]
         },
         multipleSelection: [],
@@ -183,13 +148,19 @@
         batchAddWorkspaceOptions:[],
         batchAddUserRoleOptions:[],
         buttons: [
-          {
-            name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
-          },
-          {
-            name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
-          }
+          // {
+          //   name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
+          // },
+          // {
+          //   name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
+          // }
         ],
+        userList: []
+      }
+    },
+    computed: {
+      orgId() {
+        return getCurrentOrganizationId();
       }
     },
     methods: {
@@ -199,21 +170,16 @@
       initTableData() {
         let param = {
           name: this.condition.name,
-          organizationId: this.currentUser().lastOrganizationId
+          organizationId: this.orgId
         };
         this.result = this.$post(this.buildPagePath(this.queryPath), param, response => {
           let data = response.data;
           this.tableData = data.listObject;
-          let url = "/userrole/list/org/" + this.currentUser().lastOrganizationId;
+          let url = "/user/group/list/org/" + this.orgId;
           for (let i = 0; i < this.tableData.length; i++) {
             this.$get(url + "/" + encodeURIComponent(this.tableData[i].id), response => {
-              let roles = response.data;
-              if (roles.length < 1) {
-                roles.push({
-                  id : "org_member",
-                });
-              }
-              this.$set(this.tableData[i], "roles", roles);
+              let groups = response.data;
+              this.$set(this.tableData[i], "groups", groups);
             })
           }
           this.total = data.itemCount;
@@ -260,12 +226,12 @@
       edit(row) {
         this.updateVisible = true;
         this.form = Object.assign({}, row);
-        let roleIds = this.form.roles.map(r => r.id);
-        this.result = this.$get('/role/list/org', response => {
-          this.$set(this.form, "allroles", response.data);
-        });
+        let groupIds = this.form.groups.map(r => r.id);
+        this.result = this.$post('/user/group/list', {type: GROUP_ORGANIZATION, resourceId: this.orgId}, response => {
+          this.$set(this.form, "allgroups", response.data);
+        })
         // 编辑使填充角色信息
-        this.$set(this.form, 'roleIds', roleIds);
+        this.$set(this.form, 'groupIds', groupIds);
         listenGoBack(this.handleClose);
       },
       updateOrgMember(formName) {
@@ -274,8 +240,8 @@
           name: this.form.name,
           email: this.form.email,
           phone: this.form.phone,
-          roleIds: this.form.roleIds,
-          organizationId: this.currentUser().lastOrganizationId
+          groupIds: this.form.groupIds,
+          organizationId: this.orgId
         };
         this.$refs[formName].validate((valid) => {
           if (valid) {
@@ -288,12 +254,12 @@
         })
       },
       del(row) {
-        this.$confirm(this.$t('member.org_remove_member'), '', {
+        this.$confirm(this.$t('member.remove_member'), '', {
           confirmButtonText: this.$t('commons.confirm'),
           cancelButtonText: this.$t('commons.cancel'),
           type: 'warning'
         }).then(() => {
-          this.result = this.$get('/user/org/member/delete/' + this.currentUser().lastOrganizationId + '/' + encodeURIComponent(row.id), () => {
+          this.result = this.$get('/user/org/member/delete/' + this.orgId + '/' + encodeURIComponent(row.id), () => {
             this.$success(this.$t('commons.remove_success'));
             this.initTableData();
           });
@@ -302,50 +268,16 @@
         });
       },
       create() {
-        let orgId = this.currentUser().lastOrganizationId;
-        if (!orgId) {
-          this.$warning(this.$t('organization.select_organization'));
-          return false;
-        }
-        this.form = {};
-        this.createVisible = true;
-        this.result = this.$get('/role/list/org', response => {
-          this.$set(this.form, "roles", response.data);
-        });
+        this.$refs.addMember.open();
         listenGoBack(this.handleClose);
       },
-      submitForm(formName) {
-        this.$refs[formName].validate((valid) => {
-          let orgId = this.currentUser().lastOrganizationId;
-          if (valid) {
-            let param = {
-              userIds: this.form.ids,
-              roleIds: this.form.roleIds,
-              organizationId: orgId
-            };
-            this.result = this.$post("user/org/member/add", param, () => {
-              this.$success(this.$t('commons.save_success'));
-              this.initTableData();
-              this.createVisible = false;
-            })
-          } else {
-            return false;
-          }
-        });
-      },
-      remoteMethod(query) {
-        query = query.trim();
-        if (query !== '') {
-          this.loading = true;
-          setTimeout(() => {
-            this.loading = false;
-            this.$get("/user/search/" + query, response => {
-              this.options = response.data;
-            })
-          }, 200);
-        } else {
-          this.options = [];
-        }
+      submitForm(param) {
+        param['organizationId'] = this.orgId;
+        this.result = this.$post("user/org/member/add", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initTableData();
+          this.$refs.addMember.close();
+        })
       },
       initWorkspaceBatchProcessDataStruct(isShow){
         let organizationId = getCurrentOrganizationId();

@@ -11,11 +11,9 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.jmeter.RequestResult;
 import io.metersphere.api.jmeter.ResponseResult;
 import io.metersphere.api.parse.HarScenarioAbstractParser;
-import io.metersphere.api.service.ApiScenarioModuleService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,14 +90,6 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
         scenario.setHashTree(results);
     }
 
-//    private List<ScenarioVariable> parseScenarioVariable(List<PostmanKeyValue> postmanKeyValues) {
-//        if (postmanKeyValues == null) {
-//            return null;
-//        }
-//        List<ScenarioVariable> keyValues = new ArrayList<>();
-//        postmanKeyValues.forEach(item -> keyValues.add(new ScenarioVariable(item.getKey(), item.getValue(), item.getDescription(), VariableTypeConstants.CONSTANT.name())));
-//        return keyValues;
-//    }
 private RequestResult getRequestResult(MsHTTPSamplerProxy samplerProxy,HarEntry harEntry) {
     HarRequest request = harEntry.request;
     HarResponse response = harEntry.response;
@@ -128,21 +118,14 @@ private RequestResult getRequestResult(MsHTTPSamplerProxy samplerProxy,HarEntry 
 
     requestResult.setHeaders(JSONArray.toJSONString(request.headers));
     requestResult.setRequestSize(request.bodySize);
-//    requestResult.setStartTime(result.getStartTime());
-//    requestResult.setEndTime(result.getEndTime());
-//    requestResult.setTotalAssertions(result.getAssertionResults().length);
-//    requestResult.setSuccess(result.isSuccessful());
-//    requestResult.setError(result.getErrorCount());
     if(!ObjectUtils.isEmpty(request.cookies)){
         requestResult.setCookies(JSONArray.toJSONString(request.cookies));
     }
 
     ResponseResult responseResult = requestResult.getResponseResult();
     responseResult.setHeaders(JSONArray.toJSONString(response.headers));
-//    responseResult.setLatency(result.getLatency());
     responseResult.setResponseCode(String.valueOf(response.status));
     responseResult.setResponseSize(response.bodySize);
-//    responseResult.setResponseTime(result.getTime());
     if(response.content != null && response.content.text != null){
         responseResult.setBody(response.content.text);
         responseResult.setResponseMessage(response.content.text);

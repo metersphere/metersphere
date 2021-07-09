@@ -18,11 +18,11 @@ public interface ExtTestCaseReviewMapper {
     List<TestReviewDTOWithMetric> listRelate(@Param("request") QueryTestReviewRequest request);
 
     /**
-     * 检查某工作空间下是否有某测试评审
+     * 检查某项目是否有某测试评审
      *
      * @param reviewId
-     * @param workspaceIds
+     * @param projectIds
      * @return Review ID
      */
-    int checkIsHave(@Param("reviewId") String reviewId, @Param("workspaceIds") Set<String> workspaceIds);
+    int checkIsHave(@Param("reviewId") String reviewId, @Param("projectIds") Set<String> projectIds);
 }

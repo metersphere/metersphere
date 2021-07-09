@@ -1,11 +1,10 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.TestCaseComment;
-import io.metersphere.base.domain.TestCaseCommentExample;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
-import io.metersphere.base.domain.User;
+import com.alibaba.fastjson.JSON;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseCommentMapper;
 import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.base.mapper.TestCaseReviewMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseCommentMapper;
 import io.metersphere.commons.constants.NoticeConstants;
@@ -13,6 +12,10 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.track.TestCaseReviewReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
@@ -29,7 +32,8 @@ import java.util.*;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestCaseCommentService {
-
+    @Resource
+    TestCaseReviewMapper testCaseReviewMapper;
     @Resource
     private TestCaseCommentMapper testCaseCommentMapper;
     @Resource
@@ -45,18 +49,19 @@ public class TestCaseCommentService {
 
     public void saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
-        testCaseComment.setId(UUID.randomUUID().toString());
+        testCaseComment.setId(request.getId());
         testCaseComment.setAuthor(SessionUtils.getUser().getId());
         testCaseComment.setCaseId(request.getCaseId());
         testCaseComment.setCreateTime(System.currentTimeMillis());
         testCaseComment.setUpdateTime(System.currentTimeMillis());
         testCaseComment.setDescription(request.getDescription());
+        testCaseComment.setStatus(request.getStatus());
         testCaseCommentMapper.insert(testCaseComment);
         TestCaseWithBLOBs testCaseWithBLOBs;
         testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
 
         // 发送通知
-        User user = userMapper.selectByPrimaryKey(testCaseWithBLOBs.getMaintainer());
+        User user = userMapper.selectByPrimaryKey(testCaseComment.getAuthor());
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         List<String> userIds = new ArrayList<>();
         userIds.add(testCaseWithBLOBs.getMaintainer());//用例维护人
@@ -119,4 +124,14 @@ public class TestCaseCommentService {
         }
     }
 
+    public String getLogDetails(String id) {
+        TestCaseComment caseComment = testCaseCommentMapper.selectByPrimaryKey(id);
+        if (caseComment != null) {
+            TestCase review = testCaseMapper.selectByPrimaryKey(caseComment.getCaseId());
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(caseComment, TestCaseReviewReference.commentReviewColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(caseComment.getId()), review.getProjectId(), caseComment.getDescription(), caseComment.getAuthor(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

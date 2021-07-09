@@ -2,17 +2,18 @@ import {
   COUNT_NUMBER,
   COUNT_NUMBER_SHALLOW,
   LicenseKey,
+  ORGANIZATION_ID,
   ORIGIN_COLOR,
   ORIGIN_COLOR_SHALLOW,
   PRIMARY_COLOR,
   PROJECT_ID,
-  REFRESH_SESSION_USER_URL,
   ROLE_ADMIN,
   ROLE_ORG_ADMIN,
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey
+  TokenKey,
+  WORKSPACE_ID
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -52,15 +53,111 @@ export function hasRolePermission(role) {
   return false;
 }
 
+export function hasPermission(permission) {
+  let user = getCurrentUser();
+
+  user.userGroups.forEach(ug => {
+    user.groupPermissions.forEach(gp => {
+      if (gp.group.id === ug.groupId) {
+        ug.userGroupPermissions = gp.userGroupPermissions;
+        ug.group = gp.group;
+      }
+    });
+  });
+
+  // todo 权限验证
+  let currentProjectPermissions = user.userGroups.filter(ug => ug.group.type === 'PROJECT')
+    .filter(ug => ug.sourceId === getCurrentProjectID())
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
+
+  for (const p of currentProjectPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  let currentWorkspacePermissions = user.userGroups.filter(ug => ug.group.type === 'WORKSPACE')
+    .filter(ug => ug.sourceId === getCurrentWorkspaceId())
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
+
+  for (const p of currentWorkspacePermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  let currentOrganizationPermissions = user.userGroups.filter(ug => ug.group.type === 'ORGANIZATION')
+    .filter(ug => ug.sourceId === getCurrentOrganizationId())
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
+
+  for (const p of currentOrganizationPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  let systemPermissions = user.userGroups.filter(gp => gp.group.type === 'SYSTEM')
+    .filter(ug => ug.sourceId === 'system' || ug.sourceId === 'adminSourceId')
+    .map(ug => ug.userGroupPermissions)
+    .reduce((total, current) => {
+      return total.concat(current);
+    }, [])
+    .map(g => g.permissionId)
+    .reduce((total, current) => {
+      total.add(current);
+      return total;
+    }, new Set);
+
+  for (const p of systemPermissions) {
+    if (p === permission) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function hasLicense() {
   let v = localStorage.getItem(LicenseKey);
   return v === 'valid';
 }
 
-//是否含有对应组织或工作空间的角色
 export function hasRolePermissions(...roles) {
   for (let role of roles) {
     if (hasRolePermission(role)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function hasPermissions(...permissions) {
+  for (let p of permissions) {
+    if (hasPermission(p)) {
       return true;
     }
   }
@@ -82,13 +179,15 @@ export function checkoutTestManagerOrTestUser() {
 }
 
 export function getCurrentOrganizationId() {
-  let user = getCurrentUser();
-  return user.lastOrganizationId;
+  return sessionStorage.getItem(ORGANIZATION_ID);
 }
 
 export function getCurrentWorkspaceId() {
-  let user = getCurrentUser();
-  return user.lastWorkspaceId;
+  return sessionStorage.getItem(WORKSPACE_ID);
+}
+
+export function getCurrentProjectID() {
+  return sessionStorage.getItem(PROJECT_ID);
 }
 
 export function getCurrentUser() {
@@ -98,10 +197,6 @@ export function getCurrentUser() {
 export function getCurrentUserId() {
   let user = JSON.parse(localStorage.getItem(TokenKey));
   return user.id;
-}
-
-export function getCurrentProjectID() {
-  return localStorage.getItem(PROJECT_ID);
 }
 
 export function enableModules(...modules) {
@@ -117,6 +212,15 @@ export function enableModules(...modules) {
 export function saveLocalStorage(response) {
   // 登录信息保存 cookie
   localStorage.setItem(TokenKey, JSON.stringify(response.data));
+  if (!sessionStorage.getItem(PROJECT_ID)) {
+    sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+  }
+  if (!sessionStorage.getItem(ORGANIZATION_ID)) {
+    sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
+  }
+  if (!sessionStorage.getItem(WORKSPACE_ID)) {
+    sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
+  }
   let rolesArray = response.data.roles;
   let roles = rolesArray.map(r => r.id);
   // 保存角色
@@ -127,15 +231,6 @@ export function saveLicense(data) {
   // 保存License
   localStorage.setItem(LicenseKey, data);
 }
-
-
-export function refreshSessionAndCookies(sign, sourceId) {
-  axios.post(REFRESH_SESSION_USER_URL + "/" + sign + "/" + sourceId).then(r => {
-    saveLocalStorage(r.data);
-    window.location.reload();
-  });
-}
-
 
 export function jsonToMap(jsonStr) {
   let obj = JSON.parse(jsonStr);
@@ -241,6 +336,10 @@ export function exportPdf(name, canvasList) {
       let blankHeight = a4Height - currentHeight;
 
       if (leftHeight > blankHeight) {
+        if (blankHeight < 200) {
+          pdf.addPage();
+          currentHeight = 0;
+        }
         //页面偏移
         let position = 0;
         while (leftHeight > 0) {
@@ -251,10 +350,10 @@ export function exportPdf(name, canvasList) {
           leftHeight -= occupation;
           position -= occupation;
           //避免添加空白页
-          if (leftHeight > 0) {
-            pdf.addPage();
-            currentHeight = 0;
-          }
+          // if (leftHeight > 0) {
+          // pdf.addPage();
+          // currentHeight = 0;
+          // }
         }
       } else {
         pdf.addImage(pageData, 'JPEG', 0, currentHeight, imgWidth, imgHeight);
@@ -287,9 +386,11 @@ export function getBodyUploadFiles(obj, runData) {
   if (runData) {
     if (runData instanceof Array) {
       runData.forEach(request => {
+        obj.requestId = request.id;
         _getBodyUploadFiles(request, bodyUploadFiles, obj);
       });
     } else {
+      obj.requestId = runData.id;
       _getBodyUploadFiles(runData, bodyUploadFiles, obj);
     }
   }
@@ -299,8 +400,10 @@ export function getBodyUploadFiles(obj, runData) {
 export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
   let body = null;
   if (request.hashTree && request.hashTree.length > 0 && request.hashTree[0] && request.hashTree[0].body) {
+    obj.requestId = request.hashTree[0].id;
     body = request.hashTree[0].body;
   } else if (request.body) {
+    obj.requestId = request.id;
     body = request.body;
   }
   if (body) {
@@ -309,12 +412,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
         if (param.files) {
           param.files.forEach(item => {
             if (item.file) {
-              if (!item.id) {
-                let fileId = getUUID().substring(0, 12);
-                item.name = item.file.name;
-                item.id = fileId;
-              }
-              obj.bodyUploadIds.push(item.id);
+              item.name = item.file.name;
               bodyUploadFiles.push(item.file);
             }
           });
@@ -326,12 +424,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
         if (param.files) {
           param.files.forEach(item => {
             if (item.file) {
-              if (!item.id) {
-                let fileId = getUUID().substring(0, 12);
-                item.name = item.file.name;
-                item.id = fileId;
-              }
-              obj.bodyUploadIds.push(item.id);
+              item.name = item.file.name;
               bodyUploadFiles.push(item.file);
             }
           });
@@ -344,6 +437,15 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
 export function handleCtrlSEvent(event, func) {
   if (event.keyCode === 83 && event.ctrlKey) {
     // console.log('拦截到 ctrl + s');//ctrl+s
+    func();
+    event.preventDefault();
+    event.returnValue = false;
+    return false;
+  }
+}
+
+export function handleCtrlREvent(event, func) {
+  if (event.keyCode === 82 && event.ctrlKey) {
     func();
     event.preventDefault();
     event.returnValue = false;
@@ -404,5 +506,5 @@ export function getNodePath(id, moduleOptions) {
 }
 
 export function getDefaultTableHeight() {
-  return document.documentElement.clientHeight - 280;
+  return document.documentElement.clientHeight - 200;
 }

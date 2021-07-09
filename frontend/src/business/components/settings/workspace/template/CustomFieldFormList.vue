@@ -32,7 +32,7 @@
       </template>
     </ms-table-column>
 
-<!--    <field-custom-data-table-item :scene="scene"/>-->
+    <field-custom-data-table-item :scene="scene"/>
 
     <ms-table-column
       :label="$t('api_test.definition.document.table_coloum.is_required')"
@@ -69,7 +69,7 @@
 <script>
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import FieldCustomDataTableItem from "@/business/components/settings/workspace/template/FieldCustomDataTableItem";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
@@ -84,7 +84,13 @@ export default {
      operators: [
        {
          tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-         exec: this.handleDelete
+         exec: this.handleDelete,
+         isDisable: (row) => {
+           if (row.name === '用例等级') {
+             return true;
+           }
+           return false;
+         }
        }
      ],
     };
@@ -97,6 +103,7 @@ export default {
       },
     },
     scene: String,
+    platform: String,
     templateContainIds: Set
   },
   watch: {

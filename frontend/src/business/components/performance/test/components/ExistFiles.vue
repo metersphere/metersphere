@@ -3,7 +3,8 @@
              :destroy-on-close="true"
              :title="$t('load_test.exist_jmx')" width="70%"
              :visible.sync="loadFileVisible">
-    <ms-table-header :is-tester-permission="true" title="" :condition.sync="condition" @search="getProjectFiles" :show-create="false">
+    <ms-table-header title="" :condition.sync="condition" @search="getProjectFiles"
+                     :show-create="false">
       <template v-slot:button>
         <el-upload
           v-if="loadType === 'jmx'"
@@ -18,7 +19,7 @@
           :on-exceed="handleExceed"
           :disabled="isReadOnly"
           :file-list="fileList">
-          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+          <ms-table-button icon="el-icon-upload2"
                            :content="$t('load_test.upload_jmx')"/>
         </el-upload>
         <el-upload
@@ -34,7 +35,7 @@
           :on-exceed="handleExceed"
           :disabled="isReadOnly"
           :file-list="fileList">
-          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+          <ms-table-button icon="el-icon-upload2"
                            :content="$t('load_test.upload_file')"/>
         </el-upload>
       </template>
@@ -61,6 +62,33 @@
           <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
+      <el-table-column :label="$t('commons.operating')">
+        <template v-slot:default="scope">
+          <el-upload
+            style="width: 38px; float: left;"
+            accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx,.txt"
+            action=""
+            :limit="fileNumLimit"
+            :show-file-list="false"
+            :before-upload="beforeUpdateUploadFile"
+            :http-request="handleUpdateUpload"
+            :on-exceed="handleExceed">
+            <el-tooltip effect="dark" :content="$t('project.upload_file_again')" placement="bottom">
+              <el-button circle
+                         type="success"
+                         icon="el-icon-upload"
+                         @click="handleEdit(scope.row)"
+                         size="mini"/>
+            </el-tooltip>
+          </el-upload>
+          <ms-table-operator-button
+            icon="el-icon-delete"
+            type="danger"
+            :tip="$t('commons.delete')"
+            @exec="handleDelete(scope.row)">
+          </ms-table-operator-button>
+        </template>
+      </el-table-column>
     </el-table>
     <ms-table-pagination :change="getProjectFiles" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
@@ -79,10 +107,12 @@ import {findThreadGroup} from "@/business/components/performance/test/model/Thre
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import axios from "axios";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+import {Message} from "element-ui";
+import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 
 export default {
   name: "ExistFiles",
-  components: {MsTableHeader, MsTableButton, MsTablePagination, MsDialogFooter},
+  components: {MsTableOperatorButton, MsTableHeader, MsTableButton, MsTablePagination, MsDialogFooter},
   props: {
     fileList: Array,
     tableData: Array,
@@ -90,6 +120,9 @@ export default {
     scenarios: Array,
     isReadOnly: Boolean,
   },
+  inject: [
+    'reload'
+  ],
   data() {
     return {
       loadFileVisible: false,
@@ -102,7 +135,7 @@ export default {
       selectIds: new Set,
       fileNumLimit: 10,
       condition: {}
-    }
+    };
   },
   methods: {
     open(loadType) {
@@ -139,11 +172,10 @@ export default {
         let data = res.data;
         this.total = data.itemCount;
         this.existFiles = data.listObject;
-      })
+      });
     },
     handleImport(file) {
       if (file) { // 接口测试创建的性能测试
-        console.log(file);
         this.selectIds.add(file.id);
         this.getJmxContents();
         return;
@@ -176,7 +208,7 @@ export default {
       //
       rows.forEach(row => {
         this.fileList.push(row);
-      })
+      });
 
       if (this.loadType === 'resource') {
         this.$success(this.$t('test_track.case.import.success'));
@@ -216,10 +248,18 @@ export default {
         return false;
       }
     },
+    beforeUpdateUploadFile(file) {
+      if (!this.fileValidator(file)) {
+        /// todo: 显示错误信息
+        return false;
+      }
+
+      return true;
+    },
     checkFileExist(file, callback) {
       // 检查数据库是否存在同名文件
       async function f() {
-        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {name: file.name})
+        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {name: file.name});
       }
 
       f().then(res => {
@@ -237,7 +277,7 @@ export default {
       let file = uploadResources.file;
       this.checkFileExist(file, () => {
         let formData = new FormData();
-        let url = '/project/upload/files/' + getCurrentProjectID()
+        let url = '/project/upload/files/' + getCurrentProjectID();
         formData.append("file", file);
         let options = {
           method: 'POST',
@@ -246,7 +286,7 @@ export default {
           headers: {
             'Content-Type': undefined
           }
-        }
+        };
         self.$request(options, (response) => {
           self.$success(this.$t('commons.save_success'));
           self.getProjectFiles();
@@ -255,7 +295,56 @@ export default {
             self.handleImport(row);
           }
         });
-      })
+      });
+    },
+    handleUpdateUpload(uploadResources) {
+      let file = uploadResources.file;
+      let i1 = file.name.lastIndexOf(".");
+      let i2 = this.currentRow.name.lastIndexOf(".");
+      let suffix1 = file.name.substring(i1);
+      let suffix2 = this.currentRow.name.substring(i2);
+      if (suffix1 !== suffix2) {
+        this.$error(this.$t('load_test.project_file_update_type_error'));
+        return;
+      }
+
+      let formData = new FormData();
+      let url = '/project/update/file/' + this.currentRow.id;
+      formData.append("file", file);
+      let options = {
+        method: 'POST',
+        url: url,
+        data: formData,
+        headers: {
+          'Content-Type': undefined
+        }
+      };
+      this.$request(options, (response) => {
+        this.$success(this.$t('commons.save_success'));
+        this.getProjectFiles();
+        // 刷新页面上的线程组
+        if (this.tableData.filter(f => f.id === this.currentRow.id).length > 0) {
+          this.reload();
+        }
+        this.currentRow = null;
+      });
+    },
+    handleEdit(row) {
+      this.currentRow = row;
+    },
+    handleDelete(row) {
+      this.$confirm(this.$t('project.file_delete_tip', [row.name]), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.$get('/project/delete/file/' + row.id, response => {
+          Message.success(this.$t('commons.delete_success'));
+          this.getProjectFiles();
+        });
+      }).catch(() => {
+
+      });
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
@@ -265,7 +354,7 @@ export default {
       return file.size > 0;
     },
   }
-}
+};
 </script>
 
 <style scoped>

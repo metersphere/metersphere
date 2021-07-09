@@ -99,6 +99,7 @@
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
         select DISTINCT test_plan.*, user.name as user_name, project.name as projectName,schedule.id as scheduleId,
+                        (select name from user where user.id = test_plan.creator) as createUser,
             IF(schedule.enable = true,true,false) as scheduleOpen
         from test_plan
         LEFT JOIN user ON user.id = test_plan.principal
@@ -154,7 +155,7 @@
     </select>
     <select id="planList" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
+        SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.ID
         <where>
             <if test="request.workspaceId != null">
                 AND p.workspace_id = #{request.workspaceId}
@@ -185,7 +186,7 @@
     </select>
 
     <select id="selectByIds" resultMap="BaseResultMap" parameterType="java.util.List">
-        SELECT * FROM TEST_PLAN p where p.id in
+        SELECT * FROM test_plan p where p.id in
         <foreach collection="list" item="planId" open="(" close=")" separator=",">
             #{planId}
         </foreach>
@@ -196,32 +197,32 @@
         SELECT COUNT(1) as c
         FROM test_plan_project, project
         WHERE project_id = project.id AND test_plan_id = #{planId}
-        <if test="workspaceIds != null and workspaceIds.size() > 0">
-            AND project.workspace_id IN
-            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project.id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>
         union
         select count(1) as c from test_plan, project
         WHERE project_id = project.id AND test_plan.id = #{planId}
-        <if test="workspaceIds != null and workspaceIds.size() > 0">
-            AND project.workspace_id IN
-            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+        <if test="projectIds != null and projectIds.size() > 0">
+            AND project.id IN
+            <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>) as temp
     </select>
 
     <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
+        SELECT * FROM test_plan p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
         <where>
             AND (t.project_id = #{request.projectId} or p.project_id = #{request.projectId})
             <if test="request.scenarioId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_api_scenario WHERE api_scenario_id = #{request.scenarioId} )
             </if>
             <if test="request.apiId != null">
-                AND p.id IN (SELECT test_plan_id FROM test_plan_api_case WHERE api_case_id = #{request.apiId})
+                AND p.id IN (SELECT test_plan_id FROM test_plan_api_case WHERE id = #{request.apiId})
             </if>
             <if test="request.loadId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_load_case WHERE load_case_id = #{request.loadId})
@@ -229,7 +230,7 @@
         </where>
     </select>
     <select id="findTestProjectNameByTestPlanID" resultType="java.lang.String">
-        SELECT p.name FROM TEST_PLAN tp INNER JOIN project p ON p.id =tp.project_id
+        SELECT p.name FROM test_plan tp INNER JOIN project p ON p.id =tp.project_id
         WHERE tp.id = #{0} limit 1;
     </select>
     <select id="findScheduleCreateUserById" resultType="java.lang.String">

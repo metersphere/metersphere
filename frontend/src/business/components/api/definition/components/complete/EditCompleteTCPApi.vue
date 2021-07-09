@@ -5,6 +5,9 @@
       <el-col>
         <!--操作按钮-->
         <div style="float: right;margin-right: 20px;margin-top: 20px">
+          <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="basisData.id">
+            {{ $t('operating_log.change_history') }}
+          </el-link>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
           <el-button type="primary" size="small" @click="runTest">{{ $t('commons.test') }}</el-button>
         </div>
@@ -22,7 +25,8 @@
     <!-- 请求参数 -->
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-      <ms-basis-parameters :show-script="false" :request="request"/>
+<!--      <ms-basis-parameters :show-script="false" :request="request"/>-->
+      <ms-tcp-format-parameters :show-script="false" :request="request" ref="tcpFormatParameter"/>
     </div>
     <div v-else-if="apiProtocol=='ESB'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -32,6 +36,7 @@
 <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
 
+    <ms-change-history ref="changeHistory"/>
 
   </div>
 
@@ -39,13 +44,16 @@
 
 <script>
 import MsTcpBasicApi from "./TCPBasicApi";
-import MsBasisParameters from "../request/tcp/TcpBasisParameters";
+import MsTcpFormatParameters from  "../request/tcp/TcpFormatParameters";
+import MsChangeHistory from "../../../../history/ChangeHistory";
+import {hasLicense} from "@/common/js/utils";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
-  components: {MsTcpBasicApi, MsBasisParameters,
+  components: {MsTcpBasicApi, MsTcpFormatParameters,MsChangeHistory,
     "esbDefinition": esbDefinition.default,
     "esbDefinitionResponse": esbDefinitionResponse.default},
   props: {
@@ -62,7 +70,12 @@ export default {
     return {
       validated: false,
       apiProtocol: "TCP",
-      methodTypes:["TCP"],
+      methodTypes:[
+        {
+          'key':"TCP",
+          'value':this.$t('api_test.request.tcp.general_format'),
+        }
+      ],
       showXpackCompnent:false,
     }
   },
@@ -76,9 +89,15 @@ export default {
     }
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
-      if(this.methodTypes.length == 1){
-        this.methodTypes.push("ESB");
+      if(hasLicense()){
+        if(this.methodTypes.length == 1){
+          let esbMethodType = {};
+          esbMethodType.key = "ESB";
+          esbMethodType.value="ESB";
+          this.methodTypes.push(esbMethodType);
+        }
       }
+
     }
   },
   watch: {
@@ -102,6 +121,9 @@ export default {
     },
   },
   methods: {
+    openHis(){
+      this.$refs.changeHistory.open(this.basisData.id);
+    },
     callback() {
       this.validated = true;
     },
@@ -131,6 +153,8 @@ export default {
           if(this.request.backScript != null){
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
+        }else{
+          this.$refs.tcpFormatParameter.validateXmlDataStruct();
         }
         this.$emit('saveApi', this.basisData);
       }
@@ -141,6 +165,24 @@ export default {
         this.basisData.request = this.request;
         if (this.basisData.tags instanceof Array) {
           this.basisData.tags = JSON.stringify(this.basisData.tags);
+        }
+        if (this.basisData.method == 'ESB') {
+          let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
+          if (!validataResult) {
+            return;
+          }
+          if (this.request.esbDataStruct != null) {
+            this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
+            this.basisData.esbDataStruct = this.esbDataStruct;
+          }
+          if (this.request.backEsbDataStruct != null) {
+            this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
+          }
+          if (this.request.backScript != null) {
+            this.basisData.backScript = JSON.stringify(this.request.backScript);
+          }
+        }else{
+          this.$refs.tcpFormatParameter.validateXmlDataStruct();
         }
         this.$emit('runTest', this.basisData);
       }
@@ -156,11 +198,5 @@ export default {
 </script>
 
 <style scoped>
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-  margin: 0px 20px 0px;
-}
+
 </style>

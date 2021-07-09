@@ -6,10 +6,14 @@
         <el-col>
           <el-form-item :label="$t('system_config.base.url')" prop="url">
             <el-input v-model="formInline.url" :placeholder="$t('system_config.base.url_tip')"/>
-            <i>({{$t('commons.examples')}}:https://rdmetersphere.fit2cloud.com)</i>
+            <i>({{ $t('commons.examples') }}:https://rdmetersphere.fit2cloud.com)</i>
           </el-form-item>
           <el-form-item :label="$t('report.max_users')" prop="concurrency">
             <el-input v-model="formInline.concurrency" :placeholder="$t('report.max_users')"/>
+          </el-form-item>
+          <el-form-item :label="$t('system_config.prometheus.host')" prop="prometheusHost">
+            <el-input v-model="formInline.prometheusHost" :placeholder="$t('system_config.prometheus.host_tip')"/>
+            <i>({{ $t('commons.examples') }}:http://ms-prometheus:9090)</i>
           </el-form-item>
         </el-col>
       </el-row>
@@ -49,6 +53,13 @@ export default {
             trigger: ['change', 'blur']
           },
         ],
+        prometheusHost: [
+          {
+            required: true,
+            message: this.$t('system_config.prometheus.host_is_null'),
+            trigger: ['change', 'blur']
+          },
+        ],
       }
     }
   },
@@ -79,6 +90,7 @@ export default {
       let param = [
         {paramKey: "base.url", paramValue: this.formInline.url, type: "text", sort: 1},
         {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
+        {paramKey: "base.prometheus.host", paramValue: this.formInline.prometheusHost, type: "text", sort: 1},
       ];
 
       this.$refs[formInline].validate(valid => {

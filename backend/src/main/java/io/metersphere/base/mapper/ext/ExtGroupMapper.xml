@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtGroupMapper">
+
+
+    <select id="getGroupList" resultType="io.metersphere.dto.GroupDTO">
+        select *,
+               (select count(distinct ug.user_id) from user_group ug join user on ug.user_id = user.id where ug.group_id = temp.id) as memberSize
+        from (
+            select g.*, o.name as scopeName from `group` g, organization o
+            <where>
+                and g.scope_id = o.id
+                <if test="request.types != null and request.types.size() > 0">
+                    AND g.type in
+                    <foreach collection="request.types" item="type" separator="," open="(" close=")">
+                        #{type}
+                    </foreach>
+                </if>
+                <if test="request.scopes != null and request.scopes.size() > 0">
+                    AND g.scope_id in
+                    <foreach collection="request.scopes" item="scope" separator="," open="(" close=")">
+                        #{scope}
+                    </foreach>
+                </if>
+            </where>
+            union distinct
+            select g.*, '全局' as scopeName from `group` g
+            <where>
+                g.scope_id = 'global'
+                <if test="request.types != null and request.types.size() > 0">
+                    AND g.type in
+                    <foreach collection="request.types" item="type" separator="," open="(" close=")">
+                        #{type}
+                    </foreach>
+                </if>
+            </where>
+        ) temp
+        <if test="request.name != null and request.name!=''">
+            where temp.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                temp.${order.name} ${order.type}, temp.name desc
+            </foreach>
+        </if>
+    </select>
+</mapper>

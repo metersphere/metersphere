@@ -8,7 +8,7 @@
     ref="msEditDialog">
 
       <template v-slot:header>
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+        <ms-table-header :condition.sync="condition" @search="initTableData"
                          :show-create="false"/>
       </template>
 
@@ -96,7 +96,7 @@
 <script>
 import MsTable from "@/business/components/common/components/table/MsTable";
 import {getCurrentWorkspaceId} from "@/common/js/utils";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
@@ -167,16 +167,7 @@ export default {
       this.visible = true;
     },
     save() {
-      if (this.condition.selectAll) {
-        if (this.scene) {
-          // this.result = this.$post('custom/field/list/ids' + this.currentPage + '/' + this.pageSize,
-          //   this.condition, (response) => {
-          //     this.$emit('save', response.data);
-          //   });
-        }
-      } else {
-        this.$emit('save', this.$refs.table.selectIds);
-      }
+      this.$emit('save', this.$refs.table.selectIds);
       this.visible = false;
     },
   }

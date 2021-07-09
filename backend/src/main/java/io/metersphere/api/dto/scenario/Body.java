@@ -2,9 +2,9 @@ package io.metersphere.api.dto.scenario;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.scenario.request.BodyFile;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +23,7 @@ public class Body {
     private List<KeyValue> kvs;
     private List<KeyValue> binary;
     private Object jsonSchema;
+    private String tmpFilePath;
 
     public final static String KV = "KeyValue";
     public final static String FORM_DATA = "Form Data";
@@ -79,21 +80,17 @@ public class Body {
     }
 
     private void parseJonBodyMock() {
-        try {
-//            if (StringUtils.isNotBlank(this.format) && "JSON-SCHEMA".equals(this.format) ) {
-//                if(this.getJsonSchema() != null) {
-//                    JSONObject jsonObject = JSONObject.parseObject(JSONObject.toJSONString(this.getJsonSchema()));
-//                    jsonMockParse(jsonObject);
-//                    this.setJsonSchema(jsonObject);
-//                }
-//            } else
-            if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {    //  json 文本也支持 mock 参数
-                JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
-                jsonMockParse(jsonObject);
-                this.raw = JSONObject.toJSONString(jsonObject);
+        if (StringUtils.isNotBlank(this.type) && StringUtils.equals(this.type, "JSON")) {
+            if(StringUtils.isNotEmpty(this.format) && this.getJsonSchema() != null
+                    && "JSON-SCHEMA".equals(this.format)) {
+                this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
+            } else {    //  json 文本也支持 mock 参数
+                try {
+                    JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
+                    jsonMockParse(jsonObject);
+                    this.raw = JSONObject.toJSONString(jsonObject);
+                } catch (Exception e) {}
             }
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -104,7 +101,7 @@ public class Body {
                 jsonMockParse((JSONObject) value);
             } else if(value instanceof String) {
                 if (StringUtils.isNotBlank((String) value)) {
-                    value = ScriptEngineUtils.calculate((String) value);
+                    value = ScriptEngineUtils.buildFunctionCallString((String) value);
                 }
                 jsonObject.put(key, value);
             }
@@ -130,7 +127,15 @@ public class Body {
         if (files != null) {
             files.forEach(file -> {
                 String paramName = keyValue.getName() == null ? requestId : keyValue.getName();
-                String path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
+                String path = null;
+                if (StringUtils.isNotBlank(file.getId())) {
+                    // 旧数据
+                    path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
+                } else if (StringUtils.isNotBlank(this.tmpFilePath)) {
+                    path = FileUtils.BODY_FILE_DIR + '/' + this.tmpFilePath + '/' + file.getName();
+                } else {
+                    path = FileUtils.BODY_FILE_DIR + '/' + requestId + '/' + file.getName();
+                }
                 String mimetype = keyValue.getContentType();
                 list.add(new HTTPFileArg(path, paramName, mimetype));
             });
@@ -164,5 +169,4 @@ public class Body {
         this.binary = new ArrayList<>();
         this.binary.add(new KeyValue());
     }
-
 }

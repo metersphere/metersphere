@@ -713,6 +713,136 @@ public class TestPlanTestCaseExample {
             addCriterion("report_id not between", value1, value2, "reportId");
             return (Criteria) this;
         }
+
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountIsNull() {
+            addCriterion("issues_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountIsNotNull() {
+            addCriterion("issues_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountEqualTo(Integer value) {
+            addCriterion("issues_count =", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountNotEqualTo(Integer value) {
+            addCriterion("issues_count <>", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountGreaterThan(Integer value) {
+            addCriterion("issues_count >", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("issues_count >=", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountLessThan(Integer value) {
+            addCriterion("issues_count <", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountLessThanOrEqualTo(Integer value) {
+            addCriterion("issues_count <=", value, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountIn(List<Integer> values) {
+            addCriterion("issues_count in", values, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountNotIn(List<Integer> values) {
+            addCriterion("issues_count not in", values, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountBetween(Integer value1, Integer value2) {
+            addCriterion("issues_count between", value1, value2, "issuesCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssuesCountNotBetween(Integer value1, Integer value2) {
+            addCriterion("issues_count not between", value1, value2, "issuesCount");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -21,7 +21,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/report")
-@RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
 public class APIReportController {
 
     @Resource
@@ -50,7 +49,6 @@ public class APIReportController {
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<APIReportResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPIReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiReportService.list(request));
     }
 
@@ -60,7 +58,6 @@ public class APIReportController {
     }
 
     @PostMapping("/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
     }
@@ -71,7 +68,6 @@ public class APIReportController {
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteAPIReportBatch(@RequestBody DeleteAPIReportRequest reportRequest) {
         apiReportService.deleteAPIReportBatch(reportRequest);
     }

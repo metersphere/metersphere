@@ -6,7 +6,7 @@
           <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
             <el-row>
               <el-col :span="8">
-                <el-form-item prop="environmentId" div v-if="!isScenario" :label="$t('api_test.definition.request.run_env')">
+                <el-form-item prop="environmentId" :label="$t('api_test.definition.request.run_env')">
                   <el-select v-model="request.environmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
                              @change="environmentChange" clearable>
@@ -91,7 +91,7 @@
   import {createComponent} from "../../jmeter/components";
   import {Assertions, Extract} from "../../../model/ApiTestModel";
   import {parseEnvironment} from "../../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import {getCurrentProjectID} from "@/common/js/utils";
   import {getUUID} from "@/common/js/utils";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
@@ -108,11 +108,6 @@
       request: {},
       basisData: {},
       moduleOptions: Array,
-      environment: {},//来自场景选择的环境
-      isScenario: {
-        type: Boolean,
-        default: false,
-      },
       showScript: {
         type: Boolean,
         default: true,
@@ -129,32 +124,20 @@
         databaseConfigsOptions: [],
         isReloadData: false,
         activeName: "variables",
-        rules: {
-
-        },
+        rules: {},
       }
     },
     watch: {
       'request.dataSourceId'() {
         this.setDataSource();
       },
-      environment: {
-        handler: function () {
-          this.initDataSource();
-        },
-        deep: true
-      }
     },
     created() {
-      if(this.isScenario){
-        this.initDataSource();
-      }else{
-        this.getEnvironments();
-      }
+      this.getEnvironments();
     },
     computed: {
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {
@@ -238,31 +221,16 @@
       },
       initDataSource() {
         let flag = false;
-        if (this.isScenario && this.environment) {
-          this.request.environmentId = this.environment.id;
-          this.databaseConfigsOptions = [];
-          if (this.environment.config) {
-            let config = JSON.parse(this.environment.config);
-            config.databaseConfigs.forEach(item => {
-              if (item.id !== this.request.dataSourceId) {
-                this.request.dataSourceId = item.id;
+        for (let i in this.environments) {
+          if (this.environments[i].id === this.request.environmentId) {
+            this.databaseConfigsOptions = [];
+            this.environments[i].config.databaseConfigs.forEach(item => {
+              if (item.id === this.request.dataSourceId) {
+                flag = true;
               }
-              flag = true;
               this.databaseConfigsOptions.push(item);
             });
-          }
-        } else {
-          for (let i in this.environments) {
-            if (this.environments[i].id === this.request.environmentId) {
-              this.databaseConfigsOptions = [];
-              this.environments[i].config.databaseConfigs.forEach(item => {
-                if (item.id === this.request.dataSourceId) {
-                  flag = true;
-                }
-                this.databaseConfigsOptions.push(item);
-              });
-              break;
-            }
+            break;
           }
         }
         if (!flag) {
@@ -270,6 +238,8 @@
         }
       },
       setDataSource() {
+        this.initDataSource();
+
         for (let item of this.databaseConfigsOptions) {
           if (this.request.dataSourceId === item.id) {
             this.request.dataSource = item;
@@ -321,13 +291,5 @@
 
   /deep/ .el-form-item {
     margin-bottom: 15px;
-  }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 0px 20px 0px;
   }
 </style>

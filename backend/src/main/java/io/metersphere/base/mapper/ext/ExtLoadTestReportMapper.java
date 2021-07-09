@@ -1,5 +1,6 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.performance.controller.request.ReportRequest;
@@ -16,4 +17,6 @@ public interface ExtLoadTestReportMapper {
     List<DashboardTestDTO> selectDashboardTests(@Param("workspaceId") String workspaceId, @Param("startTimestamp") long startTimestamp);
 
     List<String> selectResourceId(@Param("reportId") String reportId);
+
+    void updateJmxContentIfAbsent(LoadTestReportWithBLOBs record);
 }

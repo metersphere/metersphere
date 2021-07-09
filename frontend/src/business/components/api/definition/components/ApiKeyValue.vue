@@ -7,10 +7,11 @@
       <el-checkbox v-model="isSelectAll" v-if="isShowEnable === true && items.length > 1"/>
     </el-row>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
+
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
           <el-checkbox v-if="!isDisable(index)" v-model="item.enable"
-                 :disabled="isReadOnly"/>
+                       :disabled="isReadOnly"/>
         </el-col>
         <span style="margin-left: 10px" v-else></span>
 
@@ -42,9 +43,8 @@
               :fetch-suggestions="funcSearch"
               highlight-first-item
               show-word-limit>
-              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
+              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
             </el-autocomplete>
-            <ms-api-variable-advance ref="variableAdvance"/>
           </div>
         </el-col>
         <el-col class="item kv-delete">
@@ -53,6 +53,8 @@
         </el-col>
       </el-row>
     </div>
+    <ms-api-variable-advance :current-item="currentItem" :parameters="keyValues" ref="variableAdvance"/>
+
   </div>
 </template>
 
@@ -88,6 +90,7 @@
       return {
         keyValues: [],
         loading: false,
+        currentItem: {},
         isSelectAll: true
       }
     },
@@ -100,16 +103,17 @@
       }
     },
     watch: {
-      isSelectAll: function(to, from) {
-        if(from == false && to == true) {
+      isSelectAll: function (to, from) {
+        if (from == false && to == true) {
           this.selectAll();
-        } else if(from == true && to == false) {
+        } else if (from == true && to == false) {
           this.invertSelect();
         }
       }
     },
     methods: {
-      advanced() {
+      advanced(item) {
+        this.currentItem = item;
         this.$refs.variableAdvance.open();
       },
       funcFilter(queryString) {

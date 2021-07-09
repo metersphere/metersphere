@@ -4,9 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
+import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.parse.xml.reader.DocumentParser;
 import org.apache.commons.lang3.BooleanUtils;
@@ -22,8 +22,10 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.List;
+import java.util.StringTokenizer;
 
 public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
@@ -35,6 +37,8 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
     private final static String THREAD_GROUP = "ThreadGroup";
+    private final static String POST_THREAD_GROUP = "PostThreadGroup";
+    private final static String SETUP_THREAD_GROUP = "SetupThreadGroup";
     private final static String BACKEND_LISTENER = "BackendListener";
     private final static String CONFIG_TEST_ELEMENT = "ConfigTestElement";
     private final static String DNS_CACHE_MANAGER = "DNSCacheManager";
@@ -87,9 +91,6 @@ public class JmeterDocumentParser implements DocumentParser {
                 Node node = childNodes.item(i);
                 if (node instanceof Element) {
                     Element ele = (Element) node;
-                    if (invalid(ele)) {
-                        continue;
-                    }
 
                     if (nodeNameEquals(ele, HASH_TREE_ELEMENT)) {
                         parseHashTree(ele);
@@ -107,7 +108,9 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutTimer(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
                         processVariableThroughputTimer(ele);
-                    } else if (nodeNameEquals(ele, THREAD_GROUP)) {
+                    } else if (nodeNameEquals(ele, THREAD_GROUP) ||
+                            nodeNameEquals(ele, SETUP_THREAD_GROUP) ||
+                            nodeNameEquals(ele, POST_THREAD_GROUP)) {
                         processThreadType(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
@@ -266,10 +269,74 @@ public class JmeterDocumentParser implements DocumentParser {
                 if (StringUtils.equals(filenameTag, "filename")) {
                     // 截取文件名
                     handleFilename(item);
+                    // 切割CSV文件
+                    splitCsvFile(item);
                     break;
                 }
             }
         }
+    }
+
+    private void splitCsvFile(Node item) {
+        Object csvConfig = context.getProperty("csvConfig");
+        if (csvConfig == null) {
+            return;
+        }
+        double[] ratios = context.getRatios();
+        int resourceIndex = context.getResourceIndex();
+        String filename = item.getTextContent();
+        byte[] content = context.getTestResourceFiles().get(filename);
+        StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
+        if (!tokenizer.hasMoreTokens()) {
+            return;
+        }
+        StringBuilder csv = new StringBuilder();
+        Object config = ((JSONObject) csvConfig).get(filename);
+        boolean csvSplit = ((JSONObject) (config)).getBooleanValue("csvSplit");
+        if (!csvSplit) {
+            return;
+        }
+        boolean csvHasHeader = ((JSONObject) (config)).getBooleanValue("csvHasHeader");
+        if (csvHasHeader) {
+            String header = tokenizer.nextToken();
+            csv.append(header).append("\n");
+        }
+        int count = tokenizer.countTokens();
+
+        long current, offset = 0;
+
+        // 计算偏移量
+        for (int k = 0; k < resourceIndex; k++) {
+            offset += Math.round(count * ratios[k]);
+        }
+
+        if (resourceIndex + 1 == ratios.length) {
+            current = count - offset; // 最后一个点可以分到的数量
+        } else {
+            current = Math.round(count * ratios[resourceIndex]); // 当前节点可以分到的数量
+        }
+
+        long index = 1;
+        while (tokenizer.hasMoreTokens()) {
+            if (current == 0) { // 节点一个都没有分到，把所有的数据都给这个节点（极端情况）
+                String line = tokenizer.nextToken();
+                csv.append(line).append("\n");
+            } else {
+                if (index < offset) {
+                    tokenizer.nextToken();
+                    index++;
+                    continue;
+                }
+                if (index > current + offset) {
+                    break;
+                }
+                String line = tokenizer.nextToken();
+                csv.append(line).append("\n");
+            }
+            index++;
+        }
+        // 替换文件
+        context.getTestResourceFiles().put(filename, csv.toString().getBytes(StandardCharsets.UTF_8));
     }
 
     private void processResponseAssertion(Element element) {
@@ -527,7 +594,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         elementProp.appendChild(createStringProp(document, "Argument.name", jsonObject.getString("name")));
                         // 处理 mock data
                         String value = jsonObject.getString("value");
-                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.calculate(value)));
+                        elementProp.appendChild(createStringProp(document, "Argument.value", ScriptEngineUtils.buildFunctionCallString(value)));
                         elementProp.appendChild(createStringProp(document, "Argument.metadata", "="));
                         item.appendChild(elementProp);
                     }
@@ -617,7 +684,7 @@ public class JmeterDocumentParser implements DocumentParser {
         // 清空child
         removeChildren(backendListener);
         backendListener.appendChild(createStringProp(document, "classname", "io.github.rahulsinghai.jmeter.backendlistener.kafka.KafkaBackendClient"));
-        backendListener.appendChild(createStringProp(document, "QUEUE_SIZE", "5000"));
+        backendListener.appendChild(createStringProp(document, "QUEUE_SIZE", kafkaProperties.getQueueSize()));
         // elementProp
         Element elementProp = document.createElement("elementProp");
         elementProp.setAttribute("name", "arguments");
@@ -654,7 +721,6 @@ public class JmeterDocumentParser implements DocumentParser {
         // 添加关联关系 test.id test.name test.startTime test.reportId
         collectionProp.appendChild(createKafkaProp(document, "test.id", context.getTestId()));
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
-        collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
         collectionProp.appendChild(createKafkaProp(document, "test.reportId", context.getReportId()));
 
         elementProp.appendChild(collectionProp);
@@ -707,7 +773,13 @@ public class JmeterDocumentParser implements DocumentParser {
             tgType = o.toString();
         }
         if (StringUtils.equals(tgType, THREAD_GROUP)) {
-            processBaseThreadGroup(threadGroup);
+            processBaseThreadGroup(threadGroup, THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, SETUP_THREAD_GROUP)) {
+            processBaseThreadGroup(threadGroup, SETUP_THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, POST_THREAD_GROUP)) {
+            processBaseThreadGroup(threadGroup, POST_THREAD_GROUP);
         }
         if (StringUtils.equals(tgType, CONCURRENCY_THREAD_GROUP)) {
             processConcurrencyThreadGroup(threadGroup);
@@ -715,11 +787,11 @@ public class JmeterDocumentParser implements DocumentParser {
 
     }
 
-    private void processBaseThreadGroup(Element threadGroup) {
+    private void processBaseThreadGroup(Element threadGroup, String tgType) {
         Document document = threadGroup.getOwnerDocument();
-        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
-        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
-        threadGroup.setAttribute("testclass", THREAD_GROUP);
+        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), tgType);
+        threadGroup.setAttribute("guiclass", tgType + "Gui");
+        threadGroup.setAttribute("testclass", tgType);
         /*
         <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="登录" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -736,6 +808,23 @@ public class JmeterDocumentParser implements DocumentParser {
       </ThreadGroup>
          */
         removeChildren(threadGroup);
+        // 避免出现配置错位
+        Object iterateNum = context.getProperty("iterateNum");
+        if (iterateNum instanceof List) {
+            ((List<?>) iterateNum).remove(0);
+        }
+        Object iterateRampUpTimes = context.getProperty("iterateRampUpTime");
+        if (iterateRampUpTimes instanceof List) {
+            ((List<?>) iterateRampUpTimes).remove(0);
+        }
+        Object steps = context.getProperty("Steps");
+        if (steps instanceof List) {
+            ((List<?>) steps).remove(0);
+        }
+        Object holds = context.getProperty("Hold");
+        if (holds instanceof List) {
+            ((List<?>) holds).remove(0);
+        }
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
@@ -782,11 +871,9 @@ public class JmeterDocumentParser implements DocumentParser {
         switch (unit) {
             case "M":
                 duration = String.valueOf(Long.parseLong(duration) * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
                 duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;
             default:
                 break;
@@ -802,7 +889,6 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("guiclass", "LoopControlPanel");
         elementProp.setAttribute("testclass", "LoopController");
         elementProp.setAttribute("testname", "Loop Controller");
-        elementProp.setAttribute("enabled", "true");
         elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
         elementProp.appendChild(createStringProp(document, "LoopController.loops", "-1"));
         threadGroup.appendChild(elementProp);
@@ -833,6 +919,19 @@ public class JmeterDocumentParser implements DocumentParser {
         <stringProp name="Unit">S</stringProp>
          */
         removeChildren(threadGroup);
+        // 避免出现配置错位
+        Object iterateNum = context.getProperty("iterateNum");
+        if (iterateNum instanceof List) {
+            ((List<?>) iterateNum).remove(0);
+        }
+        Object iterateRampUpTimes = context.getProperty("iterateRampUpTime");
+        if (iterateRampUpTimes instanceof List) {
+            ((List<?>) iterateRampUpTimes).remove(0);
+        }
+        Object durations = context.getProperty("duration");
+        if (durations instanceof List) {
+            ((List<?>) durations).remove(0);
+        }
         // elementProp
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
@@ -887,11 +986,9 @@ public class JmeterDocumentParser implements DocumentParser {
         switch (unit) {
             case "M":
                 hold = String.valueOf(Long.parseLong(hold) * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
                 hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
-                rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;
             default:
                 break;
@@ -918,9 +1015,6 @@ public class JmeterDocumentParser implements DocumentParser {
 
     private void processIterationThreadGroup(Element threadGroup) {
         Document document = threadGroup.getOwnerDocument();
-        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
-        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
-        threadGroup.setAttribute("testclass", THREAD_GROUP);
         // 检查 threadgroup 后面的hashtree是否为空
         Node hashTree = threadGroup.getNextSibling();
         while (!(hashTree instanceof Element)) {
@@ -928,6 +1022,28 @@ public class JmeterDocumentParser implements DocumentParser {
         }
         if (!hashTree.hasChildNodes()) {
             MSException.throwException(Translator.get("jmx_content_valid"));
+        }
+        Object tgTypes = context.getProperty("tgType");
+        String tgType = "ThreadGroup";
+        if (tgTypes instanceof List) {
+            Object o = ((List<?>) tgTypes).get(0);
+            ((List<?>) tgTypes).remove(0);
+            tgType = o.toString();
+        }
+        if (StringUtils.equals(tgType, THREAD_GROUP)) {
+            document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
+            threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
+            threadGroup.setAttribute("testclass", THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, SETUP_THREAD_GROUP)) {
+            document.renameNode(threadGroup, threadGroup.getNamespaceURI(), SETUP_THREAD_GROUP);
+            threadGroup.setAttribute("guiclass", SETUP_THREAD_GROUP + "Gui");
+            threadGroup.setAttribute("testclass", SETUP_THREAD_GROUP);
+        }
+        if (StringUtils.equals(tgType, POST_THREAD_GROUP)) {
+            document.renameNode(threadGroup, threadGroup.getNamespaceURI(), POST_THREAD_GROUP);
+            threadGroup.setAttribute("guiclass", POST_THREAD_GROUP + "Gui");
+            threadGroup.setAttribute("testclass", POST_THREAD_GROUP);
         }
         removeChildren(threadGroup);
 
@@ -946,6 +1062,27 @@ public class JmeterDocumentParser implements DocumentParser {
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
          */
         // elementProp
+        // 避免出现配置错位
+        Object durations = context.getProperty("duration");
+        if (durations instanceof List) {
+            ((List<?>) durations).remove(0);
+        }
+        Object units = context.getProperty("unit");
+        if (units instanceof List) {
+            ((List<?>) units).remove(0);
+        }
+        Object holds = context.getProperty("Hold");
+        if (holds instanceof List) {
+            ((List<?>) holds).remove(0);
+        }
+        Object steps = context.getProperty("Steps");
+        if (steps instanceof List) {
+            ((List<?>) steps).remove(0);
+        }
+        Object arampUps = context.getProperty("RampUp");
+        if (arampUps instanceof List) {
+            ((List<?>) arampUps).remove(0);
+        }
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
@@ -966,6 +1103,24 @@ public class JmeterDocumentParser implements DocumentParser {
             Object o = ((List<?>) rampUps).get(0);
             ((List<?>) rampUps).remove(0);
             rampUp = o.toString();
+        }
+        Object deleteds = context.getProperty("deleted");
+        String deleted = "false";
+        if (deleteds instanceof List) {
+            Object o = ((List<?>) deleteds).get(0);
+            ((List<?>) deleteds).remove(0);
+            deleted = o.toString();
+        }
+        Object enableds = context.getProperty("enabled");
+        String enabled = "true";
+        if (enableds instanceof List) {
+            Object o = ((List<?>) enableds).get(0);
+            ((List<?>) enableds).remove(0);
+            enabled = o.toString();
+        }
+        threadGroup.setAttribute("enabled", enabled);
+        if (BooleanUtils.toBoolean(deleted)) {
+            threadGroup.setAttribute("enabled", "false");
         }
         Element elementProp = document.createElement("elementProp");
         elementProp.setAttribute("name", "ThreadGroup.main_controller");

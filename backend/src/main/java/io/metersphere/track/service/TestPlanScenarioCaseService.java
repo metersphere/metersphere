@@ -4,18 +4,20 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.base.domain.TestPlanApiScenario;
-import io.metersphere.base.domain.TestPlanApiScenarioExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -33,6 +35,10 @@ public class TestPlanScenarioCaseService {
     ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -72,7 +78,7 @@ public class TestPlanScenarioCaseService {
 
     public void deleteApiCaseBath(TestPlanScenarioCaseBatchRequest request) {
         List<String> ids = request.getIds();
-        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             ids = this.selectIds(request.getCondition());
             if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
                 ids.removeAll(request.getCondition().getUnSelectIds());
@@ -164,7 +170,10 @@ public class TestPlanScenarioCaseService {
         Map<String, String> envMap = request.getEnvMap();
         Map<String, List<String>> mapping = request.getMapping();
         Set<String> set = mapping.keySet();
-        if (set.isEmpty()) { return; }
+        if (set.isEmpty()) {
+            return;
+        }
+        request.setIds(new ArrayList<>(set));
         set.forEach(id -> {
             Map<String, String> newEnvMap = new HashMap<>(16);
             if (envMap != null && !envMap.isEmpty()) {
@@ -198,5 +207,49 @@ public class TestPlanScenarioCaseService {
         TestPlanScenarioRequest tableRequest = new TestPlanScenarioRequest();
         tableRequest.setIds(ids);
         return extTestPlanScenarioCaseMapper.list(tableRequest);
+    }
+
+    public String getLogDetails(String id) {
+        TestPlanApiScenario scenario = testPlanApiScenarioMapper.selectByPrimaryKey(id);
+        if (scenario != null) {
+            ApiScenarioWithBLOBs testCase = apiScenarioMapper.selectByPrimaryKey(scenario.getApiScenarioId());
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(scenario.getTestPlanId());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), testPlan.getProjectId(), testCase.getName(), scenario.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<String> ids) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<TestPlanApiScenario> nodes = testPlanApiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(nodes)) {
+            ApiScenarioExample scenarioExample = new ApiScenarioExample();
+            scenarioExample.createCriteria().andIdIn(nodes.stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList()));
+            List<ApiScenario> scenarios = apiScenarioMapper.selectByExample(scenarioExample);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(scenarios)) {
+                List<String> names = scenarios.stream().map(ApiScenario::getName).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), scenarios.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUser(), new LinkedList<>());
+                return JSON.toJSONString(details);
+            }
+        }
+        return null;
+    }
+
+    public TestPlanApiScenario get(String id) {
+        return testPlanApiScenarioMapper.selectByPrimaryKey(id);
+    }
+
+    public Boolean hasFailCase(String planId, List<String> automationIds) {
+        if (CollectionUtils.isEmpty(automationIds)) {
+            return false;
+        }
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(planId)
+                .andApiScenarioIdIn(automationIds)
+                .andLastResultEqualTo("Fail");
+        return testPlanApiScenarioMapper.countByExample(example) > 0 ? true : false;
     }
 }

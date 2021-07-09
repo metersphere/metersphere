@@ -1,5 +1,7 @@
 package io.metersphere.notice.controller;
 
+import io.metersphere.commons.constants.OperLogConstants;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,7 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @PostMapping("save/message/task")
+    @MsAuditLog(module = "organization_message_settings", type = OperLogConstants.UPDATE, content = "#msClass.getLogDetails(#messageDetail.id)", msClass = NoticeService.class)
     public void saveMessage(@RequestBody MessageDetail messageDetail) {
         noticeService.saveMessageTask(messageDetail);
     }
@@ -29,6 +32,7 @@ public class NoticeController {
     }
 
     @GetMapping("/delete/message/{identification}")
+    @MsAuditLog(module = "organization_message_settings", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#identification)", msClass = NoticeService.class)
     public int deleteMessage(@PathVariable String identification) {
         return noticeService.delMessage(identification);
     }

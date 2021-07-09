@@ -20,6 +20,7 @@
       :referenced="true"
       :trash-enable="false"
       @selection="setData"
+      :custom-num="customNum"
       ref="apiScenarioList"/>
 
     <template v-slot:footer>
@@ -57,13 +58,22 @@
         isApiListEnable: true,
         currentScenario: [],
         currentScenarioIds: [],
-        projectId: ''
+        projectId: '',
+        customNum: false
       }
     },
     watch: {
-      projectId() {
-        this.$refs.apiScenarioList.search(this.projectId);
+      projectId(val) {
         this.$refs.nodeTree.list(this.projectId);
+        if (val) {
+          this.$get("/project/get/" + val, result => {
+            let data = result.data;
+            if (data) {
+              this.customNum = data.scenarioCustomNum;
+            }
+          });
+        }
+        this.$refs.apiScenarioList.search(this.projectId);
       }
     },
     methods: {

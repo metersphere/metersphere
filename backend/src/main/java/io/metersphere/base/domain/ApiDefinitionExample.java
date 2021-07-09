@@ -1263,6 +1263,416 @@ public class ApiDefinitionExample {
             addCriterion("original_state not between", value1, value2, "originalState");
             return (Criteria) this;
         }
+
+        public Criteria andCreateUserIsNull() {
+            addCriterion("create_user is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIsNotNull() {
+            addCriterion("create_user is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserEqualTo(String value) {
+            addCriterion("create_user =", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotEqualTo(String value) {
+            addCriterion("create_user <>", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThan(String value) {
+            addCriterion("create_user >", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserGreaterThanOrEqualTo(String value) {
+            addCriterion("create_user >=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThan(String value) {
+            addCriterion("create_user <", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLessThanOrEqualTo(String value) {
+            addCriterion("create_user <=", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserLike(String value) {
+            addCriterion("create_user like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotLike(String value) {
+            addCriterion("create_user not like", value, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserIn(List<String> values) {
+            addCriterion("create_user in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotIn(List<String> values) {
+            addCriterion("create_user not in", values, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserBetween(String value1, String value2) {
+            addCriterion("create_user between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCreateUserNotBetween(String value1, String value2) {
+            addCriterion("create_user not between", value1, value2, "createUser");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalIsNull() {
+            addCriterion("case_total is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalIsNotNull() {
+            addCriterion("case_total is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalEqualTo(String value) {
+            addCriterion("case_total =", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalNotEqualTo(String value) {
+            addCriterion("case_total <>", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalGreaterThan(String value) {
+            addCriterion("case_total >", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalGreaterThanOrEqualTo(String value) {
+            addCriterion("case_total >=", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalLessThan(String value) {
+            addCriterion("case_total <", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalLessThanOrEqualTo(String value) {
+            addCriterion("case_total <=", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalLike(String value) {
+            addCriterion("case_total like", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalNotLike(String value) {
+            addCriterion("case_total not like", value, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalIn(List<String> values) {
+            addCriterion("case_total in", values, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalNotIn(List<String> values) {
+            addCriterion("case_total not in", values, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalBetween(String value1, String value2) {
+            addCriterion("case_total between", value1, value2, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTotalNotBetween(String value1, String value2) {
+            addCriterion("case_total not between", value1, value2, "caseTotal");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusIsNull() {
+            addCriterion("case_status is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusIsNotNull() {
+            addCriterion("case_status is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusEqualTo(String value) {
+            addCriterion("case_status =", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotEqualTo(String value) {
+            addCriterion("case_status <>", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusGreaterThan(String value) {
+            addCriterion("case_status >", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusGreaterThanOrEqualTo(String value) {
+            addCriterion("case_status >=", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusLessThan(String value) {
+            addCriterion("case_status <", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusLessThanOrEqualTo(String value) {
+            addCriterion("case_status <=", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusLike(String value) {
+            addCriterion("case_status like", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotLike(String value) {
+            addCriterion("case_status not like", value, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusIn(List<String> values) {
+            addCriterion("case_status in", values, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotIn(List<String> values) {
+            addCriterion("case_status not in", values, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusBetween(String value1, String value2) {
+            addCriterion("case_status between", value1, value2, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseStatusNotBetween(String value1, String value2) {
+            addCriterion("case_status not between", value1, value2, "caseStatus");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateIsNull() {
+            addCriterion("case_passing_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateIsNotNull() {
+            addCriterion("case_passing_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateEqualTo(String value) {
+            addCriterion("case_passing_rate =", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateNotEqualTo(String value) {
+            addCriterion("case_passing_rate <>", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateGreaterThan(String value) {
+            addCriterion("case_passing_rate >", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateGreaterThanOrEqualTo(String value) {
+            addCriterion("case_passing_rate >=", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateLessThan(String value) {
+            addCriterion("case_passing_rate <", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateLessThanOrEqualTo(String value) {
+            addCriterion("case_passing_rate <=", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateLike(String value) {
+            addCriterion("case_passing_rate like", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateNotLike(String value) {
+            addCriterion("case_passing_rate not like", value, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateIn(List<String> values) {
+            addCriterion("case_passing_rate in", values, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateNotIn(List<String> values) {
+            addCriterion("case_passing_rate not in", values, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateBetween(String value1, String value2) {
+            addCriterion("case_passing_rate between", value1, value2, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andCasePassingRateNotBetween(String value1, String value2) {
+            addCriterion("case_passing_rate not between", value1, value2, "casePassingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeIsNull() {
+            addCriterion("delete_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeIsNotNull() {
+            addCriterion("delete_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeEqualTo(Long value) {
+            addCriterion("delete_time =", value, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeNotEqualTo(Long value) {
+            addCriterion("delete_time <>", value, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeGreaterThan(Long value) {
+            addCriterion("delete_time >", value, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("delete_time >=", value, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeLessThan(Long value) {
+            addCriterion("delete_time <", value, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeLessThanOrEqualTo(Long value) {
+            addCriterion("delete_time <=", value, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeIn(List<Long> values) {
+            addCriterion("delete_time in", values, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeNotIn(List<Long> values) {
+            addCriterion("delete_time not in", values, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeBetween(Long value1, Long value2) {
+            addCriterion("delete_time between", value1, value2, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteTimeNotBetween(Long value1, Long value2) {
+            addCriterion("delete_time not between", value1, value2, "deleteTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdIsNull() {
+            addCriterion("delete_user_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdIsNotNull() {
+            addCriterion("delete_user_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdEqualTo(String value) {
+            addCriterion("delete_user_id =", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdNotEqualTo(String value) {
+            addCriterion("delete_user_id <>", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdGreaterThan(String value) {
+            addCriterion("delete_user_id >", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdGreaterThanOrEqualTo(String value) {
+            addCriterion("delete_user_id >=", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdLessThan(String value) {
+            addCriterion("delete_user_id <", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdLessThanOrEqualTo(String value) {
+            addCriterion("delete_user_id <=", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdLike(String value) {
+            addCriterion("delete_user_id like", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdNotLike(String value) {
+            addCriterion("delete_user_id not like", value, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdIn(List<String> values) {
+            addCriterion("delete_user_id in", values, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdNotIn(List<String> values) {
+            addCriterion("delete_user_id not in", values, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdBetween(String value1, String value2) {
+            addCriterion("delete_user_id between", value1, value2, "deleteUserId");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeleteUserIdNotBetween(String value1, String value2) {
+            addCriterion("delete_user_id not between", value1, value2, "deleteUserId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

@@ -45,6 +45,8 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         parseItem(postmanCollection.getItem(), variables, results,
                 apiModule, apiModule.getName(), cases, repeatMap, project.getRepeatable());
+        Collections.reverse(results); // 调整顺序
+        Collections.reverse(cases);
         apiImport.setData(results);
         apiImport.setCases(cases);
         return apiImport;

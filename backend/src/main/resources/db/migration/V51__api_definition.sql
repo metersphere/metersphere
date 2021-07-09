@@ -9,9 +9,7 @@ CREATE TABLE IF NOT EXISTS `api_module` (
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_definition` (
     `id` varchar(50)  NOT NULL COMMENT 'Test ID',
@@ -32,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `api_definition` (
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_test_case` (
     `id` varchar(50)  NOT NULL COMMENT 'Test ID',
@@ -48,7 +46,7 @@ CREATE TABLE IF NOT EXISTS `api_test_case` (
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `api_definition_exec_result` (
     `id` varchar(50)  NOT NULL COMMENT 'Test ID',
@@ -61,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `api_definition_exec_result` (
     `end_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
     `create_time` bigint(13) NULL COMMENT 'Create time',
     PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 ALTER TABLE `api_definition` ADD INDEX ( `user_id` );
 ALTER TABLE `api_definition` ADD INDEX ( `project_id` );

@@ -14,9 +14,7 @@ CREATE TABLE IF NOT EXISTS `custom_field` (
     `create_time`   bigint(13)   NOT NULL COMMENT 'Create timestamp',
     `update_time`   bigint(13)   NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- 用例系统字段
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
@@ -58,9 +56,7 @@ CREATE TABLE IF NOT EXISTS `test_case_template` (
     `create_time`       bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`       bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- 系统模板
 INSERT INTO test_case_template (id,name,`type`,description,case_name,prerequisite,step_description,expected_result,actual_result,`system`,`global`,workspace_id,create_time,update_time)
@@ -80,9 +76,7 @@ CREATE TABLE IF NOT EXISTS `issue_template` (
     `create_time`       bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`       bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- 系统模板
 INSERT INTO issue_template (id,`name`,platform,description,title,`global`,`system`,workspace_id,content,create_time,update_time)
@@ -109,9 +103,7 @@ CREATE TABLE IF NOT EXISTS `custom_field_template` (
     `default_value`     varchar(30) DEFAULT NULL COMMENT 'Default value',
     `custom_data`       varchar(255) DEFAULT NULL COMMENT 'Custom data',
     PRIMARY KEY (`id`)
-)
-    ENGINE = InnoDB
-    DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- 系统用例模板关联系统字段
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
@@ -172,8 +164,7 @@ CREATE TABLE IF NOT EXISTS `mock_config`
     primary key (id),
     INDEX `api_id` (`api_id`) USING BTREE,
     INDEX `project_id` (`project_id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 CREATE TABLE IF NOT EXISTS `mock_expect_config`
 (
@@ -189,8 +180,7 @@ CREATE TABLE IF NOT EXISTS `mock_expect_config`
     create_user_id VARCHAR(64)   null,
     primary key (id),
     INDEX `mock_config_id` (`mock_config_id`) USING BTREE
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- module management
 INSERT INTO system_parameter (param_key, param_value, type, sort)

@@ -28,6 +28,7 @@ const messages = {
 const i18n = new VueI18n({
   locale: 'zh_CN',
   messages,
+  silentTranslationWarn: true
 });
 
 const loadedLanguages = ['en_US', 'zh_CN', 'zh_TW'];

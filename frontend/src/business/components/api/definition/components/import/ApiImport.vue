@@ -53,14 +53,6 @@
           <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
             <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
           </el-form-item>
-          <el-form-item>
-            <el-switch
-              v-model="swaggerSynchronization"
-              @click.native="scheduleEdit"
-            >
-            </el-switch>
-            <span style="color: #6C317C;cursor: pointer;font-weight: bold;margin-left: 10px" @click="scheduleEditByText">{{$t('api_test.api_import.timing_synchronization')}}</span>
-          </el-form-item>
         </el-col>
         <el-col :span="12"
                 v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)">
@@ -91,19 +83,17 @@
         <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
       </div>
     </div>
-    <schedule-import ref="scheduleEdit"></schedule-import>
   </el-dialog>
 </template>
 
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener,hasLicense} from "@/common/js/utils";
-  import ScheduleImport from "@/business/components/api/definition/components/import/ImportScheduleEdit";
+  import {listenGoBack, removeGoBackListener, hasLicense, getCurrentProjectID} from "@/common/js/utils";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
   export default {
     name: "ApiImport",
-    components: {ScheduleImport, MsDialogFooter, MsSelectTree},
+    components: {MsDialogFooter, MsSelectTree},
     props: {
       saved: {
         type: Boolean,
@@ -120,21 +110,22 @@
       return {
         visible: false,
         swaggerUrlEnable: false,
-        swaggerSynchronization: false,
         showEnvironmentSelect: true,
         showXpackCompnent:false,
         moduleObj: {
           id: 'id',
           label: 'name',
         },
-        modeOptions: [{
-          id: 'fullCoverage',
-          name: this.$t('commons.cover')
-        },
+        modeOptions: [
+          {
+            id: 'fullCoverage',
+            name: this.$t('commons.cover')
+          },
           {
             id: 'incrementalMerge',
             name: this.$t('commons.not_cover')
-          }],
+          }
+        ],
         protocol: "",
         platforms: [
           {
@@ -201,6 +192,11 @@
       this.selectedPlatform = this.platforms[0];
     },
     watch: {
+      moduleOptions() {
+        if (this.moduleOptions.length > 0) {
+          this.formData.moduleId = this.moduleOptions[0].id;
+        }
+      },
       selectedPlatformValue() {
         for (let i in this.platforms) {
           if (this.platforms[i].value === this.selectedPlatformValue) {
@@ -253,23 +249,10 @@
         return this.model === 'scenario';
       },
       projectId() {
-        return this.$store.state.projectId
+        return getCurrentProjectID();
       },
     },
     methods: {
-      scheduleEdit() {
-        if (!this.formData.swaggerUrl) {
-          this.$warning(this.$t('commons.please_fill_path'));
-          this.swaggerSynchronization = !this.swaggerSynchronization
-        } else {
-          if (this.swaggerSynchronization) {
-            this.$refs.scheduleEdit.open(this.buildParam());
-          }
-        }
-      },
-      scheduleEditByText() {
-        this.$refs.scheduleEdit.open(this.buildParam());
-      },
       open(module) {
         this.currentModule = module;
         this.visible = true;

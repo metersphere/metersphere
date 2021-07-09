@@ -12,19 +12,44 @@
     </select>
 
     <select id="getIssuesByProjectId" resultType="io.metersphere.base.domain.IssuesDao">
-        select issues.id, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
+        select issues.id, issues.num, ifnull(issues.title, '') as title, issues.project_id, issues.create_time, issues.update_time,
                ifnull(issues.description, '') as description, issues.status, issues.platform, issues.custom_fields, issues.reporter,
+               issues.creator,issues.resource_id,issues.platform_status,
                issues.lastmodify
         from issues
         <include refid="queryWhereCondition"/>
+        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+    <select id="getNextNum" resultType="io.metersphere.base.domain.Issues">
+        SELECT * FROM issues WHERE issues.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
+    </select>
+    <select id="getRelateIssues" resultType="io.metersphere.base.domain.IssuesDao">
+        select issues.id, issues.num, issues.title, issues.project_id, issues.create_time, issues.update_time,
+        issues.description, issues.status, issues.platform, issues.custom_fields,test_case_issues.test_case_id,issues.platform_status,
+        issues.lastmodify
+        from issues
+        left join
+        test_case_issues on issues.id = test_case_issues.issues_id
+        <include refid="queryWhereCondition"/>
+        and (test_case_issues.test_case_id is null or test_case_issues.test_case_id != #{request.caseId})
+        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+    <select id="getIssueForSync" resultType="io.metersphere.base.domain.IssuesDao">
+        select id,platform
+        from issues
+        where project_id = #{projectId} and platform != 'Local';
     </select>
 
     <sql id="queryWhereCondition">
         <where>
 
             <if test="request.name != null">
-                and issues.title LIKE CONCAT('%', #{request.name}, '%')
+                and (
+                      issues.title LIKE CONCAT('%', #{request.name}, '%')
+                      or issues.id LIKE CONCAT('%', #{request.name}, '%')
+                    )
             </if>
 
             <if test="request.projectId != null and request.projectId != ''">
@@ -46,22 +71,20 @@
 <!--                </foreach>-->
 <!--            </if>-->
 
-
-<!--            <if test="request.filters != null and request.filters.size() > 0">-->
-<!--                <foreach collection="request.filters.entrySet()" index="key" item="values">-->
-<!--                    <if test="values != null and values.size() > 0">-->
-<!--                        <choose>-->
-<!--                            <when test="key == 'scene'">-->
-<!--                                AND cf.scene IN-->
-<!--                                <foreach collection="values" item="value" separator="," open="(" close=")">-->
-<!--                                    #{value}-->
-<!--                                </foreach>-->
-<!--                            </when>-->
-<!--                        </choose>-->
-<!--                    </if>-->
-<!--                </foreach>-->
-<!--            </if>-->
-
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'platform'">
+                                AND issues.platform IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
         </where>
     </sql>
 

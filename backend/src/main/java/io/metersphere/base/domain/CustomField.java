@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class CustomField implements Serializable {
@@ -24,6 +25,8 @@ public class CustomField implements Serializable {
     private Long createTime;
 
     private Long updateTime;
+
+    private String createUser;
 
     private String options;
 

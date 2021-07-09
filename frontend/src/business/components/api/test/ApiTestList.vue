@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
+          <ms-table-header :condition.sync="condition" @search="search"
                            :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')" :runTip="$t('load_test.run')"
                            :show-run="true"
@@ -45,7 +45,9 @@
           </el-table-column>
           <el-table-column width="150" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operators :buttons="buttons" :row="scope.row"/>
+              <div>
+                <ms-table-operators :buttons="buttons" :row="scope.row"/>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -70,7 +72,6 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import MsApiTestStatus from "./ApiTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import ApiCopyDialog from "./components/ApiCopyDialog";
 import MsUpgrade from "./Upgrade";
 import {_filter, _sort} from "@/common/js/tableUtils";
@@ -178,8 +179,6 @@ export default {
               this.result = this.$post("/api/delete", {id: test.id}, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.search();
-                // 发送广播，刷新 head 上的最新列表
-                ApiEvent.$emit(LIST_CHANGE);
               });
             }
           }

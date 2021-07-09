@@ -7,7 +7,7 @@ create table if not exists test_case_comment
 	author varchar(50) null,
 	create_time bigint(13) null,
 	update_time bigint(13) null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 create table if not exists test_case_review
 (
@@ -20,7 +20,7 @@ create table if not exists test_case_review
 	update_time bigint(13) null,
 	end_time bigint(13) null,
 	description text null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 create table if not exists test_case_review_project
 (
@@ -28,7 +28,7 @@ create table if not exists test_case_review_project
 	project_id varchar(50) null,
 	constraint test_case_review_project_pk
 		unique (review_id, project_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 create table if not exists test_case_review_test_case
 (
@@ -41,7 +41,7 @@ create table if not exists test_case_review_test_case
 	reviewer varchar(64) null,
 	create_time bigint(13) null,
 	update_time bigint(13) null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 create table if not exists test_case_review_users
 (
@@ -49,6 +49,6 @@ create table if not exists test_case_review_users
 	user_id varchar(50) null,
 	constraint test_case_review_users_pk
 		unique (review_id, user_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 

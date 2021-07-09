@@ -56,7 +56,7 @@ public class MsLoopController extends MsTestElement {
         }
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
-            this.addCsvDataSet(groupTree, config.getVariables(), config);
+            this.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
             this.addCounter(groupTree, config.getVariables());
             this.addRandom(groupTree, config.getVariables());
         }
@@ -106,7 +106,9 @@ public class MsLoopController extends MsTestElement {
         loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
         loopController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("LoopControlPanel"));
         loopController.setLoops(countController.getLoops());
-        loopController.setContinueForever(false);
+        if (countController.getLoops() > 0) {
+            loopController.setContinueForever(true);
+        }
         return loopController;
     }
 

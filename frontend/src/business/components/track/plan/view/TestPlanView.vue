@@ -12,10 +12,10 @@
       <template v-slot:menu>
         <el-menu v-if="isMenuShow" :active-text-color="color" :default-active="activeIndex"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
-          <el-menu-item index="functional">功能测试用例</el-menu-item>
-          <el-menu-item index="api" v-modules="['api']">接口测试用例</el-menu-item>
-          <el-menu-item index="load" v-modules="['performance']">性能测试用例</el-menu-item>
-          <el-menu-item index="report">报告统计</el-menu-item>
+          <el-menu-item index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
+          <el-menu-item index="api" v-modules="['api']">{{ $t('test_track.api_test_case') }}</el-menu-item>
+          <el-menu-item index="load" v-modules="['performance']">{{ $t('test_track.performance_test_case') }}</el-menu-item>
+          <el-menu-item index="report">{{ $t('test_track.report_statistics') }}</el-menu-item>
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
@@ -85,6 +85,13 @@ export default {
       this.genRedirectParam();
       this.getTestPlans();
     }
+  },
+  created() {
+    this.$EventBus.$on('projectChange', () => {
+      if (this.$route.name === 'planView') {
+        this.$router.push('/track/plan/all');
+      }
+    });
   },
   mounted() {
     this.getTestPlans();

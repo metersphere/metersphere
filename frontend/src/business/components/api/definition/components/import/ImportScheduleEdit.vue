@@ -10,7 +10,7 @@
                 prop="cronValue">
                 <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
                           :placeholder="$t('schedule.please_input_cron_expression')"/>
-                <el-button :disabled="isReadOnly" type="primary" @click="saveCron" v-tester>{{
+                <el-button :disabled="isReadOnly" type="primary" @click="saveCron">{{
                     $t('commons.save')
                   }}
                 </el-button>
@@ -39,7 +39,6 @@
 
 <script>
 import {
-  checkoutTestManagerOrTestUser,
   getCurrentProjectID,
   getCurrentUser,
   listenGoBack,
@@ -225,7 +224,7 @@ export default {
   },
   computed: {
     isTesterPermission() {
-      return checkoutTestManagerOrTestUser();
+      return true;
     }
   }
 }

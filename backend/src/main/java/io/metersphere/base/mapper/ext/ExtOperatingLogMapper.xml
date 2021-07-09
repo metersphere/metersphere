@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtOperatingLogMapper">
+
+    <select id="list" resultType="io.metersphere.log.vo.OperatingLogDTO">
+        SELECT
+            t.id,
+            t.project_id,
+            t.oper_user,
+            t.source_id,
+            t.oper_type,
+            t.oper_module,
+            t.oper_title,
+            t.oper_time,
+            t1.NAME userName,
+            t2.`name` projectName
+        FROM
+            operating_log t
+            LEFT JOIN `user` t1 ON t.oper_user = t1.id
+            LEFT JOIN project t2 ON t.project_id = t2.id
+            LEFT JOIN workspace w on t2.workspace_id = w.id
+        <where>
+            (
+                <if test="request.projectIds != null and request.projectIds.size > 0 ">
+                    t.project_id in
+                    <foreach collection="request.projectIds" item="projectId" separator="," open="(" close=")">
+                        #{projectId}
+                    </foreach>
+                    or
+                </if>
+                t.project_id is null
+                or t.project_id = ""
+            )
+            <if test="request.operUser != null and request.operUser != ''">
+                and (t.oper_user like #{request.operUser, jdbcType=VARCHAR} or  t1.name like  #{request.operUser, jdbcType=VARCHAR})
+            </if>
+            <if test="request.projectId != null and request.projectId !=''">
+                and t.project_id = #{request.projectId}
+            </if>
+            <if test="request.operType != null and request.operType != ''">
+                and t.oper_type like #{request.operType, jdbcType=VARCHAR}
+            </if>
+            <if test="request.operModule != null and request.operModule != ''">
+                and t.oper_module like #{request.operModule, jdbcType=VARCHAR}
+            </if>
+            <if test="request.startTime != null and request.endTime != null">
+                AND t.oper_time BETWEEN #{request.startTime} AND #{request.endTime}
+            </if>
+
+        </where>
+            order by t.oper_time desc
+     </select>
+
+
+    <select id="findBySourceId" resultType="io.metersphere.log.vo.OperatingLogDTO">
+        SELECT
+        t.id,
+        t.project_id,
+        t.oper_user,
+        t.source_id,
+        t.oper_type,
+        t.oper_module,
+        t.oper_title,
+        t.oper_time,
+        t.oper_content,
+        t1.NAME userName,
+        t2.`name` projectName
+        FROM
+        operating_log t
+        LEFT JOIN `user` t1 ON t.oper_user = t1.id
+        LEFT JOIN project t2 ON t.project_id = t2.id
+        LEFT JOIN workspace w on t2.workspace_id = w.id
+        <where>
+            t.oper_type in ('UPDATE','BATCH_UPDATE')
+            and t.oper_content is not null
+            <if test="request.sourceId != null and request.sourceId != ''">
+                and t.source_id like #{request.sourceId, jdbcType=VARCHAR}
+            </if>
+        </where>
+        order by t.oper_time desc
+    </select>
+</mapper>

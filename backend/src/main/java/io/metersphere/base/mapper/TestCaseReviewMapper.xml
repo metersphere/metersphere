@@ -11,6 +11,7 @@
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReview">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -74,7 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, creator, `status`, create_time, update_time, end_time, project_id, tags
+    id, `name`, creator, `status`, create_time, update_time, end_time, project_id, tags, 
+    create_user
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -131,11 +133,11 @@
     insert into test_case_review (id, `name`, creator, 
       `status`, create_time, update_time, 
       end_time, project_id, tags, 
-      description)
+      create_user, description)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
-      #{description,jdbcType=LONGVARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReview">
     insert into test_case_review
@@ -166,6 +168,9 @@
       </if>
       <if test="tags != null">
         tags,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="description != null">
         description,
@@ -198,6 +203,9 @@
       </if>
       <if test="tags != null">
         #{tags,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -240,6 +248,9 @@
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -259,6 +270,7 @@
       end_time = #{record.endTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -274,7 +286,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      tags = #{record.tags,jdbcType=VARCHAR}
+      tags = #{record.tags,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -306,6 +319,9 @@
       <if test="tags != null">
         tags = #{tags,jdbcType=VARCHAR},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -322,6 +338,7 @@
       end_time = #{endTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -334,7 +351,8 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      tags = #{tags,jdbcType=VARCHAR}
+      tags = #{tags,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

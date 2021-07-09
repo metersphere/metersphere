@@ -174,10 +174,7 @@
             if (param.files) {
               param.files.forEach(item => {
                 if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
                   item.name = item.file.name;
-                  item.id = fileId;
-                  this.api.bodyUploadIds.push(fileId);
                   bodyUploadFiles.push(item.file);
                 }
               });
@@ -230,13 +227,15 @@
         this.$emit('refresh');
       },
       getResult() {
-        let url = "/api/definition/report/getReport/" + this.api.id;
-        this.$get(url, response => {
-          if (response.data) {
-            let data = JSON.parse(response.data.content);
-            this.responseData = data;
-          }
-        });
+        if (this.api.id) {
+          let url = "/api/definition/report/getReport/" + this.api.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.responseData = data;
+            }
+          });
+        }
       }
     },
     created() {
@@ -244,7 +243,7 @@
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
-      this.getResult();
+      //this.getResult();
     }
   }
 </script>
@@ -252,13 +251,6 @@
 <style scoped>
   .ms-htt-width {
     width: 350px;
-  }
-
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
   }
 
   /deep/ .el-drawer {

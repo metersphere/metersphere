@@ -10,9 +10,9 @@ public class EngineContext {
     private String fileType;
     private String content;
     private String resourcePoolId;
-    private Long startTime;
     private String reportId;
     private Integer resourceIndex;
+    private double[] ratios;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, byte[]> testResourceFiles = new HashMap<>();
 
@@ -76,14 +76,6 @@ public class EngineContext {
         this.resourcePoolId = resourcePoolId;
     }
 
-    public Long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Long startTime) {
-        this.startTime = startTime;
-    }
-
     public String getReportId() {
         return reportId;
     }
@@ -101,6 +93,13 @@ public class EngineContext {
         this.resourceIndex = resourceIndex;
     }
 
+    public double[] getRatios() {
+        return ratios;
+    }
+
+    public void setRatios(double[] ratios) {
+        this.ratios = ratios;
+    }
 
     public Map<String, byte[]> getTestResourceFiles() {
         return testResourceFiles;

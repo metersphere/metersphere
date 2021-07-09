@@ -13,7 +13,6 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.authz.SimpleAuthorizationInfo;
-import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
  * set realm
  * </p>
  */
-public class LocalRealm extends AuthorizingRealm {
+public class LocalRealm extends BaseRealm {
 
     private Logger logger = LoggerFactory.getLogger(LocalRealm.class);
     @Resource
@@ -49,12 +48,11 @@ public class LocalRealm extends AuthorizingRealm {
     }
 
     /**
-     * 权限认证
+     * 角色认证
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        String userId = (String) principals.getPrimaryPrincipal();
-        return getAuthorizationInfo(userId, userService);
+        return null;
     }
 
     public static AuthorizationInfo getAuthorizationInfo(String userId, UserService userService) {
@@ -63,6 +61,8 @@ public class LocalRealm extends AuthorizingRealm {
         UserDTO userDTO = userService.getUserDTO(userId);
         Set<String> roles = userDTO.getRoles().stream().map(Role::getId).collect(Collectors.toSet());
         authorizationInfo.setRoles(roles);
+        Set<String> userPermission = userService.getUserPermission(userId);
+        authorizationInfo.setStringPermissions(userPermission);
         return authorizationInfo;
     }
 
@@ -132,8 +132,4 @@ public class LocalRealm extends AuthorizingRealm {
         return new SimpleAuthenticationInfo(userId, password, getName());
     }
 
-    @Override
-    public boolean isPermitted(PrincipalCollection principals, String permission) {
-        return true;
-    }
 }

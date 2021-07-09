@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class KafkaProperties {
     public static final String KAFKA_PREFIX = "kafka";
 
-    private String acks = "0"; // 不要设置all
+    private String acks = "1"; // 不要设置all
     private String expectedDelayEndTime = "30000"; // 30s
     private String topic;
     private String fields;
@@ -24,6 +24,7 @@ public class KafkaProperties {
     private String batchSize;
     private String clientId;
     private String connectionsMaxIdleMs;
+    private String queueSize = "20000"; // backend listener queue size
     private KafkaProperties.Ssl ssl = new KafkaProperties.Ssl();
     private KafkaProperties.Log log = new KafkaProperties.Log();
 

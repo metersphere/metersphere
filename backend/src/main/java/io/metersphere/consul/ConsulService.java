@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
+import io.metersphere.commons.constants.ResourceStatusEnum;
+import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
@@ -28,7 +30,9 @@ public class ConsulService {
     public Map<String, List<String>> getActiveNodes() {
         Map<String, List<String>> result = new HashMap<>();
 
-        List<TestResourcePoolDTO> testResourcePoolDTOS = testResourcePoolService.listValidResourcePools();
+        QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
+        resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
+        List<TestResourcePoolDTO> testResourcePoolDTOS = testResourcePoolService.listResourcePools(resourcePoolRequest);
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setFilters(new HashMap<String, List<String>>() {{
             put("status", Arrays.asList(PerformanceTestStatus.Starting.name(), PerformanceTestStatus.Running.name()));

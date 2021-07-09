@@ -16,6 +16,8 @@ public class RequestResult {
 
     private String method;
 
+    private String scenario;
+
     private long requestSize;
 
     private long startTime;

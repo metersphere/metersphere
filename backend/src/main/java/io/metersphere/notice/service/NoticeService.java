@@ -1,5 +1,6 @@
 package io.metersphere.notice.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
 import io.metersphere.base.mapper.LoadTestReportMapper;
@@ -10,6 +11,11 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
+import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.MessageDetail;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -59,6 +65,7 @@ public class NoticeService {
             messageTask.setTestId(messageDetail.getTestId());
             messageTask.setCreateTime(time);
             setTemplate(messageDetail, messageTask);
+            messageDetail.setId(messageTask.getId());
             messageTaskMapper.insert(messageTask);
         }
     }
@@ -204,5 +211,24 @@ public class NoticeService {
         MessageTaskExample example = new MessageTaskExample();
         example.createCriteria().andIdentificationEqualTo(identification);
         return messageTaskMapper.deleteByExample(example);
+    }
+
+    public String getLogDetails(String id) {
+        MessageTask task = messageTaskMapper.selectByPrimaryKey(id);
+        if (task == null) {
+            MessageTaskExample example = new MessageTaskExample();
+            example.createCriteria().andIdentificationEqualTo(id);
+            List<MessageTask> tasks = messageTaskMapper.selectByExample(example);
+            List<String> names = tasks.stream().map(MessageTask::getType).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), null, String.join(",", names), null, new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        if (task != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
+                    StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), task.getUserId(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

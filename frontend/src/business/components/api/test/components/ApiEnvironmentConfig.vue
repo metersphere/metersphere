@@ -1,12 +1,14 @@
 <template>
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.environment.environment_config')"
-             :visible.sync="visible" class="environment-dialog" width="60%"
+             :visible.sync="visible" class="environment-dialog" width="80%"
              @close="close" append-to-body destroy-on-close ref="environmentConfig">
     <el-container v-loading="result.loading">
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
+                     :env-add-permission="ENV_CREATE"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
-      <environment-edit :project-id="projectId" :environment="currentEnvironment" ref="environmentEdit" @close="close"/>
+      <environment-edit :project-id="projectId" :environment="currentEnvironment" ref="environmentEdit" :is-read-only="isReadOnly"
+                        @close="close"/>
     </el-container>
   </el-dialog>
 </template>
@@ -20,7 +22,7 @@
   import MsMainContainer from "../../../common/components/MsMainContainer";
   import MsAsideItem from "../../../common/components/MsAsideItem";
   import EnvironmentEdit from "./environment/EnvironmentEdit";
-  import {deepClone, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+  import {deepClone, hasPermission, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
   import {Environment, parseEnvironment} from "../model/EnvironmentModel";
 
   export default {
@@ -40,14 +42,41 @@
         environmentOperators: [
           {
             icon: 'el-icon-document-copy',
-            func: this.copyEnvironment
+            func: this.copyEnvironment,
+            permissions: this.type === 'project' ?
+              ['PROJECT_ENVIRONMENT:READ+COPY'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+COPY']
           },
           {
             icon: 'el-icon-delete',
-            func: this.deleteEnvironment
+            func: this.deleteEnvironment,
+            permissions: this.type === 'project' ?
+              ['PROJECT_ENVIRONMENT:READ+DELETE'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+DELETE']
           }
         ],
         selectEnvironmentId: ''
+      }
+    },
+    props: {
+      type: {
+        type: String,
+        default() {
+          return "project";
+        }
+      }
+    },
+    computed: {
+      ENV_CREATE() {
+        return this.type === 'project' ?
+          ['PROJECT_ENVIRONMENT:READ+CREATE'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+CREATE'];
+      },
+      ENV_EDIT() {
+        return this.type === 'project' ?
+          ['PROJECT_ENVIRONMENT:READ+EDIT'] : ['WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT'];
+      },
+      isReadOnly() {
+        // 区分 工作空间下的环境相关菜单/项目下的环境相关菜单
+        return this.type === 'project' ?
+          !hasPermission('PROJECT_ENVIRONMENT:READ+EDIT') : !hasPermission('WORKSPACE_PROJECT_ENVIRONMENT:READ+EDIT');
       }
     },
     methods: {
@@ -70,6 +99,8 @@
         }
       },
       copyEnvironment(environment) {
+        //点击复制的时候先选择改行，否则会出现解析错误
+        this.environmentSelected(environment);
         this.currentEnvironment = environment;
         if (!environment.id) {
           this.$warning(this.$t('commons.please_save'));

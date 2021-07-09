@@ -38,11 +38,14 @@
           </el-table-column>
           <el-table-column fixed="right" min-width="100" align="center" :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
-                                        @exec="copyExpect(scope.row)"
-                                        v-tester/>
-              <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-delete" @exec="removeExpect(scope.row)"
-                                        v-tester/>
+              <div>
+                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
+                                          @exec="copyExpect(scope.row)"
+                />
+                <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete"
+                                          @exec="removeExpect(scope.row)"
+                />
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -367,14 +370,6 @@ export default {
 </script>
 
 <style scoped>
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-  margin: 20px 0;
-}
-
 .search-input {
   float: right;
   width: 300px;

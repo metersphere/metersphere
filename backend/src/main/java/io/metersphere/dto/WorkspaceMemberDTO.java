@@ -19,6 +19,8 @@ public class WorkspaceMemberDTO {
     private Long updateTime;
     private String language;
     private String workspaceId;
+    private String projectId;
     private List<String> roleIds = new ArrayList<>();
+    private List<String> groupIds = new ArrayList<>();
 
 }

@@ -15,6 +15,6 @@ public interface ExtApiTestMapper {
 
     List<ApiTest> listByIds(@Param("ids") List<String> ids);
 
-    int checkApiTestOwner(@Param("testId") String testId, @Param("workspaceIds") Set<String> workspaceIds);
+    int checkApiTestOwner(@Param("testId") String testId, @Param("projectIds") Set<String> projectIds);
 
 }

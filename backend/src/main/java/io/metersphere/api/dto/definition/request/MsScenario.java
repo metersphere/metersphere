@@ -16,6 +16,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import lombok.Data;
@@ -59,6 +60,9 @@ public class MsScenario extends MsTestElement {
 
     @JSONField(ordinal = 27)
     private Map<String, String> environmentMap;
+
+    @JSONField(ordinal = 24)
+    private Boolean onSampleError;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -122,7 +126,7 @@ public class MsScenario extends MsTestElement {
                 this.environmentMap = new HashMap<>(16);
                 if (StringUtils.isNotBlank(environmentId)) {
                     // 兼容1.8之前 没有environmentMap但有environmentId的数据
-                    this.environmentMap.put("historyProjectID", environmentId);
+                    this.environmentMap.put(RunModeConstants.HIS_PRO_ID.toString(), environmentId);
                 }
             }
             if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
@@ -131,6 +135,7 @@ public class MsScenario extends MsTestElement {
                     ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
                     if (environment != null && environment.getConfig() != null) {
                         EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                        env.setApiEnvironmentid(environment.getId());
                         envConfig.put(projectId, env);
                         if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
                             this.setMockEnvironment(true);
@@ -156,7 +161,7 @@ public class MsScenario extends MsTestElement {
         if (arguments != null) {
             tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
-        this.addCsvDataSet(tree, variables,config);
+        this.addCsvDataSet(tree, variables, config, "shareMode.group");
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {

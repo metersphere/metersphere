@@ -2,13 +2,14 @@ package io.metersphere.performance.service;
 
 
 import com.alibaba.excel.util.CollectionUtils;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
 import io.metersphere.base.mapper.LoadTestMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.engine.EngineFactory;
-import org.apache.commons.lang3.SerializationUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -25,13 +26,13 @@ public class JmeterFileService {
 
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    private ExtLoadTestReportMapper extLoadTestReportMapper;
 
-    public byte[] downloadZip(String testId, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
+    public byte[] downloadZip(String testId, double[] ratios, String reportId, int resourceIndex) {
         try {
             LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
-            // deep copy
-            LoadTestWithBLOBs subTest = SerializationUtils.clone(loadTest);
-            EngineContext context = EngineFactory.createContext(subTest, resourceId, ratio, startTime, reportId, resourceIndex);
+            EngineContext context = EngineFactory.createContext(loadTest, ratios, reportId, resourceIndex);
             return zipFilesToByteArray(context);
         } catch (MSException e) {
             LogUtil.error(e.getMessage(), e);
@@ -51,7 +52,11 @@ public class JmeterFileService {
 
         //  每个测试生成一个文件夹
         files.put(fileName, context.getContent().getBytes(StandardCharsets.UTF_8));
-
+        // 保存jmx
+        LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
+        record.setId(context.getReportId());
+        record.setJmxContent(context.getContent());
+        extLoadTestReportMapper.updateJmxContentIfAbsent(record);
         // 保存 byte[]
         Map<String, byte[]> jarFiles = context.getTestResourceFiles();
         if (!CollectionUtils.isEmpty(jarFiles)) {

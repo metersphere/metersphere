@@ -2,11 +2,11 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header">
       <span class="title">
-        用例评审
+        {{ $t('test_track.home.case_review') }}
       </span>
-      <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
+      <ms-table-button v-if="!showMyCreator" icon="el-icon-view"
                        :content="$t('test_track.review.my_create')" @click="searchMyCreator" style="float: right"/>
-      <ms-table-button :is-tester-permission="true" v-if="showMyCreator" icon="el-icon-view"
+      <ms-table-button v-if="showMyCreator" icon="el-icon-view"
                        :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator" style="float: right"/>
     </div>
     <el-table
@@ -69,7 +69,7 @@ import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem"
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import HomeBaseComponent from "./HomeBaseComponent";
 import MsTableButton from "../../../common/components/MsTableButton";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "../../../../../common/js/utils";
 
 export default {
   name: "ReviewList",
@@ -94,10 +94,13 @@ export default {
       if (!type) {
         type = 'reviewer'
       }
-      if (!getCurrentProjectID()) {
+      let projectId = getCurrentProjectID();
+      let workspaceId = getCurrentWorkspaceId();
+      if (!projectId) {
         return;
       }
-      this.result = this.$get('/test/case/review/list/all/relate/' + type, response => {
+      let param = {type, projectId, workspaceId};
+      this.result = this.$post('/test/case/review/list/all/relate', param , response => {
         this.tableData = response.data;
       });
     },

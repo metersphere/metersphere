@@ -20,6 +20,20 @@
         <if test="request.name != null and request.name != ''">
             and load_test.name like CONCAT('%', #{request.name},'%')
         </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            and load_test.status in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
         and load_test.id not in (
         select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
         )
@@ -70,7 +84,17 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                tplc.${order.name} ${order.type}
+                <choose>
+                    <when test="order.name == 'num'">
+                        lt.${order.name} ${order.type}
+                    </when>
+                    <when test="order.name == 'case_name'">
+                        lt.name ${order.type}
+                    </when>
+                    <otherwise>
+                        tplc.${order.name} ${order.type}
+                    </otherwise>
+                </choose>
             </foreach>
         </if>
     </select>

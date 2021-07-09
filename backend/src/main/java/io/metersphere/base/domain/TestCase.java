@@ -51,5 +51,13 @@ public class TestCase implements Serializable {
 
     private String stepModel;
 
+    private String createUser;
+
+    private String originalStatus;
+
+    private Long deleteTime;
+
+    private String deleteUserId;
+
     private static final long serialVersionUID = 1L;
 }

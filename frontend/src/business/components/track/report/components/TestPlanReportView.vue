@@ -19,7 +19,7 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
+            <el-button v-permission="['PROJECT_TRACK_REPORT:READ+EXPORT']" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
               {{$t('test_track.plan_view.export_report')}}
             </el-button>
           </el-col>
@@ -41,7 +41,7 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, exportPdf, jsonToMap, mapToJson} from "@/common/js/utils";
+  import {exportPdf, jsonToMap, mapToJson} from "@/common/js/utils";
   import BaseInfoComponent
     from "@/business/components/track/plan/view/comonents/report/TemplateComponent/BaseInfoComponent";
   import TestResultChartComponent
@@ -93,7 +93,7 @@
       }
     },
     mounted() {
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+      this.isTestManagerOrTestUser = true;
     },
     watch: {
       reportComponents() {

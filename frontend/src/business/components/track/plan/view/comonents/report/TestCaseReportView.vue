@@ -47,7 +47,7 @@
 </template>
 
 <script>
-  import {checkoutTestManagerOrTestUser, exportPdf, jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
+  import {exportPdf, jsonToMap, mapToJson} from "../../../../../../../common/js/utils";
   import BaseInfoComponent from "./TemplateComponent/BaseInfoComponent";
   import TestResultChartComponent from "./TemplateComponent/TestResultChartComponent";
   import TestResultComponent from "./TemplateComponent/TestResultComponent";
@@ -90,7 +90,7 @@
       }
     },
     mounted() {
-      this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+      this.isTestManagerOrTestUser = true;
     },
     methods: {
       listenGoBack() {

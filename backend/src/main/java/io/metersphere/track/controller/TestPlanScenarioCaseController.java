@@ -4,10 +4,12 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
@@ -39,29 +41,30 @@ public class TestPlanScenarioCaseController {
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, testPlanScenarioCaseService.relevanceList(request));
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestPlanScenarioCaseService.class)
     public int deleteTestCase(@PathVariable String id) {
         return testPlanScenarioCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UN_ASSOCIATE_CASE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public void deleteApiCaseBath(@RequestBody TestPlanScenarioCaseBatchRequest request) {
         testPlanScenarioCaseService.deleteApiCaseBath(request);
     }
 
     @PostMapping(value = "/run")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planCaseIds)", msClass = TestPlanScenarioCaseService.class)
     public String run(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         return testPlanScenarioCaseService.run(request);
     }
 
     @PostMapping(value = "/jenkins/run")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public String runByRun(@RequestBody RunTestPlanScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.API.name());
@@ -70,7 +73,7 @@ public class TestPlanScenarioCaseController {
     }
 
     @PostMapping("/batch/update/env")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.batchLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestPlanScenarioCaseService.class)
     public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
         testPlanScenarioCaseService.batchUpdateEnv(request);
     }

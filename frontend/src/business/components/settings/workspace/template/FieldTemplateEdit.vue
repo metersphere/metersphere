@@ -17,7 +17,7 @@
         <el-scrollbar>
           <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
 
-          <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
+          <el-form :model="form" :rules="rules" label-position="right" label-width="80px" size="small" ref="form">
             <el-form-item :label="$t('commons.name')" prop="name" :label-width="labelWidth">
               <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
@@ -41,6 +41,7 @@
               <custom-field-form-list
                 :table-data="relateFields"
                 :scene="scene"
+                :platform="form.platform"
                 :template-contain-ids="templateContainIds"
                 :custom-field-ids="form.customFieldIds"
                 ref="customFieldFormList"
@@ -74,6 +75,7 @@ import CustomFieldFormList from "@/business/components/settings/workspace/templa
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import {getCurrentWorkspaceId} from "@/common/js/utils";
 import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
+import {generateTableHeaderKey, getCustomFieldsKeys} from "@/common/js/tableUtils";
 
 export default {
   name: "FieldTemplateEdit",
@@ -146,7 +148,11 @@ export default {
           param.workspaceId = getCurrentWorkspaceId();
           let customFields = this.relateFields;
           if (customFields) {
+            let keys = getCustomFieldsKeys(customFields);
             customFields.forEach(item => {
+              if (!item.key) {
+                item.key = generateTableHeaderKey(keys, customFields);
+              }
               item.defaultValue = JSON.stringify(item.defaultValue);
             });
           }

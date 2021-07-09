@@ -29,6 +29,7 @@
         row-key="id"
         @select-all="handleSelectAll"
         @select="handleSelectionChange"
+        @filter-change="filter"
         height="50vh"
         ref="table">
         <el-table-column
@@ -82,6 +83,7 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import {_filter} from "@/common/js/tableUtils";
 
 export default {
   name: "TestCaseLoadRelevance",
@@ -133,24 +135,23 @@ export default {
     planId() {
       this.condition.planId = this.planId;
     },
-    selectNodeIds() {
-      this.search();
-    },
-    projectId() {
-      this.condition.projectId = this.projectId;
-      this.getProjectNode();
-      this.search();
-    },
     reviewId() {
       this.condition.reviewId = this.reviewId;
-    }
+    },
   },
   methods: {
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.search();
+    },
     open() {
       this.$refs.baseRelevance.open();
     },
     setProject(projectId) {
       this.projectId = projectId;
+      this.condition.projectId = this.projectId;
+      this.getProjectNode();
+      this.search();
     },
     saveCaseRelevance() {
       let param = {};
@@ -232,6 +233,7 @@ export default {
     nodeChange(node, nodeIds, nodeNames) {
       this.selectNodeIds = nodeIds;
       this.selectNodeNames = nodeNames;
+      this.search();
     },
     refresh() {
       this.close();

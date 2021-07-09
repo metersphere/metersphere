@@ -94,6 +94,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key == 'project_id'">
+                                AND load_test.project_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -125,9 +131,9 @@
             <if test="testId != null">
                 and load_test.id = #{testId}
             </if>
-            <if test="workspaceIds != null and workspaceIds.size() > 0">
-                AND workspace_id IN
-                <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+            <if test="projectIds != null and projectIds.size() > 0">
+                AND project_id IN
+                <foreach collection="projectIds" item="id" separator="," open="(" close=")">
                     #{id}
                 </foreach>
             </if>

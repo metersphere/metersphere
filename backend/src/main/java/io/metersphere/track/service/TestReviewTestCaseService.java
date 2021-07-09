@@ -1,5 +1,6 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
@@ -8,19 +9,23 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.StatusReference;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseTestDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
 import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -115,9 +120,9 @@ public class TestReviewTestCaseService {
     public void deleteTestCaseBatch(TestReviewCaseBatchRequest request) {
         checkReviewer(request.getReviewId());
         List<String> ids = request.getIds();
-        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             ids = this.selectIds(request.getCondition());
-            if(request.getCondition().getUnSelectIds()!=null){
+            if (request.getCondition().getUnSelectIds() != null) {
                 ids.removeAll(request.getCondition().getUnSelectIds());
             }
         }
@@ -149,7 +154,7 @@ public class TestReviewTestCaseService {
     }
 
     public TestReviewCaseDTO get(String reviewId) {
-        TestReviewCaseDTO testReviewCaseDTO=extTestReviewCaseMapper.get(reviewId);
+        TestReviewCaseDTO testReviewCaseDTO = extTestReviewCaseMapper.get(reviewId);
         List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testReviewCaseDTO.getCaseId());
         testCaseTestDTOS.forEach(dto -> {
             setTestName(dto);
@@ -187,9 +192,9 @@ public class TestReviewTestCaseService {
 
     public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {
         List<String> ids = request.getIds();
-        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             ids = extTestReviewCaseMapper.selectTestCaseIds(request.getCondition());
-            if(request.getCondition().getUnSelectIds()!=null){
+            if (request.getCondition().getUnSelectIds() != null) {
                 ids.removeAll(request.getCondition().getUnSelectIds());
             }
         }
@@ -238,5 +243,105 @@ public class TestReviewTestCaseService {
             });
             testCaseList.forEach(testCaseMapper::updateByPrimaryKeySelective);
         }
+    }
+
+    public String getLogDetails(DeleteRelevanceRequest request) {
+        TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        TestCaseReviewTestCase testCaseReviewTestCase = testCaseReviewTestCaseMapper.selectByPrimaryKey(request.getId());
+        StringBuilder titleBuilder = new StringBuilder();
+        if (testCaseReviewTestCase != null) {
+            TestCaseWithBLOBs bloBs = testCaseMapper.selectByPrimaryKey(testCaseReviewTestCase.getCaseId());
+            if (bloBs != null) {
+                titleBuilder.append(bloBs.getName()).append(" 从 ");
+            }
+        }
+        if (caseReview != null) {
+            titleBuilder.append(caseReview.getName());
+        }
+        if (StringUtils.isNotEmpty(titleBuilder.toString())) {
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getId()), caseReview.getProjectId(), titleBuilder.toString(), caseReview.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(TestReviewCaseBatchRequest request) {
+        TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<TestCaseReviewTestCase> testCaseReviewTestCases = testCaseReviewTestCaseMapper.selectByExample(example);
+        StringBuilder titleBuilder = new StringBuilder();
+        if (CollectionUtils.isNotEmpty(testCaseReviewTestCases)) {
+            testCaseReviewTestCases.forEach(item -> {
+                TestCaseWithBLOBs bloBs = testCaseMapper.selectByPrimaryKey(item.getCaseId());
+                if (bloBs != null) {
+                    titleBuilder.append(bloBs.getName()).append(",");
+                }
+            });
+            titleBuilder.append(" 从 ");
+        }
+        if (caseReview != null) {
+            titleBuilder.append(caseReview.getName());
+        }
+        if (StringUtils.isNotEmpty(titleBuilder.toString())) {
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getId()), caseReview.getProjectId(), titleBuilder.toString(), caseReview.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String batchLogDetails(TestReviewCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ids = extTestReviewCaseMapper.selectTestCaseIds(request.getCondition());
+            if (request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
+
+        // 更新状态
+        if (StringUtils.isNotBlank(request.getStatus())) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestCase> cases = testCaseMapper.selectByExample(example);
+
+            List<DetailColumn> columns = new LinkedList<>();
+            List<String> names = cases.stream().map(TestCase::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), cases.get(0).getProjectId(), String.join(",", names) + "评审结果更改为：" + "【" + StatusReference.statusMap.get(request.getStatus()) + "】", cases.get(0).getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(List<TestCaseReviewTestCase> testCases) {
+        // 更新状态
+        if (CollectionUtils.isNotEmpty(testCases)) {
+            List<DetailColumn> columns = new LinkedList<>();
+            TestCaseExample example = new TestCaseExample();
+            List<String> ids = testCases.stream().map(TestCaseReviewTestCase::getCaseId).collect(Collectors.toList());
+            example.createCriteria().andIdIn(ids);
+            List<TestCase> cases = testCaseMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(cases)) {
+                List<String> names = cases.stream().map(TestCase::getName).collect(Collectors.toList());
+                List<TestCase> collect = cases.stream().filter(u -> StringUtils.isNotEmpty(u.getProjectId())).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), CollectionUtils.isNotEmpty(collect) ? collect.get(0).getProjectId() : null, String.join(",", names), cases.get(0).getCreateUser(), columns);
+                return JSON.toJSONString(details);
+            }
+        }
+        return null;
+    }
+
+    public String getLogDetails(TestCaseReviewTestCase request) {
+        TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        TestCaseWithBLOBs caseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
+        if (caseWithBLOBs != null) {
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(request.getId()), caseReview.getProjectId(), caseWithBLOBs.getName(), caseReview.getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public List<TestReviewCaseDTO> listForMinder(QueryCaseReviewRequest request) {
+        return extTestReviewCaseMapper.listForMinder(request);
     }
 }

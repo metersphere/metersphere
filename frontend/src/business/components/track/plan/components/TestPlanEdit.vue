@@ -75,6 +75,18 @@
         </el-row>
         <!--end:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
 
+        <el-row>
+          <el-col :span="8" :offset="1">
+            <el-form-item
+              :label="$t('自动更新状态')"
+              :label-width="formLabelWidth"
+              prop="automaticStatusUpdate">
+              <el-switch v-model="form.automaticStatusUpdate"/>
+              <ms-instructions-icon :content="'当功能用例关联的接口或性能用例在测试计划执行后，自动更新功能用例的状态'"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-row type="flex" justify="left" style="margin-top: 10px;">
           <el-col :span="23" :offset="1">
             <el-form-item :label="$t('commons.description')" :label-width="formLabelWidth" prop="description">
@@ -123,15 +135,14 @@
 
 <script>
 
-import {WORKSPACE_ID} from '@/common/js/constants';
 import TestPlanStatusButton from "../common/TestPlanStatusButton";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import {getCurrentProjectID, getCurrentWorkspaceId, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "TestPlanEdit",
-  components: {TestPlanStatusButton, MsInputTag},
+  components: {MsInstructionsIcon, TestPlanStatusButton, MsInputTag},
   data() {
     return {
       isStepTableAlive: true,
@@ -143,7 +154,8 @@ export default {
         stage: '',
         description: '',
         plannedStartTime: '',
-        plannedEndTime: ''
+        plannedEndTime: '',
+        automaticStatusUpdate: false
       },
       rules: {
         name: [
@@ -154,7 +166,7 @@ export default {
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
       },
-      formLabelWidth: "120px",
+      formLabelWidth: "100px",
       operationType: '',
       principalOptions: []
     };
@@ -197,7 +209,7 @@ export default {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-          param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          param.workspaceId = getCurrentWorkspaceId();
           if (this.form.tags instanceof Array) {
             this.form.tags = JSON.stringify(this.form.tags);
           }
@@ -206,8 +218,6 @@ export default {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;
             this.$router.push('/track/plan/view/' + response.data);
-            // 发送广播，刷新 head 上的最新列表
-            TrackEvent.$emit(LIST_CHANGE);
           });
         } else {
           return false;
@@ -224,7 +234,7 @@ export default {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
-          param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          param.workspaceId = getCurrentWorkspaceId();
           if (this.form.tags instanceof Array) {
             this.form.tags = JSON.stringify(this.form.tags);
           }
@@ -233,8 +243,6 @@ export default {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;
             this.$emit("refresh");
-            // 发送广播，刷新 head 上的最新列表
-            TrackEvent.$emit(LIST_CHANGE);
           });
         } else {
           return false;
@@ -253,8 +261,7 @@ export default {
       return true;
     },
     setPrincipalOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
         this.principalOptions = response.data;
       });
     },
@@ -289,5 +296,7 @@ export default {
 </script>
 
 <style scoped>
-
+.instructions-icon {
+  margin-left: 10px;
+}
 </style>

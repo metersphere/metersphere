@@ -6,7 +6,7 @@ create table service_integration
 	configuration text not null,
 	constraint service_integration_pk
 		primary key (id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 create table if not exists test_case_issues
 (
@@ -14,7 +14,7 @@ create table if not exists test_case_issues
 		primary key,
 	test_case_id varchar(50) not null,
 	issues_id varchar(100) not null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 create table if not exists issues
 (
@@ -28,4 +28,4 @@ create table if not exists issues
 	reporter varchar(50) null comment 'case issues creator',
 	lastmodify varchar(50) null,
 	platform varchar(50) null
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

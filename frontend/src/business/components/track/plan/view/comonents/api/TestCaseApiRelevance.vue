@@ -86,6 +86,12 @@
       open() {
         this.init();
         this.$refs.baseRelevance.open();
+        if (this.$refs.apiList) {
+          this.$refs.apiList.clear();
+        }
+        if (this.$refs.apiCaseList) {
+          this.$refs.apiCaseList.clear();
+        }
       },
       init() {
         if (this.$refs.apiList) {

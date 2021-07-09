@@ -1,5 +1,5 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading">
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <template v-slot:header>
       <span class="title">
         {{$t('api_test.home_page.failed_case_list.title')}}
@@ -42,6 +42,7 @@
 
 <script>
 import MsTag from "@/business/components/common/components/MsTag";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "MsFailureTestCaseList",
@@ -59,7 +60,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return getCurrentProjectID();
     },
   },
   methods: {

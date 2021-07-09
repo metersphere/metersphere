@@ -10,6 +10,7 @@
     <result column="order" jdbcType="INTEGER" property="order" />
     <result column="default_value" jdbcType="VARCHAR" property="defaultValue" />
     <result column="custom_data" jdbcType="VARCHAR" property="customData" />
+    <result column="key" jdbcType="VARCHAR" property="key" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, field_id, template_id, scene, required, `order`, default_value, custom_data
+    id, field_id, template_id, scene, required, `order`, default_value, custom_data,
+    `key`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.CustomFieldTemplateExample" resultMap="BaseResultMap">
     select
@@ -87,7 +89,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from custom_field_template
     where id = #{id,jdbcType=VARCHAR}
@@ -103,12 +105,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
-    insert into custom_field_template (id, field_id, template_id, 
-      scene, required, `order`, 
-      default_value, custom_data)
-    values (#{id,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, 
-      #{scene,jdbcType=VARCHAR}, #{required,jdbcType=BIT}, #{order,jdbcType=INTEGER}, 
-      #{defaultValue,jdbcType=VARCHAR}, #{customData,jdbcType=VARCHAR})
+    insert into custom_field_template (id, field_id, template_id,
+      scene, required, `order`,
+      default_value, custom_data, `key`
+      )
+    values (#{id,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR},
+      #{scene,jdbcType=VARCHAR}, #{required,jdbcType=BIT}, #{order,jdbcType=INTEGER},
+      #{defaultValue,jdbcType=VARCHAR}, #{customData,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.CustomFieldTemplate">
     insert into custom_field_template
@@ -137,6 +141,9 @@
       <if test="customData != null">
         custom_data,
       </if>
+      <if test="key != null">
+        `key`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +169,9 @@
       </if>
       <if test="customData != null">
         #{customData,jdbcType=VARCHAR},
+      </if>
+      <if test="key != null">
+        #{key,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +208,9 @@
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=VARCHAR},
       </if>
+      <if test="record.key != null">
+        `key` = #{record.key,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +225,8 @@
       required = #{record.required,jdbcType=BIT},
       `order` = #{record.order,jdbcType=INTEGER},
       default_value = #{record.defaultValue,jdbcType=VARCHAR},
-      custom_data = #{record.customData,jdbcType=VARCHAR}
+      custom_data = #{record.customData,jdbcType=VARCHAR},
+      `key` = #{record.key,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +255,9 @@
       <if test="customData != null">
         custom_data = #{customData,jdbcType=VARCHAR},
       </if>
+      <if test="key != null">
+        `key` = #{key,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,7 +269,8 @@
       required = #{required,jdbcType=BIT},
       `order` = #{order,jdbcType=INTEGER},
       default_value = #{defaultValue,jdbcType=VARCHAR},
-      custom_data = #{customData,jdbcType=VARCHAR}
+      custom_data = #{customData,jdbcType=VARCHAR},
+      `key` = #{key,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

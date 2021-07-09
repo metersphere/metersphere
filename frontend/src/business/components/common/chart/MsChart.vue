@@ -5,6 +5,7 @@
     :theme="theme"
     :group="group"
     @click="onClick"
+    @datazoom="datazoom"
     :watch-shallow="watchShallow"
     :manual-update="manualUpdate"
     :autoresize="autoresize"/>
@@ -25,7 +26,7 @@ export default {
   data() {
     return {
       defaultInitOptions: this.initOptions
-    }
+    };
   },
   mounted() {
 
@@ -37,11 +38,14 @@ export default {
     // }
   },
   methods: {
-    onClick(params){
-      this.$emit('onClick', params.data)
+    onClick(params) {
+      this.$emit('onClick', params.data);
     },
+    datazoom(params) {
+      this.$emit('datazoom', params);
+    }
   }
-}
+};
 </script>
 
 <style scoped>

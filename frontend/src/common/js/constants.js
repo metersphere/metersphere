@@ -20,6 +20,7 @@ export const ROLE_TEST_MANAGER = 'test_manager';
 export const ROLE_TEST_USER = 'test_user';
 export const ROLE_TEST_VIEWER = 'test_viewer';
 
+export const ORGANIZATION_ID = 'organization_id';
 export const WORKSPACE_ID = 'workspace_id';
 export const CURRENT_PROJECT = 'current_project';
 export const PROJECT_ID = 'project_id';
@@ -37,6 +38,11 @@ export const EN_US = 'en_US';
 export const TAPD = 'Tapd';
 export const JIRA = 'Jira';
 export const ZEN_TAO = 'Zentao';
+
+export const GROUP_SYSTEM = 'SYSTEM';
+export const GROUP_ORGANIZATION = 'ORGANIZATION';
+export const GROUP_WORKSPACE = 'WORKSPACE';
+export const GROUP_PROJECT = 'PROJECT';
 
 export const SCHEDULE_TYPE = {
   API_TEST: 'API_TEST',

@@ -7,7 +7,6 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.DemandDTO;
-import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -15,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.List;
 import java.util.UUID;
 
-public class LocalPlatform extends AbstractIssuePlatform {
+public class LocalPlatform extends LocalAbstractPlatform {
 
     protected String key = IssuesManagePlatform.Local.toString();
 
@@ -31,10 +30,6 @@ public class LocalPlatform extends AbstractIssuePlatform {
             return extIssuesMapper.getIssuesByProjectId(issuesRequest);
         }
         return extIssuesMapper.getIssuesByCaseId(issuesRequest);
-    }
-
-    @Override
-    public void filter(List<IssuesDao> issues) {
     }
 
     @Override
@@ -54,6 +49,7 @@ public class LocalPlatform extends AbstractIssuePlatform {
         issues.setCreateTime(System.currentTimeMillis());
         issues.setUpdateTime(System.currentTimeMillis());
         issues.setPlatform(IssuesManagePlatform.Local.toString());;
+        issues.setNum(getNextNum(issuesRequest.getProjectId()));
         issuesMapper.insert(issues);
 
         issuesRequest.setId(id);
@@ -68,27 +64,5 @@ public class LocalPlatform extends AbstractIssuePlatform {
     @Override
     public void deleteIssue(String id) {
         issuesMapper.deleteByPrimaryKey(id);
-    }
-
-    @Override
-    public void testAuth() {
-
-    }
-
-    @Override
-    public List<PlatformUser> getPlatformUser() {
-        return null;
-    }
-
-    @Override
-    String getProjectId(String projectId) {
-        return null;
-    }
-
-    public void closeIssue(String issueId) {
-        IssuesWithBLOBs issues = new IssuesWithBLOBs();
-        issues.setId(issueId);
-        issues.setStatus("closed");
-        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 }

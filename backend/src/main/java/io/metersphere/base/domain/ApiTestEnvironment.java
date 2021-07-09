@@ -19,5 +19,7 @@ public class ApiTestEnvironment implements Serializable {
 
     private Integer port;
 
+    private String createUser;
+
     private static final long serialVersionUID = 1L;
 }

@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.definition.request;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.RunningParamKeys;
+import io.metersphere.api.dto.definition.request.sampler.MsDebugSampler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,7 +21,7 @@ import java.util.List;
 public class MsThreadGroup extends MsTestElement {
     private String type = "ThreadGroup";
     private boolean enableCookieShare;
-    private boolean onSampleError;
+    private Boolean onSampleError;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -34,10 +36,14 @@ public class MsThreadGroup extends MsTestElement {
             cookieManager.setControlledByThread(false);
             groupTree.add(cookieManager);
         }
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
+            for (MsTestElement el : hashTree) {
                 el.toHashTree(groupTree, el.getHashTree(), config);
-            });
+            }
+            MsDebugSampler el = new MsDebugSampler();
+            el.setName(RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME);
+            el.toHashTree(groupTree, el.getHashTree(), config);
         }
     }
 
@@ -60,7 +66,7 @@ public class MsThreadGroup extends MsTestElement {
         threadGroup.setDuration(0);
         threadGroup.setProperty(ThreadGroup.ON_SAMPLE_ERROR, ThreadGroup.ON_SAMPLE_ERROR_CONTINUE);
         threadGroup.setScheduler(false);
-        if (onSampleError) {
+        if (onSampleError != null && !onSampleError) {
             threadGroup.setProperty("ThreadGroup.on_sample_error", "stoptest");
         }
         threadGroup.setSamplerController(loopController);

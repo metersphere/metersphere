@@ -33,18 +33,15 @@ public class TestCaseReviewScenarioCaseController {
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, testCaseReviewScenarioCaseService.relevanceList(request));
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestCase(@PathVariable String id) {
         return testCaseReviewScenarioCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
         testCaseReviewScenarioCaseService.deleteApiCaseBath(request);
     }
@@ -56,7 +53,6 @@ public class TestCaseReviewScenarioCaseController {
     }
 
     @PostMapping("/batch/update/env")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
         testCaseReviewScenarioCaseService.batchUpdateEnv(request);
     }

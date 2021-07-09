@@ -9,68 +9,89 @@
                 v-model="condition.name"/>
 
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-                :total="total" enableSelection
-                :batch-operators="buttons" :screenHeight="screenHeight"
+                :total="total"
+                :operators="operators"
+                :batch-operators="buttons"
+                :screenHeight="screenHeight"
+                :fields.sync="fields"
+                :field-key="tableHeaderKey"
+                @saveSortField="saveSortField"
                 operator-width="170px"
                 @refresh="initTable"
                 ref="caseTable"
       >
-        <template v-for="(item, index) in tableLabel">
+        <ms-table-column
+          prop="deleteTime"
+          sortable
+          v-if="this.trashEnable"
+          :fields-width="fieldsWidth"
+          :label="$t('commons.delete_time')"
+          min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.deleteTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+          prop="deleteUser"
+          :fields-width="fieldsWidth"
+          v-if="this.trashEnable"
+          :label="$t('commons.delete_user')"
+          min-width="120"/>
+        <span v-for="(item) in fields" :key="item.key">
 
           <ms-table-column
-              v-if="item.id == 'num'"
               prop="num"
               label="ID"
-              show-overflow-tooltip
-              width="80px"
-              sortable=true
-              :key="index">
+              :field="item"
+              :fields-width="fieldsWidth"
+              min-width="80px"
+              sortable>
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
               <el-tooltip v-else content="编辑">
-                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+                <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
           </ms-table-column>
 
-          <ms-table-column v-if="item.id == 'name'" prop="name" width="160px" :label="$t('test_track.case.name')"
-                           show-overflow-tooltip :key="index"/>
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="name"
+            min-width="160px"
+            :label="$t('test_track.case.name')"/>
 
           <ms-table-column
-              v-if="item.id == 'priority'"
               prop="priority"
               :filters="priorityFilters"
-              column-key="priority"
-              width="120px"
-              :label="$t('test_track.case.priority')"
-              show-overflow-tooltip
-              :key="index">
+              :field="item"
+              :fields-width="fieldsWidth"
+              min-width="120px"
+              :label="$t('test_track.case.priority')">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </ms-table-column>
 
           <ms-table-column
-              v-if="item.id == 'path'"
               sortable="custom"
               prop="path"
-              width="180px"
-              :label="'API'+ $t('api_test.definition.api_path')"
-              show-overflow-tooltip
-              :key="index"/>
+              min-width="180px"
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="'API'+ $t('api_test.definition.api_path')"/>
 
           <ms-table-column
-              v-if="item.id == 'casePath'"
               sortable="custom"
               prop="casePath"
-              width="180px"
-              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"
-              show-overflow-tooltip
-              :key="index"/>
+              min-width="180px"
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
 
-          <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')"
-                           :key="index">
+          <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
@@ -78,47 +99,42 @@
           </ms-table-column>
 
           <ms-table-column
-              v-if="item.id=='createUser'"
               prop="createUser"
-              :label="'创建人'"
-              show-overflow-tooltip
-              :key="index"/>
+              :field="item"
+              :fields-width="fieldsWidth"
+              :label="'创建人'"/>
 
           <ms-table-column
-              v-if="item.id=='updateTime'"
               sortable="updateTime"
-              width="160px"
+              min-width="160px"
+              :field="item"
+              :fields-width="fieldsWidth"
               :label="$t('api_test.definition.api_last_time')"
-              prop="updateTime"
-              :key="index">
+              prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </ms-table-column>
+          <ms-table-column prop="createTime"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           :label="$t('commons.create_time')"
+                           sortable
+                           min-width="180px">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </ms-table-column >
+        </span>
+
+        <template v-if="!trashEnable" v-slot:opt-behind="scope">
+          <ms-api-case-table-extend-btns @showCaseRef="showCaseRef"
+                                         @showEnvironment="showEnvironment"
+                                         @createPerformance="createPerformance" :row="scope.row"/>
         </template>
-        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="160"
-                         align="center">
-          <template slot="header">
-            <header-label-operate @exec="customHeader"/>
-          </template>
-          <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true"
-                                      :tip="$t('api_test.automation.execute')"
-                                      icon="el-icon-video-play"
-                                      @exec="runTestCase(scope.row)"/>
-            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
-                                      v-tester/>
-            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"
-                                      type="danger" v-tester/>
-            <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment"
-                                           @createPerformance="createPerformance" :row="scope.row" v-tester/>
-          </template>
-        </el-table-column>
 
       </ms-table>
 
-      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
-                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </div>
@@ -140,7 +156,7 @@
 <script>
 
 import MsTable from "@/business/components/common/components/table/MsTable";
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 import MsTablePagination from "../../../../common/pagination/TablePagination";
@@ -153,7 +169,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -164,17 +180,19 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel} from "@/common/js/tableUtils";
+import {
+  _filter,
+  _sort,
+  getCustomTableHeader,
+  getCustomTableWidth,saveLastTableSortField,getLastTableSortField
+} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
-import {Api_Case_List} from "@/business/components/common/model/JsonData";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
     HeaderLabelOperate,
-    HeaderCustom,
     MsTableHeaderSelectPopover,
     MsSetEnvironment,
     ApiCaseList,
@@ -197,8 +215,9 @@ export default {
   data() {
     return {
       type: API_CASE_LIST,
-      headerItems: Api_Case_List,
-      tableLabel: [],
+      tableHeaderKey:"API_CASE",
+      fields: getCustomTableHeader('API_CASE'),
+      fieldsWidth: getCustomTableWidth('API_CASE'),
       condition: {
         components: API_CASE_CONFIGS
       },
@@ -206,11 +225,48 @@ export default {
       result: {},
       moduleId: "",
       selectDataRange: "all",
-      deletePath: "/test/case/delete",
       clickRow: {},
-      buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+      buttons: [],
+      simpleButtons: [
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
         {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+      ],
+      trashButtons: [
+        {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore},
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+      ],
+      operators: [],
+      simpleOperators: [
+        {
+          tip: this.$t('api_test.automation.execute'),
+          icon: "el-icon-video-play",
+          exec: this.runTestCase,
+          class: "run-button",
+          permissions: ['PROJECT_API_DEFINITION:READ+RUN']
+        },
+        {
+          tip: this.$t('commons.edit'),
+          icon: "el-icon-edit",
+          exec: this.handleTestCase,
+          permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
+        },
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.deleteToGc,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
+      ],
+      trashOperators: [
+        {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reduction},
+        {
+          tip: this.$t('commons.delete'),
+          exec: this.handleDelete,
+          icon: "el-icon-delete",
+          type: "danger",
+          permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
+        },
       ],
       typeArr: [
         {id: 'priority', name: this.$t('test_track.case.priority')},
@@ -232,7 +288,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
+      screenHeight: 'calc(100vh - 250px)',//屏幕高度
       environmentId: undefined,
       selectAll: false,
       unSelection: [],
@@ -270,6 +326,19 @@ export default {
     planId: String
   },
   created: function () {
+    let orderArr = this.getSortField();
+    if(orderArr){
+      this.condition.orders = orderArr;
+    }
+
+    if(this.trashEnable){
+      this.operators = this.trashOperators;
+      this.buttons = this.trashButtons;
+    }else {
+      this.operators = this.simpleOperators;
+      this.buttons = this.simpleButtons;
+    }
+
     this.initTable();
     // this.$nextTick(() => {
     //   this.$refs.caseTable.bodyWrapper.scrollTop = 5
@@ -289,6 +358,13 @@ export default {
       this.initTable();
     },
     trashEnable() {
+      if(this.trashEnable){
+        this.operators = this.trashOperators;
+        this.buttons = this.trashButtons;
+      }else {
+        this.operators = this.simpleOperators;
+        this.buttons = this.simpleButtons;
+      }
       if (this.trashEnable) {
         this.selectAll = false;
         this.unSelection = [];
@@ -306,7 +382,7 @@ export default {
       return this.model === 'api';
     },
     projectId() {
-      return this.$store.state.projectId;
+      return getCurrentProjectID();
     },
     selectRows() {
       return this.$refs.caseTable.getSelectRows();
@@ -314,7 +390,7 @@ export default {
   },
   methods: {
     customHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      this.$refs.caseTable.openCustomHeader();
     },
     initTable() {
       if (this.$refs.caseTable) {
@@ -323,8 +399,24 @@ export default {
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
-        this.condition.status = "Trash";
+        // this.condition.status = "Trash";
         this.condition.moduleIds = [];
+        if(this.condition.filters){
+          if(this.condition.filters.status){
+            this.condition.filters.status = ["Trash"];
+          }else{
+            this.condition.filters = {status: ["Trash"]};
+          }
+        }else{
+          this.condition.filters = {};
+          this.condition.filters = {status: ["Trash"]};
+        }
+      }else {
+        if(this.condition.filters){
+          if(this.condition.filters.status){
+            this.condition.filters.status = [];
+          }
+        }
       }
       if (!this.selectAll) {
         this.selectAll = false;
@@ -346,7 +438,7 @@ export default {
       } else if (this.selectDataRange != null) {
         let selectParamArr = this.selectDataRange.split("single:");
 
-        if (selectParamArr.length == 2) {
+        if (selectParamArr.length === 2) {
           this.condition.id = selectParamArr[1];
         }
       }
@@ -373,8 +465,6 @@ export default {
           })
         });
       }
-      getLabel(this, API_CASE_LIST);
-
     },
 
     open() {
@@ -437,16 +527,8 @@ export default {
         this.$refs.caseList.open(selectApi, testCase.id);
       });
     },
-    reductionApi(row) {
-      let ids = [row.id];
-      this.$post('/api/testcase/reduction/', ids, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
-      });
-    },
     handleDeleteBatch() {
-      // if (this.trashEnable) {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
@@ -457,6 +539,26 @@ export default {
             obj.ids = Array.from(this.selectRows).map(row => row.id);
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
+              this.$refs.caseTable.clearSelectRows();
+              this.initTable();
+              this.$success(this.$t('commons.delete_success'));
+            });
+          }
+        }
+      });
+    },
+    handleDeleteToGcBatch() {
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let obj = {};
+            obj.projectId = this.projectId;
+            obj.selectAllDate = this.selectAll;
+            obj.unSelectIds = this.unSelection;
+            obj.ids = Array.from(this.selectRows).map(row => row.id);
+            obj = Object.assign(obj, this.condition);
+            this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
               this.initTable();
               this.$success(this.$t('commons.delete_success'));
@@ -493,8 +595,7 @@ export default {
       });
     },
     handleDelete(apiCase) {
-      // if (this.trashEnable) {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + apiCase.name + " ？", '', {
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
@@ -506,6 +607,66 @@ export default {
         }
       });
       return;
+    },
+    deleteToGc(apiCase){
+      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTable();
+            });
+          }
+        }
+      });
+      return;
+    },
+    reduction(row) {
+      let tmp = JSON.parse(JSON.stringify(row));
+      let rows = {ids: [tmp.id]};
+      this.$post('/api/testcase/reduction/', rows, response => {
+        let cannotReductionApiNameArr = response.data;
+        if(cannotReductionApiNameArr.length > 0){
+          let apiNames = "";
+          cannotReductionApiNameArr.forEach(item => {
+            if(apiNames === ""){
+              apiNames+= item
+            }else{
+              apiNames+= ";"+item;
+            }
+          });
+          this.$error("请先恢复["+apiNames+"]接口");
+        }else{
+          this.$success(this.$t('commons.save_success'));
+        }
+        this.search();
+      });
+    },
+    handleBatchRestore() {
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = this.selectAll;
+      obj.unSelectIds = this.unSelection;
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj = Object.assign(obj, this.condition);
+      this.$post('/api/testcase/reduction/', obj, response => {
+        let cannotReductionApiNameArr = response.data;
+        if(cannotReductionApiNameArr.length > 0){
+          let apiNames = "";
+          cannotReductionApiNameArr.forEach(item => {
+            if(apiNames === ""){
+              apiNames+= item
+            }else{
+              apiNames+= ";"+item;
+            }
+          });
+          this.$error("请先恢复["+apiNames+"]接口");
+        }else{
+          this.$success(this.$t('commons.save_success'));
+        }
+        this.search();
+      });
     },
     setEnvironment(data) {
       this.environmentId = data.id;
@@ -568,6 +729,21 @@ export default {
       }
       column.width = finalWidth;
       column.realWidth = finalWidth;
+    },
+    saveSortField(key,orders){
+      saveLastTableSortField(key,JSON.stringify(orders));
+    },
+    getSortField(){
+      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
+      let returnObj = null;
+      if(orderJsonStr){
+        try {
+          returnObj = JSON.parse(orderJsonStr);
+        }catch (e){
+          return null;
+        }
+      }
+      return returnObj;
     },
     createPerformance(row, environment) {
       /**
@@ -667,11 +843,4 @@ export default {
   top: -2px;
 }
 
-/deep/ .el-table__fixed {
-  height: 100% !important;
-}
-
-/deep/ .el-table__fixed-body-wrapper {
-  top: 60px !important;
-}
 </style>

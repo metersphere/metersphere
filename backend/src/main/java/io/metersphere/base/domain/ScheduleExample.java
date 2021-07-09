@@ -1053,6 +1053,76 @@ public class ScheduleExample {
             addCriterion("`name` not between", value1, value2, "name");
             return (Criteria) this;
         }
+
+        public Criteria andConfigIsNull() {
+            addCriterion("config is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigIsNotNull() {
+            addCriterion("config is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigEqualTo(String value) {
+            addCriterion("config =", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigNotEqualTo(String value) {
+            addCriterion("config <>", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigGreaterThan(String value) {
+            addCriterion("config >", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigGreaterThanOrEqualTo(String value) {
+            addCriterion("config >=", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigLessThan(String value) {
+            addCriterion("config <", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigLessThanOrEqualTo(String value) {
+            addCriterion("config <=", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigLike(String value) {
+            addCriterion("config like", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigNotLike(String value) {
+            addCriterion("config not like", value, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigIn(List<String> values) {
+            addCriterion("config in", values, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigNotIn(List<String> values) {
+            addCriterion("config not in", values, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigBetween(String value1, String value2) {
+            addCriterion("config between", value1, value2, "config");
+            return (Criteria) this;
+        }
+
+        public Criteria andConfigNotBetween(String value1, String value2) {
+            addCriterion("config not between", value1, value2, "config");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

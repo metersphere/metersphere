@@ -1,5 +1,6 @@
 <template>
-  <el-menu :unique-opened="true" mode="horizontal" router
+  <el-menu :unique-opened="true" mode="horizontal"
+           router
            class="header-user-menu align-right"
            :background-color="color"
            active-text-color="#fff"
@@ -7,11 +8,15 @@
            text-color="#fff">
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="1" popper-class="org-ws-submenu"
-                v-roles="['org_admin', 'test_manager', 'test_user', 'test_viewer']">
-      <template v-slot:title>{{ $t('commons.organization') }}:
-        <span class="org-ws-name" :title="currentOrganizationName">
-          {{ currentOrganizationName }}
-        </span>
+                :popper-append-to-body="true"
+                v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ',
+                'PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ',
+                'PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ', 'ORGANIZATION_USER:READ',
+                'WORKSPACE_USER:READ']">
+      <template v-slot:title>
+        <div class="org-ws-name" :title="currentOrganizationName + '-' + currentWorkspaceName">
+          <div>{{ currentWorkspaceName || currentOrganizationName }}</div>
+        </div>
       </template>
       <el-input :placeholder="$t('project.search_by_name')"
                 prefix-icon="el-icon-search"
@@ -20,56 +25,48 @@
                 class="search-input"
                 size="small"/>
       <div class="org-ws-menu">
-        <el-menu-item @click="changeOrg(item)" v-for="(item,index) in organizationList" :key="index">
-          <span class="title">
-            {{ item.name }}
-          </span>
-          <i class="el-icon-check"
-             v-if="item.id === currentUserInfo.lastOrganizationId"></i>
-        </el-menu-item>
-      </div>
-    </el-submenu>
-    <el-submenu index="2" popper-class="submenu" v-roles="['test_manager', 'test_user', 'test_viewer']">
-      <template v-slot:title>{{ $t('commons.workspace') }}:
-        <span class="org-ws-name" :title="currentWorkspaceName">
-          {{ currentWorkspaceName }}
-        </span>
-      </template>
-      <el-input :placeholder="$t('project.search_by_name')"
-                prefix-icon="el-icon-search"
-                v-model="searchWs"
-                clearable
-                class="search-input"
-                size="small"/>
-      <div class="org-ws-menu">
-        <el-menu-item @click="changeWs(item)" v-for="(item,index) in workspaceList" :key="index">
-          <span class="title">
-            {{ item.name }}
-          </span>
-          <i class="el-icon-check" v-if="item.id === currentUserInfo.lastWorkspaceId"></i>
-        </el-menu-item>
+        <el-submenu :index="1+'-'+index" v-for="(item, index) in organizationList"
+                    :popper-append-to-body="true"
+                    :key="index">
+          <template v-slot:title>
+            <div @click="changeOrg(item)">
+              {{ item.name }}
+              <i class="el-icon-check" v-if="item.id === getCurrentOrganizationId()"></i>
+            </div>
+          </template>
+          <el-input :placeholder="$t('project.search_by_name')"
+                    prefix-icon="el-icon-search"
+                    v-model="searchWs"
+                    clearable
+                    class="search-input"
+                    size="small"/>
+          <div class="org-ws-menu">
+            <el-menu-item :index="1+'-'+index+'-'+index2" @click="changeWs(ws)"
+                          v-for="(ws,index2) in item.workspaceList" :key="index2">
+              <span class="title">
+                {{ ws.name }}
+              </span>
+              <i class="el-icon-check" v-if="ws.id === getCurrentWorkspaceId()"></i>
+            </el-menu-item>
+          </div>
+        </el-submenu>
       </div>
     </el-submenu>
   </el-menu>
 </template>
 
 <script>
-import {
-  PROJECT_ID,
-  ROLE_ORG_ADMIN,
-  ROLE_TEST_MANAGER,
-  ROLE_TEST_USER,
-  ROLE_TEST_VIEWER,
-  WORKSPACE_ID
-} from '../../../../common/js/constants';
-import {getCurrentUser, hasRoles, saveLocalStorage} from "../../../../common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId, saveLocalStorage} from "@/common/js/utils";
+import {ORGANIZATION_ID, PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "MsHeaderOrgWs",
   created() {
     this.initMenuData();
-    this.getCurrentUserInfo();
   },
+  inject: [
+    'reloadTopMenus',
+  ],
   data() {
     return {
       organizationList: [
@@ -78,7 +75,6 @@ export default {
       workspaceList: [
         {name: this.$t('workspace.none')},
       ],
-      currentUserInfo: {},
       currentUserId: getCurrentUser().id,
       workspaceIds: [],
       currentOrganizationName: '',
@@ -87,7 +83,7 @@ export default {
       searchWs: '',
       orgListCopy: [{name: this.$t('organization.none')}],
       wsListCopy: [{name: this.$t('workspace.none')}]
-    }
+    };
   },
   computed: {
     currentUser: () => {
@@ -106,42 +102,51 @@ export default {
     }
   },
   methods: {
+    getCurrentOrganizationId,
+    getCurrentWorkspaceId,
     initMenuData() {
-      if (hasRoles(ROLE_ORG_ADMIN, ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
-          let data = response.data;
-          this.organizationList = data;
-          this.orgListCopy = data;
-          let org = data.filter(r => r.id === this.currentUser.lastOrganizationId);
-          if (org.length > 0) {
-            this.currentOrganizationName = org[0].name;
-          }
-        });
-      }
-      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        if (!this.currentUser.lastOrganizationId) {
-          return false;
+      this.$get("/organization/list/userorg/" + encodeURIComponent(this.currentUserId), response => {
+        let data = response.data;
+        this.organizationList = data;
+        this.orgListCopy = data;
+        let org = data.filter(r => r.id === getCurrentOrganizationId());
+        if (org.length > 0) {
+          this.currentOrganizationName = org[0].name;
         }
-        this.$get("/workspace/list/orgworkspace/", response => {
-          let data = response.data;
-          if (data.length === 0) {
-            this.workspaceList = [{name: this.$t('workspace.none')}]
-          } else {
-            this.workspaceList = data;
-            this.wsListCopy = data;
-            let workspace = data.filter(r => r.id === this.currentUser.lastWorkspaceId);
-            if (workspace.length > 0) {
-              this.currentWorkspaceName = workspace[0].name;
-              localStorage.setItem(WORKSPACE_ID, workspace[0].id);
+        this.organizationList.forEach(org => {
+          this.$get("/workspace/list/orgworkspace/" + encodeURIComponent(this.currentUserId) + "/" + org.id, response => {
+            let d = response.data;
+            if (d.length === 0) {
+              // org.workspaceList = [{name: this.$t('workspace.none')}];
+              // this.$set(org, 'workspaceList', [{name: this.$t('workspace.none')}]);
+            } else {
+              this.$set(org, 'workspaceList', d);
+              // org.workspaceList = d;
+              org.wsListCopy = d;
+              let workspace = d.filter(r => r.id === getCurrentWorkspaceId());
+              if (workspace.length > 0) {
+                this.currentWorkspaceName = workspace[0].name;
+              }
             }
-          }
-        })
+          });
+        });
+      });
+      if (!this.currentUser.lastOrganizationId) {
+        return false;
       }
-    },
-    getCurrentUserInfo() {
-      this.$get("/user/info/" + encodeURIComponent(this.currentUserId), response => {
-        this.currentUserInfo = response.data;
-      })
+      /*this.$get("/workspace/list/orgworkspace/" + getCurrentOrganizationId(), response => {
+        let data = response.data;
+        if (data.length === 0) {
+          this.workspaceList = [{name: this.$t('workspace.none')}];
+        } else {
+          this.workspaceList = data;
+          this.wsListCopy = data;
+          let workspace = data.filter(r => r.id === getCurrentWorkspaceId());
+          if (workspace.length > 0) {
+            this.currentWorkspaceName = workspace[0].name;
+          }
+        }
+      });*/
     },
     changeOrg(data) {
       let orgId = data.id;
@@ -150,12 +155,13 @@ export default {
       }
       this.$post("/user/switch/source/org/" + orgId, {}, response => {
         saveLocalStorage(response);
-        if (response.data.workspaceId) {
-          localStorage.setItem("workspace_id", response.data.workspaceId);
-        }
-        localStorage.removeItem(PROJECT_ID);
+
+        sessionStorage.setItem(ORGANIZATION_ID, orgId);
+        sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
+        sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+
         this.$router.push('/').then(() => {
-          window.location.reload();
+          this.reloadTopMenus();
         }).catch(err => err);
       });
     },
@@ -166,19 +172,25 @@ export default {
       }
       this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
         saveLocalStorage(response);
-        localStorage.setItem("workspace_id", workspaceId);
-        localStorage.removeItem(PROJECT_ID);
+
+        sessionStorage.setItem(ORGANIZATION_ID, response.data.lastOrganizationId);
+        sessionStorage.setItem(WORKSPACE_ID, workspaceId);
+        sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
+
         this.$router.push('/').then(() => {
-          window.location.reload();
+          this.reloadTopMenus();
         }).catch(err => err);
-      })
+      });
     },
     query(sign, queryString) {
       if (sign === 'org') {
         this.organizationList = queryString ? this.orgListCopy.filter(this.createFilter(queryString)) : this.orgListCopy;
       }
       if (sign === 'ws') {
-        this.workspaceList = queryString ? this.wsListCopy.filter(this.createFilter(queryString)) : this.wsListCopy;
+        this.organizationList.forEach(org => {
+          let wsListCopy = org.wsListCopy;
+          org.workspaceList = queryString ? wsListCopy?.filter(this.createFilter(queryString)) : wsListCopy;
+        });
       }
     },
     createFilter(queryString) {
@@ -187,7 +199,7 @@ export default {
       };
     },
   }
-}
+};
 </script>
 
 <style scoped>
@@ -248,6 +260,10 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/deep/ .el-submenu__title {
+  padding-left: 5px;
 }
 
 </style>

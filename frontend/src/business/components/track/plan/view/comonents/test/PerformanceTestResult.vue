@@ -36,9 +36,12 @@
 
         <el-divider></el-divider>
 
-        <el-tabs v-model="active" type="border-card" :stretch="true">
+        <el-tabs v-model="active">
           <el-tab-pane :label="$t('report.test_overview')">
             <test-overview :report="report"/>
+          </el-tab-pane>
+          <el-tab-pane :label="$t('report.test_details')">
+            <ms-report-test-details :report="report" ref="testDetails"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('report.test_request_statistics')">
             <request-statistics :report="report"/>
@@ -63,11 +66,13 @@ import LogDetails from "../../../../../performance/report/components/LogDetails"
 import ErrorLog from "../../../../../performance/report/components/ErrorLog";
 import RequestStatistics from "../../../../../performance/report/components/RequestStatistics";
 import TestOverview from "../../../../../performance/report/components/TestOverview";
+import MsReportTestDetails from "@/business/components/performance/report/components/TestDetails";
 
 export default {
   name: "PerformanceTestResult",
   components: {
     TestOverview,
+    MsReportTestDetails,
     RequestStatistics,
     ErrorLog,
     LogDetails,

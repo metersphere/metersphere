@@ -1,7 +1,7 @@
 <template>
   <div class="request-form">
     <keep-alive>
-      <component v-bind:is="component" :isMax="isMax" :show-btn="showBtn"
+      <component v-bind:is="component" :isMax="isMax" :show-btn="showBtn" :expandedNode="expandedNode"
                  :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
                  :draggable="draggable" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
                  @remove="remove" @copyRow="copyRow" @refReload="refReload" @openScenario="openScenario" :project-list="projectList" :env-map="envMap"/>
@@ -12,6 +12,7 @@
 <script>
   import MsConstantTimer from "./ConstantTimer";
   import MsIfController from "./IfController";
+  import MsTransactionController from "./TransactionController";
   import {ELEMENT_TYPE} from "../Setting";
   import MsJsr233Processor from "./Jsr233Processor";
   import MsApiAssertions from "../../../definition/components/assertion/ApiAssertions";
@@ -23,7 +24,7 @@
 
   export default {
     name: "ComponentConfig",
-    components: {MsConstantTimer, MsIfController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, JmeterElementComponent},
+    components: {MsConstantTimer, MsIfController, MsTransactionController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, JmeterElementComponent},
     props: {
       type: String,
       scenario: {},
@@ -40,6 +41,7 @@
         default: true,
       },
       currentScenario: {},
+      expandedNode: Array,
       currentEnvironmentId: String,
       response: {},
       node: {},
@@ -59,6 +61,9 @@
         switch (type) {
           case ELEMENT_TYPE.IfController:
             name = "MsIfController";
+            break;
+          case ELEMENT_TYPE.TransactionController:
+            name = "MsTransactionController";
             break;
           case ELEMENT_TYPE.ConstantTimer:
             name = "MsConstantTimer";

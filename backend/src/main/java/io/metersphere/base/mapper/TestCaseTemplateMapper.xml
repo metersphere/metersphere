@@ -14,6 +14,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
@@ -81,7 +82,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, description, case_name, `system`, `global`, workspace_id, prerequisite, 
-    create_time, update_time, step_model
+    create_time, update_time, step_model, create_user
   </sql>
   <sql id="Blob_Column_List">
     step_description, expected_result, actual_result, steps
@@ -139,13 +140,13 @@
       description, case_name, `system`, 
       `global`, workspace_id, prerequisite, 
       create_time, update_time, step_model, 
-      step_description, expected_result, 
+      create_user, step_description, expected_result, 
       actual_result, steps)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, 
       #{global,jdbcType=BIT}, #{workspaceId,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{stepModel,jdbcType=VARCHAR}, 
-      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
       #{actualResult,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
@@ -186,6 +187,9 @@
       </if>
       <if test="stepModel != null">
         step_model,
+      </if>
+      <if test="createUser != null">
+        create_user,
       </if>
       <if test="stepDescription != null">
         step_description,
@@ -236,6 +240,9 @@
       </if>
       <if test="stepModel != null">
         #{stepModel,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
       <if test="stepDescription != null">
         #{stepDescription,jdbcType=LONGVARCHAR},
@@ -296,6 +303,9 @@
       <if test="record.stepModel != null">
         step_model = #{record.stepModel,jdbcType=VARCHAR},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
       <if test="record.stepDescription != null">
         step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       </if>
@@ -327,6 +337,7 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
       actual_result = #{record.actualResult,jdbcType=LONGVARCHAR},
@@ -348,7 +359,8 @@
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      step_model = #{record.stepModel,jdbcType=VARCHAR}
+      step_model = #{record.stepModel,jdbcType=VARCHAR},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -389,6 +401,9 @@
       <if test="stepModel != null">
         step_model = #{stepModel,jdbcType=VARCHAR},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
       <if test="stepDescription != null">
         step_description = #{stepDescription,jdbcType=LONGVARCHAR},
       </if>
@@ -417,6 +432,7 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       step_model = #{stepModel,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
       step_description = #{stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
       actual_result = #{actualResult,jdbcType=LONGVARCHAR},
@@ -435,7 +451,8 @@
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      step_model = #{stepModel,jdbcType=VARCHAR}
+      step_model = #{stepModel,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

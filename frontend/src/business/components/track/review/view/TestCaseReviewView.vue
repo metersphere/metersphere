@@ -12,18 +12,12 @@
         <el-menu v-if="isMenuShow" :active-text-color="color"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect"
                  :default-active="activeIndex">
-          <el-menu-item index="functional">功能测试用例</el-menu-item>
-<!--          <el-menu-item index="api">接口测试用例</el-menu-item>
-          <el-menu-item index="load">性能测试用例</el-menu-item>-->
-          <!--          <el-menu-item index="report">报告统计</el-menu-item>-->
+          <el-menu-item index="functional">{{ $t('test_track.functional_test_case') }}</el-menu-item>
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
     <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
                           :clickType="clickType" :review-id="reviewId"></test-review-function>
-    <!--    <test-review-api v-if="activeIndex === 'api'" :review-id="reviewId"></test-review-api>
-        <test-review-load v-if="activeIndex === 'load'" :review-id="reviewId"></test-review-load>-->
-
   </div>
 
 </template>
@@ -82,6 +76,13 @@ export default {
     color: function () {
       return `var(--primary_color)`
     }
+  },
+  created() {
+    this.$EventBus.$on('projectChange', () => {
+      if (this.$route.name === 'testCaseReviewView') {
+        this.$router.push('/track/review/all');
+      }
+    });
   },
   mounted() {
     this.initData();
@@ -178,5 +179,11 @@ export default {
 /deep/ .ms-aside-container {
   height: calc(100vh - 80px - 53px);
   margin-top: 1px;
+}
+
+.header-menu.el-menu--horizontal > li {
+  height: 49px;
+  line-height: 50px;
+  color: dimgray;
 }
 </style>

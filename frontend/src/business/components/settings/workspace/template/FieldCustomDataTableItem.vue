@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 export default {
   name: "FieldCustomDataTableItem",
   components: {MsTableColumn},

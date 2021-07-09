@@ -29,16 +29,16 @@
       <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
         <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
       </el-row>
-      <ms-api-variable :is-read-only="isReadOnly"
+      <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly"
                        :parameters="body.kvs"
                        :isShowEnable="isShowEnable" type="body"/>
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
-        <el-switch active-text="JSON-SCHEMA" v-model="body.format" active-value="JSON-SCHEMA"/>
+        <el-switch active-text="JSON-SCHEMA" v-model="body.format" @change="formatChange" active-value="JSON-SCHEMA"/>
       </div>
       <ms-json-code-edit v-if="body.format==='JSON-SCHEMA'" :body="body" ref="jsonCodeEdit"/>
-      <ms-code-edit v-else :read-only="isReadOnly" height="400px" :data.sync="body.raw" :modes="modes" :mode="'json'" ref="codeEdit"/>
+      <ms-code-edit v-else-if="codeEditActive" :read-only="isReadOnly" height="400px" :data.sync="body.raw" :modes="modes" :mode="'json'" ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
@@ -70,6 +70,8 @@
   import MsApiBinaryVariable from "./ApiBinaryVariable";
   import MsApiFromUrlVariable from "./ApiFromUrlVariable";
   import BatchAddParameter from "../basis/BatchAddParameter";
+  import Convert from "@/business/components/common/json-schema/convert/convert";
+
 
   export default {
     name: "MsApiBody",
@@ -100,9 +102,31 @@
         type: BODY_TYPE,
         modes: ['text', 'json', 'xml', 'html'],
         jsonSchema: "JSON",
+        codeEditActive: true
       };
     },
     methods: {
+      reloadCodeEdit() {
+        this.codeEditActive = false;
+        this.$nextTick(() => {
+          this.codeEditActive = true;
+        });
+      },
+      formatChange() {
+        const MsConvert = new Convert();
+        if (this.body.format === 'JSON-SCHEMA') {
+          if (this.body.raw) {
+            this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+          }
+        } else {
+          if (this.body.jsonSchema) {
+            MsConvert.schemaToJsonStr(this.body.jsonSchema, (result) => {
+              this.$set(this.body, 'raw',  result);
+              this.reloadCodeEdit();
+            });
+          }
+        }
+      },
       modeChange(mode) {
         switch (this.body.type) {
           case "JSON":

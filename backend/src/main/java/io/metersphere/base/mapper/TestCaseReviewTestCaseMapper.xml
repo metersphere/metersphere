@@ -10,6 +10,7 @@
     <result column="reviewer" jdbcType="VARCHAR" property="reviewer" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, review_id, case_id, `status`, `result`, reviewer, create_time, update_time
+    id, review_id, case_id, `status`, `result`, reviewer, create_time, update_time, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseReviewTestCaseExample" resultMap="BaseResultMap">
     select
@@ -105,10 +106,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReviewTestCase">
     insert into test_case_review_test_case (id, review_id, case_id, 
       `status`, `result`, reviewer, 
-      create_time, update_time)
+      create_time, update_time, create_user
+      )
     values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{result,jdbcType=VARCHAR}, #{reviewer,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReviewTestCase">
     insert into test_case_review_test_case
@@ -137,6 +140,9 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +168,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +207,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.createUser != null">
+        create_user = #{record.createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +224,8 @@
       `result` = #{record.result,jdbcType=VARCHAR},
       reviewer = #{record.reviewer,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +254,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,7 +268,8 @@
       `result` = #{result,jdbcType=VARCHAR},
       reviewer = #{reviewer,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

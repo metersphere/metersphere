@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.util.concurrent.AtomicDouble;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -10,8 +11,13 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.NodeNumDTO;
 import io.metersphere.exception.ExcelException;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
@@ -72,11 +78,18 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
+        node.setCreateUser(SessionUtils.getUserId());
         double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
         node.setPos(pos);
         testCaseNodeMapper.insertSelective(node);
         return node.getId();
     }
+
+    public List<String> getNodes(String nodeId) {
+        return extTestCaseNodeMapper.getNodes(nodeId);
+    }
+
+    ;
 
     private void validateNode(TestCaseNode node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
@@ -112,8 +125,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
         long count = testCaseNodeMapper.countByExample(example);
         if (count <= 0) {
-            TestCaseNode record = new TestCaseNode();
+            NodeNumDTO record = new NodeNumDTO();
+            //TestCaseNode record = new TestCaseNode();
             record.setId(UUID.randomUUID().toString());
+            record.setCreateUser(SessionUtils.getUserId());
             record.setName("默认模块");
             record.setPos(1.0);
             record.setLevel(1);
@@ -121,9 +136,76 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             record.setUpdateTime(System.currentTimeMillis());
             record.setProjectId(projectId);
             testCaseNodeMapper.insert(record);
+            record.setCaseNum(0);
         }
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
+        QueryTestCaseRequest request = new QueryTestCaseRequest();
+        request.setUserId(SessionUtils.getUserId());
+        request.setProjectId(projectId);
+//        for (TestCaseNodeDTO node : testCaseNodes) {
+//            List<String> nodeIds = new ArrayList<>();
+//            nodeIds = this.nodeList(testCaseNodes, node.getId(), nodeIds);
+//            nodeIds.add(node.getId());
+//            request.setNodeIds(nodeIds);
+//            node.setCaseNum(extTestCaseMapper.moduleCount(request));
+//        }
+        //优化：将for循环内的SQL抽出来，只差一次
+        List<String> allModuleIdList = new ArrayList<>();
+        for (TestCaseNodeDTO node : testCaseNodes) {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(testCaseNodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            for (String moduleId : moduleIds) {
+                if(!allModuleIdList.contains(moduleId)){
+                    allModuleIdList.add(moduleId);
+                }
+            }
+        }
+        request.setModuleIds(allModuleIdList);
+        List<Map<String,Object>> moduleCountList = extTestCaseMapper.moduleCountByCollection(request);
+        Map<String,Integer> moduleCountMap = this.parseModuleCountList(moduleCountList);
+        testCaseNodes.forEach(node -> {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds = this.nodeList(testCaseNodes, node.getId(), moduleIds);
+            moduleIds.add(node.getId());
+            int countNum = 0;
+            for (String moduleId : moduleIds) {
+                if(moduleCountMap.containsKey(moduleId)){
+                    countNum += moduleCountMap.get(moduleId).intValue();
+                }
+            }
+            node.setCaseNum(countNum);
+        });
         return getNodeTrees(testCaseNodes);
+    }
+
+    private Map<String, Integer> parseModuleCountList(List<Map<String, Object>> moduleCountList) {
+        Map<String,Integer> returnMap = new HashMap<>();
+        for (Map<String, Object> map: moduleCountList){
+            Object moduleIdObj = map.get("moduleId");
+            Object countNumObj = map.get("countNum");
+            if(moduleIdObj!= null && countNumObj != null){
+                String moduleId = String.valueOf(moduleIdObj);
+                try {
+                    Integer countNumInteger = new Integer(String.valueOf(countNumObj));
+                    returnMap.put(moduleId,countNumInteger);
+                }catch (Exception e){
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    public static List<String> nodeList(List<TestCaseNodeDTO> testCaseNodes, String pid, List<String> list) {
+        for (TestCaseNodeDTO node : testCaseNodes) {
+            //遍历出父id等于参数的id，add进子节点集合
+            if (StringUtils.equals(node.getParentId(), pid)) {
+                list.add(node.getId());
+                //递归遍历下一级
+                nodeList(testCaseNodes, node.getId(), list);
+            }
+        }
+        return list;
     }
 
     public int editNode(DragNodeRequest request) {
@@ -467,6 +549,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     private List<TestCaseDTO> QueryTestCaseByNodeIds(List<String> nodeIds) {
         QueryTestCaseRequest testCaseRequest = new QueryTestCaseRequest();
         testCaseRequest.setNodeIds(nodeIds);
+        if(testCaseRequest.getFilters()!=null && !testCaseRequest.getFilters().containsKey("status")){
+            testCaseRequest.getFilters().put("status",new ArrayList<>(0));
+        }
         return extTestCaseMapper.list(testCaseRequest);
     }
 
@@ -581,4 +666,46 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
     }
 
+
+    public String getLogDetails(List<String> ids) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andIdIn(ids);
+        List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(nodes)) {
+            List<String> names = nodes.stream().map(TestCaseNode::getName).collect(Collectors.toList());
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), nodes.get(0).getProjectId(), String.join(",", names), nodes.get(0).getCreateUser(), new LinkedList<>());
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
+
+    public String getLogDetails(TestCaseNode node) {
+        TestCaseNode module = null;
+        if (StringUtils.isNotEmpty(node.getId())) {
+            module = testCaseNodeMapper.selectByPrimaryKey(node.getId());
+        }
+        if (module == null && StringUtils.isNotEmpty(node.getName())) {
+            TestCaseNodeExample example = new TestCaseNodeExample();
+            TestCaseNodeExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(node.getName()).andProjectIdEqualTo(node.getProjectId());
+            if (StringUtils.isNotEmpty(node.getParentId())) {
+                criteria.andParentIdEqualTo(node.getParentId());
+            } else {
+                criteria.andParentIdIsNull();
+            }
+            if (StringUtils.isNotEmpty(node.getId())) {
+                criteria.andIdNotEqualTo(node.getId());
+            }
+            List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(list)) {
+                module = list.get(0);
+            }
+        }
+        if (module != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(module, ModuleReference.moduleColumns);
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(module.getId()), module.getProjectId(), module.getCreateUser(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
+    }
 }

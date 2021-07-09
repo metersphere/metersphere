@@ -25,11 +25,11 @@
           <el-table-column
             :label="$t('commons.operating')">
             <template v-slot:default="scope">
-              <el-button @click="preview(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
+              <el-button @click="preview(scope.row)" :disabled="!scope.row.id" type="primary"
                          v-if="isPreview(scope.row)"
                          icon="el-icon-view"
                          size="mini" circle/>
-              <el-button @click="handleDownload(scope.row)"  type="primary"
+              <el-button @click="handleDownload(scope.row)"  type="primary" :disabled="!scope.row.id"
                          icon="el-icon-download"
                          size="mini" circle/>
               <el-button :disabled="readOnly || !isDelete" @click="handleDelete(scope.row, scope.$index)" type="danger"

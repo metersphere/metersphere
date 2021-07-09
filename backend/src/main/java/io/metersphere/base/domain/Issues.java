@@ -23,5 +23,13 @@ public class Issues implements Serializable {
 
     private String projectId;
 
+    private String creator;
+
+    private String resourceId;
+
+    private Integer num;
+
+    private String platformStatus;
+
     private static final long serialVersionUID = 1L;
 }

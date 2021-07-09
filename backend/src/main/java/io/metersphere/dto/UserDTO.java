@@ -1,8 +1,6 @@
 package io.metersphere.dto;
 
-import io.metersphere.base.domain.Role;
-import io.metersphere.base.domain.User;
-import io.metersphere.base.domain.UserRole;
+import io.metersphere.base.domain.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,6 +15,20 @@ public class UserDTO extends User {
 
     private List<UserRole> userRoles = new ArrayList<>();
 
+    private List<UserGroup> userGroups = new ArrayList<>();
+    private List<Group> groups = new ArrayList<>();
+    private List<GroupResourceDTO> groupPermissions = new ArrayList<>();
+
     private static final long serialVersionUID = 1L;
+
+    @Getter
+    @Setter
+    public static class PlatformInfo {
+        private String  jiraAccount;
+        private String  jiraPassword;
+        private String  tapdUserName;
+        private String  zentaoUserName;
+        private String  zentaoPassword;
+    }
 
 }

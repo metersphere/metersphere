@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="10">
         <h3>{{ $t('organization.message.defect_task_notification') }}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel">
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel" v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
         <el-popover
@@ -113,6 +113,7 @@
                 size="mini"
                 v-show="!scope.row.isSet"
                 @click="handleEditTask(scope.$index,scope.row)"
+                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"
               >{{ $t('commons.edit') }}
               </el-button>
               <el-button
@@ -121,6 +122,7 @@
                 size="mini"
                 v-show="!scope.row.isSet"
                 @click="deleteRowTask(scope.$index,scope.row)"
+                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"
               ></el-button>
             </template>
           </el-table-column>

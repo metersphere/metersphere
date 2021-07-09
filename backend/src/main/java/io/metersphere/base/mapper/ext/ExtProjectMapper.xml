@@ -1,18 +1,85 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtProjectMapper">
+    <sql id="condition">
+        <include refid="io.metersphere.base.mapper.ext.ExtApiTestMapper.condition"/>
+    </sql>
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            AND p.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            AND p.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            AND p.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            AND p.create_user
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
 
     <select id="getProjectWithWorkspace" resultType="io.metersphere.dto.ProjectDTO">
         select p.id, p.workspace_id, p.name, p.description, p.update_time, p.issue_template_id, p.case_template_id,
-        p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id,p.repeatable, p.custom_num
+        p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id,p.repeatable, p.custom_num,
+        user.name as createUserName,
+        p.scenario_custom_num
         from project p
         join workspace w on p.workspace_id = w.id
+        left join user on user.id = p.create_user
         <where>
+            <if test="proRequest.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="proRequest.combine"/>
+                    <property name="name" value="proRequest.name"/>
+                </include>
+            </if>
+            <if test="proRequest.filters != null and proRequest.filters.size() > 0">
+                <foreach collection="proRequest.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'create_user'">
+                                AND p.create_user IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'project_id'">
+                                AND p.id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'workspace_id'">
+                                AND p.workspace_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
             <if test="proRequest.name != null and proRequest.name != ''">
                 and p.name like #{proRequest.name, jdbcType=VARCHAR}
             </if>
             <if test="proRequest.workspaceId != null">
                 and w.id = #{proRequest.workspaceId}
+            </if>
+            <if test="proRequest.projectId != null">
+                and p.id = #{proRequest.projectId}
             </if>
         </where>
         <if test="proRequest.orders != null and proRequest.orders.size() > 0">
@@ -27,6 +94,26 @@
           from project
           where workspace_id = #{workspaceId}
     </select>
+    <select id="getUserProject" resultType="io.metersphere.dto.ProjectDTO">
+        select distinct p.* from `group` g join user_group ug on g.id = ug.group_id
+        join project p on p.id = ug.source_id
+        <where>
+            g.type = 'PROJECT' and ug.user_id = #{proRequest.userId}
+            <if test="proRequest.workspaceId != null and proRequest.workspaceId != ''">
+                and p.workspace_id = #{proRequest.workspaceId}
+            </if>
+            <if test="proRequest.name != null and proRequest.name != ''">
+                and p.name like #{proRequest.name, jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+    <select id="getSystemIdByProjectId" resultType="java.lang.String">
+        SELECT system_id FROM project WHERE id = #{0}
+    </select>
+    <select id="getProjectIds" resultType="java.lang.String">
+        select id from project;
+    </select>
+
 
     <update id="removeIssuePlatform">
         update project

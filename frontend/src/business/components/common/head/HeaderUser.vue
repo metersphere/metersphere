@@ -28,6 +28,7 @@ import {getCurrentUser} from "@/common/js/utils";
 import AboutUs from "./AboutUs";
 import axios from "axios";
 import {mapGetters} from "vuex";
+import {ORGANIZATION_ID, PROJECT_ID, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
@@ -52,11 +53,19 @@ export default {
     logout: function () {
       axios.get("/signout").then(response => {
         if (response.data.success) {
-          localStorage.clear();
+          localStorage.removeItem(TokenKey);
+
+          sessionStorage.removeItem(ORGANIZATION_ID);
+          sessionStorage.removeItem(WORKSPACE_ID);
+          sessionStorage.removeItem(PROJECT_ID);
           window.location.href = "/login";
         }
       }).catch(error => {
-        localStorage.clear();
+        localStorage.removeItem(TokenKey);
+
+        sessionStorage.removeItem(ORGANIZATION_ID);
+        sessionStorage.removeItem(WORKSPACE_ID);
+        sessionStorage.removeItem(PROJECT_ID);
         window.location.href = "/login";
       });
     },
@@ -73,7 +82,7 @@ export default {
           this.$refs.aboutUs.open();
           break;
         case "help":
-          window.location.href = "https://metersphere.io/docs/index.html";
+          window.open('https://metersphere.io/docs/index.html', "_blank");
           break;
         case "ApiHelp":
           window.open('/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config', "_blank");

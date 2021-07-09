@@ -11,10 +11,10 @@ public class LogUtil {
     //日志工具类
 //	public static final Log Logger = LogFactory.getLog(LogUtil.class);
 
-    private static final String DEBUG = "DEBUG";
-    private static final String INFO = "INFO";
-    private static final String WARN = "WARN";
-    private static final String ERROR = "ERROR";
+    public static final String DEBUG = "DEBUG";
+    public static final String INFO = "INFO";
+    public static final String WARN = "WARN";
+    public static final String ERROR = "ERROR";
 
     /**
      * 初始化日志

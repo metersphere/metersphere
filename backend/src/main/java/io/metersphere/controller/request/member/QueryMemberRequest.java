@@ -8,4 +8,5 @@ import lombok.Setter;
 public class QueryMemberRequest {
     private String name;
     private String workspaceId;
+    private String projectId;
 }

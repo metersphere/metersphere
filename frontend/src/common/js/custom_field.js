@@ -57,7 +57,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
     if (data.customFields instanceof Array) {
       for (let i = 0; i < data.customFields.length; i++) {
         let customField = data.customFields[i];
-        if (customField.id === item.id) {
+        if (customField.name === item.name) {
           setDefaultValue(item, customField.value);
           break;
         }
@@ -86,10 +86,23 @@ export function buildCustomFields(data, param, template) {
       data.customFields = [];
     }
     let customFields = data.customFields;
+
+    // 去重操作
+    if (customFields) {
+      let nameSet = new Set();
+      for(let i = customFields.length - 1; i >= 0; i--){
+        let name = customFields[i].name;
+        if(nameSet.has(name)){
+          customFields.splice(i,1);
+        }
+        nameSet.add(name);
+      }
+    }
+
     template.customFields.forEach(item => {
       let hasField = false;
       for (const index in customFields) {
-        if (customFields[index].id === item.id) {
+        if (customFields[index].name === item.name) {
           hasField = true;
           customFields[index].name = item.name;
           customFields[index].value = item.defaultValue;
@@ -100,7 +113,9 @@ export function buildCustomFields(data, param, template) {
         let customField = {
           id: item.id,
           name: item.name,
-          value: item.defaultValue
+          value: item.defaultValue,
+          type: item.type,
+          customData: item.customData,
         };
         customFields.push(customField);
       }

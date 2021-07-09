@@ -66,14 +66,15 @@
 
     <select id="getReportList" resultType="io.metersphere.dto.ReportDTO">
         select ltr.id, ltr.name, ltr.test_id as testId, ltr.max_users maxUsers, ltr.avg_response_time avgResponseTime,
-        ltr.tps, ltr.description, user.name as userName, project.name as
+        ltr.tps, ltr.test_start_time as testStartTime, ltr.test_end_time as testEndTime, ltr.test_duration as testDuration,
+        ltr.description, user.name as userName, project.name as
         projectName, ltr.trigger_mode,
-        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName,
-        project_id as projectId
+        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
+        project.id as projectId
         from load_test_report ltr
-        join load_test lt on ltr.test_id = lt.id
+        left join load_test lt on ltr.test_id = lt.id
         join user on ltr.user_id = user.id
-        join project on project.id = lt.project_id
+        join project on project.id = ltr.project_id
         <where>
             <if test="reportRequest.combine != null">
                 <include refid="combine">
@@ -106,6 +107,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='project_id'">
+                                and ltr.project_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <otherwise>
                                 and ltr.trigger_mode in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -128,9 +135,9 @@
 
     <select id="getReportTestAndProInfo" resultType="io.metersphere.dto.ReportDTO">
         select ltr.id, ltr.name, ltr.test_id as testId, ltr.description,
-        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName,
+        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, ltr.test_name as testName,
         p.id as projectId, p.name as projectName
-        from load_test_report ltr join load_test lt on ltr.test_id = lt.id join project p on lt.project_id = p.id
+        from load_test_report ltr left join load_test lt on ltr.test_id = lt.id join project p on ltr.project_id = p.id
         where ltr.id = #{id}
     </select>
 
@@ -152,5 +159,11 @@
         WHERE report_id = #{reportId}
         GROUP BY resource_id
     </select>
+
+    <update id="updateJmxContentIfAbsent">
+        update load_test_report
+        set jmx_content = #{jmxContent,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=VARCHAR} and jmx_content is null
+    </update>
 
 </mapper>

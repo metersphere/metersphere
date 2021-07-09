@@ -25,5 +25,11 @@ public class LoadTest implements Serializable {
 
     private Integer num;
 
+    private String createUser;
+
+    private Integer scenarioVersion;
+
+    private String scenarioId;
+
     private static final long serialVersionUID = 1L;
 }

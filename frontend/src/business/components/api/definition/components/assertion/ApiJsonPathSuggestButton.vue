@@ -1,9 +1,9 @@
 <template>
   <el-row :gutter="10" class="json-path-suggest-button">
-    <el-button size="small" type="primary" @click="$emit('open')" @click.stop>
+    <el-button size="mini" type="primary" @click="$emit('open')" @click.stop>
       {{openTip}}
     </el-button>
-    <el-button size="small" type="danger" @click="$emit('clear')">
+    <el-button size="mini" type="danger" @click="$emit('clear')">
       {{clearTip}}
     </el-button>
   </el-row>
@@ -20,6 +20,7 @@
 
   .json-path-suggest-button {
     text-align: right;
+    margin-top: 10px;
   }
 
 </style>
