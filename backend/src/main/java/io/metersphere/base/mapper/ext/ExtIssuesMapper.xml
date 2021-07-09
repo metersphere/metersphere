@@ -71,22 +71,20 @@
 <!--                </foreach>-->
 <!--            </if>-->
 
-
-<!--            <if test="request.filters != null and request.filters.size() > 0">-->
-<!--                <foreach collection="request.filters.entrySet()" index="key" item="values">-->
-<!--                    <if test="values != null and values.size() > 0">-->
-<!--                        <choose>-->
-<!--                            <when test="key == 'scene'">-->
-<!--                                AND cf.scene IN-->
-<!--                                <foreach collection="values" item="value" separator="," open="(" close=")">-->
-<!--                                    #{value}-->
-<!--                                </foreach>-->
-<!--                            </when>-->
-<!--                        </choose>-->
-<!--                    </if>-->
-<!--                </foreach>-->
-<!--            </if>-->
-
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'platform'">
+                                AND issues.platform IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
         </where>
     </sql>
 

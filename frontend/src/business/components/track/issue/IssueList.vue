@@ -62,6 +62,7 @@
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
+            :filters="platformFilters"
             :label="$t('test_track.issue.platform')"
             prop="platform">
           </ms-table-column>
@@ -69,6 +70,7 @@
           <ms-table-column
                   :field="item"
                   :fields-width="fieldsWidth"
+                  sortable
                   :label="$t('test_track.issue.platform_status') "
                   prop="platformStatus">
             <template v-slot="scope">
@@ -79,6 +81,8 @@
           <ms-table-column
             :field="item"
             :fields-width="fieldsWidth"
+            column-key="creator"
+            sortable
             :label="$t('custom_field.issue_creator')"
             prop="creatorName">
           </ms-table-column>
@@ -159,7 +163,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import {
   CUSTOM_FIELD_SCENE_OPTION,
   CUSTOM_FIELD_TYPE_OPTION,
-  FIELD_TYPE_MAP,
+  FIELD_TYPE_MAP, ISSUE_PLATFORM_OPTION,
   ISSUE_STATUS_MAP,
   SYSTEM_FIELD_NAME_MAP
 } from "@/common/js/table-constants";
@@ -177,7 +181,6 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import {getCurrentProjectID} from "@/common/js/utils";
 import {getIssueTemplate} from "@/network/custom-field-template";
 import {getProjectMember} from "@/network/user";
-import {getIntegrationService} from "@/network/organization";
 
 export default {
   name: "IssueList",
@@ -246,6 +249,9 @@ export default {
   computed: {
     fieldFilters() {
       return CUSTOM_FIELD_TYPE_OPTION;
+    },
+    platformFilters() {
+     return ISSUE_PLATFORM_OPTION;
     },
     sceneFilters() {
       return CUSTOM_FIELD_SCENE_OPTION;

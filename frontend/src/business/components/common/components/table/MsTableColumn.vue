@@ -6,7 +6,7 @@
       :fixed="fixed"
       :filters="filters"
       :prop="prop"
-      :column-key="prop"
+      :column-key="columnKey ? columnKey : prop"
       :label="label"
       :sortable="sortable"
       :show-overflow-tooltip="showOverflowTooltip">
@@ -50,7 +50,13 @@ export default {
       }
     },
     // 保存自定义列宽
-    fieldsWidth: Object
+    fieldsWidth: Object,
+    columnKey: {
+      type: String,
+      default() {
+        return null;
+      }
+    }
   }
 };
 </script>
