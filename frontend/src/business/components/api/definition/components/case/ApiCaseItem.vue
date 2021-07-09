@@ -96,7 +96,7 @@
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
+        <tcp-format-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
         <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="showXpackCompnent&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
@@ -133,7 +133,7 @@
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import MsSqlBasisParameters from "../request/database/BasisParameters";
-  import MsTcpBasisParameters from "../request/tcp/TcpBasisParameters";
+  import TcpFormatParameters from "@/business/components/api/definition/components/request/tcp/TcpFormatParameters";
   import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
   import MsApiExtendBtns from "../reference/ApiExtendBtns";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
@@ -159,7 +159,7 @@
       ApiEnvironmentConfig,
       MsApiAssertions,
       MsSqlBasisParameters,
-      MsTcpBasisParameters,
+      TcpFormatParameters,
       MsDubboBasisParameters,
       MsApiExtendBtns,
       MsRequestResultTail,
@@ -256,6 +256,7 @@
         }
         data.message = true;
         data.request.useEnvironment = this.environment;
+        this.saveTestCase(data);
         this.$emit('singleRun', data);
       },
       copyCase(data) {
