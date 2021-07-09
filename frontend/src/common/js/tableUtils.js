@@ -135,7 +135,7 @@ export function _filter(filters, condition) {
 
 //表格数据排序
 export function _sort(column, condition) {
-  column.prop = humpToLine(column.prop);
+  let field = humpToLine(column.column.columnKey ? column.column.columnKey : column.prop);
   if (column.order === 'descending') {
     column.order = 'desc';
   } else {
@@ -146,7 +146,7 @@ export function _sort(column, condition) {
   }
   let hasProp = false;
   condition.orders.forEach(order => {
-    if (order.name === column.prop) {
+    if (order.name === field) {
       order.type = column.order;
       hasProp = true;
     }
@@ -155,7 +155,7 @@ export function _sort(column, condition) {
     hasProp = true;
   }*/
   if (!hasProp) {
-    condition.orders.push({name: column.prop, type: column.order});
+    condition.orders.push({name: field, type: column.order});
   }
 }
 
