@@ -946,15 +946,7 @@ export default {
   height: 100% !important;
 }
 
-/*/deep/ .el-table__fixed {*/
-/*  height: 110px !important;*/
-/*}*/
-
 /deep/ .el-card__header {
   padding: 10px;
-}
-
-/deep/ .el-table__fixed-body-wrapper {
-  top: 48px !important;
 }
 </style>

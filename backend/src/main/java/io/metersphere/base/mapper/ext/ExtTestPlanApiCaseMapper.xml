@@ -88,6 +88,12 @@
                 #{value}
               </foreach>
             </when>
+            <when test="key == 'priority'">
+              and a.priority in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
           </choose>
         </if>
       </foreach>

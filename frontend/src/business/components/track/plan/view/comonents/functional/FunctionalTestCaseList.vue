@@ -205,6 +205,7 @@
         <ms-table-column v-for="field in testCaseTemplate.customFields" :key="field.id"
                          :filters="field.name === '用例等级' ? priorityFilters : null"
                          :field="item"
+                         column-key="priority"
                          :fields-width="fieldsWidth"
                          :label="field.name"
                          :min-width="90"
