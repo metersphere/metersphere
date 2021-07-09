@@ -82,7 +82,7 @@ export default {
           this.$refs.aboutUs.open();
           break;
         case "help":
-          window.location.href = "https://metersphere.io/docs/index.html";
+          window.open('https://metersphere.io/docs/index.html', "_blank");
           break;
         case "ApiHelp":
           window.open('/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config', "_blank");
