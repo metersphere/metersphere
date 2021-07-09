@@ -339,7 +339,12 @@ export default {
   activated() {
     this.getTemplateField();
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    let ids = this.$route.params.ids;
+    if (ids) {
+      this.condition.ids = ids;
+    }
     this.initTableData();
+    this.condition.ids = null;
   },
   watch: {
     selectNodeIds() {
