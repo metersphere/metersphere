@@ -184,6 +184,14 @@ public class MsTCPSampler extends MsTestElement {
         if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
             this.server = config.getTcpConfig().getServer();
             this.port = config.getTcpConfig().getPort();
+            if(StringUtils.equals(this.eolByte," ")){
+                this.eolByte = "";
+            }else{
+                if(StringUtils.isEmpty(this.eolByte)){
+                    this.eolByte = config.getTcpConfig().getEolByte();
+                }
+            }
+
         }
     }
 
