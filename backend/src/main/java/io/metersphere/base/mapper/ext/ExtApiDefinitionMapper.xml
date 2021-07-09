@@ -523,6 +523,12 @@
                                 #{value}
                             </foreach>
                         </when>
+                        <when test="key=='user_name'">
+                            and api_definition.user_id in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
                         <when test="key=='case_status'">
                             and api_definition.case_status in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
