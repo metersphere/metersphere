@@ -537,18 +537,10 @@ export default {
 </script>
 
 <style scoped>
-/*.ms-table-header {*/
-/*  margin: 5px;*/
-/*}*/
-
 /deep/ .table-title {
   height: 0px;
   font-weight: bold;
   font-size: 0px;
-}
-
-/deep/ .el-table__fixed-body-wrapper {
-  top: 48px !important;
 }
 </style>
 
