@@ -149,11 +149,12 @@
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
-        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time
+        project.name as project_name, user.name as user_name,deleteUser.name AS delete_user,api_scenario.delete_time ,u2.name as principal_name
         from api_scenario
         left join project on api_scenario.project_id = project.id
         left join user on api_scenario.user_id = user.id
         left join user deleteUser on api_scenario.delete_user_id = deleteUser.id
+        left join user u2 on api_scenario.principal = u2.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -321,10 +322,10 @@
         </foreach>
     </update>
 
-    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExampleWithOperation">
+    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
         update api_scenario
         set original_state=status,
-        status = 'Trash', module_path = null, api_scenario_module_id = null,delete_user_id = #{operator},delete_time = #{operationTime}
+        status = 'Trash', module_path = null, api_scenario_module_id = null
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
@@ -333,7 +334,7 @@
     <update id="reduction">
         update api_scenario
         set
-        status = original_state,delete_user_id = null,delete_time = null
+        status = original_state
         where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
