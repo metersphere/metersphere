@@ -8,7 +8,7 @@
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-for="(item, index) in commands" :key="index" @click.native.stop="click(item)"
-                              v-permission="item.permissions"
+                              :disabled="disabled(item.permissions)"
             >
              <span class="tip-font" v-if="!item.children">
                {{ item.label }}
@@ -39,6 +39,7 @@
 <script>
 
 import moduleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
+import {hasPermissions} from "@/common/js/utils";
 
 export default {
   components:{moduleTrashButton},
@@ -69,6 +70,9 @@ export default {
         item.callback();
       }
     },
+    disabled(permissions) {
+      return !hasPermissions(...permissions);
+    }
   }
 }
 </script>
