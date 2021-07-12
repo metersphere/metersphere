@@ -98,14 +98,14 @@
             </template>
           </ms-table-column>
 
-          <ms-table-column  prop="principal"
+          <ms-table-column  prop="principalName"
                             min-width="120px"
                             :label="$t('api_test.definition.api_principal')"
                             :filters="userFilters"
                             :field="item"
                             :fields-width="fieldsWidth"
                             sortable/>
-          <ms-table-column prop="userId" min-width="120px"
+          <ms-table-column prop="userName" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
                            :field="item"
