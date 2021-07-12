@@ -257,20 +257,7 @@ public abstract class MsTestElement {
         if (element.getParent() == null) {
             return path;
         }
-        if (MsTestElementConstants.LoopController.name().equals(element.getType())) {
-            MsLoopController loopController = (MsLoopController) element;
-            if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
-                path = "While 循环" + DelimiterConstants.STEP_DELIMITER.toString() + "While 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
-            }
-            if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
-                path = "ForEach 循环" + DelimiterConstants.STEP_DELIMITER.toString() + " ForEach 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
-            }
-            if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
-                path = "次数循环" + DelimiterConstants.STEP_DELIMITER.toString() + "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
-            }
-        } else {
-            path = StringUtils.isEmpty(element.getName()) ? element.getType() : element.getName() + DelimiterConstants.STEP_DELIMITER.toString() + path;
-        }
+        path = StringUtils.isEmpty(element.getName()) ? element.getType() : element.getName() + DelimiterConstants.STEP_DELIMITER.toString() + path;
         return getFullPath(element.getParent(), path);
     }
 
@@ -285,14 +272,34 @@ public abstract class MsTestElement {
     }
 
     protected String getParentName(MsTestElement parent) {
-        if (parent != null) {
-            if (MsTestElementConstants.TransactionController.name().equals(parent.getType())) {
-                MsTransactionController transactionController = (MsTransactionController) parent;
-                if (StringUtils.isNotEmpty(transactionController.getName())) {
+       if (parent != null) {
+            if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
+                MsLoopController loopController = (MsLoopController) parent;
+                boolean parantIsEmpty = StringUtils.isEmpty(parent.getName());
+                String  currentName = "";
+                if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
+                    currentName ="While 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
+                    String myName = (parantIsEmpty?currentName:parent.getName());
+                    return getFullPath(parent.getParent(),myName)  +DelimiterConstants.STEP_DELIMITER.toString()+ DelimiterConstants.SEPARATOR.toString() + myName;
+                }
+                if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
+                    currentName = "ForEach 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
+                    String myName = (parantIsEmpty?currentName:parent.getName());
+                    return getFullPath(parent.getParent(),myName)+DelimiterConstants.STEP_DELIMITER.toString()+ DelimiterConstants.SEPARATOR.toString()
+                            + myName;
+                }
+                if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
+                    currentName = "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
+                    String myName = (parantIsEmpty?currentName:parent.getName());
+                    return getFullPath(parent.getParent(),myName ) +DelimiterConstants.STEP_DELIMITER.toString()+ DelimiterConstants.SEPARATOR.toString() + myName;
+                }
+            }else if(MsTestElementConstants.TransactionController.name().equals(parent.getType())){
+                MsTransactionController transactionController = (MsTransactionController)parent;
+                if(StringUtils.isNotEmpty(transactionController.getName())){
                     return transactionController.getName();
-                } else if (StringUtils.isNotEmpty(transactionController.getLabelName())) {
+                }else if(StringUtils.isNotEmpty(transactionController.getLabelName())){
                     return transactionController.getLabelName();
-                } else {
+                }else {
                     return "TransactionController";
                 }
             }
