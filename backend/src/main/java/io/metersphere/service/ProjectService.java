@@ -32,6 +32,7 @@ import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -59,6 +60,7 @@ public class ProjectService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
+    @Lazy
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
