@@ -77,10 +77,51 @@ public class ApiScenarioReportService {
     }
 
     public APIScenarioReportResult get(String reportId) {
-        APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
+         APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(reportId);
         if (detail != null) {
-            reportResult.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
+            String content = new String(detail.getContent(), StandardCharsets.UTF_8);
+            JSONObject jsonObject = JSONObject.parseObject(content);
+            JSONArray newScenarios = new JSONArray();
+            JSONArray jsonArray = jsonObject.getJSONArray("scenarios");
+            int errorCount =0;
+            int successCount =0;
+            for (int i=0;i<jsonArray.size();i++){
+                JSONObject scenar = jsonArray.getJSONObject(i);
+                //保存总共
+                if (scenar.getIntValue("error")==0){
+                    successCount +=1;
+                }else {
+                    errorCount +=1;
+                }
+                JSONArray requestResults = scenar.getJSONArray("requestResults");
+                JSONArray newRequest = new JSONArray();
+                if (requestResults!=null&&requestResults.size()>0){
+                    for (int index=0;index<requestResults.size();index++){
+                        JSONObject request = requestResults.getJSONObject(index);
+                        String body = request.getString("body");
+                        try {
+                            if (StringUtils.isNotEmpty(body)){
+                                String newBody = URLDecoder.decode(body, "UTF-8").replaceAll("&","\n");
+                                request.put("body",newBody);
+                                newRequest.add(request);
+                            }
+                        }catch (Exception e){}
+
+                    }
+                    if (newRequest.size()>0){
+                        scenar.put("requestResults",requestResults);
+                        newScenarios.add(scenar);
+                    }
+                }
+            }
+            if (newScenarios.size()>0){
+                jsonObject.put("scenarios",newScenarios);
+            }
+            jsonObject.put("scenarioTotal",jsonArray.size());
+            jsonObject.put("scenarioSuccess",successCount);
+            jsonObject.put("scenarioError",errorCount);
+            reportResult.setContent(jsonObject.toJSONString());
         }
         return reportResult;
     }
