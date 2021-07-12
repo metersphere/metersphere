@@ -28,7 +28,6 @@ import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
-import io.metersphere.performance.engine.producer.LoadTestProducer;
 import io.metersphere.performance.request.*;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
@@ -87,8 +86,6 @@ public class PerformanceTestService {
     private TestCaseService testCaseService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private LoadTestProducer loadTestProducer;
     @Resource
     private ApiAutomationService apiAutomationService;
 
@@ -527,8 +524,6 @@ public class PerformanceTestService {
             performanceReportService.deleteReport(reportId);
         } else {
             stopEngine(reportId);
-            // 发送测试停止消息
-            loadTestProducer.sendMessage(reportId);
             // 停止测试之后设置报告的状态
             performanceReportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
         }
