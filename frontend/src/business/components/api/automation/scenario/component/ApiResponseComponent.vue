@@ -34,9 +34,6 @@ export default {
   created() {
     if (!this.result || !this.result.responseResult) {
       this.getExecResult();
-      if (this.apiItem.isActive) {
-        // this.isActive = true;
-      }
     } else {
       this.response = this.result;
       // this.isActive = true;
