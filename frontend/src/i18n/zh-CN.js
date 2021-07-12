@@ -334,6 +334,9 @@ export default {
     select: '选择工作空间',
     special_characters_are_not_supported: '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
     delete_warning: '删除该工作空间将同步删除该工作空间下所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
+    template_manage: "模版管理",
+    case_template_manage: "用例模版",
+    issue_template_manage: "缺陷模版",
   },
   organization: {
     create: '创建组织',
@@ -1648,6 +1651,8 @@ export default {
       tapd_current_owner: "Tapd 处理人",
       zentao_bug_build: "禅道 影响版本",
       zentao_bug_assigned: "禅道 处理人",
+      update_third_party_bugs: "更新第三方平台的缺陷",
+      sync_bugs: "同步缺陷"
     },
     report: {
       name: "测试计划报告",
