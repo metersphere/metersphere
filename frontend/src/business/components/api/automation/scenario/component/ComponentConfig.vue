@@ -1,6 +1,6 @@
 <template>
   <div class="request-form">
-    <keep-alive>
+    <keep-alive :include = "component">
       <component v-bind:is="component" :isMax="isMax" :show-btn="showBtn" :expandedNode="expandedNode"
                  :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
                  :draggable="draggable" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"

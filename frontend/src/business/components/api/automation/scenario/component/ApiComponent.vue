@@ -13,12 +13,14 @@
       :is-max="isMax"
       :show-btn="showBtn"
       :title="displayTitle">
+      <template  v-slot:message>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
+      </template>
 
       <template v-slot:behindHeaderLeft>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
          <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
