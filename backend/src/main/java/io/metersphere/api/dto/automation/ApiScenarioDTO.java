@@ -13,6 +13,7 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
     private String projectName;
     private String userName;
     private List<String> tagNames;
+    private String principalName;
 
     /**
      * 场景跨项目ID

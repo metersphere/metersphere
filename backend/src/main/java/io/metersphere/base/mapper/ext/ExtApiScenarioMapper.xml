@@ -149,10 +149,11 @@
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
-        project.name as project_name, user.name as user_name
+        project.name as project_name, user.name as user_name ,u2.name as principal_name
         from api_scenario
         left join project on api_scenario.project_id = project.id
         left join user on api_scenario.user_id = user.id
+        left join user u2 on api_scenario.principal = u2.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -224,6 +225,12 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='user_name'">
+                                and api_scenario.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                             <when test="key=='level'">
                                 and api_scenario.level in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
@@ -243,6 +250,12 @@
                                 </foreach>
                             </when>
                             <when test="key=='principal'">
+                                and api_scenario.principal in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='principal_name'">
                                 and api_scenario.principal in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
