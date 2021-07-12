@@ -12,7 +12,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.log.vo.OperatingLogDetails;
-import io.metersphere.service.UserService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,12 +41,29 @@ public class TestPlanScenarioCaseService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
-    private UserService userService;
+    private ProjectService projectService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
+        List<String> projectIds = apiTestCases.stream()
+                .map(ApiScenarioDTO::getProjectId)
+                .collect(Collectors.toSet())
+                .stream().collect(Collectors.toList());
+
+        Map<String, Project> projectMap = projectService.getProjectByIds(projectIds).stream()
+                .collect(Collectors.toMap(Project::getId, project -> project));
+
+        apiTestCases.forEach(item -> {
+            Project project = projectMap.get(item.getProjectId());
+            if (project.getScenarioCustomNum() != null && project.getScenarioCustomNum()) {
+                item.setCustomNum(item.getCustomNum());
+            } else {
+                item.setCustomNum(item.getNum().toString());
+            }
+        });
+
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
