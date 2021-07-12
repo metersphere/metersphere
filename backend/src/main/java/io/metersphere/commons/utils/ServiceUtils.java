@@ -63,4 +63,13 @@ public class ServiceUtils {
         }
         return new HashMap<>();
     }
+
+    public static Map<String, String> getUserNameMap(List<String> userIds) {
+        Map<String, User> userMap = getUserMap(userIds);
+        HashMap<String, String> nameMap = new HashMap<>();
+        userMap.forEach((k, v) -> {
+            nameMap.put(k, v.getName());
+        });
+        return nameMap;
+    }
 }
