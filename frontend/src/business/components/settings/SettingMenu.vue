@@ -35,7 +35,7 @@
       </el-menu-item>
       <el-submenu index="3-1"
                   v-permission="['WORKSPACE_TEMPLATE:READ']">
-        <template slot="title">模板管理</template>
+        <template slot="title">{{ $t('workspace.template_manage') }}</template>
         <el-menu-item v-for="menu in workspaceTemplate" v-permission="menu.permissions" :key="menu.index" :index="menu.index" class="setting-item">
           {{ $t(menu.title) }}
         </el-menu-item>

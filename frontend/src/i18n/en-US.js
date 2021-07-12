@@ -333,7 +333,9 @@ export default {
     none: 'None Workspace',
     select: 'Select Workspace',
     special_characters_are_not_supported: 'Incorrect format (special characters are not supported and cannot end with \'-\')',
-
+    template_manage: "Template Manage",
+    case_template_manage: "Case Template",
+    issue_template_manage: "Issue Template",
   },
   organization: {
     create: 'Create Organization',
@@ -1641,6 +1643,8 @@ export default {
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
       zentao_bug_assigned: "Zentao handler",
+      update_third_party_bugs: "Update the defects of third-party platforms",
+      sync_bugs: "Synchronization Issue"
     },
     report: {
       name: "Test Plan Report",
