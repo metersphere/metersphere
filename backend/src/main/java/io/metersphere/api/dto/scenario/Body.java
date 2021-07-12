@@ -100,7 +100,7 @@ public class Body {
             if(value instanceof JSONObject) {
                 jsonMockParse((JSONObject) value);
             } else if(value instanceof String) {
-                if (StringUtils.isNotBlank((String) value)) {
+                if (StringUtils.isNotBlank((String) value) && ((String) value).trim().startsWith("@")) {
                     value = ScriptEngineUtils.calculate((String) value);
                 }
                 jsonObject.put(key, value);
