@@ -145,6 +145,7 @@
                class="dialog-css">
       <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="open" @search="list" :have-search="false"
+                         :create-permission="['WORKSPACE_USER:READ+CREATE']"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
       <div>
@@ -161,7 +162,10 @@
           <el-table-column :label="$t('commons.operating')">
             <template v-slot:default="scope">
               <div>
-                <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)"
+                <ms-table-operator :tip2="$t('commons.remove')"
+                                   :edit-permission="['WORKSPACE_USER:READ+EDIT']"
+                                   :delete-permission="['WORKSPACE_USER:READ+DELETE']"
+                                   @editClick="editMember(scope.row)"
                                    @deleteClick="delMember(scope.row)"/>
               </div>
             </template>
