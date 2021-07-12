@@ -7,9 +7,9 @@
                            :create-tip="$t('test_track.issue.create_issue')"
                            :tip="$t('commons.search_by_name_or_id')">
             <template v-slot:button>
-              <el-tooltip v-if="isThirdPart" :content="'更新第三方平台的缺陷'">
+              <el-tooltip v-if="isThirdPart" :content="$t('test_track.issue.update_third_party_bugs')">
                 <ms-table-button icon="el-icon-refresh" v-if="true"
-                                 :content="'同步缺陷'" @click="syncIssues"/>
+                                 :content="$t('test_track.issue.sync_bugs')" @click="syncIssues"/>
               </el-tooltip>
             </template>
           </ms-table-header>
