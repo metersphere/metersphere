@@ -17,7 +17,9 @@ public class TestCaseReportMetricDTO {
 //    private List<TestPlanCaseDTO> failureTestCases;
     private List<IssuesDao> Issues;
     private List<String> executors;
+    private List<String> executorNames;
     private String principal;
+    private String principalName;
     private Long startTime;
     private Long endTime;
     private String projectName;

@@ -11,7 +11,7 @@
         </el-col>
         <el-col :span="12">
           <span>{{$t('test_track.plan.plan_principal')}}：</span>
-          <span class="item-value">{{reportInfo.principal}}</span>
+          <span class="item-value">{{reportInfo.principalName}}</span>
         </el-col>
       </el-row>
 
@@ -31,7 +31,7 @@
       <el-row type="flex" justify="space-between">
         <el-col :span="12">
           <span>{{$t('test_track.plan_view.executor')}}：</span>
-          <span v-for="item in reportInfo.executors" :key="item">{{item}}</span>
+          <span v-for="item in reportInfo.executorNames" :key="item">{{item}}</span>
         </el-col>
       </el-row>
 
