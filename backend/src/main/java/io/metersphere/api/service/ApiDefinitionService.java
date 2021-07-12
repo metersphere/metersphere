@@ -897,6 +897,10 @@ public class ApiDefinitionService {
     }
 
     public void removeToGcByParams(ApiBatchRequest request) {
+        // 去除Name排序
+        if (request.getCondition() != null && CollectionUtils.isNotEmpty(request.getCondition().getOrders())) {
+            request.getCondition().getOrders().clear();
+        }
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
 
