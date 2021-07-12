@@ -62,14 +62,22 @@
             sortable
             min-width="100"
             :filters="userFilters"
-            :label="'创建人'"/>
+            :label="'创建人'">
+            <template v-slot:default="scope">
+              {{scope.row.creatorName}}
+            </template>
+          </ms-table-column>
 
           <ms-table-column
             v-if="item.id == 'maintainer'"
             prop="userId"
             :fields-width="fieldsWidth"
             :label="$t('custom_field.case_maintainer')"
-            min-width="120"/>
+            min-width="120">
+             <template v-slot:default="scope">
+              {{scope.row.principalName}}
+            </template>
+          </ms-table-column>
 
           <ms-update-time-column :field="item" :fields-width="fieldsWidth"/>
           <ms-create-time-column :field="item" :fields-width="fieldsWidth"/>

@@ -12,12 +12,13 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.service.UserService;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -39,6 +40,8 @@ public class TestPlanScenarioCaseService {
     ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private UserService userService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -47,7 +50,21 @@ public class TestPlanScenarioCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
+        buildUserInfo(apiTestCases);
         return apiTestCases;
+    }
+
+    public void buildUserInfo(List<? extends ApiScenarioDTO> apiTestCases) {
+        List<String> userIds = new ArrayList();
+        userIds.addAll(apiTestCases.stream().map(ApiScenarioDTO::getUserId).collect(Collectors.toList()));
+        userIds.addAll(apiTestCases.stream().map(ApiScenarioDTO::getPrincipal).collect(Collectors.toList()));
+        if (!CollectionUtils.isEmpty(userIds)) {
+            Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
+            apiTestCases.forEach(caseResult -> {
+                caseResult.setCreatorName(userMap.get(caseResult.getCreateUser()));
+                caseResult.setPrincipalName(userMap.get(caseResult.getPrincipal()));
+            });
+        }
     }
 
     public List<String> selectIds(TestPlanScenarioRequest request) {
