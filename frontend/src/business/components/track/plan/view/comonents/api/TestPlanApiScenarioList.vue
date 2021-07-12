@@ -59,8 +59,25 @@
 
           <ms-table-column :field="item"
                            :fields-width="fieldsWidth"
-                           prop="userId" :label="$t('api_test.automation.creator')"
-                           min-width="100px"/>
+                           prop="createUser"
+                           :label="$t('api_test.automation.creator')"
+                           min-width="100px">
+            <template v-slot:default="scope">
+              {{scope.row.creatorName}}
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
+            v-if="item.id == 'maintainer'"
+            prop="userId"
+            :fields-width="fieldsWidth"
+            :label="$t('custom_field.case_maintainer')"
+            min-width="120">
+             <template v-slot:default="scope">
+              {{scope.row.principalName}}
+            </template>
+          </ms-table-column>
+
 
           <ms-table-column
             :field="item"

@@ -13,6 +13,7 @@ public class PlanCaseRelevanceRequest {
      * 测试计划ID
      */
     private String planId;
+    private String executor;
 
     private List<String> ids;
 
