@@ -20,7 +20,8 @@
                 </span>
                 <el-dropdown-menu slot="dropdown">
                   <template>
-                    <el-dropdown-item v-for="(child, index) in item.children" :key="index" @click.native.stop="click(child)">
+                    <el-dropdown-item v-for="(child, index) in item.children" :key="index" @click.native.stop="click(child)"
+                                      :disabled="disabled(child.permissions)">
                       <span class="tip-font">
                         {{child.label}}
                       </span>
@@ -71,6 +72,9 @@ export default {
       }
     },
     disabled(permissions) {
+      if (!permissions) {
+        return false;
+      }
       return !hasPermissions(...permissions);
     }
   }
