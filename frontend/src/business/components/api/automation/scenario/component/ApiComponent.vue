@@ -401,6 +401,8 @@ export default {
         enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
       };
       this.runData.push(debugData);
+      this.request.requestResult = undefined;
+      this.request.result = undefined;
       /*触发执行操作*/
       this.reportId = getUUID();
     },
@@ -408,7 +410,7 @@ export default {
       this.loading = false;
     },
     runRefresh(data) {
-      this.request.requestResult =[data] ;
+      this.request.requestResult = [data];
       this.request.result = undefined;
       this.loading = false;
       this.$emit('refReload', this.request, this.node);
@@ -459,6 +461,7 @@ export default {
   margin: 20px;
   float: right;
 }
+
 .ms-step-name-api {
   display: inline-block;
   margin: 0 5px;
@@ -469,6 +472,7 @@ export default {
   white-space: nowrap;
   width: 60px;
 }
+
 .ms-tag {
   margin-left: 10px;
 }
