@@ -23,6 +23,7 @@ public class MsIfController extends MsTestElement {
     private String variable;
     private String operator;
     private String value;
+    private String remark;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
