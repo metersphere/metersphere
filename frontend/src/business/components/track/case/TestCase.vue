@@ -326,6 +326,8 @@ export default {
           return;
         }
       }
+      let hasEditPermission = hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+      this.$set(testCase, 'rowClickHasPermission', hasEditPermission);
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },
     handleCaseCreateOrEdit(data, type) {
