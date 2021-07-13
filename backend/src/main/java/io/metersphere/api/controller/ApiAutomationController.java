@@ -44,6 +44,13 @@ public class ApiAutomationController {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    @PostMapping("/list")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public List<ApiScenarioDTO> listAll(@RequestBody ApiScenarioRequest request) {
+
+        return apiAutomationService.list(request);
+    }
+
     @PostMapping("/list/all")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {

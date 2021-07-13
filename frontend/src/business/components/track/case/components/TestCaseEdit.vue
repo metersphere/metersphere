@@ -81,7 +81,8 @@
 
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel" :form="form" :read-only="readOnly"/>
 
-          <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
+          <test-case-edit-other-info :sys-list="sysList" :read-only="readOnly" :project-id="projectIds" :form="form"
+                                     :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -122,6 +123,7 @@
   import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
   import {
+    enableModules,
     getCurrentProjectID,
     getCurrentUser,
     getNodePath,
@@ -136,7 +138,7 @@
   import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
   import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
   import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
-  import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
+  import {API_STATUS, REVIEW_STATUS, TEST, TEST_CASE} from "@/business/components/api/definition/model/JsonData";
   import MsTableButton from "@/business/components/common/components/MsTableButton";
   import MsSelectTree from "../../../common/select-tree/SelectTree";
   import MsTestCaseStepRichText from "./MsRichText";
@@ -174,9 +176,9 @@
     },
     data() {
       return {
+        sysList: [],//一级选择框的数据
         path: "/test/case/add",
         testCaseTemplate: {},
-        // sysList: [],//一级选择框的数据
         options: REVIEW_STATUS,
         statuOptions: API_STATUS,
         comments: [],
@@ -335,9 +337,146 @@
         this.form.module = this.treeNodes[0].id;
         this.form.nodePath = this.treeNodes[0].path;
       }
+      this.loadOptions();
     },
     methods: {
-      openHis(){
+      async loadOptions(sysLib) {
+        if (this.form.list) {
+          return;
+        }
+        sysLib = TEST
+          .filter(item => {
+            return enableModules([item.module]);
+          })// 模块启用禁用过滤
+          .map(item => ({
+            value: item.id,
+            label: item.name,
+          }));
+        let array = [];
+        for (let i = 0; i < sysLib.length; i++) {
+          if (sysLib.length > 0) {
+            let res = await this.getTestOptions(sysLib[i].value);
+            sysLib[i].children = res;
+          }
+          array.push(sysLib[i]);
+        }
+        this.sysList = array;
+      },
+      getTestOptions(val) {
+        this.form.type = val;
+        this.testOptions = [];
+        let url = '';
+        if (this.form.type === 'performance') {
+          url = '/' + this.form.type + '/list/' + this.projectId;
+          if (!url) {
+            return;
+          }
+          this.result.loading = true;
+          return new Promise((resolve, reject) => {
+            this.$get(url).then(res => {
+              const data = res.data.data.map(item => ({
+                value: item.id,
+                label: item.name,
+                leaf: true
+              }));
+              this.result.loading = false;
+              resolve(data);
+            }).catch((err) => {
+              reject(err);
+            });
+          });
+        } else if (this.form.type === 'automation') {
+          url = '/api/automation/module/list/' + this.projectId;
+          if (!url) {
+            return;
+          }
+          this.result.loading = true;
+          return new Promise((resolve, reject) => {
+            this.$get("/api/automation/module/list/" + this.projectId, response => {
+              if (response.data != undefined && response.data != null) {
+                this.buildTreeValue(response.data);
+              }
+              this.result.loading = false;
+              resolve(response.data);
+            });
+          });
+        } else if (this.form.type === 'testcase') {
+
+          this.result.loading = true;
+          return new Promise((resolve, reject) => {
+            TEST_CASE.forEach(test => {
+              let url = "/api/module/list/" + this.projectId + "/" + test.value;
+              this.$get(url, response => {
+                if (response.data != undefined && response.data != null) {
+                  this.buildTreeValueApiCase(response.data);
+                  test.children = response.data;
+                }
+              });
+            });
+            this.result.loading = false;
+            resolve(TEST_CASE);
+          });
+        }
+      },
+      buildTreeValueApiCase(list) {
+        list.forEach(item => {
+          item.value = item.id,
+            item.label = item.name,
+            item.leaf = true;
+          if (item.children) {
+            this.buildTreeValueApiCase(item.children);
+          } else {
+            let url = "/api/testcase/list/";
+            let param = {};
+            param.moduleId = item.id;
+            param.projectId = this.projectId;
+            this.$post(url, param, response => {
+              if (response.data != undefined && response.data != null) {
+                item.children = response.data;
+                this.buildTreeValueApiCase(item.children);
+              }
+            });
+          }
+        });
+      },
+      buildTreeValue(list) {
+        let url = '/api/automation/list';
+        list.forEach(item => {
+          item.value = item.id,
+            item.label = item.name,
+            item.leaf = true;
+          if (item.children) {
+            this.buildTreeValue(item.children);
+          } else {
+            let param = {};
+            param.moduleId = item.id;
+            param.projectId = this.projectId;
+            this.$post(url, param, response => {
+              if (response.data != undefined && response.data != null) {
+                item.children = response.data;
+                this.buildTreeValue(item.children);
+              }
+
+            });
+          }
+        });
+      },
+      buildValue(url) {
+        return new Promise((resolve, reject) => {
+          this.$get(url).then(res => {
+            const data = res.data.data.map(item => ({
+              value: item.id,
+              label: item.name,
+              leaf: true
+            }));
+            this.result.loading = false;
+            resolve(data);
+          }).catch((err) => {
+            reject(err);
+          });
+        });
+      },
+      openHis() {
         this.$refs.changeHistory.open(this.form.id);
       },
       setModule(id, data) {
@@ -394,7 +533,7 @@
             if (!valid) {
               this.saveCase();
             } else {
-              this.saveCase(function(t) {
+              this.saveCase(function (t) {
                 let tab = {};
                 tab.name = 'add';
                 t.$emit('addTab', tab);
@@ -729,7 +868,7 @@
         this.form.testId = '';
       },
       getMaintainerOptions() {
-        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()},response => {
+        this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
           this.maintainerOptions = response.data;
         });
       },

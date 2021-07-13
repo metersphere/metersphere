@@ -24,7 +24,7 @@ public class IssuesJob {
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
 
-    @QuartzScheduled(fixedDelay = 3600 * 1000)
+    //@QuartzScheduled(fixedDelay = 3600 * 1000)
 //    @Scheduled(fixedDelay = 120 * 1000)
     public void issuesCount() {
         LogUtil.info("测试计划-测试用例同步缺陷信息开始");
