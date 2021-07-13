@@ -812,6 +812,8 @@ export default {
         auth_config_info: "Request requires permission verification",
         pre_script: "Prescript",
         post_script: "Postscript",
+        pre_sql: "JDBC Preprocessor",
+        post_sql: "JDBC Postprocessor",
         extract_param: "Extract parameters",
         add_module: "Add module",
         edit_api: "Edit Api",

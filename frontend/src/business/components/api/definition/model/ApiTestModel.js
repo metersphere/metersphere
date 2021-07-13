@@ -854,6 +854,21 @@ export class JSR223Processor extends BaseConfig {
   }
 }
 
+export class JDBCProcessor extends BaseConfig {
+  constructor(options) {
+    super();
+    this.resourceId = uuid();
+    this.active = false;
+    this.type = "JDBCProcessor";
+    this.enable = true;
+    this.variables = [];
+    this.dataSourceId = "";
+    this.hashTree = [];
+    this.set(options);
+  }
+}
+
+
 export class Regex extends AssertionType {
   constructor(options) {
     super(ASSERTION_TYPE.REGEX);
