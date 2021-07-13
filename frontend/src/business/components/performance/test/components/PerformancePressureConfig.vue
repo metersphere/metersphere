@@ -114,7 +114,7 @@
                       :disabled="isReadOnly"
                       :min="1"
                       v-if="rampUpTimeVisible"
-                      :max="getMaxRampUp(threadGroup)"
+                      :max="getDuration(threadGroup)"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart()"
                       size="mini"/>
@@ -137,7 +137,7 @@
                       :disabled="isReadOnly"
                       v-if="rampUpTimeVisible"
                       :min="1"
-                      :max="getMaxRampUp(threadGroup)"
+                      :max="getDuration(threadGroup)"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart()"
                       size="mini"/>
@@ -655,7 +655,19 @@ export default {
 
       return true;
     },
-    getMaxRampUp(tg) {
+    getHold(tg) {
+      if (tg.unit === 'S') {
+        return tg.duration - tg.rampUpTime;
+      }
+      if (tg.unit === 'M') {
+        return tg.duration * 60 - tg.rampUpTime;
+      }
+      if (tg.unit === 'H') {
+        return tg.duration * 60 * 60 - tg.rampUpTime;
+      }
+      return tg.duration - tg.rampUpTime;
+    },
+    getDuration(tg) {
       if (tg.unit === 'S') {
         return tg.duration;
       }
@@ -696,11 +708,11 @@ export default {
           {key: TARGET_LEVEL, value: this.threadGroups[i].threadNumber},
           {key: RAMP_UP, value: this.threadGroups[i].rampUpTime},
           {key: STEPS, value: this.threadGroups[i].step},
-          {key: DURATION, value: this.threadGroups[i].duration, unit: this.threadGroups[i].unit},
+          {key: DURATION, value: this.getDuration(this.threadGroups[i])},
           {key: UNIT, value: this.threadGroups[i].unit},
           {key: RPS_LIMIT, value: this.threadGroups[i].rpsLimit},
           {key: RPS_LIMIT_ENABLE, value: this.threadGroups[i].rpsLimitEnable},
-          {key: HOLD, value: this.threadGroups[i].duration - this.threadGroups[i].rampUpTime},
+          {key: HOLD, value: this.getHold(this.threadGroups[i])},
           {key: THREAD_TYPE, value: this.threadGroups[i].threadType},
           {key: ITERATE_NUM, value: this.threadGroups[i].iterateNum},
           {key: ITERATE_RAMP_UP, value: this.threadGroups[i].iterateRampUp},

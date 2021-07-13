@@ -847,11 +847,9 @@ public class JmeterDocumentParser implements DocumentParser {
             duration = o.toString();
         }
         Object units = context.getProperty("unit");
-        String unit = "S";
         if (units instanceof List) {
             Object o = ((List<?>) units).get(0);
             ((List<?>) units).remove(0);
-            unit = o.toString();
         }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
@@ -866,17 +864,6 @@ public class JmeterDocumentParser implements DocumentParser {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
             enabled = o.toString();
-        }
-
-        switch (unit) {
-            case "M":
-                duration = String.valueOf(Long.parseLong(duration) * 60);
-                break;
-            case "H":
-                duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
-                break;
-            default:
-                break;
         }
 
         threadGroup.setAttribute("enabled", enabled);
@@ -962,11 +949,9 @@ public class JmeterDocumentParser implements DocumentParser {
             hold = o.toString();
         }
         Object units = context.getProperty("unit");
-        String unit = "S";
         if (units instanceof List) {
             Object o = ((List<?>) units).get(0);
             ((List<?>) units).remove(0);
-            unit = o.toString();
         }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
@@ -981,17 +966,6 @@ public class JmeterDocumentParser implements DocumentParser {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
             enabled = o.toString();
-        }
-
-        switch (unit) {
-            case "M":
-                hold = String.valueOf(Long.parseLong(hold) * 60);
-                break;
-            case "H":
-                hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
-                break;
-            default:
-                break;
         }
 
         threadGroup.setAttribute("enabled", enabled);
