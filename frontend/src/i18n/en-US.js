@@ -1,5 +1,6 @@
 export default {
   commons: {
+    project_permission: 'Please add the project permission first',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
     yes: "yes",
