@@ -286,6 +286,9 @@ public class JmeterDocumentParser implements DocumentParser {
         int resourceIndex = context.getResourceIndex();
         String filename = item.getTextContent();
         byte[] content = context.getTestResourceFiles().get(filename);
+        if (content == null) {
+            return;
+        }
         StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
         if (!tokenizer.hasMoreTokens()) {
             return;
