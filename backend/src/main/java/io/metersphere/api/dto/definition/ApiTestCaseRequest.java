@@ -22,6 +22,7 @@ public class ApiTestCaseRequest extends BaseQueryRequest {
     private String apiDefinitionId;
     private String status;
     private String protocol;
+    private String moduleId;
     private List<String> moduleIds;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
