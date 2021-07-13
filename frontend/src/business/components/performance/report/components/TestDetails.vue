@@ -367,7 +367,7 @@ export default {
         legend: {
           y: 'top',
         },
-        xAxis: {},
+        xAxis: {boundaryGap: false},
         yAxis: [],
         dataZoom: [
           {
@@ -526,25 +526,23 @@ export default {
             item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
           });
 
-          let yAxisList = data.map(m => m.yAxis);
-          let yAxisListMax = this._getChartMax(yAxisList);
           if (this.baseOption.yAxis.length === 0) {
             this.baseOption.yAxis.push({
               name: this.$t('load_test.report.' + reportKey),
               type: 'value',
               min: 0,
-              max: yAxisListMax,
               position: 'left',
+              boundaryGap: [0, '100%']
             });
           } else {
             this.baseOption.yAxis.push({
               name: this.$t('load_test.report.' + reportKey),
               type: 'value',
               min: 0,
-              max: yAxisListMax,
               position: 'right',
               nameRotate: 20,
               offset: (this.baseOption.yAxis.length - 1) * 50,
+              boundaryGap: [0, '100%']
             });
             this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
           }
