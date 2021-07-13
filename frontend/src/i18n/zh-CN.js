@@ -813,6 +813,8 @@ export default {
         auth_config_info: "请求需要进行权限校验",
         pre_script: "前置脚本",
         post_script: "后置脚本",
+        pre_sql: "前置SQL",
+        post_sql: "后置SQL",
         extract_param: "提取参数",
         add_module: "创建模块",
         edit_api: "编辑接口",

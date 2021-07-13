@@ -70,6 +70,10 @@
         <br/>
         <el-button class="ms-left-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
         <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #FE6F71;background-color: #F2ECF3" @click="addPreSql">+{{$t('api_test.definition.request.pre_sql')}}</el-button>
+        <br/>
+        <el-button class="ms-left-buttion" size="small" style="color: #1483F6;background-color: #F2ECF3" @click="addPostSql">+{{$t('api_test.definition.request.post_sql')}}</el-button>
+        <br/>
         <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
         <br/>
         <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
@@ -150,6 +154,14 @@
         let jsr223PostProcessor = createComponent("JSR223PostProcessor");
         this.request.hashTree.push(jsr223PostProcessor);
         this.reload();
+      },
+      addPreSql() {
+        let jdbcPreProcessor = createComponent("JDBCPreProcessor");
+        this.request.hashTree.push(jdbcPreProcessor);
+      },
+      addPostSql() {
+        let jdbcPostProcessor = createComponent("JDBCPostProcessor");
+        this.request.hashTree.push(jdbcPostProcessor);
       },
       addAssertions() {
         let assertions = new Assertions();
