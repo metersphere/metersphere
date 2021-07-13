@@ -279,7 +279,7 @@ export default {
         {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+COPY']
         },
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
