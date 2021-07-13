@@ -414,7 +414,8 @@ export default {
       reqTotalTime: 0,
       reloadDebug: "",
       stopDebug: "",
-      isTop: false
+      isTop: false,
+      stepSize: 0,
     }
   },
   created() {
@@ -714,6 +715,7 @@ export default {
         }
 
         if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
+          this.stepSize += arr[i].hashTree.length;
           this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
         // 添加debug结果
@@ -727,6 +729,7 @@ export default {
       }
     },
     sort() {
+      this.stepSize = this.scenarioDefinition.length;
       for (let i in this.scenarioDefinition) {
         // 排序
         this.scenarioDefinition[i].index = Number(i) + 1;
@@ -749,6 +752,7 @@ export default {
         }
 
         if (this.scenarioDefinition[i].hashTree !== undefined && this.scenarioDefinition[i].hashTree.length > 0) {
+          this.stepSize += this.scenarioDefinition[i].hashTree.length;
           this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
         }
         // 添加debug结果
@@ -757,6 +761,7 @@ export default {
           this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
           this.scenarioDefinition[i].debug = this.debug;
         }
+
       }
     },
     addCustomizeApi(request) {
@@ -1199,14 +1204,13 @@ export default {
     shrinkTreeNode() {
       //改变每个节点的状态
       for (let i in this.scenarioDefinition) {
-        if (i > 30 && this.expandedStatus) {
-          continue;
-        }
         if (this.scenarioDefinition[i]) {
           if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
             this.expandedNode.push(this.scenarioDefinition[i].resourceId);
           }
-          this.scenarioDefinition[i].active = this.expandedStatus;
+          if (this.stepSize < 35) {
+            this.scenarioDefinition[i].active = this.expandedStatus;
+          }
           if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
             this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
           }
@@ -1219,7 +1223,9 @@ export default {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          nodes[i].active = this.expandedStatus;
+          if (this.stepSize < 35) {
+            nodes[i].active = this.expandedStatus;
+          }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
           }
@@ -1227,22 +1233,9 @@ export default {
       }
     },
     openExpansion() {
-      if (this.scenarioDefinition && this.scenarioDefinition.length > 30) {
-        this.$alert(this.$t('api_test.definition.request.step_message'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.expandedNode = [];
-              this.expandedStatus = true;
-              this.shrinkTreeNode();
-            }
-          }
-        });
-      } else {
-        this.expandedNode = [];
-        this.expandedStatus = true;
-        this.shrinkTreeNode();
-      }
+      this.expandedNode = [];
+      this.expandedStatus = true;
+      this.shrinkTreeNode();
     },
     closeExpansion() {
       this.expandedStatus = false;
