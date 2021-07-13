@@ -1,5 +1,5 @@
 import {ELEMENT_TYPE} from "@/business/components/api/automation/scenario/Setting";
-import {Assertions, ConstantTimer, Extract, IfController, JSR223Processor, LoopController, TransactionController} from "@/business/components/api/definition/model/ApiTestModel";
+import {Assertions, ConstantTimer, Extract, IfController, JSR223Processor, JDBCProcessor,LoopController, TransactionController} from "@/business/components/api/definition/model/ApiTestModel";
 
 export function buttons() {
   let buttons = [
@@ -31,6 +31,26 @@ export function buttons() {
       icon: "skip_previous",
       click: () => {
         this.addComponent('JSR223PreProcessor')
+      }
+    },
+    {
+      title: this.$t('api_test.definition.request.post_sql'),
+      show: this.showButton("JDBCPostProcessor"),
+      titleColor: "#1483F6",
+      titleBgColor: "#F2ECF3",
+      icon: "skip_next",
+      click: () => {
+        this.addComponent('JDBCPostProcessor')
+      }
+    },
+    {
+      title: this.$t('api_test.definition.request.pre_sql'),
+      show: this.showButton("JDBCPreProcessor"),
+      titleColor: "#FE6F71",
+      titleBgColor: "#F9F1EA",
+      icon: "skip_previous",
+      click: () => {
+        this.addComponent('JDBCPreProcessor')
       }
     },
     {
@@ -146,6 +166,14 @@ export function setComponent(type, _this) {
     case ELEMENT_TYPE.JSR223PostProcessor:
       _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JSR223Processor({type: "JSR223PostProcessor"})) :
         _this.scenarioDefinition.push(new JSR223Processor({type: "JSR223PostProcessor"}));
+      break;
+    case ELEMENT_TYPE.JDBCPreProcessor:
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPreProcessor"})) :
+        _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPreProcessor"}));
+      break;
+    case ELEMENT_TYPE.JDBCPostProcessor:
+      _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new JDBCProcessor({type: "JDBCPostProcessor"})) :
+        _this.scenarioDefinition.push(new JDBCProcessor({type: "JDBCPostProcessor"}));
       break;
     case ELEMENT_TYPE.Assertions:
       _this.selectedTreeNode !== undefined ? _this.selectedTreeNode.hashTree.push(new Assertions()) :
