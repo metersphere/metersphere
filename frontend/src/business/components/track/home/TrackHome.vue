@@ -73,16 +73,13 @@ export default {
   },
   data() {
     return {
-      tipsType: "1",
       result: {},
       trackCountData: {},
       relevanceCountData: {},
       caseOption: {},
-      seasonTips: "😊 MeterSphere温馨提醒 —— 多喝热水哟！",
     }
   },
   activated() {
-    this.checkTipsType();
     this.init();
   },
   computed: {
@@ -91,18 +88,6 @@ export default {
     },
   },
   methods: {
-    checkTipsType() {
-      let random = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
-      this.tipsType = random + "";
-
-      let today = new Date();
-      let month = today.getMonth();
-      if (9 > month > 4) {
-        this.seasonTips = "🤔️ 天凉了，保温杯买了吗？";
-      } else {
-        this.seasonTips = "🤔️天热了，小风扇买了吗？";
-      }
-    },
     init() {
       let selectProjectId = this.projectId;
       if (!selectProjectId) {
