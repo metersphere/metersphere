@@ -282,6 +282,10 @@
         return SYSTEM_FIELD_NAME_MAP;
       },
       readOnly() {
+        const {rowClickHasPermission} = this.currentTestCaseInfo;
+        if (rowClickHasPermission !== undefined) {
+          return !rowClickHasPermission;
+        }
         return !hasPermission('PROJECT_TRACK_CASE:READ+CREATE') &&
           !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
       }
