@@ -74,10 +74,10 @@ export default {
         },
         {
           label: this.$t('report.export'),
-          permissions: ['PROJECT_API_DEFINITION:READ+EXPORT_API'],
           children: [
             {
               label: this.$t('report.export_to_ms_format'),
+              permissions: ['PROJECT_API_DEFINITION:READ+EXPORT_API'],
               callback: () => {
                 if (!this.projectId) {
                   this.$warning(this.$t('commons.check_project_tip'));
@@ -88,6 +88,7 @@ export default {
             },
             {
               label: this.$t('report.export_to_swagger3_format'),
+              permissions: ['PROJECT_API_DEFINITION:READ+EXPORT_API'],
               callback: () => {
                 if (!this.projectId) {
                   this.$warning(this.$t('commons.check_project_tip'));
