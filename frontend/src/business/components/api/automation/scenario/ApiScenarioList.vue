@@ -68,7 +68,7 @@
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
             </template>
-          </ms-table-column >
+          </ms-table-column>
 
           <ms-table-column prop="name"
                            sortable
@@ -116,13 +116,13 @@
             </template>
           </ms-table-column>
 
-          <ms-table-column  prop="principalName"
-                            min-width="120px"
-                            :label="$t('api_test.definition.api_principal')"
-                            :filters="userFilters"
-                            :field="item"
-                            :fields-width="fieldsWidth"
-                            sortable/>
+          <ms-table-column prop="principalName"
+                           min-width="120px"
+                           :label="$t('api_test.definition.api_principal')"
+                           :filters="userFilters"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           sortable/>
           <ms-table-column prop="userName" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
@@ -138,7 +138,7 @@
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
-          </ms-table-column >
+          </ms-table-column>
           <ms-table-column prop="createTime"
                            :field="item"
                            :fields-width="fieldsWidth"
@@ -148,7 +148,7 @@
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
-          </ms-table-column >
+          </ms-table-column>
 
           <ms-table-column prop="stepTotal"
                            :field="item"
@@ -170,7 +170,7 @@
                 {{ $t('api_test.automation.fail') }}
               </el-link>
             </template>
-          </ms-table-column >
+          </ms-table-column>
 
           <ms-table-column prop="passRate"
                            :field="item"
@@ -233,7 +233,7 @@ import MsRunMode from "./common/RunMode";
 import MsTaskCenter from "../../../task/TaskCenter";
 
 import {
-  getCustomTableHeader, getCustomTableWidth,getLastTableSortField,saveLastTableSortField
+  getCustomTableHeader, getCustomTableWidth, getLastTableSortField, saveLastTableSortField
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -305,9 +305,9 @@ export default {
   },
   data() {
     return {
-      projectName:"",
+      projectName: "",
       result: {},
-      tableHeaderKey:"API_SCENARIO",
+      tableHeaderKey: "API_SCENARIO",
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
@@ -459,14 +459,14 @@ export default {
   },
   created() {
     this.projectId = getCurrentProjectID();
-    if(!this.projectName || this.projectName === ""){
+    if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
     this.operators = this.unTrashOperators;
     this.buttons = this.unTrashButtons;
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     let orderArr = this.getSortField();
-    if(orderArr){
+    if (orderArr) {
       this.condition.orders = orderArr;
     }
     this.search();
@@ -504,10 +504,10 @@ export default {
     },
   },
   methods: {
-    getProjectName (){
+    getProjectName() {
       this.$get('project/get/' + this.projectId, response => {
         let project = response.data;
-        if(project){
+        if (project) {
           this.projectName = project.name;
         }
       });
@@ -517,10 +517,10 @@ export default {
       this.search();
     },
     search(projectId) {
-      if(this.needRefreshModule()){
+      if (this.needRefreshModule()) {
         this.$emit('refreshTree');
       }
-      if(this.selectProjectId){
+      if (this.selectProjectId) {
         projectId = this.selectProjectId;
       }
       this.selectRows = new Set();
@@ -832,17 +832,24 @@ export default {
     },
     exportApi() {
       let param = {};
-      this.buildBatchParam(param);
-      if (param.ids === undefined || param.ids.length < 1) {
-        this.$warning(this.$t("api_test.automation.scenario.check_case"));
-        return;
-      }
-      this.result.loading = true;
-      this.result = this.$post("/api/automation/export", param, response => {
-        this.result.loading = false;
-        let obj = response.data;
-        this.buildApiPath(obj.data);
-        downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
+      this.projectId = getCurrentProjectID();
+      this.$get('project/get/' + this.projectId, response => {
+        let project = response.data;
+        if (project) {
+          this.projectName = project.name;
+          this.buildBatchParam(param);
+          if (param.ids === undefined || param.ids.length < 1) {
+            this.$warning(this.$t("api_test.automation.scenario.check_case"));
+            return;
+          }
+          this.result.loading = true;
+          this.result = this.$post("/api/automation/export", param, response => {
+            this.result.loading = false;
+            let obj = response.data;
+            this.buildApiPath(obj.data);
+            downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
+          });
+        }
       });
     },
     exportJmx() {
@@ -875,18 +882,18 @@ export default {
     getConditions() {
       return this.condition;
     },
-    needRefreshModule(){
-      if(this.initApiTableOpretion === '0'){
+    needRefreshModule() {
+      if (this.initApiTableOpretion === '0') {
         return true;
-      }else {
-        this.$emit('updateInitApiTableOpretion','0');
+      } else {
+        this.$emit('updateInitApiTableOpretion', '0');
         return false;
       }
     },
-    callBackSelectAll(selection){
+    callBackSelectAll(selection) {
       this.$emit('selection', selection);
     },
-    callBackSelect(selection){
+    callBackSelect(selection) {
       this.$emit('selection', selection);
     },
     batchCreatePerformance() {
@@ -921,7 +928,7 @@ export default {
         }
       });
     },
-    batchCopy(){
+    batchCopy() {
       this.$alert(this.$t('api_test.definition.request.batch_copy_confirm') + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
@@ -937,16 +944,16 @@ export default {
         }
       });
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
-    getSortField(){
+    getSortField() {
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
       let returnObj = null;
-      if(orderJsonStr){
+      if (orderJsonStr) {
         try {
           returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
+        } catch (e) {
           return null;
         }
       }
