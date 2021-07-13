@@ -244,41 +244,45 @@
               stripe
               border
               style="width: 100%">
-              <el-table-column
-                prop="label"
-                label="Label"
-                sortable
-              />
-              <el-table-column
-                prop="avg"
-                label="Avg."
-                width="100"
-                sortable
-              />
-              <el-table-column
-                prop="min"
-                label="Min."
-                width="100"
-                sortable
-              />
-              <el-table-column
-                prop="max"
-                label="Max."
-                width="100"
-                sortable
-              />
-              <el-table-column
-                prop="startTime"
-                label="Start"
-                width="160"
-                sortable
-              />
-              <el-table-column
-                prop="endTime"
-                label="End"
-                width="160"
-                sortable
-              />
+              <el-table-column label="Label" align="center">
+                <el-table-column
+                  prop="label"
+                  label="Label"
+                  sortable>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="Aggregate" align="center">
+                <el-table-column
+                  prop="avg"
+                  label="Avg."
+                  width="100"
+                  sortable
+                />
+                <el-table-column
+                  prop="min"
+                  label="Min."
+                  width="100"
+                  sortable
+                />
+                <el-table-column
+                  prop="max"
+                  label="Max."
+                  width="100"
+                  sortable
+                />
+              </el-table-column>
+              <el-table-column label="Range" align="center">
+                <el-table-column
+                  prop="startTime"
+                  label="Start"
+                  width="160"
+                />
+                <el-table-column
+                  prop="endTime"
+                  label="End"
+                  width="160"
+                />
+              </el-table-column>
             </el-table>
           </el-col>
         </el-row>
