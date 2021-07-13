@@ -1,5 +1,6 @@
 export default {
   commons: {
+    project_permission: '請先添加該項目許可權',
     failure_continues: "失敗繼續",
     full_screen_editing: "全屏編輯",
     yes: "是",
