@@ -14,10 +14,10 @@ import java.util.List;
 @RestController
 public class TestCaseDemandController {
     @Resource
-    private DemandService DemandService;
+    private DemandService demandService;
 
     @GetMapping("/list/{projectId}")
     public List<DemandDTO> getDemandList(@PathVariable String projectId) {
-        return DemandService.getDemandList(projectId);
+        return demandService.getDemandList(projectId);
     }
 }
