@@ -181,20 +181,24 @@
 
     <el-row>
       <el-col :span="8">
-        <h3>监控集成</h3>
+        <h3>{{ $t('commons.monitor') }}</h3>
         <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="addMonitor">
           {{ $t('commons.add') }}
+        </el-button>
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini"
+                   @click="batchAddMonitor">
+          {{ $t('commons.batch_add') }}
         </el-button>
       </el-col>
     </el-row>
     <el-row>
 
       <el-col :span="24">
-        <el-table :data="monitorParams" size="mini" class="tb-edit" align="center" border highlight-current-row>
+        <el-table :data="monitorParams" size="mini" class="tb-edit" border highlight-current-row>
           <el-table-column
             align="center"
             prop="name"
-            label="名称">
+            :label="$t('commons.name')">
           </el-table-column>
           <!--        <el-table-column-->
           <!--          align="center"-->
@@ -223,7 +227,7 @@
           <el-table-column
             align="center"
             prop="description"
-            label="描述">
+            :label="$t('commons.description')">
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
@@ -240,6 +244,7 @@
     </el-row>
 
     <edit-monitor ref="monitorDialog" :testId="testId" :list.sync="monitorParams"/>
+    <batch-add-monitor ref="batchMonitorDialog" @batchSave="batchSave"/>
   </div>
 </template>
 
@@ -247,10 +252,11 @@
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import EditMonitor from "@/business/components/performance/test/components/EditMonitor";
 import {hasPermission} from "@/common/js/utils";
+import BatchAddMonitor from "@/business/components/performance/test/components/BatchAddMonitor";
 
 export default {
   name: "PerformanceAdvancedConfig",
-  components: {EditMonitor, MsTableOperatorButton},
+  components: {BatchAddMonitor, EditMonitor, MsTableOperatorButton},
   data() {
     return {
       timeout: undefined,
@@ -411,6 +417,32 @@ export default {
     },
     addMonitor() {
       this.$refs.monitorDialog.open();
+    },
+    batchAddMonitor() {
+      this.$refs.batchMonitorDialog.open();
+    },
+    batchSave(params) {
+      let targets = this._handleBatchVars(params);
+      targets.forEach(row => {
+        this.monitorParams.push(row);
+      });
+    },
+    _handleBatchVars(data) {
+      let params = data.split("\n");
+      let keyValues = [];
+      params.forEach(item => {
+        let line = item.split(/，|,/);
+        if (line.length < 3) {
+          return;
+        }
+        keyValues.push({
+          name: line[0],
+          ip: line[1],
+          port: line[2],
+          description: line[3] || '',
+        });
+      });
+      return keyValues;
     },
     modifyMonitor(row, index) {
       this.$refs.monitorDialog.open(row, index);
