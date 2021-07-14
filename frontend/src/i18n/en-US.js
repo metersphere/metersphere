@@ -537,6 +537,7 @@ export default {
     test_plan_report: 'Test Plan Report',
     recent: 'My recent Report',
     search_by_name: 'Search by Name',
+    batch_add_monitor_tips: 'Format: name, IP, Port, description<br/>such as: item 1, 192.168.1.52, 9100, test',
     test_name: 'Test',
     test_overview: 'Test Overview',
     test_request_statistics: 'Test Request Statistics',

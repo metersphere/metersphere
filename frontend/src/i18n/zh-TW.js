@@ -536,6 +536,7 @@ export default {
     test_plan_report: '測試計劃報告',
     recent: '我最近的報告',
     search_by_name: '根據名稱搜索',
+    batch_add_monitor_tips: '格式：名稱,IP,Port,描述<br/>如：項目1,192.168.1.52,9100,測試',
     test_name: '所屬測試',
     test_overview: '測試概覽',
     test_request_statistics: '請求統計',
