@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="10">
+      <el-col :span="20">
         <el-button icon="el-icon-circle-plus-outline" plain size="mini"
                    @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
@@ -12,7 +12,7 @@
           width="600"
           trigger="click">
           <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
+          <el-button icon="el-icon-warning" plain size="mini" slot="reference" style="margin-left: 10px">
             {{ $t('organization.message.mail_template_example') }}
           </el-button>
         </el-popover>
@@ -20,9 +20,9 @@
           placement="right-end"
           title="示例"
           width="200"
-          trigger="click" >
+          trigger="click">
           <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
-          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
+          <el-button icon="el-icon-warning" plain size="mini" slot="reference" style="margin-left: 10px">
             {{ $t('organization.message.robot_template') }}
           </el-button>
         </el-popover>
@@ -209,7 +209,7 @@ export default {
         {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
         {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
-    }
+    };
   },
   mounted() {
     this.initForm()
@@ -217,9 +217,9 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/' + this.testId, response => {
-        // console.log(response.data);
+        console.log(response.data);
         this.scheduleTask = response.data;
-      })
+      });
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
@@ -268,13 +268,13 @@ export default {
     },
     addTask(data) {
       this.result = this.$post("/notice/save/message/task", data, () => {
-        this.initForm()
+        this.initForm();
         this.$success(this.$t('commons.save_success'));
-      })
+      });
     },
     removeRowTask(index, data) { //移除
       if (!data[index].identification) {
-        data.splice(index, 1)
+        data.splice(index, 1);
       } else {
         data[index].isSet = false;
       }
@@ -282,22 +282,27 @@ export default {
     deleteRowTask(index, data) { //删除
       this.result = this.$get("/notice/delete/message/" + data.identification, response => {
         this.$success(this.$t('commons.delete_success'));
-        this.initForm()
-      })
+        this.initForm();
+      });
     },
     rowClass() {
-      return "text-align:center"
+      return "text-align:center";
     },
     headClass() {
-      return "text-align:center;background:'#ededed'"
+      return "text-align:center;background:'#ededed'";
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
         this.$refs.noticeTemplate.open(row);
       }
     }
+  },
+  watch: {
+    testId() {
+      this.initForm();
+    }
   }
-}
+};
 </script>
 
 <style scoped>
