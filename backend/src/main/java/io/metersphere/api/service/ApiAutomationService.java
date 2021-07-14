@@ -985,6 +985,9 @@ public class ApiAutomationService {
 
         if (request.getConfig() != null && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             request.getConfig().setReportId(UUID.randomUUID().toString());
+            if (CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 100) {
+                scenarioIds = scenarioIds.subList(0, 100);
+            }
             APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(scenarioIds), scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(), ReportTriggerMode.MANUAL.name(),
                     ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID());
             report.setName(request.getConfig().getReportName());
