@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import {getCurrentUser} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import JenkinsNotification from "@/business/components/settings/organization/components/JenkinsNotification";
 import TestPlanTaskNotification from "@/business/components/settings/organization/components/TestPlanTaskNotification";
 import TestReviewNotification from "@/business/components/settings/organization/components/TestReviewNotification";
@@ -60,7 +60,7 @@ export default {
     initUserList() {
       let param = {
         name: '',
-        organizationId: this.currentUser().lastOrganizationId
+        organizationId: getCurrentOrganizationId()
       };
       this.result = this.$post('user/org/member/list/all', param, response => {
         this.jenkinsReceiverOptions = response.data
