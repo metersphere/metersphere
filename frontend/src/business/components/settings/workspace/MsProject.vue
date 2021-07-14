@@ -125,6 +125,14 @@
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+          <ms-instructions-icon effect="light">
+            <template>
+              禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
+              根据 "后台 -> 自定义 -> 流程" 查看对应流程，根据流程填写ID <br/><br/>
+              产品-项目 | 产品-迭代 | 产品-冲刺 需要填写产品ID <br/><br/>
+              项目-迭代 | 项目-冲刺 需要填写项目ID
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
