@@ -275,7 +275,7 @@ export default {
       param.status = this.testCase.status;
       param.results = [];
       param.remark = this.testCase.remark;
-      param.projectId = this.projectId;
+      param.projectId = this.testCase.projectId;
       param.nodeId = this.testCase.nodeId;
       let option = this.getOption(param);
       for (let i = 0; i < this.testCase.steptResults.length; i++) {
