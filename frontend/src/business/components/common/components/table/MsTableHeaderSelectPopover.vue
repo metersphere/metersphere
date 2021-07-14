@@ -54,6 +54,12 @@
           }
         },
       },
+      created() {
+        if(this.keyIndex === 0){
+          this.keyIndex++;
+          this.reload();
+        }
+      },
       data() {
         return {
           isShow: true,
@@ -79,12 +85,12 @@
             this.selectAllFontColor.color = "gray";
             this.selectPageFontColor.color = "gray";
           }
-          this.$emit(even);
           //首次渲染之后，该组件不会重新渲染样式，使用keyIndex判断强制刷新一次，激活它的重新渲染功能
           if(this.keyIndex === 0){
             this.keyIndex++;
             this.reload();
           }
+          this.$emit(even);
         },
         reload() {
             this.isShow = false;
