@@ -601,6 +601,8 @@ export default {
       this.currentScenario.modulePath = data.path;
     },
     setHideBtn() {
+      this.$refs.scenarioRelevance.changeButtonLoadingType();
+      this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.isBtnHide = false;
     },
     // 打开引用的场景
@@ -781,6 +783,7 @@ export default {
         arr.forEach(item => {
           if (item.id === this.currentScenario.id) {
             this.$error("不能引用或复制自身！");
+            this.$refs.scenarioRelevance.changeButtonLoadingType();
             return;
           }
           if (!item.hashTree) {
@@ -836,6 +839,7 @@ export default {
         this.setApiParameter(item, refType, referenced);
       });
       this.isBtnHide = false;
+      this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.sort();
       this.reload();
     },
