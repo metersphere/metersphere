@@ -689,7 +689,7 @@ public class TestCaseService {
 
             List<List<String>> headList = testCaseExcelData.getHead(importFileNeedNum,customFields);
             EasyExcelExporter easyExcelExporter = new EasyExcelExporter(testCaseExcelData.getClass());
-            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum);
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum,headList);
             easyExcelExporter.exportByCustomWriteHandler(response,headList, generateExportDatas(importFileNeedNum),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"), handler);
 
