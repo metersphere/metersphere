@@ -24,8 +24,8 @@
       ref="apiScenarioList"/>
 
     <template v-slot:footer>
-      <el-button type="primary" @click="copy" @keydown.enter.native.prevent>{{$t('commons.copy')}}</el-button>
-      <el-button type="primary" @click="reference" @keydown.enter.native.prevent> {{ $t('api_test.scenario.reference') }}</el-button>
+      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent>{{$t('commons.copy')}}</el-button>
+      <el-button type="primary" @click="reference" :loading="buttonIsWorking" @keydown.enter.native.prevent> {{ $t('api_test.scenario.reference') }}</el-button>
     </template>
   </test-case-relevance-base>
 </template>
@@ -51,6 +51,7 @@
     },
     data() {
       return {
+        buttonIsWorking: false,
         result: {},
         currentProtocol: null,
         selectNodeIds: [],
@@ -77,7 +78,11 @@
       }
     },
     methods: {
+      changeButtonLoadingType(){
+        this.buttonIsWorking = false;
+      },
       reference() {
+        this.buttonIsWorking = true;
         let scenarios = [];
         let conditions = this.getConditions();
         if (conditions.selectAll) {
@@ -89,6 +94,7 @@
             this.currentScenario = response.data;
             if (!this.currentScenario || this.currentScenario.length < 1) {
               this.$emit('请选择场景');
+              this.buttonIsWorking = false;
               return;
             }
             this.currentScenario.forEach(item => {
@@ -104,10 +110,14 @@
             });
             this.$emit('save', scenarios);
             this.$refs.baseRelevance.close();
+            this.buttonIsWorking = false;
+          },(error) => {
+            this.buttonIsWorking = false;
           });
         } else {
           if (!this.currentScenario || this.currentScenario.length < 1) {
             this.$emit('请选择场景');
+            this.buttonIsWorking = false;
             return;
           }
           this.currentScenario.forEach(item => {
@@ -123,9 +133,11 @@
           });
           this.$emit('save', scenarios);
           this.$refs.baseRelevance.close();
+          this.buttonIsWorking = false;
         }
       },
       copy() {
+        this.buttonIsWorking = true;
         let scenarios = [];
         let conditions = this.getConditions();
         if (conditions.selectAll) {
@@ -137,6 +149,7 @@
             this.currentScenarioIds = response.data;
             if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
               this.$warning('请选择场景');
+              this.buttonIsWorking = false;
               return;
             }
             this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
@@ -161,12 +174,18 @@
                 });
                 this.$emit('save', scenarios);
                 this.$refs.baseRelevance.close();
+                this.buttonIsWorking = false;
               }
+            },(error) => {
+              this.buttonIsWorking = false;
             });
+          },(error) => {
+            this.buttonIsWorking = false;
           });
         } else {
           if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
             this.$warning('请选择场景');
+            this.buttonIsWorking = false;
             return;
           }
           this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
@@ -191,7 +210,10 @@
               });
               this.$emit('save', scenarios);
               this.$refs.baseRelevance.close();
+              this.buttonIsWorking = false;
             }
+          },(error) => {
+            this.buttonIsWorking = false;
           });
         }
       },
@@ -201,6 +223,7 @@
         this.$refs.relevanceDialog.close();
       },
       open() {
+        this.buttonIsWorking = false;
         this.$refs.baseRelevance.open();
         if (this.$refs.apiScenarioList) {
           this.$refs.apiScenarioList.search(this.projectId);
