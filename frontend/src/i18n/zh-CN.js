@@ -1909,6 +1909,7 @@ export default {
     add_file: "添加文件",
     delimiter: "分隔符",
     format: "输出格式",
+    quoted_data: "是否允许带引号",
   },
   auth_source: {
     delete_prompt: '此操作会删除认证源，是否继续？',

@@ -15,18 +15,18 @@
     <el-tabs v-model="activeName" @tab-click="handleClick" style="margin-left: 40px">
       <el-tab-pane :label="$t('variables.config')" name="config">
         <el-row>
-          <el-col :span="4" style="margin-top: 5px">
+          <el-col :span="5" style="margin-top: 5px">
             <span>{{$t('variables.add_file')}}</span>
           </el-col>
-          <el-col :span="20">
+          <el-col :span="19">
             <ms-csv-file-upload :parameter="editData"/>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
-          <el-col :span="4" style="margin-top: 5px">
+          <el-col :span="5" style="margin-top: 5px">
             <span>Encoding</span>
           </el-col>
-          <el-col :span="20">
+          <el-col :span="19">
             <el-autocomplete
               size="small"
               style="width: 100%"
@@ -37,14 +37,24 @@
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
-          <el-col :span="4" style="margin-top: 5px">
+          <el-col :span="5" style="margin-top: 5px">
             <span>{{$t('variables.delimiter')}}</span>
           </el-col>
-          <el-col :span="20">
+          <el-col :span="19">
             <el-input v-model="editData.delimiter" size="small"/>
           </el-col>
         </el-row>
-
+        <el-row style="margin-top: 10px">
+          <el-col :span="5" style="margin-top: 5px">
+            <span>{{$t('variables.quoted_data')}}</span>
+          </el-col>
+          <el-col :span="19">
+            <el-select v-model="editData.quotedData" size="small">
+              <el-option label="True" :value="true"/>
+              <el-option label="False" :value="false"/>
+            </el-select>
+          </el-col>
+        </el-row>
       </el-tab-pane>
       <el-tab-pane :label="$t('schema.preview')" name="preview">
         <el-table

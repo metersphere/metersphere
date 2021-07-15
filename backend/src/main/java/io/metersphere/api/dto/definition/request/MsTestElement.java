@@ -207,6 +207,7 @@ public abstract class MsTestElement {
                     csvDataSet.setProperty("shareMode", shareMode);
                     csvDataSet.setProperty("recycle", true);
                     csvDataSet.setProperty("delimiter", item.getDelimiter());
+                    csvDataSet.setProperty("quotedData", item.isQuotedData());
                     csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
                     tree.add(csvDataSet);
                 });
