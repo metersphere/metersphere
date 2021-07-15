@@ -245,7 +245,7 @@ export default {
             runArr.push({
               id: loadCase.loadCaseId,
               testPlanLoadId: loadCase.id,
-              triggerMode: 'CASE'
+              triggerMode: 'MANUAL'
             });
           });
           let obj = {config: config, requests: runArr, userId: getCurrentUser().id};
@@ -259,7 +259,7 @@ export default {
           runArr.push( {
             id: loadCase.loadCaseId,
             testPlanLoadId: loadCase.id,
-            triggerMode: 'CASE'
+            triggerMode: 'MANUAL'
           })
         });
         let obj = {config:config,requests:runArr,userId:getCurrentUser().id};
@@ -376,7 +376,7 @@ export default {
       this.$post('/test/plan/load/case/run', {
         id: loadCase.loadCaseId,
         testPlanLoadId: loadCase.id,
-        triggerMode: 'CASE'
+        triggerMode: 'MANUAL'
       }).then(() => {
         this.$notify.success({
           title: loadCase.caseName,
