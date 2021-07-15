@@ -171,7 +171,7 @@
     </div>
     <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :data-count="$refs.table ? $refs.table.selectDataCounts : 0" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"></case-batch-move>
