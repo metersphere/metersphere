@@ -200,13 +200,14 @@ export default {
       }
 
       this.databaseConfigsOptions = [];
-      environment.config.databaseConfigs.forEach(item => {
-        if (item.id === this.request.dataSourceId) {
-          flag = true;
-        }
-        this.databaseConfigsOptions.push(item);
-      });
-
+      if(environment.config&&environment.config.databaseConfigs){
+        environment.config.databaseConfigs.forEach(item => {
+          if (item.id === this.request.dataSourceId) {
+            flag = true;
+          }
+          this.databaseConfigsOptions.push(item);
+        });
+      }
       if (!flag) {
         this.request.dataSourceId = "";
       }
