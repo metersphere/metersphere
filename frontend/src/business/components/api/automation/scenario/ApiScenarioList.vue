@@ -6,11 +6,10 @@
 
       <ms-table
         :data="tableData"
-        :height="screenHeight"
-        :screen-height="screenHeight"
+        :screen-height="isRelate ? 'calc(100vh - 400px)' :  screenHeight"
         :condition="condition"
         :page-size="pageSize"
-        :operators="operators"
+        :operators="isRelate ? [] : operators"
         :batch-operators="buttons"
         :total="total"
         :fields.sync="fields"
@@ -285,6 +284,7 @@ export default {
       default: false
     },
     initApiTableOpretion: String,
+    isRelate: Boolean
   },
   data() {
     return {
