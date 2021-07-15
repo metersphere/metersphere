@@ -21,6 +21,7 @@
       :trash-enable="false"
       :is-reference-table="true"
       @selection="setData"
+      :is-relate="true"
       :custom-num="customNum"
       ref="apiScenarioList"/>
 
