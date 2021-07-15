@@ -13,6 +13,8 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -74,8 +76,26 @@ public class MsIfController extends MsTestElement {
         return "IfController";
     }
 
+    public String getContentValue() {
+        String content = this.variable;
+        Pattern regex = Pattern.compile("\\$\\{([^}]*)\\}");
+        Matcher matcher = regex.matcher(content);
+        StringBuilder stringBuilder = new StringBuilder();
+        while (matcher.find()) {
+            stringBuilder.append(matcher.group(1) + ",");
+        }
+        if (stringBuilder.length() > 0) {
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        }
+        if (StringUtils.isEmpty(stringBuilder.toString())) {
+            return this.variable;
+        }
+        return stringBuilder.toString();
+    }
+
     public String getCondition() {
-        String variable = "\"" + this.variable + "\"";
+        String key = getContentValue();
+        String variable = key.equals(this.variable) ? "\"" + this.variable + "\"" : "vars.get('" + key + "')";
         String operator = this.operator;
         String value;
         if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
