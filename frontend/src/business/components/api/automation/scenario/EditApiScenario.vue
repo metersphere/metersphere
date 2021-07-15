@@ -726,7 +726,7 @@ export default {
           arr[i].requestResult = this.debugResult.get(key);
           arr[i].result = null;
           arr[i].debug = this.debug;
-          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult.success);
+          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult[0].success);
         }
       }
     },
