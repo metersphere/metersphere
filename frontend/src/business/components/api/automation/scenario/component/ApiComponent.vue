@@ -23,8 +23,8 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
       </template>
       <template v-slot:debugStepCode>
-         <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
-          {{ request.requestResult.success ? 'success' : 'error' }}
+         <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+          {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
       <template v-slot:button>
