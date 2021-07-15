@@ -123,7 +123,7 @@
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->

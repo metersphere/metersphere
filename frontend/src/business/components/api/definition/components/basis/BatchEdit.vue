@@ -53,7 +53,8 @@
         default() {
           return this.$t('api_test.definition.request.batch_edit')
         }
-      }
+      },
+      dataCount: Number
     },
     data() {
       return {
@@ -81,7 +82,7 @@
       },
       open() {
         this.dialogVisible = true;
-        this.size = this.$parent.selectDataCounts;
+        this.size = this.dataCount ? this.dataCount : this.$parent.selectDataCounts;
         listenGoBack(this.handleClose);
       },
       handleClose() {
