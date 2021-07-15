@@ -44,7 +44,7 @@
     <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :data-count="selectdCases.length" :value-arr="valueArr"/>
   </div>
 </template>
 <script>
