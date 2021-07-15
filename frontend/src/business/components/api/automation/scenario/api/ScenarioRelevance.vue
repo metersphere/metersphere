@@ -19,6 +19,7 @@
       :select-project-id="projectId"
       :referenced="true"
       :trash-enable="false"
+      :is-reference-table="true"
       @selection="setData"
       :custom-num="customNum"
       ref="apiScenarioList"/>
