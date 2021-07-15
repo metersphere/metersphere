@@ -297,6 +297,7 @@ export default {
       this.$get('/performance/get-load-config/' + this.testId, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
+          let oldVersion;
           for (let i = 0; i < data.length; i++) {
             let d = data[i];
             d.forEach(item => {
@@ -312,6 +313,7 @@ export default {
                   break;
                 case DURATION:
                   this.threadGroups[i].duration = item.value;
+                  oldVersion = item.unit;
                   break;
                 case UNIT:
                   this.threadGroups[i].unit = item.value;
@@ -365,6 +367,10 @@ export default {
             });
           }
           for (let i = 0; i < this.threadGroups.length; i++) {
+            // 处理老版本的问题
+            if (oldVersion) {
+              break;
+            }
             // 恢复成单位需要的值
             switch (this.threadGroups[i].unit) {
               case 'M':
