@@ -172,7 +172,7 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                         refFlag = str.equals(getExpectedValue());
                         break;
                     case "NOT_EQUALS":
-                        refFlag = !str.contains(getExpectedValue());
+                        refFlag = !str.equals(getExpectedValue());
                         break;
                 }
                 return refFlag;
