@@ -271,6 +271,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    isReferenceTable: {
+      type: Boolean,
+      default: false,
+    },
     selectNodeIds: Array,
     selectProjectId: {
       type: String,
@@ -462,8 +466,10 @@ export default {
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
-    this.operators = this.unTrashOperators;
-    this.buttons = this.unTrashButtons;
+    if(!this.isReferenceTable){
+      this.operators = this.unTrashOperators;
+      this.buttons = this.unTrashButtons;
+    }
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     let orderArr = this.getSortField();
     if (orderArr) {
