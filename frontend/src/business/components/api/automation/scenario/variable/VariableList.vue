@@ -215,7 +215,7 @@ export default {
       }
     },
     handleClick(command) {
-      this.editData = {delimiter: ","};
+      this.editData = {delimiter: ",",quotedData: 'false'};
       this.editData.type = command;
       this.addParameters(this.editData);
     },
@@ -235,6 +235,7 @@ export default {
       v.id = getUUID();
       if (v.type === 'CSV') {
         v.delimiter = ",";
+        v.quotedData = false;
       }
       this.variables.push(v);
       let index = 1;

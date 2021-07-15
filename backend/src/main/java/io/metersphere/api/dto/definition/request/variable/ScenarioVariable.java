@@ -27,6 +27,7 @@ public class ScenarioVariable {
      */
     private List<BodyFile> files;
     private String delimiter;
+    private boolean quotedData;
     private String encoding;
     /**
      * counter

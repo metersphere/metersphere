@@ -1902,6 +1902,7 @@ export default {
     add_file: "Add file",
     delimiter: "Delimiter",
     format: "Output format",
+    quoted_data: "Whether to allow quotes",
   },
   auth_source: {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
