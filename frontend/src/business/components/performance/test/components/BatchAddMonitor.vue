@@ -8,14 +8,7 @@
     :destroy-on-close="true"
     v-loading="result.loading"
   >
-    <el-alert
-      title="Notice:"
-      type="info"
-      show-icon>
-      <template v-slot:default>
-        <div v-html="$t('report.batch_add_monitor_tips')"></div>
-      </template>
-    </el-alert>
+    <div v-html="$t('report.batch_add_monitor_tips')"></div>
     <div style="padding-top: 10px;">
       <ms-code-edit :enable-format="false" mode="text"
                     height="250px"
