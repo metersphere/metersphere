@@ -1151,7 +1151,7 @@ export default {
         pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
         success: "execute success count number / all execute count number * 100%",
         interface_coverage: "api whitch in scenario's step / all api * 100%",
-        review: "reviewd cases / all cases * 100%",
+        review: "reviewed cases / all cases * 100%",
         testplan_coverage: "relevance function cases / all function cases * 100%",
       },
       api_count_card: {
