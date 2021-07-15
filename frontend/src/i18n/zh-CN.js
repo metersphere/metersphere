@@ -1183,7 +1183,7 @@ export default {
         pass: "最后一次执行成功的场景/场景总数*100%",
         success: "执行成功的次数/执行总次数*100%",
         interface_coverage: "被场景步骤包含的接口/接口总数*100%",
-        review: "评审通过的功能案例/所有功能案例 * 100%",
+        review: "已评审的功能案例/所有功能案例 * 100%",
         testplan_coverage: "关联的功能案例/所有功能案例 * 100%",
       },
       api_count_card: {
