@@ -73,7 +73,7 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId, hasPermission} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import MsChangeHistory from "../../history/ChangeHistory";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
@@ -342,6 +342,9 @@ export default {
       // 兼容问题，数据库里有的projectId为空
       if (!param.projectId) {
         param.projectId = getCurrentProjectID();
+      }
+      if (!param.workspaceId) {
+        param.workspaceId = getCurrentWorkspaceId();
       }
       let url = '/performance/schedule/create';
       if (param.id) {
