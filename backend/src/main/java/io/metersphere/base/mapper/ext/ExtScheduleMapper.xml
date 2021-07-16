@@ -16,6 +16,9 @@
             <if test="request.workspaceId != null">
                 and schedule.workspace_id = #{request.workspaceId}
             </if>
+            <if test="request.projectId != null">
+                and schedule.project_id = #{request.projectId}
+            </if>
             <if test="request.enable != null">
                 and schedule.enable = #{request.enable}
             </if>
