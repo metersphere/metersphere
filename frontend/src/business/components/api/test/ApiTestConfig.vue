@@ -77,7 +77,7 @@ import MsApiScenarioConfig from "./components/ApiScenarioConfig";
 import {Scenario, Test} from "./model/ScenarioModel"
 import MsApiReportStatus from "../report/ApiReportStatus";
 import MsApiReportDialog from "./ApiReportDialog";
-import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getCurrentWorkspaceId, getUUID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import ApiImport from "./components/import/ApiImport";
 import MsContainer from "@/business/components/common/components/MsContainer";
@@ -330,6 +330,13 @@ export default {
         let param = {};
         param = this.test.schedule;
         param.resourceId = this.test.id;
+        // 兼容问题，数据库里有的projectId为空
+        if (!param.projectId) {
+          param.projectId = getCurrentProjectID();
+        }
+        if (!param.workspaceId) {
+          param.workspaceId = getCurrentWorkspaceId();
+        }
         let url = '/api/schedule/create';
         if (param.id) {
           url = '/api/schedule/update';
