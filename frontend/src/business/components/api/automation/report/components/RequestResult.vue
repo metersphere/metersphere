@@ -34,19 +34,16 @@
           </el-col>
           <el-col :span="2">
             <div>
-              <el-tag size="mini" type="success" v-if="request.success">
-                {{ $t('api_report.success') }}
-              </el-tag>
-              <el-tag size="mini" type="danger" v-else>
-                {{ $t('api_report.fail') }}
-              </el-tag>
+              <el-tag size="mini" v-if="request.unexecute">{{ $t('api_test.home_page.detail_card.unexecute') }}</el-tag>
+              <el-tag size="mini" type="success" v-else-if="request.success"> {{ $t('api_report.success') }}</el-tag>
+              <el-tag size="mini" type="danger" v-else> {{ $t('api_report.fail') }}</el-tag>
             </div>
           </el-col>
         </el-row>
       </div>
 
       <el-collapse-transition>
-        <div v-show="isActive" style="width: 99%">
+        <div v-show="isActive && !request.unexecute" style="width: 99%">
           <ms-request-result-tail :scenario-name="scenarioName"
                                   :request-type="requestType"
                                   :request="request"
@@ -100,18 +97,29 @@ export default {
   },
   methods: {
     active() {
-      this.isActive = !this.isActive;
+      if (this.request.unexecute) {
+        this.isActive = false;
+      } else {
+        this.isActive = !this.isActive;
+      }
     },
     getName(name) {
+      if (name && name.indexOf("<->") !== -1) {
+        return name.split("<->")[0];
+      }
       if (name && name.indexOf("^@~@^") !== -1) {
         let arr = name.split("^@~@^");
-        if (arr[arr.length - 1].indexOf("UUID=")) {
-          return arr[arr.length - 1].split("UUID=")[0];
+        let value = arr[arr.length - 1];
+        if (value.indexOf("UUID=") !== -1) {
+          return value.split("UUID=")[0];
         }
-        if (arr[arr.length - 1] && arr[arr.length - 1].startsWith("UUID=")) {
+        if (value && value.startsWith("UUID=")) {
           return "";
         }
-        return arr[arr.length - 1];
+        if (value && value.indexOf("<->") !== -1) {
+          return value.split("<->")[0];
+        }
+        return value;
       }
       if (name && name.startsWith("UUID=")) {
         return "";
@@ -209,6 +217,7 @@ export default {
 .icon.is-active {
   transform: rotate(90deg);
 }
+
 .ms-req-name {
   display: inline-block;
   margin: 0 5px;
