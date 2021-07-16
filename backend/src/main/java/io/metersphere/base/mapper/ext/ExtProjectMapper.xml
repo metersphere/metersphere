@@ -114,6 +114,10 @@
         select id from project;
     </select>
 
+    <select id="getMaxSystemId" resultType="java.lang.String">
+        SELECT max(system_id) FROM project
+    </select>
+
 
     <update id="removeIssuePlatform">
         update project

@@ -7,6 +7,7 @@ import io.metersphere.api.dto.ApiTestEnvironmentDTO;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.Project;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -330,7 +331,10 @@ public class ApiTestEnvironmentService {
 
     private String getSystemIdByProjectId(String projectId){
         ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
+
         if(projectService != null){
+            Project project = projectService.getProjectById(projectId);
+            project = projectService.checkSystemId(project);
             return  projectService.getSystemIdByProjectId(projectId);
         }else {
             return "";
