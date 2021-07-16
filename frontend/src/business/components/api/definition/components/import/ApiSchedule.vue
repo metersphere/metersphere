@@ -71,7 +71,7 @@ import SwaggerTaskList from "@/business/components/api/definition/components/imp
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import Crontab from "@/business/components/common/cron/Crontab";
 import {cronValidate} from "@/common/js/cron";
-import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import SelectTree from "@/business/components/common/select-tree/SelectTree";
 export default {
   name: "ApiSchedule",
@@ -184,6 +184,7 @@ export default {
     },
     saveSchedule() {
       this.formData.projectId = getCurrentProjectID();
+      this.formData.workspaceId = getCurrentWorkspaceId();
       this.formData.value = this.formData.rule;
       let url = '';
       if (this.formData.id) {
