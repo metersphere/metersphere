@@ -419,13 +419,15 @@ export default {
       }
     },
     calculateTotalChart() {
+      this.rampUpTimeVisible = false;
+      this.$nextTick(() => {
+        this.rampUpTimeVisible = true;
+        this._calculateTotalChart();
+      });
+    },
+    _calculateTotalChart() {
       let handler = this;
-      if (handler.duration < handler.rampUpTime) {
-        handler.rampUpTime = handler.duration;
-      }
-      if (handler.rampUpTime < handler.step) {
-        handler.step = handler.rampUpTime;
-      }
+
       let color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
       handler.options = {
         color: color,
@@ -444,23 +446,26 @@ export default {
       };
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
-        if (handler.threadGroups[i].enabled === 'false' ||
-          handler.threadGroups[i].deleted === 'true' ||
-          handler.threadGroups[i].threadType === 'ITERATION') {
+        let tg = handler.threadGroups[i];
+
+        if (tg.enabled === 'false' ||
+          tg.deleted === 'true' ||
+          tg.threadType === 'ITERATION') {
           continue;
         }
+        if (tg.duration < tg.rampUpTime) {
+          tg.rampUpTime = tg.duration;
+        }
+        if (tg.rampUpTime < tg.step) {
+          tg.step = tg.rampUpTime;
+        }
         let seriesData = {
-          name: handler.threadGroups[i].attributes.testname,
+          name: tg.attributes.testname,
           data: [],
           type: 'line',
           smooth: false,
           symbolSize: 5,
           showSymbol: false,
-          lineStyle: {
-            normal: {
-              width: 1
-            }
-          },
           areaStyle: {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
@@ -483,7 +488,6 @@ export default {
           },
         };
 
-        let tg = handler.threadGroups[i];
 
         let timePeriod = Math.floor(tg.rampUpTime / tg.step);
         let timeInc = timePeriod;
@@ -515,13 +519,15 @@ export default {
             seriesData.step = undefined;
 
             if (j === 0) {
-              seriesData.data.push([0, 0]);
+              seriesData.data.push(['0', 0]);
             }
             if (j >= tg.rampUpTime) {
-              xAxis.push(duration);
+              if (xAxis.indexOf(duration) < 0) {
+                xAxis.push(duration);
+              }
 
-              seriesData.data.push([j, tg.threadNumber]);
-              seriesData.data.push([duration, tg.threadNumber]);
+              seriesData.data.push([j + '', tg.threadNumber]);
+              seriesData.data.push([duration + '', tg.threadNumber]);
               break;
             }
           } else {
@@ -537,16 +543,23 @@ export default {
               if (threadPeriod > tg.threadNumber) {
                 threadPeriod = tg.threadNumber;
                 // 预热结束
-                xAxis.push(duration);
-                seriesData.data.push([duration, threadPeriod]);
+                if (xAxis.indexOf(duration) < 0) {
+                  xAxis.push(duration);
+                }
+
+                seriesData.data.push([j + '', threadPeriod]);
+                seriesData.data.push([duration + '', threadPeriod]);
                 break;
               }
             }
-            seriesData.data.push([j, threadPeriod]);
+            seriesData.data.push([j + '', threadPeriod]);
           }
         }
+        // x 轴排序
+        handler.options.xAxis.data = handler.options.xAxis.data.sort((a, b) => a - b);
         handler.options.series.push(seriesData);
       }
+      // console.log(JSON.stringify(handler.options));
     },
     validConfig() {
       if (!this.resourcePool) {
