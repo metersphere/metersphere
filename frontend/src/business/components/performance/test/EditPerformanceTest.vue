@@ -339,6 +339,10 @@ export default {
       let param = {};
       param = this.test.schedule;
       param.resourceId = this.test.id;
+      // 兼容问题，数据库里有的projectId为空
+      if (!param.projectId) {
+        param.projectId = getCurrentProjectID();
+      }
       let url = '/performance/schedule/create';
       if (param.id) {
         url = '/performance/schedule/update';
