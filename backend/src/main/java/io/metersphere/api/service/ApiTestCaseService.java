@@ -93,7 +93,7 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        if (request.getModuleIds() == null) {
+        if (request.getModuleIds() == null && request.getModuleId() != null) {
             List<String> moduleIds = new ArrayList<>();
             moduleIds.add(request.getModuleId());
             request.setModuleIds(moduleIds);
