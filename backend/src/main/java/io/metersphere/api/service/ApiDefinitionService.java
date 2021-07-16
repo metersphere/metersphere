@@ -475,7 +475,14 @@ public class ApiDefinitionService {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         if (CollectionUtils.isNotEmpty(cases)) {
             int batchCount = 0;
-            cases.forEach(item -> {
+            int nextNum = 0;
+            for (int i = 0; i < cases.size(); i++) {
+                ApiTestCaseWithBLOBs item = cases.get(i);
+                if (i == 0) {
+                    nextNum = apiTestCaseService.getNextNum(item.getApiDefinitionId());
+                } else {
+                    nextNum ++;
+                }
                 checkRequest.setName(item.getName());
                 checkRequest.setApiDefinitionId(item.getApiDefinitionId());
                 if (!apiTestCaseService.hasSameCase(checkRequest)) {
@@ -485,10 +492,10 @@ public class ApiDefinitionService {
                     item.setCreateUserId(SessionUtils.getUserId());
                     item.setUpdateUserId(SessionUtils.getUserId());
                     item.setProjectId(SessionUtils.getCurrentProjectId());
-                    item.setNum(getNextNum(item.getApiDefinitionId()));
+                    item.setNum(nextNum);
                     apiTestCaseMapper.insert(item);
                 }
-            });
+            }
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
             }
