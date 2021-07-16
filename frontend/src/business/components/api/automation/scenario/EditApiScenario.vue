@@ -245,7 +245,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
+        <ms-api-report-detail :scenario="currentScenario" :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -296,7 +296,7 @@ import {
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 import MsInputTag from "./MsInputTag";
 import MsRun from "./DebugRun";
-import MsApiReportDetail from "../report/ApiReportDetail";
+import MsApiReportDetail from "../report/SysnApiReportDetail";
 import MsVariableList from "./variable/VariableList";
 import ApiImport from "../../definition/components/import/ApiImport";
 import "@/common/css/material-icons.css"
@@ -571,6 +571,7 @@ export default {
             promise.then(() => {
               let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
               if (!sign) {
+                this.debugLoading = false;
                 return;
               }
               this.editScenario().then(() => {

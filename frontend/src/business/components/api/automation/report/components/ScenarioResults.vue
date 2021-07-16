@@ -2,8 +2,9 @@
   <el-card class="scenario-results">
     <el-tree :data="treeData"
              :expand-on-click-node="false"
+             :default-expand-all="defaultExpand"
              highlight-current
-             class="ms-tree ms-report-tree">
+             class="ms-tree ms-report-tree" ref="resultsTree">
           <span slot-scope="{ node, data}" style="width: 99%" @click="nodeClick(node)">
             <ms-scenario-result :node="data" :console="console" v-on:requestResult="requestResult"/>
           </span>
@@ -21,6 +22,15 @@ export default {
     scenarios: Array,
     treeData: Array,
     console: String,
+    defaultExpand: {
+      default: false,
+      type: Boolean,
+    }
+  },
+  created() {
+    if (this.$refs.resultsTree && this.$refs.resultsTree.root) {
+      this.$refs.resultsTree.root.expanded = true;
+    }
   },
   methods: {
     requestResult(requestResult) {

@@ -190,7 +190,7 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -214,8 +214,8 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
-import MsApiReportDetail from "../report/ApiReportDetail";
+import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+import MsApiReportDetail from "../report/SysnApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "./testplan/TestPlanList";
@@ -305,7 +305,7 @@ export default {
       default: false
     },
     initApiTableOpretion: String,
-    isRelate: Boolean
+    isRelate: Boolean,
   },
   data() {
     return {
@@ -319,6 +319,7 @@ export default {
       condition: {
         components: API_SCENARIO_CONFIGS
       },
+      scenarioId: "",
       currentScenario: {},
       schedule: {},
       tableData: [],
@@ -466,7 +467,7 @@ export default {
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
-    if(!this.isReferenceTable){
+    if (!this.isReferenceTable) {
       this.operators = this.unTrashOperators;
       this.buttons = this.unTrashButtons;
     }
@@ -775,6 +776,7 @@ export default {
 
     execute(row) {
       this.infoDb = false;
+      this.scenarioId = row.id;
       let url = "/api/automation/run";
       let run = {};
       let scenarioIds = [];
@@ -783,7 +785,6 @@ export default {
       run.projectId = this.projectId;
       run.ids = scenarioIds;
       this.$post(url, run, response => {
-        let data = response.data;
         this.runVisible = true;
         this.reportId = run.id;
       });
