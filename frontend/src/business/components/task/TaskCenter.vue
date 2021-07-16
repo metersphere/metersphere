@@ -153,6 +153,9 @@ export default {
     onMessage(e) {
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
+      if (this.taskVisible) {
+        this.init();
+      }
     },
     onClose(e) {
       if (e.code === 1005) {
