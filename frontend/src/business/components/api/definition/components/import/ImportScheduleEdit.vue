@@ -40,7 +40,7 @@
 <script>
 import {
   getCurrentProjectID,
-  getCurrentUser,
+  getCurrentUser, getCurrentWorkspaceId,
   listenGoBack,
   removeGoBackListener
 } from "@/common/js/utils";
@@ -175,6 +175,7 @@ export default {
       param = this.schedule;
       param.resourceId = this.swaggerUrl;
       param.projectId = getCurrentProjectID();
+      param.workspaceId = getCurrentWorkspaceId();
       param.moduleId = this.moduleId;
       param.modulePath = this.modulePath;
       param.modeId = this.modeId;
