@@ -325,7 +325,7 @@ public class ApiTestCaseService {
         return test;
     }
 
-    private int getNextNum(String definitionId) {
+    public int getNextNum(String definitionId) {
         ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
         if (apiTestCase == null) {
             int n = apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum();
