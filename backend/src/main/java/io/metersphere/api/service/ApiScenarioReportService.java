@@ -23,6 +23,7 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -123,6 +124,9 @@ public class ApiScenarioReportService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioNames);
         report.setScenarioId(scenarioIds);
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+            report.setTriggerMode(TriggerMode.MANUAL.name());
+        }
         apiScenarioReportMapper.insert(report);
         return report;
     }
@@ -136,6 +140,9 @@ public class ApiScenarioReportService {
             report.setUpdateTime(startTime);
             String status = test.getError() == 0 ? "Success" : "Error";
             report.setStatus(status);
+            if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+                report.setTriggerMode(TriggerMode.MANUAL.name());
+            }
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         }
         return report;
@@ -156,6 +163,9 @@ public class ApiScenarioReportService {
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
         report.setExecuteType(test.getExecuteType());
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+            report.setTriggerMode(TriggerMode.MANUAL.name());
+        }
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
     }
@@ -188,8 +198,6 @@ public class ApiScenarioReportService {
         ApiScenarioReport returnReport = null;
         StringBuilder scenarioIds = new StringBuilder();
         StringBuilder scenarioNames = new StringBuilder();
-        String projectId = null;
-        String userId = null;
         TestResult fullResult = createTestResult(result);
         List<String> reportIds = new LinkedList<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
@@ -199,7 +207,7 @@ public class ApiScenarioReportService {
             }
             ApiScenarioReport report = editReport(scenarioResult, startTime);
             if (!StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-                report.setTriggerMode(ReportTriggerMode.CASE.name());
+                report.setTriggerMode(ReportTriggerMode.MANUAL.name());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
             }
 
@@ -215,14 +223,15 @@ public class ApiScenarioReportService {
             apiScenarioReportDetailMapper.insert(detail);
 
             fullResult.addScenario(scenarioResult);
-            projectId = report.getProjectId();
-            userId = report.getUserId();
             scenarioIds.append(scenarioResult.getName()).append(",");
             scenarioNames.append(report.getName()).append(",");
 
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
             if (testPlanApiScenario != null) {
                 report.setScenarioId(testPlanApiScenario.getApiScenarioId());
+                if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+                    report.setTriggerMode(TriggerMode.MANUAL.name());
+                }
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 if (scenarioResult.getError() > 0) {
                     testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
@@ -248,10 +257,7 @@ public class ApiScenarioReportService {
         List<ScenarioResult> scenarioResultList = result.getScenarios();
 
         List<String> testPlanReportIdList = new ArrayList<>();
-//        StringBuilder scenarioIds = new StringBuilder();
         StringBuilder scenarioNames = new StringBuilder();
-        String projectId = null;
-        String userId = null;
 
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
@@ -303,13 +309,14 @@ public class ApiScenarioReportService {
             detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
             detail.setReportId(report.getId());
             detail.setProjectId(report.getProjectId());
+            if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+                report.setTriggerMode(TriggerMode.MANUAL.name());
+            }
             apiScenarioReportDetailMapper.insert(detail);
 
             testPlanApiScenario.setReportId(report.getId());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-            projectId = report.getProjectId();
-            userId = report.getUserId();
 //            scenarioIds.append(scenarioResult.getName()).append(",");
             scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
             scenarioNames.append(report.getName()).append(",");
@@ -321,7 +328,7 @@ public class ApiScenarioReportService {
         // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(),scenarioIdList);
+        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(), scenarioIdList);
 
         return lastReport;
     }
@@ -364,6 +371,7 @@ public class ApiScenarioReportService {
             }
         }
     }
+
     public void margeReport(String reportId, List<String> reportIds) {
         // 合并生成一份报告
         if (CollectionUtils.isNotEmpty(reportIds)) {
@@ -402,6 +410,9 @@ public class ApiScenarioReportService {
             if (report != null) {
                 report.setExecuteType(ExecuteType.Saved.name());
                 report.setStatus(testResult.getError() > 0 ? "Error" : "Success");
+                if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+                    report.setTriggerMode(TriggerMode.MANUAL.name());
+                }
                 apiScenarioReportMapper.updateByPrimaryKey(report);
 
                 ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
