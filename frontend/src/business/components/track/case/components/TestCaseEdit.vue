@@ -363,6 +363,7 @@
         this.sysList = array;
       },
       getTestOptions(val) {
+        this.result.loading = true;
         this.form.type = val;
         this.testOptions = [];
         let url = '';
