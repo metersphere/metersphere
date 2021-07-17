@@ -529,7 +529,7 @@
             #{v}
         </foreach>
     </update>
-    <update id="refreshOriginalStatusByIds">
+    <update id="checkOriginalStatusByIds">
         update test_case
         set
         original_status = 'Underway'

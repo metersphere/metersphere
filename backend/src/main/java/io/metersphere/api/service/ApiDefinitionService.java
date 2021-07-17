@@ -1247,4 +1247,13 @@ public class ApiDefinitionService {
     public ApiDefinition selectUrlAndMethodById(String id) {
         return extApiDefinitionMapper.selectUrlAndMethodById(id);
     }
+
+    public void removeToGcByExample(ApiDefinitionExampleWithOperation apiDefinitionExample) {
+        List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        List<String> apiIdList = new ArrayList<>();
+        apiList.forEach(item -> {
+         apiIdList.add(item.getId());
+        });
+        this.removeToGc(apiIdList);
+    }
 }

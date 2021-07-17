@@ -560,9 +560,9 @@ export default {
             obj.ids = Array.from(this.selectRows).map(row => row.id);
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
+              // this.$emit('refreshTable');
               this.$refs.caseTable.clearSelectRows();
-              // this.initTable();
-              this.$emit('refreshTable');
+              this.initTable();
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -617,14 +617,14 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
+              // this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
-              // this.initTable();
-              this.$emit('refreshTable');
+              this.initTable();
+
             });
           }
         }
       });
-      return;
     },
     reduction(row) {
       let tmp = JSON.parse(JSON.stringify(row));

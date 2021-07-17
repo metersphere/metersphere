@@ -105,5 +105,5 @@ public interface ExtTestCaseMapper {
     int deleteToGc(@Param("request") TestCase testCase);
     int reduction(@Param("ids") List<String> ids);
 
-    void refreshOriginalStatusByIds(@Param("ids") List<String> ids);
+    void checkOriginalStatusByIds(@Param("ids") List<String> ids);
 }
