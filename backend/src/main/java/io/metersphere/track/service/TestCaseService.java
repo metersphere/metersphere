@@ -1512,6 +1512,7 @@ public class TestCaseService {
     public void reduction(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
         if(CollectionUtils.isNotEmpty(request.getIds())){
+            extTestCaseMapper.refreshOriginalStatusByIds(request.getIds());
             extTestCaseMapper.reduction(request.getIds());
         }
     }

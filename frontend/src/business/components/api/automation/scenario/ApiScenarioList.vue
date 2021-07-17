@@ -190,7 +190,7 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -467,11 +467,23 @@ export default {
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
-    if (!this.isReferenceTable) {
-      this.operators = this.unTrashOperators;
-      this.buttons = this.unTrashButtons;
-    }
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+
+    if(this.trashEnable){
+      this.condition.filters = {status: ["Trash"]};
+      this.condition.moduleIds = [];
+      this.operators = this.trashOperators;
+      this.buttons = this.trashButtons;
+    }else {
+      if (!this.isReferenceTable) {
+        this.operators = this.unTrashOperators;
+        this.buttons = this.unTrashButtons;
+      }else {
+        this.operators = this.unTrashOperators;
+        this.buttons = this.unTrashButtons;
+      }
+    }
+
     let orderArr = this.getSortField();
     if (orderArr) {
       this.condition.orders = orderArr;
@@ -575,6 +587,9 @@ export default {
           });
           if (this.$refs.scenarioTable) {
             this.$refs.scenarioTable.clear();
+            this.$nextTick(() => {
+              this.$refs.scenarioTable.doLayout();
+            });
           }
           this.$emit('getTrashCase');
         });

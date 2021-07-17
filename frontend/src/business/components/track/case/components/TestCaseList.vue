@@ -365,8 +365,13 @@ export default {
     },
   },
   created: function () {
+    this.getTemplateField();
     this.$emit('setCondition', this.condition);
-    this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    if(this.trashEnable){
+      this.condition.filters = {status: ["Trash"]};
+    }else {
+      this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    }
     let orderArr = this.getSortField();
     if(orderArr){
       this.condition.orders = orderArr;

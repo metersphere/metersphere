@@ -529,4 +529,14 @@
             #{v}
         </foreach>
     </update>
+    <update id="refreshOriginalStatusByIds">
+        update test_case
+        set
+        original_status = 'Underway'
+        where (original_status IS NULL OR original_status = 'Trash') AND id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+
 </mapper>
