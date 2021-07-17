@@ -69,6 +69,7 @@
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
+                @refreshTable="refresh"
                 @showExecResult="showExecResult"
                 ref="trashCaseList"/>
             </ms-tab-button>
@@ -369,6 +370,13 @@ export default {
     addTab(tab) {
       if (tab.name === 'add') {
         this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+      }else if(tab.name === 'trash'){
+        if(this.$refs.trashApiList){
+          this.$refs.trashApiList.initTable();
+        }
+        if(this.$refs.trashCaseList){
+          this.$refs.trashCaseList.initTable();
+        }
       }
       if (this.$refs.apiConfig) {
         this.$refs.apiConfig.forEach(item => {
@@ -522,7 +530,7 @@ export default {
       this.$refs.nodeTree.list();
     },
     refresh(data) {
-      if(this.$refs.caseList){
+      if(this.$refs.caseList && this.$refs.caseList[0]){
         this.$refs.caseList[0].initTable();
       }
       if(this.$refs.trashApiList){
@@ -531,7 +539,7 @@ export default {
       if(this.$refs.trashCaseList){
         this.$refs.trashCaseList.initTable();
       }
-      if(this.$refs.apiDefList){
+      if(this.$refs.apiDefList && this.$refs.apiDefList[0]){
         this.$refs.apiDefList[0].initTable();
       }
 
