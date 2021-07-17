@@ -19,6 +19,24 @@
 
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
+        <el-tab-pane name="trash" v-if="trashEnable" :label="$t('commons.trash')">
+          <test-case-list
+            :checkRedirectID="checkRedirectID"
+            :isRedirectEdit="isRedirectEdit"
+            :tree-nodes="treeNodes"
+            :trash-enable="true"
+            @refreshTable="refresh"
+            @testCaseEdit="editTestCase"
+            @testCaseCopy="copyTestCase"
+            @testCaseDetail="showTestCaseDetail"
+            @refresh="refresh"
+            @refreshAll="refreshAll"
+            @setCondition="setCondition"
+            @decrease="decrease"
+            :custom-num="custom_num"
+            ref="testCaseList">
+          </test-case-list>
+        </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
           <ms-tab-button
             :active-dom.sync="activeDom"
@@ -32,7 +50,7 @@
               :checkRedirectID="checkRedirectID"
               :isRedirectEdit="isRedirectEdit"
               :tree-nodes="treeNodes"
-              :trash-enable="trashEnable"
+              :trash-enable="false"
               @refreshTable="refresh"
               @testCaseEdit="editTestCase"
               @testCaseCopy="copyTestCase"
@@ -175,6 +193,13 @@ export default {
         }
       });
     },
+    trashEnable(){
+      if(this.trashEnable){
+        this.activeName = 'trash';
+      }else {
+        this.activeName = 'default';
+      }
+    }
   },
   computed: {
     checkRedirectID: function () {

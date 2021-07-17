@@ -540,7 +540,8 @@ export default {
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -560,7 +561,8 @@ export default {
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -601,7 +603,8 @@ export default {
           if (action === 'confirm') {
             this.$get('/api/testcase/delete/' + apiCase.id, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
             });
           }
         }
@@ -615,7 +618,8 @@ export default {
           if (action === 'confirm') {
             this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
             });
           }
         }
@@ -640,7 +644,8 @@ export default {
         }else{
           this.$success(this.$t('commons.save_success'));
         }
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleBatchRestore() {
@@ -665,7 +670,8 @@ export default {
         }else{
           this.$success(this.$t('commons.save_success'));
         }
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     setEnvironment(data) {

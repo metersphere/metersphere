@@ -3,6 +3,7 @@ export default {
     project_permission: 'Please add the project permission first',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
+    trash: "Trash",
     yes: "yes",
     no: "no",
     default: "default",

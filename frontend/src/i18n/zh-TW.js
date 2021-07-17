@@ -3,6 +3,7 @@ export default {
     project_permission: '請先添加該項目許可權',
     failure_continues: "失敗繼續",
     full_screen_editing: "全屏編輯",
+    trash: "回收站",
     yes: "是",
     no: "否",
     default: "默認值",

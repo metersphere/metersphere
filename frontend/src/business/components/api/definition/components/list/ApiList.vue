@@ -644,13 +644,15 @@ export default {
       let rows = {ids: [tmp.id]};
       this.$post('/api/definition/reduction/', rows, () => {
         this.$success(this.$t('commons.save_success'));
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleBatchRestore() {
       this.$post('/api/definition/reduction/', buildBatchParam(this, this.$refs.table.selectIds), () => {
         this.$success(this.$t('commons.save_success'));
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleDeleteBatch() {
@@ -661,7 +663,8 @@ export default {
             if (action === 'confirm') {
               this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
                 this.$refs.table.clear();
-                this.initTable();
+                // this.initTable();
+                this.$emit("refreshTable");
                 this.$success(this.$t('commons.delete_success'));
               });
             }
@@ -674,7 +677,8 @@ export default {
             if (action === 'confirm') {
               this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
                 this.$refs.table.clear();
-                this.initTable();
+                // this.initTable();
+                this.$emit("refreshTable");
                 this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();
               });
@@ -733,7 +737,8 @@ export default {
       if (this.trashEnable) {
         this.$get('/api/definition/delete/' + api.id, () => {
           this.$success(this.$t('commons.delete_success'));
-          this.initTable();
+          // this.initTable();
+          this.$emit("refreshTable");
         });
         return;
       }
@@ -744,7 +749,8 @@ export default {
             let ids = [api.id];
             this.$post('/api/definition/removeToGc/', ids, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit("refreshTable");
               this.$refs.caseList.apiCaseClose();
             });
           }

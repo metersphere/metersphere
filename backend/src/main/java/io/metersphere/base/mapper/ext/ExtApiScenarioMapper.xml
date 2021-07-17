@@ -325,7 +325,7 @@
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
         update api_scenario
         set original_state=status,
-        status = 'Trash', module_path = null, api_scenario_module_id = null
+        status = 'Trash', module_path = null, api_scenario_module_id = null, delete_user_id = #{operator},delete_time = #{operationTime}
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
@@ -334,7 +334,7 @@
     <update id="reduction">
         update api_scenario
         set
-        status = original_state
+        status = original_state, delete_user_id = null,delete_time = null
         where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
