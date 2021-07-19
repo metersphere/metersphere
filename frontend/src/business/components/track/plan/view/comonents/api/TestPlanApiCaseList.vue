@@ -127,7 +127,7 @@
 
       <!-- 执行组件 -->
       <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
+              @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
 
       <!-- 批量编辑 -->
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
@@ -466,6 +466,9 @@ export default {
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
       });
+    },
+    errorRefresh() {
+      this.rowLoading = "";
     },
     handleBatchEdit() {
       this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
