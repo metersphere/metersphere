@@ -90,12 +90,10 @@ export default {
           this.minutes = Math.round(this.minutes % 60)
           this.time = this.hour + "hour" + this.minutes + "min" + this.seconds + "s"
         }
-
         this.time = (this.seconds) + "s"
       } else {
         this.time = this.totalTime + "ms"
       }
-    },
   },
   computed: {
     options() {

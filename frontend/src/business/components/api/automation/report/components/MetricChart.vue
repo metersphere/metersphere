@@ -130,17 +130,14 @@
       this.initTime();
     },
     methods: {
-      initTime() {
+     initTime() {
         this.time = this.totalTime
         this.seconds = Math.floor(this.time / 1000)
         if (this.seconds >= 1) {
-          if (this.seconds > 60) {
-            this.minutes = Math.round(this.time / 60)
-            this.seconds = Math.round(this.time % 60)
-            this.time = this.minutes + "min" + this.seconds + "s"
-          }
-          if (this.seconds > 60) {
-            this.minutes = Math.round(this.time / 60)
+          if (this.seconds < 60) {
+            this.time = (this.seconds) + "s"
+          }else {
+            this.minutes = Math.round(this.seconds / 60)
             this.seconds = Math.round(this.time % 60)
             this.time = this.minutes + "min" + this.seconds + "s"
           }
@@ -149,11 +146,10 @@
             this.minutes = Math.round(this.minutes % 60)
             this.time = this.hour + "hour" + this.minutes + "min" + this.seconds + "s"
           }
-
-          this.time = (this.seconds) + "s"
         } else {
           this.time = this.totalTime + "ms"
         }
+        console.info('init time:' +this.time)
       },
     },
     computed: {
