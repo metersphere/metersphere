@@ -690,6 +690,7 @@ export default {
   },
   api_test: {
     creator: "創建人",
+    is_continue: "是否繼續",
     save_and_run: "保存並執行",
     run: "執行",
     running: "正在執行",

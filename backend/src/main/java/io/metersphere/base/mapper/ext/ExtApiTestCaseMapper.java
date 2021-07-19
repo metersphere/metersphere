@@ -47,4 +47,7 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCaseDTO> getCannotReductionApiCaseList(@Param("ids") List<String> ids);
 
     List<String> selectCaseIdsByApiIds(@Param("ids")List<String> apiIds);
+
+    List<String> selectNameByIdIn(@Param("ids")List<String> ids);
+    String selectNameById(String id);
 }

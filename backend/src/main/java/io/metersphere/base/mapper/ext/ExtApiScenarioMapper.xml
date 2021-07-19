@@ -292,6 +292,11 @@
         </foreach>
     </select>
 
+    <select id="selectByNoReferenceId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        select * from api_scenario where id not in
+        (SELECT api_scenario_id FROM api_scenario_reference_id)
+    </select>
+
     <select id="selectByIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         select * from api_scenario where id in (${ids}) ORDER BY FIND_IN_SET(id,${oderId})
     </select>
@@ -408,6 +413,21 @@
         from api_scenario
         where project_id = #{projectId}
           and status = 'Trash'
+    </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        select name
+        from api_scenario
+        WHERE id = #{0}
+    </select>
+
+    <select id="selectNameByIdIn" resultType="java.lang.String">
+        select name
+        from api_scenario
+        WHERE id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
     </select>
     <sql id="queryWhereConditionReview">
         <where>
