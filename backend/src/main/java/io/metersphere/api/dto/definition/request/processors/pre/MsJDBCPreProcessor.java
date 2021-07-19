@@ -244,6 +244,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
         jdbcPreProcessor.setProperty(TestElement.TEST_CLASS, JDBCPreProcessor.class.getName());
         jdbcPreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         jdbcPreProcessor.setProperty("MS-ID", this.getId());
+        jdbcPreProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         jdbcPreProcessor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

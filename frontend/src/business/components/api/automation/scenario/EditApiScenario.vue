@@ -457,21 +457,21 @@ export default {
         this.editParent(node.parent, status);
       }
     },
-    findNodeChild(arr, name, index, status) {
+    findNodeChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.name === name && item.data.index === index) {
+        if (item.data.resourceId === resourceId) {
           this.editParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.findNodeChild(item.childNodes, name, index, status);
+          this.findNodeChild(item.childNodes, resourceId, status);
         }
       })
     },
-    findNode(name, index, status) {
+    findNode(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
           if (item.childNodes && item.childNodes.length > 0) {
-            this.findNodeChild(item.childNodes, name, index, status);
+            this.findNodeChild(item.childNodes, resourceId, status);
           }
         })
       }
@@ -521,8 +521,7 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let name = req.name.split('<->')[0];
-              let key = req.id + name;
+              let key = req.resourceId;
               if (resMap.get(key)) {
                 if (resMap.get(key).indexOf(req) === -1) {
                   resMap.get(key).push(req);
@@ -716,18 +715,17 @@ export default {
             arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
         }
-
-        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
-          this.stepSize += arr[i].hashTree.length;
-          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
-        }
         // 添加debug结果
-        let key = arr[i].id + arr[i].name;
+        let key = arr[i].resourceId;
         if (this.debugResult && this.debugResult.get(key)) {
           arr[i].requestResult = this.debugResult.get(key);
           arr[i].result = null;
           arr[i].debug = this.debug;
-          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult[0].success);
+          this.findNode(key, arr[i].requestResult[0].success);
+        }
+        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+          this.stepSize += arr[i].hashTree.length;
+          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
       }
     },
@@ -759,9 +757,9 @@ export default {
           this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
         }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
+        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].resourceId)) {
           this.scenarioDefinition[i].result = null;
-          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
+          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].resourceId);
           this.scenarioDefinition[i].debug = this.debug;
         }
 

@@ -152,9 +152,8 @@ export default {
       if (hashTree) {
         hashTree.forEach(item => {
           if (item.enable) {
-            let key = item.id + item.name;
             let name = item.name ? item.name : item.type;
-            let obj = {resId: key, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+            let obj = {resId: item.resourceId, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
             tree.children.push(obj);
             if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
               obj.unsolicited = false;
@@ -258,14 +257,12 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let name = req.name.split('<->')[0];
-              let key = req.id + name;
-              if (resMap.get(key)) {
-                if (resMap.get(key).indexOf(req) === -1) {
-                  resMap.get(key).push(req);
+              if (resMap.get(req.resourceId)) {
+                if (resMap.get(req.resourceId).indexOf(req) === -1) {
+                  resMap.get(req.resourceId).push(req);
                 }
               } else {
-                resMap.set(key, [req]);
+                resMap.set(req.resourceId, [req]);
               }
               if (req.success) {
                 this.content.success++;
@@ -290,9 +287,9 @@ export default {
       this.reload();
     },
     reload() {
-      this.loading = true
+      this.loading = true;
       this.$nextTick(() => {
-        this.loading = false
+        this.loading = false;
       });
     },
     getReport() {
