@@ -85,7 +85,6 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
             if (request != null) {
                 results.add(request);
             }
-            request.setRequestResult(getRequestResult(request,item));
         }
         scenario.setHashTree(results);
     }
