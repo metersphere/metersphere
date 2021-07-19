@@ -216,12 +216,21 @@ public class NoticeService {
     public String getLogDetails(String id) {
         MessageTask task = messageTaskMapper.selectByPrimaryKey(id);
         if (task == null) {
-            MessageTaskExample example = new MessageTaskExample();
-            example.createCriteria().andIdentificationEqualTo(id);
-            List<MessageTask> tasks = messageTaskMapper.selectByExample(example);
-            List<String> names = tasks.stream().map(MessageTask::getType).collect(Collectors.toList());
-            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), null, String.join(",", names), null, new LinkedList<>());
-            return JSON.toJSONString(details);
+            try {
+                MessageTaskExample example = new MessageTaskExample();
+                example.createCriteria().andIdentificationEqualTo(id);
+                List<MessageTask> tasks = messageTaskMapper.selectByExample(example);
+                List<String> names = tasks.stream().map(MessageTask::getType).collect(Collectors.toList());
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(id), null, String.join(",", names), null, new LinkedList<>());
+                return JSON.toJSONString(details);
+
+            } catch (Exception e) {
+                task = new MessageTask();
+                List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
+                OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(task.getId()), null,
+                        StatusReference.statusMap.containsKey(task.getTaskType()) ? StatusReference.statusMap.get(task.getTaskType()) : task.getTaskType(), task.getUserId(), columns);
+                return JSON.toJSONString(details);
+            }
         }
         if (task != null) {
             List<DetailColumn> columns = ReflexObjectUtil.getColumns(task, SystemReference.messageColumns);
