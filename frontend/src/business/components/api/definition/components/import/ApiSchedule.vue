@@ -54,6 +54,7 @@
     <div class="task-list">
       <swagger-task-list
         @clear="clear"
+        :param="param"
         @rowClick="handleRowClick"
         ref="taskList"/>
     </div>
@@ -79,13 +80,16 @@ export default {
   props: {
     customValidate: {
       type: Function,
-      default: () => {return {pass: true};}
+      default: () => {
+        return {pass: true};
+      }
     },
     isReadOnly: {
       type: Boolean,
       default: false
     },
     moduleOptions: Array,
+    param: Object,
   },
 
   watch: {

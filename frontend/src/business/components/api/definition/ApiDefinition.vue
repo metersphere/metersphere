@@ -175,7 +175,7 @@
 
             <!-- 定时任务 -->
             <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
-              <api-schedule :module-options="nodeTree"/>
+              <api-schedule :param="param" :module-options="nodeTree" ref="apiSchedules"/>
             </div>
 
             <div v-else-if="item.type=== 'MOCK'" class="ms-api-div">
@@ -313,13 +313,24 @@ export default {
       currentModulePath: "",
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
+      param: {},
     };
   },
-  created() {
+  activated() {
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
-      this.trashActiveDom = 'left';
+    }
+    if (this.$route.params.dataSelectRange) {
+      let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
+      if (item !== undefined) {
+        let type = item.taskGroup.toString();
+        if (type === "SWAGGER_IMPORT") {
+          this.handleTabsEdit(this.$t('api_test.api_import.timing_synchronization'), 'SCHEDULE');
+          this.param = item;
+        }
+      }
+
     }
   },
   watch: {

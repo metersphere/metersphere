@@ -61,14 +61,22 @@ export default {
     return {
       tableData: [],
       result: {}
-    }
+    };
+  },
+  props: {
+    param: Object
   },
   methods: {
     search() {
       let projectId = getCurrentProjectID();
       this.result = this.$get("/api/definition/scheduleTask/" + projectId, response => {
         this.tableData = response.data;
-      })
+        response.data.forEach(item => {
+          if (item.taskId === this.param.taskID) {
+            this.handleRowClick(item);
+          }
+        });
+      });
     },
     handleRowClick(row) {
       this.$emit('rowClick', row);
