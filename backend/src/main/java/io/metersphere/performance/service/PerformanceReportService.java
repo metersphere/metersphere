@@ -329,7 +329,7 @@ public class PerformanceReportService {
     public void downloadJtlZip(String reportId, HttpServletResponse response) {
         LoadTestReportWithBLOBs report = getReport(reportId);
         if (StringUtils.isBlank(report.getFileId())) {
-            throw new RuntimeException(Translator.get("load_test_report_file_not_exist"));
+            MSException.throwException(Translator.get("load_test_report_file_not_exist"));
         }
         response.setHeader("Content-Disposition", "attachment;fileName=" + reportId + ".zip");
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
