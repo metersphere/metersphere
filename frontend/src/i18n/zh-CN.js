@@ -689,6 +689,7 @@ export default {
     project_file_update_type_error: '更新的文件类型必须一致',
   },
   api_test: {
+    is_continue: "是否继续",
     creator: "创建人",
     save_and_run: "保存并执行",
     run: "执行",

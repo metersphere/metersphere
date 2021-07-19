@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
+import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
@@ -145,6 +146,10 @@ public class ApiTestCaseController {
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     public void deleteToGcByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteToGcByParam(request);
+    }
+    @PostMapping("/checkDeleteDatas")
+    public DeleteCheckResult checkDeleteDatas(@RequestBody ApiTestBatchRequest request) {
+        return apiTestCaseService.checkDeleteDatas(request);
     }
 
     @PostMapping("/relevance")
