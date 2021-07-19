@@ -780,21 +780,39 @@ export default {
           this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            //let ids = Array.from(this.selectRows).map(row => row.id);
-            let param = {};
-            this.buildBatchParam(param);
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
 
     execute(row) {
@@ -839,23 +857,38 @@ export default {
           this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            // let ids = [row.id];
-            let param = {};
-            this.buildBatchParam(param);
-            param.ids = [row.id];
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              // this.$post('/api/automation/removeToGc/', ids, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        param.ids = [row.id];
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
     openScenario(item) {
       this.$emit('openScenario', item);

@@ -126,6 +126,8 @@ public class ApiAutomationService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private TcpApiParamService tcpApiParamService;
+    @Resource
+    private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -266,6 +268,7 @@ public class ApiAutomationService {
         esbApiParamService.checkScenarioRequests(request);
 
         apiScenarioMapper.insert(scenario);
+        apiScenarioReferenceIdService.saveByApiScenario(scenario);
 
         uploadFiles(request, bodyFiles, scenarioFiles);
 
@@ -361,6 +364,7 @@ public class ApiAutomationService {
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+        apiScenarioReferenceIdService.saveByApiScenario(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
         uploadFiles(request, bodyFiles, scenarioFiles);
     }
@@ -448,6 +452,9 @@ public class ApiAutomationService {
     }
 
     public void preDelete(String scenarioId) {
+        //删除引用
+        apiScenarioReferenceIdService.deleteByScenarioId(scenarioId);
+
         List<String> ids = new ArrayList<>();
         ids.add(scenarioId);
         deleteApiScenarioReport(ids);
@@ -1617,6 +1624,7 @@ public class ApiAutomationService {
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
+        apiScenarioReferenceIdService.saveByApiScenario(apiScenarioWithBLOBs);
     }
 
     public void bathEditEnv(ApiScenarioBatchRequest request) {
@@ -1629,6 +1637,7 @@ public class ApiAutomationService {
                     item.setScenarioDefinition(JSONObject.toJSONString(object));
                 }
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
+                apiScenarioReferenceIdService.saveByApiScenario(item);
             });
         }
     }
@@ -1645,6 +1654,7 @@ public class ApiAutomationService {
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
             scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
             batchMapper.insert(scenarioWithBLOBs);
+            apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         } else {
             //如果存在则修改
             scenarioWithBLOBs.setId(sameRequest.get(0).getId());
@@ -1652,6 +1662,7 @@ public class ApiAutomationService {
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
             scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
             batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
+            apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         }
     }
 
@@ -1710,6 +1721,7 @@ public class ApiAutomationService {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
                 batchMapper.insert(scenarioWithBLOBs);
+                apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             }
 
         } else {
@@ -1900,6 +1912,7 @@ public class ApiAutomationService {
                     String newDefinition = JSON.toJSONString(object);
                     scenario.setScenarioDefinition(newDefinition);
                     apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+                    apiScenarioReferenceIdService.saveByApiScenario(scenario);
                 }
             }
         });
@@ -2215,10 +2228,18 @@ public class ApiAutomationService {
                     updateModel.setId(scenario.getId());
                     updateModel.setUseUrl(JSONArray.toJSONString(useUrl));
                     apiScenarioMapper.updateByPrimaryKeySelective(updateModel);
+                    apiScenarioReferenceIdService.saveByApiScenario(updateModel);
                     updateModel = null;
                 }
             }
             scenario = null;
+        }
+    }
+
+    public void checkApiScenarioReferenceId(){
+        List<ApiScenarioWithBLOBs> scenarioNoRefs = extApiScenarioMapper.selectByNoReferenceId();
+        for (ApiScenarioWithBLOBs model :scenarioNoRefs) {
+            apiScenarioReferenceIdService.saveByApiScenario(model);
         }
     }
 
@@ -2288,9 +2309,61 @@ public class ApiAutomationService {
 
                 if (insertFlag) {
                     apiScenarioMapper.insert(newModel);
+                    apiScenarioReferenceIdService.saveByApiScenario(newModel);
                 }
             }
         }
 //        uploadFiles(request, bodyFiles, scenarioFiles);
+    }
+
+    public DeleteCheckResult checkBeforeDelete(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        List<String> deleteIds = request.getIds();
+        DeleteCheckResult result = new DeleteCheckResult();
+        List<String> checkMsgList = new ArrayList<>();
+
+        if(CollectionUtils.isNotEmpty(deleteIds)){
+            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds,MsTestElementConstants.REF.name());
+            if(CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)){
+                Map<String,List<String>> scenarioDic = new HashMap<>();
+                apiScenarioReferenceIdList.forEach( item ->{
+                    String refreceID = item.getReferenceId();
+                    String scenarioId = item.getApiScenarioId();
+                    if(scenarioDic.containsKey(refreceID)){
+                        scenarioDic.get(refreceID).add(scenarioId);
+                    }else {
+                        List<String> list = new ArrayList<>();
+                        list.add(scenarioId);
+                        scenarioDic.put(refreceID,list);
+                    }
+                });
+
+                for (Map.Entry<String,List<String>> entry : scenarioDic.entrySet()){
+                    String refreceId = entry.getKey();
+                    List<String> scenarioIdList = entry.getValue();
+                    if(CollectionUtils.isNotEmpty(scenarioIdList)){
+                        String  deleteScenarioName= extApiScenarioMapper.selectNameById(refreceId);
+                        List<String> scenarioNames = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
+
+                        if(StringUtils.isNotEmpty(deleteScenarioName) && CollectionUtils.isNotEmpty(scenarioNames)){
+                            String nameListStr = "【";
+                            for (String name : scenarioNames) {
+                                nameListStr+= name +",";
+                            }
+                            if(nameListStr.length() > 1){
+                                nameListStr = nameListStr.substring(0,nameListStr.length()-1) + "】";
+                            }
+                            String msg = deleteScenarioName+" "+Translator.get("delete_check_reference_by")+": "+nameListStr+" ";
+                            checkMsgList.add(msg);
+                        }
+                    }
+                }
+            }
+        }
+
+        result.setDeleteFlag(checkMsgList.isEmpty());
+        result.setCheckMsg(checkMsgList);
+        return result;
     }
 }

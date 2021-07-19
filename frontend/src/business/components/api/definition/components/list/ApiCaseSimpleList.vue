@@ -549,25 +549,43 @@ export default {
       });
     },
     handleDeleteToGcBatch() {
-      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let obj = {};
-            obj.projectId = this.projectId;
-            obj.selectAllDate = this.selectAll;
-            obj.unSelectIds = this.unSelection;
-            obj.ids = Array.from(this.selectRows).map(row => row.id);
-            obj = Object.assign(obj, this.condition);
-            this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
-              // this.$emit('refreshTable');
-              this.$refs.caseTable.clearSelectRows();
-              this.initTable();
-              this.$success(this.$t('commons.delete_success'));
-            });
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = this.selectAll;
+      obj.unSelectIds = this.unSelection;
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj = Object.assign(obj, this.condition);
+      this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
+        let checkResult = response.data;
+        let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+        if (!checkResult.deleteFlag) {
+          alertMsg = "";
+          checkResult.checkMsg.forEach(item => {
+            alertMsg += item + ";";
+          });
+          if (alertMsg === "") {
+            alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+          } else {
+            alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
+
+        this.$alert(alertMsg, '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+
+              this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
+                this.$refs.caseTable.clearSelectRows();
+                this.initTable();
+                this.$success(this.$t('commons.delete_success'));
+              });
+            }
+          }
+        });
       });
+
+
     },
     handleEditBatch() {
       if (this.currentProtocol == 'HTTP') {
@@ -612,18 +630,39 @@ export default {
       return;
     },
     deleteToGc(apiCase){
-      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
-              // this.$emit('refreshTable');
-              this.$success(this.$t('commons.delete_success'));
-              this.initTable();
 
-            });
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = false;
+      obj.ids = [apiCase.id]
+      obj = Object.assign(obj, this.condition);
+      this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
+        let checkResult = response.data;
+        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
+        if (!checkResult.deleteFlag) {
+          alertMsg = "";
+          checkResult.checkMsg.forEach(item => {
+            alertMsg += item + ";";
+          });
+          if (alertMsg === "") {
+            alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
+          } else {
+            alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
+
+        this.$alert(alertMsg, '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.initTable();
+
+              });
+            }
+          }
+        });
       });
     },
     reduction(row) {

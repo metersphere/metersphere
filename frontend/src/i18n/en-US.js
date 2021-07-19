@@ -689,6 +689,7 @@ export default {
     },
   },
   api_test: {
+    is_continue: "Is continue",
     creator: "Creator",
     save_and_run: "Save and Run",
     run: "Run",
