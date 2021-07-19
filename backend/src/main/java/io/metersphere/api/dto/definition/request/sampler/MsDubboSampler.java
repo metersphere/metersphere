@@ -141,6 +141,7 @@ public class MsDubboSampler extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
