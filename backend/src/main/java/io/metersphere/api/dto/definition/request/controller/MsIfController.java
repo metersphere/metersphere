@@ -76,25 +76,29 @@ public class MsIfController extends MsTestElement {
     }
 
     public String getContentValue() {
-        String content = this.variable;
-        Pattern regex = Pattern.compile("\\$\\{([^}]*)\\}");
-        Matcher matcher = regex.matcher(content);
-        StringBuilder stringBuilder = new StringBuilder();
-        while (matcher.find()) {
-            stringBuilder.append(matcher.group(1) + ",");
+        try {
+            String content = this.variable;
+            Pattern regex = Pattern.compile("\\$\\{([^}]*)\\}");
+            Matcher matcher = regex.matcher(content);
+            StringBuilder stringBuilder = new StringBuilder();
+            while (matcher.find()) {
+                stringBuilder.append(matcher.group(1) + ",");
+            }
+            if (stringBuilder.length() > 0) {
+                stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            }
+            if (StringUtils.isEmpty(stringBuilder.toString())) {
+                return this.variable;
+            }
+            return stringBuilder.toString();
+        } catch (Exception e) {
+            return null;
         }
-        if (stringBuilder.length() > 0) {
-            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
-        }
-        if (StringUtils.isEmpty(stringBuilder.toString())) {
-            return this.variable;
-        }
-        return stringBuilder.toString();
     }
 
     public String getCondition() {
         String key = getContentValue();
-        String variable = key.equals(this.variable) ? "\"" + this.variable + "\"" : "vars.get('" + key + "')";
+        String variable = (StringUtils.isEmpty(key) || key.equals(this.variable)) ? "\"" + this.variable + "\"" : "vars.get('" + key + "')";
         String operator = this.operator;
         String value;
         if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
