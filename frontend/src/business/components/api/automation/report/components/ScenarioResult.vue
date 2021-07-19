@@ -1,6 +1,6 @@
 <template>
   <div class="scenario-result">
-    <div v-if="node.children && node.children.length >0 ">
+    <div v-if="(node.children && node.children.length >0) || node.unsolicited">
       <el-card class="ms-card">
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner"> {{ node.index }}</div>

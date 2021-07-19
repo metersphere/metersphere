@@ -14,6 +14,7 @@ import io.metersphere.controller.request.group.EditGroupUserRequest;
 import io.metersphere.dto.GroupDTO;
 import io.metersphere.dto.GroupPermissionDTO;
 import io.metersphere.service.GroupService;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -29,7 +30,7 @@ public class GroupController {
     private GroupService groupService;
 
     @PostMapping("/get/{goPage}/{pageSize}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
+    @RequiresPermissions(value= {PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.ORGANIZATION_GROUP_READ}, logical = Logical.OR)
     public Pager<List<GroupDTO>> getGroupList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EditGroupRequest request) {
         request.setGoPage(goPage);
         request.setPageSize(pageSize);
@@ -42,25 +43,25 @@ public class GroupController {
     }
 
     @PostMapping("/get")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ, PermissionConstants.ORGANIZATION_GROUP_READ}, logical = Logical.OR)
     public List<Group> getGroupByType(@RequestBody EditGroupRequest request) {
         return groupService.getGroupByType(request);
     }
 
     @PostMapping("/add")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_CREATE)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_CREATE, PermissionConstants.ORGANIZATION_GROUP_READ_CREATE}, logical = Logical.OR)
     public Group addGroup(@RequestBody EditGroupRequest request) {
         return groupService.addGroup(request);
     }
 
     @PostMapping("/edit")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_EDIT)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_EDIT, PermissionConstants.ORGANIZATION_GROUP_READ_EDIT}, logical = Logical.OR)
     public void editGroup(@RequestBody EditGroupRequest request) {
         groupService.editGroup(request);
     }
 
     @GetMapping("/delete/{id}")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_DELETE)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_DELETE, PermissionConstants.ORGANIZATION_GROUP_READ_DELETE}, logical = Logical.OR)
     public void deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
     }
@@ -71,7 +72,7 @@ public class GroupController {
     }
 
     @PostMapping("/permission/edit")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ_SETTING_PERMISSION)
+    @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_SETTING_PERMISSION, PermissionConstants.ORGANIZATION_GROUP_READ_SETTING_PERMISSION}, logical = Logical.OR)
     public void editGroupPermission(@RequestBody EditGroupRequest editGroupRequest) {
         groupService.editGroupPermission(editGroupRequest);
     }
@@ -82,7 +83,6 @@ public class GroupController {
     }
 
     @PostMapping("/list")
-    @RequiresPermissions(PermissionConstants.SYSTEM_GROUP_READ)
     public List<Group> getGroupsByType(@RequestBody GroupRequest request) {
         return groupService.getGroupsByType(request);
     }

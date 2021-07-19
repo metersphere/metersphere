@@ -456,6 +456,8 @@ public class TestPlanService {
 
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
+        List<TestCase> testCaseList = testCaseMapper.selectByExample(testCaseExample);
+        Map<String, String> userMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, TestCase::getMaintainer));
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
@@ -464,7 +466,7 @@ public class TestPlanService {
             TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
             testPlanTestCase.setId(UUID.randomUUID().toString());
             testPlanTestCase.setCreateUser(SessionUtils.getUserId());
-            testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
+            testPlanTestCase.setExecutor(userMap.get(caseId) == null ? SessionUtils.getUserId() : userMap.get(caseId));
             testPlanTestCase.setCaseId(caseId);
             testPlanTestCase.setCreateTime(System.currentTimeMillis());
             testPlanTestCase.setUpdateTime(System.currentTimeMillis());
@@ -522,20 +524,23 @@ public class TestPlanService {
                         if (StringUtils.equals(l.getTestType(), TestCaseStatus.automation.name())) {
                             TestPlanApiScenario t = new TestPlanApiScenario();
                             ApiScenarioWithBLOBs testPlanApiScenario = apiScenarioMapper.selectByPrimaryKey(l.getTestId());
-                            t.setId(UUID.randomUUID().toString());
-                            t.setTestPlanId(request.getPlanId());
-                            t.setApiScenarioId(l.getTestId());
-                            t.setLastResult(testPlanApiScenario.getLastResult());
-                            t.setPassRate(testPlanApiScenario.getPassRate());
-                            t.setReportId(testPlanApiScenario.getReportId());
-                            t.setStatus(testPlanApiScenario.getStatus());
-                            t.setCreateTime(System.currentTimeMillis());
-                            t.setUpdateTime(System.currentTimeMillis());
-                            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
-                            if (testPlanApiScenarioMapper.countByExample(example) <= 0) {
-                                testPlanApiScenarioMapper.insert(t);
+                            if (testPlanApiScenario != null) {
+                                t.setId(UUID.randomUUID().toString());
+                                t.setTestPlanId(request.getPlanId());
+                                t.setApiScenarioId(l.getTestId());
+                                t.setLastResult(testPlanApiScenario.getLastResult());
+                                t.setPassRate(testPlanApiScenario.getPassRate());
+                                t.setReportId(testPlanApiScenario.getReportId());
+                                t.setStatus(testPlanApiScenario.getStatus());
+                                t.setCreateTime(System.currentTimeMillis());
+                                t.setUpdateTime(System.currentTimeMillis());
+                                TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+                                example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
+                                if (testPlanApiScenarioMapper.countByExample(example) <= 0) {
+                                    testPlanApiScenarioMapper.insert(t);
+                                }
                             }
+
                         }
                     });
                 });

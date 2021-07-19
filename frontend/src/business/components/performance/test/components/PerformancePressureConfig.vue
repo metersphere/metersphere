@@ -89,7 +89,7 @@
                     size="mini"/>
                 </el-form-item>
                 <el-form-item>
-                  <el-radio-group v-model="threadGroup.unit">
+                  <el-radio-group v-model="threadGroup.unit" @change="changeUnit(threadGroup)">
                     <el-radio label="S">{{ $t('schedule.cron.seconds') }}</el-radio>
                     <el-radio label="M">{{ $t('schedule.cron.minutes') }}</el-radio>
                     <el-radio label="H">{{ $t('schedule.cron.hours') }}</el-radio>
@@ -113,7 +113,8 @@
                     <el-input-number
                       :disabled="isReadOnly"
                       :min="1"
-                      :max="threadGroup.duration"
+                      v-if="rampUpTimeVisible"
+                      :max="getDuration(threadGroup)"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart()"
                       size="mini"/>
@@ -134,8 +135,9 @@
                   <el-form-item :label="$t('load_test.ramp_up_time_within')">
                     <el-input-number
                       :disabled="isReadOnly"
+                      v-if="rampUpTimeVisible"
                       :min="1"
-                      :max="threadGroup.duration"
+                      :max="getDuration(threadGroup)"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart()"
                       size="mini"/>
@@ -251,6 +253,7 @@ export default {
       autoStop: false,
       autoStopDelay: 30,
       isReadOnly: false,
+      rampUpTimeVisible: true,
     };
   },
   mounted() {
@@ -294,6 +297,7 @@ export default {
       this.$get('/performance/get-load-config/' + this.testId, (response) => {
         if (response.data) {
           let data = JSON.parse(response.data);
+          let oldVersion;
           for (let i = 0; i < data.length; i++) {
             let d = data[i];
             d.forEach(item => {
@@ -309,6 +313,7 @@ export default {
                   break;
                 case DURATION:
                   this.threadGroups[i].duration = item.value;
+                  oldVersion = item.unit;
                   break;
                 case UNIT:
                   this.threadGroups[i].unit = item.value;
@@ -361,6 +366,23 @@ export default {
               this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
             });
           }
+          for (let i = 0; i < this.threadGroups.length; i++) {
+            // 处理老版本的问题
+            if (oldVersion) {
+              break;
+            }
+            // 恢复成单位需要的值
+            switch (this.threadGroups[i].unit) {
+              case 'M':
+                this.threadGroups[i].duration = this.threadGroups[i].duration / 60;
+                break;
+              case 'H':
+                this.threadGroups[i].duration = this.threadGroups[i].duration / 60 / 60;
+                break;
+              default:
+                break;
+            }
+          }
           this.calculateTotalChart();
         }
       });
@@ -398,13 +420,15 @@ export default {
       }
     },
     calculateTotalChart() {
+      this.rampUpTimeVisible = false;
+      this.$nextTick(() => {
+        this.rampUpTimeVisible = true;
+        this._calculateTotalChart();
+      });
+    },
+    _calculateTotalChart() {
       let handler = this;
-      if (handler.duration < handler.rampUpTime) {
-        handler.rampUpTime = handler.duration;
-      }
-      if (handler.rampUpTime < handler.step) {
-        handler.step = handler.rampUpTime;
-      }
+
       let color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
       handler.options = {
         color: color,
@@ -423,23 +447,26 @@ export default {
       };
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
-        if (handler.threadGroups[i].enabled === 'false' ||
-          handler.threadGroups[i].deleted === 'true' ||
-          handler.threadGroups[i].threadType === 'ITERATION') {
+        let tg = handler.threadGroups[i];
+
+        if (tg.enabled === 'false' ||
+          tg.deleted === 'true' ||
+          tg.threadType === 'ITERATION') {
           continue;
         }
+        if (tg.duration < tg.rampUpTime) {
+          tg.rampUpTime = tg.duration;
+        }
+        if (tg.rampUpTime < tg.step) {
+          tg.step = tg.rampUpTime;
+        }
         let seriesData = {
-          name: handler.threadGroups[i].attributes.testname,
+          name: tg.attributes.testname,
           data: [],
           type: 'line',
           smooth: false,
           symbolSize: 5,
           showSymbol: false,
-          lineStyle: {
-            normal: {
-              width: 1
-            }
-          },
           areaStyle: {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
@@ -462,7 +489,6 @@ export default {
           },
         };
 
-        let tg = handler.threadGroups[i];
 
         let timePeriod = Math.floor(tg.rampUpTime / tg.step);
         let timeInc = timePeriod;
@@ -471,7 +497,20 @@ export default {
         let threadInc1 = Math.floor(tg.threadNumber / tg.step);
         let threadInc2 = Math.ceil(tg.threadNumber / tg.step);
         let inc2count = tg.threadNumber - tg.step * threadInc1;
-        for (let j = 0; j <= tg.duration; j++) {
+
+        let times = 1;
+        switch (tg.unit) {
+          case 'M':
+            times *= 60;
+            break;
+          case 'H':
+            times *= 3600;
+            break;
+          default:
+            break;
+        }
+        let duration = tg.duration * times;
+        for (let j = 0; j <= duration; j++) {
           // x 轴
           let xAxis = handler.options.xAxis.data;
           if (xAxis.indexOf(j) < 0) {
@@ -481,13 +520,15 @@ export default {
             seriesData.step = undefined;
 
             if (j === 0) {
-              seriesData.data.push([0, 0]);
+              seriesData.data.push(['0', 0]);
             }
             if (j >= tg.rampUpTime) {
-              xAxis.push(tg.duration);
+              if (xAxis.indexOf(duration) < 0) {
+                xAxis.push(duration);
+              }
 
-              seriesData.data.push([j, tg.threadNumber]);
-              seriesData.data.push([tg.duration, tg.threadNumber]);
+              seriesData.data.push([j + '', tg.threadNumber]);
+              seriesData.data.push([duration + '', tg.threadNumber]);
               break;
             }
           } else {
@@ -503,129 +544,23 @@ export default {
               if (threadPeriod > tg.threadNumber) {
                 threadPeriod = tg.threadNumber;
                 // 预热结束
-                xAxis.push(tg.duration);
-                seriesData.data.push([tg.duration, threadPeriod]);
+                if (xAxis.indexOf(duration) < 0) {
+                  xAxis.push(duration);
+                }
+
+                seriesData.data.push([j + '', threadPeriod]);
+                seriesData.data.push([duration + '', threadPeriod]);
                 break;
               }
             }
-            seriesData.data.push([j, threadPeriod]);
+            seriesData.data.push([j + '', threadPeriod]);
           }
         }
+        // x 轴排序
+        handler.options.xAxis.data = handler.options.xAxis.data.sort((a, b) => a - b);
         handler.options.series.push(seriesData);
       }
-    },
-    calculateChart(threadGroup) {
-      let handler = this;
-      if (threadGroup) {
-        handler = threadGroup;
-      }
-      if (handler.duration < handler.rampUpTime) {
-        handler.rampUpTime = handler.duration;
-      }
-      if (handler.rampUpTime < handler.step) {
-        handler.step = handler.rampUpTime;
-      }
-
-      handler.options = {
-        xAxis: {
-          type: 'category',
-          boundaryGap: false,
-          data: []
-        },
-        yAxis: {
-          type: 'value'
-        },
-        tooltip: {
-          trigger: 'axis',
-          formatter: '{a}: {c0}',
-          axisPointer: {
-            lineStyle: {
-              color: '#57617B'
-            }
-          }
-        },
-        series: [{
-          name: 'User',
-          data: [],
-          type: 'line',
-          step: 'start',
-          smooth: false,
-          symbolSize: 5,
-          showSymbol: false,
-          lineStyle: {
-            normal: {
-              width: 1
-            }
-          },
-          areaStyle: {
-            normal: {
-              color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
-                offset: 0,
-                color: 'rgba(137, 189, 27, 0.3)'
-              }, {
-                offset: 0.8,
-                color: 'rgba(137, 189, 27, 0)'
-              }], false),
-              shadowColor: 'rgba(0, 0, 0, 0.1)',
-              shadowBlur: 10
-            }
-          },
-          itemStyle: {
-            normal: {
-              color: 'rgb(137,189,27)',
-              borderColor: 'rgba(137,189,2,0.27)',
-              borderWidth: 12
-            }
-          },
-        }]
-      };
-      let timePeriod = Math.floor(handler.rampUpTime / handler.step);
-      let timeInc = timePeriod;
-
-      let threadPeriod = Math.floor(handler.threadNumber / handler.step);
-      let threadInc1 = Math.floor(handler.threadNumber / handler.step);
-      let threadInc2 = Math.ceil(handler.threadNumber / handler.step);
-      let inc2count = handler.threadNumber - handler.step * threadInc1;
-      for (let i = 0; i <= handler.duration; i++) {
-        // x 轴
-        handler.options.xAxis.data.push(i);
-
-        if (handler.tgType === 'ThreadGroup') {
-          handler.options.series[0].step = undefined;
-
-          if (i === 0) {
-            handler.options.series[0].data.push([0, 0]);
-          }
-          if (i >= handler.rampUpTime) {
-            handler.options.xAxis.data.push(handler.duration);
-
-            handler.options.series[0].data.push([i, handler.threadNumber]);
-            handler.options.series[0].data.push([handler.duration, handler.threadNumber]);
-            break;
-          }
-        } else {
-          handler.options.series[0].step = 'start';
-          if (i > timePeriod) {
-            timePeriod += timeInc;
-            if (inc2count > 0) {
-              threadPeriod = threadPeriod + threadInc2;
-              inc2count--;
-            } else {
-              threadPeriod = threadPeriod + threadInc1;
-            }
-            if (threadPeriod > handler.threadNumber) {
-              threadPeriod = handler.threadNumber;
-              handler.options.xAxis.data.push(handler.duration);
-              handler.options.series[0].data.push([handler.duration, handler.threadNumber]);
-              break;
-            }
-            handler.options.series[0].data.push([i, threadPeriod]);
-          } else {
-            handler.options.series[0].data.push([i, threadPeriod]);
-          }
-        }
-      }
-      this.calculateTotalChart();
+      // console.log(JSON.stringify(handler.options));
     },
     validConfig() {
       if (!this.resourcePool) {
@@ -652,6 +587,37 @@ export default {
 
       return true;
     },
+    getHold(tg) {
+      if (tg.unit === 'S') {
+        return tg.duration - tg.rampUpTime;
+      }
+      if (tg.unit === 'M') {
+        return tg.duration * 60 - tg.rampUpTime;
+      }
+      if (tg.unit === 'H') {
+        return tg.duration * 60 * 60 - tg.rampUpTime;
+      }
+      return tg.duration - tg.rampUpTime;
+    },
+    getDuration(tg) {
+      if (tg.unit === 'S') {
+        return tg.duration;
+      }
+      if (tg.unit === 'M') {
+        return tg.duration * 60;
+      }
+      if (tg.unit === 'H') {
+        return tg.duration * 60 * 60;
+      }
+      return tg.duration;
+    },
+    changeUnit(tg) {
+      this.rampUpTimeVisible = false;
+      this.$nextTick(() => {
+        this.rampUpTimeVisible = true;
+        this.calculateTotalChart();
+      });
+    },
     getUnitLabel(tg) {
       if (tg.unit === 'S') {
         return this.$t('schedule.cron.seconds');
@@ -675,11 +641,11 @@ export default {
           {key: TARGET_LEVEL, value: this.threadGroups[i].threadNumber},
           {key: RAMP_UP, value: this.threadGroups[i].rampUpTime},
           {key: STEPS, value: this.threadGroups[i].step},
-          {key: DURATION, value: this.threadGroups[i].duration, unit: this.threadGroups[i].unit},
+          {key: DURATION, value: this.getDuration(this.threadGroups[i])},
           {key: UNIT, value: this.threadGroups[i].unit},
           {key: RPS_LIMIT, value: this.threadGroups[i].rpsLimit},
           {key: RPS_LIMIT_ENABLE, value: this.threadGroups[i].rpsLimitEnable},
-          {key: HOLD, value: this.threadGroups[i].duration - this.threadGroups[i].rampUpTime},
+          {key: HOLD, value: this.getHold(this.threadGroups[i])},
           {key: THREAD_TYPE, value: this.threadGroups[i].threadType},
           {key: ITERATE_NUM, value: this.threadGroups[i].iterateNum},
           {key: ITERATE_RAMP_UP, value: this.threadGroups[i].iterateRampUp},

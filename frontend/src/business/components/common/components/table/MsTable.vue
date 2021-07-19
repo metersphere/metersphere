@@ -29,12 +29,16 @@
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-          <show-more-btn :is-show-tool="scope.row.showTool" :is-show="scope.row.showMore" :buttons="batchOperators"
+          <show-more-btn :has-showed="hasBatchTipShow" :is-show="scope.row.showMore" :buttons="batchOperators"
                          :size="selectDataCounts"/>
         </template>
       </el-table-column>
 
-      <el-table-column width="1"/>
+      <el-table-column width="1">
+        <template v-slot:header>
+          <span class="table-column-mark">&nbsp;</span>
+        </template>
+      </el-table-column>
       <slot></slot>
 
       <el-table-column
@@ -109,7 +113,8 @@ export default {
       selectDataCounts: 0,
       selectRows: new Set(),
       selectIds: [],
-      tableActive: true
+      tableActive: true,
+      hasBatchTipShow: false
     };
   },
   props: {
@@ -200,6 +205,36 @@ export default {
     },
   },
   methods: {
+    // 批量操作提示, 第一次勾选提示, 之后不提示
+    // 先添加 batch-popper 样式, 全选后再移除样式, 只保留可见框内第一条数据的提示
+    removeBatchPopper() {
+      let elements = window.document.getElementsByClassName('batch-popper');
+      let tableHeader = window.document.getElementsByClassName('table-column-mark');
+      let columns = window.document.getElementsByClassName('table-more-icon');
+      let tableTop = tableHeader[0].getBoundingClientRect().top;
+      let index = 0;
+      for (let i = 0; i < columns.length; i++) {
+        let column = columns[i];
+        if (this.isScrollShow(column, tableTop)) {
+          index = i;
+          break;
+        }
+      }
+      if (elements) {
+        for (let i = 0; i < elements.length; i++) {
+          if (i == index) {
+            elements[i].classList.remove('batch-popper');
+            setTimeout(() => {
+              this.hasBatchTipShow = true;
+            }, 1500);
+          }
+        }
+      }
+    },
+    isScrollShow(column, tableTop){  //判断元素是否因为超过表头
+      let columnTop = column.getBoundingClientRect().top;
+      return columnTop - tableTop > 30;
+    },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
       setUnSelectIds(this.data, this.condition, this.selectRows);
@@ -207,6 +242,9 @@ export default {
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
       this.$emit('callBackSelectAll',selection);
+      this.$nextTick(function () {
+        setTimeout(this.removeBatchPopper, 1);
+      });
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
@@ -215,6 +253,9 @@ export default {
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
       //有的组件需要回调父组件的函数，做下一步处理
       this.$emit('callBackSelect',selection);
+      this.$nextTick(function () {
+        setTimeout(this.removeBatchPopper, 1);
+      });
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
@@ -229,6 +270,15 @@ export default {
       this.selectIds = Array.from(this.selectRows).map(o => o.id);
     },
     headerDragend(newWidth, oldWidth, column, event) {
+      if(column){
+        if(column.minWidth){
+          let minWidth = column.minWidth;
+          if(minWidth > newWidth){
+            column.width = minWidth;
+            newWidth = minWidth;
+          }
+        }
+      }
       // 保存列宽
       saveCustomTableWidth(this.fieldKey, column.columnKey, newWidth);
     },
@@ -299,6 +349,9 @@ export default {
       this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
       this.reloadTable();
     },
+    toggleRowSelection() {
+      this.$refs.table.toggleRowSelection();
+    },
     reloadTable() {
       this.tableActive = false;
       this.$nextTick(() => {
@@ -310,5 +363,8 @@ export default {
 </script>
 
 <style scoped>
-
+.batch-popper {
+  top: 300px;
+  color: #1FDD02;
+}
 </style>

@@ -110,7 +110,7 @@ export default {
         map.set(dt.id, dt.selectEnv);
       })
       if (!sign) {
-        this.$warning("请为每个项目选择一个运行环境2！");
+        this.$warning("请为每个项目选择一个运行环境！");
         return;
       }
       this.$emit('setProjectEnvMap', map);
@@ -130,7 +130,7 @@ export default {
       }
 
       if (!sign) {
-        this.$warning("请为每个项目选择一个运行环境3！");
+        this.$warning("请为每个项目选择一个运行环境！");
         return false;
       }
       return true;

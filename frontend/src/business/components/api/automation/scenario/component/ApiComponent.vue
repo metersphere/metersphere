@@ -13,16 +13,18 @@
       :is-max="isMax"
       :show-btn="showBtn"
       :title="displayTitle">
+      <template v-slot:message>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
+      </template>
 
       <template v-slot:behindHeaderLeft>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <span class="ms-tag">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
-         <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
-          {{ request.requestResult.success ? 'success' : 'error' }}
+         <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+          {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
       <template v-slot:button>
@@ -81,12 +83,10 @@
                                    :show-options-button="false" :show-header="true" :result="request.requestResult"/>
         </div>
         <div v-else>
-          <api-response-component :currentProtocol="request.protocol" :apiActive="apiActive" :result="request.requestResult"/>
+          <div v-for="(item,i) in request.requestResult" :key="i" style="margin-bottom: 5px">
+            <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+          </div>
         </div>
-        <!-- 保存操作 -->
-        <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)" v-if="!request.referenced">
-          {{ $t('commons.save') }}
-        </el-button>
       </template>
     </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
@@ -401,6 +401,8 @@ export default {
         enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
       };
       this.runData.push(debugData);
+      this.request.requestResult = undefined;
+      this.request.result = undefined;
       /*触发执行操作*/
       this.reportId = getUUID();
     },
@@ -408,7 +410,7 @@ export default {
       this.loading = false;
     },
     runRefresh(data) {
-      this.request.requestResult = data;
+      this.request.requestResult = [data];
       this.request.result = undefined;
       this.loading = false;
       this.$emit('refReload', this.request, this.node);
@@ -458,6 +460,17 @@ export default {
 .ms-btn-flot {
   margin: 20px;
   float: right;
+}
+
+.ms-step-name-api {
+  display: inline-block;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 60px;
 }
 
 .ms-tag {

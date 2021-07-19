@@ -51,6 +51,7 @@ public class TapdClient extends BaseClient {
             url += "&id={5}";
         }
         String fields = "id,title,description,priority,severity,reporter,status";
+        LogUtil.info("ids: " + idStr);
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, getAuthHttpEntity(), String.class,
                 projectId, pageNum, limit, fields, idStr);
         return (TapdGetIssueResponse) getResultForObject(TapdGetIssueResponse.class, response);

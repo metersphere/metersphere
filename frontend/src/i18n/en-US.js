@@ -1,7 +1,9 @@
 export default {
   commons: {
+    project_permission: 'Please add the project permission first',
     failure_continues: "Failure continues",
     full_screen_editing: "Full screen editing",
+    trash: "Trash",
     yes: "yes",
     no: "no",
     default: "default",
@@ -337,7 +339,9 @@ export default {
     none: 'None Workspace',
     select: 'Select Workspace',
     special_characters_are_not_supported: 'Incorrect format (special characters are not supported and cannot end with \'-\')',
-
+    template_manage: "Template Manage",
+    case_template_manage: "Case Template",
+    issue_template_manage: "Issue Template",
   },
   organization: {
     create: 'Create Organization',
@@ -395,6 +399,8 @@ export default {
       input_jira_issuetype: 'Please enter the issue type',
       input_jira_storytype: 'Please enter the story type',
       zentao_url: 'Zentao url',
+      zentao_request: 'Zentao request',
+      input_zentao_request: 'Please enter zentao request type',
       input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
@@ -532,6 +538,7 @@ export default {
     test_plan_report: 'Test Plan Report',
     recent: 'My recent Report',
     search_by_name: 'Search by Name',
+    batch_add_monitor_tips: 'Format: name, IP, Port, description<br/>such as: item 1, 192.168.1.52, 9100, test',
     test_name: 'Test',
     test_overview: 'Test Overview',
     test_request_statistics: 'Test Request Statistics',
@@ -807,6 +814,8 @@ export default {
         auth_config_info: "Request requires permission verification",
         pre_script: "Prescript",
         post_script: "Postscript",
+        pre_sql: "JDBC Preprocessor",
+        post_sql: "JDBC Postprocessor",
         extract_param: "Extract parameters",
         add_module: "Add module",
         edit_api: "Edit Api",
@@ -1170,7 +1179,7 @@ export default {
         pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
         success: "execute success count number / all execute count number * 100%",
         interface_coverage: "api whitch in scenario's step / all api * 100%",
-        review: "reviewd cases / all cases * 100%",
+        review: "reviewed cases / all cases * 100%",
         testplan_coverage: "relevance function cases / all function cases * 100%",
       },
       api_count_card: {
@@ -1662,6 +1671,8 @@ export default {
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
       zentao_bug_assigned: "Zentao handler",
+      update_third_party_bugs: "Update the defects of third-party platforms",
+      sync_bugs: "Synchronization Issue"
     },
     report: {
       name: "Test Plan Report",
@@ -1892,6 +1903,7 @@ export default {
     add_file: "Add file",
     delimiter: "Delimiter",
     format: "Output format",
+    quoted_data: "Whether to allow quotes",
   },
   auth_source: {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',

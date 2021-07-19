@@ -22,6 +22,59 @@
       <ms-main-container>
         <!-- 主框架列表 -->
         <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
+          <el-tab-pane
+            name="trash"
+            :label="$t('commons.trash')" v-if="trashEnable">
+            <ms-tab-button
+              v-if="this.trashTabInfo.type === 'list'"
+              :active-dom.sync="trashActiveDom"
+              :left-tip="$t('api_test.definition.api_title')"
+              :right-tip="$t('api_test.definition.case_title')"
+              :middle-button-enable="false"
+              left-content="API"
+              right-content="CASE"
+              >
+              <!-- 列表集合 -->
+              <ms-api-list
+                v-if="trashActiveDom==='left'"
+                @runTest="runTest"
+                @refreshTree="refreshTree"
+                :module-tree="nodeTree"
+                :module-options="moduleOptions"
+                :current-protocol="currentProtocol"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="true"
+                :queryDataType="queryDataType"
+                :selectDataRange="selectDataRange"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @editApi="editApi"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
+                @refreshTable="refresh"
+                :init-api-table-opretion="initApiTableOpretion"
+                @updateInitApiTableOpretion="updateInitApiTableOpretion"
+                ref="trashApiList"/>
+              <!--测试用例列表-->
+              <api-case-simple-list
+                v-if="trashActiveDom==='right'"
+                :current-protocol="currentProtocol"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="true"
+                :queryDataType="queryDataType"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @handleCase="handleCase"
+                @refreshTable="refresh"
+                @showExecResult="showExecResult"
+                ref="trashCaseList"/>
+            </ms-tab-button>
+          </el-tab-pane>
+
           <el-tab-pane v-for="(item) in apiTabs"
                        :key="item.name"
                        :label="item.title"
@@ -47,7 +100,7 @@
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
-                :trash-enable="trashEnable"
+                :trash-enable="false"
                 :queryDataType="queryDataType"
                 :selectDataRange="selectDataRange"
                 :is-read-only="isReadOnly"
@@ -58,7 +111,7 @@
                 @refreshTable="refresh"
                 :init-api-table-opretion="initApiTableOpretion"
                 @updateInitApiTableOpretion="updateInitApiTableOpretion"
-                ref="apiList"/>
+                ref="apiDefList"/>
               <!--测试用例列表-->
               <api-case-simple-list
                 v-if="activeDom==='middle'"
@@ -66,13 +119,13 @@
                 :visible="visible"
                 :currentRow="currentRow"
                 :select-node-ids="selectNodeIds"
-                :trash-enable="trashEnable"
+                :trash-enable="false"
                 :queryDataType="queryDataType"
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
-                ref="apiList"/>
+                ref="caseList"/>
               <api-documents-page class="api-doc-page"
                                   v-if="activeDom==='right'"
                                   :project-id="projectId"
@@ -247,7 +300,14 @@ export default {
         type: "list",
         closable: false
       }],
+      trashTabInfo: {
+        title: this.$t('api_test.definition.api_title'),
+        name: 'default',
+        type: "list",
+        closable: false
+      },
       activeDom: "left",
+      trashActiveDom: "left",
       syncTabs: [],
       nodeTree: [],
       currentModulePath: "",
@@ -259,6 +319,7 @@ export default {
     let dataRange = this.$route.params.dataSelectRange;
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
+      this.trashActiveDom = 'left';
     }
   },
   watch: {
@@ -309,6 +370,13 @@ export default {
     addTab(tab) {
       if (tab.name === 'add') {
         this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+      }else if(tab.name === 'trash'){
+        if(this.$refs.trashApiList){
+          this.$refs.trashApiList.initTable();
+        }
+        if(this.$refs.trashCaseList){
+          this.$refs.trashCaseList.initTable();
+        }
       }
       if (this.$refs.apiConfig) {
         this.$refs.apiConfig.forEach(item => {
@@ -456,13 +524,25 @@ export default {
         this.$warning('用例列表暂不支持导出，请切换成接口列表');
         return;
       }
-      this.$refs.apiList[0].exportApi(type);
+      this.$refs.apiDefList[0].exportApi(type);
     },
     refreshModule() {
       this.$refs.nodeTree.list();
     },
     refresh(data) {
-      this.$refs.apiList[0].initTable(data);
+      if(this.$refs.caseList && this.$refs.caseList[0]){
+        this.$refs.caseList[0].initTable();
+      }
+      if(this.$refs.trashApiList){
+        this.$refs.trashApiList.initTable();
+      }
+      if(this.$refs.trashCaseList){
+        this.$refs.trashCaseList.initTable();
+      }
+      if(this.$refs.apiDefList && this.$refs.apiDefList[0]){
+        this.$refs.apiDefList[0].initTable();
+      }
+
       //this.$refs.nodeTree.list();
     },
     refreshTree() {
@@ -513,6 +593,11 @@ export default {
     enableTrash(data) {
       this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
+      if(data){
+        this.apiDefaultTab = "trash";
+      }else {
+        this.apiDefaultTab = "default"
+      }
     },
     updateInitApiTableOpretion(param){
       this.initApiTableOpretion = param;

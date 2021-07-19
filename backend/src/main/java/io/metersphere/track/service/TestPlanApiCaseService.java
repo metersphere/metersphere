@@ -92,8 +92,23 @@ public class TestPlanApiCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
-        apiTestCaseService.buildUserInfo(apiTestCases);
+        buildUserInfo(apiTestCases);
         return apiTestCases;
+    }
+
+    public void buildUserInfo(List<? extends TestPlanApiCaseDTO> apiTestCases) {
+        List<String> userIds = new ArrayList();
+        userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getCreateUser).collect(Collectors.toList()));
+        userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getUpdateUser).collect(Collectors.toList()));
+        userIds.addAll(apiTestCases.stream().map(TestPlanApiCaseDTO::getUserId).collect(Collectors.toList()));
+        if (!org.apache.commons.collections.CollectionUtils.isEmpty(userIds)) {
+            Map<String, String> userMap = ServiceUtils.getUserNameMap(userIds);
+            apiTestCases.forEach(caseResult -> {
+                caseResult.setCreatorName(userMap.get(caseResult.getCreateUser()));
+                caseResult.setUpdateName(userMap.get(caseResult.getUpdateUser()));
+                caseResult.setPrincipalName(userMap.get(caseResult.getUserId()));
+            });
+        }
     }
 
     public List<String> selectIds(ApiTestCaseRequest request) {

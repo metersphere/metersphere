@@ -28,7 +28,6 @@ import io.metersphere.log.vo.performance.PerformanceReference;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
-import io.metersphere.performance.engine.producer.LoadTestProducer;
 import io.metersphere.performance.request.*;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
@@ -45,7 +44,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -87,8 +85,6 @@ public class PerformanceTestService {
     private TestCaseService testCaseService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private LoadTestProducer loadTestProducer;
     @Resource
     private ApiAutomationService apiAutomationService;
 
@@ -318,15 +314,11 @@ public class PerformanceTestService {
                 //1,建立tcp
                 String ip = ipAndPort[0];
                 int port = Integer.parseInt(ipAndPort[1]);
-                Socket soc = new Socket();
-                soc.connect(new InetSocketAddress(ip, port), 1000); // 1s timeout
-                //2.输入内容
-                String content = "1010";
-                byte[] bs = content.getBytes();
-                OutputStream os = soc.getOutputStream();
-                os.write(bs);
-                //3.关闭
-                soc.close();
+                try (
+                        Socket soc = new Socket();
+                ) {
+                    soc.connect(new InetSocketAddress(ip, port), 1000); // 1s timeout
+                }
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
@@ -527,8 +519,6 @@ public class PerformanceTestService {
             performanceReportService.deleteReport(reportId);
         } else {
             stopEngine(reportId);
-            // 发送测试停止消息
-            loadTestProducer.sendMessage(reportId);
             // 停止测试之后设置报告的状态
             performanceReportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
         }

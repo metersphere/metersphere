@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import Crontab from "../cron/Crontab";
 import CrontabResult from "../cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
@@ -112,7 +112,7 @@ export default {
     initUserList() {
       let param = {
         name: '',
-        organizationId: this.currentUser().lastOrganizationId
+        organizationId: getCurrentOrganizationId()
       };
 
       this.result = this.$post('user/org/member/list/all', param, response => {

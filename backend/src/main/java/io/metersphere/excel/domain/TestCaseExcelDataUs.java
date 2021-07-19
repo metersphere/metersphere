@@ -2,12 +2,17 @@ package io.metersphere.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.excel.annotation.NotRequired;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.Length;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Data
@@ -34,15 +39,6 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @ColumnWidth(30)
     @Pattern(regexp = "^(?!.*//).*$", message = "{incorrect_format}")
     private String nodePath;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("Maintainer")
-    private String maintainer;
-
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("Priority")
-    @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
-    private String priority;
 
     @ColumnWidth(50)
     @ExcelProperty("Tag")
@@ -72,12 +68,77 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     private String stepResult;
 
     @ColumnWidth(50)
-    @ExcelProperty("Case status")
-    private String status;
-
-    @ColumnWidth(50)
     @ExcelProperty("Edit Model")
     @NotRequired
     @Pattern(regexp = "(^TEXT$)|(^STEP$)", message = "{test_case_step_model_validate}")
     private String stepModel;
+
+    @ColumnWidth(50)
+    @ExcelProperty("Case status")
+    private String status;
+
+    @ExcelProperty("Priority")
+    @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
+    private String priority;
+
+    @ExcelProperty("Maintainer")
+    private String maintainer;
+
+    @Override
+    public List<List<String>> getHead(boolean needNum, List<CustomFieldDao> customFields){
+        List<List<String>> returnList = new ArrayList<>();
+        if(needNum){
+            List<String> list = new ArrayList<>();
+            list.add("ID");
+            returnList.add(list);
+        }
+
+        List<String> list1 = new ArrayList<>();
+        list1.add("Name");
+        returnList.add(list1);
+
+        List<String> list2 = new ArrayList<>();
+        list2.add("Module");
+        returnList.add(list2);
+
+        List<String> list3 = new ArrayList<>();
+        list3.add("Tag");
+        returnList.add(list3);
+
+        List<String> list4 = new ArrayList<>();
+        list4.add("Prerequisite");
+        returnList.add(list4);
+
+        List<String> list5 = new ArrayList<>();
+        list5.add("Remark");
+        returnList.add(list5);
+
+        List<String> list6 = new ArrayList<>();
+        list6.add("Step description");
+        returnList.add(list6);
+
+        List<String> list7 = new ArrayList<>();
+        list7.add("Step result");
+        returnList.add(list7);
+
+        List<String> list8 = new ArrayList<>();
+        list8.add("Edit Model");
+        returnList.add(list8);
+
+        List<String> list9 = new ArrayList<>();
+        list9.add("Priority");
+        returnList.add(list9);
+
+        if(CollectionUtils.isNotEmpty(customFields)){
+            for (CustomFieldDao dto:customFields) {
+                if(StringUtils.equals(dto.getName(),"Priority")){
+                    continue;
+                }
+                List<String> list = new ArrayList<>();
+                list.add(dto.getName());
+                returnList.add(list);
+            }
+        }
+        return returnList;
+    }
 }

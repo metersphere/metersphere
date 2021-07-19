@@ -2,7 +2,10 @@
   <div v-if="isShow">
     <el-dropdown placement="bottom" trigger="click" size="medium">
       <div @click.stop class="show-more-btn">
-          <i class="el-icon-more ms-icon-more"/>
+        <el-tooltip popper-class="batch-popper" :value="true && !hasShowed" effect="dark" :content="$t('test_track.case.batch_operate')"
+                    placement="top-start">
+          <i class="el-icon-more ms-icon-more table-more-icon"/>
+        </el-tooltip>
       </div>
       <el-dropdown-menu slot="dropdown" class="dropdown-menu-class">
         <div class="show-more-btn-title">{{$t('test_track.case.batch_handle', [size])}}</div>
@@ -22,7 +25,6 @@
     data() {
       return {
         disabled: false,
-        showTool: false
       };
     },
     props: {
@@ -30,23 +32,10 @@
         type: Boolean,
         default: false
       },
-      isShowTool: {
-        type: Boolean,
-        default: false
-      },
       buttons: Array,
       row: Object,
-      size: Number
-    },
-    watch: {
-      isShowTool(val) {
-        if (val) {
-          this.showTool = val;
-          setTimeout(() => {
-            this.showTool = false;
-          }, 1000);
-        }
-      }
+      size: Number,
+      hasShowed: Boolean
     },
     created() {
       if (this.trashEnable) {
@@ -90,4 +79,9 @@
     padding: 1px 0;
     text-align: center;
   }
+</style>
+<style>
+.batch-popper {
+  top: -10000px !important;
+}
 </style>

@@ -45,6 +45,7 @@
           :filters="statusFilters"
           :label="$t('test_track.plan.plan_status')"
           show-overflow-tooltip
+          :min-width="100"
           :key="index">
           <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
@@ -80,6 +81,7 @@
           :filters="stageFilters"
           :label="$t('test_track.plan.plan_stage')"
           show-overflow-tooltip
+          :min-width="110"
           :key="index">
           <template v-slot:default="scope">
             <plan-stage-table-item :stage="scope.row.stage"/>
@@ -115,6 +117,7 @@
           prop="executionTimes"
           :label="$t('commons.execution_times')"
           show-overflow-tooltip
+          :min-width="100"
           :key="index">
         </el-table-column>
         <el-table-column
@@ -130,6 +133,7 @@
           prop="plannedStartTime"
           :label="$t('test_track.plan.planned_start_time')"
           show-overflow-tooltip
+          :min-width="110"
           :key="index">
           <template v-slot:default="scope">
             <span>{{ scope.row.plannedStartTime | timestampFormatDate }}</span>
@@ -141,6 +145,7 @@
           prop="plannedEndTime"
           :label="$t('test_track.plan.planned_end_time')"
           show-overflow-tooltip
+          :min-width="110"
           :key="index">
           <template v-slot:default="scope">
             <span>{{ scope.row.plannedEndTime | timestampFormatDate }}</span>
@@ -150,6 +155,7 @@
           v-if="item.id == 'actualStartTime'"
           sortable
           prop="actualStartTime"
+          :min-width="110"
           :label="$t('test_track.plan.actual_start_time')"
           show-overflow-tooltip
           :key="index">
@@ -160,6 +166,7 @@
         <el-table-column
           v-if="item.id == 'actualEndTime'"
           sortable
+          :min-width="110"
           prop="actualEndTime"
           :label="$t('test_track.plan.actual_end_time')"
           show-overflow-tooltip

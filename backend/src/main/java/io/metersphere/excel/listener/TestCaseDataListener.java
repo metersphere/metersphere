@@ -291,11 +291,15 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             caseStatusValue = "Completed";
         }
         if(StringUtils.isNotEmpty(caseStatusValue)){
+
+            testCase.setStatus(caseStatusValue);
+
             JSONObject  statusObj = new JSONObject();
             statusObj.put("id",UUID.randomUUID().toString());
             statusObj.put("name","用例状态");
             statusObj.put("value",caseStatusValue);
             statusObj.put("customData",null);
+            statusObj.put("type","select");
             customArr.add(statusObj);
         }
 
@@ -305,6 +309,17 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             obj.put("name","责任人");
             obj.put("value",data.getMaintainer());
             obj.put("customData",null);
+            obj.put("type","member");
+            customArr.add(obj);
+        }
+
+        if(StringUtils.isNotEmpty(data. getPriority())){
+            JSONObject  obj = new JSONObject();
+            obj.put("id",UUID.randomUUID().toString());
+            obj.put("name","用例等级");
+            obj.put("value",data.getPriority());
+            obj.put("customData",null);
+            obj.put("type","select");
             customArr.add(obj);
         }
 

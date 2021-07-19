@@ -8,8 +8,12 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.parse.MsAbstractParser;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,7 +39,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
             }
         }
 
-        if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {
+        if (testObject.get("projectName") != null || testObject.get("projectId") != null) {
             return parseMsFormat(testStr, request);
         } else {
             ScenarioImport apiImport = new ScenarioImport();
@@ -95,7 +99,27 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                 JSONObject object = (JSONObject) hashTree.get(i);
                 String referenced = object.getString("referenced");
                 if (StringUtils.isNotBlank(referenced) && StringUtils.equals(referenced, "REF")) {
-                    object.put("referenced", "Copy");
+                    // 检测引用对象是否存在，若果不存在则改成复制对象
+                    String refType = object.getString("refType");
+                    boolean isCopy = true;
+                    if (StringUtils.isNotEmpty(refType)) {
+                        if (refType.equals("CASE")) {
+                            ApiTestCaseService testCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                            ApiTestCaseWithBLOBs bloBs = testCaseService.get(object.getString("id"));
+                            if (bloBs != null) {
+                                isCopy = false;
+                            }
+                        } else {
+                            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+                            ApiScenarioWithBLOBs bloBs = apiAutomationService.getDto(object.getString("id"));
+                            if (bloBs != null) {
+                                isCopy = false;
+                            }
+                        }
+                    }
+                    if (isCopy) {
+                        object.put("referenced", "Copy");
+                    }
                 }
                 object.put("projectId", "");
                 JSONObject environmentMap = object.getJSONObject("environmentMap");

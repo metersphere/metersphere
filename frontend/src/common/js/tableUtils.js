@@ -7,19 +7,13 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
   if (selection.length > 0) {
     if (selection.length === 1) {
       selection.hashTree = [];
-      tableData.forEach((item, index) => {
-        if (index === 0) {
-          component.$set(item, "showTool", true);
-        }
+      tableData.forEach((item) => {
         component.$set(item, "showMore", true);
         selectRows.add(item);
       });
     } else {
-      tableData.forEach((item, index) => {
+      tableData.forEach((item) => {
         item.hashTree = [];
-        if (index === 0) {
-          component.$set(item, "showTool", true);
-        }
         component.$set(item, "showMore", true);
         selectRows.add(item);
       });
@@ -27,7 +21,6 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
   } else {
     selectRows.clear();
     tableData.forEach(item => {
-      component.$set(item, "showTool", false);
       component.$set(item, "showMore", false);
     });
     if (condition) {
@@ -39,17 +32,14 @@ export function _handleSelectAll(component, selection, tableData, selectRows, co
 export function _handleSelect(component, selection, row, selectRows) {
   row.hashTree = [];
   if (selectRows.has(row)) {
-    component.$set(row, "showTool", false);
     component.$set(row, "showMore", false);
     selectRows.delete(row);
   } else {
-    component.$set(row, "showTool", true);
     component.$set(row, "showMore", true);
     selectRows.add(row);
   }
   let arr = Array.from(selectRows);
   arr.forEach(row => {
-    component.$set(row, "showTool", true);
     component.$set(row, "showMore", true);
   });
 }
@@ -145,7 +135,7 @@ export function _filter(filters, condition) {
 
 //表格数据排序
 export function _sort(column, condition) {
-  column.prop = humpToLine(column.prop);
+  let field = humpToLine(column.column.columnKey ? column.column.columnKey : column.prop);
   if (column.order === 'descending') {
     column.order = 'desc';
   } else {
@@ -156,7 +146,7 @@ export function _sort(column, condition) {
   }
   let hasProp = false;
   condition.orders.forEach(order => {
-    if (order.name === column.prop) {
+    if (order.name === field) {
       order.type = column.order;
       hasProp = true;
     }
@@ -165,7 +155,7 @@ export function _sort(column, condition) {
     hasProp = true;
   }*/
   if (!hasProp) {
-    condition.orders.push({name: column.prop, type: column.order});
+    condition.orders.push({name: field, type: column.order});
   }
 }
 
@@ -198,7 +188,11 @@ export function getLabel(vueObj, type) {
 
 export function buildBatchParam(vueObj, selectIds) {
   let param = {};
-  param.ids = selectIds ? selectIds: Array.from(vueObj.selectRows).map(row => row.id);
+  if (vueObj.selectRows) {
+    param.ids = selectIds ? selectIds: Array.from(vueObj.selectRows).map(row => row.id);
+  } else {
+    param.ids = selectIds;
+  }
   param.projectId = getCurrentProjectID();
   param.condition = vueObj.condition;
   return param;

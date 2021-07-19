@@ -141,7 +141,7 @@
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->
@@ -540,7 +540,8 @@ export default {
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -559,6 +560,7 @@ export default {
             obj.ids = Array.from(this.selectRows).map(row => row.id);
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
+              // this.$emit('refreshTable');
               this.$refs.caseTable.clearSelectRows();
               this.initTable();
               this.$success(this.$t('commons.delete_success'));
@@ -601,7 +603,8 @@ export default {
           if (action === 'confirm') {
             this.$get('/api/testcase/delete/' + apiCase.id, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
             });
           }
         }
@@ -614,13 +617,14 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
+              // this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
               this.initTable();
+
             });
           }
         }
       });
-      return;
     },
     reduction(row) {
       let tmp = JSON.parse(JSON.stringify(row));
@@ -640,7 +644,8 @@ export default {
         }else{
           this.$success(this.$t('commons.save_success'));
         }
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleBatchRestore() {
@@ -665,7 +670,8 @@ export default {
         }else{
           this.$success(this.$t('commons.save_success'));
         }
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     setEnvironment(data) {

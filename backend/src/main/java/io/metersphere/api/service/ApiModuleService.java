@@ -339,7 +339,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
         apiDefinitionExample.setOperator(SessionUtils.getUserId());
         apiDefinitionExample.setOperationTime(System.currentTimeMillis());
-        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
+        apiDefinitionService.removeToGcByExample(apiDefinitionExample);
+//        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
 
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
         apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);

@@ -159,7 +159,6 @@ public class JiraPlatform extends AbstractIssuePlatform {
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException("调用Jira查询需求失败");
         }
 
         return list;

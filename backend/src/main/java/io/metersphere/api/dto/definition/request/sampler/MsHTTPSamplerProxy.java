@@ -109,9 +109,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 34)
     private List<KeyValue> arguments;
 
-    @JSONField(ordinal = 35)
-    private Object requestResult;
-
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
@@ -185,6 +182,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

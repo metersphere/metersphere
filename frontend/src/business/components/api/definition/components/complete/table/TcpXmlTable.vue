@@ -102,7 +102,7 @@ export default {
     },
     add: function (r) {
       let row = this.getNewRow(null);
-      this.pushTableData(row);
+      this.pushTableData(row,"root");
     },
     nextRow:function (row) {
       //首先保存当前行内容
@@ -223,7 +223,9 @@ export default {
         if(this.tableData){
           this.$emit("initXmlTableData");
         }
-        this.tableData.push(dataRow);
+        this.$emit("xmlTablePushRow",dataRow);
+      } else if(rowId === "root"){
+        this.$emit("xmlTablePushRow",dataRow);
       }else {
         this.appendDataWithDeepForeach(this.tableData,rowId,dataRow);
       }

@@ -17,13 +17,14 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
+import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.TestCaseTemplateDao;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.domain.TestCaseExcelDataFactory;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
-import io.metersphere.excel.listener.TestCaseDataIgnoreErrorListener;
-import io.metersphere.excel.listener.TestCaseDataListener;
+import io.metersphere.excel.listener.TestCaseNoModelDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.excel.utils.FunctionCaseImportEnum;
 import io.metersphere.i18n.Translator;
@@ -33,6 +34,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.TestCaseTemplateService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
@@ -513,10 +515,17 @@ public class TestCaseService {
             try {
                 //根据本地语言环境选择用哪种数据对象进行存放读取的数据
                 Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
-
-                TestCaseDataListener easyExcelListener = new TestCaseDataListener(clazz, projectId, testCaseNames,savedIds, userIds,useCunstomId,importType);
+                TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
+                TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
+                List<CustomFieldDao> customFields = null;
+                if(testCaseTemplate == null ){
+                    customFields = new ArrayList<>();
+                }else {
+                    customFields = testCaseTemplate.getCustomFields();
+                }
+                TestCaseNoModelDataListener easyExcelListener = new TestCaseNoModelDataListener(false,clazz, customFields,projectId, testCaseNames,savedIds, userIds,useCunstomId,importType);
                 //读取excel数据
-                EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+                EasyExcelFactory.read(multipartFile.getInputStream(), easyExcelListener).sheet().doRead();
                 request.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
                 request.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
 
@@ -678,11 +687,20 @@ public class TestCaseService {
                 //导入更新 or 开启使用自定义ID时，导出ID列
                 importFileNeedNum = true;
             }
-            //不包含ID列
-            Set<String> excludeColumnFiledNames = testCaseExcelData.getExcludeColumnFiledNames(importFileNeedNum);
+
+            TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
+            TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
+            List<CustomFieldDao> customFields = null;
+            if(testCaseTemplate == null ){
+                customFields = new ArrayList<>();
+            }else {
+                customFields = testCaseTemplate.getCustomFields();
+            }
+
+            List<List<String>> headList = testCaseExcelData.getHead(importFileNeedNum,customFields);
             EasyExcelExporter easyExcelExporter = new EasyExcelExporter(testCaseExcelData.getClass());
-            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum);
-            easyExcelExporter.exportByCustomWriteHandler(response,excludeColumnFiledNames, generateExportTemplate(),
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum,headList);
+            easyExcelExporter.exportByCustomWriteHandler(response,headList, generateExportDatas(importFileNeedNum),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"), handler);
 
         } catch (Exception e) {
@@ -732,14 +750,39 @@ public class TestCaseService {
         }
     }
 
+    private List<List<Object>> generateExportDatas(boolean needCustomId){
+        List<List<Object>> list = new ArrayList<>();
+        StringBuilder path = new StringBuilder("");
+        List<String> types = TestCaseConstants.Type.getValues();
+        SessionUser user = SessionUtils.getUser();
+        for (int i = 1; i <= 5; i++) {
+            List<Object> rowData = new ArrayList<>();
+            if(needCustomId){
+                rowData.add("");
+            }
+            rowData.add(Translator.get("test_case") + i);
+            path.append("/" + Translator.get("module") + i);
+            rowData.add(path.toString());
+            rowData.add("");
+            rowData.add(Translator.get("preconditions_optional"));
+            rowData.add(Translator.get("remark_optional"));
+            rowData.add("1. " + Translator.get("step_tip_separate") + "\n2. " + Translator.get("step_tip_order") + "\n3. " + Translator.get("step_tip_optional"));
+            rowData.add("1. " + Translator.get("result_tip_separate") + "\n2. " + Translator.get("result_tip_order") + "\n3. " + Translator.get("result_tip_optional"));
+            rowData.add("");
+            rowData.add("P" + i % 4);
+            list.add(rowData);
+        }
+        return list;
+    }
     private List<TestCaseExcelData> generateExportTemplate() {
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder path = new StringBuilder("");
         List<String> types = TestCaseConstants.Type.getValues();
 //        List<String> methods = TestCaseConstants.Method.getValues();
         SessionUser user = SessionUtils.getUser();
+        TestCaseExcelDataFactory factory = new TestCaseExcelDataFactory();
         for (int i = 1; i <= 5; i++) {
-            TestCaseExcelData data = new TestCaseExcelData();
+            TestCaseExcelData data = factory.getTestCaseExcelDataLocal();
             data.setName(Translator.get("test_case") + i);
             path.append("/" + Translator.get("module") + i);
             data.setNodePath(path.toString());
@@ -1033,7 +1076,7 @@ public class TestCaseService {
             TestCaseTest test = new TestCaseTest();
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
-                test.setTestId(id.get(1));
+                test.setTestId(id.get(id.size() - 1));
                 test.setTestCaseId(request.getId());
                 test.setCreateTime(System.currentTimeMillis());
                 test.setUpdateTime(System.currentTimeMillis());
@@ -1080,7 +1123,7 @@ public class TestCaseService {
             TestCaseTest test = new TestCaseTest();
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
-                test.setTestId(id.get(1));
+                test.setTestId(id.get(id.size() - 1));
                 test.setCreateTime(System.currentTimeMillis());
                 test.setUpdateTime(System.currentTimeMillis());
                 test.setTestCaseId(request.getId());
@@ -1309,15 +1352,24 @@ public class TestCaseService {
             try {
                 //根据本地语言环境选择用哪种数据对象进行存放读取的数据
                 Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
-                TestCaseDataIgnoreErrorListener easyExcelListener = new TestCaseDataIgnoreErrorListener(clazz, projectId, testCaseNames,savedIds, userIds,useCunstomId, importType);
-
+                TestCaseTemplateService testCaseTemplateService = CommonBeanFactory.getBean(TestCaseTemplateService.class);
+                TestCaseTemplateDao testCaseTemplate = testCaseTemplateService.getTemplate(projectId);
+                List<CustomFieldDao> customFields = null;
+                if(testCaseTemplate == null ){
+                    customFields = new ArrayList<>();
+                }else {
+                    customFields = testCaseTemplate.getCustomFields();
+                }
+                TestCaseNoModelDataListener easyExcelListener = new TestCaseNoModelDataListener(true,clazz, customFields,projectId, testCaseNames,savedIds, userIds,useCunstomId,importType);
                 //读取excel数据
-                EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+                EasyExcelFactory.read(multipartFile.getInputStream(), easyExcelListener).sheet().doRead();
                 request.setAttribute("ms-req-title", String.join(",", easyExcelListener.getNames()));
                 request.setAttribute("ms-req-source-id", JSON.toJSONString(easyExcelListener.getIds()));
                 errList = easyExcelListener.getErrList();
                 isUpdated = easyExcelListener.isUpdated();
             } catch (Exception e) {
+
+                e.printStackTrace();
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException(e.getMessage());
             }
@@ -1460,6 +1512,7 @@ public class TestCaseService {
     public void reduction(TestCaseBatchRequest request) {
         TestCaseExample example = this.getBatchExample(request);
         if(CollectionUtils.isNotEmpty(request.getIds())){
+            extTestCaseMapper.checkOriginalStatusByIds(request.getIds());
             extTestCaseMapper.reduction(request.getIds());
         }
     }
@@ -1471,5 +1524,21 @@ public class TestCaseService {
                 this.deleteTestCaseToGc(id);
             }
         }
+    }
+    public String getCaseLogDetails(TestCaseMinderEditRequest request) {
+        if (CollectionUtils.isNotEmpty(request.getData())) {
+            List<String> ids = request.getData().stream().map(TestCase::getId).collect(Collectors.toList());
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            List<TestCase> cases = testCaseMapper.selectByExample(example);
+            List<String> names = cases.stream().map(TestCase::getName).collect(Collectors.toList());
+            List<DetailColumn> columnsList =new LinkedList<>();
+            DetailColumn column = new DetailColumn("名称", "name", String.join(",",names),null);
+            columnsList.add(column);
+
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(ids), request.getProjectId(), String.join(",", names), SessionUtils.getUserId(), columnsList);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }

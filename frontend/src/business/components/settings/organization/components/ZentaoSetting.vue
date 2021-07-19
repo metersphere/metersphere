@@ -13,11 +13,20 @@
         <el-form-item :label="$t('organization.integration.zentao_url')" prop="url">
           <el-input v-model="form.url" :placeholder="$t('organization.integration.input_zentao_url')"/>
         </el-form-item>
+        <el-form-item :label="$t('organization.integration.zentao_request')" prop="request">
+          <el-radio v-model="form.request" label="PATH_INFO" size="small" border> PATH_INFO</el-radio>
+          <el-radio v-model="form.request" label="GET" size="small" border>GET</el-radio>
+          <ms-instructions-icon effect="light" style="margin-left: -20px;">
+            参考禅道配置文件中 $config->requestType 的值 <br/><br/>
+            配置文件参考路径：/opt/zbox/app/zentao/config/my.php
+          </ms-instructions-icon>
+        </el-form-item>
       </el-form>
     </div>
 
     <bug-manage-btn @save="save"
                     @init="init"
+                    :edit-permission="['ORGANIZATION_SERVICE:READ+EDIT']"
                     @testConnection="testConnection"
                     @cancelIntegration="cancelIntegration"
                     @reloadPassInput="reloadPassInput"
@@ -50,10 +59,12 @@
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
 import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "ZentaoSetting",
   components: {
+    MsInstructionsIcon,
     BugManageBtn
   },
   created() {
@@ -80,6 +91,11 @@ export default {
           message: this.$t('organization.integration.input_zentao_url'),
           trigger: ['change', 'blur']
         },
+        request: {
+          required: true,
+          message: this.$t('organization.integration.input_zentao_request'),
+          trigger: ['change', 'blur']
+        },
       },
     }
   },
@@ -97,6 +113,7 @@ export default {
             account: this.form.account,
             password: this.form.password,
             url: formatUrl,
+            request: this.form.request
           };
           param.organizationId = lastOrganizationId;
           param.platform = ZEN_TAO;
@@ -128,6 +145,7 @@ export default {
           this.$set(this.form, 'account', config.account);
           this.$set(this.form, 'password', config.password);
           this.$set(this.form, 'url', config.url);
+          this.$set(this.form, 'request', config.request ? config.request : 'PATH_INFO');
         } else {
           this.clear();
         }
@@ -137,8 +155,11 @@ export default {
       this.$set(this.form, 'account', '');
       this.$set(this.form, 'password', '');
       this.$set(this.form, 'url', '');
+      this.$set(this.form, 'request', '');
       this.$nextTick(() => {
-        this.$refs.form.clearValidate();
+        if (this.$refs.form) {
+          this.$refs.form.clearValidate();
+        }
       });
     },
     testConnection() {

@@ -15,11 +15,11 @@ import io.metersphere.base.mapper.ApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +27,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -109,7 +108,9 @@ public class APIReportService {
                 report.setStatus(APITestStatus.Success.name());
             }
         }
-
+        if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
+            report.setTriggerMode(TriggerMode.MANUAL.name());
+        }
         apiTestReportMapper.updateByPrimaryKeySelective(report);
     }
 
@@ -216,10 +217,10 @@ public class APIReportService {
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
-        if(firstTime==null || lastTime == null){
-            return  0;
-        }else {
-            return extApiTestReportMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiTestReportMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 

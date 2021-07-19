@@ -15,11 +15,12 @@
                       </span>
       </el-col>
       <el-col v-else :span="7" style="margin-top: 10px;">
-        <el-form-item :label="$t('test_track.case.relate_test')" :label-width="labelWidth">
-          <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')" show-all-levels
+        <el-form-item :label="$t('test_track.case.relate_test')">
+          <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')"
+                       show-all-levels
                        v-model="form.selected" :props="props"
                        :disabled="readOnly"
-                       class="ms-case" ref="cascade"></el-cascader>
+                       ref="cascade"></el-cascader>
         </el-form-item>
       </el-col>
     </el-tab-pane>
@@ -98,7 +99,7 @@ import FormRichTextItem from "@/business/components/track/case/components/FormRi
 export default {
   name: "TestCaseEditOtherInfo",
   components: {FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'sysList'],
   data() {
     return {
       result: {},
@@ -107,7 +108,7 @@ export default {
       fileList: [],
       tableData: [],
       demandOptions: [],
-      sysList: [],//一级选择框的数据
+      //sysList:this.sysList,//一级选择框的数据
       props: {
         multiple: true,
         //lazy: true,
@@ -122,9 +123,7 @@ export default {
   },
   watch: {
     tabActiveName() {
-      if (this.tabActiveName === 'relateTest') {
-        this.loadOptions(this.sysList);
-      } else if (this.tabActiveName === 'demand') {
+      if (this.tabActiveName === 'demand') {
         this.getDemandOptions();
       } else if (this.tabActiveName === 'bug') {
         this.$refs.issue.getIssues();
@@ -266,56 +265,7 @@ export default {
         });
       }
     },
-    async loadOptions(sysLib) {
-      if (this.form.list) {
-        return;
-      }
 
-      sysLib = TEST
-        .filter(item => {
-          return enableModules([item.module]);
-        })// 模块启用禁用过滤
-        .map(item => ({
-          value: item.id,
-          label: item.name,
-        }));
-      let array = [];
-      for (let i = 0; i < sysLib.length; i++) {
-        if (sysLib.length > 0) {
-          let res = await this.getTestOptions(sysLib[i].value);
-          sysLib[i].children = res;
-        }
-        array.push(sysLib[i]);
-      }
-      this.sysList = array;
-    },
-    getTestOptions(val) {
-      this.form.type = val;
-      this.testOptions = [];
-      let url = '';
-      if (this.form.type === 'testcase' || this.form.type === 'automation') {
-        url = '/api/' + this.form.type + '/list/' + this.projectId;
-      } else if (this.form.type === 'performance' || this.form.type === 'api') {
-        url = '/' + this.form.type + '/list/' + this.projectId;
-      }
-      if (!url) {
-        return;
-      }
-      this.result.loading = true;
-      return new Promise((resolve, reject) => {
-        this.$get(url).then(res => {
-          const data = res.data.data.map(item => ({
-            value: item.id,
-            label: item.name,
-            leaf: true
-          }));
-          this.result.loading = false;
-          resolve(data);
-        }).catch((err) => {
-          reject(err);
-        });
-      });
-    },
   }
 };
 </script>
@@ -332,5 +282,10 @@ export default {
 
 .remark-item {
   padding: 0px 15px;
+}
+
+.el-cascader >>> .el-input {
+  cursor: pointer;
+  width: 500px;
 }
 </style>

@@ -10,10 +10,12 @@
           <template v-slot:content>
             <span>{{ $t('commons.task_center') }}</span>
           </template>
-          <el-badge :value="runningTotal" class="item" type="primary" v-if="runningTotal > 0">
-            <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']"
-                               style="font-size: 18px"/>
-          </el-badge>
+          <div @click="showTaskCenter" v-if="runningTotal > 0">
+            <el-badge :value="runningTotal" class="item" type="primary">
+              <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"
+                                 style="font-size: 18px"/>
+            </el-badge>
+          </div>
           <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
         </el-tooltip>
       </el-menu-item>
@@ -47,15 +49,24 @@
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
             <span>{{ item.name }} </span><br/>
-            <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{
-                item.executionTime | timestampFormatDate
-              }} {{ getMode(item.triggerMode) }}</span><br/>
+            <span>
+              执行器：{{ item.actuator }} 由 {{ item.executor }}
+              {{ item.executionTime | timestampFormatDate }}
+              {{ getMode(item.triggerMode) }}
+            </span>
+            <br/>
             <el-row>
               <el-col :span="20">
                 <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
               </el-col>
               <el-col :span="4">
-                <span>{{ item.executionStatus }}</span>
+                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'" class="ms-task-error">
+                     error
+                  </span>
+                <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
+                     success
+                </span>
+                <span v-else>{{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}</span>
               </el-col>
             </el-row>
           </el-card>
@@ -92,13 +103,13 @@ export default {
       result: {},
       taskData: [],
       response: {},
+      initEnd: false,
       visible: false,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
         {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
         {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
-        {id: 'CASE', label: this.$t('commons.trigger_mode.case')},
         {id: 'API', label: 'API'}
       ],
       runStatus: [
@@ -145,6 +156,13 @@ export default {
     onMessage(e) {
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
+      this.initIndex++;
+      if (this.taskVisible && taskTotal > 0 && this.initEnd) {
+        setTimeout(() => {
+          this.initEnd = false;
+          this.init();
+        }, 3000);
+      }
     },
     onClose(e) {
       if (e.code === 1005) {
@@ -159,9 +177,11 @@ export default {
     },
     close() {
       this.visible = false;
+      this.taskVisible = false;
     },
     open() {
       this.showTaskCenter();
+      this.initIndex = 0;
     },
     getPercentage(status) {
       if (status) {
@@ -224,9 +244,6 @@ export default {
       if (mode === 'API') {
         return this.$t('commons.trigger_mode.api');
       }
-      if (mode === 'CASE') {
-        return this.$t('commons.trigger_mode.case');
-      }
       if (mode === 'BATCH') {
         return this.$t('api_test.automation.batch_execute');
       }
@@ -240,6 +257,7 @@ export default {
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('/task/center/list', this.condition, response => {
         this.taskData = response.data;
+        this.initEnd = true;
       });
     }
   }
@@ -337,5 +355,13 @@ export default {
 
 .item {
   margin-right: 10px;
+}
+
+.ms-task-error {
+  color: #F56C6C;
+}
+
+.ms-task-success {
+  color: #67C23A;
 }
 </style>

@@ -8,92 +8,97 @@
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
 
-      <el-table ref="scenarioTable"
-                border :data="tableData" class="test-content adjust-table ms-select-all-fixed"
-                @select-all="handleSelectAll"
-                @sort-change="sort"
-                @header-dragend="tableHeaderDragend"
-                @filter-change="filter"
-                :height="screenHeight"
-                @select="handleSelect">
-        <el-table-column width="50" type="selection"/>
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize > total ? total : pageSize"
-                                        :total="total"
-                                        :table-data-count-in-page="tableData.length"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-        <el-table-column width="40" :resizable="false" align="center">
-          <template v-slot:default="{row}">
-            <show-more-btn :is-show-tool="row.showTool" :is-show="isSelect(row)" :buttons="buttons"
-                           :size="selectDataCounts"/>
-          </template>
-        </el-table-column>
-        <template v-for="(item, index) in tableLabel">
-          <el-table-column
+      <ms-table
+        :data="tableData"
+        :condition="condition"
+        :total="total"
+        :page-size.sync="pageSize"
+        :operators="operators"
+        :screen-height="screenHeight"
+        :batch-operators="buttons"
+        @handlePageChange="search"
+        :fields.sync="fields"
+        :field-key="tableHeaderKey"
+        @refresh="search"
+        ref="table">
+        <span v-for="(item) in fields" :key="item.key">
+          <ms-table-column
             v-if="item.id == 'num'"
-            sortable="custom"
+            :fields-width="fieldsWidth"
+            sortable
             prop="customNum"
             min-width="80px"
-            label="ID"
-            :key="index"/>
-          <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')" min-width="120px"
-                           sortable
-                           show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')" min-width="120px"
+            label="ID"/>
+
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="name"
+                           :label="$t('api_test.automation.scenario_name')" min-width="120px"
+                           sortable/>
+
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="level" :label="$t('api_test.automation.case_level')" min-width="120px"
                            column-key="level"
-                           sortable="custom"
-                           :filters="LEVEL_FILTERS"
-                           show-overflow-tooltip :key="index">
+                           sortable
+                           :filters="LEVEL_FILTERS">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.level" ref="level"/>
             </template>
+          </ms-table-column>
 
-          </el-table-column>
-          <el-table-column v-if="item.id == 'tagNames'" prop="tagNames" :label="$t('api_test.automation.tag')"
-                           min-width="100px" :key="index">
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="tagNames" :label="$t('api_test.automation.tag')"
+                           min-width="100px">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
-          </el-table-column>
-          <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
-                           min-width="100px"
-                           show-overflow-tooltip :key="index"/>
-          <el-table-column
+          </ms-table-column>
+
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="createUser"
+                           :label="$t('api_test.automation.creator')"
+                           min-width="100px">
+            <template v-slot:default="scope">
+              {{scope.row.creatorName}}
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
             v-if="item.id == 'maintainer'"
+            prop="userId"
+            :fields-width="fieldsWidth"
+            :label="$t('custom_field.case_maintainer')"
+            min-width="120">
+             <template v-slot:default="scope">
+              {{scope.row.principalName}}
+            </template>
+          </ms-table-column>
+
+
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
             prop="principal"
             :label="$t('custom_field.case_maintainer')"
-            show-overflow-tooltip
-            :key="index"
-            min-width="120"
-          >
-          </el-table-column>
-          <el-table-column v-if="item.id == 'updateTime'"
-                           prop="updateTime"
-                           min-width="160px"
-                           sortable="custom"
-                           :label="$t('api_test.automation.update_time')" width="180" :key="index">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column v-if="item.id == 'createTime'"
-                           prop="createTime"
-                           min-width="120px"
-                           sortable="custom"
-                           :label="$t('commons.create_time')" width="180" :key="index">
-            <template v-slot:default="scope">
-              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
-                           min-width="80px"
-                           show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'lastResult'" prop="lastResult" min-width="100px"
-                           column-key="lastResult"
+            min-width="120"/>
+
+          <ms-update-time-column :field="item" :fields-width="fieldsWidth"/>
+          <ms-create-time-column :field="item" :fields-width="fieldsWidth"/>
+
+
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="stepTotal" :label="$t('api_test.automation.step')"
+                           min-width="80px"/>
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="lastResult" min-width="100px"
                            :filters="RESULT_FILTERS"
-                           :label="$t('api_test.automation.last_result')" :key="index">
+                           :label="$t('api_test.automation.last_result')">
             <template v-slot:default="{row}">
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
                 {{ $t('api_test.automation.success') }}
@@ -102,30 +107,14 @@
                 {{ $t('api_test.automation.fail') }}
               </el-link>
             </template>
-          </el-table-column>
-          <el-table-column v-if="item.id == 'passRate'" prop="passRate" min-width="80px"
-                           :label="$t('api_test.automation.passing_rate')"
-                           show-overflow-tooltip :key="index"/>
-        </template>
-        <el-table-column :label="$t('commons.operating')" fixed="right" min-width="100px" v-if="!referenced">
-          <template slot="header">
-            <header-label-operate @exec="customHeader"/>
-          </template>
-          <template v-slot:default="{row}">
-            <div>
-              <ms-table-operator-button class="run-button"
-                                        v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"
-                                        :tip="$t('api_test.run')"
-                                        icon="el-icon-video-play"
-                                        @exec="execute(row)"/>
-              <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']"
-                                        :tip="$t('test_track.plan_view.cancel_relevance')"
-                                        icon="el-icon-unlock" type="danger" @exec="remove(row)"/>
-            </div>
-          </template>
-        </el-table-column>
-      </el-table>
-      <header-custom ref="headerCustom" :initTableData="search" :optionalFields=headerItems :type=type></header-custom>
+          </ms-table-column>
+          <ms-table-column :field="item"
+                           :fields-width="fieldsWidth"
+                           prop="passRate" min-width="80px"
+                           :label="$t('api_test.automation.passing_rate')"/>
+        </span>
+      </ms-table>
+
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
       <div>
@@ -139,7 +128,7 @@
 
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
-                :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
+                :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
     <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     <ms-task-center ref="taskCenter"/>
   </div>
@@ -148,7 +137,6 @@
 <script>
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
 import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
@@ -157,41 +145,34 @@ import MsScenarioExtendButtons from "@/business/components/api/automation/scenar
 import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import {
-  _handleSelect,
-  _handleSelectAll,
-  getLabel,
-  getSelectDataCounts,
-  setUnSelectIds,
-  _filter,
-  _sort,
   initCondition,
   buildBatchParam,
-  toggleAllSelection,
-  checkTableRowIsSelect, deepClone
+  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth
 } from "../../../../../../../common/js/tableUtils";
-import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
-import {Test_Plan_Scenario_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import MsPlanRunMode from "../../../common/PlanRunMode";
-import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import MsTaskCenter from "../../../../../task/TaskCenter";
+import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 
 export default {
   name: "MsTestPlanApiScenarioList",
   components: {
+    MsCreateTimeColumn,
+    MsUpdateTimeColumn,
+    MsTableColumn,
+    MsTable,
     PriorityTableItem,
     HeaderLabelOperate,
-    HeaderCustom,
-    MsTableOperatorButton,
     TestPlanScenarioListHeader,
     MsTablePagination,
     MsTableMoreBtn,
-    ShowMoreBtn,
     MsTableHeader,
     MsTag,
     MsApiReportDetail,
@@ -199,7 +180,6 @@ export default {
     MsTestPlanList,
     BatchEdit,
     MsPlanRunMode,
-    MsTableHeaderSelectPopover,
     MsTaskCenter
   },
   props: {
@@ -215,7 +195,9 @@ export default {
   data() {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
-      headerItems: Test_Plan_Scenario_Case,
+      tableHeaderKey:"TEST_PLAN_SCENARIO_CASE",
+      fields: getCustomTableHeader('TEST_PLAN_SCENARIO_CASE'),
+      fieldsWidth: getCustomTableWidth('TEST_PLAN_SCENARIO_CASE'),
       screenHeight: 'calc(100vh - 250px)',//屏幕高度
       tableLabel: [],
       loading: false,
@@ -234,6 +216,20 @@ export default {
       runVisible: false,
       runData: [],
       ...API_SCENARIO_FILTERS,
+      operators: [
+        {
+          tip: this.$t('api_test.run'), icon: "el-icon-video-play",
+          exec: this.execute,
+          class: 'run-button',
+          permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
+        },
+        {
+          tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
+          exec: this.remove,
+          type: 'danger',
+          permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
+        }
+      ],
       buttons: [
         {
           name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE']
@@ -245,7 +241,6 @@ export default {
           name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit, permissions: ['PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT']
         }
       ],
-      selectRows: new Set(),
       typeArr: [
         {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
       ],
@@ -273,13 +268,8 @@ export default {
     }
   },
   methods: {
-    customHeader() {
-      const list = deepClone(this.tableLabel);
-      this.$refs.headerCustom.open(list);
-    },
     search() {
       initCondition(this.condition,this.condition.selectAll);
-      this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
       if (this.clickType) {
@@ -303,13 +293,13 @@ export default {
             }
           });
           this.loading = false;
-          if (this.$refs.scenarioTable) {
-            setTimeout(this.$refs.scenarioTable.doLayout, 200);
+          if (this.$refs.table) {
+            this.$refs.table.selectRows.clear();
+            setTimeout(this.$refs.table.doLayout, 200);
+            this.$nextTick(() => {
+              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
+            });
           }
-          this.$nextTick(() => {
-            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
-            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-          })
         });
       }
       if (this.reviewId) {
@@ -325,17 +315,14 @@ export default {
             }
           });
           this.loading = false;
-          if (this.$refs.scenarioTable) {
-            setTimeout(this.$refs.scenarioTable.doLayout, 200);
+          if (this.$refs.table) {
+            setTimeout(this.$refs.table.doLayout, 200);
+            this.$nextTick(() => {
+              checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
+            });
           }
-          this.$nextTick(() => {
-            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
-            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-          })
         });
       }
-      getLabel(this, TEST_PLAN_SCENARIO_CASE);
-
     },
     reductionApi(row) {
       row.scenarioDefinition = null;
@@ -356,13 +343,13 @@ export default {
           array.push(this.tableData[i]);
         }
       }
-      this.selectRows = array;
+      return array;
     },
     handleRunBatch(config){
-      this.orderBySelectRows(this.selectRows);
+      let rows = this.orderBySelectRows(this.$refs.table.selectRows);
       if (this.reviewId) {
         let param = {config : config,planCaseIds:[]};
-        this.selectRows.forEach(row => {
+        rows.forEach(row => {
           this.buildExecuteParam(param,row);
         });
         this.$post("/test/case/review/scenario/case/run", param, response => {
@@ -373,7 +360,8 @@ export default {
       if (this.planId) {
         let selectParam = buildBatchParam(this);
         let param = {config: config, planCaseIds: []};
-        this.selectRows.forEach(row => {
+        param.ids = rows.map(r => r.id);
+        rows.forEach(row => {
           this.buildExecuteParam(param, row);
         });
         param.condition = selectParam.condition;
@@ -417,18 +405,6 @@ export default {
       this.infoDb = true;
       this.reportId = row.reportId;
     },
-    sort(column) {
-      // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      this.search();
-    },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.search();
-    },
     remove(row) {
       if (this.planId) {
         this.$get('/test/plan/scenario/case/delete/' + row.id, () => {
@@ -446,30 +422,17 @@ export default {
       }
       return;
     },
-    isSelect(row) {
-      return this.selectRows.has(row);
-    },
-    handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-    },
-    handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRows);
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-    },
     handleDeleteBatch() {
       this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
             let param = buildBatchParam(this);
-            param.ids = Array.from(this.selectRows).map(row => row.id);
+            param.ids = this.$refs.table.selectIds;
             if (this.planId) {
               param.planId = this.planId;
               this.$post('/test/plan/scenario/case/batch/delete', param, () => {
-                this.selectRows.clear();
+                this.$refs.table.selectRows.clear();
                 this.search();
                 this.$success(this.$t('test_track.cancel_relevance_success'));
                 this.$emit('refresh');
@@ -478,7 +441,7 @@ export default {
             if (this.reviewId) {
               param.reviewId = this.reviewId;
               this.$post('/test/case/review/scenario/case/batch/delete', param, () => {
-                this.selectRows.clear();
+                this.$refs.table.selectRows.clear();
                 this.search();
                 this.$success(this.$t('test_track.cancel_relevance_success'));
                 this.$emit('refresh');
@@ -491,15 +454,15 @@ export default {
     handleBatchEdit() {
       if (this.condition != null && this.condition.selectAll) {
         let selectAllRowParams = buildBatchParam(this);
-        selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+        selectAllRowParams.ids = this.$refs.table.selectIds;
         this.$post('/test/plan/scenario/case/selectAllTableRows', selectAllRowParams, response => {
           let dataRows = response.data;
           this.$refs.batchEdit.open(dataRows.size);
           this.$refs.batchEdit.setScenarioSelectRows(dataRows, "planScenario");
         });
       } else {
-        this.$refs.batchEdit.open(this.selectRows.size);
-        this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
+        this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
+        this.$refs.batchEdit.setScenarioSelectRows(this.$refs.table.selectRows, "planScenario");
       }
     },
     batchEdit(form) {
@@ -514,41 +477,13 @@ export default {
         });
       }
     },
-    isSelectDataAll(data) {
-      this.condition.selectAll = data;
-      //设置勾选
-      toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
-      //显示隐藏菜单
-      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
-      //设置未选择ID(更新)
-      this.condition.unSelectIds = [];
-      //更新统计信息
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-    },
-    tableHeaderDragend(newWidth, oldWidth, column, event){
-      if(column){
-        if(column.minWidth){
-          let minWidth = column.minWidth;
-          if(minWidth > newWidth){
-            column.width = minWidth;
-          }
-        }
-      }
-    },
   }
 }
 </script>
 
 <style scoped>
-/deep/ .el-drawer__header {
-  margin-bottom: 0px;
-}
+/*/deep/ .el-drawer__header {*/
+/*  margin-bottom: 0px;*/
+/*}*/
 
-.ms-select-all-fixed >>> th:nth-child(2) .el-icon-arrow-down {
-  top: -4px;
-}
-
-/deep/ .el-table__fixed-body-wrapper {
- top: 48px !important;
-}
 </style>

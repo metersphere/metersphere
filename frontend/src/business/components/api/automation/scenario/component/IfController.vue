@@ -13,7 +13,7 @@
 
     <template v-slot:headerLeft>
 
-      <el-input draggable size="mini" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
+      <el-input draggable size="mini" v-model="controller.variable" style="width: 15%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="mini"
                  @change="change" class="ms-select">
@@ -21,6 +21,9 @@
       </el-select>
 
       <el-input draggable size="mini" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" class="ms-btn"/>
+
+      <el-input draggable size="mini" v-model="controller.remark" :placeholder="$t('commons.remark')" v-if="!hasEmptyOperator && !isMax" class="ms-btn"/>
+
     </template>
 
     <template v-slot:debugStepCode>

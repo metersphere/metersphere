@@ -15,6 +15,7 @@
 
     <bug-manage-btn @save="save"
                     @init="init"
+                    :edit-permission="['ORGANIZATION_SERVICE:READ+EDIT']"
                     @testConnection="testConnection"
                     @cancelIntegration="cancelIntegration"
                     @reloadPassInput="reloadPassInput"
@@ -124,7 +125,9 @@ export default {
       this.$set(this.form, 'account', '');
       this.$set(this.form, 'password', '');
       this.$nextTick(() => {
-        this.$refs.form.clearValidate();
+        if (this.$refs.form) {
+          this.$refs.form.clearValidate();
+        }
       });
     },
     testConnection() {

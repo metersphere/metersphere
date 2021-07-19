@@ -78,6 +78,30 @@
                 </el-col>
               </el-row>
             </div>
+            <div class="ms-mode-div" v-if="runConfig.mode === 'parallel'">
+              <el-row>
+                <el-col :span="3">
+                  <span class="ms-mode-span">{{ $t("run_mode.other_config") }}:</span>
+                </el-col>
+                <el-col :span="18">
+                  <div v-if="scheduleTaskType === 'TEST_PLAN_TEST'" style="padding-top: 10px">
+                    <el-checkbox v-model="runConfig.runWithinResourcePool" style="padding-right: 10px;">
+                      {{ $t('run_mode.run_with_resource_pool') }}
+                    </el-checkbox>
+                    <el-select :disabled="!runConfig.runWithinResourcePool" v-model="runConfig.resourcePoolId"
+                               size="mini">
+                      <el-option
+                        v-for="item in resourcePools"
+                        :key="item.id"
+                        :label="item.name"
+                        :disabled="!item.api"
+                        :value="item.id">
+                      </el-option>
+                    </el-select>
+                  </div>
+                </el-col>
+              </el-row>
+            </div>
             <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron"
                        :modal="false">
               <crontab @hide="showCron=false" @fill="crontabFill" :expression="schedule.value"
@@ -95,7 +119,13 @@
 </template>
 
 <script>
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  getCurrentOrganizationId,
+  getCurrentProjectID,
+  getCurrentUser, getCurrentWorkspaceId,
+  listenGoBack,
+  removeGoBackListener
+} from "@/common/js/utils";
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
@@ -225,7 +255,7 @@ export default {
     initUserList() {
       let param = {
         name: '',
-        organizationId: this.currentUser().lastOrganizationId
+        organizationId: getCurrentOrganizationId()
       };
 
       this.result = this.$post('user/org/member/list/all', param, response => {
@@ -301,6 +331,13 @@ export default {
       let param = {};
       param = this.schedule;
       param.resourceId = this.testId;
+      // 兼容问题，数据库里有的projectId为空
+      if (!param.projectId) {
+        param.projectId = getCurrentProjectID();
+      }
+      if (!param.workspaceId) {
+        param.workspaceId = getCurrentWorkspaceId();
+      }
       param.config = JSON.stringify(this.runConfig);
       let url = '/api/automation/schedule/create';
       if (this.scheduleTaskType === "TEST_PLAN_TEST") {

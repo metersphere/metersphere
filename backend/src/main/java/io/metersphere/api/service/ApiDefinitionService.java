@@ -497,7 +497,14 @@ public class ApiDefinitionService {
         SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         if (CollectionUtils.isNotEmpty(cases)) {
             int batchCount = 0;
-            cases.forEach(item -> {
+            int nextNum = 0;
+            for (int i = 0; i < cases.size(); i++) {
+                ApiTestCaseWithBLOBs item = cases.get(i);
+                if (i == 0) {
+                    nextNum = apiTestCaseService.getNextNum(item.getApiDefinitionId());
+                } else {
+                    nextNum ++;
+                }
                 checkRequest.setName(item.getName());
                 checkRequest.setApiDefinitionId(item.getApiDefinitionId());
                 if (!apiTestCaseService.hasSameCase(checkRequest)) {
@@ -507,10 +514,10 @@ public class ApiDefinitionService {
                     item.setCreateUserId(SessionUtils.getUserId());
                     item.setUpdateUserId(SessionUtils.getUserId());
                     item.setProjectId(SessionUtils.getCurrentProjectId());
-                    item.setNum(getNextNum(item.getApiDefinitionId()));
+                    item.setNum(nextNum);
                     apiTestCaseMapper.insert(item);
                 }
-            });
+            }
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
             }
@@ -897,6 +904,10 @@ public class ApiDefinitionService {
     }
 
     public void removeToGcByParams(ApiBatchRequest request) {
+        // 去除Name排序
+        if (request.getCondition() != null && CollectionUtils.isNotEmpty(request.getCondition().getOrders())) {
+            request.getCondition().getOrders().clear();
+        }
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
 
@@ -1235,5 +1246,14 @@ public class ApiDefinitionService {
 
     public ApiDefinition selectUrlAndMethodById(String id) {
         return extApiDefinitionMapper.selectUrlAndMethodById(id);
+    }
+
+    public void removeToGcByExample(ApiDefinitionExampleWithOperation apiDefinitionExample) {
+        List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        List<String> apiIdList = new ArrayList<>();
+        apiList.forEach(item -> {
+         apiIdList.add(item.getId());
+        });
+        this.removeToGc(apiIdList);
     }
 }

@@ -144,7 +144,7 @@
                                  :show-config-button-with-out-permission="showConfigButtonWithOutPermission"
                                  :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover"
                                  :project-list="projectList" ref="envPopover" class="ms-message-right"/>
-                    <el-tooltip v-if="!debugLoading" content="Ctrl + R">
+                    <el-tooltip v-if="!debugLoading" content="Ctrl + R" placement="top">
                       <el-dropdown split-button type="primary" @click="runDebug" class="ms-message-right" size="mini" @command="handleCommand">
                         {{ $t('api_test.request.debug') }}
                         <el-dropdown-menu slot="dropdown">
@@ -245,7 +245,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
+        <ms-api-report-detail :scenario="currentScenario" :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -296,7 +296,7 @@ import {
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 import MsInputTag from "./MsInputTag";
 import MsRun from "./DebugRun";
-import MsApiReportDetail from "../report/ApiReportDetail";
+import MsApiReportDetail from "../report/SysnApiReportDetail";
 import MsVariableList from "./variable/VariableList";
 import ApiImport from "../../definition/components/import/ApiImport";
 import "@/common/css/material-icons.css"
@@ -414,7 +414,8 @@ export default {
       reqTotalTime: 0,
       reloadDebug: "",
       stopDebug: "",
-      isTop: false
+      isTop: false,
+      stepSize: 0,
     }
   },
   created() {
@@ -456,21 +457,21 @@ export default {
         this.editParent(node.parent, status);
       }
     },
-    findNodeChild(arr, name, index, status) {
+    findNodeChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.name === name && item.data.index === index) {
+        if (item.data.resourceId === resourceId) {
           this.editParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.findNodeChild(item.childNodes, name, index, status);
+          this.findNodeChild(item.childNodes, resourceId, status);
         }
       })
     },
-    findNode(name, index, status) {
+    findNode(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
           if (item.childNodes && item.childNodes.length > 0) {
-            this.findNodeChild(item.childNodes, name, index, status);
+            this.findNodeChild(item.childNodes, resourceId, status);
           }
         })
       }
@@ -520,8 +521,14 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let name = req.name.split('<->')[0];
-              resMap.set(req.id + name, req);
+              let key = req.resourceId;
+              if (resMap.get(key)) {
+                if (resMap.get(key).indexOf(req) === -1) {
+                  resMap.get(key).push(req);
+                }
+              } else {
+                resMap.set(key, [req]);
+              }
               if (req.success) {
                 this.reqSuccess++;
               } else {
@@ -555,6 +562,7 @@ export default {
       /*触发执行操作*/
       this.$refs['currentScenario'].validate((valid) => {
         if (valid) {
+          this.debugLoading = true;
           let definition = JSON.parse(JSON.stringify(this.currentScenario));
           definition.hashTree = this.scenarioDefinition;
           this.getEnv(JSON.stringify(definition)).then(() => {
@@ -562,6 +570,7 @@ export default {
             promise.then(() => {
               let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
               if (!sign) {
+                this.debugLoading = false;
                 return;
               }
               this.editScenario().then(() => {
@@ -577,6 +586,7 @@ export default {
                   hashTree: this.scenarioDefinition
                 };
                 this.reportId = getUUID().substring(0, 8);
+                this.debugLoading = false;
               })
             })
           })
@@ -591,6 +601,8 @@ export default {
       this.currentScenario.modulePath = data.path;
     },
     setHideBtn() {
+      this.$refs.scenarioRelevance.changeButtonLoadingType();
+      this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.isBtnHide = false;
     },
     // 打开引用的场景
@@ -610,11 +622,13 @@ export default {
       document.addEventListener("keydown", this.createCtrlSHandle);
       document.addEventListener("keydown", this.createCtrlRHandle);
       document.addEventListener("scroll", this.handleScroll, true);
+      window.addEventListener("resize", this.handleScroll);
     },
     removeListener() {
       document.removeEventListener("keydown", this.createCtrlSHandle);
       document.removeEventListener("keydown", this.createCtrlRHandle);
-      document.removeEventListener("scroll", this.handleScroll);
+      document.removeEventListener("scroll", this.handleScroll, true);
+      window.removeEventListener("onresize", this.handleScroll);
     },
     createCtrlSHandle(event) {
       handleCtrlSEvent(event, this.editScenario);
@@ -669,7 +683,7 @@ export default {
     suggestClick(node) {
       this.response = {};
       if (node.parent && node.parent.data.requestResult) {
-        this.response = node.parent.data.requestResult;
+        this.response = node.parent.data.requestResult[0];
       }
     },
     showAll() {
@@ -701,19 +715,22 @@ export default {
             arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
         }
-
-        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
-          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
-        }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(arr[i].id + arr[i].name)) {
-          arr[i].requestResult = this.debugResult.get(arr[i].id + arr[i].name);
+        let key = arr[i].resourceId;
+        if (this.debugResult && this.debugResult.get(key)) {
+          arr[i].requestResult = this.debugResult.get(key);
+          arr[i].result = null;
           arr[i].debug = this.debug;
-          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult.success);
+          this.findNode(key, arr[i].requestResult[0].success);
+        }
+        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+          this.stepSize += arr[i].hashTree.length;
+          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
       }
     },
     sort() {
+      this.stepSize = this.scenarioDefinition.length;
       for (let i in this.scenarioDefinition) {
         // 排序
         this.scenarioDefinition[i].index = Number(i) + 1;
@@ -736,13 +753,16 @@ export default {
         }
 
         if (this.scenarioDefinition[i].hashTree !== undefined && this.scenarioDefinition[i].hashTree.length > 0) {
+          this.stepSize += this.scenarioDefinition[i].hashTree.length;
           this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
         }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
-          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
+        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].resourceId)) {
+          this.scenarioDefinition[i].result = null;
+          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].resourceId);
           this.scenarioDefinition[i].debug = this.debug;
         }
+
       }
     },
     addCustomizeApi(request) {
@@ -762,6 +782,7 @@ export default {
         arr.forEach(item => {
           if (item.id === this.currentScenario.id) {
             this.$error("不能引用或复制自身！");
+            this.$refs.scenarioRelevance.changeButtonLoadingType();
             return;
           }
           if (!item.hashTree) {
@@ -800,6 +821,7 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
+      request.requestResult = undefined;
       if (!request.url) {
         request.url = "";
       }
@@ -817,6 +839,7 @@ export default {
         this.setApiParameter(item, refType, referenced);
       });
       this.isBtnHide = false;
+      this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.sort();
       this.reload();
     },
@@ -953,10 +976,10 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (dropType != "inner") {
+      if (dropType != "inner" && (draggingNode.data && !draggingNode.data.disabled)) {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
         return true;
       }
       return false;
@@ -1185,14 +1208,13 @@ export default {
     shrinkTreeNode() {
       //改变每个节点的状态
       for (let i in this.scenarioDefinition) {
-        if (i > 30 && this.expandedStatus) {
-          continue;
-        }
         if (this.scenarioDefinition[i]) {
           if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
             this.expandedNode.push(this.scenarioDefinition[i].resourceId);
           }
-          this.scenarioDefinition[i].active = this.expandedStatus;
+          if (this.stepSize < 35) {
+            this.scenarioDefinition[i].active = this.expandedStatus;
+          }
           if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
             this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
           }
@@ -1205,7 +1227,9 @@ export default {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          nodes[i].active = this.expandedStatus;
+          if (this.stepSize < 35) {
+            nodes[i].active = this.expandedStatus;
+          }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
           }
@@ -1213,22 +1237,9 @@ export default {
       }
     },
     openExpansion() {
-      if (this.scenarioDefinition && this.scenarioDefinition.length > 30) {
-        this.$alert(this.$t('api_test.definition.request.step_message'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.expandedNode = [];
-              this.expandedStatus = true;
-              this.shrinkTreeNode();
-            }
-          }
-        });
-      } else {
-        this.expandedNode = [];
-        this.expandedStatus = true;
-        this.shrinkTreeNode();
-      }
+      this.expandedNode = [];
+      this.expandedStatus = true;
+      this.shrinkTreeNode();
     },
     closeExpansion() {
       this.expandedStatus = false;
@@ -1269,7 +1280,7 @@ export default {
       let stepInfo = this.$refs.stepInfo;
       let debugHeader = this.$refs.debugHeader;
       if (debugHeader) {
-        let originWidth = debugHeader.clientWidth;
+        let originWidth = debugHeader.parentElement.clientWidth;
         if (stepInfo.getBoundingClientRect().top <= 178) {
           this.isTop = true;
           if (originWidth > 0) {

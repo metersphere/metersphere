@@ -33,6 +33,9 @@ export function findThreadGroup(jmxContent, handler) {
 
   let csvFiles = [];
   relateFiles.forEach(f => {
+    if (f.attributes.enabled === 'false') {
+      return;
+    }
     f.elements.forEach(e => {
       if (e.attributes.name === 'filename') {
         let filename = e.elements[0].text;

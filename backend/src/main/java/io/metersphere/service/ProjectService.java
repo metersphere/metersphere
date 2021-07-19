@@ -32,6 +32,7 @@ import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -59,6 +60,7 @@ public class ProjectService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
+    @Lazy
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
@@ -98,10 +100,7 @@ public class ProjectService {
         }
         project.setId(UUID.randomUUID().toString());
 
-
-        long allCount = projectMapper.countByExample(null);
-        String systemId = String.valueOf(100001 + allCount);
-
+        String systemId = this.genSystemId();
         long createTime = System.currentTimeMillis();
         project.setCreateTime(createTime);
         project.setUpdateTime(createTime);
@@ -121,6 +120,32 @@ public class ProjectService {
         // 创建新项目检查当前用户 last_project_id
         extUserMapper.updateLastProjectIdIfNull(project.getId(), SessionUtils.getUserId());
 
+        return project;
+    }
+
+    private String genSystemId() {
+        String maxSystemIdInDb = extProjectMapper.getMaxSystemId();
+        String systemId = "10001";
+        if(StringUtils.isNotEmpty(maxSystemIdInDb)){
+            systemId = String.valueOf(Long.parseLong(maxSystemIdInDb) + 1);
+        }
+        return systemId;
+    }
+
+    public Project checkSystemId(Project project){
+        if(project!=null){
+            ProjectExample example = new ProjectExample();
+            example.createCriteria().andSystemIdEqualTo(project.getSystemId());
+            long count = projectMapper.countByExample(example);
+            if(count > 1){
+                String systemId = this.genSystemId();
+                Project updateModel = new Project();
+                updateModel.setId(project.getId());
+                updateModel.setSystemId(systemId);
+                projectMapper.updateByPrimaryKeySelective(updateModel);
+                project = this.getProjectById(project.getId());
+            }
+        }
         return project;
     }
 
@@ -238,9 +263,6 @@ public class ProjectService {
         checkProjectExist(project);
         if (BooleanUtils.isTrue(project.getCustomNum())) {
             testCaseService.updateTestCaseCustomNumByProjectId(project.getId());
-        }
-        if (BooleanUtils.isTrue(project.getScenarioCustomNum())) {
-            apiAutomationService.updateCustomNumByProjectId(project.getId());
         }
         projectMapper.updateByPrimaryKeySelective(project);
     }

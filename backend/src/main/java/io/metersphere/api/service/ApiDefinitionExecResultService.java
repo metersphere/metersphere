@@ -101,6 +101,9 @@ public class ApiDefinitionExecResultService {
                         apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
                         apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
 
+                        if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
+                            saveResult.setTriggerMode(TriggerMode.MANUAL.name());
+                        }
                         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
                         if (!saved) {
                             definitionExecResultMapper.insert(saveResult);

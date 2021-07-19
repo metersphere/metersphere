@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.*;
 import io.metersphere.commons.utils.LogUtil;
@@ -34,6 +35,9 @@ public class MsResultService {
     }
 
     public void setCache(String key, SampleResult result) {
+        if (key.startsWith("[") && key.endsWith("]")) {
+            key = JSON.parseArray(key).get(0).toString();
+        }
         TestResult testResult = this.getResult(key);
         if (testResult == null) {
             testResult = new TestResult();
@@ -98,9 +102,16 @@ public class MsResultService {
 
     public String getJmeterLogger(String testId, boolean removed) {
         Long startTime = FixedTask.tasks.get(testId);
+        if (startTime == null) {
+            startTime = FixedTask.tasks.get("[" + testId + "]");
+        }
+        if (startTime == null) {
+            startTime = System.currentTimeMillis();
+        }
         Long endTime = System.currentTimeMillis();
+        Long finalStartTime = startTime;
         String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
-                .filter(map -> map.getKey() > startTime && map.getKey() < endTime)
+                .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
                 .map(map -> map.getValue()).collect(Collectors.joining());
         if (removed) {
             FixedTask.tasks.remove(testId);
@@ -114,6 +125,7 @@ public class MsResultService {
     public RequestResult getRequestResult(SampleResult result) {
         RequestResult requestResult = new RequestResult();
         requestResult.setId(result.getSamplerId());
+        requestResult.setResourceId(result.getResourceId());
         requestResult.setName(result.getSampleLabel());
         requestResult.setUrl(result.getUrlAsString());
         requestResult.setMethod(getMethod(result));

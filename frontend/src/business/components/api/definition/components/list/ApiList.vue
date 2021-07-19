@@ -171,7 +171,7 @@
     </div>
     <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :data-count="$refs.table ? $refs.table.selectDataCounts : 0" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="search"/>
     <case-batch-move @refresh="initTable" @moveSave="moveSave" ref="testCaseBatchMove"></case-batch-move>
@@ -436,12 +436,14 @@ export default {
   },
   watch: {
     selectNodeIds() {
-      initCondition(this.condition, false);
-      this.currentPage = 1;
-      this.condition.moduleIds = [];
-      this.condition.moduleIds.push(this.selectNodeIds);
-      this.closeCaseModel();
-      this.initTable();
+      if(!this.trashEnable){
+        initCondition(this.condition, false);
+        this.currentPage = 1;
+        this.condition.moduleIds = [];
+        this.condition.moduleIds.push(this.selectNodeIds);
+        this.closeCaseModel();
+        this.initTable();
+      }
     },
     currentProtocol() {
       this.currentPage = 1;
@@ -488,7 +490,9 @@ export default {
 
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
-      this.condition.moduleIds = this.selectNodeIds;
+      if(!this.trashEnable){
+        this.condition.moduleIds = this.selectNodeIds;
+      }
       this.condition.projectId = this.projectId;
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
@@ -644,13 +648,15 @@ export default {
       let rows = {ids: [tmp.id]};
       this.$post('/api/definition/reduction/', rows, () => {
         this.$success(this.$t('commons.save_success'));
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleBatchRestore() {
       this.$post('/api/definition/reduction/', buildBatchParam(this, this.$refs.table.selectIds), () => {
         this.$success(this.$t('commons.save_success'));
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleDeleteBatch() {
@@ -661,7 +667,8 @@ export default {
             if (action === 'confirm') {
               this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
                 this.$refs.table.clear();
-                this.initTable();
+                // this.initTable();
+                this.$emit("refreshTable");
                 this.$success(this.$t('commons.delete_success'));
               });
             }
@@ -674,7 +681,8 @@ export default {
             if (action === 'confirm') {
               this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
                 this.$refs.table.clear();
-                this.initTable();
+                // this.initTable();
+                this.$emit("refreshTable");
                 this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();
               });
@@ -733,7 +741,8 @@ export default {
       if (this.trashEnable) {
         this.$get('/api/definition/delete/' + api.id, () => {
           this.$success(this.$t('commons.delete_success'));
-          this.initTable();
+          // this.initTable();
+          this.$emit("refreshTable");
         });
         return;
       }
@@ -744,7 +753,8 @@ export default {
             let ids = [api.id];
             this.$post('/api/definition/removeToGc/', ids, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit("refreshTable");
               this.$refs.caseList.apiCaseClose();
             });
           }

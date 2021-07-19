@@ -54,7 +54,6 @@ public class ScheduleService {
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(UUID.randomUUID().toString());
-        schedule.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
         scheduleMapper.insert(schedule);
@@ -149,6 +148,8 @@ public class ScheduleService {
         schedule.setValue(request.getValue().trim());
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());
+        schedule.setProjectId(request.getProjectId());
+        schedule.setWorkspaceId(request.getWorkspaceId());
         return schedule;
     }
 

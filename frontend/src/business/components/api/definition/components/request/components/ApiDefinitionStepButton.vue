@@ -4,6 +4,10 @@
     <br/>
     <el-button class="ms-left-buttion" size="small" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
     <br/>
+    <el-button class="ms-left-buttion" size="small" @click="addPreSql">+{{$t('api_test.definition.request.pre_sql')}}</el-button>
+    <br/>
+    <el-button class="ms-left-buttion" size="small" @click="addPostSql">+{{$t('api_test.definition.request.post_sql')}}</el-button>
+    <br/>
     <el-button class="ms-left-buttion" size="small" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
     <br/>
     <el-button class="ms-left-buttion" size="small" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
@@ -39,6 +43,20 @@
           }
           this.request.hashTree.push(jsr223PostProcessor);
         },
+        addPreSql() {
+          let jdbcPreProcessor = createComponent("JDBCPreProcessor");
+          if (!this.request.hashTree) {
+            this.request.hashTree = [];
+          }
+          this.request.hashTree.push(jdbcPreProcessor);
+        },
+        addPostSql() {
+          let jdbcPostProcessor = createComponent("JDBCPostProcessor");
+          if (!this.request.hashTree) {
+            this.request.hashTree = [];
+          }
+          this.request.hashTree.push(jdbcPostProcessor);
+        },
         addAssertions() {
           let assertions = new Assertions();
           if (!this.request.hashTree) {
@@ -71,14 +89,24 @@
     background-color: #F2ECF3;
     border: #F2ECF3;
   }
-
   .ms-left-cell .el-button:nth-of-type(3) {
+    color: #FE6F71;
+    background-color: #F9F1EA;
+    border: #EBF2F2;
+  }
+
+  .ms-left-cell .el-button:nth-of-type(4) {
+    color: #1483F6;
+    background-color: #F2ECF3;
+    border: #F2ECF3;
+  }
+  .ms-left-cell .el-button:nth-of-type(5) {
     color: #A30014;
     background-color: #F7E6E9;
     border: #F7E6E9;
   }
 
-  .ms-left-cell .el-button:nth-of-type(4) {
+  .ms-left-cell .el-button:nth-of-type(6) {
     color: #015478;
     background-color: #E6EEF2;
     border: #E6EEF2;

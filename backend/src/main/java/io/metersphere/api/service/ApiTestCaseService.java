@@ -93,8 +93,12 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        if (request.getModuleIds() == null && request.getModuleId() != null) {
+            List<String> moduleIds = new ArrayList<>();
+            moduleIds.add(request.getModuleId());
+            request.setModuleIds(moduleIds);
+        }
         List<ApiTestCaseResult> returnList = extApiTestCaseMapper.list(request);
-
         for (ApiTestCaseResult res : returnList) {
             if (StringUtils.equalsIgnoreCase(res.getApiMethod(), "esb")) {
                 esbApiParamService.handleApiEsbParams(res);
@@ -320,7 +324,7 @@ public class ApiTestCaseService {
         return test;
     }
 
-    private int getNextNum(String definitionId) {
+    public int getNextNum(String definitionId) {
         ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
         if (apiTestCase == null) {
             int n = apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum();
@@ -810,6 +814,7 @@ public class ApiTestCaseService {
             cannotReductionApiCaseList.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
             List<String> deleteIds = ids.stream().filter(id -> !cannotReductionCaseId.contains(id)).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(deleteIds)){
+                extApiTestCaseMapper.checkOriginalStatusByIds(deleteIds);
                 extApiTestCaseMapper.reduction(deleteIds);
             }
         }

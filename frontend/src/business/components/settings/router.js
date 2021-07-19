@@ -35,12 +35,12 @@ export default {
     {
       path: 'workspace/template/case',
       component: () => import('@/business/components/settings/workspace/template/TestCaseTemplateList'),
-      meta: {workspaceTemplate: true, title: '用例模板', permissions: ['WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE']},
+      meta: {workspaceTemplate: true, title: 'workspace.case_template_manage', permissions: ['WORKSPACE_TEMPLATE:READ+CASE_TEMPLATE']},
     },
     {
       path: 'workspace/template/issues',
       component: () => import('@/business/components/settings/workspace/template/IssuesTemplateList'),
-      meta: {workspaceTemplate: true, title: '缺陷模板', permissions: ['WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE']},
+      meta: {workspaceTemplate: true, title: 'workspace.issue_template_manage', permissions: ['WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE']},
     },
     {
       path: 'workspace/template/report',

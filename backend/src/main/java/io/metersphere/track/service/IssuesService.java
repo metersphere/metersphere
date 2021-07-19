@@ -1,6 +1,8 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
@@ -32,6 +34,7 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,6 +78,8 @@ public class IssuesService {
     private TestCaseMapper testCaseMapper;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
 
     public void testAuth(String orgId, String platform) {
         IssuesRequest issuesRequest = new IssuesRequest();
@@ -87,6 +92,18 @@ public class IssuesService {
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
             platform.addIssue(issuesRequest);
+        });
+        issuesRequest.getTestCaseIds().forEach(l -> {
+            try {
+                List<IssuesDao> issues = this.getIssues(l);
+                if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
+                    LogUtil.error(l + "下的缺陷为空");
+                }
+                int issuesCount = issues.size();
+                testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
+            } catch (Exception e) {
+                LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
+            }
         });
         noticeIssueEven(issuesRequest, "IssuesCreate");
     }
@@ -346,8 +363,12 @@ public class IssuesService {
             }
             TestCaseIssuesExample example = new TestCaseIssuesExample();
             example.createCriteria().andIssuesIdEqualTo(item.getId());
-            long caseCount = testCaseIssuesMapper.countByExample(example);
-            item.setCaseCount(caseCount);
+            List<TestCaseIssues> testCaseIssues = testCaseIssuesMapper.selectByExample(example);
+            List<String> caseIds = testCaseIssues.stream()
+                    .map(TestCaseIssues::getTestCaseId)
+                    .collect(Collectors.toList());
+            item.setCaseIds(caseIds);
+            item.setCaseCount(testCaseIssues.size());
         });
         return issues;
     }
@@ -386,6 +407,30 @@ public class IssuesService {
                 LogUtil.error(e.getMessage(), e);
             }
         });
+    }
+
+    public void issuesCount() {
+        LogUtil.info("测试计划-测试用例同步缺陷信息开始");
+        int pageSize = 100;
+        int pages = 1;
+        for (int i = 0; i < pages; i++) {
+            Page<List<TestPlanTestCase>> page = PageHelper.startPage(i, pageSize, true);
+            List<TestPlanTestCaseWithBLOBs> list = testPlanTestCaseService.listAll();
+            pages = page.getPages();// 替换成真实的值
+            list.forEach(l -> {
+                try {
+                    List<IssuesDao> issues = this.getIssues(l.getCaseId());
+                    if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
+                        return;
+                    }
+                    int issuesCount = issues.size();
+                    testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), JSON.toJSONString(issues));
+                } catch (Exception e) {
+                    LogUtil.error("定时任务处理bug数量报错planId: {}, message: {}", l.getPlanId(), ExceptionUtils.getStackTrace(e));
+                }
+            });
+        }
+        LogUtil.info("测试计划-测试用例同步缺陷信息结束");
     }
 
     public void syncThirdPartyIssues(String projectId) {

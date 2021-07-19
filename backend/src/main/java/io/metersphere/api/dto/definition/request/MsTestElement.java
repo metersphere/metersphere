@@ -13,7 +13,9 @@ import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
+import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -59,6 +61,8 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = MsJSR223Processor.class, name = "JSR223Processor"),
         @JsonSubTypes.Type(value = MsJSR223PostProcessor.class, name = "JSR223PostProcessor"),
         @JsonSubTypes.Type(value = MsJSR223PreProcessor.class, name = "JSR223PreProcessor"),
+        @JsonSubTypes.Type(value = MsJDBCPreProcessor.class, name = "JDBCPreProcessor"),
+        @JsonSubTypes.Type(value = MsJDBCPostProcessor.class, name = "JDBCPostProcessor"),
         @JsonSubTypes.Type(value = MsTestPlan.class, name = "TestPlan"),
         @JsonSubTypes.Type(value = MsThreadGroup.class, name = "ThreadGroup"),
         @JsonSubTypes.Type(value = MsAuthManager.class, name = "AuthManager"),
@@ -75,7 +79,7 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = MsJmeterElement.class, name = "JmeterElement"),
 
 })
-@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
+@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class, MsJDBCPreProcessor.class, MsJDBCPostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, MsAuthManager.class, MsAssertions.class,
         MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsTransactionController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
 @Data
@@ -203,6 +207,7 @@ public abstract class MsTestElement {
                     csvDataSet.setProperty("shareMode", shareMode);
                     csvDataSet.setProperty("recycle", true);
                     csvDataSet.setProperty("delimiter", item.getDelimiter());
+                    csvDataSet.setProperty("quotedData", item.isQuotedData());
                     csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
                     tree.add(csvDataSet);
                 });
