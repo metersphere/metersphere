@@ -126,6 +126,10 @@
         return uploadFiles;
       },
       _save(environment) {
+        if(!this.projectId){
+          this.$warning(this.$t('api_test.select_project'));
+          return;
+        }
         let bodyFiles = this.geFiles(environment);
         let param = this.buildParam(environment);
         let url = '/api/environment/add';

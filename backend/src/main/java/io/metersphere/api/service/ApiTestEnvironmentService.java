@@ -116,6 +116,9 @@ public class ApiTestEnvironmentService {
     }
     private void checkEnvironmentExist(ApiTestEnvironmentWithBLOBs environment) {
         if (environment.getName() != null) {
+            if(StringUtils.isEmpty(environment.getProjectId())){
+                MSException.throwException(Translator.get("项目ID不能为空"));
+            }
             ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
             ApiTestEnvironmentExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(environment.getName())
