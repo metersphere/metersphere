@@ -48,6 +48,7 @@ import TestPlanApi from "./comonents/api/TestPlanApi";
 import TestCaseStatisticsReportView from "./comonents/report/statistics/TestCaseStatisticsReportView";
 import TestReportTemplateList from "./comonents/TestReportTemplateList";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestPlanView",
@@ -114,7 +115,7 @@ export default {
       }
     },
     getTestPlans() {
-      this.$post('/test/plan/list/all', {}, response => {
+      this.$post('/test/plan/list/all', {projectId: getCurrentProjectID()}, response => {
         this.testPlans = response.data;
         this.testPlans.forEach(plan => {
           if (this.planId && plan.id === this.planId) {
