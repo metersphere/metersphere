@@ -683,7 +683,7 @@ export default {
     suggestClick(node) {
       this.response = {};
       if (node.parent && node.parent.data.requestResult) {
-        this.response = node.parent.data.requestResult;
+        this.response = node.parent.data.requestResult[0];
       }
     },
     showAll() {
