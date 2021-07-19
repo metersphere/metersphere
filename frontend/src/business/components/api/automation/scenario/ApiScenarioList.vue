@@ -775,8 +775,11 @@ export default {
         //let ids = Array.from(this.selectRows).map(row => row.id);
         let param = {};
         this.buildBatchParam(param);
+        this.result.loading = true;
         this.$post('/api/automation/deleteBatchByCondition/', param, () => {
           this.$success(this.$t('commons.delete_success'));
+          this.search();
+        }, (error) => {
           this.search();
         });
         return;
