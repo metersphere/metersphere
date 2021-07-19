@@ -560,23 +560,15 @@ public class TestPlanService {
         return extTestPlanMapper.listRecent(SessionUtils.getUserId(), projectId);
     }
 
-    public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
-        if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-            TestPlanExample testPlanExample = new TestPlanExample();
-            TestPlanExample.Criteria criteria = testPlanExample.createCriteria();
-            criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
-            List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
-            if (!CollectionUtils.isEmpty(testPlans)) {
-                List<String> testPlanIds = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
-                TestPlanExample testPlanExample1 = new TestPlanExample();
-                TestPlanExample.Criteria testPlanCriteria = testPlanExample1.createCriteria();
-                testPlanCriteria.andWorkspaceIdEqualTo(currentWorkspaceId);
-                testPlanCriteria.andIdIn(testPlanIds);
-                return testPlanMapper.selectByExample(testPlanExample1);
-            }
+    public List<TestPlan> listTestAllPlan(QueryTestPlanRequest request) {
+        String projectId = request.getProjectId();
+        if (StringUtils.isBlank(projectId)) {
+            return new ArrayList<>();
         }
 
-        return new ArrayList<>();
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        return testPlanMapper.selectByExample(example);
     }
 
     public List<TestPlanDTOWithMetric> listRelateAllPlan() {
