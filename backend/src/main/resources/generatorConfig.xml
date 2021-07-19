@@ -64,7 +64,7 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="test_plan_test_case"/>
+        <!--<table tableName="test_plan_test_case"/>-->
         <!--<table tableName="swagger_url_project"/>
         <table tableName="user_header"/>-->
         <!--<table tableName="test_plan_api_scenario"/>-->
@@ -78,16 +78,14 @@
         <table tableName="test_plan"/>
         <table tableName="test_case_test"/>-->
 <!--        <table tableName="api_test_environment"></table>-->
-<!--
         <table tableName="project"></table>
--->
 <!--        <table tableName="custom_field"></table>-->
 <!--        <table tableName="test_case"></table>-->
 <!--        <table tableName="test_case"></table>-->
-        <table tableName="api_scenario"></table>
+<!--        <table tableName="api_scenario"></table>
         <table tableName="test_case"></table>
         <table tableName="api_test_case"></table>
-        <table tableName="api_definition"></table>
+        <table tableName="api_definition"></table>-->
 
 
 

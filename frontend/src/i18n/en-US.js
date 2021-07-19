@@ -401,6 +401,7 @@ export default {
       zentao_request: 'Zentao request',
       input_zentao_request: 'Please enter zentao request type',
       input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
+      input_api_pat:'请输入 Personal Access Token',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
@@ -415,7 +416,10 @@ export default {
       successful_operation: 'Successful operation',
       not_integrated: 'The platform is not integrated',
       choose_platform: 'Please choose an integrated platform',
-      verified: 'Verified'
+      verified: 'Verified',
+      azure_pat:'PersonalAccessTokens',
+      azure_devops_url:'Azure Devops url',
+      azure_organization:'Azure Organization ID',
     }
   },
   project: {
@@ -436,6 +440,7 @@ export default {
     tapd_id: 'TAPD Project ID',
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
+    azureDevops_id: 'AzureDevops Project ID',
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',

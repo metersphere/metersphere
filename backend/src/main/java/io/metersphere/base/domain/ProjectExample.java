@@ -714,6 +714,76 @@ public class ProjectExample {
             return (Criteria) this;
         }
 
+        public Criteria andAzureDevopsIdIsNull() {
+            addCriterion("azure_devops_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdIsNotNull() {
+            addCriterion("azure_devops_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdEqualTo(String value) {
+            addCriterion("azure_devops_id =", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdNotEqualTo(String value) {
+            addCriterion("azure_devops_id <>", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdGreaterThan(String value) {
+            addCriterion("azure_devops_id >", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdGreaterThanOrEqualTo(String value) {
+            addCriterion("azure_devops_id >=", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdLessThan(String value) {
+            addCriterion("azure_devops_id <", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdLessThanOrEqualTo(String value) {
+            addCriterion("azure_devops_id <=", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdLike(String value) {
+            addCriterion("azure_devops_id like", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdNotLike(String value) {
+            addCriterion("azure_devops_id not like", value, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdIn(List<String> values) {
+            addCriterion("azure_devops_id in", values, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdNotIn(List<String> values) {
+            addCriterion("azure_devops_id not in", values, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdBetween(String value1, String value2) {
+            addCriterion("azure_devops_id between", value1, value2, "azureDevopsId");
+            return (Criteria) this;
+        }
+
+        public Criteria andAzureDevopsIdNotBetween(String value1, String value2) {
+            addCriterion("azure_devops_id not between", value1, value2, "azureDevopsId");
+            return (Criteria) this;
+        }
+
         public Criteria andRepeatableIsNull() {
             addCriterion("`repeatable` is null");
             return (Criteria) this;

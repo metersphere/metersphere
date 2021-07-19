@@ -12,13 +12,16 @@
         <el-radio label="Zentao">
           <img class="zentao_platform" src="../../../../assets/zentao.jpg" alt="Zentao"/>
         </el-radio>
+        <el-radio label="AzureDevops" v-xpack>
+          <img class="platform" src="../../../../assets/jira.png" alt="AzureDevops"/>
+        </el-radio>
       </el-radio-group>
     </div>
 
     <tapd-setting v-if="tapdEnable" ref="tapdSetting"/>
     <jira-setting v-if="jiraEnable" ref="jiraSetting"/>
     <zentao-setting v-if="zentaoEnable" ref="zentaoSetting"/>
-
+    <azuredevops-setting v-if="azuredevopsEnable" ref="azureDevopsSetting"/>
   </div>
 </template>
 
@@ -26,16 +29,18 @@
 import TapdSetting from "@/business/components/settings/organization/components/TapdSetting";
 import JiraSetting from "@/business/components/settings/organization/components/JiraSetting";
 import ZentaoSetting from "@/business/components/settings/organization/components/ZentaoSetting";
-import {JIRA, TAPD, ZEN_TAO} from "@/common/js/constants";
+import AzuredevopsSetting from "@/business/components/settings/organization/components/AzureDevopsSetting";
+import {JIRA, TAPD, ZEN_TAO, AZURE_DEVOPS} from "@/common/js/constants";
 
 export default {
   name: "BugManagement",
-  components: {TapdSetting, JiraSetting, ZentaoSetting},
+  components: {TapdSetting, JiraSetting, ZentaoSetting, AzuredevopsSetting},
   data() {
     return {
       tapdEnable: true,
       jiraEnable: false,
       zentaoEnable: false,
+      azuredevopsEnable:false,
       result: {},
       platform: TAPD
     }
@@ -46,14 +51,22 @@ export default {
         this.tapdEnable = true;
         this.jiraEnable = false;
         this.zentaoEnable = false;
+        this.azuredevopsEnable = false;
       } else if (platform === JIRA) {
         this.tapdEnable = false;
         this.jiraEnable = true;
         this.zentaoEnable = false;
+        this.azuredevopsEnable = false;
       } else if (platform === ZEN_TAO) {
         this.tapdEnable = false;
         this.jiraEnable = false;
         this.zentaoEnable = true;
+        this.azuredevopsEnable = false;
+      } else if (platform === AZURE_DEVOPS) {
+        this.tapdEnable = false;
+        this.jiraEnable = false;
+        this.zentaoEnable = false;
+        this.azuredevopsEnable = true;
       }
     }
   }

@@ -393,6 +393,7 @@ export default {
       jira_storytype: '需求類型',
       input_api_account: '請輸入賬號',
       input_api_password: '請輸入密碼',
+      input_api_pat:'請输入 Personal Access Token',
       input_jira_url: '請輸入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '請輸入問題類型',
       input_jira_storytype: '請輸入需求類型',
@@ -414,7 +415,10 @@ export default {
       successful_operation: '操作成功',
       not_integrated: '未集成該平臺',
       choose_platform: '請選擇集成的平臺',
-      verified: '驗證通過'
+      verified: '驗證通過',
+      azure_pat:'PersonalAccessTokens',
+      azure_devops_url:'Azure Devops 地址',
+      azure_organization:'Azure 組織 ID',
     }
   },
   project: {
@@ -435,6 +439,7 @@ export default {
     tapd_id: 'TAPD項目ID',
     jira_key: 'JIRA項目key',
     zentao_id: 'Zentao項目ID',
+    azureDevops_id: 'AzureDevops項目ID',
     manager: '項目管理',
     no_data: '無數據',
     select: '選擇項目',
