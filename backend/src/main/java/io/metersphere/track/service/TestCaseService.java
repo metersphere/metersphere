@@ -19,10 +19,7 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.dto.TestCaseTemplateDao;
-import io.metersphere.excel.domain.ExcelErrData;
-import io.metersphere.excel.domain.ExcelResponse;
-import io.metersphere.excel.domain.TestCaseExcelData;
-import io.metersphere.excel.domain.TestCaseExcelDataFactory;
+import io.metersphere.excel.domain.*;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.excel.listener.TestCaseNoModelDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
@@ -330,6 +327,37 @@ public class TestCaseService {
             request.getFilters().put("status",new ArrayList<>(0));
         }
         List<TestCaseDTO> returnList = extTestCaseMapper.list(request);
+        returnList = this.parseStatus(returnList);
+        return returnList;
+    }
+
+    private List<TestCaseDTO> parseStatus(List<TestCaseDTO> returnList) {
+        TestCaseExcelData excelData = new TestCaseExcelDataFactory().getTestCaseExcelDataLocal();
+        for (TestCaseDTO data :returnList) {
+            String dataStatus = excelData.parseStatus(data.getStatus());
+
+            if(StringUtils.equalsAnyIgnoreCase(data.getStatus(),"Trash")){
+                try {
+                    JSONArray arr = JSONArray.parseArray(data.getCustomFields());
+                    JSONArray newArr = new JSONArray();
+                    for(int i = 0;i<arr.size();i++){
+                        JSONObject obj = arr.getJSONObject(i);
+                        if(obj.containsKey("name") && obj.containsKey("value")){
+                            String name = obj.getString("name");
+                            if(StringUtils.equalsAny(name,"用例状态","用例狀態","Case status")){
+                                obj.put("value",dataStatus);
+                            }
+                        }
+                        newArr.add(obj);
+                    }
+                    data.setCustomFields(newArr.toJSONString());
+                }catch (Exception e){
+
+                }
+            }
+
+            data.setStatus(dataStatus);
+        }
         return returnList;
     }
 
