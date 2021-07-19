@@ -130,7 +130,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
      *
      * @return 其他平台和本地项目绑定的属性值
      */
-    abstract String getProjectId(String projectId);
+    public abstract String getProjectId(String projectId);
 
     protected boolean isIntegratedPlatform(String orgId, String platform) {
         IntegrationRequest request = new IntegrationRequest();

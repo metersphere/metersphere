@@ -11,6 +11,7 @@
     <result column="tapd_id" jdbcType="VARCHAR" property="tapdId" />
     <result column="jira_key" jdbcType="VARCHAR" property="jiraKey" />
     <result column="zentao_id" jdbcType="VARCHAR" property="zentaoId" />
+    <result column="azure_devops_id" jdbcType="VARCHAR" property="azureDevopsId" />
     <result column="repeatable" jdbcType="BIT" property="repeatable" />
     <result column="case_template_id" jdbcType="VARCHAR" property="caseTemplateId" />
     <result column="issue_template_id" jdbcType="VARCHAR" property="issueTemplateId" />
@@ -79,8 +80,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
-    zentao_id, `repeatable`, case_template_id, issue_template_id, custom_num, scenario_custom_num, 
-    create_user, system_id
+    zentao_id, azure_devops_id, `repeatable`, case_template_id, issue_template_id, custom_num, 
+    scenario_custom_num, create_user, system_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -116,15 +117,15 @@
     insert into project (id, workspace_id, `name`, 
       description, create_time, update_time, 
       tapd_id, jira_key, zentao_id, 
-      `repeatable`, case_template_id, issue_template_id, 
-      custom_num, scenario_custom_num, create_user, 
-      system_id)
+      azure_devops_id, `repeatable`, case_template_id, 
+      issue_template_id, custom_num, scenario_custom_num, 
+      create_user, system_id)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
-      #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, #{issueTemplateId,jdbcType=VARCHAR}, 
-      #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
-      #{systemId,jdbcType=VARCHAR})
+      #{azureDevopsId,jdbcType=VARCHAR}, #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, 
+      #{issueTemplateId,jdbcType=VARCHAR}, #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, 
+      #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -155,6 +156,9 @@
       </if>
       <if test="zentaoId != null">
         zentao_id,
+      </if>
+      <if test="azureDevopsId != null">
+        azure_devops_id,
       </if>
       <if test="repeatable != null">
         `repeatable`,
@@ -205,6 +209,9 @@
       </if>
       <if test="zentaoId != null">
         #{zentaoId,jdbcType=VARCHAR},
+      </if>
+      <if test="azureDevopsId != null">
+        #{azureDevopsId,jdbcType=VARCHAR},
       </if>
       <if test="repeatable != null">
         #{repeatable,jdbcType=BIT},
@@ -265,6 +272,9 @@
       <if test="record.zentaoId != null">
         zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
       </if>
+      <if test="record.azureDevopsId != null">
+        azure_devops_id = #{record.azureDevopsId,jdbcType=VARCHAR},
+      </if>
       <if test="record.repeatable != null">
         `repeatable` = #{record.repeatable,jdbcType=BIT},
       </if>
@@ -302,6 +312,7 @@
       tapd_id = #{record.tapdId,jdbcType=VARCHAR},
       jira_key = #{record.jiraKey,jdbcType=VARCHAR},
       zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
+      azure_devops_id = #{record.azureDevopsId,jdbcType=VARCHAR},
       `repeatable` = #{record.repeatable,jdbcType=BIT},
       case_template_id = #{record.caseTemplateId,jdbcType=VARCHAR},
       issue_template_id = #{record.issueTemplateId,jdbcType=VARCHAR},
@@ -340,6 +351,9 @@
       <if test="zentaoId != null">
         zentao_id = #{zentaoId,jdbcType=VARCHAR},
       </if>
+      <if test="azureDevopsId != null">
+        azure_devops_id = #{azureDevopsId,jdbcType=VARCHAR},
+      </if>
       <if test="repeatable != null">
         `repeatable` = #{repeatable,jdbcType=BIT},
       </if>
@@ -374,6 +388,7 @@
       tapd_id = #{tapdId,jdbcType=VARCHAR},
       jira_key = #{jiraKey,jdbcType=VARCHAR},
       zentao_id = #{zentaoId,jdbcType=VARCHAR},
+      azure_devops_id = #{azureDevopsId,jdbcType=VARCHAR},
       `repeatable` = #{repeatable,jdbcType=BIT},
       case_template_id = #{caseTemplateId,jdbcType=VARCHAR},
       issue_template_id = #{issueTemplateId,jdbcType=VARCHAR},

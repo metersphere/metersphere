@@ -109,6 +109,7 @@ export default {
         Jira: 'JIRA',
         Tapd: 'Tapd',
         Zentao: '禅道',
+        AzureDevops: 'Azure Devops',
       },
       operators: [
         {

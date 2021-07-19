@@ -122,6 +122,9 @@
             </template>
           </ms-instructions-icon>
         </el-form-item>
+        <el-form-item :label-width="labelWidth" :label="$t('project.azureDevops_id')" v-if="azuredevops">
+          <el-input v-model="form.azureDevopsId" autocomplete="off"></el-input>
+        </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
@@ -206,6 +209,7 @@ export default {
       tapd: false,
       jira: false,
       zentao: false,
+      azuredevops: false,
       form: {},
       currentPage: 1,
       pageSize: 10,
@@ -299,6 +303,9 @@ export default {
         if (platforms.indexOf("Zentao") !== -1) {
           this.zentao = true;
         }
+        if (platforms.indexOf("AzureDevops") !== -1) {
+          this.azuredevops = true;
+        }
       });
     },
     submit(formName) {
@@ -359,6 +366,7 @@ export default {
       this.tapd = false;
       this.jira = false;
       this.zentao = false;
+      this.azuredevops = false;
     },
     search() {
       this.list();
