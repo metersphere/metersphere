@@ -63,9 +63,8 @@ public class TestPlanController {
     }
 
     @PostMapping("/list/all")
-    public List<TestPlan> listAll() {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        return testPlanService.listTestAllPlan(currentWorkspaceId);
+    public List<TestPlan> listAll(@RequestBody QueryTestPlanRequest request) {
+        return testPlanService.listTestAllPlan(request);
     }
 
     @PostMapping("/list/all/relate")
