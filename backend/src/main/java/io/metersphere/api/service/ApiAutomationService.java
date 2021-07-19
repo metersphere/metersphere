@@ -1040,7 +1040,9 @@ public class ApiAutomationService {
                     public void run() {
                         List<String> reportIds = new LinkedList<>();
                         for (APIScenarioReportResult key : map.keySet()) {
-                            key.setExecuteType(ExecuteType.Marge.name());
+                            if (StringUtils.isNotEmpty(serialReportId)) {
+                                key.setExecuteType(ExecuteType.Marge.name());
+                            }
                             apiScenarioReportMapper.insert(key);
                             reportIds.add(key.getId());
                             try {
