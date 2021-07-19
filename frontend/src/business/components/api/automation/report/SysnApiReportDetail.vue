@@ -230,6 +230,7 @@ export default {
         if (data.end) {
           this.removeReport();
           this.getReport();
+          this.$emit('refresh', this.debugResult);
         }
       }
     },
