@@ -421,6 +421,30 @@ public class ApiScenarioReportService {
                 detail.setProjectId(report.getProjectId());
                 apiScenarioReportDetailMapper.insert(detail);
             }
+            // 更新场景状态
+            if (StringUtils.isNotEmpty(report.getScenarioId())) {
+                List<String> strings = JSON.parseObject(report.getScenarioId(), List.class);
+                ApiScenarioExample scenarioExample = new ApiScenarioExample();
+                scenarioExample.createCriteria().andIdIn(strings);
+
+                List<ApiScenario> scenarios = apiScenarioMapper.selectByExample(scenarioExample);
+                if (CollectionUtils.isNotEmpty(scenarios)) {
+                    SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                    ApiScenarioMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioMapper.class);
+                    scenarios.forEach(scenario -> {
+                        if (testResult.getError() > 0) {
+                            scenario.setLastResult("Fail");
+                        } else {
+                            scenario.setLastResult("Success");
+                        }
+                        String passRate = new DecimalFormat("0%").format((float) testResult.getSuccess() / (testResult.getSuccess() + testResult.getError()));
+                        scenario.setPassRate(passRate);
+                        scenario.setReportId(report.getId());
+                        scenarioReportMapper.updateByPrimaryKey(scenario);
+                    });
+                    sqlSession.flushStatements();
+                }
+            }
             // 清理其他报告保留一份合并后的报告
             this.deleteByIds(reportIds);
 

@@ -190,6 +190,11 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
+          <sysn-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+        </el-drawer>
+        <!-- 执行结果 -->
+        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
+                   size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
@@ -215,7 +220,8 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
 import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
-import MsApiReportDetail from "../report/SysnApiReportDetail";
+import SysnApiReportDetail from "../report/SysnApiReportDetail";
+import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "./testplan/TestPlanList";
@@ -259,6 +265,7 @@ export default {
     MsTableHeader,
     MsTag,
     MsApiReportDetail,
+    SysnApiReportDetail,
     MsScenarioExtendButtons,
     MsTestPlanList,
     MsTableOperatorButton,
@@ -332,6 +339,7 @@ export default {
       content: {},
       infoDb: false,
       runVisible: false,
+      showReportVisible: false,
       planVisible: false,
       runData: [],
       report: {},
@@ -469,16 +477,16 @@ export default {
     }
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
 
-    if(this.trashEnable){
+    if (this.trashEnable) {
       this.condition.filters = {status: ["Trash"]};
       this.condition.moduleIds = [];
       this.operators = this.trashOperators;
       this.buttons = this.trashButtons;
-    }else {
+    } else {
       if (!this.isReferenceTable) {
         this.operators = this.unTrashOperators;
         this.buttons = this.unTrashButtons;
-      }else {
+      } else {
         this.operators = this.unTrashOperators;
         this.buttons = this.unTrashButtons;
       }
@@ -812,7 +820,7 @@ export default {
       this.$emit('edit', rowParam);
     },
     showReport(row) {
-      this.runVisible = true;
+      this.showReportVisible = true;
       this.infoDb = true;
       this.reportId = row.reportId;
     },
