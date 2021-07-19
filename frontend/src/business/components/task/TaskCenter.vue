@@ -10,10 +10,12 @@
           <template v-slot:content>
             <span>{{ $t('commons.task_center') }}</span>
           </template>
-          <el-badge :value="runningTotal" class="item" type="primary" v-if="runningTotal > 0">
-            <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']"
-                               style="font-size: 18px"/>
-          </el-badge>
+          <div @click="showTaskCenter" v-if="runningTotal > 0">
+            <el-badge :value="runningTotal" class="item" type="primary">
+              <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"
+                                 style="font-size: 18px"/>
+            </el-badge>
+          </div>
           <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
         </el-tooltip>
       </el-menu-item>
@@ -101,6 +103,7 @@ export default {
       result: {},
       taskData: [],
       response: {},
+      initEnd: false,
       visible: false,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
@@ -153,8 +156,12 @@ export default {
     onMessage(e) {
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
-      if (this.taskVisible) {
-        this.init();
+      this.initIndex++;
+      if (this.taskVisible && taskTotal > 0 && this.initEnd) {
+        setTimeout(() => {
+          this.initEnd = false;
+          this.init();
+        }, 3000);
       }
     },
     onClose(e) {
@@ -170,9 +177,11 @@ export default {
     },
     close() {
       this.visible = false;
+      this.taskVisible = false;
     },
     open() {
       this.showTaskCenter();
+      this.initIndex = 0;
     },
     getPercentage(status) {
       if (status) {
@@ -248,6 +257,7 @@ export default {
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('/task/center/list', this.condition, response => {
         this.taskData = response.data;
+        this.initEnd = true;
       });
     }
   }

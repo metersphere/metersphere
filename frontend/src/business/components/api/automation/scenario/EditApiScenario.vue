@@ -821,6 +821,7 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
+      request.requestResult = undefined;
       if (!request.url) {
         request.url = "";
       }
