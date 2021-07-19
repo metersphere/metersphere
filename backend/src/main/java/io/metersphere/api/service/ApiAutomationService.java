@@ -325,7 +325,7 @@ public class ApiAutomationService {
         List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
@@ -611,7 +611,7 @@ public class ApiAutomationService {
                         }
                     }
                     if (http.isEnable()) {
-                        if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment()!= null && http.getIsRefEnvironment())) {
+                        if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
                             env.getProjectIds().add(http.getProjectId());
                             env.setFullUrl(false);
                         }
@@ -643,7 +643,7 @@ public class ApiAutomationService {
                     // 校验是否是全路径
                     MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                     if (httpSamplerProxy.isEnable()) {
-                        if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || (httpSamplerProxy.getIsRefEnvironment()!= null && httpSamplerProxy.getIsRefEnvironment())) {
+                        if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || (httpSamplerProxy.getIsRefEnvironment() != null && httpSamplerProxy.getIsRefEnvironment())) {
                             env.getProjectIds().add(httpSamplerProxy.getProjectId());
                             env.setFullUrl(false);
                         }
@@ -684,7 +684,7 @@ public class ApiAutomationService {
                             http.setUrl(apiDefinition.getPath());
                         }
                         if (http.isEnable()) {
-                            if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment()!= null && http.getIsRefEnvironment())) {
+                            if (StringUtils.isBlank(http.getUrl()) || (http.getIsRefEnvironment() != null && http.getIsRefEnvironment())) {
                                 env.setFullUrl(false);
                                 env.getProjectIds().add(http.getProjectId());
                             }
@@ -1040,6 +1040,7 @@ public class ApiAutomationService {
                     public void run() {
                         List<String> reportIds = new LinkedList<>();
                         for (APIScenarioReportResult key : map.keySet()) {
+                            key.setExecuteType(ExecuteType.Marge.name());
                             apiScenarioReportMapper.insert(key);
                             reportIds.add(key.getId());
                             try {
@@ -2230,8 +2231,8 @@ public class ApiAutomationService {
         List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(ids);
         if (CollectionUtils.isEmpty(apiScenarioList)) {
             return returnList;
-        }else {
-            apiScenarioList.forEach(item ->{
+        } else {
+            apiScenarioList.forEach(item -> {
                 String testName = item.getName();
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
@@ -2250,10 +2251,10 @@ public class ApiAutomationService {
         ServiceUtils.getSelectAllIds(batchRequest, batchRequest.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
-        for (ApiScenarioWithBLOBs apiModel:apiScenarioList) {
+        for (ApiScenarioWithBLOBs apiModel : apiScenarioList) {
             ApiScenarioWithBLOBs newModel = apiModel;
             newModel.setId(UUID.randomUUID().toString());
-            newModel.setName("copy_"+apiModel.getName());
+            newModel.setName("copy_" + apiModel.getName());
             newModel.setCreateTime(System.currentTimeMillis());
             newModel.setNum(getNextNum(newModel.getProjectId()));
 
@@ -2262,7 +2263,7 @@ public class ApiAutomationService {
                     andProjectIdEqualTo(newModel.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(newModel.getId());
             if (apiScenarioMapper.countByExample(example) > 0) {
                 continue;
-            }else {
+            } else {
                 boolean insertFlag = true;
                 if (StringUtils.isNotBlank(newModel.getCustomNum())) {
                     insertFlag = false;
@@ -2278,13 +2279,14 @@ public class ApiAutomationService {
                             boolean isCustomNumExist = true;
                             try {
                                 isCustomNumExist = this.isCustomNumExist(newModel);
-                            }catch (Exception e){}
+                            } catch (Exception e) {
+                            }
                             insertFlag = !isCustomNumExist;
                         }
                     }
                 }
 
-                if(insertFlag){
+                if (insertFlag) {
                     apiScenarioMapper.insert(newModel);
                 }
             }
