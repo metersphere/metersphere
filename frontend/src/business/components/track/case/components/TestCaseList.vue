@@ -239,10 +239,10 @@ export default {
   },
   data() {
     return {
-      projectName:"",
+      projectName: "",
       type: TEST_CASE_LIST,
-      tableHeaderKey:"TRACK_TEST_CASE",
-      screenHeight: 'calc(100vh - 250px)',
+      tableHeaderKey: "TRACK_TEST_CASE",
+      screenHeight: 'calc(100vh - 258px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
       condition: {
