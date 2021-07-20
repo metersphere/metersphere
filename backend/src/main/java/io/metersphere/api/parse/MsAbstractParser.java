@@ -2,6 +2,7 @@ package io.metersphere.api.parse;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -11,8 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
 
@@ -94,6 +94,65 @@ public abstract class MsAbstractParser<T> extends ApiImportAbstractParser<T> {
                     msBody.setType(Body.WWW_FROM);
                 }
             }
+        }
+    }
+
+
+    /**
+     * 删除没有用例的节点
+     * @param nodeTree
+     * @param ids
+     * @return
+     */
+    public void cutDownTree(List<NodeTree> nodeTree, Set<String> ids) {
+        Iterator<NodeTree> iterator = nodeTree.iterator();
+        while (iterator.hasNext()) {
+            NodeTree item = iterator.next();
+            if (cutDownTree(item, ids)) {
+                iterator.remove();
+            }
+        }
+    }
+
+    private boolean cutDownTree(NodeTree nodeTree, Set<String> ids) {
+        boolean delete = true;
+        if (ids.contains(nodeTree.getId())) {
+            delete = false;
+        }
+
+        List<NodeTree> children = nodeTree.getChildren();
+
+        if (CollectionUtils.isNotEmpty(children)) {
+            Iterator<NodeTree> iterator = children.iterator();
+            while (iterator.hasNext()) {
+                NodeTree item = iterator.next();
+                if (cutDownTree(item, ids)) {
+                    iterator.remove();
+                } else {
+                    delete = false;
+                }
+            }
+        }
+        return delete;
+    }
+
+    public Map<String, NodeTree> getNodeMap(List<NodeTree> nodeTree) {
+        Map<String, NodeTree> nodeMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(nodeTree)) {
+            nodeTree.forEach(item -> {
+                getNodeMap(nodeMap, item);
+            });
+        }
+        return nodeMap;
+    }
+
+    private void getNodeMap(Map<String, NodeTree> nodeMap, NodeTree nodeTree) {
+        nodeMap.put(nodeTree.getId(), nodeTree);
+        List<NodeTree> children = nodeTree.getChildren();
+        if (CollectionUtils.isNotEmpty(children)) {
+            children.forEach(item -> {
+                getNodeMap(nodeMap, item);
+            });
         }
     }
 }

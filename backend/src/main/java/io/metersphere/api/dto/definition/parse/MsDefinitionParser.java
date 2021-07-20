@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.parse.MsAbstractParser;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
@@ -68,6 +70,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
     private ApiDefinitionImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
         ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class);
+
         Map<String, List<ApiTestCaseWithBLOBs>> caseMap = new HashMap<>();
         if (apiDefinitionImport.getCases() != null) {
             apiDefinitionImport.getCases().forEach(item -> {
@@ -79,19 +82,42 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 caseList.add(item);
             });
         }
+
+        Set<String> moduleIdSet = apiDefinitionImport.getData().stream()
+                .map(ApiDefinitionWithBLOBs::getModuleId).collect(Collectors.toSet());
+
+        Map<String, NodeTree> nodeMap = null;
+        List<NodeTree> nodeTree = apiDefinitionImport.getNodeTree();
+        if (CollectionUtils.isNotEmpty(nodeTree)) {
+            cutDownTree(nodeTree, moduleIdSet);
+            ApiDefinitionImportUtil.createNodeTree(nodeTree, projectId, importRequest.getModuleId());
+            nodeMap = getNodeMap(nodeTree);
+        }
+
+        Map<String, NodeTree> finalNodeMap = nodeMap;
         apiDefinitionImport.getData().forEach(apiDefinition -> {
-            parseApiDefinition(apiDefinition, importRequest, caseMap);
+            parseApiDefinition(apiDefinition, importRequest, caseMap, finalNodeMap);
         });
         return apiDefinitionImport;
     }
 
-    private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest, Map<String, List<ApiTestCaseWithBLOBs>> caseMap) {
+    private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest,
+                                    Map<String, List<ApiTestCaseWithBLOBs>> caseMap, Map<String, NodeTree> nodeMap) {
         String originId = apiDefinition.getId();
         String id = UUID.randomUUID().toString();
-        if (StringUtils.isBlank(apiDefinition.getModulePath())) {
-            apiDefinition.setModuleId(null);
+
+        if (nodeMap != null) {
+            NodeTree nodeTree = nodeMap.get(apiDefinition.getModuleId());
+            apiDefinition.setModuleId(nodeTree.getNewId());
+            apiDefinition.setModulePath(nodeTree.getPath());
+        } else {
+            if (StringUtils.isBlank(apiDefinition.getModulePath())) {
+                apiDefinition.setModuleId(null);
+            }
+            // 旧版本未导出模块
+            parseModule(apiDefinition.getModulePath(), importRequest, apiDefinition);
         }
-        parseModule(apiDefinition.getModulePath(), importRequest, apiDefinition);
+
         apiDefinition.setId(id);
         apiDefinition.setProjectId(this.projectId);
         String request = apiDefinition.getRequest();

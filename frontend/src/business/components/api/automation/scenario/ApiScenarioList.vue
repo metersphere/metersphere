@@ -896,7 +896,7 @@ export default {
     openScenario(item) {
       this.$emit('openScenario', item);
     },
-    exportApi() {
+    exportApi(nodeTree) {
       let param = {};
       this.projectId = getCurrentProjectID();
       this.$get('project/get/' + this.projectId, response => {
@@ -912,7 +912,7 @@ export default {
           this.result = this.$post("/api/automation/export", param, response => {
             this.result.loading = false;
             let obj = response.data;
-            this.buildApiPath(obj.data);
+            obj.nodeTree = nodeTree;
             downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
           });
         }
@@ -934,15 +934,6 @@ export default {
             downloadFile(item.name + ".jmx", item.jmx);
           });
         }
-      });
-    },
-    buildApiPath(scenarios) {
-      scenarios.forEach((scenario) => {
-        this.moduleOptions.forEach(item => {
-          if (scenario.moduleId === item.id) {
-            scenario.modulePath = item.path;
-          }
-        });
       });
     },
     getConditions() {
