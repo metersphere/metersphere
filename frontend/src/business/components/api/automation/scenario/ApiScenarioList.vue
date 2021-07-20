@@ -294,7 +294,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 228px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
