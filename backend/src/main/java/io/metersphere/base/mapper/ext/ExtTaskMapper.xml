@@ -45,13 +45,10 @@
                     and t.status = #{request.executionStatus}
                 </if>
                 <if test="request.executor != null and request.executor != ''">
-                    and t1.name = #{request.executor}
-                </if>
-                <if test="request.executor != null and request.executor != ''">
                     and t.user_id = #{request.executor}
                 </if>
             )
-        )tt ORDER BY FIELD(tt.executionStatus, 'Running', 'Waiting', 'Error', 'Success'),tt.executionTime DESC;
+        )tt ORDER BY tt.executionTime DESC;
     </select>
 
 
