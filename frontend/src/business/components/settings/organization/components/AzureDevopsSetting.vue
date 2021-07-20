@@ -185,7 +185,7 @@ export default {
       }
     },
     cancelIntegration() {
-      if (this.form.account && this.form.password) {
+      if (this.form.url && this.form.pat) {
         this.$alert(this.$t('organization.integration.cancel_confirm') + AZURE_DEVOPS + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {

@@ -96,33 +96,23 @@ public class IssuesService {
 
 
     public void addIssues(IssuesUpdateRequest issuesRequest) {
-        try{
-            List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
-            platformList.forEach(platform -> {
-                try{
-                    platform.addIssue(issuesRequest);
-                }catch (Exception e){
-                    e.printStackTrace();
-                    throw e;
+        List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
+        platformList.forEach(platform -> {
+            platform.addIssue(issuesRequest);
+        });
+        issuesRequest.getTestCaseIds().forEach(l -> {
+            try {
+                List<IssuesDao> issues = this.getIssues(l);
+                if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
+                    LogUtil.error(l + "下的缺陷为空");
                 }
-            });
-            issuesRequest.getTestCaseIds().forEach(l -> {
-                try {
-                    List<IssuesDao> issues = this.getIssues(l);
-                    if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
-                        LogUtil.error(l + "下的缺陷为空");
-                    }
-                    int issuesCount = issues.size();
-                    testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
-                } catch (Exception e) {
-                    LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
-                }
-            });
-            noticeIssueEven(issuesRequest, "IssuesCreate");
-        }catch (Exception e){
-            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
-        }
-
+                int issuesCount = issues.size();
+                testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
+            } catch (Exception e) {
+                LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
+            }
+        });
+        noticeIssueEven(issuesRequest, "IssuesCreate");
     }
 
     public void noticeIssueEven(IssuesUpdateRequest issuesRequest, String type) {

@@ -131,6 +131,9 @@
             <if test="platform == 'Zentao'">
                 zentao_id = null
             </if>
+            <if test="platform == 'AzureDevops'">
+                azure_devops_id = null
+            </if>
         </set>
         where project.id in (select id from (select id
         from project
