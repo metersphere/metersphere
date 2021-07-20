@@ -360,10 +360,10 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 250px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 258px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
-      projectName:"",
+      projectName: "",
     };
   },
   props: {
