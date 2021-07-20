@@ -373,8 +373,6 @@ export default {
       this.result = this.$post("/user/project/member/list", param, res => {
         let data = res.data;
         this.memberLineData = data;
-        console.log(this.memberLineData);
-        console.log(getCurrentUserId());
         let arr = this.memberLineData.filter(item => item.id == getCurrentUserId());
         if (arr.length > 0) {
           window.sessionStorage.setItem(PROJECT_ID, row.id);
