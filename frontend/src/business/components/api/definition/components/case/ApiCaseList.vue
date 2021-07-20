@@ -30,7 +30,9 @@
                            @showExecResult="showExecResult"
                            @batchEditCase="batchEditCase"
                            @batchRun="batchRun"
+                           @apiCaseSelected="apiCaseSelected"
                            :environment="environment"
+                           :select-size="selectSize"
                            :is-case-edit="isCaseEdit"
                            :api="api"
                            :runResult="runResult"
@@ -82,6 +84,7 @@ export default {
       environment: "",
       isReadOnly: false,
       selectedEvent: Object,
+      selectSize: 0,
       priorities: CASE_ORDER,
       apiCaseList: [],
       batchLoadingIds: [],
@@ -141,6 +144,16 @@ export default {
     },
   },
   methods: {
+    apiCaseSelected(){
+      this.selectSize = 0;
+      if (this.apiCaseList.length > 0) {
+        this.apiCaseList.forEach(item => {
+          if (item.selected && item.id) {
+            this.selectSize ++;
+          }
+        });
+      }
+    },
     open(api, testCaseId) {
       this.api = api;
       // testCaseId 不为空则为用例编辑页面
