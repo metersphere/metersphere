@@ -86,7 +86,7 @@
                     <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="expectedResult"/>
                     <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
 
-                    <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                    <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="testCase.projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                   </el-form>
                 </div>
 
@@ -275,7 +275,7 @@ export default {
       param.status = this.testCase.status;
       param.results = [];
       param.remark = this.testCase.remark;
-      param.projectId = this.projectId;
+      param.projectId = this.testCase.projectId;
       param.nodeId = this.testCase.nodeId;
       let option = this.getOption(param);
       for (let i = 0; i < this.testCase.steptResults.length; i++) {

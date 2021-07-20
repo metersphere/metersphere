@@ -111,6 +111,7 @@ public class TestPlanTestCaseService {
         }
         testPlanTestCase.setExecutor(SessionUtils.getUser().getId());
         testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+        testPlanTestCase.setRemark(null);
         testPlanTestCaseMapper.updateByPrimaryKeySelective(testPlanTestCase);
     }
 

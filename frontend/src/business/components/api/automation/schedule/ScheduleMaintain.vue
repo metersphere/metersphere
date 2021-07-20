@@ -50,7 +50,13 @@
 </template>
 
 <script>
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  getCurrentOrganizationId,
+  getCurrentProjectID,
+  getCurrentUser, getCurrentWorkspaceId,
+  listenGoBack,
+  removeGoBackListener
+} from "@/common/js/utils";
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
@@ -171,7 +177,7 @@ export default {
     initUserList() {
       let param = {
         name: '',
-        organizationId: this.currentUser().lastOrganizationId
+        organizationId: getCurrentOrganizationId()
       };
 
       this.result = this.$post('user/org/member/list/all', param, response => {
@@ -243,6 +249,13 @@ export default {
       let param = {};
       param = this.schedule;
       param.resourceId = this.testId;
+      // 兼容问题，数据库里有的projectId为空
+      if (!param.projectId) {
+        param.projectId = getCurrentProjectID();
+      }
+      if (!param.workspaceId) {
+        param.workspaceId = getCurrentWorkspaceId();
+      }
       let url = '/api/automation/schedule/create';
       if (this.scheduleTaskType === "TEST_PLAN_TEST") {
         param.scheduleFrom = "testPlan";

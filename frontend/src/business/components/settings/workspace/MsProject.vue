@@ -119,6 +119,14 @@
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+          <ms-instructions-icon effect="light">
+            <template>
+              禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
+              根据 "后台 -> 自定义 -> 流程" 查看对应流程，根据流程填写ID <br/><br/>
+              产品-项目 | 产品-迭代 | 产品-冲刺 需要填写产品ID <br/><br/>
+              项目-迭代 | 项目-冲刺 需要填写项目ID
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
@@ -144,6 +152,7 @@
                class="dialog-css">
       <template v-slot:title>
         <ms-table-header :condition.sync="dialogCondition" @create="open" @search="list" :have-search="false"
+                         :create-permission="['WORKSPACE_USER:READ+CREATE']"
                          :create-tip="$t('member.create')" :title="$t('commons.member')"/>
       </template>
       <div>
@@ -160,7 +169,10 @@
           <el-table-column :label="$t('commons.operating')">
             <template v-slot:default="scope">
               <div>
-                <ms-table-operator :tip2="$t('commons.remove')" @editClick="editMember(scope.row)"
+                <ms-table-operator :tip2="$t('commons.remove')"
+                                   :edit-permission="['WORKSPACE_USER:READ+EDIT']"
+                                   :delete-permission="['WORKSPACE_USER:READ+DELETE']"
+                                   @editClick="editMember(scope.row)"
                                    @deleteClick="delMember(scope.row)"/>
               </div>
             </template>

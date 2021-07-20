@@ -54,6 +54,7 @@
     <div class="task-list">
       <swagger-task-list
         @clear="clear"
+        :param="param"
         @rowClick="handleRowClick"
         ref="taskList"/>
     </div>
@@ -71,7 +72,7 @@ import SwaggerTaskList from "@/business/components/api/definition/components/imp
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import Crontab from "@/business/components/common/cron/Crontab";
 import {cronValidate} from "@/common/js/cron";
-import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import SelectTree from "@/business/components/common/select-tree/SelectTree";
 export default {
   name: "ApiSchedule",
@@ -79,13 +80,16 @@ export default {
   props: {
     customValidate: {
       type: Function,
-      default: () => {return {pass: true};}
+      default: () => {
+        return {pass: true};
+      }
     },
     isReadOnly: {
       type: Boolean,
       default: false
     },
     moduleOptions: Array,
+    param: Object,
   },
 
   watch: {
@@ -184,6 +188,7 @@ export default {
     },
     saveSchedule() {
       this.formData.projectId = getCurrentProjectID();
+      this.formData.workspaceId = getCurrentWorkspaceId();
       this.formData.value = this.formData.rule;
       let url = '';
       if (this.formData.id) {

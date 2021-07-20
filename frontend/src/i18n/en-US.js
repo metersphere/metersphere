@@ -333,7 +333,9 @@ export default {
     none: 'None Workspace',
     select: 'Select Workspace',
     special_characters_are_not_supported: 'Incorrect format (special characters are not supported and cannot end with \'-\')',
-
+    template_manage: "Template Manage",
+    case_template_manage: "Case Template",
+    issue_template_manage: "Issue Template",
   },
   organization: {
     create: 'Create Organization',
@@ -1117,7 +1119,7 @@ export default {
       label: "Import",
       title: "API test import",
       data_format: "Data format",
-      file_size_limit: "The file size does not exceed 20 M",
+      file_size_limit: "The file size does not exceed 50 M",
       tip: "Instructions",
       export_tip: "Export Tip",
       ms_tip: "Support for MeterSphere JSON format",
@@ -1149,7 +1151,7 @@ export default {
         pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
         success: "execute success count number / all execute count number * 100%",
         interface_coverage: "api whitch in scenario's step / all api * 100%",
-        review: "reviewd cases / all cases * 100%",
+        review: "reviewed cases / all cases * 100%",
         testplan_coverage: "relevance function cases / all function cases * 100%",
       },
       api_count_card: {
@@ -1415,7 +1417,7 @@ export default {
         upload_xmind: "Only xmind files can be uploaded, and no more than 800",
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
-        upload_limit_size: "Upload file size cannot exceed 20MB!",
+        upload_limit_size: "Upload file size cannot exceed 50MB!",
         upload_limit_other_size: "Upload file size cannot exceed",
         success: "Import success！",
         importing: "Importing...",
@@ -1641,6 +1643,8 @@ export default {
       tapd_current_owner: "Tapd Current Owner",
       zentao_bug_build: "Zentao Impact version",
       zentao_bug_assigned: "Zentao handler",
+      update_third_party_bugs: "Update the defects of third-party platforms",
+      sync_bugs: "Synchronization Issue"
     },
     report: {
       name: "Test Plan Report",

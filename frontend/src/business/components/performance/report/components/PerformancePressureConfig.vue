@@ -256,6 +256,19 @@ export default {
               break;
           }
         });
+        for (let i = 0; i < this.threadGroups.length; i++) {
+          // 恢复成单位需要的值
+          switch (this.threadGroups[i].unit) {
+            case 'M':
+              this.threadGroups[i].duration = this.threadGroups[i].duration / 60;
+              break;
+            case 'H':
+              this.threadGroups[i].duration = this.threadGroups[i].duration / 60 / 60;
+              break;
+            default:
+              break;
+          }
+        }
         this.calculateTotalChart();
       }
     },
@@ -393,7 +406,20 @@ export default {
         let threadInc1 = Math.floor(tg.threadNumber / tg.step);
         let threadInc2 = Math.ceil(tg.threadNumber / tg.step);
         let inc2count = tg.threadNumber - tg.step * threadInc1;
-        for (let j = 0; j <= tg.duration; j++) {
+
+        let times = 1;
+        switch (tg.unit) {
+          case 'M':
+            times *= 60;
+            break;
+          case 'H':
+            times *= 3600;
+            break;
+          default:
+            break;
+        }
+        let duration = tg.duration * times;
+        for (let j = 0; j <= duration; j++) {
           // x 轴
           let xAxis = handler.options.xAxis.data;
           if (xAxis.indexOf(j) < 0) {
@@ -407,10 +433,10 @@ export default {
               seriesData.data.push([0, 0]);
             }
             if (j >= tg.rampUpTime) {
-              xAxis.push(tg.duration);
+              xAxis.push(duration);
 
               seriesData.data.push([j, tg.threadNumber]);
-              seriesData.data.push([tg.duration, tg.threadNumber]);
+              seriesData.data.push([duration, tg.threadNumber]);
               break;
             }
           } else {
@@ -426,8 +452,8 @@ export default {
               if (threadPeriod > tg.threadNumber) {
                 threadPeriod = tg.threadNumber;
                 // 预热结束
-                xAxis.push(tg.duration);
-                seriesData.data.push([tg.duration, threadPeriod]);
+                xAxis.push(duration);
+                seriesData.data.push([duration, threadPeriod]);
                 break;
               }
             }

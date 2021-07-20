@@ -689,7 +689,7 @@ public class TestCaseService {
 
             List<List<String>> headList = testCaseExcelData.getHead(importFileNeedNum,customFields);
             EasyExcelExporter easyExcelExporter = new EasyExcelExporter(testCaseExcelData.getClass());
-            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum);
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum,headList);
             easyExcelExporter.exportByCustomWriteHandler(response,headList, generateExportDatas(importFileNeedNum),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"), handler);
 
@@ -1066,7 +1066,7 @@ public class TestCaseService {
             TestCaseTest test = new TestCaseTest();
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
-                test.setTestId(id.get(1));
+                test.setTestId(id.get(id.size() - 1));
                 test.setTestCaseId(request.getId());
                 test.setCreateTime(System.currentTimeMillis());
                 test.setUpdateTime(System.currentTimeMillis());
@@ -1113,7 +1113,7 @@ public class TestCaseService {
             TestCaseTest test = new TestCaseTest();
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
-                test.setTestId(id.get(1));
+                test.setTestId(id.get(id.size() - 1));
                 test.setCreateTime(System.currentTimeMillis());
                 test.setUpdateTime(System.currentTimeMillis());
                 test.setTestCaseId(request.getId());

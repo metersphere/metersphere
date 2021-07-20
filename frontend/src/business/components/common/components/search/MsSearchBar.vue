@@ -8,7 +8,7 @@
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item v-for="(item, index) in commands" :key="index" @click.native.stop="click(item)"
-                              v-permission="item.permissions"
+                              :disabled="disabled(item.permissions)"
             >
              <span class="tip-font" v-if="!item.children">
                {{ item.label }}
@@ -20,7 +20,8 @@
                 </span>
                 <el-dropdown-menu slot="dropdown">
                   <template>
-                    <el-dropdown-item v-for="(child, index) in item.children" :key="index" @click.native.stop="click(child)">
+                    <el-dropdown-item v-for="(child, index) in item.children" :key="index" @click.native.stop="click(child)"
+                                      :disabled="disabled(child.permissions)">
                       <span class="tip-font">
                         {{child.label}}
                       </span>
@@ -37,6 +38,8 @@
 </template>
 
 <script>
+import {hasPermissions} from "@/common/js/utils";
+
 export default {
   name: "MsSearchBar",
   props: {
@@ -64,6 +67,12 @@ export default {
       if (item.callback) {
         item.callback();
       }
+    },
+    disabled(permissions) {
+      if (!permissions) {
+        return false;
+      }
+      return !hasPermissions(...permissions);
     }
   }
 }

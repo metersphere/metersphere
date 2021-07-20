@@ -62,14 +62,22 @@
             sortable
             min-width="100"
             :filters="userFilters"
-            :label="'创建人'"/>
+            :label="'创建人'">
+            <template v-slot:default="scope">
+              {{scope.row.creatorName}}
+            </template>
+          </ms-table-column>
 
           <ms-table-column
             v-if="item.id == 'maintainer'"
             prop="userId"
             :fields-width="fieldsWidth"
             :label="$t('custom_field.case_maintainer')"
-            min-width="120"/>
+            min-width="120">
+             <template v-slot:default="scope">
+              {{scope.row.principalName}}
+            </template>
+          </ms-table-column>
 
           <ms-update-time-column :field="item" :fields-width="fieldsWidth"/>
           <ms-create-time-column :field="item" :fields-width="fieldsWidth"/>
@@ -118,7 +126,7 @@
 
       <!-- 执行组件 -->
       <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
+              @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
 
       <!-- 批量编辑 -->
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
@@ -456,6 +464,9 @@ export default {
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
       });
+    },
+    errorRefresh() {
+      this.rowLoading = "";
     },
     handleBatchEdit() {
       this.$refs.batchEdit.open(this.$refs.table.selectRows.size);

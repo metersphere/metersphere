@@ -114,16 +114,17 @@
           },
           {
             label: this.$t('report.export'),
-            permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
             children: [
               {
                 label: this.$t('report.export_to_ms_format'),
+                permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
                 callback: () => {
                   this.exportAPI();
                 }
               },
               {
                 label: this.$t('report.export') + 'JMETER 格式',
+                permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
                 callback: () => {
                   this.$emit('exportJmx');
                 }
