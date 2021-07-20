@@ -41,12 +41,12 @@
         <span v-for="(item) in fields" :key="item.key">
 
           <ms-table-column
-              prop="num"
-              label="ID"
-              :field="item"
-              :fields-width="fieldsWidth"
-              min-width="80px"
-              sortable>
+            prop="num"
+            label="ID"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="80px"
+            sortable>
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
@@ -64,32 +64,32 @@
             :label="$t('test_track.case.name')"/>
 
           <ms-table-column
-              prop="priority"
-              :filters="priorityFilters"
-              :field="item"
-              :fields-width="fieldsWidth"
-              min-width="120px"
-              :label="$t('test_track.case.priority')">
+            prop="priority"
+            :filters="priorityFilters"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="120px"
+            :label="$t('test_track.case.priority')">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </ms-table-column>
 
           <ms-table-column
-              sortable="custom"
-              prop="path"
-              min-width="180px"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="'API'+ $t('api_test.definition.api_path')"/>
+            sortable="custom"
+            prop="path"
+            min-width="180px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="'API'+ $t('api_test.definition.api_path')"/>
 
           <ms-table-column
-              sortable="custom"
-              prop="casePath"
-              min-width="180px"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
+            sortable
+            prop="casePath"
+            min-width="180px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
 
           <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
@@ -99,18 +99,18 @@
           </ms-table-column>
 
           <ms-table-column
-              prop="createUser"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="'创建人'"/>
+            prop="createUser"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="'创建人'"/>
 
           <ms-table-column
-              sortable="updateTime"
-              min-width="160px"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="$t('api_test.definition.api_last_time')"
-              prop="updateTime">
+            sortable="updateTime"
+            min-width="160px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('api_test.definition.api_last_time')"
+            prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
@@ -124,7 +124,7 @@
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
-          </ms-table-column >
+          </ms-table-column>
         </span>
 
         <template v-if="!trashEnable" v-slot:opt-behind="scope">
@@ -184,7 +184,7 @@ import {
   _filter,
   _sort,
   getCustomTableHeader,
-  getCustomTableWidth,saveLastTableSortField,getLastTableSortField
+  getCustomTableWidth, saveLastTableSortField, getLastTableSortField
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -215,7 +215,7 @@ export default {
   data() {
     return {
       type: API_CASE_LIST,
-      tableHeaderKey:"API_CASE",
+      tableHeaderKey: "API_CASE",
       fields: getCustomTableHeader('API_CASE'),
       fieldsWidth: getCustomTableWidth('API_CASE'),
       condition: {
@@ -327,22 +327,19 @@ export default {
   },
   created: function () {
     let orderArr = this.getSortField();
-    if(orderArr){
+    if (orderArr) {
       this.condition.orders = orderArr;
     }
 
-    if(this.trashEnable){
+    if (this.trashEnable) {
       this.operators = this.trashOperators;
       this.buttons = this.trashButtons;
-    }else {
+    } else {
       this.operators = this.simpleOperators;
       this.buttons = this.simpleButtons;
     }
 
     this.initTable();
-    // this.$nextTick(() => {
-    //   this.$refs.caseTable.bodyWrapper.scrollTop = 5
-    // })
   },
   watch: {
     selectNodeIds() {
@@ -358,10 +355,10 @@ export default {
       this.initTable();
     },
     trashEnable() {
-      if(this.trashEnable){
+      if (this.trashEnable) {
         this.operators = this.trashOperators;
         this.buttons = this.trashButtons;
-      }else {
+      } else {
         this.operators = this.simpleOperators;
         this.buttons = this.simpleButtons;
       }
@@ -396,24 +393,30 @@ export default {
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
+      if (this.condition.orders) {
+        const index = this.condition.orders.findIndex(d => d.name !== undefined && d.name === 'case_path');
+        if (index != -1) {
+          this.condition.orders.splice(index, 1);
+        }
+      }
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         // this.condition.status = "Trash";
         this.condition.moduleIds = [];
-        if(this.condition.filters){
-          if(this.condition.filters.status){
+        if (this.condition.filters) {
+          if (this.condition.filters.status) {
             this.condition.filters.status = ["Trash"];
-          }else{
+          } else {
             this.condition.filters = {status: ["Trash"]};
           }
-        }else{
+        } else {
           this.condition.filters = {};
           this.condition.filters = {status: ["Trash"]};
         }
-      }else {
-        if(this.condition.filters){
-          if(this.condition.filters.status){
+      } else {
+        if (this.condition.filters) {
+          if (this.condition.filters.status) {
             this.condition.filters.status = [];
           }
         }
@@ -629,7 +632,7 @@ export default {
       });
       return;
     },
-    deleteToGc(apiCase){
+    deleteToGc(apiCase) {
 
       let obj = {};
       obj.projectId = this.projectId;
@@ -670,17 +673,17 @@ export default {
       let rows = {ids: [tmp.id]};
       this.$post('/api/testcase/reduction/', rows, response => {
         let cannotReductionApiNameArr = response.data;
-        if(cannotReductionApiNameArr.length > 0){
+        if (cannotReductionApiNameArr.length > 0) {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
-            if(apiNames === ""){
-              apiNames+= item
-            }else{
-              apiNames+= ";"+item;
+            if (apiNames === "") {
+              apiNames += item
+            } else {
+              apiNames += ";" + item;
             }
           });
-          this.$error("请先恢复["+apiNames+"]接口");
-        }else{
+          this.$error("请先恢复[" + apiNames + "]接口");
+        } else {
           this.$success(this.$t('commons.save_success'));
         }
         // this.search();
@@ -696,17 +699,17 @@ export default {
       obj = Object.assign(obj, this.condition);
       this.$post('/api/testcase/reduction/', obj, response => {
         let cannotReductionApiNameArr = response.data;
-        if(cannotReductionApiNameArr.length > 0){
+        if (cannotReductionApiNameArr.length > 0) {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
-            if(apiNames === ""){
-              apiNames+= item
-            }else{
-              apiNames+= ";"+item;
+            if (apiNames === "") {
+              apiNames += item
+            } else {
+              apiNames += ";" + item;
             }
           });
-          this.$error("请先恢复["+apiNames+"]接口");
-        }else{
+          this.$error("请先恢复[" + apiNames + "]接口");
+        } else {
           this.$success(this.$t('commons.save_success'));
         }
         // this.search();
@@ -775,16 +778,16 @@ export default {
       column.width = finalWidth;
       column.realWidth = finalWidth;
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
-    getSortField(){
+    getSortField() {
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
       let returnObj = null;
-      if(orderJsonStr){
+      if (orderJsonStr) {
         try {
           returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
+        } catch (e) {
           return null;
         }
       }
@@ -808,7 +811,7 @@ export default {
       row.request.name = row.id;
       row.request.useEnvironment = environment.id;
       let map = new Map;
-      map.set(row.projectId,environment.id);
+      map.set(row.projectId, environment.id);
       row.environmentMap = map;
       runData.push(row.request);
       /*触发执行操作*/
