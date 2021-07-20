@@ -19,6 +19,9 @@
         <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
           {{$t('test_track.plan_view.export_report')}}
         </el-button>
+        <el-button v-xpack :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml(report.name)">
+          {{'导出HTML'}}
+        </el-button>
       </el-col>
     </el-row>
 
@@ -48,6 +51,7 @@
   import html2canvas from "html2canvas";
   import MsTestCaseReportExport from "../../TestCaseReportExport";
   import TestReportTemplateList from "../../TestReportTemplateList";
+  import {Message} from "element-ui";
 
   export default {
     name: "TestCaseStatisticsReportView",
@@ -210,6 +214,14 @@
             });
           }, 1000);
         });
+      },
+      handleExportHtml(name) {
+        let config = {
+          url: '/export/template/plan/report/' + this.planId,
+          method: 'get',
+          responseType: 'blob'
+        };
+        this.$download(config, name + '.html');
       },
       exportReportReset() {
         this.reportExportVisible = false;

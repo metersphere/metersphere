@@ -146,6 +146,25 @@ export function fileUpload(url, file, files, param, success, failure) {
   return request(axiosRequestConfig, success, failure);
 }
 
+export function download(config, fileName) {
+  return this.$request(config).then(response => {
+    const content = response.data;
+    const blob = new Blob([content], {type: "application/octet-stream"});
+    if ("download" in document.createElement("a")) {
+      // 非IE下载
+      //  chrome/firefox
+      let aTag = document.createElement('a');
+      aTag.download = fileName;
+      aTag.href = URL.createObjectURL(blob);
+      aTag.click();
+      URL.revokeObjectURL(aTag.href);
+    } else {
+      // IE10+下载
+      navigator.msSaveBlob(blob, this.filename);
+    }
+  });
+}
+
 export function all(array, callback) {
   if (array.length < 1) return;
   axios.all(array).then(axios.spread(callback));
@@ -188,5 +207,7 @@ export default {
     Vue.prototype.$fileDownload = fileDownload;
 
     Vue.prototype.$fileUpload = fileUpload;
+
+    Vue.prototype.$download = download;
   }
 };
