@@ -34,57 +34,16 @@
           default() {
             return {
               functionalTestCases: [
-                  {
-                  name: 'testCase1',
-                  priority: 'P1',
-                  type: 'api',
-                  method: 'auto',
-                  nodePath: '/module1/module2',
-                  executorName: "Tom",
-                  status: "Failure",
-                  updateTime: new Date(),
-                },
-                {
-                  name: 'testCase2',
-                  priority: 'P0',
-                  type: 'functional',
-                  method: 'manual',
-                  nodePath: '/module1',
-                  executorName: "Micheal",
-                  status: "Failure",
-                  updateTime: new Date()
-                }
+
               ],
               apiTestCases: [
-                {
-                  name: 'testCase3',
-                  priority: 'P2',
-                  path: '/module1/module2',
-                  createUser: "Tom",
-                  lastResult: "Failure",
-                  updateTime: new Date(),
-                }
+
               ],
               scenarioTestCases: [
-                {
-                  name: 'testCase4',
-                  level: 'P3',
-                  modulePath: '/module1/module2',
-                  stepTotal: 10,
-                  passRate: '80%',
-                  userId: "Tom",
-                  lastResult: "Failure",
-                  updateTime: new Date(),
-                }
+
               ],
               loadTestCases: [
-                {
-                  caseName: 'testCase5',
-                  projectName: '测试项目',
-                  userName: 'Tom',
-                  createTime:  new Date(),
-                  caseStatus: 'error',
-                }
+
               ]
             }
           }

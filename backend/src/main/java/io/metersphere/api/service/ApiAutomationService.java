@@ -2342,7 +2342,6 @@ public class ApiAutomationService {
                 }
             }
         }
-//        uploadFiles(request, bodyFiles, scenarioFiles);
     }
 
     public DeleteCheckResult checkBeforeDelete(ApiScenarioBatchRequest request) {

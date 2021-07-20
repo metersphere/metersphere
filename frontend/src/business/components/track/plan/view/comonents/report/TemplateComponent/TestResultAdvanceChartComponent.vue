@@ -88,17 +88,37 @@
       },
      computed: {
        showFunctional() {
-         return this.executeResult.functionalResult.length > 0
-           || (this.executeResult.apiResult.length <= 0 && this.executeResult.scenarioResult.length <= 0 && this.executeResult.loadResult.length <= 0);
+         if(this.executeResult.functionalResult){
+           return this.executeResult.functionalResult.length > 0
+             || (this.executeResult.apiResult.length <= 0 && this.executeResult.scenarioResult.length <= 0 && this.executeResult.loadResult.length <= 0);
+         }else {
+           return false;
+         }
+
        },
        showApi() {
-         return this.executeResult.apiResult.length > 0;
+         if(this.executeResult.apiResult){
+           return this.executeResult.apiResult.length > 0;
+         }else {
+           return false;
+         }
+
        },
        showScenario() {
-         return this.executeResult.scenarioResult.length > 0;
+
+         if(this.executeResult.scenarioResult){
+           return this.executeResult.scenarioResult.length > 0;
+         }else {
+           return false;
+         }
        },
        showLoad() {
-         return this.executeResult.loadResult.length > 0;
+
+         if(this.executeResult.loadResult){
+           return this.executeResult.loadResult.length > 0;
+         }else {
+           return false;
+         }
        }
      },
       watch: {
@@ -158,7 +178,9 @@
           }
         },
         copyData(status) {
-          return JSON.parse(JSON.stringify(this.dataMap.get(status)))
+          if(this.dataMap.get(status)){
+            return JSON.parse(JSON.stringify(this.dataMap.get(status)))
+          }
         },
         reload() {
           this.isShow = false;
