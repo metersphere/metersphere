@@ -29,6 +29,7 @@ export const ISSUE_PLATFORM_OPTION = [
   {value: 'Jira',text: 'JIRA'},
   {value: 'Tapd',text: 'Tapd'},
   {value: 'Zentao',text: '禅道'},
+  {value: 'AzureDevops',text: 'Azure Devops'},
 ];
 
 export const FIELD_TYPE_MAP = {

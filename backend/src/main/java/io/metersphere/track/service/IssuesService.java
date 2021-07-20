@@ -32,14 +32,19 @@ import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.xpack.issue.azureDevops.AzureDevopsPlatform;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,24 +93,36 @@ public class IssuesService {
         abstractPlatform.testAuth();
     }
 
+
+
     public void addIssues(IssuesUpdateRequest issuesRequest) {
-        List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
-        platformList.forEach(platform -> {
-            platform.addIssue(issuesRequest);
-        });
-        issuesRequest.getTestCaseIds().forEach(l -> {
-            try {
-                List<IssuesDao> issues = this.getIssues(l);
-                if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
-                    LogUtil.error(l + "下的缺陷为空");
+        try{
+            List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
+            platformList.forEach(platform -> {
+                try{
+                    platform.addIssue(issuesRequest);
+                }catch (Exception e){
+                    e.printStackTrace();
+                    throw e;
                 }
-                int issuesCount = issues.size();
-                testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
-            } catch (Exception e) {
-                LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
-            }
-        });
-        noticeIssueEven(issuesRequest, "IssuesCreate");
+            });
+            issuesRequest.getTestCaseIds().forEach(l -> {
+                try {
+                    List<IssuesDao> issues = this.getIssues(l);
+                    if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
+                        LogUtil.error(l + "下的缺陷为空");
+                    }
+                    int issuesCount = issues.size();
+                    testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
+                } catch (Exception e) {
+                    LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
+                }
+            });
+            noticeIssueEven(issuesRequest, "IssuesCreate");
+        }catch (Exception e){
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+        }
+
     }
 
     public void noticeIssueEven(IssuesUpdateRequest issuesRequest, String type) {
@@ -453,6 +470,9 @@ public class IssuesService {
             List<IssuesDao> zentaoIssues = issues.stream()
                     .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Zentao.name()))
                     .collect(Collectors.toList());
+            List<IssuesDao> azureDevopsIssues = issues.stream()
+                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.AzureDevops.name()))
+                    .collect(Collectors.toList());
 
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
@@ -468,6 +488,25 @@ public class IssuesService {
             if (CollectionUtils.isNotEmpty(zentaoIssues)) {
                 ZentaoPlatform zentaoPlatform = new ZentaoPlatform(issuesRequest);
                 syncThirdPartyIssues(zentaoPlatform::syncIssues, project, zentaoIssues);
+            }
+            if (CollectionUtils.isNotEmpty(azureDevopsIssues)) {
+                ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                try {
+                    Class clazz = loader.loadClass("io.metersphere.xpack.issue.azureDevops.AzureDevopsPlatform");
+                    Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
+                    AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
+                    syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

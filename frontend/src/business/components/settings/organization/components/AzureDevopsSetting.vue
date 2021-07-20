@@ -2,30 +2,30 @@
   <div>
     <div style="width: 500px">
       <div style="margin-top: 20px;margin-bottom: 10px">{{ $t('organization.integration.basic_auth_info') }}</div>
-      <el-form :model="form" ref="form" label-width="100px" size="small" :disabled="show" :rules="rules">
+      <el-form :model="form" ref="form" label-width="155px" size="small" :disabled="show" :rules="rules">
         <el-form-item :label="$t('organization.integration.azure_pat')" prop="pat">
           <el-input v-model="form.pat" auto-complete="new-password" v-if="showInput"
-                    :placeholder="$t('organization.integration.input_api_password')" show-password/>
+                    :placeholder="$t('organization.integration.input_azure_pat')" show-password/>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.azure_devops_url')" prop="url">
-          <el-input v-model="form.url" :placeholder="$t('organization.integration.input_jira_url')"/>
+          <el-input v-model="form.url" :placeholder="$t('organization.integration.input_azure_url')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.azure_organization')" prop="organization">
-          <el-input v-model="form.organization" :placeholder="$t('organization.integration.input_jira_url')"/>
+        <el-form-item :label="$t('organization.integration.azure_organization_id')" prop="organization">
+          <el-input v-model="form.organization" :placeholder="$t('organization.integration.input_azure_organization_id')"/>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.jira_issuetype')" prop="issuetype">
-          <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
+        <el-form-item :label="$t('organization.integration.azure_issuetype')" prop="issuetype">
+          <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_azure_issuetype')"/>
           <ms-instructions-icon effect="light">
             <template>
-              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+              <img class="jira-image" src="../../../../../assets/azureDevops-type.png"/>
             </template>
           </ms-instructions-icon>
         </el-form-item>
-        <el-form-item :label="$t('organization.integration.jira_storytype')" prop="storytype">
-          <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_jira_storytype')"/>
+        <el-form-item :label="$t('organization.integration.azure_storytype')" prop="storytype">
+          <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_azure_storytype')"/>
           <ms-instructions-icon effect="light">
             <template>
-              <img class="jira-image" src="../../../../../assets/jira-type.png"/>
+              <img class="jira-image" src="../../../../../assets/azureDevops-type.png"/>
             </template>
           </ms-instructions-icon>
         </el-form-item>
@@ -45,7 +45,7 @@
     <div class="defect-tip">
       <div>{{ $t('organization.integration.use_tip') }}</div>
       <div>
-        1. {{ $t('organization.integration.use_tip_jira') }}
+        1. {{ $t('organization.integration.use_tip_azure') }}
       </div>
       <div>
         2. {{ $t('organization.integration.use_tip_two') }}
@@ -83,27 +83,27 @@ export default {
       rules: {
         pat: {
           required: true,
-          message: this.$t('organization.integration.input_api_password'),
+          message: this.$t('organization.integration.input_azure_pat'),
           trigger: ['change', 'blur']
         },
         url: {
           required: true,
-          message: this.$t('organization.integration.input_jira_url'),
+          message: this.$t('organization.integration.input_azure_url'),
           trigger: ['change', 'blur']
         },
         organization: {
           required: true,
-          message: this.$t('organization.integration.input_jira_url'),
+          message: this.$t('organization.integration.input_azure_organization_id'),
           trigger: ['change', 'blur']
         },
         issuetype: {
           required: true,
-          message: this.$t('organization.integration.input_jira_issuetype'),
+          message: this.$t('organization.integration.input_azure_issuetype'),
           trigger: ['change', 'blur']
         },
         storytype: {
           required: true,
-          message: this.$t('organization.integration.input_jira_storytype'),
+          message: this.$t('organization.integration.input_azure_storytype'),
           trigger: ['change', 'blur']
         }
       },
@@ -163,9 +163,9 @@ export default {
       })
     },
     clear() {
-      this.$set(this.form, 'account', '');
-      this.$set(this.form, 'password', '');
+      this.$set(this.form, 'pat', '');
       this.$set(this.form, 'url', '');
+      this.$set(this.form, 'organization', '');
       this.$set(this.form, 'issuetype', '');
       this.$set(this.form, 'storytype', '');
       this.$nextTick(() => {

@@ -13,7 +13,7 @@
           <img class="zentao_platform" src="../../../../assets/zentao.jpg" alt="Zentao"/>
         </el-radio>
         <el-radio label="AzureDevops" v-xpack>
-          <img class="platform" src="../../../../assets/jira.png" alt="AzureDevops"/>
+          <img class="platform" src="../../../../assets/AzureDevops.png" alt="AzureDevops"/>
         </el-radio>
       </el-radio-group>
     </div>

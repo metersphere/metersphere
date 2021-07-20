@@ -416,9 +416,17 @@ export default {
       not_integrated: '未集成該平臺',
       choose_platform: '請選擇集成的平臺',
       verified: '驗證通過',
+      azure_issuetype: '問題類型',
+      azure_storytype: '需求類型',
+      input_azure_issuetype: '請輸入問題類型',
+      input_azure_storytype: '請輸入需求類型',
       azure_pat:'PersonalAccessTokens',
       azure_devops_url:'Azure Devops 地址',
-      azure_organization:'Azure 組織 ID',
+      azure_organization_id:'Azure 組織ID',
+      input_azure_pat:'請輸入 Personal Access Token',
+      input_azure_url:'請輸入 Azure Devops 地址',
+      input_azure_id:'請輸入 Azure 組織ID',
+      use_tip_azure: 'Azure Devops 地址+令牌(賬戶設置-個人訪問令牌-創建令牌)',
     }
   },
   project: {

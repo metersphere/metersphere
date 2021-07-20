@@ -1,0 +1,1 @@
+alter table project add azure_devops_id varchar(50) null after zentao_id;
