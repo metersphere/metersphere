@@ -958,7 +958,7 @@ public class ApiAutomationService {
             request.setTriggerMode(ReportTriggerMode.MANUAL.name());
         }
         String reportId = request.getId();
-        Map<APIScenarioReportResult, RunModeDataDTO> map = new LinkedHashMap<>();
+        Map<String, RunModeDataDTO> executeQueue = new LinkedHashMap<>();
         List<String> scenarioIds = new ArrayList<>();
         StringBuilder scenarioNames = new StringBuilder();
         // 按照场景执行
@@ -994,11 +994,11 @@ public class ApiAutomationService {
             }
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                    map.put(report, new RunModeDataDTO(item.getId(), report.getId()));
+                    executeQueue.put(report.getId(), new RunModeDataDTO(item.getId(), report));
                 } else {
                     // 生成报告和HashTree
                     HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
-                    map.put(report, new RunModeDataDTO(hashTree, report.getId()));
+                    executeQueue.put(report.getId(), new RunModeDataDTO(hashTree, report));
                 }
                 scenarioIds.add(item.getId());
                 scenarioNames.append(item.getName()).append(",");
@@ -1021,9 +1021,9 @@ public class ApiAutomationService {
             apiScenarioReportMapper.insert(report);
             // 增加并行集合报告
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
-                List<String> reportIds = map.keySet().stream()
-                        .collect(Collectors.toList()).stream()
-                        .map(ApiScenarioReport::getId).collect(Collectors.toList());
+                List<String> reportIds = executeQueue.entrySet().stream()
+                        .map(reports -> reports.getKey())
+                        .collect(Collectors.toList());
                 ReportCounter counter = new ReportCounter();
                 counter.setNumber(0);
                 counter.setReportIds(reportIds);
@@ -1031,57 +1031,84 @@ public class ApiAutomationService {
             }
         }
         // 开始执行
-        this.run(map, request, serialReportId);
+        this.run(executeQueue, request, serialReportId);
 
         return request.getId();
     }
 
-    private void run(Map<APIScenarioReportResult, RunModeDataDTO> map, RunScenarioRequest request, String serialReportId) {
+    private void run(Map<String, RunModeDataDTO> executeQueue, RunScenarioRequest request, String serialReportId) {
         // 开始选择执行模式
-        if (map != null && map.size() > 0) {
-            ExecutorService executorService = Executors.newFixedThreadPool(map.size());
+        if (executeQueue != null && executeQueue.size() > 0) {
+            ExecutorService executorService = Executors.newFixedThreadPool(executeQueue.size());
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+                // 非集合报告，先生成执行队列
+                if (StringUtils.isEmpty(serialReportId)) {
+                    for (String reportId : executeQueue.keySet()) {
+                        APIScenarioReportResult report = executeQueue.get(reportId).getReport();
+                        report.setStatus(APITestStatus.Waiting.name());
+                        batchMapper.insert(report);
+                    }
+                    sqlSession.flushStatements();
+                }
                 // 开始串行执行
                 Thread thread = new Thread(new Runnable() {
                     @Override
                     public void run() {
                         List<String> reportIds = new LinkedList<>();
-                        for (APIScenarioReportResult key : map.keySet()) {
+                        for (String key : executeQueue.keySet()) {
+                            reportIds.add(key);
+                            APIScenarioReportResult report = executeQueue.get(key).getReport();
                             if (StringUtils.isNotEmpty(serialReportId)) {
-                                key.setExecuteType(ExecuteType.Marge.name());
+                                report.setExecuteType(ExecuteType.Marge.name());
+                                apiScenarioReportMapper.insert(report);
+                            } else {
+                                report.setStatus(APITestStatus.Running.name());
+                                report.setCreateTime(System.currentTimeMillis());
+                                report.setUpdateTime(System.currentTimeMillis());
+                                apiScenarioReportMapper.updateByPrimaryKey(report);
                             }
-                            apiScenarioReportMapper.insert(key);
-                            reportIds.add(key.getId());
                             try {
-                                Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, map.get(key), request));
-                                ApiScenarioReport report = future.get();
+                                Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
+                                ApiScenarioReport scenarioReport = future.get();
                                 // 如果开启失败结束执行，则判断返回结果状态
                                 if (request.getConfig().isOnSampleError()) {
-                                    if (report == null || !report.getStatus().equals("Success")) {
+                                    if (scenarioReport == null || !scenarioReport.getStatus().equals("Success")) {
+                                        reportIds.remove(key);
                                         break;
                                     }
                                 }
                             } catch (Exception e) {
+                                reportIds.remove(key);
                                 LogUtil.error("执行终止：" + e.getMessage());
                                 break;
                             }
                         }
+                        // 清理未执行的队列
+                        if (reportIds.size() < executeQueue.size()) {
+                            List<String> removeList = executeQueue.entrySet().stream()
+                                    .filter(map -> !reportIds.contains(map.getKey()))
+                                    .map(map -> map.getKey()).collect(Collectors.toList());
+                            ApiScenarioReportExample example = new ApiScenarioReportExample();
+                            example.createCriteria().andIdIn(removeList);
+                            apiScenarioReportMapper.deleteByExample(example);
+                        }
                         // 更新集成报告
                         if (StringUtils.isNotEmpty(serialReportId)) {
                             apiScenarioReportService.margeReport(serialReportId, reportIds);
-                            map.clear();
+                            executeQueue.clear();
                         }
                     }
                 });
                 thread.start();
             } else {
-                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-                ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
                 // 开始并发执行
-                for (APIScenarioReportResult report : map.keySet()) {
+                for (String reportId : executeQueue.keySet()) {
                     //存储报告
+                    APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
-                    executorService.submit(new ParallelScenarioExecTask(jMeterService, map.get(report), request));
+                    executorService.submit(new ParallelScenarioExecTask(jMeterService, executeQueue.get(report), request));
                 }
                 sqlSession.flushStatements();
             }
@@ -2238,9 +2265,9 @@ public class ApiAutomationService {
         }
     }
 
-    public void checkApiScenarioReferenceId(){
+    public void checkApiScenarioReferenceId() {
         List<ApiScenarioWithBLOBs> scenarioNoRefs = extApiScenarioMapper.selectByNoReferenceId();
-        for (ApiScenarioWithBLOBs model :scenarioNoRefs) {
+        for (ApiScenarioWithBLOBs model : scenarioNoRefs) {
             apiScenarioReferenceIdService.saveByApiScenario(model);
         }
     }
@@ -2325,38 +2352,38 @@ public class ApiAutomationService {
         DeleteCheckResult result = new DeleteCheckResult();
         List<String> checkMsgList = new ArrayList<>();
 
-        if(CollectionUtils.isNotEmpty(deleteIds)){
-            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds,MsTestElementConstants.REF.name());
-            if(CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)){
-                Map<String,List<String>> scenarioDic = new HashMap<>();
-                apiScenarioReferenceIdList.forEach( item ->{
+        if (CollectionUtils.isNotEmpty(deleteIds)) {
+            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds, MsTestElementConstants.REF.name());
+            if (CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)) {
+                Map<String, List<String>> scenarioDic = new HashMap<>();
+                apiScenarioReferenceIdList.forEach(item -> {
                     String refreceID = item.getReferenceId();
                     String scenarioId = item.getApiScenarioId();
-                    if(scenarioDic.containsKey(refreceID)){
+                    if (scenarioDic.containsKey(refreceID)) {
                         scenarioDic.get(refreceID).add(scenarioId);
-                    }else {
+                    } else {
                         List<String> list = new ArrayList<>();
                         list.add(scenarioId);
-                        scenarioDic.put(refreceID,list);
+                        scenarioDic.put(refreceID, list);
                     }
                 });
 
-                for (Map.Entry<String,List<String>> entry : scenarioDic.entrySet()){
+                for (Map.Entry<String, List<String>> entry : scenarioDic.entrySet()) {
                     String refreceId = entry.getKey();
                     List<String> scenarioIdList = entry.getValue();
-                    if(CollectionUtils.isNotEmpty(scenarioIdList)){
-                        String  deleteScenarioName= extApiScenarioMapper.selectNameById(refreceId);
+                    if (CollectionUtils.isNotEmpty(scenarioIdList)) {
+                        String deleteScenarioName = extApiScenarioMapper.selectNameById(refreceId);
                         List<String> scenarioNames = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
 
-                        if(StringUtils.isNotEmpty(deleteScenarioName) && CollectionUtils.isNotEmpty(scenarioNames)){
+                        if (StringUtils.isNotEmpty(deleteScenarioName) && CollectionUtils.isNotEmpty(scenarioNames)) {
                             String nameListStr = "【";
                             for (String name : scenarioNames) {
-                                nameListStr+= name +",";
+                                nameListStr += name + ",";
                             }
-                            if(nameListStr.length() > 1){
-                                nameListStr = nameListStr.substring(0,nameListStr.length()-1) + "】";
+                            if (nameListStr.length() > 1) {
+                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "】";
                             }
-                            String msg = deleteScenarioName+" "+Translator.get("delete_check_reference_by")+": "+nameListStr+" ";
+                            String msg = deleteScenarioName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
                             checkMsgList.add(msg);
                         }
                     }

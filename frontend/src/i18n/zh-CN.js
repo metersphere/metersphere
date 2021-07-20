@@ -168,6 +168,7 @@ export default {
     all_module_title: "全部模块",
     create_user: '创建人',
     run_message: "任务执行中，请到任务中心查看详情",
+    executor: "执行人",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
