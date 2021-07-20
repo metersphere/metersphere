@@ -448,6 +448,18 @@ export default {
       this.reqTotal = 0;
       this.reqSuccess = 0;
     },
+    clearResult(arr) {
+      if (arr) {
+        arr.forEach(item => {
+          item.requestResult = undefined;
+          item.result = undefined;
+          item.code = undefined;
+          if (item.hashTree && item.hashTree.length > 0) {
+            this.clearResult(item.hashTree);
+          }
+        })
+      }
+    },
     editParent(node, status) {
       if (!status) {
         node.data.code = "error";
@@ -901,6 +913,7 @@ export default {
       }
       this.stopDebug = "";
       this.clearDebug();
+      this.clearResult(this.scenarioDefinition);
       /*触发执行操作*/
       this.$refs.currentScenario.validate((valid) => {
         if (valid) {
