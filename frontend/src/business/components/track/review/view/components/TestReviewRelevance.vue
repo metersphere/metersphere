@@ -6,10 +6,10 @@
                top="50px">
 
       <el-container class="main-content">
-        <el-aside class="tree-aside" width="250px">
+        <el-aside class="tree-aside" width="270px">
           <select-menu
             :data="projects"
-            width="160px"
+            width="173px"
             :current-data="currentProject"
             :title="$t('test_track.switch_project')"
             @dataChange="changeProject"/>
@@ -388,6 +388,9 @@ export default {
 
   .node-tree {
     margin-right: 10px;
+    height: 52vh;
+    overflow-y: auto;
+    padding-right: 4px;
   }
 
   .el-header {
