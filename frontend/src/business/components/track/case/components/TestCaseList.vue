@@ -502,10 +502,13 @@ export default {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
       }
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        // param.nodeIds = this.selectNodeIds;
-        this.condition.nodeIds = this.selectNodeIds;
+      if(!this.trashEnable){
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          // param.nodeIds = this.selectNodeIds;
+          this.condition.nodeIds = this.selectNodeIds;
+        }
       }
+
       this.getData();
     },
     getData() {
@@ -546,6 +549,9 @@ export default {
           this.page.data = data.listObject;
           if (this.$refs.table) {
             this.$refs.table.clear();
+            this.$nextTick(() => {
+              this.$refs.table.doLayout();
+            });
           }
           this.page.data.forEach(item => {
             if (item.customFields) {
