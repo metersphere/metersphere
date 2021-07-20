@@ -788,7 +788,7 @@ export default {
       let ids = rowArray.map(s => s.id);
       return ids;
     },
-    exportApi(type) {
+    exportApi(type, nodeTree) {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
@@ -799,29 +799,12 @@ export default {
         let obj = response.data;
         if (type == 'MS') {
           obj.protocol = this.currentProtocol;
-          this.buildApiPath(obj.data);
+          obj.nodeTree = nodeTree;
           downloadFile("Metersphere_Api_" + this.projectName + ".json", JSON.stringify(obj));
         } else {
           downloadFile("Swagger_Api_" + this.projectName+ ".json", JSON.stringify(obj));
         }
       });
-    },
-    buildApiPath(apis) {
-      try {
-        let options = [];
-        this.moduleOptions.forEach(item => {
-          buildNodePath(item, {path: ''}, options);
-        });
-        apis.forEach((api) => {
-          options.forEach((item) => {
-            if (api.moduleId === item.id) {
-              api.modulePath = item.path;
-            }
-          });
-        });
-      } catch (e) {
-        console.log(e);
-      }
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;

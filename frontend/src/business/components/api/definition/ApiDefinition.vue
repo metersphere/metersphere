@@ -530,12 +530,12 @@ export default {
     apiCaseClose() {
       this.showCasePage = true;
     },
-    exportAPI(type) {
+    exportAPI(type, nodeTree) {
       if (this.activeDom !== 'left') {
         this.$warning('用例列表暂不支持导出，请切换成接口列表');
         return;
       }
-      this.$refs.apiDefList[0].exportApi(type);
+      this.$refs.apiDefList[0].exportApi(type, nodeTree);
     },
     refreshModule() {
       this.$refs.nodeTree.list();
