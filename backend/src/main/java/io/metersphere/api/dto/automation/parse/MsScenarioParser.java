@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.parse.MsAbstractParser;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
 
@@ -64,9 +66,22 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
     }
 
     private ScenarioImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
-        ScenarioImport apiDefinitionImport = JSON.parseObject(testStr, ScenarioImport.class);
-        List<ApiScenarioWithBLOBs> data = apiDefinitionImport.getData();
+        ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class);
+        List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
+
+        Set<String> moduleIdSet = scenarioImport.getData().stream()
+                .map(ApiScenarioWithBLOBs::getApiScenarioModuleId).collect(Collectors.toSet());
+
+        Map<String, NodeTree> nodeMap = null;
+        List<NodeTree> nodeTree = scenarioImport.getNodeTree();
+        if (CollectionUtils.isNotEmpty(nodeTree)) {
+            cutDownTree(nodeTree, moduleIdSet);
+            ApiScenarioImportUtil.createNodeTree(nodeTree, projectId, importRequest.getModuleId());
+            nodeMap = getNodeMap(nodeTree);
+        }
+
         if (CollectionUtils.isNotEmpty(data)) {
+            Map<String, NodeTree> finalNodeMap = nodeMap;
             data.forEach(item -> {
                 String scenarioDefinitionStr = item.getScenarioDefinition();
                 if (StringUtils.isNotBlank(scenarioDefinitionStr)) {
@@ -81,15 +96,24 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                         item.setScenarioDefinition(JSONObject.toJSONString(scenarioDefinition));
                     }
                 }
-                if (StringUtils.isBlank(item.getModulePath())) {
-                    item.setApiScenarioModuleId(null);
+
+                if (finalNodeMap != null) {
+                    NodeTree node = finalNodeMap.get(item.getApiScenarioModuleId());
+                    item.setApiScenarioModuleId(node.getNewId());
+                    item.setModulePath(node.getPath());
+                } else {
+                    if (StringUtils.isBlank(item.getModulePath())) {
+                        item.setApiScenarioModuleId(null);
+                    }
+                    // 旧版本未导出模块
+                    parseModule(item.getModulePath(), importRequest, item);
                 }
-                parseModule(item.getModulePath(), importRequest, item);
+
                 item.setId(UUID.randomUUID().toString());
                 item.setProjectId(this.projectId);
             });
         }
-        return apiDefinitionImport;
+        return scenarioImport;
     }
 
     private void setCopy(JSONArray hashTree) {

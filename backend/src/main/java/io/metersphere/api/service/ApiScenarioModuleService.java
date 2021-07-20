@@ -313,13 +313,17 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     public ApiScenarioModule getNewModule(String name, String projectId, int level) {
         ApiScenarioModule node = new ApiScenarioModule();
-        node.setCreateTime(System.currentTimeMillis());
-        node.setUpdateTime(System.currentTimeMillis());
-        node.setId(UUID.randomUUID().toString());
+        buildNewModule(node);
         node.setLevel(level);
         node.setName(name);
         node.setProjectId(projectId);
         return node;
+    }
+
+    public void buildNewModule(ApiScenarioModule node) {
+        node.setCreateTime(System.currentTimeMillis());
+        node.setUpdateTime(System.currentTimeMillis());
+        node.setId(UUID.randomUUID().toString());
     }
 
     public List<ApiScenarioModule> selectSameModule(ApiScenarioModule node) {

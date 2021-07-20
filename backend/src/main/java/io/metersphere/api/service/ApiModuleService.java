@@ -246,12 +246,17 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public ApiModule getNewModule(String name, String projectId, int level) {
         ApiModule node = new ApiModule();
-        node.setCreateTime(System.currentTimeMillis());
-        node.setUpdateTime(System.currentTimeMillis());
-        node.setId(UUID.randomUUID().toString());
+        buildNewModule(node);
         node.setLevel(level);
         node.setName(name);
         node.setProjectId(projectId);
+        return node;
+    }
+
+    public ApiModule buildNewModule(ApiModule node) {
+        node.setCreateTime(System.currentTimeMillis());
+        node.setUpdateTime(System.currentTimeMillis());
+        node.setId(UUID.randomUUID().toString());
         return node;
     }
 
