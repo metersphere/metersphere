@@ -186,6 +186,11 @@ public class UserController {
         return PageUtils.setPageInfo(page, userService.getProjectMemberList(request));
     }
 
+    @PostMapping("/project/member/list")
+    public List<User> getProjectMemberListAll(@RequestBody QueryMemberRequest request) {
+        return userService.getProjectMemberList(request);
+    }
+
     /**
      * 获取工作空间成员用户 不分页
      */
