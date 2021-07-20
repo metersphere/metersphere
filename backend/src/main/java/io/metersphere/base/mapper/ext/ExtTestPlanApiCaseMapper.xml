@@ -13,7 +13,11 @@
         WHERE test_plan_id = #{request.testPlanId} and api_case_id = #{request.apiCaseId}
       )
   </insert>
-
+  <select id="getApiTestCaseById" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
+    SELECT t.* FROM api_test_case t
+    INNER JOIN test_plan_api_case tpac ON t.id = tpac.api_case_id
+    WHERE tpac.id = #{0}
+  </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
     t.id, t.environment_id, t.create_time, t.update_time,

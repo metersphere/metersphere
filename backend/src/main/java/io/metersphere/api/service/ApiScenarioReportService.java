@@ -23,6 +23,7 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -252,7 +253,7 @@ public class ApiScenarioReportService {
         return returnReport;
     }
 
-    public ApiScenarioReport updateSchedulePlanCase(TestResult result, String runMode) {
+    public ApiScenarioReport  updateSchedulePlanCase(TestResult result, String runMode) {
         ApiScenarioReport lastReport = null;
         List<ScenarioResult> scenarioResultList = result.getScenarios();
 
@@ -261,6 +262,7 @@ public class ApiScenarioReportService {
 
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
+        Map<String,String> scenarioAndErrorMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -296,9 +298,12 @@ public class ApiScenarioReportService {
             report.setScenarioId(testPlanApiScenario.getApiScenarioId());
             report.setTestPlanScenarioId(planScenarioId);
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+
             if (scenarioResult.getError() > 0) {
+                scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.FAILD.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
             } else {
+                scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.SUCCESS.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
             }
             String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
@@ -317,18 +322,17 @@ public class ApiScenarioReportService {
             testPlanApiScenario.setReportId(report.getId());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-//            scenarioIds.append(scenarioResult.getName()).append(",");
             scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
             scenarioNames.append(report.getName()).append(",");
 
             lastReport = report;
             reportIds.add(report.getId());
         }
-        // 合并报告
-        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
-
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(), scenarioIdList);
+        for (String planId :testPlanReportIdList) {
+            testPlanReportService.updateExecuteApis(planId,null,scenarioAndErrorMap,null);
+        }
+//        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(), scenarioIdList);
 
         return lastReport;
     }

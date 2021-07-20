@@ -30,6 +30,13 @@
           and t.test_plan_id = #{request.planId}
       </if>
     where 1
+
+    <if test="request.scenarioIds != null and request.scenarioIds.size() > 0">
+      and c.id in
+      <foreach collection="request.scenarioIds" item="caseId" separator="," open="(" close=")">
+        #{caseId}
+      </foreach>
+    </if>
     <if test="request.ids != null and request.ids.size() > 0">
       <if test="request.projectId != null and request.projectId!=''">
         and c.project_id = #{request.projectId}

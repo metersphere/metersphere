@@ -492,4 +492,8 @@ public class TestPlanApiCaseService {
                 .andStatusEqualTo("error");
         return testPlanApiCaseMapper.countByExample(example) > 0 ? true : false;
     }
+
+    public ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId) {
+        return  extTestPlanApiCaseMapper.getApiTestCaseById(testPlanApiCaseId);
+    }
 }
