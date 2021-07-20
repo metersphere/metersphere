@@ -33,16 +33,16 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     public T call() {
         try {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReportId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
-                jMeterService.runLocal(runModeDataDTO.getReportId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
+                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
             }
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
             while (index < 200) {
                 Thread.sleep(3000);
                 index++;
-                report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReportId());
+                report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReport().getId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }
