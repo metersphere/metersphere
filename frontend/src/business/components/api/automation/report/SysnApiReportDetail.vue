@@ -449,7 +449,9 @@ export default {
 .report-header {
   font-size: 15px;
 }
-
+/deep/ .el-card__body{
+  padding: 0px;
+}
 .report-header a {
   text-decoration: none;
 }

@@ -11,7 +11,7 @@
     background-color="#FCF6EE"
     :title="$t('api_test.automation.transcation_controller')">
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
         {{ getCode() }}
       </span>
     </template>
@@ -34,6 +34,7 @@ export default {
   props: {
     controller: {},
     node: {},
+    message: String,
     isMax: {
       type: Boolean,
       default: false,
@@ -48,6 +49,11 @@ export default {
       default: false,
     },
   },
+  watch: {
+    message() {
+      this.reload();
+    },
+  },
   created() {
     if (this.controller.generateParentSample == null) {
       this.controller.generateParentSample = true;
@@ -58,6 +64,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       operators: {
         EQ: {
           label: "commons.adv_search.operators.equals",
@@ -95,6 +102,12 @@ export default {
     }
   },
   methods: {
+    reload() {
+      this.loading = true;
+      this.$nextTick(() => {
+        this.loading = false;
+      });
+    },
     getCode() {
       if (this.node && this.node.data.debug) {
         if (this.node.data.code && this.node.data.code === 'error') {
