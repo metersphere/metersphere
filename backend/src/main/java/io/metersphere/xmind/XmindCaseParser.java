@@ -159,10 +159,18 @@ public class XmindCaseParser {
         data.setNodePath(nodePath);
 
 
-        if (data.getName().length() > 200) {
+        //用例名称判断
+        if(StringUtils.isEmpty(data.getName())){
             validatePass = false;
-            process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "200", nodePath + data.getName());
+            process.add("name" + Translator.get("cannot_be_null"), nodePath + "");
+        }else {
+            if (data.getName().length() > 200) {
+                validatePass = false;
+                process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "200", nodePath + data.getName());
+            }
         }
+
+
 
         if (!StringUtils.isEmpty(nodePath)) {
             String[] nodes = nodePath.split("/");
