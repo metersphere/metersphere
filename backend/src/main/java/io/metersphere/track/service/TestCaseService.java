@@ -141,6 +141,9 @@ public class TestCaseService {
         testCase.setUpdateTime(System.currentTimeMillis());
         checkTestCustomNum(testCase);
         testCase.setNum(getNextNum(testCase.getProjectId()));
+        if (StringUtils.isBlank(testCase.getCustomNum())) {
+            testCase.setCustomNum(testCase.getNum().toString());
+        }
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
         testCase.setDemandName(testCase.getDemandName());
@@ -1247,14 +1250,19 @@ public class TestCaseService {
             return;
         }
 
-        TestCaseExample example = new TestCaseExample();
         List<String> editIds = data.stream()
                 .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
                 .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
-        example.createCriteria().andIdIn(editIds);
-        List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
-        Map<String, TestCaseWithBLOBs> testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
 
+        Map<String, TestCaseWithBLOBs> testCaseMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(editIds)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(editIds);
+            List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
+            testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
+        }
+
+        Map<String, TestCaseWithBLOBs> finalTestCaseMap = testCaseMap;
         data.forEach(item -> {
             if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                 item.setNodeId("");
@@ -1265,7 +1273,7 @@ public class TestCaseService {
                 item.setMaintainer(SessionUtils.getUserId());
                 addTestCase(item);
             } else {
-                TestCaseWithBLOBs dbCase = testCaseMap.get(item.getId());
+                TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
                 if (editCustomFieldsPriority(dbCase, item.getPriority())) {
                     item.setCustomFields(dbCase.getCustomFields());
                 };
