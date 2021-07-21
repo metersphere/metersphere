@@ -531,28 +531,53 @@ export default {
       this.clearDebug();
       if (res && res.scenarios) {
         res.scenarios.forEach(item => {
-          this.reqTotal += item.requestResults.length;
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let key = req.resourceId;
-              if (resMap.get(key)) {
-                if (resMap.get(key).indexOf(req) === -1) {
-                  resMap.get(key).push(req);
+              if (req.method === 'Request') {
+                req.subRequestResults.forEach(subItem => {
+                  this.reqTotal++;
+                  let key = subItem.resourceId;
+                  if (resMap.get(key)) {
+                    if (resMap.get(key).indexOf(subItem) === -1) {
+                      resMap.get(key).push(subItem);
+                    }
+                  } else {
+                    resMap.set(key, [subItem]);
+                  }
+                  if (subItem.success) {
+                    this.reqSuccess++;
+                  } else {
+                    this.reqError++;
+                  }
+                  if (subItem.startTime && Number(subItem.startTime) < startTime) {
+                    startTime = subItem.startTime;
+                  }
+                  if (subItem.endTime && Number(subItem.endTime) > endTime) {
+                    endTime = subItem.endTime;
+                  }
+                })
+              } else {
+                this.reqTotal++;
+                let key = req.resourceId;
+                if (resMap.get(key)) {
+                  if (resMap.get(key).indexOf(req) === -1) {
+                    resMap.get(key).push(req);
+                  }
+                } else {
+                  resMap.set(key, [req]);
                 }
-              } else {
-                resMap.set(key, [req]);
-              }
-              if (req.success) {
-                this.reqSuccess++;
-              } else {
-                this.reqError++;
-              }
-              if (req.startTime && Number(req.startTime) < startTime) {
-                startTime = req.startTime;
-              }
-              if (req.endTime && Number(req.endTime) > endTime) {
-                endTime = req.endTime;
+                if (req.success) {
+                  this.reqSuccess++;
+                } else {
+                  this.reqError++;
+                }
+                if (req.startTime && Number(req.startTime) < startTime) {
+                  startTime = req.startTime;
+                }
+                if (req.endTime && Number(req.endTime) > endTime) {
+                  endTime = req.endTime;
+                }
               }
             })
           }
