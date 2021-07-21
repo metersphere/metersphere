@@ -253,7 +253,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                el.setEnvironmentId(useEnvironment);
+                if(this.getEnvironmentId() == null){
+                    el.setEnvironmentId(useEnvironment);
+                }
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
         }
