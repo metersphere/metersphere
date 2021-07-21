@@ -106,4 +106,6 @@ public interface ExtTestCaseMapper {
     int reduction(@Param("ids") List<String> ids);
 
     void checkOriginalStatusByIds(@Param("ids") List<String> ids);
+
+    List<String> selectIdsByNodeIds(@Param("ids")List<String> nodeIds);
 }

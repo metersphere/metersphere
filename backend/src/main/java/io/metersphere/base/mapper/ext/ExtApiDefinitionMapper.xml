@@ -262,7 +262,7 @@
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExampleWithOperation">
         update api_definition
         set original_state=status,
-        status = 'Trash', module_path = null, module_id = null,delete_user_id = #{operator},delete_time = #{operationTime}
+        status = 'Trash', delete_user_id = #{operator},delete_time = #{operationTime}
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
@@ -273,6 +273,15 @@
         set
         status = original_state,delete_time = null,delete_user_id = null
         where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+    <update id="checkOriginalStatusByIds">
+        update api_definition
+        set
+        original_state = 'Underway'
+        where (original_state IS NULL OR original_state = 'Trash') AND id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>

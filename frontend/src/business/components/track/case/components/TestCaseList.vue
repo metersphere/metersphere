@@ -600,6 +600,7 @@ export default {
     reduction(testCase){
       let param = {};
       param.ids = [testCase.id];
+      param.projectId = getCurrentProjectID();
       this.$post('/test/case/reduction', param, () => {
         this.$emit('refreshTable');
         this.initTableData();

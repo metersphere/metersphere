@@ -1579,6 +1579,30 @@ public class TestCaseService {
         TestCaseExample example = this.getBatchExample(request);
         if(CollectionUtils.isNotEmpty(request.getIds())){
             extTestCaseMapper.checkOriginalStatusByIds(request.getIds());
+
+            //检查原来模块是否还在
+            example = new TestCaseExample();
+            example.createCriteria().andIdIn(request.getIds());
+            List<TestCase> reductionCaseList = testCaseMapper.selectByExample(example);
+            Map<String,List<TestCase>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(TestCase :: getNodeId));
+            for(Map.Entry<String,List<TestCase>> entry : nodeMap.entrySet()){
+                String nodeId = entry.getKey();
+                long nodeCount = testCaseNodeService.countById(nodeId);
+                if(nodeCount <= 0){
+                    String projectId = request.getProjectId();
+                    TestCaseNode node = testCaseNodeService.getDefaultNode(projectId);
+                    List<TestCase> testCaseList = entry.getValue();
+                    for (TestCase testCase: testCaseList) {
+
+                        TestCaseWithBLOBs updateCase = new TestCaseWithBLOBs();
+                        updateCase.setId(testCase.getId());
+                        updateCase.setNodeId(node.getId());
+                        updateCase.setNodePath("/"+node.getName());
+
+                        testCaseMapper.updateByPrimaryKeySelective(updateCase);
+                    }
+                }
+            }
             extTestCaseMapper.reduction(request.getIds());
         }
     }
