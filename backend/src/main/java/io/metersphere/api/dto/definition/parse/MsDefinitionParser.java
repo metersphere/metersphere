@@ -106,7 +106,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         String originId = apiDefinition.getId();
         String id = UUID.randomUUID().toString();
 
-        if (nodeMap != null) {
+        if (nodeMap != null && nodeMap.get(apiDefinition.getModuleId()) != null) {
             NodeTree nodeTree = nodeMap.get(apiDefinition.getModuleId());
             apiDefinition.setModuleId(nodeTree.getNewId());
             apiDefinition.setModulePath(nodeTree.getPath());
