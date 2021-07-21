@@ -199,6 +199,7 @@ export default {
               }
               this.templateContainIds.add(item.fieldId);
             });
+            this.$refs.customFieldFormList.refreshTable();
           });
       } else {
         this.appendDefaultFiled();
