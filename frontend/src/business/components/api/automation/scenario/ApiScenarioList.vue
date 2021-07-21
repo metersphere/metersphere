@@ -846,6 +846,7 @@ export default {
             });
           }
         });
+      });
     },
     exportJmx() {
       let param = {};
