@@ -61,7 +61,7 @@
       <div class="report-container">
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
-            <span>{{ item.name }} </span><br/>
+            <span><el-link type="primary">{{getModeName(item.executionModule)}} </el-link>: {{ item.name }} </span><br/>
             <span>
               执行器：{{ item.actuator }} 由 {{ item.executor }}
               {{ item.executionTime | timestampFormatDate }}
@@ -216,6 +216,16 @@ export default {
         }
       }
       return 60;
+    },
+    getModeName(executionModule){
+      switch (executionModule) {
+        case "SCENARIO":
+          return this.$t('test_track.scenario_test_case');
+        case "PERFORMANCE":
+          return this.$t('test_track.performance_test_case');
+        case "API":
+          return this.$t('test_track.api_test_case');
+      }
     },
     showReport(row, env) {
       let status = row.executionStatus;
