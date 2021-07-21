@@ -1307,6 +1307,9 @@ export default {
     date: "日期"
   },
   test_track: {
+    sync_add_api_load: '同步添加關聯的接口和性能測試',
+    next: '下一條',
+    total_size: '共 {0} 條',
     related_requirements: '關聯需求',
     please_related_requirements: '請選擇要關聯的需求',
     please_select_the_test_to_associate: "請選擇需要關聯的測試",

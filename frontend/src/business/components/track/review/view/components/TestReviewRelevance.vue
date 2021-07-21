@@ -77,7 +77,7 @@
 
             </el-table>
             <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
-            <div style="text-align: center">共 {{total}} 条</div>
+            <div style="text-align: center">{{$t('test_track.total_size', [total])}}</div>
           </el-main>
         </el-container>
       </el-container>
