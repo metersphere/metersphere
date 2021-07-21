@@ -1302,6 +1302,9 @@ export default {
     date: "Date"
   },
   test_track: {
+    sync_add_api_load: 'Synchronously add associated api and load tests',
+    next: 'Next',
+    total_size: 'Total {0}',
     related_requirements: 'Related requirements',
     please_related_requirements: 'Please select the requirements to associate',
     please_select_the_test_to_associate: "Please select the test to associate",

@@ -20,7 +20,7 @@
       </div>
       <div v-else>
         <div style="margin-bottom: 15px" v-if="flag">
-          <el-checkbox v-model="checked">同步添加关联的接口和性能测试</el-checkbox>
+          <el-checkbox v-model="checked">{{ $t('test_track.sync_add_api_load') }}</el-checkbox>
         </div>
         <ms-dialog-footer @cancel="close" @confirm="save"/>
       </div>
