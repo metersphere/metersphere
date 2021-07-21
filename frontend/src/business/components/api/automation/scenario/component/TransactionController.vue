@@ -156,7 +156,13 @@ export default {
   width: 15%;
   margin-left: 5px;
 }
+.ms-req-error {
+  color: #F56C6C;
+}
 
+.ms-req-success {
+  color: #67C23A;
+}
 .ms-step-debug-code {
   display: inline-block;
   margin: 0 5px;
