@@ -131,7 +131,8 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
     private String formatPath(String url) {
         try {
             URL urlObject = new URL(url);
-            StringBuffer pathBuffer = new StringBuffer(urlObject.getPath());
+            String path = StringUtils.isBlank(urlObject.getPath()) ? "/" : urlObject.getPath();
+            StringBuffer pathBuffer = new StringBuffer(path);
             if (StringUtils.isNotEmpty(urlObject.getQuery())) {
                 pathBuffer.append("?").append(urlObject.getQuery());
             }
