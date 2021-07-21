@@ -149,4 +149,8 @@ export default {
 </script>
 
 <style scoped>
+
+/deep/ .el-table--border, .el-table--group {
+  border: 0px;
+}
 </style>
