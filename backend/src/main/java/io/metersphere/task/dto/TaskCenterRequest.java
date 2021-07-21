@@ -14,5 +14,8 @@ public class TaskCenterRequest {
      * 执行状态
      */
     private String executionStatus;
-
+    /**
+     * 执行人
+     */
+    private String executor;
 }

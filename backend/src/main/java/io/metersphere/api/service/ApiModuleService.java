@@ -246,12 +246,17 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public ApiModule getNewModule(String name, String projectId, int level) {
         ApiModule node = new ApiModule();
-        node.setCreateTime(System.currentTimeMillis());
-        node.setUpdateTime(System.currentTimeMillis());
-        node.setId(UUID.randomUUID().toString());
+        buildNewModule(node);
         node.setLevel(level);
         node.setName(name);
         node.setProjectId(projectId);
+        return node;
+    }
+
+    public ApiModule buildNewModule(ApiModule node) {
+        node.setCreateTime(System.currentTimeMillis());
+        node.setUpdateTime(System.currentTimeMillis());
+        node.setId(UUID.randomUUID().toString());
         return node;
     }
 
@@ -339,7 +344,8 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
         apiDefinitionExample.setOperator(SessionUtils.getUserId());
         apiDefinitionExample.setOperationTime(System.currentTimeMillis());
-        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
+        apiDefinitionService.removeToGcByExample(apiDefinitionExample);
+//        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
 
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
         apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);

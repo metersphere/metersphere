@@ -448,6 +448,18 @@ export default {
       this.reqTotal = 0;
       this.reqSuccess = 0;
     },
+    clearResult(arr) {
+      if (arr) {
+        arr.forEach(item => {
+          item.requestResult = undefined;
+          item.result = undefined;
+          item.code = undefined;
+          if (item.hashTree && item.hashTree.length > 0) {
+            this.clearResult(item.hashTree);
+          }
+        })
+      }
+    },
     editParent(node, status) {
       if (!status) {
         node.data.code = "error";
@@ -457,21 +469,21 @@ export default {
         this.editParent(node.parent, status);
       }
     },
-    findNodeChild(arr, name, index, status) {
+    findNodeChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.name === name && item.data.index === index) {
+        if (item.data.resourceId === resourceId) {
           this.editParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.findNodeChild(item.childNodes, name, index, status);
+          this.findNodeChild(item.childNodes, resourceId, status);
         }
       })
     },
-    findNode(name, index, status) {
+    findNode(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
           if (item.childNodes && item.childNodes.length > 0) {
-            this.findNodeChild(item.childNodes, name, index, status);
+            this.findNodeChild(item.childNodes, resourceId, status);
           }
         })
       }
@@ -521,8 +533,7 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let name = req.name.split('<->')[0];
-              let key = req.id + name;
+              let key = req.resourceId;
               if (resMap.get(key)) {
                 if (resMap.get(key).indexOf(req) === -1) {
                   resMap.get(key).push(req);
@@ -684,7 +695,7 @@ export default {
     suggestClick(node) {
       this.response = {};
       if (node.parent && node.parent.data.requestResult) {
-        this.response = node.parent.data.requestResult;
+        this.response = node.parent.data.requestResult[0];
       }
     },
     showAll() {
@@ -716,18 +727,17 @@ export default {
             arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
         }
-
-        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
-          this.stepSize += arr[i].hashTree.length;
-          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
-        }
         // 添加debug结果
-        let key = arr[i].id + arr[i].name;
+        let key = arr[i].resourceId;
         if (this.debugResult && this.debugResult.get(key)) {
           arr[i].requestResult = this.debugResult.get(key);
           arr[i].result = null;
           arr[i].debug = this.debug;
-          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult[0].success);
+          this.findNode(key, arr[i].requestResult[0].success);
+        }
+        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+          this.stepSize += arr[i].hashTree.length;
+          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
         }
       }
     },
@@ -759,9 +769,9 @@ export default {
           this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
         }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
+        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].resourceId)) {
           this.scenarioDefinition[i].result = null;
-          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
+          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].resourceId);
           this.scenarioDefinition[i].debug = this.debug;
         }
 
@@ -823,6 +833,7 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
+      request.requestResult = undefined;
       if (!request.url) {
         request.url = "";
       }
@@ -902,6 +913,7 @@ export default {
       }
       this.stopDebug = "";
       this.clearDebug();
+      this.clearResult(this.scenarioDefinition);
       /*触发执行操作*/
       this.$refs.currentScenario.validate((valid) => {
         if (valid) {
@@ -977,10 +989,10 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (dropType != "inner") {
+      if (dropType != "inner" && (draggingNode.data && !draggingNode.data.disabled)) {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
         return true;
       }
       return false;

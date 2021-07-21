@@ -65,6 +65,7 @@ public class TestPlanApiCaseController {
     }
 
     @PostMapping(value = "/run")
+    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.planIds)", msClass = TestPlanApiCaseService.class)
     public String run(@RequestBody BatchRunDefinitionRequest request) {
         return testPlanApiCaseService.run(request);
     }

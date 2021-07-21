@@ -363,10 +363,10 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: 'calc(100vh - 250px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 258px)',//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
-      projectName:"",
+      projectName: "",
     };
   },
   props: {
@@ -436,12 +436,14 @@ export default {
   },
   watch: {
     selectNodeIds() {
-      initCondition(this.condition, false);
-      this.currentPage = 1;
-      this.condition.moduleIds = [];
-      this.condition.moduleIds.push(this.selectNodeIds);
-      this.closeCaseModel();
-      this.initTable();
+      if(!this.trashEnable){
+        initCondition(this.condition, false);
+        this.currentPage = 1;
+        this.condition.moduleIds = [];
+        this.condition.moduleIds.push(this.selectNodeIds);
+        this.closeCaseModel();
+        this.initTable();
+      }
     },
     currentProtocol() {
       this.currentPage = 1;
@@ -488,7 +490,9 @@ export default {
 
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
-      this.condition.moduleIds = this.selectNodeIds;
+      if(!this.trashEnable){
+        this.condition.moduleIds = this.selectNodeIds;
+      }
       this.condition.projectId = this.projectId;
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
@@ -644,13 +648,15 @@ export default {
       let rows = {ids: [tmp.id]};
       this.$post('/api/definition/reduction/', rows, () => {
         this.$success(this.$t('commons.save_success'));
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleBatchRestore() {
       this.$post('/api/definition/reduction/', buildBatchParam(this, this.$refs.table.selectIds), () => {
         this.$success(this.$t('commons.save_success'));
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleDeleteBatch() {
@@ -661,7 +667,8 @@ export default {
             if (action === 'confirm') {
               this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
                 this.$refs.table.clear();
-                this.initTable();
+                // this.initTable();
+                this.$emit("refreshTable");
                 this.$success(this.$t('commons.delete_success'));
               });
             }
@@ -674,7 +681,8 @@ export default {
             if (action === 'confirm') {
               this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this, this.$refs.table.selectIds), () => {
                 this.$refs.table.clear();
-                this.initTable();
+                // this.initTable();
+                this.$emit("refreshTable");
                 this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();
               });
@@ -733,7 +741,8 @@ export default {
       if (this.trashEnable) {
         this.$get('/api/definition/delete/' + api.id, () => {
           this.$success(this.$t('commons.delete_success'));
-          this.initTable();
+          // this.initTable();
+          this.$emit("refreshTable");
         });
         return;
       }
@@ -744,7 +753,8 @@ export default {
             let ids = [api.id];
             this.$post('/api/definition/removeToGc/', ids, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit("refreshTable");
               this.$refs.caseList.apiCaseClose();
             });
           }
@@ -778,7 +788,7 @@ export default {
       let ids = rowArray.map(s => s.id);
       return ids;
     },
-    exportApi(type) {
+    exportApi(type, nodeTree) {
       let param = buildBatchParam(this, this.$refs.table.selectIds);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
@@ -789,29 +799,12 @@ export default {
         let obj = response.data;
         if (type == 'MS') {
           obj.protocol = this.currentProtocol;
-          this.buildApiPath(obj.data);
+          obj.nodeTree = nodeTree;
           downloadFile("Metersphere_Api_" + this.projectName + ".json", JSON.stringify(obj));
         } else {
           downloadFile("Swagger_Api_" + this.projectName+ ".json", JSON.stringify(obj));
         }
       });
-    },
-    buildApiPath(apis) {
-      try {
-        let options = [];
-        this.moduleOptions.forEach(item => {
-          buildNodePath(item, {path: ''}, options);
-        });
-        apis.forEach((api) => {
-          options.forEach((item) => {
-            if (api.moduleId === item.id) {
-              api.modulePath = item.path;
-            }
-          });
-        });
-      } catch (e) {
-        console.log(e);
-      }
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;

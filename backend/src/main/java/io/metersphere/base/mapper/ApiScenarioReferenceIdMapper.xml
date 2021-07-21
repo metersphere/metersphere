@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ApiScenarioReferenceIdMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiScenarioReferenceId">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
+    <result column="reference_id" jdbcType="VARCHAR" property="referenceId" />
+    <result column="reference_type" jdbcType="VARCHAR" property="referenceType" />
+    <result column="data_type" jdbcType="VARCHAR" property="dataType" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, api_scenario_id, create_time, create_user_id, reference_id, reference_type, data_type
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiScenarioReferenceIdExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_scenario_reference_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from api_scenario_reference_id
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_scenario_reference_id
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.ApiScenarioReferenceIdExample">
+    delete from api_scenario_reference_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReferenceId">
+    insert into api_scenario_reference_id (id, api_scenario_id, create_time, 
+      create_user_id, reference_id, reference_type, 
+      data_type)
+    values (#{id,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUserId,jdbcType=VARCHAR}, #{referenceId,jdbcType=VARCHAR}, #{referenceType,jdbcType=VARCHAR}, 
+      #{dataType,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReferenceId">
+    insert into api_scenario_reference_id
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="apiScenarioId != null">
+        api_scenario_id,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
+      </if>
+      <if test="referenceId != null">
+        reference_id,
+      </if>
+      <if test="referenceType != null">
+        reference_type,
+      </if>
+      <if test="dataType != null">
+        data_type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="apiScenarioId != null">
+        #{apiScenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        #{referenceId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceType != null">
+        #{referenceType,jdbcType=VARCHAR},
+      </if>
+      <if test="dataType != null">
+        #{dataType,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.ApiScenarioReferenceIdExample" resultType="java.lang.Long">
+    select count(*) from api_scenario_reference_id
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_scenario_reference_id
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.apiScenarioId != null">
+        api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referenceId != null">
+        reference_id = #{record.referenceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.referenceType != null">
+        reference_type = #{record.referenceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.dataType != null">
+        data_type = #{record.dataType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_scenario_reference_id
+    set id = #{record.id,jdbcType=VARCHAR},
+      api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      reference_id = #{record.referenceId,jdbcType=VARCHAR},
+      reference_type = #{record.referenceType,jdbcType=VARCHAR},
+      data_type = #{record.dataType,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReferenceId">
+    update api_scenario_reference_id
+    <set>
+      <if test="apiScenarioId != null">
+        api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceId != null">
+        reference_id = #{referenceId,jdbcType=VARCHAR},
+      </if>
+      <if test="referenceType != null">
+        reference_type = #{referenceType,jdbcType=VARCHAR},
+      </if>
+      <if test="dataType != null">
+        data_type = #{dataType,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenarioReferenceId">
+    update api_scenario_reference_id
+    set api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      reference_id = #{referenceId,jdbcType=VARCHAR},
+      reference_type = #{referenceType,jdbcType=VARCHAR},
+      data_type = #{dataType,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

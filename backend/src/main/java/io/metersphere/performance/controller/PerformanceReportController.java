@@ -119,11 +119,6 @@ public class PerformanceReportController {
         return performanceReportService.getLoadTestReport(reportId);
     }
 
-    @GetMapping("/pool/type/{reportId}")
-    public String getPoolTypeByReportId(@PathVariable String reportId) {
-        return performanceReportService.getPoolTypeByReportId(reportId);
-    }
-
     @GetMapping("log/resource/{reportId}")
     public List<LogDetailDTO> getResourceIds(@PathVariable String reportId) {
         return performanceReportService.getReportLogResource(reportId);

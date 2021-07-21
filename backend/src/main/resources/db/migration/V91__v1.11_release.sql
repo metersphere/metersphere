@@ -49,3 +49,18 @@ UPDATE api_scenario SET delete_time = update_time,delete_user_id = create_user W
 UPDATE api_test_case testCase INNER JOIN (SELECT t1.id FROM api_test_case  t1 INNER JOIN api_definition t2 ON t1.api_definition_id = t2.id
   WHERE (t1.`status` is null  or t1.`status` != 'Trash') and t2.`status` = 'Trash') table1 ON testCase.id = table1.id SET `STATUS` = 'Trash';
 -- 功能案例、接口、接口案例、场景增加字段以及旧数据管理结束
+
+-- 场景增加外键表：引用的ID
+CREATE TABLE api_scenario_reference_id  (
+    `id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    `api_scenario_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `create_time` bigint(13) NULL DEFAULT NULL,
+    `create_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `reference_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `reference_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `data_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `reference_id`(`reference_id`) USING BTREE,
+    INDEX `api_scenario_id`(`api_scenario_id`) USING BTREE,
+    INDEX `data_type`(`data_type`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;

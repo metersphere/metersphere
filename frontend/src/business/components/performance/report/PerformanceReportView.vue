@@ -97,7 +97,7 @@
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
             </el-tab-pane>
-            <el-tab-pane :label="$t('report.test_monitor_details')" v-if="poolType === 'NODE'">
+            <el-tab-pane :label="$t('report.test_monitor_details')">
               <monitor-card :report="report"/>
             </el-tab-pane>
           </el-tabs>
@@ -188,7 +188,6 @@ export default {
         {value: '60', label: '1m'},
         {value: '300', label: '5m'}
       ],
-      poolType: "",
       testDeleted: false,
     };
   },
@@ -410,21 +409,12 @@ export default {
         }
       }
       localStorage.setItem("reportRefreshTime", this.refreshTime);
-    },
-    getPoolType(reportId) {
-      this.$get("/performance/report/pool/type/" + reportId, result => {
-        let data = result.data;
-        if (data) {
-          this.poolType = data;
-        }
-      });
     }
   },
   created() {
     this.isReadOnly = !hasPermission('PROJECT_PERFORMANCE_REPORT:READ+DELETE');
     this.reportId = this.$route.path.split('/')[4];
     this.getReport(this.reportId);
-    this.getPoolType(this.reportId);
   },
   watch: {
     '$route'(to) {

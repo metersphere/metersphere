@@ -8,7 +8,7 @@
               <el-checkbox class="item-select" v-model="apiCase.selected"/>
             </el-col>
             <el-col :span="2" style="margin-top: 2px">
-              <show-more-btn :is-show="apiCase.selected" :buttons="buttons"/>
+              <show-more-btn :is-show="apiCase.selected" :buttons="buttons" :size="selectSize"/>
             </el-col>
             <el-col :span="20">
               <div class="el-step__icon is-text ms-api-col">
@@ -193,6 +193,7 @@
     },
     props: {
       runResult:{},
+      selectSize: Number,
       apiCase: {
         type: Object,
         default() {
@@ -220,7 +221,11 @@
         this.showXpackCompnent = true;
       }
     },
-    watch: {},
+    watch: {
+      'apiCase.selected'(){
+        this.$emit('apiCaseSelected');
+      }
+    },
     methods: {
       openHis(row) {
         this.$refs.changeHistory.open(row.id);

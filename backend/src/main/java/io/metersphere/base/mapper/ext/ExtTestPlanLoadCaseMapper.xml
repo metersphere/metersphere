@@ -57,6 +57,12 @@
         inner join project p on lt.project_id = p.id
         <where>
             tplc.test_plan_id = #{request.testPlanId}
+            <if test="request.caseIds != null and request.caseIds.size > 0">
+                AND lt.id IN
+                <foreach collection="request.caseIds" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
             <if test="request.projectId != null and request.projectId != ''">
                 and lt.project_id = #{request.projectId}
             </if>

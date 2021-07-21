@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
+import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.MsTestElement;
@@ -20,6 +21,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -82,6 +84,10 @@ public class ApiTestCaseService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private EsbApiParamService esbApiParamService;
+    @Resource
+    private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -814,6 +820,7 @@ public class ApiTestCaseService {
             cannotReductionApiCaseList.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
             List<String> deleteIds = ids.stream().filter(id -> !cannotReductionCaseId.contains(id)).collect(Collectors.toList());
             if(CollectionUtils.isNotEmpty(deleteIds)){
+                extApiTestCaseMapper.checkOriginalStatusByIds(deleteIds);
                 extApiTestCaseMapper.reduction(deleteIds);
             }
         }
@@ -826,5 +833,57 @@ public class ApiTestCaseService {
         }else {
             return extApiTestCaseMapper.selectCaseIdsByApiIds(apiIds);
         }
+    }
+
+    public DeleteCheckResult checkDeleteDatas(ApiTestBatchRequest request) {
+        List<String> deleteIds = request.getIds();
+        if (request.isSelectAll()) {
+            deleteIds = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),request.getApiDefinitionId());
+        }
+        DeleteCheckResult result = new DeleteCheckResult();
+        List<String> checkMsgList = new ArrayList<>();
+
+        if(CollectionUtils.isNotEmpty(deleteIds)){
+            List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds, MsTestElementConstants.REF.name());
+            if(CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)){
+                Map<String,List<String>> scenarioDic = new HashMap<>();
+                apiScenarioReferenceIdList.forEach( item ->{
+                    String refreceID = item.getReferenceId();
+                    String scenarioId = item.getApiScenarioId();
+                    if(scenarioDic.containsKey(refreceID)){
+                        scenarioDic.get(refreceID).add(scenarioId);
+                    }else {
+                        List<String> list = new ArrayList<>();
+                        list.add(scenarioId);
+                        scenarioDic.put(refreceID,list);
+                    }
+                });
+
+                for (Map.Entry<String,List<String>> entry : scenarioDic.entrySet()){
+                    String refreceId = entry.getKey();
+                    List<String> scenarioIdList = entry.getValue();
+                    if(CollectionUtils.isNotEmpty(scenarioIdList)){
+                        List<String> scenarioNameList = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
+                        String deleteCaseName = extApiTestCaseMapper.selectNameById(refreceId);
+
+                        if(StringUtils.isNotEmpty(deleteCaseName) && CollectionUtils.isNotEmpty(scenarioNameList)){
+                            String nameListStr = "【";
+                            for (String name : scenarioNameList) {
+                                nameListStr+= name +",";
+                            }
+                            if(nameListStr.length() > 1){
+                                nameListStr = nameListStr.substring(0,nameListStr.length()-1) + "】";
+                            }
+                            String msg = deleteCaseName+" "+Translator.get("delete_check_reference_by")+": "+nameListStr+" ";
+                            checkMsgList.add(msg);
+                        }
+                    }
+                }
+            }
+        }
+
+        result.setDeleteFlag(checkMsgList.isEmpty());
+        result.setCheckMsg(checkMsgList);
+        return result;
     }
 }

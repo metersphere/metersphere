@@ -523,6 +523,19 @@
         </foreach>
     </select>
 
+    <select id="selectNameByIdIn" resultType="java.lang.String">
+        SELECT testCase.name FROM api_test_case testCase
+        WHERE testCase.id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
+
+    <select id="selectNameById" resultType="java.lang.String">
+        SELECT testCase.name FROM api_test_case testCase
+        WHERE testCase.id = #{0}
+    </select>
+
     <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">
         update api_test_case
         set original_status=status,
@@ -537,6 +550,15 @@
         update api_test_case
         set status = original_status
         where id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+    <update id="checkOriginalStatusByIds">
+        update api_test_case
+        set
+        original_status = 'Underway'
+        where (original_status IS NULL OR original_status = 'Trash') AND id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>

@@ -168,8 +168,14 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
      */
     private String samplerId;
 
+    private String resourceId;
+
     public String getSamplerId() {
         return this.samplerId;
+    }
+
+    public String getResourceId() {
+        return this.resourceId;
     }
 
     // 数据格式 List<id_name> 多层父级按照同级统计
@@ -348,6 +354,7 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
         Sampler sampler = JMeterContextService.getContext().getCurrentSampler();
         if (sampler != null) {
             this.samplerId = sampler.getPropertyAsString("MS-ID");
+            this.resourceId = sampler.getPropertyAsString("MS-RESOURCE-ID");
             this.scenario = sampler.getPropertyAsString("MS-SCENARIO");
         }
 

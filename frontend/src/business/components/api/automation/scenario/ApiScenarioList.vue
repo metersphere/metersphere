@@ -190,7 +190,12 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+        </el-drawer>
+        <!-- 执行结果 -->
+        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
+                   size="90%">
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -215,7 +220,8 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
 import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
-import MsApiReportDetail from "../report/SysnApiReportDetail";
+import SysnApiReportDetail from "../report/SysnApiReportDetail";
+import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "./testplan/TestPlanList";
@@ -259,6 +265,7 @@ export default {
     MsTableHeader,
     MsTag,
     MsApiReportDetail,
+    SysnApiReportDetail,
     MsScenarioExtendButtons,
     MsTestPlanList,
     MsTableOperatorButton,
@@ -315,7 +322,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 228px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
@@ -332,6 +339,7 @@ export default {
       content: {},
       infoDb: false,
       runVisible: false,
+      showReportVisible: false,
       planVisible: false,
       runData: [],
       report: {},
@@ -467,11 +475,23 @@ export default {
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
-    if (!this.isReferenceTable) {
-      this.operators = this.unTrashOperators;
-      this.buttons = this.unTrashButtons;
-    }
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+
+    if (this.trashEnable) {
+      this.condition.filters = {status: ["Trash"]};
+      this.condition.moduleIds = [];
+      this.operators = this.trashOperators;
+      this.buttons = this.trashButtons;
+    } else {
+      if (!this.isReferenceTable) {
+        this.operators = this.unTrashOperators;
+        this.buttons = this.unTrashButtons;
+      } else {
+        this.operators = this.unTrashOperators;
+        this.buttons = this.unTrashButtons;
+      }
+    }
+
     let orderArr = this.getSortField();
     if (orderArr) {
       this.condition.orders = orderArr;
@@ -575,6 +595,9 @@ export default {
           });
           if (this.$refs.scenarioTable) {
             this.$refs.scenarioTable.clear();
+            this.$nextTick(() => {
+              this.$refs.scenarioTable.doLayout();
+            });
           }
           this.$emit('getTrashCase');
         });
@@ -752,26 +775,47 @@ export default {
         //let ids = Array.from(this.selectRows).map(row => row.id);
         let param = {};
         this.buildBatchParam(param);
+        this.result.loading = true;
         this.$post('/api/automation/deleteBatchByCondition/', param, () => {
           this.$success(this.$t('commons.delete_success'));
           this.search();
+        }, (error) => {
+          this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            //let ids = Array.from(this.selectRows).map(row => row.id);
-            let param = {};
-            this.buildBatchParam(param);
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
 
     execute(row) {
@@ -797,7 +841,7 @@ export default {
       this.$emit('edit', rowParam);
     },
     showReport(row) {
-      this.runVisible = true;
+      this.showReportVisible = true;
       this.infoDb = true;
       this.reportId = row.reportId;
     },
@@ -816,28 +860,43 @@ export default {
           this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            // let ids = [row.id];
-            let param = {};
-            this.buildBatchParam(param);
-            param.ids = [row.id];
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              // this.$post('/api/automation/removeToGc/', ids, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        param.ids = [row.id];
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
     openScenario(item) {
       this.$emit('openScenario', item);
     },
-    exportApi() {
+    exportApi(nodeTree) {
       let param = {};
       this.projectId = getCurrentProjectID();
       this.$get('project/get/' + this.projectId, response => {
@@ -853,7 +912,7 @@ export default {
           this.result = this.$post("/api/automation/export", param, response => {
             this.result.loading = false;
             let obj = response.data;
-            this.buildApiPath(obj.data);
+            obj.nodeTree = nodeTree;
             downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
           });
         }
@@ -875,15 +934,6 @@ export default {
             downloadFile(item.name + ".jmx", item.jmx);
           });
         }
-      });
-    },
-    buildApiPath(scenarios) {
-      scenarios.forEach((scenario) => {
-        this.moduleOptions.forEach(item => {
-          if (scenario.moduleId === item.id) {
-            scenario.modulePath = item.path;
-          }
-        });
       });
     },
     getConditions() {

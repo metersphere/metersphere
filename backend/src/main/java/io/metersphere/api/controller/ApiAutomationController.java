@@ -131,6 +131,12 @@ public class ApiAutomationController {
         apiAutomationService.removeToGcByBatch(request);
     }
 
+    @PostMapping("/checkBeforeDelete")
+    public DeleteCheckResult checkBeforeDelete(@RequestBody ApiScenarioBatchRequest request) {
+        DeleteCheckResult checkResult = apiAutomationService.checkBeforeDelete(request);
+        return checkResult;
+    }
+
     @PostMapping("/reduction")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiAutomationService.class)
     public void reduction(@RequestBody List<String> ids) {

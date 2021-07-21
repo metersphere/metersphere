@@ -262,11 +262,13 @@ export default {
     initDataSource() {
       let databaseConfigsOptions = [];
       if (this.request.protocol === 'SQL' || this.request.type === 'JDBCSampler') {
-        if (this.environment.config) {
+        if (this.environment && this.environment.config) {
           let config = JSON.parse(this.environment.config);
-          config.databaseConfigs.forEach(item => {
-            databaseConfigsOptions.push(item);
-          });
+          if(config && config.databaseConfigs) {
+            config.databaseConfigs.forEach(item => {
+              databaseConfigsOptions.push(item);
+            });
+          }
         }
       }
       if (databaseConfigsOptions.length > 0 && this.request.environmentId !== this.environment.id) {

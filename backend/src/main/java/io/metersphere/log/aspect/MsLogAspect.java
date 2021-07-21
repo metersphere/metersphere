@@ -97,6 +97,14 @@ public class MsLogAspect {
                 Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
                 memberValues.put("beforeValue", beforeContent);
             }
+            if (msLog != null && StringUtils.isEmpty(msLog.operUser())) {
+                InvocationHandler invocationHandler = Proxy.getInvocationHandler(msLog);
+                Field value = invocationHandler.getClass().getDeclaredField("memberValues");
+                value.setAccessible(true);
+                Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
+                memberValues.put("operUser", SessionUtils.getUserId());
+            }
+
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
         }

@@ -239,10 +239,10 @@ export default {
   },
   data() {
     return {
-      projectName:"",
+      projectName: "",
       type: TEST_CASE_LIST,
-      tableHeaderKey:"TRACK_TEST_CASE",
-      screenHeight: 'calc(100vh - 250px)',
+      tableHeaderKey: "TRACK_TEST_CASE",
+      screenHeight: 'calc(100vh - 258px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
       condition: {
@@ -365,8 +365,13 @@ export default {
     },
   },
   created: function () {
+    this.getTemplateField();
     this.$emit('setCondition', this.condition);
-    this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    if(this.trashEnable){
+      this.condition.filters = {status: ["Trash"]};
+    }else {
+      this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    }
     let orderArr = this.getSortField();
     if(orderArr){
       this.condition.orders = orderArr;

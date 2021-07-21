@@ -478,7 +478,32 @@ export default {
       for (let name in this.checkList) {
         promises.push(this.getChart(name, this.checkList[name]));
       }
-      Promise.all(promises).then(() => {
+      Promise.all(promises).then((res) => {
+        res = res.filter(v => !!v);
+        // console.log(res);
+        for (let i = 0; i < res.length; i++) {
+          if (i === 0) {
+            this.baseOption.yAxis.push({
+              name: this.$t('load_test.report.' + res[i].reportKey),
+              type: 'value',
+              min: 0,
+              position: 'left',
+              boundaryGap: [0, '100%']
+            });
+          } else {
+            this.baseOption.yAxis.push({
+              name: this.$t('load_test.report.' + res[i].reportKey),
+              type: 'value',
+              min: 0,
+              position: 'right',
+              nameRotate: 20,
+              offset: (i - 1) * 50,
+              boundaryGap: [0, '100%']
+            });
+          }
+          this.totalOption = this.generateOption(this.baseOption, res[i].data, i);
+        }
+        this.totalOption.grid.right = (res.length - 1) * 5 + '%';
         this.changeDataZoom({start: 0, end: 100});
         this.result.loading = false;
       }).catch(() => {
@@ -529,29 +554,29 @@ export default {
           data.forEach(item => {
             item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
           });
-
-          if (this.baseOption.yAxis.length === 0) {
-            this.baseOption.yAxis.push({
-              name: this.$t('load_test.report.' + reportKey),
-              type: 'value',
-              min: 0,
-              position: 'left',
-              boundaryGap: [0, '100%']
-            });
-          } else {
-            this.baseOption.yAxis.push({
-              name: this.$t('load_test.report.' + reportKey),
-              type: 'value',
-              min: 0,
-              position: 'right',
-              nameRotate: 20,
-              offset: (this.baseOption.yAxis.length - 1) * 50,
-              boundaryGap: [0, '100%']
-            });
-            this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
-          }
-          let yAxisIndex = this.baseOption.yAxis.length - 1;
-          this.totalOption = this.generateOption(this.baseOption, data, yAxisIndex);
+          return {data, reportKey};
+          // if (this.baseOption.yAxis.length === 0) {
+          //   this.baseOption.yAxis.push({
+          //     name: this.$t('load_test.report.' + reportKey),
+          //     type: 'value',
+          //     min: 0,
+          //     position: 'left',
+          //     boundaryGap: [0, '100%']
+          //   });
+          // } else {
+          //   this.baseOption.yAxis.push({
+          //     name: this.$t('load_test.report.' + reportKey),
+          //     type: 'value',
+          //     min: 0,
+          //     position: 'right',
+          //     nameRotate: 20,
+          //     offset: (this.baseOption.yAxis.length - 1) * 50,
+          //     boundaryGap: [0, '100%']
+          //   });
+          //   this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
+          // }
+          // let yAxisIndex = this.baseOption.yAxis.length - 1;
+          // this.totalOption = this.generateOption(this.baseOption, data, yAxisIndex);
         })
         .catch(() => {
           this.totalOption = {};

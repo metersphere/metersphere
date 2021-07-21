@@ -221,7 +221,7 @@
         }
       },
       exportAPI(type) {
-        this.$emit('exportAPI', type);
+        this.$emit('exportAPI', type, this.data);
       },
       debug() {
         this.$emit('debug');

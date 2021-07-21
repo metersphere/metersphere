@@ -110,7 +110,9 @@
         this.$refs.environmentSelect.refreshEnvironment();
       },
       setEnvironment(data) {
-        this.$emit('setEnvironment', data.id);
+        if(data){
+          this.$emit('setEnvironment', data.id);
+        }
       },
       search() {
         if (this.priorities && this.condition.order) {

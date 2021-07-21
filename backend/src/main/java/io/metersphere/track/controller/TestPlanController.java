@@ -9,7 +9,6 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.dto.ApiRunConfigDTO;
@@ -63,9 +62,8 @@ public class TestPlanController {
     }
 
     @PostMapping("/list/all")
-    public List<TestPlan> listAll() {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        return testPlanService.listTestAllPlan(currentWorkspaceId);
+    public List<TestPlan> listAll(@RequestBody QueryTestPlanRequest request) {
+        return testPlanService.listTestAllPlan(request);
     }
 
     @PostMapping("/list/all/relate")
@@ -163,4 +161,5 @@ public class TestPlanController {
         String apiRunConfig = JSONObject.toJSONString(api);
         return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
+
 }

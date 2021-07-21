@@ -57,6 +57,8 @@ public class HistoricalDataUpgradeService {
     @Resource
     private ApiAutomationService apiAutomationService;
     @Resource
+    private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
+    @Resource
     SqlSessionFactory sqlSessionFactory;
     @Resource
     ApiTestEnvironmentService apiTestEnvironmentService;
@@ -367,6 +369,7 @@ public class HistoricalDataUpgradeService {
             List<ApiMethodUrlDTO> useUrl = apiAutomationService.parseUrl(scenario);
             scenario.setUseUrl(JSONArray.toJSONString(useUrl));
             mapper.updateByPrimaryKeySelective(scenario);
+            apiScenarioReferenceIdService.saveByApiScenario(scenario);
         } else {
             scenario = new ApiScenarioWithBLOBs();
             scenario.setId(id);
@@ -387,6 +390,7 @@ public class HistoricalDataUpgradeService {
             List<ApiMethodUrlDTO> useUrl = apiAutomationService.parseUrl(scenario);
             scenario.setUseUrl(JSONArray.toJSONString(useUrl));
             mapper.insert(scenario);
+            apiScenarioReferenceIdService.saveByApiScenario(scenario);
         }
     }
 
