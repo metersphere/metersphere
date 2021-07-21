@@ -321,6 +321,15 @@ export default {
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
     }
+    let dataType = this.$route.params.dataType;
+    if(dataType){
+      if(dataType === "api"){
+        this.activeDom = 'left';
+      }else {
+        this.activeDom = 'middle';
+      }
+    }
+
     if (this.$route.params.dataSelectRange) {
       let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
       if (item !== undefined) {
