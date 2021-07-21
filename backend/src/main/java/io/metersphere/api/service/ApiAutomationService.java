@@ -1393,9 +1393,11 @@ public class ApiAutomationService {
         if (map != null) {
             map.keySet().forEach(id -> {
                 ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(id));
-                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                env.setApiEnvironmentid(environment.getId());
-                envConfig.put(id, env);
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    env.setApiEnvironmentid(environment.getId());
+                    envConfig.put(id, env);
+                }
             });
         }
         try {
