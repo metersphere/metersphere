@@ -29,7 +29,7 @@
                     <el-col class="head-right" :span="20">
                       <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true, true)" :list="testCases"/>
                       <el-button class="save-btn" type="primary" size="mini" :disabled="isReadOnly" @click="saveCase(true)">
-                        {{$t('test_track.save')}} & 下一条
+                        {{$t('test_track.save')}} & {{$t('test_track.next')}}
                       </el-button>
                     </el-col>
 
