@@ -65,7 +65,7 @@
           <el-row v-if="customNum">
             <el-col :span="7">
               <el-form-item label="ID" :label-width="formLabelWidth" prop="customNum">
-                <el-input :disabled="readOnly" v-model="form.customNum" size="small" class="ms-case-input"></el-input>
+                <el-input :disabled="readOnly" v-model.trim="form.customNum" size="small" class="ms-case-input"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
