@@ -224,7 +224,7 @@ public class TestCaseService {
                     .andProjectIdEqualTo(testCase.getProjectId())
                     .andNodePathEqualTo(nodePath)
                     .andTypeEqualTo(testCase.getType())
-                    .andMaintainerEqualTo(testCase.getMaintainer())
+//                    .andMaintainerEqualTo(testCase.getMaintainer())
                     .andPriorityEqualTo(testCase.getPriority());
 //                    .andMethodEqualTo(testCase.getMethod());
 

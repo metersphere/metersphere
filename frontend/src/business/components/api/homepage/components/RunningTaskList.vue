@@ -6,6 +6,7 @@
       </span>
     </template>
     <ms-table
+      :enable-selection="false"
       :condition="condition"
       :data="tableData"
       @refresh="search"
