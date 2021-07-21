@@ -15,7 +15,7 @@
     </div>
 
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
         {{ getCode() }}
       </span>
     </template>
@@ -38,6 +38,7 @@
         type: Boolean,
         default: false,
       },
+      message: String,
       isReadOnly: {
         type: Boolean,
         default:
@@ -59,7 +60,23 @@
       defBackgroundColor: {type: String, default: "#F4F4FF"},
       node: {},
     },
+    data() {
+      return {
+        loading: false,
+      }
+    },
+    watch: {
+      message() {
+        this.reload();
+      },
+    },
     methods: {
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
       getCode() {
         if (this.node && this.node.data.debug) {
           if (this.node.data.code && this.node.data.code === 'error') {

@@ -23,7 +23,7 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
       </template>
       <template v-slot:debugStepCode>
-         <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+         <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
@@ -133,7 +133,8 @@ export default {
     currentEnvironmentId: String,
     projectList: Array,
     expandedNode: Array,
-    envMap: Map
+    envMap: Map,
+    message: String
   },
   components: {
     TemplateComponent,
@@ -187,6 +188,9 @@ export default {
   watch: {
     envMap() {
       this.getEnvironments();
+    },
+    message() {
+      this.reload();
     },
   },
   computed: {
@@ -264,7 +268,7 @@ export default {
       if (this.request.protocol === 'SQL' || this.request.type === 'JDBCSampler') {
         if (this.environment && this.environment.config) {
           let config = JSON.parse(this.environment.config);
-          if(config && config.databaseConfigs) {
+          if (config && config.databaseConfigs) {
             config.databaseConfigs.forEach(item => {
               databaseConfigsOptions.push(item);
             });
@@ -337,7 +341,10 @@ export default {
         })
       }
     },
-    recursiveSorting(arr) {
+    sort(arr) {
+      if (!arr) {
+        arr = this.request.hashTree;
+      }
       for (let i in arr) {
         arr[i].disabled = true;
         arr[i].index = Number(i) + 1;
@@ -345,19 +352,7 @@ export default {
           arr[i].resourceId = getUUID();
         }
         if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-          this.recursiveSorting(arr[i].hashTree);
-        }
-      }
-    },
-    sort() {
-      for (let i in this.request.hashTree) {
-        if (!this.request.hashTree[i].resourceId) {
-          this.request.hashTree[i].resourceId = getUUID();
-        }
-        this.request.hashTree[i].disabled = true;
-        this.request.hashTree[i].index = Number(i) + 1;
-        if (this.request.hashTree[i].hashTree != undefined && this.request.hashTree[i].hashTree.length > 0) {
-          this.recursiveSorting(this.request.hashTree[i].hashTree);
+          this.sort(arr[i].hashTree);
         }
       }
     },
