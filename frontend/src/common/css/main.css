@@ -13,31 +13,31 @@
 /* <-- 使布局更加紧凑 */
 
 .el-main {
-  padding: 5px 10px !important;
+  padding: 5px 10px;
 }
 
 .el-card__header {
-  padding: 8px 16px !important;
+  padding: 8px 16px;
 }
 
 .el-card__body {
-  padding: 6px 10px !important;
+  padding: 6px 10px;
 }
 
 .el-table td, .el-table th {
-  padding: 6px 0 !important;
+  padding: 6px 0;
 }
 
 .el-tabs__header {
-  margin: 0 0 5px !important;
+  margin: 0 0 5px;
 }
 
 .el-tabs__item {
-  padding: 0 10px !important;
+  padding: 0 10px;
 }
 
 .el-form-item {
-  margin-bottom: 18px !important;
+  margin-bottom: 18px;
 }
 
 .tip {
@@ -49,7 +49,7 @@
 }
 
 .el-divider--horizontal {
-  margin: 10px 0 5px 0 !important;
+  margin: 10px 0 5px 0;
 }
 
 /* --> */
