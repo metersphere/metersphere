@@ -1243,6 +1243,18 @@ public class TestCaseService {
 
     public void minderEdit(TestCaseMinderEditRequest request) {
         List<TestCaseWithBLOBs> data = request.getData();
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+
+        TestCaseExample example = new TestCaseExample();
+        List<String> editIds = data.stream()
+                .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
+                .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
+        example.createCriteria().andIdIn(editIds);
+        List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
+        Map<String, TestCaseWithBLOBs> testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
+
         data.forEach(item -> {
             if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                 item.setNodeId("");
@@ -1253,6 +1265,10 @@ public class TestCaseService {
                 item.setMaintainer(SessionUtils.getUserId());
                 addTestCase(item);
             } else {
+                TestCaseWithBLOBs dbCase = testCaseMap.get(item.getId());
+                if (editCustomFieldsPriority(dbCase, item.getPriority())) {
+                    item.setCustomFields(dbCase.getCustomFields());
+                };
                 editTestCase(item);
             }
         });
@@ -1262,6 +1278,28 @@ public class TestCaseService {
             deleteRequest.setIds(ids);
             deleteTestCaseBath(deleteRequest);
         }
+    }
+
+    /**
+     * 脑图编辑之后修改用例等级，同时修改自定义字段的用例等级
+     * @param dbCase
+     * @param priority
+     * @return
+     */
+    private boolean editCustomFieldsPriority(TestCaseWithBLOBs dbCase, String priority) {
+        String customFields = dbCase.getCustomFields();
+        if (StringUtils.isNotBlank(customFields)) {
+            JSONArray fields = JSONObject.parseArray(customFields);
+            for (int i = 0; i < fields.size(); i++) {
+                JSONObject field = fields.getJSONObject(i);
+                if (field.getString("name").equals("用例等级")) {
+                    field.put("value", priority);
+                    dbCase.setCustomFields(JSONObject.toJSONString(fields));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public List<TestCase> getTestCaseByProjectId(String projectId) {
