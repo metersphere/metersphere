@@ -97,7 +97,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     }
                 }
 
-                if (finalNodeMap != null) {
+                if (finalNodeMap != null && finalNodeMap.get(item.getApiScenarioModuleId()) != null) {
                     NodeTree node = finalNodeMap.get(item.getApiScenarioModuleId());
                     item.setApiScenarioModuleId(node.getNewId());
                     item.setModulePath(node.getPath());
