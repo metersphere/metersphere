@@ -144,7 +144,7 @@ public class TestResultService {
                 }
             }
             if (reportTask != null) {
-                if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
+                if (!StringUtils.equals(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), runMode) && !StringUtils.equals(ApiRunMode.JENKINS_SCENARIO_PLAN.name(), runMode) && StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
                     sendTask(reportTask, reportUrl, testResult);
                 }
             }
