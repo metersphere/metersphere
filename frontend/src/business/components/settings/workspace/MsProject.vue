@@ -370,9 +370,9 @@ export default {
       };
       this.wsId = row.id;
       let path = "/user/project/member/list";
-      this.result = this.$post(this.buildPagePath(path), param, res => {
+      this.result = this.$post("/user/project/member/list", param, res => {
         let data = res.data;
-        this.memberLineData = data.listObject;
+        this.memberLineData = data;
         let arr = this.memberLineData.filter(item => item.id == getCurrentUserId());
         if (arr.length > 0) {
           window.sessionStorage.setItem(PROJECT_ID, row.id);

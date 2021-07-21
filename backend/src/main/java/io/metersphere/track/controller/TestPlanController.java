@@ -9,7 +9,6 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.dto.ApiRunConfigDTO;
@@ -63,9 +62,8 @@ public class TestPlanController {
     }
 
     @PostMapping("/list/all")
-    public List<TestPlan> listAll() {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        return testPlanService.listTestAllPlan(currentWorkspaceId);
+    public List<TestPlan> listAll(@RequestBody QueryTestPlanRequest request) {
+        return testPlanService.listTestAllPlan(request);
     }
 
     @PostMapping("/list/all/relate")
@@ -158,9 +156,10 @@ public class TestPlanController {
         ApiRunConfigDTO api = new ApiRunConfigDTO();
         api.setMode(testplanRunRequest.getMode());
         api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
-        api.setOnSampleError(false);    // OnSampleError 为false表示失败不停止，若设置为true会导致bug #4809
+        api.setOnSampleError(true);
         api.setReportType("iddReport");
         String apiRunConfig = JSONObject.toJSONString(api);
         return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
+
 }

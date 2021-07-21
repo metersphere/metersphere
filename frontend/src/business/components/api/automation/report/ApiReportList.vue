@@ -126,7 +126,7 @@ export default {
       ],
       buttons: [
         {
-          name: this.$t('api_report.batch_delete'), handleClick: this.handleBatchDelete
+          name: this.$t('api_report.batch_delete'), handleClick: this.handleBatchDelete, permissions: ['PROJECT_API_REPORT:READ+DELETE']
         }
       ],
       selectRows: new Set(),

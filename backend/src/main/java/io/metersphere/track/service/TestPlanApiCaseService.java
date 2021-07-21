@@ -42,6 +42,9 @@ import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.task.ParallelApiExecTask;
 import io.metersphere.track.service.task.SerialApiExecTask;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -78,6 +81,8 @@ public class TestPlanApiCaseService {
     private JMeterService jMeterService;
     @Resource
     private ApiDefinitionExecResultMapper mapper;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -344,7 +349,7 @@ public class TestPlanApiCaseService {
         return null;
     }
 
-    private String addResult(BatchRunDefinitionRequest request, TestPlanApiCase key) {
+    private ApiDefinitionExecResult addResult(BatchRunDefinitionRequest request, TestPlanApiCase key, String status, ApiDefinitionExecResultMapper batchMapper) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
@@ -363,10 +368,9 @@ public class TestPlanApiCaseService {
         apiResult.setResourceId(key.getApiCaseId());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.API_PLAN.name());
-        apiResult.setStatus(APITestStatus.Running.name());
-        mapper.insert(apiResult);
-
-        return apiResult.getId();
+        apiResult.setStatus(status);
+        batchMapper.insert(apiResult);
+        return apiResult;
     }
 
     public String modeRun(BatchRunDefinitionRequest request) {
@@ -374,37 +378,61 @@ public class TestPlanApiCaseService {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andIdIn(ids);
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
         // 开始选择执行模式
         ExecutorService executorService = Executors.newFixedThreadPool(planApiCases.size());
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
+            Map<TestPlanApiCase, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+            planApiCases.forEach(testPlanApiCase -> {
+                ApiDefinitionExecResult report = addResult(request, testPlanApiCase, APITestStatus.Waiting.name(), batchMapper);
+                executeQueue.put(testPlanApiCase, report);
+            });
+            sqlSession.flushStatements();
+            List<String> reportIds = new LinkedList<>();
             // 开始串行执行
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    for (TestPlanApiCase key : planApiCases) {
+                    for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
                         try {
+                            ApiDefinitionExecResult execResult = executeQueue.get(testPlanApiCase);
+                            execResult.setId(executeQueue.get(testPlanApiCase).getId());
+                            execResult.setStatus(APITestStatus.Running.name());
+                            mapper.updateByPrimaryKey(execResult);
+                            reportIds.add(execResult.getId());
                             RunModeDataDTO modeDataDTO;
-                            if (request.getConfig()!= null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                                modeDataDTO = new RunModeDataDTO(key.getId(), UUID.randomUUID().toString());
+                            if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
+                                modeDataDTO = new RunModeDataDTO(testPlanApiCase.getId(), UUID.randomUUID().toString());
                             } else {
                                 // 生成报告和HashTree
-                                HashTree hashTree = generateHashTree(key.getId());
+                                HashTree hashTree = generateHashTree(testPlanApiCase.getId());
                                 modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
                             }
-                            String reportId = addResult(request, key);
-                            modeDataDTO.setReportId(reportId);
+                            modeDataDTO.setApiCaseId(execResult.getId());
                             Future<ApiDefinitionExecResult> future = executorService.submit(new SerialApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
                             ApiDefinitionExecResult report = future.get();
                             // 如果开启失败结束执行，则判断返回结果状态
                             if (request.getConfig().isOnSampleError()) {
                                 if (report == null || !report.getStatus().equals("Success")) {
+                                    reportIds.remove(execResult.getId());
                                     break;
                                 }
                             }
                         } catch (Exception e) {
+                            reportIds.remove(executeQueue.get(testPlanApiCase).getId());
                             LogUtil.error("执行终止：" + e.getMessage());
                             break;
                         }
+                    }
+                    // 清理未执行的队列
+                    if (reportIds.size() < executeQueue.size()) {
+                        List<String> removeList = executeQueue.entrySet().stream()
+                                .filter(map -> !reportIds.contains(map.getValue().getId()))
+                                .map(map -> map.getValue().getId()).collect(Collectors.toList());
+                        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
+                        example.createCriteria().andIdIn(removeList);
+                        mapper.deleteByExample(example);
                     }
                 }
             });
@@ -420,10 +448,11 @@ public class TestPlanApiCaseService {
                     HashTree hashTree = generateHashTree(key.getId());
                     modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
                 }
-                String reportId = addResult(request, key);
-                modeDataDTO.setReportId(reportId);
+                ApiDefinitionExecResult report = addResult(request, key, APITestStatus.Running.name(), batchMapper);
+                modeDataDTO.setApiCaseId(report.getId());
                 executorService.submit(new ParallelApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
             }
+            sqlSession.flushStatements();
         }
         return request.getId();
     }
@@ -446,10 +475,8 @@ public class TestPlanApiCaseService {
                 if (request.getPlanIds().size() > count) {
                     MSException.throwException("并发数量过大，请重新选择！");
                 }
-                return this.modeRun(request);
-            } else {
-                return this.modeRun(request);
             }
+            return this.modeRun(request);
         }
         return request.getId();
     }
@@ -464,5 +491,9 @@ public class TestPlanApiCaseService {
                 .andApiCaseIdIn(apiCaseIds)
                 .andStatusEqualTo("error");
         return testPlanApiCaseMapper.countByExample(example) > 0 ? true : false;
+    }
+
+    public ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId) {
+        return  extTestPlanApiCaseMapper.getApiTestCaseById(testPlanApiCaseId);
     }
 }

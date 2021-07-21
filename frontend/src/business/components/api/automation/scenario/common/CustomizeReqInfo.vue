@@ -13,7 +13,7 @@
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
       </el-input>
-      <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment">{{$t('api_test.request.refer_to_environment')}}</el-checkbox>
+      <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment">{{ $t('api_test.request.refer_to_environment') }}</el-checkbox>
     </div>
 
     <div v-if="request.protocol === 'TCP' && isCustomizeReq">
@@ -45,6 +45,7 @@ export default {
   data() {
     return {
       reqOptions: REQ_METHOD,
+      isUrl: false,
     }
   },
   mounted() {
@@ -69,20 +70,25 @@ export default {
   },
   methods: {
     pathChange() {
+      this.isUrl = false;
       if (!this.request.path || this.request.path.indexOf('?') === -1) return;
       let url = this.getURL(this.addProtocol(this.request.path));
-      if (url) {
+      if (url && this.isUrl) {
         this.request.path = decodeURIComponent(this.request.path.substr(0, this.request.path.indexOf("?")));
       }
     },
     urlChange() {
+      this.isUrl = false;
       if (this.isCustomizeReq) {
         this.request.path = this.request.url;
       }
       if (!this.request.url || this.request.url.indexOf('?') === -1) return;
       let url = this.getURL(this.addProtocol(this.request.url));
       if (url) {
-        this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
+        let paramUrl = this.request.url.substr(this.request.url.indexOf("?") + 1);
+        if (paramUrl && this.isUrl) {
+          this.request.url = decodeURIComponent(this.request.url.substr(0, this.request.url.indexOf("?")));
+        }
       }
     },
     addProtocol(url) {
@@ -98,6 +104,7 @@ export default {
         let url = new URL(urlStr);
         url.searchParams.forEach((value, key) => {
           if (key && value) {
+            this.isUrl = true;
             this.request.arguments.splice(0, 0, new KeyValue({name: key, required: false, value: value}));
           }
         });
@@ -111,11 +118,11 @@ export default {
 </script>
 
 <style scoped>
-  .server-input {
-    width: 50%;
-  }
+.server-input {
+  width: 50%;
+}
 
-  .is-ref-environment {
-    margin-left: 15px;
-  }
+.is-ref-environment {
+  margin-left: 15px;
+}
 </style>

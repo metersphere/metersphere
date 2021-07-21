@@ -312,7 +312,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(urlObject.getPort());
                         }
                         sampler.setProtocol(urlObject.getProtocol());
-                        sampler.setPath(URLDecoder.decode(URLEncoder.encode(urlObject.getPath(), "UTF-8"), "UTF-8"));
+                        sampler.setPath(URLDecoder.decode(URLEncoder.encode(urlObject.getFile(), "UTF-8"), "UTF-8"));
                     } catch (Exception e) {
                         LogUtil.error(e.getMessage(), e);
                     }
@@ -324,7 +324,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         String envPath = "";
                         if (!isCustomizeReqCompleteUrl(this.path)) {
                             URL urlObject = new URL(url);
-                            envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                            envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                             if (StringUtils.isNotBlank(this.getPath())) {
                                 envPath += this.getPath();
                             }
@@ -338,7 +338,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                             sampler.setPort(httpConfig.getPort());
                         } else {
                             URL urlObject = new URL(this.path);
-                            envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                            envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                             sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                             sampler.setProtocol(urlObject.getProtocol());
                         }
@@ -385,7 +385,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setPort(urlObject.getPort());
                 }
                 sampler.setProtocol(urlObject.getProtocol());
-                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getFile();
                 sampler.setPath(envPath);
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(URLEncoder.encode(envPath, "UTF-8"), "UTF-8"));

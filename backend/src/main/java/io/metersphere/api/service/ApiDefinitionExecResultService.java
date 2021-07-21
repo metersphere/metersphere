@@ -9,15 +9,15 @@ import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.DelimiterConstants;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -157,69 +157,89 @@ public class ApiDefinitionExecResultService {
      * @param result
      * @param type
      */
-    public void saveApiResultByScheduleTask(TestResult result, String type) {
+    public void saveApiResultByScheduleTask(TestResult result,String testPlanReportId, String type,String trigeMode) {
         String saveResultType = type;
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
         String finalSaveResultType = saveResultType;
-        result.getScenarios().get(0).getRequestResults().forEach(item -> {
-            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
-            saveResult.setId(UUID.randomUUID().toString());
-            saveResult.setCreateTime(System.currentTimeMillis());
-            saveResult.setName(item.getName());
-            ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
-            if (apiDefinitionWithBLOBs != null) {
-                saveResult.setName(apiDefinitionWithBLOBs.getName());
-            } else {
-                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
-                if (caseWithBLOBs != null) {
-                    saveResult.setName(caseWithBLOBs.getName());
+
+        Map<String,String> apiIdResultMap = new HashMap<>();
+
+        if (CollectionUtils.isNotEmpty(result.getScenarios())) {
+            result.getScenarios().forEach(scenarioResult -> {
+                if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
+                    scenarioResult.getRequestResults().forEach(item -> {
+                        String status = item.isSuccess() ? "success" : "error";
+                        ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+                        saveResult.setId(UUID.randomUUID().toString());
+                        saveResult.setCreateTime(System.currentTimeMillis());
+                        saveResult.setName(item.getName());
+                        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
+                        if (apiDefinitionWithBLOBs != null) {
+                            saveResult.setName(apiDefinitionWithBLOBs.getName());
+                            apiIdResultMap.put(apiDefinitionWithBLOBs.getId(),item.isSuccess()? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                        } else {
+                            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
+                            if (caseWithBLOBs != null) {
+                                saveResult.setName(caseWithBLOBs.getName());
+                                apiIdResultMap.put(caseWithBLOBs.getId(),item.isSuccess()? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                            }else {
+                                caseWithBLOBs = testPlanApiCaseService.getApiTestCaseById(item.getName());
+                                if (caseWithBLOBs != null) {
+                                    saveResult.setName(caseWithBLOBs.getName());
+                                    apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                                }
+                            }
+                        }
+                        if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
+                            saveResult.setTriggerMode(TriggerMode.API.name());
+                        } else {
+                            saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
+                        }
+
+                        saveResult.setResourceId(item.getName());
+                        saveResult.setActuator("LOCAL");
+                        saveResult.setContent(JSON.toJSONString(item));
+                        saveResult.setStartTime(item.getStartTime());
+                        saveResult.setEndTime(item.getResponseResult().getResponseTime());
+                        saveResult.setType(finalSaveResultType);
+                        saveResult.setStatus(status);
+
+                        String userID = null;
+                        if (StringUtils.equals(type, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+                            TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
+                            String scheduleCreateUser = testPlanService.findScheduleCreateUserById(apiCase.getTestPlanId());
+                            userID = scheduleCreateUser;
+                            apiCase.setStatus(status);
+                            apiCase.setUpdateTime(System.currentTimeMillis());
+                            testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+                        } else if (StringUtils.equals(type, ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                            TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
+                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                            apiCase.setStatus(status);
+                            apiCase.setUpdateTime(System.currentTimeMillis());
+                            testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+                        } else {
+                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                            testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                            testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                        }
+                        saveResult.setUserId(userID);
+                        // 前一条数据内容清空
+                        ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), finalSaveResultType);
+                        if (prevResult != null) {
+                            prevResult.setContent(null);
+                            apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                        }
+                        apiDefinitionExecResultMapper.insert(saveResult);
+                    });
                 }
-            }
-            if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
-                saveResult.setTriggerMode(TriggerMode.API.name());
-            } else {
-                saveResult.setTriggerMode(TriggerMode.SCHEDULE.name());
-            }
+            });
+        }
 
-            saveResult.setResourceId(item.getName());
-            saveResult.setActuator("LOCAL");
-            saveResult.setContent(JSON.toJSONString(item));
-            saveResult.setStartTime(item.getStartTime());
-            String status = item.isSuccess() ? "success" : "error";
-            saveResult.setEndTime(item.getResponseResult().getResponseTime());
-            saveResult.setType(finalSaveResultType);
-            saveResult.setStatus(status);
-
-            String userID = null;
-            if (StringUtils.equals(type, ApiRunMode.SCHEDULE_API_PLAN.name())) {
-                TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
-                String scheduleCreateUser = testPlanService.findScheduleCreateUserById(apiCase.getTestPlanId());
-                userID = scheduleCreateUser;
-                apiCase.setStatus(status);
-                apiCase.setUpdateTime(System.currentTimeMillis());
-                testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
-            } else if (StringUtils.equals(type, ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
-                TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
-                userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
-                apiCase.setStatus(status);
-                apiCase.setUpdateTime(System.currentTimeMillis());
-                testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
-            } else {
-                userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
-                testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
-                testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
-            }
-            saveResult.setUserId(userID);
-            // 前一条数据内容清空
-            ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), finalSaveResultType);
-            if (prevResult != null) {
-                prevResult.setContent(null);
-                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
-            }
-            apiDefinitionExecResultMapper.insert(saveResult);
-        });
+        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+        testPlanReportService.updateExecuteApis(testPlanReportId,apiIdResultMap,null,null);
     }
 
     public void deleteByResourceId(String resourceId) {

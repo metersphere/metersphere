@@ -2,6 +2,7 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import org.apache.ibatis.annotations.Param;
 
@@ -21,4 +22,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<String> getStatusByTestPlanId(String id);
 
     List<String> selectIds(@Param("request") ApiTestCaseRequest request);
+
+    ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId);
 }

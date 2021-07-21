@@ -184,8 +184,8 @@ export default {
   },
   methods: {
     hasPermission,
-    exportAPI() {
-      this.$refs.apiScenarioList.exportApi();
+    exportAPI(nodeTree) {
+      this.$refs.apiScenarioList.exportApi(nodeTree);
     },
     exportJmx() {
       this.$refs.apiScenarioList.exportJmx();

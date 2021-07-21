@@ -190,7 +190,7 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <sysn-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
@@ -322,7 +322,7 @@ export default {
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 228px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
@@ -775,26 +775,47 @@ export default {
         //let ids = Array.from(this.selectRows).map(row => row.id);
         let param = {};
         this.buildBatchParam(param);
+        this.result.loading = true;
         this.$post('/api/automation/deleteBatchByCondition/', param, () => {
           this.$success(this.$t('commons.delete_success'));
           this.search();
+        }, (error) => {
+          this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            //let ids = Array.from(this.selectRows).map(row => row.id);
-            let param = {};
-            this.buildBatchParam(param);
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
 
     execute(row) {
@@ -839,28 +860,43 @@ export default {
           this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            // let ids = [row.id];
-            let param = {};
-            this.buildBatchParam(param);
-            param.ids = [row.id];
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              // this.$post('/api/automation/removeToGc/', ids, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        param.ids = [row.id];
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
     openScenario(item) {
       this.$emit('openScenario', item);
     },
-    exportApi() {
+    exportApi(nodeTree) {
       let param = {};
       this.projectId = getCurrentProjectID();
       this.$get('project/get/' + this.projectId, response => {
@@ -876,7 +912,7 @@ export default {
           this.result = this.$post("/api/automation/export", param, response => {
             this.result.loading = false;
             let obj = response.data;
-            this.buildApiPath(obj.data);
+            obj.nodeTree = nodeTree;
             downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
           });
         }
@@ -898,15 +934,6 @@ export default {
             downloadFile(item.name + ".jmx", item.jmx);
           });
         }
-      });
-    },
-    buildApiPath(scenarios) {
-      scenarios.forEach((scenario) => {
-        this.moduleOptions.forEach(item => {
-          if (scenario.moduleId === item.id) {
-            scenario.modulePath = item.path;
-          }
-        });
       });
     },
     getConditions() {

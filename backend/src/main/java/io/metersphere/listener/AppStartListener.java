@@ -51,6 +51,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initPythonEnv();
 
         initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
+        initOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
         initOperate(issuesService::syncThirdPartyIssues, "init.issue");
         initOperate(issuesService::issuesCount, "init.issueCount");
 

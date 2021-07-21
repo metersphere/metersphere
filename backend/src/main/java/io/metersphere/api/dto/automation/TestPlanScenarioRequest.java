@@ -15,6 +15,7 @@ public class TestPlanScenarioRequest {
     private String projectId;
     private String moduleId;
     private List<String> moduleIds;
+    private List<String> scenarioIds;
     private String name;
     private String status;
     private String workspaceId;

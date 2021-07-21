@@ -27,9 +27,9 @@ public class ParallelScenarioExecTask<T> implements Callable<T> {
     public T call() {
         try {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReportId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
-                jMeterService.runLocal(runModeDataDTO.getReportId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
+                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
             }
             return null;
         } catch (Exception ex) {

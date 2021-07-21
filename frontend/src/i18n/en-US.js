@@ -167,6 +167,7 @@ export default {
     all_module_title: "All module",
     create_user: 'Creator',
     run_message: "The task is being executed, please go to the task center to view the details",
+    executor: "Executor",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -689,6 +690,7 @@ export default {
     },
   },
   api_test: {
+    is_continue: "Is continue",
     creator: "Creator",
     save_and_run: "Save and Run",
     run: "Run",
@@ -1147,7 +1149,7 @@ export default {
       label: "Import",
       title: "API test import",
       data_format: "Data format",
-      file_size_limit: "The file size does not exceed 20 M",
+      file_size_limit: "The file size does not exceed 50 M",
       tip: "Instructions",
       export_tip: "Export Tip",
       ms_tip: "Support for MeterSphere JSON format",
@@ -1445,7 +1447,7 @@ export default {
         upload_xmind: "Only xmind files can be uploaded, and no more than 800",
         upload_limit_count: "Only one file can be uploaded at a time",
         upload_limit_format: "Upload files can only be XLS, XLSX format!",
-        upload_limit_size: "Upload file size cannot exceed 20MB!",
+        upload_limit_size: "Upload file size cannot exceed 50MB!",
         upload_limit_other_size: "Upload file size cannot exceed",
         success: "Import success！",
         importing: "Importing...",
