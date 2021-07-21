@@ -66,4 +66,6 @@ public interface ExtApiScenarioMapper {
     List<String> selectNameByIdIn(@Param("ids") List<String> id);
 
     List<ApiScenarioWithBLOBs> selectByNoReferenceId();
+
+    void checkOriginalStatusByIds(@Param("ids")List<String> ids);
 }

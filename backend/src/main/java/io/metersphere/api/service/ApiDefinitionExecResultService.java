@@ -121,7 +121,7 @@ public class ApiDefinitionExecResultService {
         if (id.indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
             return id.substring(0, id.indexOf(DelimiterConstants.SEPARATOR.toString()));
         }
-        if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(),ApiRunMode.SCHEDULE_API_PLAN.name(),ApiRunMode.JENKINS_API_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(id);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
             if (testPlanApiCase != null) {
@@ -174,7 +174,8 @@ public class ApiDefinitionExecResultService {
                         ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
-                        saveResult.setName(item.getName());
+//                        saveResult.setName(item.getName());
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime()));
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
                         if (apiDefinitionWithBLOBs != null) {
                             saveResult.setName(apiDefinitionWithBLOBs.getName());

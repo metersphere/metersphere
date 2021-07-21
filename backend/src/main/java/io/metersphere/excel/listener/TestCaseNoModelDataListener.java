@@ -116,21 +116,21 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
     }
 
     @Override
-    public void invokeHeadMap(Map<Integer, String> headMap, AnalysisContext context) {
+    public void invokeHeadMap(Map <Integer, String> headMap, AnalysisContext context) {
         this.headMap = headMap;
-        if (excelDataClass != null) {
+//        if (excelDataClass != null) {
             try {
-                Set<String> fieldNameSet = this.genExcelHeadToFieldNameDicAndGetNotRequiredFields();;
-                Collection<String> values = headMap.values();
-                for (String key : fieldNameSet) {
-                    if (!values.contains(key)) {
-                        throw new ExcelAnalysisException(Translator.get("missing_header_information") + ":" + key);
-                    }
-                }
+                this.genExcelHeadToFieldNameDicAndGetNotRequiredFields();
+//                Collection<String> values = headMap.values();
+//                for (String key : fieldNameSet) {
+//                    if (!values.contains(key)) {
+//                        throw new ExcelAnalysisException(Translator.get("missing_header_information") + ":" + key);
+//                    }
+//                }
             } catch (NoSuchFieldException e) {
                 e.printStackTrace();
             }
-        }
+//        }
         this.formatHeadMap();
         super.invokeHeadMap(headMap, context);
     }
@@ -738,7 +738,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 }
                 excelHeadToFieldNameDic.put(value.toString(),field.getName());
                 // 检查是否必有的头部信息
-                if (field.getAnnotation(NotRequired.class) == null) {
+                if (field.getAnnotation(NotRequired.class) != null) {
                     result.add(value.toString());
                 }
             }

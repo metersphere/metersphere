@@ -564,7 +564,38 @@ public class ApiAutomationService {
     }
 
     public void reduction(List<String> ids) {
-        extApiScenarioMapper.reduction(ids);
+        if(CollectionUtils.isNotEmpty(ids)){
+            extApiScenarioMapper.checkOriginalStatusByIds(ids);
+            //检查原来模块是否还在
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
+            Map<String,List<ApiScenario>> nodeMap = scenarioList.stream().collect(Collectors.groupingBy(ApiScenario :: getApiScenarioModuleId));
+            ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
+            for(Map.Entry<String,List<ApiScenario>> entry : nodeMap.entrySet()){
+                String nodeId = entry.getKey();
+                List<ApiScenario> scenariosListItem = entry.getValue();
+                Map<String,List<ApiScenario>> projectMap = scenariosListItem.stream().collect(Collectors.groupingBy(ApiScenario :: getProjectId));
+                for(Map.Entry<String,List<ApiScenario>> projectEntry : projectMap.entrySet()){
+                    String projectId = projectEntry.getKey();
+                    List<ApiScenario> checkList = projectEntry.getValue();
+                    if(StringUtils.isNotEmpty(projectId)){
+                        long nodeCount = apiScenarioModuleService.countById(nodeId);
+                        if(nodeCount <= 0){
+                            ApiScenarioModule node = apiScenarioModuleService.getDefaultNode(projectId);
+                            for (ApiScenario testCase: checkList) {
+                                ApiScenarioWithBLOBs updateCase = new ApiScenarioWithBLOBs();
+                                updateCase.setId(testCase.getId());
+                                updateCase.setApiScenarioModuleId(node.getId());
+                                updateCase.setModulePath("/"+node.getName());
+                                apiScenarioMapper.updateByPrimaryKeySelective(updateCase);
+                            }
+                        }
+                    }
+                }
+            }
+            extApiScenarioMapper.reduction(ids);
+        }
     }
 
     private void checkNameExist(SaveApiScenarioRequest request) {
@@ -1108,7 +1139,7 @@ public class ApiAutomationService {
                     //存储报告
                     APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
-                    executorService.submit(new ParallelScenarioExecTask(jMeterService, executeQueue.get(report), request));
+                    executorService.submit(new ParallelScenarioExecTask(jMeterService, executeQueue.get(reportId), request));
                 }
                 sqlSession.flushStatements();
             }
@@ -1393,9 +1424,11 @@ public class ApiAutomationService {
         if (map != null) {
             map.keySet().forEach(id -> {
                 ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(id));
-                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                env.setApiEnvironmentid(environment.getId());
-                envConfig.put(id, env);
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    env.setApiEnvironmentid(environment.getId());
+                    envConfig.put(id, env);
+                }
             });
         }
         try {

@@ -321,6 +321,15 @@ export default {
     if (dataRange && dataRange.length > 0) {
       this.activeDom = 'middle';
     }
+    let dataType = this.$route.params.dataType;
+    if(dataType){
+      if(dataType === "api"){
+        this.activeDom = 'left';
+      }else {
+        this.activeDom = 'middle';
+      }
+    }
+
     if (this.$route.params.dataSelectRange) {
       let item = JSON.parse(JSON.stringify(this.$route.params.dataSelectRange)).param;
       if (item !== undefined) {
@@ -513,13 +522,16 @@ export default {
     },
     editApi(row) {
       let name = "";
-
       if (row.isCopy) {
         name = "copy" + "-" + row.name;
         row.name = "copy" + "-" + row.name;
-
       } else {
-        name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+        if(row.name){
+          name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+        }else {
+          name = this.$t('api_test.definition.request.title');
+        }
+
       }
       this.handleTabsEdit(name, "ADD", row);
     },

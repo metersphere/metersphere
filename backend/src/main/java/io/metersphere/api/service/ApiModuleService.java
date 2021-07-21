@@ -62,21 +62,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
         // 判断当前项目下是否有默认模块，没有添加默认模块
-        ApiModuleExample example = new ApiModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("默认模块");
-        long count = apiModuleMapper.countByExample(example);
-        if (count <= 0) {
-            ApiModule record = new ApiModule();
-            record.setId(UUID.randomUUID().toString());
-            record.setName("默认模块");
-            record.setProtocol(protocol);
-            record.setPos(1.0);
-            record.setLevel(1);
-            record.setCreateTime(System.currentTimeMillis());
-            record.setUpdateTime(System.currentTimeMillis());
-            record.setProjectId(projectId);
-            apiModuleMapper.insert(record);
-        }
+        this.getDefaultNode(projectId,protocol);
         List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setProjectId(projectId);
@@ -508,5 +494,32 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public long countById(String nodeId) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andIdEqualTo(nodeId);
+        return  apiModuleMapper.countByExample(example);
+    }
+
+    public ApiModule getDefaultNode(String projectId,String protocol) {
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("默认模块").andParentIdIsNull();;
+        List<ApiModule> list = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(list)) {
+            ApiModule record = new ApiModule();
+            record.setId(UUID.randomUUID().toString());
+            record.setName("默认模块");
+            record.setProtocol(protocol);
+            record.setPos(1.0);
+            record.setLevel(1);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            record.setProjectId(projectId);
+            apiModuleMapper.insert(record);
+            return record;
+        }else {
+            return list.get(0);
+        }
     }
 }

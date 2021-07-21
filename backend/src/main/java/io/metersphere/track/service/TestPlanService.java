@@ -840,7 +840,16 @@ public class TestPlanService {
                     }
                 }
                 issues.addAll(issue);
-                Collections.sort(issues, Comparator.comparing(Issues::getCreateTime, (t1, t2) -> t2.compareTo(t1)));
+                Collections.sort(issues,
+                        Comparator.comparing(Issues::getCreateTime, (t1, t2) -> {
+                            if (t1 == null) {
+                                return 1;
+                            } else  if (t2 == null) {
+                                return -1;
+                            }
+                            return t2.compareTo(t1);
+                        })
+                );
             }
             components.forEach(component -> {
                 component.readRecord(testCase);

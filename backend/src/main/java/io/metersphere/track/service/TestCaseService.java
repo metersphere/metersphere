@@ -141,6 +141,9 @@ public class TestCaseService {
         testCase.setUpdateTime(System.currentTimeMillis());
         checkTestCustomNum(testCase);
         testCase.setNum(getNextNum(testCase.getProjectId()));
+        if (StringUtils.isBlank(testCase.getCustomNum())) {
+            testCase.setCustomNum(testCase.getNum().toString());
+        }
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
         testCase.setDemandName(testCase.getDemandName());
@@ -221,7 +224,7 @@ public class TestCaseService {
                     .andProjectIdEqualTo(testCase.getProjectId())
                     .andNodePathEqualTo(nodePath)
                     .andTypeEqualTo(testCase.getType())
-                    .andMaintainerEqualTo(testCase.getMaintainer())
+//                    .andMaintainerEqualTo(testCase.getMaintainer())
                     .andPriorityEqualTo(testCase.getPriority());
 //                    .andMethodEqualTo(testCase.getMethod());
 
@@ -1243,6 +1246,23 @@ public class TestCaseService {
 
     public void minderEdit(TestCaseMinderEditRequest request) {
         List<TestCaseWithBLOBs> data = request.getData();
+        if (CollectionUtils.isEmpty(data)) {
+            return;
+        }
+
+        List<String> editIds = data.stream()
+                .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
+                .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
+
+        Map<String, TestCaseWithBLOBs> testCaseMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(editIds)) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(editIds);
+            List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
+            testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
+        }
+
+        Map<String, TestCaseWithBLOBs> finalTestCaseMap = testCaseMap;
         data.forEach(item -> {
             if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
                 item.setNodeId("");
@@ -1253,6 +1273,10 @@ public class TestCaseService {
                 item.setMaintainer(SessionUtils.getUserId());
                 addTestCase(item);
             } else {
+                TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
+                if (editCustomFieldsPriority(dbCase, item.getPriority())) {
+                    item.setCustomFields(dbCase.getCustomFields());
+                };
                 editTestCase(item);
             }
         });
@@ -1262,6 +1286,28 @@ public class TestCaseService {
             deleteRequest.setIds(ids);
             deleteTestCaseBath(deleteRequest);
         }
+    }
+
+    /**
+     * 脑图编辑之后修改用例等级，同时修改自定义字段的用例等级
+     * @param dbCase
+     * @param priority
+     * @return
+     */
+    private boolean editCustomFieldsPriority(TestCaseWithBLOBs dbCase, String priority) {
+        String customFields = dbCase.getCustomFields();
+        if (StringUtils.isNotBlank(customFields)) {
+            JSONArray fields = JSONObject.parseArray(customFields);
+            for (int i = 0; i < fields.size(); i++) {
+                JSONObject field = fields.getJSONObject(i);
+                if (field.getString("name").equals("用例等级")) {
+                    field.put("value", priority);
+                    dbCase.setCustomFields(JSONObject.toJSONString(fields));
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public List<TestCase> getTestCaseByProjectId(String projectId) {
@@ -1541,6 +1587,30 @@ public class TestCaseService {
         TestCaseExample example = this.getBatchExample(request);
         if(CollectionUtils.isNotEmpty(request.getIds())){
             extTestCaseMapper.checkOriginalStatusByIds(request.getIds());
+
+            //检查原来模块是否还在
+            example = new TestCaseExample();
+            example.createCriteria().andIdIn(request.getIds());
+            List<TestCase> reductionCaseList = testCaseMapper.selectByExample(example);
+            Map<String,List<TestCase>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(TestCase :: getNodeId));
+            for(Map.Entry<String,List<TestCase>> entry : nodeMap.entrySet()){
+                String nodeId = entry.getKey();
+                long nodeCount = testCaseNodeService.countById(nodeId);
+                if(nodeCount <= 0){
+                    String projectId = request.getProjectId();
+                    TestCaseNode node = testCaseNodeService.getDefaultNode(projectId);
+                    List<TestCase> testCaseList = entry.getValue();
+                    for (TestCase testCase: testCaseList) {
+
+                        TestCaseWithBLOBs updateCase = new TestCaseWithBLOBs();
+                        updateCase.setId(testCase.getId());
+                        updateCase.setNodeId(node.getId());
+                        updateCase.setNodePath("/"+node.getName());
+
+                        testCaseMapper.updateByPrimaryKeySelective(updateCase);
+                    }
+                }
+            }
             extTestCaseMapper.reduction(request.getIds());
         }
     }

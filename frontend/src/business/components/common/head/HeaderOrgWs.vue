@@ -1,6 +1,5 @@
 <template>
   <el-menu :unique-opened="true" mode="horizontal"
-           router
            class="header-user-menu align-right"
            :background-color="color"
            active-text-color="#fff"
@@ -148,6 +147,20 @@ export default {
         }
       });*/
     },
+    getRedirectUrl(user) {
+      // console.log(user);
+      if (!user.lastProjectId || !user.lastWorkspaceId) {
+        // 没有项目级的权限直接回到 /
+        // 只是某一个工作空间的用户组也转到 /
+        return "/";
+      }
+      let redirectUrl = sessionStorage.getItem('redirectUrl');
+      if (redirectUrl.startsWith("/")) {
+        redirectUrl = redirectUrl.substring(1);
+      }
+      redirectUrl = redirectUrl.split("/")[0];
+      return '/' + redirectUrl + '/';
+    },
     changeOrg(data) {
       let orgId = data.id;
       if (!orgId) {
@@ -160,13 +173,14 @@ export default {
         sessionStorage.setItem(WORKSPACE_ID, response.data.lastWorkspaceId);
         sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
 
-        this.$router.push('/').then(() => {
+        this.$router.push(this.getRedirectUrl(response.data)).then(() => {
           this.reloadTopMenus();
         }).catch(err => err);
       });
     },
     changeWs(data) {
       let workspaceId = data.id;
+
       if (!workspaceId) {
         return false;
       }
@@ -177,7 +191,7 @@ export default {
         sessionStorage.setItem(WORKSPACE_ID, workspaceId);
         sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
 
-        this.$router.push('/').then(() => {
+        this.$router.push(this.getRedirectUrl(response.data)).then(() => {
           this.reloadTopMenus();
         }).catch(err => err);
       });

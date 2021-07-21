@@ -65,7 +65,7 @@
           </el-tooltip>
           <el-tooltip :content="$t('test_track.case.unlink')"
                       placement="top" :enterable="false">
-            <el-button type="danger" icon="el-icon-delete" size="mini"
+            <el-button type="danger" icon="el-icon-unlock" size="mini"
                        circle :disabled="scope.row.platform !== 'Local'"
                        @click="deleteIssue(scope.row)"
             />

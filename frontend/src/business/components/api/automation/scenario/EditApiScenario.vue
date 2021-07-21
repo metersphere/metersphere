@@ -90,7 +90,7 @@
             </el-col>
             <el-col :span="7" v-if="customNum">
               <el-form-item label="ID" prop="customNum">
-                <el-input v-model="currentScenario.customNum" size="small"></el-input>
+                <el-input v-model.trim="currentScenario.customNum" size="small"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -195,7 +195,7 @@
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
-                       <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
+                       <ms-component-config :message="message" :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
                                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
                     </span>
@@ -416,6 +416,7 @@ export default {
       stopDebug: "",
       isTop: false,
       stepSize: 0,
+      message: "",
     }
   },
   created() {
@@ -509,6 +510,7 @@ export default {
       if (e.data) {
         let data = JSON.parse(e.data);
         this.formatResult(data);
+        this.message = getUUID();
         if (data.end) {
           this.removeReport();
           this.debugLoading = false;
@@ -529,28 +531,53 @@ export default {
       this.clearDebug();
       if (res && res.scenarios) {
         res.scenarios.forEach(item => {
-          this.reqTotal += item.requestResults.length;
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let key = req.resourceId;
-              if (resMap.get(key)) {
-                if (resMap.get(key).indexOf(req) === -1) {
-                  resMap.get(key).push(req);
+              if (req.method === 'Request') {
+                req.subRequestResults.forEach(subItem => {
+                  this.reqTotal++;
+                  let key = subItem.resourceId;
+                  if (resMap.get(key)) {
+                    if (resMap.get(key).indexOf(subItem) === -1) {
+                      resMap.get(key).push(subItem);
+                    }
+                  } else {
+                    resMap.set(key, [subItem]);
+                  }
+                  if (subItem.success) {
+                    this.reqSuccess++;
+                  } else {
+                    this.reqError++;
+                  }
+                  if (subItem.startTime && Number(subItem.startTime) < startTime) {
+                    startTime = subItem.startTime;
+                  }
+                  if (subItem.endTime && Number(subItem.endTime) > endTime) {
+                    endTime = subItem.endTime;
+                  }
+                })
+              } else {
+                this.reqTotal++;
+                let key = req.resourceId;
+                if (resMap.get(key)) {
+                  if (resMap.get(key).indexOf(req) === -1) {
+                    resMap.get(key).push(req);
+                  }
+                } else {
+                  resMap.set(key, [req]);
                 }
-              } else {
-                resMap.set(key, [req]);
-              }
-              if (req.success) {
-                this.reqSuccess++;
-              } else {
-                this.reqError++;
-              }
-              if (req.startTime && Number(req.startTime) < startTime) {
-                startTime = req.startTime;
-              }
-              if (req.endTime && Number(req.endTime) > endTime) {
-                endTime = req.endTime;
+                if (req.success) {
+                  this.reqSuccess++;
+                } else {
+                  this.reqError++;
+                }
+                if (req.startTime && Number(req.startTime) < startTime) {
+                  startTime = req.startTime;
+                }
+                if (req.endTime && Number(req.endTime) > endTime) {
+                  endTime = req.endTime;
+                }
               }
             })
           }
@@ -561,7 +588,7 @@ export default {
       }
       this.debugResult = resMap;
       this.sort();
-      this.reload();
+      // this.reload();
       this.reloadDebug = getUUID();
     },
     removeReport() {
@@ -709,72 +736,42 @@ export default {
       this.isBtnHide = true;
       this.$refs.scenarioApiRelevance.open();
     },
-    recursiveSorting(arr, scenarioProjectId) {
-      for (let i in arr) {
-        arr[i].index = Number(i) + 1;
-        if (!arr[i].resourceId) {
-          arr[i].resourceId = getUUID();
-        }
-        if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
-          arr[i].countController.proceed = true;
-        }
-        if (!arr[i].projectId) {
-          // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-          arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-        } else {
-          const project = this.projectList.find(p => p.id === arr[i].projectId);
-          if (!project) {
-            arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-          }
-        }
-        // 添加debug结果
-        let key = arr[i].resourceId;
-        if (this.debugResult && this.debugResult.get(key)) {
-          arr[i].requestResult = this.debugResult.get(key);
-          arr[i].result = null;
-          arr[i].debug = this.debug;
-          this.findNode(key, arr[i].requestResult[0].success);
-        }
-        if (arr[i].hashTree && arr[i].hashTree.length > 0) {
-          this.stepSize += arr[i].hashTree.length;
-          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
-        }
+    sort(stepArray, scenarioProjectId) {
+      if (!stepArray) {
+        stepArray = this.scenarioDefinition;
       }
-    },
-    sort() {
-      this.stepSize = this.scenarioDefinition.length;
-      for (let i in this.scenarioDefinition) {
-        // 排序
-        this.scenarioDefinition[i].index = Number(i) + 1;
-        if (!this.scenarioDefinition[i].resourceId) {
-          this.scenarioDefinition[i].resourceId = getUUID();
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
         }
-        // 设置循环控制
-        if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
-          && this.scenarioDefinition[i].hashTree.length > 1) {
-          this.scenarioDefinition[i].countController.proceed = true;
+        if (stepArray[i].type === ELEMENT_TYPE.LoopController
+          && stepArray[i].loopType === "LOOP_COUNT"
+          && stepArray[i].hashTree
+          && stepArray[i].hashTree.length > 1) {
+          stepArray[i].countController.proceed = true;
         }
-        // 设置项目ID
-        if (!this.scenarioDefinition[i].projectId) {
-          this.scenarioDefinition[i].projectId = this.projectId;
+        if (!stepArray[i].projectId) {
+          // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+          stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
         } else {
-          const project = this.projectList.find(p => p.id === this.scenarioDefinition[i].projectId);
+          const project = this.projectList.find(p => p.id === stepArray[i].projectId);
           if (!project) {
-            this.scenarioDefinition[i].projectId = this.projectId;
+            stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
         }
-
-        if (this.scenarioDefinition[i].hashTree !== undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-          this.stepSize += this.scenarioDefinition[i].hashTree.length;
-          this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
-        }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].resourceId)) {
-          this.scenarioDefinition[i].result = null;
-          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].resourceId);
-          this.scenarioDefinition[i].debug = this.debug;
+        let key = stepArray[i].resourceId;
+        if (this.debugResult && this.debugResult.get(key)) {
+          stepArray[i].requestResult = this.debugResult.get(key);
+          stepArray[i].result = null;
+          stepArray[i].debug = this.debug;
+          this.findNode(key, stepArray[i].requestResult[0].success);
         }
-
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.stepSize += stepArray[i].hashTree.length;
+          this.sort(stepArray[i].hashTree, stepArray[i].projectId);
+        }
       }
     },
     addCustomizeApi(request) {
@@ -970,7 +967,6 @@ export default {
         });
       }
     },
-
     checkDataIsCopy() {
       //  如果是复制按钮创建的场景，直接进行保存
       if (this.currentScenario.copy) {
@@ -1148,8 +1144,7 @@ export default {
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
       this.currentScenario.projectId = this.projectId;
-    }
-    ,
+    },
     runRefresh() {
       if (!this.debug) {
         this.debugVisible = true;

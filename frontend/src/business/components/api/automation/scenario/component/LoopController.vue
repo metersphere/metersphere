@@ -71,7 +71,7 @@
       </div>
 
       <template v-slot:debugStepCode>
-        <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+        <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
           {{ getCode() }}
         </span>
       </template>
@@ -95,6 +95,7 @@ export default {
     currentEnvironmentId: String,
     currentScenario: {},
     node: {},
+    message: String,
     isMax: {
       type: Boolean,
       default: false,
@@ -155,6 +156,11 @@ export default {
         },
       },
     };
+  },
+  watch: {
+    message() {
+      this.reload();
+    },
   },
   methods: {
     getCode() {

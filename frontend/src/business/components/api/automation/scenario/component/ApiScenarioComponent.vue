@@ -23,7 +23,7 @@
       <span class="ms-tag">{{ getProjectName(scenario.projectId) }}</span>
     </template>
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
         {{ getCode() }}
       </span>
     </template>
@@ -43,6 +43,7 @@ export default {
   name: "ApiScenarioComponent",
   props: {
     scenario: {},
+    message: String,
     node: {},
     isMax: {
       type: Boolean,
@@ -59,7 +60,11 @@ export default {
     currentEnvironmentId: String,
     projectList: Array
   },
-  watch: {},
+  watch: {
+    message() {
+      this.reload();
+    },
+  },
   created() {
     if (!this.scenario.projectId) {
       this.scenario.projectId = getCurrentProjectID();

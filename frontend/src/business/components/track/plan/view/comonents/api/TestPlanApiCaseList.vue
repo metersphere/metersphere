@@ -460,7 +460,6 @@ export default {
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
         request.name = row.id;
-        request.id = row.id;
         request.useEnvironment = row.environmentId;
         this.runData.push(request);
         /*触发执行操作*/
