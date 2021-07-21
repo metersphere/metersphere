@@ -18,7 +18,8 @@
       field-key="CUSTOM_FIELD"
       :screen-height="tableHeight"
       @handlePageChange="getCustomFields"
-      @refresh="getCustomFields">
+      @refresh="getCustomFields"
+      ref="table">
 
       <div v-for="(item) in fields" :key="item.key">
 
@@ -200,6 +201,7 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
+        this.$refs.table.reloadTable();
       });
     },
     handleEdit(data) {
@@ -232,7 +234,4 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .el-table__fixed-body-wrapper {
-  top: 47PX !IMPORTANT;
-}
 </style>
