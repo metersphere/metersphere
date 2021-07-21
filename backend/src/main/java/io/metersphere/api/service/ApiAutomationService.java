@@ -1139,7 +1139,7 @@ public class ApiAutomationService {
                     //存储报告
                     APIScenarioReportResult report = executeQueue.get(reportId).getReport();
                     batchMapper.insert(report);
-                    executorService.submit(new ParallelScenarioExecTask(jMeterService, executeQueue.get(report), request));
+                    executorService.submit(new ParallelScenarioExecTask(jMeterService, executeQueue.get(reportId), request));
                 }
                 sqlSession.flushStatements();
             }
