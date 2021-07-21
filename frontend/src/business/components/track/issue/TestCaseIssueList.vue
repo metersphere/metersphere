@@ -99,6 +99,7 @@ export default {
           this.tableData.forEach(item => {
             this.testCaseContainIds.add(item.id);
           });
+          this.$refs.table.reloadTable();
         });
       }
     },

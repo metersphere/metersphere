@@ -24,7 +24,7 @@
 
         <el-row class="custom-field-row">
           <el-col :span="8" v-if="hasTapdId">
-            <el-form-item :label="$t('test_track.issue.tapd_current_owner')" prop="tapdUsers">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.tapd_current_owner')" prop="tapdUsers">
               <el-select v-model="form.tapdUsers" multiple filterable
                          :placeholder="$t('test_track.issue.please_choose_current_owner')">
                 <el-option v-for="(userInfo, index) in tapdUsers" :key="index" :label="userInfo.user"
@@ -33,7 +33,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8" v-if="hasZentaoId">
-            <el-form-item :label="$t('test_track.issue.zentao_bug_build')" prop="zentaoBuilds">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_build')" prop="zentaoBuilds">
               <el-select v-model="form.zentaoBuilds" multiple filterable
                          :placeholder="$t('test_track.issue.zentao_bug_build')">
                 <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
@@ -42,7 +42,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="8" v-if="hasZentaoId">
-            <el-form-item :label="$t('test_track.issue.zentao_bug_assigned')" prop="zentaoAssigned">
+            <el-form-item :label-width="formLabelWidth" :label="$t('test_track.issue.zentao_bug_assigned')" prop="zentaoAssigned">
               <el-select v-model="form.zentaoAssigned" filterable
                          :placeholder="$t('test_track.issue.please_choose_current_owner')">
                 <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
@@ -96,7 +96,7 @@ export default {
       result: {},
       relateFields: [],
       isFormAlive: true,
-      formLabelWidth: "100px",
+      formLabelWidth: "150px",
       issueTemplate: {},
       customFieldForm: {},
       customFieldRules: {},
