@@ -90,7 +90,7 @@
             </el-col>
             <el-col :span="7" v-if="customNum">
               <el-form-item label="ID" prop="customNum">
-                <el-input v-model="currentScenario.customNum" size="small"></el-input>
+                <el-input v-model.trim="currentScenario.customNum" size="small"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
