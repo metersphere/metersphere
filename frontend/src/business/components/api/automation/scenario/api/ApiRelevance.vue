@@ -79,6 +79,7 @@ export default {
   },
   methods: {
     changeButtonLoadingType(){
+      this.refresh();
       this.buttonIsWorking = false;
     },
     reference() {
