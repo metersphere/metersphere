@@ -54,4 +54,6 @@ public interface ExtApiDefinitionMapper {
     List<Map<String, Object>> moduleCountByCollection(@Param("request") ApiDefinitionRequest request);
 
     ApiDefinition selectUrlAndMethodById(String id);
+
+    int checkOriginalStatusByIds(@Param("ids")List<String> ids);
 }

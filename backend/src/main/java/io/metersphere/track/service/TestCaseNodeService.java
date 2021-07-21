@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.NodeNumDTO;
 import io.metersphere.exception.ExcelException;
@@ -25,6 +26,7 @@ import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
 import io.metersphere.track.request.testcase.QueryNodeRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
+import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -119,12 +121,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         }
     }
 
-    public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
-        // 判断当前项目下是否有默认模块，没有添加默认模块
+    public TestCaseNode getDefaultNode(String projectId) {
         TestCaseNodeExample example = new TestCaseNodeExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
-        long count = testCaseNodeMapper.countByExample(example);
-        if (count <= 0) {
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块").andParentIdIsNull();;
+        List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
+        if(CollectionUtils.isEmpty(list)){
             NodeNumDTO record = new NodeNumDTO();
             //TestCaseNode record = new TestCaseNode();
             record.setId(UUID.randomUUID().toString());
@@ -137,7 +138,31 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             record.setProjectId(projectId);
             testCaseNodeMapper.insert(record);
             record.setCaseNum(0);
+            return record;
+        }else {
+            return list.get(0);
         }
+    }
+    public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        this.getDefaultNode(projectId);
+//        TestCaseNodeExample example = new TestCaseNodeExample();
+//        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
+//        long count = testCaseNodeMapper.countByExample(example);
+//        if (count <= 0) {
+//            NodeNumDTO record = new NodeNumDTO();
+//            //TestCaseNode record = new TestCaseNode();
+//            record.setId(UUID.randomUUID().toString());
+//            record.setCreateUser(SessionUtils.getUserId());
+//            record.setName("默认模块");
+//            record.setPos(1.0);
+//            record.setLevel(1);
+//            record.setCreateTime(System.currentTimeMillis());
+//            record.setUpdateTime(System.currentTimeMillis());
+//            record.setProjectId(projectId);
+//            testCaseNodeMapper.insert(record);
+//            record.setCaseNum(0);
+//        }
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setUserId(SessionUtils.getUserId());
@@ -230,13 +255,23 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public int deleteNode(List<String> nodeIds) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andNodeIdIn(nodeIds);
-        testCaseMapper.deleteByExample(testCaseExample);
+        TestCaseService testCaseService = CommonBeanFactory.getBean(TestCaseService.class);
+        List<String> testCaseIdList = this.selectCaseIdByNodeIds(nodeIds);
+        TestCaseBatchRequest request = new TestCaseBatchRequest();
+        request.setIds(testCaseIdList);
+        testCaseService.deleteToGcBatch(request);
 
         TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
         testCaseNodeExample.createCriteria().andIdIn(nodeIds);
         return testCaseNodeMapper.deleteByExample(testCaseNodeExample);
+    }
+
+    private List<String> selectCaseIdByNodeIds(List<String> nodeIds) {
+        if(CollectionUtils.isEmpty(nodeIds)){
+            return  new ArrayList<>();
+        }else {
+            return extTestCaseMapper.selectIdsByNodeIds(nodeIds);
+        }
     }
 
     /**
@@ -707,5 +742,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public long countById(String nodeId) {
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andIdEqualTo(nodeId);
+        return testCaseNodeMapper.countByExample(example);
     }
 }

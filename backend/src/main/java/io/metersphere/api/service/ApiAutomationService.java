@@ -52,6 +52,7 @@ import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -564,7 +565,38 @@ public class ApiAutomationService {
     }
 
     public void reduction(List<String> ids) {
-        extApiScenarioMapper.reduction(ids);
+        if(CollectionUtils.isNotEmpty(ids)){
+            extApiScenarioMapper.checkOriginalStatusByIds(ids);
+            //检查原来模块是否还在
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
+            Map<String,List<ApiScenario>> nodeMap = scenarioList.stream().collect(Collectors.groupingBy(ApiScenario :: getApiScenarioModuleId));
+            ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
+            for(Map.Entry<String,List<ApiScenario>> entry : nodeMap.entrySet()){
+                String nodeId = entry.getKey();
+                List<ApiScenario> scenariosListItem = entry.getValue();
+                Map<String,List<ApiScenario>> projectMap = scenariosListItem.stream().collect(Collectors.groupingBy(ApiScenario :: getProjectId));
+                for(Map.Entry<String,List<ApiScenario>> projectEntry : projectMap.entrySet()){
+                    String projectId = projectEntry.getKey();
+                    List<ApiScenario> checkList = projectEntry.getValue();
+                    if(StringUtils.isNotEmpty(projectId)){
+                        long nodeCount = apiScenarioModuleService.countById(nodeId);
+                        if(nodeCount <= 0){
+                            ApiScenarioModule node = apiScenarioModuleService.getDefaultNode(projectId);
+                            for (ApiScenario testCase: checkList) {
+                                ApiScenarioWithBLOBs updateCase = new ApiScenarioWithBLOBs();
+                                updateCase.setId(testCase.getId());
+                                updateCase.setApiScenarioModuleId(node.getId());
+                                updateCase.setModulePath("/"+node.getName());
+                                apiScenarioMapper.updateByPrimaryKeySelective(updateCase);
+                            }
+                        }
+                    }
+                }
+            }
+            extApiScenarioMapper.reduction(ids);
+        }
     }
 
     private void checkNameExist(SaveApiScenarioRequest request) {
