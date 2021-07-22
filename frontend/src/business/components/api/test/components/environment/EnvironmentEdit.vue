@@ -143,6 +143,7 @@
           }
           this.$success(this.$t('commons.save_success'));
           this.$emit('refreshAfterSave');   //在EnvironmentList.vue中监听，使在数据修改后进行刷新
+          this.cancel();
         });
       },
       buildParam: function (environment) {
