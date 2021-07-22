@@ -406,7 +406,7 @@ export default {
         enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
       };
       this.runData.push(debugData);
-      this.request.requestResult = undefined;
+      this.request.requestResult = [];
       this.request.result = undefined;
       /*触发执行操作*/
       this.reportId = getUUID();
