@@ -1182,7 +1182,7 @@ export default {
       unit_of_times: "次",
       formula: {
         completion: "已完成的接口/接口總數*100%",
-        coverage: "有案例的接口/接口總數*100%",
+        coverage: "有用例的接口/接口總數*100%",
         pass: "最後一次執行成功的場景/場景總數*100%",
         success: "執行成功的次數/執行總次數*100%",
         interface_coverage: "被場景步驟包含的接口/接口總數*100%",
