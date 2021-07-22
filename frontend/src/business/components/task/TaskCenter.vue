@@ -10,7 +10,7 @@
           <template v-slot:content>
             <span>{{ $t('commons.task_center') }}</span>
           </template>
-          <div @click="showTaskCenter" v-if="runningTotal > 0">
+          <div @click="showTaskCenter" v-if="runningTotal > 0" >
             <el-badge :value="runningTotal" class="item" type="primary">
               <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"
                                  style="font-size: 18px"/>
@@ -61,7 +61,7 @@
       <div class="report-container">
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
-            <span><el-link type="primary">{{getModeName(item.executionModule)}} </el-link>: {{ item.name }} </span><br/>
+            <span><el-link type="primary">{{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span><br/>
             <span>
               执行器：{{ item.actuator }} 由 {{ item.executor }}
               {{ item.executionTime | timestampFormatDate }}
@@ -217,7 +217,7 @@ export default {
       }
       return 60;
     },
-    getModeName(executionModule){
+    getModeName(executionModule) {
       switch (executionModule) {
         case "SCENARIO":
           return this.$t('test_track.scenario_test_case');
@@ -287,11 +287,23 @@ export default {
     getTaskRunning() {
       this.initWebSocket();
     },
+    calculationRunningTotal() {
+      if (this.taskData) {
+        let total = 0;
+        this.taskData.forEach(item => {
+          if (this.getPercentage(item.executionStatus) !== 100) {
+            total++;
+          }
+        })
+        this.runningTotal = total;
+      }
+    },
     init() {
       this.result.loading = true;
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('/task/center/list', this.condition, response => {
         this.taskData = response.data;
+        this.calculationRunningTotal();
         this.initEnd = true;
       });
     }
