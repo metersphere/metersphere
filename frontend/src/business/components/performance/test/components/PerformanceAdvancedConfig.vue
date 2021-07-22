@@ -130,7 +130,7 @@
             show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                :disabled="!row.edit || readOnly"
+                :disabled="readOnly"
                 size="mini"
                 v-model="row.enable"
                 inactive-color="#DCDFE6"
@@ -233,7 +233,7 @@
             show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                :disabled="!row.edit || readOnly"
+                :disabled="readOnly"
                 size="mini"
                 v-model="row.enable"
                 inactive-color="#DCDFE6">
@@ -307,7 +307,7 @@
             show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                :disabled="!row.edit || readOnly"
+                :disabled="readOnly"
                 size="mini"
                 v-model="row.enable"
                 inactive-color="#DCDFE6">
