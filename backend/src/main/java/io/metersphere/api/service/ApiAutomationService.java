@@ -1042,19 +1042,18 @@ public class ApiAutomationService {
 
         if (request.getConfig() != null && StringUtils.equals(request.getConfig().getReportType(), RunModeConstants.SET_REPORT.toString()) && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
             request.getConfig().setReportId(UUID.randomUUID().toString());
-            if (CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 100) {
-                scenarioIds = scenarioIds.subList(0, 100);
-            }
-            APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(scenarioIds), scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(), ReportTriggerMode.MANUAL.name(),
-                    ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
+            APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(),
+                    JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 100 ? scenarioIds.subList(0, 100) : scenarioIds),
+                    scenarioNames.length() >= 6000 ? scenarioNames.substring(0, 5999) : scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(),
+                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
+
             report.setName(request.getConfig().getReportName());
             report.setId(serialReportId);
             apiScenarioReportMapper.insert(report);
             // 增加并行集合报告
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.PARALLEL.toString())) {
                 List<String> reportIds = executeQueue.entrySet().stream()
-                        .map(reports -> reports.getKey())
-                        .collect(Collectors.toList());
+                        .map(reports -> reports.getKey()).collect(Collectors.toList());
                 ReportCounter counter = new ReportCounter();
                 counter.setNumber(0);
                 counter.setReportIds(reportIds);
@@ -1063,7 +1062,6 @@ public class ApiAutomationService {
         }
         // 开始执行
         this.run(executeQueue, request, serialReportId);
-
         return request.getId();
     }
 
