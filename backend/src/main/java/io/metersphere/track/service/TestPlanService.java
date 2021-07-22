@@ -49,6 +49,8 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +63,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TestPlanService {
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
+
     @Resource
     ExtScheduleMapper extScheduleMapper;
     @Resource
@@ -1016,12 +1020,15 @@ public class TestPlanService {
         }
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID,testPlanID,userId,triggerMode);
+
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
         Map<String, String> planScenarioIdMap = reportInfoDTO.getPlanScenarioIdMap();
         Map<String, String> apiTestCaseIdMap = reportInfoDTO.getApiTestCaseIdMap();
         Map<String, String> performanceIdMap = reportInfoDTO.getPerformanceIdMap();
 
         String planReportId = testPlanReport.getId();
+
+        testPlanLog.info("ReportId["+planReportId+"] created. TestPlanID:["+testPlanID+"]. ");
 
         //不同任务的执行ID
         Map<String,String> executePerformanceIdMap = new HashMap<>();
@@ -1078,6 +1085,7 @@ public class TestPlanService {
         for (String id : planScenarioIdMap.keySet()) {
             executeScenarioCaseIdMap.put(id,TestPlanApiExecuteStatus.RUNNING.name());
         }
+        testPlanLog.info("ReportId["+planReportId+"] start run. TestPlanID:["+testPlanID+"].  Execute api :"+JSONObject.toJSONString(executeApiCaseIdMap)+"; Execute scenario:"+JSONObject.toJSONString(executeScenarioCaseIdMap)+"; Execute performance:"+JSONObject.toJSONString(executePerformanceIdMap));
         testPlanReportService.updateExecuteApis(planReportId,executeApiCaseIdMap,executeScenarioCaseIdMap,executePerformanceIdMap);
 
 
@@ -1121,10 +1129,6 @@ public class TestPlanService {
             RunModeConfig runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfig.class);
             scenarioRequest.setConfig(runModeConfig);
             String scenarioReportID = this.scenarioRunModeConfig(scenarioRequest);
-//            if (StringUtils.isNotEmpty(scenarioReportID)) {
-//                scenarioIsExcuting = true;
-//                scenarioCaseIdArray = JSONArray.toJSONString(new ArrayList<>(planScenarioIdMap.keySet()));
-//            }
         }
         return testPlanReport.getId();
     }

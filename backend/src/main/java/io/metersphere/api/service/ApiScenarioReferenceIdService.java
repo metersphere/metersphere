@@ -43,6 +43,9 @@ public class ApiScenarioReferenceIdService {
     }
 
     public void saveByApiScenario(ApiScenarioWithBLOBs scenario) {
+        if(scenario.getId() == null){
+            return;
+        }
         this.deleteByScenarioId(scenario.getId());
 
         long createTime = System.currentTimeMillis();
