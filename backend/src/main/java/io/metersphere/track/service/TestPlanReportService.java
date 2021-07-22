@@ -34,6 +34,8 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -49,6 +51,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class TestPlanReportService {
+
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
+
     @Resource
     TestPlanReportMapper testPlanReportMapper;
     @Resource
@@ -1011,6 +1016,7 @@ public class TestPlanReportService {
         if(executePerformanceIdMap == null){
             executePerformanceIdMap = new HashMap<>();
         }
+        testPlanLog.info("ReportId["+planReportId+"] Executed. api :"+JSONObject.toJSONString(executeApiCaseIdMap)+"; scenario:"+JSONObject.toJSONString(executeScenarioCaseIdMap)+"; performance:"+JSONObject.toJSONString(executePerformanceIdMap));
         example.createCriteria().andTestPlanReportIdEqualTo(planReportId);
         List<TestPlanReportDataWithBLOBs> reportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);
         if (!reportDataList.isEmpty()) {
@@ -1096,9 +1102,18 @@ public class TestPlanReportService {
                 reportData.setPerformanceInfo(newArr.toJSONString());
             } catch (Exception e) {
             }
+            testPlanLog.info("ReportId["+planReportId+"] count over. Execute result:  Api ->"+reportData.getApiCaseInfo()+"; scenario->"+reportData.getScenarioInfo()+"; performance->"+reportData.getPerformanceInfo());
 
-            testPlanReportDataMapper.updateByPrimaryKeySelective(reportData);
+            SqlSession sqlSession = sqlSessionFactory.openSession(false);
+            TestPlanReportDataMapper updateReportDataMapper = sqlSession.getMapper(TestPlanReportDataMapper.class);
+            updateReportDataMapper.updateByPrimaryKeySelective(reportData);
+            sqlSession.commit();
+            sqlSession.flushStatements();
+
+
             this.updateReport(reportData, apiCaseExecuteOk, scenarioExecuteOk, performanceExecuteOk);
+        }else {
+            testPlanLog.info("ReportId["+planReportId+"] CANNOT FIND REPORT!  Execited result. api :"+JSONObject.toJSONString(executeApiCaseIdMap)+"; scenario:"+JSONObject.toJSONString(executeScenarioCaseIdMap)+"; performance:"+JSONObject.toJSONString(executePerformanceIdMap));
         }
     }
 }
