@@ -158,23 +158,12 @@ public class EngineFactory {
         {"timeout":10,"statusCode":["302","301"],"params":[{"name":"param1","enable":true,"value":"0","edit":false}],"domains":[{"domain":"baidu.com","enable":true,"ip":"127.0.0.1","edit":false}]}
          */
         Map<String, byte[]> testResourceFiles = new HashMap<>();
-        StringBuilder props = new StringBuilder("# JMeter Properties\n");
-        if (StringUtils.isNotEmpty(loadTest.getAdvancedConfiguration())) {
-            JSONObject advancedConfiguration = JSONObject.parseObject(loadTest.getAdvancedConfiguration());
-            engineContext.addProperties(advancedConfiguration);
-            JSONArray properties = advancedConfiguration.getJSONArray("properties");
-            if (properties != null) {
-                for (int i = 0; i < properties.size(); i++) {
-                    JSONObject prop = properties.getJSONObject(i);
-                    if (!prop.getBoolean("enable")) {
-                        continue;
-                    }
-                    props.append(prop.getString("name")).append("=").append(prop.getString("value")).append("\n");
-                }
-            }
-        }
+        byte[] props = getJMeterProperties(loadTest, engineContext);
+        byte[] hosts = getDNSConfig(loadTest, engineContext);
         // JMeter Properties
-        testResourceFiles.put("ms.properties", props.toString().getBytes(StandardCharsets.UTF_8));
+        testResourceFiles.put("ms.properties", props);
+        // DNS
+        testResourceFiles.put("hosts", hosts);
 
         final EngineSourceParser engineSourceParser = EngineSourceParserFactory.createEngineSourceParser(engineContext.getFileType());
 
@@ -202,6 +191,44 @@ public class EngineFactory {
         }
 
         return engineContext;
+    }
+
+    private static byte[] getDNSConfig(LoadTestWithBLOBs loadTest, EngineContext engineContext) {
+        StringBuilder dns = new StringBuilder("# DNS Config\n");
+        if (StringUtils.isNotEmpty(loadTest.getAdvancedConfiguration())) {
+            JSONObject advancedConfiguration = JSONObject.parseObject(loadTest.getAdvancedConfiguration());
+            engineContext.addProperties(advancedConfiguration);
+            JSONArray domains = advancedConfiguration.getJSONArray("domains");
+            if (domains != null) {
+                for (int i = 0; i < domains.size(); i++) {
+                    JSONObject prop = domains.getJSONObject(i);
+                    if (!prop.getBoolean("enable")) {
+                        continue;
+                    }
+                    dns.append(prop.getString("ip")).append(" ").append(prop.getString("domain")).append("\n");
+                }
+            }
+        }
+        return dns.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    private static byte[] getJMeterProperties(LoadTestWithBLOBs loadTest, EngineContext engineContext) {
+        StringBuilder props = new StringBuilder("# JMeter Properties\n");
+        if (StringUtils.isNotEmpty(loadTest.getAdvancedConfiguration())) {
+            JSONObject advancedConfiguration = JSONObject.parseObject(loadTest.getAdvancedConfiguration());
+            engineContext.addProperties(advancedConfiguration);
+            JSONArray properties = advancedConfiguration.getJSONArray("properties");
+            if (properties != null) {
+                for (int i = 0; i < properties.size(); i++) {
+                    JSONObject prop = properties.getJSONObject(i);
+                    if (!prop.getBoolean("enable")) {
+                        continue;
+                    }
+                    props.append(prop.getString("name")).append("=").append(prop.getString("value")).append("\n");
+                }
+            }
+        }
+        return props.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     public static byte[] mergeJmx(List<FileMetadata> jmxFiles) {
