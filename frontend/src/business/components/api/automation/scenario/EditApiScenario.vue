@@ -452,7 +452,7 @@ export default {
     clearResult(arr) {
       if (arr) {
         arr.forEach(item => {
-          item.requestResult = undefined;
+          item.requestResult = [];
           item.result = undefined;
           item.code = undefined;
           if (item.hashTree && item.hashTree.length > 0) {
@@ -524,6 +524,33 @@ export default {
         return;
       }
     },
+    getTransaction(transRequests, startTime, endTime, resMap) {
+      transRequests.forEach(subItem => {
+        if (subItem.method === 'Request') {
+          this.getTransaction(subItem.subRequestResults, startTime, endTime, resMap);
+        }
+        this.reqTotal++;
+        let key = subItem.resourceId;
+        if (resMap.get(key)) {
+          if (resMap.get(key).indexOf(subItem) === -1) {
+            resMap.get(key).push(subItem);
+          }
+        } else {
+          resMap.set(key, [subItem]);
+        }
+        if (subItem.success) {
+          this.reqSuccess++;
+        } else {
+          this.reqError++;
+        }
+        if (subItem.startTime && Number(subItem.startTime) < startTime) {
+          startTime = subItem.startTime;
+        }
+        if (subItem.endTime && Number(subItem.endTime) > endTime) {
+          endTime = subItem.endTime;
+        }
+      })
+    },
     formatResult(res) {
       let resMap = new Map;
       let startTime = 99991611737506593;
@@ -535,28 +562,7 @@ export default {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
               if (req.method === 'Request') {
-                req.subRequestResults.forEach(subItem => {
-                  this.reqTotal++;
-                  let key = subItem.resourceId;
-                  if (resMap.get(key)) {
-                    if (resMap.get(key).indexOf(subItem) === -1) {
-                      resMap.get(key).push(subItem);
-                    }
-                  } else {
-                    resMap.set(key, [subItem]);
-                  }
-                  if (subItem.success) {
-                    this.reqSuccess++;
-                  } else {
-                    this.reqError++;
-                  }
-                  if (subItem.startTime && Number(subItem.startTime) < startTime) {
-                    startTime = subItem.startTime;
-                  }
-                  if (subItem.endTime && Number(subItem.endTime) > endTime) {
-                    endTime = subItem.endTime;
-                  }
-                })
+                this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
               } else {
                 this.reqTotal++;
                 let key = req.resourceId;
@@ -830,7 +836,7 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
-      request.requestResult = undefined;
+      request.requestResult = [];
       if (!request.url) {
         request.url = "";
       }
@@ -880,12 +886,23 @@ export default {
         }
       });
     },
+    copySetRes(hashTree) {
+      hashTree.forEach(item => {
+        item.resourceId = getUUID();
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.copySetRes(item.hashTree);
+        }
+      })
+    },
     copyRow(row, node) {
       const parent = node.parent
       const hashTree = parent.data.hashTree || parent.data;
       // 深度复制
       let obj = JSON.parse(JSON.stringify(row));
       obj.resourceId = getUUID();
+      if (obj.hashTree && obj.hashTree.length > 0) {
+        this.copySetRes(obj.hashTree);
+      }
       if (obj.name) {
         obj.name = obj.name + '_copy';
       }
