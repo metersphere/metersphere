@@ -380,6 +380,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             // upload zentao
             String id = uploadFile(mdImage.getBody());
             // todo delete local file
+            int index = fileName.lastIndexOf(".");
+            if (index != -1) {
+                fileName = fileName.substring(0, index);
+            }
             // replace id
             zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(fileName), id);
         }
