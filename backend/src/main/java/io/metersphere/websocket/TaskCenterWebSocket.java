@@ -31,7 +31,7 @@ public class TaskCenterWebSocket {
     public void onOpen(@PathParam("projectId") String projectId, Session session) {
         Timer timer = new Timer(true);
         TaskCenterWebSocket.TaskCenter task = new TaskCenterWebSocket.TaskCenter(session, projectId);
-        timer.schedule(task, 0, 3 * 1000);
+        timer.schedule(task, 0, 6 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
 
@@ -92,11 +92,14 @@ public class TaskCenterWebSocket {
         @Override
         public void run() {
             try {
-                int taskTotal = taskService.getRunningTasks(request).size();
+                int taskTotal = taskService.getRunningTasks(request);
                 if (!session.isOpen()) {
                     return;
                 }
                 session.getBasicRemote().sendText(taskTotal + "");
+                if (taskTotal == 0) {
+                    session.close();
+                }
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
