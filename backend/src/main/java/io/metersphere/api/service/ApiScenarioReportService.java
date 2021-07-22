@@ -207,10 +207,6 @@ public class ApiScenarioReportService {
                 startTime = scenarioResult.getRequestResults().get(0).getStartTime();
             }
             ApiScenarioReport report = editReport(scenarioResult, startTime);
-            if (!StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-                report.setTriggerMode(ReportTriggerMode.MANUAL.name());
-                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
-            }
 
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();

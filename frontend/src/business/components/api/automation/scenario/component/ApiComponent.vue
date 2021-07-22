@@ -157,8 +157,12 @@ export default {
     }
   },
   created() {
+    // 历史数据兼容
     if (!this.request.requestResult) {
-      this.request.requestResult = {responseResult: {}};
+      this.request.requestResult = [{responseResult: {}}];
+    } else if (this.request.requestResult && Object.prototype.toString.call(this.request.requestResult) !== '[object Array]') {
+      let obj = JSON.parse(JSON.stringify(this.request.requestResult));
+      this.request.requestResult = [obj];
     }
     // 跨项目关联，如果没有ID，则赋值本项目ID
     if (!this.request.projectId) {
@@ -328,7 +332,11 @@ export default {
             if (response.data.method && response.data.method != null) {
               this.request.method = response.data.method;
             }
-            this.request.requestResult = requestResult;
+            if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
+              this.request.requestResult = [requestResult];
+            } else {
+              this.request.requestResult = requestResult;
+            }
             this.request.id = response.data.id;
             this.request.disabled = true;
             this.request.root = true;
