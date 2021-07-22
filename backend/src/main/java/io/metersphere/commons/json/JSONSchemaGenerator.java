@@ -312,6 +312,21 @@ public class JSONSchemaGenerator {
 
     private static final SyntaxValidator VALIDATOR = new SyntaxValidator(ValidationConfiguration.byDefault());
 
+    private static String formerJson(String jsonSchema) {
+        try {
+            JSONObject root = new JSONObject();
+            generator(jsonSchema, root);
+            // 格式化返回
+            Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
+            if (root.get("MS-OBJECT") != null) {
+                return gson.toJson(root.get("MS-OBJECT"));
+            }
+            return gson.toJson(root);
+        } catch (Exception e) {
+            return jsonSchema;
+        }
+    }
+
     public static String getJson(String jsonSchema) {
         if (StringUtils.isEmpty(jsonSchema)) {
             return null;
@@ -320,20 +335,17 @@ public class JSONSchemaGenerator {
             JsonNode jsonNode = JsonLoader.fromString(jsonSchema);
             ProcessingReport report = VALIDATOR.validateSchema(jsonNode);
             if (report.isSuccess()) {
-                JSONObject root = new JSONObject();
-                generator(jsonSchema, root);
-                // 格式化返回
-                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
-                if (root.get("MS-OBJECT") != null) {
-                    return gson.toJson(root.get("MS-OBJECT"));
-                }
-                return gson.toJson(root);
+                return formerJson(jsonSchema);
             } else {
                 return report.getExceptionThreshold().toString();
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ex.getMessage();
+            try {
+                return formerJson(jsonSchema);
+            } catch (Exception e) {
+                return jsonSchema;
+            }
         }
     }
 }
