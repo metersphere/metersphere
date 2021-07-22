@@ -1686,7 +1686,7 @@ public class ApiAutomationService {
         apiScenarioMapper.updateByExampleSelective(
                 apiScenarioWithBLOBs,
                 apiScenarioExample);
-        apiScenarioReferenceIdService.saveByApiScenario(apiScenarioWithBLOBs);
+//        apiScenarioReferenceIdService.saveByApiScenario(apiScenarioWithBLOBs);
     }
 
     public void bathEditEnv(ApiScenarioBatchRequest request) {

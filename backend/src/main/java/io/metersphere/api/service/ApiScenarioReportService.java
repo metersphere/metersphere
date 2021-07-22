@@ -1,6 +1,8 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +40,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +54,7 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiScenarioReportService {
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
     @Resource
@@ -250,6 +255,7 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport  updateSchedulePlanCase(TestResult result, String runMode) {
+
         ApiScenarioReport lastReport = null;
         List<ScenarioResult> scenarioResultList = result.getScenarios();
 
@@ -325,10 +331,12 @@ public class ApiScenarioReportService {
             reportIds.add(report.getId());
         }
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+
+        testPlanLog.info("TestPlanReportId"+ JSONArray.toJSONString(testPlanReportIdList) +" EXECUTE OVER. SCENARIO STATUS : "+JSONObject.toJSONString(scenarioAndErrorMap));
+
         for (String planId :testPlanReportIdList) {
             testPlanReportService.updateExecuteApis(planId,null,scenarioAndErrorMap,null);
         }
-//        testPlanReportService.updateReport(testPlanReportIdList, runMode, lastReport.getTriggerMode(), scenarioIdList);
 
         return lastReport;
     }

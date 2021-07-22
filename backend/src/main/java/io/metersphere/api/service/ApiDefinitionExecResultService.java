@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -24,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ import java.util.*;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionExecResultService {
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
@@ -164,6 +168,7 @@ public class ApiDefinitionExecResultService {
      * @param type
      */
     public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type, String trigeMode) {
+        testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE OVER.");
         String saveResultType = type;
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
@@ -244,7 +249,7 @@ public class ApiDefinitionExecResultService {
                 }
             });
         }
-
+        testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE OVER. API CASE STATUS:"+ JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
     }
