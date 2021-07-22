@@ -245,6 +245,33 @@ export default {
         this.$success(this.$t('schedule.event_success'));
       });
     },
+    getTransaction(transRequests, startTime, endTime, resMap) {
+      transRequests.forEach(subItem => {
+        if (subItem.method === 'Request') {
+          this.getTransaction(subItem.subRequestResults, startTime, endTime, resMap);
+        }
+        this.reqTotal++;
+        let key = subItem.resourceId;
+        if (resMap.get(key)) {
+          if (resMap.get(key).indexOf(subItem) === -1) {
+            resMap.get(key).push(subItem);
+          }
+        } else {
+          resMap.set(key, [subItem]);
+        }
+        if (subItem.success) {
+          this.reqSuccess++;
+        } else {
+          this.reqError++;
+        }
+        if (subItem.startTime && Number(subItem.startTime) < startTime) {
+          startTime = subItem.startTime;
+        }
+        if (subItem.endTime && Number(subItem.endTime) > endTime) {
+          endTime = subItem.endTime;
+        }
+      })
+    },
     formatResult(res) {
       let resMap = new Map;
       let startTime = 99991611737506593;
@@ -259,28 +286,7 @@ export default {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
               if (req.method === 'Request') {
-                req.subRequestResults.forEach(subItem => {
-                  this.reqTotal++;
-                  let key = subItem.resourceId;
-                  if (resMap.get(key)) {
-                    if (resMap.get(key).indexOf(subItem) === -1) {
-                      resMap.get(key).push(subItem);
-                    }
-                  } else {
-                    resMap.set(key, [subItem]);
-                  }
-                  if (subItem.success) {
-                    this.reqSuccess++;
-                  } else {
-                    this.reqError++;
-                  }
-                  if (subItem.startTime && Number(subItem.startTime) < startTime) {
-                    startTime = subItem.startTime;
-                  }
-                  if (subItem.endTime && Number(subItem.endTime) > endTime) {
-                    endTime = subItem.endTime;
-                  }
-                })
+                this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
               } else {
                 this.reqTotal++;
                 let key = req.resourceId;

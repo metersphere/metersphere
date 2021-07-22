@@ -303,7 +303,7 @@ export default {
             item.result = this.requestResult;
             item.activeName = this.activeName;
             item.active = true;
-            item.requestResult = undefined;
+            item.requestResult = [];
           }
           if (item.hashTree && item.hashTree.length > 0) {
             this.setResult(item.hashTree);
