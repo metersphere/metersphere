@@ -22,9 +22,9 @@ public class TaskService {
         return extTaskMapper.getTasks(request);
     }
 
-    public List<TaskCenterDTO> getRunningTasks(TaskCenterRequest request) {
+    public int getRunningTasks(TaskCenterRequest request) {
         if (StringUtils.isEmpty(request.getProjectId())) {
-            return new ArrayList<>();
+            return 0;
         }
         return extTaskMapper.getRunningTasks(request);
     }
