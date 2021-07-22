@@ -226,7 +226,7 @@ public class JsonPathUtils {
                         for (int j = i; j < sourceArr.size(); j++) {
                             Object matchItemObj = matchArr.get(i);
                             Object sourceItemObj = sourceArr.get(j);
-                            boolean check = checkObjCompliance(sourceObjItem, matchObjItem);
+                            boolean check = checkObjCompliance(sourceItemObj, matchItemObj);
                             if (!check) {
                                 return check;
                             }

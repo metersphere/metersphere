@@ -99,7 +99,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="100px"
-          :label="$t('api_test.definition.api_principal')"/>\
+          :label="$t('api_test.definition.request.responsible')"/>
         <ms-table-column
           prop="path"
           :field="item"
