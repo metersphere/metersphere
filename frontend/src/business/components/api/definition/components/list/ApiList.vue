@@ -99,7 +99,7 @@
           :field="item"
           :fields-width="fieldsWidth"
           min-width="100px"
-          :label="$t('api_test.definition.api_principal')"/>\
+          :label="$t('api_test.definition.request.responsible')"/>
         <ms-table-column
           prop="path"
           :field="item"
@@ -646,8 +646,6 @@ export default {
     reductionApi(row) {
       let tmp = JSON.parse(JSON.stringify(row));
       let rows = {ids: [tmp.id]};
-      rows.projectId = getCurrentProjectID();
-      rows.protocol = this.currentProtocol;
       this.$post('/api/definition/reduction/', rows, () => {
         this.$success(this.$t('commons.save_success'));
         // this.search();
@@ -655,9 +653,7 @@ export default {
       });
     },
     handleBatchRestore() {
-      let batchParam = buildBatchParam(this, this.$refs.table.selectIds);
-      batchParam.protocol = this.currentProtocol;
-      this.$post('/api/definition/reduction/', batchParam, () => {
+      this.$post('/api/definition/reduction/', buildBatchParam(this, this.$refs.table.selectIds), () => {
         this.$success(this.$t('commons.save_success'));
         // this.search();
         this.$emit('refreshTable');
