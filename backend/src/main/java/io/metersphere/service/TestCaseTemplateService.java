@@ -1,6 +1,8 @@
 package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseTemplateMapper;
@@ -24,8 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -180,6 +181,51 @@ public class TestCaseTemplateService extends TemplateBaseService {
         List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
         testCaseTemplates.add(getDefaultTemplate(workspaceId));
         return testCaseTemplates;
+    }
+
+    public Map<String,List<String>> getCaseLevelAndStatusMapByProjectId(String projectId){
+        Project project = projectService.getProjectById(projectId);
+        String caseTemplateId = project.getCaseTemplateId();
+        TestCaseTemplateWithBLOBs caseTemplate = null;
+        TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
+        if (StringUtils.isNotBlank(caseTemplateId)) {
+            caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);
+            if (caseTemplate == null) {
+                caseTemplate = getDefaultTemplate(project.getWorkspaceId());
+            }
+        } else {
+            caseTemplate = getDefaultTemplate(project.getWorkspaceId());
+        }
+        BeanUtils.copyBean(caseTemplateDao, caseTemplate);
+        List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());
+
+        Map<String, List<String>> returnMap = new HashMap<>();
+        for (CustomFieldDao field:result) {
+            if(StringUtils.equalsAnyIgnoreCase(field.getScene(),"TEST_CASE")){
+                if(StringUtils.equalsAnyIgnoreCase(field.getName(),"用例等级")){
+                    try {
+                        JSONArray jsonArray = JSONArray.parseArray(field.getOptions());
+                        List<String> values  = new ArrayList<>();
+                        for (int i = 0;i < jsonArray.size();i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+                            values.add(obj.getString("value"));
+                        }
+                        returnMap.put("caseLevel",values);
+                    }catch (Exception e){}
+                }else if(StringUtils.equalsAnyIgnoreCase(field.getName(),"用例状态")){
+                    try {
+                        JSONArray jsonArray = JSONArray.parseArray(field.getOptions());
+                        List<String> values  = new ArrayList<>();
+                        for (int i = 0;i < jsonArray.size();i++) {
+                            JSONObject obj = jsonArray.getJSONObject(i);
+                            values.add(obj.getString("value"));
+                        }
+                        returnMap.put("caseStatus",values);
+                    }catch (Exception e){}
+                }
+            }
+        }
+        return  returnMap;
     }
 
     public TestCaseTemplateDao getTemplate(String projectId) {

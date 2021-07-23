@@ -126,7 +126,7 @@
 
 <script>
   import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
-  import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
+  import {PRIORITY} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
   import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
@@ -173,6 +173,11 @@
       return {
         result: {},
         grades: [],
+        resultMap:new Map([
+          ['success', this.$t('test_track.plan_view.execute_result')+'：'+this.$t('test_track.plan_view.pass')],
+          ['error', this.$t('test_track.plan_view.execute_result')+'：'+this.$t('api_test.home_page.detail_card.execution_failed')],
+          ['default', this.$t('test_track.plan_view.execute_result')+'：'+this.$t('api_test.home_page.detail_card.unexecute')]
+        ]),
         showXpackCompnent: false,
         isReadOnly: false,
         selectedEvent: Object,
@@ -390,10 +395,10 @@
         item.active = !item.active;
       },
       getResult(data) {
-        if (RESULT_MAP.get(data)) {
-          return RESULT_MAP.get(data);
+        if (this.resultMap.get(data)) {
+          return this.resultMap.get(data);
         } else {
-          return RESULT_MAP.get("default");
+          return this.resultMap.get("default");
         }
       },
       validate(row) {
