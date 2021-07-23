@@ -680,8 +680,10 @@
       async setFormData(testCase) {
         try {
           testCase.selected = JSON.parse(testCase.testId);
+          console.log(testCase.selected);
         } catch (error) {
-          testCase.selected = testCase.testId
+          testCase.selected = testCase.testId;
+          console.log(testCase.selected);
         }
         let tmp = {};
         Object.assign(tmp, testCase);
