@@ -673,6 +673,12 @@ export default {
     project_file_update_type_error: 'Updated file types must be consistent',
     csv_has_header: 'Contains Title',
     csv_split: 'CSV Split',
+    on_sample_error: 'After a Sampler error',
+    continue:'Continue',
+    startnextloop:'Start the next loop',
+    stopthread:'Stop thread',
+    stoptest:'Stop test',
+    stoptestnow:'Stop the test immediately',
     report: {
       diff: "Compare",
       set_default: 'Set to Default',
