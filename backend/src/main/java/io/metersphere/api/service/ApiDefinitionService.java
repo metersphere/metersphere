@@ -798,6 +798,7 @@ public class ApiDefinitionService {
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
+            sqlSession.flushStatements();
         }
         //判断EsbData是否需要存储
         if (apiImport.getEsbApiParamsMap() != null && apiImport.getEsbApiParamsMap().size() > 0) {
@@ -819,7 +820,6 @@ public class ApiDefinitionService {
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
             importMsCase(apiImport, sqlSession, apiTestCaseMapper);
         }
-        sqlSession.flushStatements();
     }
 
 
