@@ -88,7 +88,7 @@ public class ScenarioReportWebSocket {
         @Override
         public void run() {
             try {
-                TestResult report = resultService.getResult(reportId);
+                TestResult report = resultService.sysnSampleResult(reportId);
                 if (!session.isOpen()) {
                     return;
                 }
