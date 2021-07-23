@@ -72,21 +72,34 @@
                              class="case-form">
                       <el-row>
                         <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
-                          <el-form-item :label-width="formLabelWidth" :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name">
+                          <el-form-item :label-width="formLabelWidth"
+                                        :label="item.system ? $t(systemNameMap[item.name]) : item.name"
+                                        :prop="item.name">
                             <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
                           </el-form-item>
                         </el-col>
                       </el-row>
                     </el-form>
 
-                    <form-rich-text-item :label-width="formLabelWidth" :disabled="true" :title="$t('test_track.case.prerequisite')" :data="testCase" prop="prerequisite"/>
+                    <form-rich-text-item :label-width="formLabelWidth" :disabled="true"
+                                         :title="$t('test_track.case.prerequisite')" :data="testCase"
+                                         prop="prerequisite"/>
                     <step-change-item :disable="true" :label-width="formLabelWidth" :form="testCase"/>
-                    <test-plan-case-step-results-item :label-width="formLabelWidth" :is-read-only="isReadOnly" v-if="testCase.stepModel === 'STEP'" :test-case="testCase"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDescription"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="expectedResult"/>
-                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
+                    <test-plan-case-step-results-item :label-width="formLabelWidth" :is-read-only="isReadOnly"
+                                                      v-if="testCase.stepModel === 'STEP'" :test-case="testCase"/>
+                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
+                                         :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase"
+                                         prop="stepDescription"/>
+                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
+                                         :disabled="true" :title="$t('test_track.case.expected_results')"
+                                         :data="testCase" prop="expectedResult"/>
+                    <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
+                                         :disabled="true" :title="$t('test_track.plan_view.actual_result')"
+                                         :data="testCase" prop="actualResult"/>
 
-                    <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="testCase.projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                    <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
+                                               :read-only="true" :is-test-plan="true" :project-id="testCase.projectId"
+                                               :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                   </el-form>
                 </div>
 
@@ -531,6 +544,16 @@ p {
 
 .head-bar {
   z-index: 999;
+}
+
+/deep/ .el-textarea.is-disabled .el-textarea__inner {
+  background-color: #FBFBFB !important;
+  color: #606266 !important;
+  height: 48px !important;
+}
+
+/deep/ .table-edit-input .el-textarea__inner, .table-edit-input .el-input__inner {
+  border-style: solid;
 }
 </style>
 
