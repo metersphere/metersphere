@@ -313,7 +313,7 @@ export default {
     field_type: 'Field Type',
     field_option: 'Options',
     field_text: 'Field Text',
-    field_value: 'Field Value',
+    field_value: 'Field ID',
     add_field: 'Add Field',
     api_field_name: 'API Field Name',
     template_setting: 'Template Setting',
