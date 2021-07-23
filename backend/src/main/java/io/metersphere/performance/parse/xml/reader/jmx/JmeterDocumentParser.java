@@ -849,6 +849,13 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) durations).remove(0);
             duration = o.toString();
         }
+        Object onSampleErrors = context.getProperty("onSampleError");
+        String onSampleError = "continue";
+        if (onSampleErrors instanceof List) {
+            Object o = ((List<?>) onSampleErrors).get(0);
+            ((List<?>) onSampleErrors).remove(0);
+            onSampleError = o.toString();
+        }
         Object units = context.getProperty("unit");
         if (units instanceof List) {
             Object o = ((List<?>) units).get(0);
@@ -882,7 +889,7 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
         elementProp.appendChild(createStringProp(document, "LoopController.loops", "-1"));
         threadGroup.appendChild(elementProp);
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", onSampleError));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.num_threads", threads));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.ramp_time", rampUp));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", duration));
@@ -951,6 +958,13 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) holds).remove(0);
             hold = o.toString();
         }
+        Object onSampleErrors = context.getProperty("onSampleError");
+        String onSampleError = "continue";
+        if (onSampleErrors instanceof List) {
+            Object o = ((List<?>) onSampleErrors).get(0);
+            ((List<?>) onSampleErrors).remove(0);
+            onSampleError = o.toString();
+        }
         Object units = context.getProperty("unit");
         if (units instanceof List) {
             Object o = ((List<?>) units).get(0);
@@ -979,7 +993,7 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("name", "ThreadGroup.main_controller");
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", onSampleError));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", threads));
         threadGroup.appendChild(createStringProp(document, "RampUp", rampUp));
         threadGroup.appendChild(createStringProp(document, "Steps", step));
@@ -1074,6 +1088,13 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) iterateNum).remove(0);
             loops = o.toString();
         }
+        Object onSampleErrors = context.getProperty("onSampleError");
+        String onSampleError = "continue";
+        if (onSampleErrors instanceof List) {
+            Object o = ((List<?>) onSampleErrors).get(0);
+            ((List<?>) onSampleErrors).remove(0);
+            onSampleError = o.toString();
+        }
         Object rampUps = context.getProperty("iterateRampUpTime");
         String rampUp = "10";
         if (rampUps instanceof List) {
@@ -1110,7 +1131,7 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.appendChild(createStringProp(document, "LoopController.loops", loops));
         threadGroup.appendChild(elementProp);
 
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", onSampleError));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.num_threads", threads));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.ramp_time", rampUp));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.scheduler", false)); // 不指定执行时间
