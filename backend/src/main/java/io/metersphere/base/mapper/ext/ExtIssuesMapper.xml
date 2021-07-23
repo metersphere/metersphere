@@ -8,6 +8,7 @@
         inner join test_case_issues
         on test_case_issues.issues_id = issues.id
         <include refid="queryWhereCondition"/>
+        and (issues.platform_status != 'delete' or issues.platform_status is NULL)
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
