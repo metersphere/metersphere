@@ -31,7 +31,7 @@ public class TaskCenterWebSocket {
     public void onOpen(@PathParam("projectId") String projectId, Session session) {
         Timer timer = new Timer(true);
         TaskCenterWebSocket.TaskCenter task = new TaskCenterWebSocket.TaskCenter(session, projectId);
-        timer.schedule(task, 0, 6 * 1000);
+        timer.schedule(task, 0, 10 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
 

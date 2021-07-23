@@ -1131,11 +1131,11 @@ export default {
           }
           this.loading = false;
           this.sort();
+          // 初始化resourceId
+          if (this.scenarioDefinition) {
+            this.resetResourceId(this.scenarioDefinition);
+          }
         })
-      }
-      // 初始化resourceId
-      if (this.scenarioDefinition) {
-        this.resetResourceId(this.scenarioDefinition);
       }
     },
     setParameter() {
