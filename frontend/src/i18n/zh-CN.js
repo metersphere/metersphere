@@ -672,6 +672,12 @@ export default {
     project_file_exist: "项目中已存在该文件，请直接引用",
     csv_has_header: '包含表头',
     csv_split: 'CSV分割',
+    on_sample_error: '取样器错误后',
+    continue: '继续',
+    startnextloop: '启动下一次循环',
+    stopthread: '停止线程',
+    stoptest: '停止测试',
+    stoptestnow: '立即停止测试',
     report: {
       diff: "对比",
       set_default: '恢复默认',
