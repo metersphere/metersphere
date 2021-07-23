@@ -55,6 +55,8 @@ public class WorkspaceService {
     private ExtUserGroupMapper extUserGroupMapper;
     @Resource
     private ExtUserMapper extUserMapper;
+    @Resource
+    private ScheduleService scheduleService;
 
     public Workspace saveWorkspace(Workspace workspace) {
         if (StringUtils.isBlank(workspace.getName())) {
@@ -131,6 +133,9 @@ public class WorkspaceService {
 
         // delete workspace
         workspaceMapper.deleteByPrimaryKey(workspaceId);
+
+        // 删除定时任务
+        scheduleService.deleteByWorkspaceId(workspaceId);
     }
 
     /**
