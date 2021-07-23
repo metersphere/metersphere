@@ -975,11 +975,11 @@ public class ApiDefinitionService {
                     res.setCasePassingRate(compRes.getPassRate());
                     // 状态优先级 未执行，未通过，通过
                     if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
-                        res.setCaseStatus("未执行");
+                        res.setCaseStatus(Translator.get("not_execute"));
                     } else if (compRes.getError() > 0) {
-                        res.setCaseStatus("未通过");
+                        res.setCaseStatus(Translator.get("execute_not_pass"));
                     } else {
-                        res.setCaseStatus("通过");
+                        res.setCaseStatus(Translator.get("execute_pass"));
                     }
                 } else {
                     res.setCaseTotal("-");

@@ -135,7 +135,10 @@
     data() {
       return {
         currentItem: null,
-        requireds: REQUIRED,
+        requireds: [
+          {name: this.$t('commons.selector.required'), id: true},
+          {name: this.$t('commons.selector.not_required'), id: false}
+        ],
         isSelectAll: true,
         isActive: true
       }
