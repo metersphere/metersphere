@@ -1632,7 +1632,7 @@ export default {
       operate_step: "操作步驟",
       edit_component: "編輯組件",
       base_info: "基礎信息",
-      mock_info: "Mock信息",
+      mock_info: "Mock服務",
       test_result: "測試結果",
       result_distribution: "測試結果分布",
       custom_component: "自定義模塊",
