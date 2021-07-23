@@ -886,11 +886,11 @@ export default {
         }
       });
     },
-    copySetRes(hashTree) {
+    resetResourceId(hashTree) {
       hashTree.forEach(item => {
         item.resourceId = getUUID();
         if (item.hashTree && item.hashTree.length > 0) {
-          this.copySetRes(item.hashTree);
+          this.resetResourceId(item.hashTree);
         }
       })
     },
@@ -901,7 +901,7 @@ export default {
       let obj = JSON.parse(JSON.stringify(row));
       obj.resourceId = getUUID();
       if (obj.hashTree && obj.hashTree.length > 0) {
-        this.copySetRes(obj.hashTree);
+        this.resetResourceId(obj.hashTree);
       }
       if (obj.name) {
         obj.name = obj.name + '_copy';
@@ -1132,6 +1132,10 @@ export default {
           this.loading = false;
           this.sort();
         })
+      }
+      // 初始化resourceId
+      if (this.scenarioDefinition) {
+        this.resetResourceId(this.scenarioDefinition);
       }
     },
     setParameter() {

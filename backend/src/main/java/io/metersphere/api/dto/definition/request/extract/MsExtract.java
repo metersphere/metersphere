@@ -72,6 +72,9 @@ public class MsExtract extends MsTestElement {
         RegexExtractor extractor = new RegexExtractor();
         extractor.setEnabled(this.isEnable());
         extractor.setName(StringUtils.isNotEmpty(extractRegex.getVariable()) ? extractRegex.getVariable() : this.getName());
+        if(StringUtils.isEmpty(extractor.getName())){
+            extractor.setName("RegexExtractor");
+        }
         /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " RegexExtractor");*/
         extractor.setProperty(TestElement.TEST_CLASS, RegexExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("RegexExtractorGui"));
@@ -91,6 +94,9 @@ public class MsExtract extends MsTestElement {
         XPath2Extractor extractor = new XPath2Extractor();
         extractor.setEnabled(this.isEnable());
         extractor.setName(StringUtils.isNotEmpty(extractXPath.getVariable()) ? extractXPath.getVariable() : this.getName());
+        if(StringUtils.isEmpty(extractor.getName())){
+            extractor.setName("XPath2Extractor");
+        }
         /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " XPath2Extractor");*/
         extractor.setProperty(TestElement.TEST_CLASS, XPath2Extractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2ExtractorGui"));
@@ -107,6 +113,9 @@ public class MsExtract extends MsTestElement {
         JSONPostProcessor extractor = new JSONPostProcessor();
         extractor.setEnabled(this.isEnable());
         extractor.setName(StringUtils.isNotEmpty(extractJSONPath.getVariable()) ? extractJSONPath.getVariable() : this.getName());
+        if(StringUtils.isEmpty(extractor.getName())){
+            extractor.setName("JSONPostProcessor");
+        }
         /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " JSONExtractor");*/
         extractor.setProperty(TestElement.TEST_CLASS, JSONPostProcessor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPostProcessorGui"));
