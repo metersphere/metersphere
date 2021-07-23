@@ -728,6 +728,8 @@ export default {
       api_type: "請求類型",
       api_agreement: "協議/方法",
       api_path: "路徑",
+      api_definition_path: "API路徑",
+      api_case_path: "用例路徑",
       api_principal: "負責人",
       api_last_time: "最後更新時間",
       api_case_number: "用例數",
