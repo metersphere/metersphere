@@ -46,15 +46,15 @@ public class EasyExcelExporter {
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
         List<List<String>> list = new ArrayList<>();
-        List<String>aaaList = new ArrayList<>();
-        aaaList.add("aaaaa");
-        List<String>nameList = new ArrayList<>();
-        nameList.add("所属模块");
-        List<String>name2List = new ArrayList<>();
-        name2List.add("用例名称");
-        list.add(aaaList);
-        list.add(nameList);
-        list.add(name2List);
+//        List<String>aaaList = new ArrayList<>();
+//        aaaList.add("aaaaa");
+//        List<String>nameList = new ArrayList<>();
+//        nameList.add("所属模块");
+//        List<String>name2List = new ArrayList<>();
+//        name2List.add("用例名称");
+//        list.add(aaaList);
+//        list.add(nameList);
+//        list.add(name2List);
         try {
             response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
             if(CollectionUtils.isNotEmpty(excludeColumnFiledNames)){
