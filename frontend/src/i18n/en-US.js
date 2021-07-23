@@ -1627,7 +1627,7 @@ export default {
       operate_step: "Operate step",
       edit_component: "Edit component",
       base_info: "Base info",
-      mock_info: "Mock info",
+      mock_info: "Mock service",
       test_result: "Test result",
       result_distribution: "Result distribution",
       custom_component: "Custom",

@@ -83,7 +83,7 @@
 
         <!-- MOCK信息 -->
         <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
-        <div class="base-info">
+        <div class="base-info mock-info">
           <el-row>
             <el-col :span="20">
               Mock地址：
@@ -355,6 +355,10 @@
 
   .base-info .el-form-item {
     width: 100%;
+  }
+
+  .mock-info {
+    margin: 20px 45px;
   }
 
   .base-info .el-form-item >>> .el-form-item__content {
