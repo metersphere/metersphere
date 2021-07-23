@@ -172,6 +172,10 @@ export default {
     table: {
       select_tip: "已选中 {0} 条数据"
     },
+    selector: {
+      required: "必填",
+      not_required: "非必填",
+    },
     ssl: {
       config: "证书配置",
       files: "证书文件",
