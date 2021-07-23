@@ -171,6 +171,10 @@ export default {
     table: {
       select_tip: "Item {0} data is selected"
     },
+    selector: {
+      required: "Required",
+      not_required: "Not required",
+    },
     ssl: {
       config: "Config",
       files: "Files",
@@ -750,7 +754,7 @@ export default {
     definition: {
       api_title: "Api test",
       case_title: "Test Case",
-      doc_title: "Document",
+      doc_title: "DOC",
       api_name: "Api name",
       api_status: "Api status",
       api_type: "Api type",
@@ -758,8 +762,8 @@ export default {
       api_path: "Api path",
       api_principal: "Api principal",
       api_last_time: "Last update time",
-      api_case_number: "Number use case",
-      api_case_status: "Ise case status",
+      api_case_number: "Cases",
+      api_case_status: "Case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
       api_import: "Api Import",

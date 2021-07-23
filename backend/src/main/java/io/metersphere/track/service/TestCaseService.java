@@ -29,10 +29,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
-import io.metersphere.service.FileService;
-import io.metersphere.service.ProjectService;
-import io.metersphere.service.TestCaseTemplateService;
-import io.metersphere.service.UserService;
+import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
@@ -120,6 +117,8 @@ public class TestCaseService {
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
     private IssuesMapper issuesMapper;
+    @Resource
+    private CustomFieldService customFieldService;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -731,8 +730,9 @@ public class TestCaseService {
 
             List<List<String>> headList = testCaseExcelData.getHead(importFileNeedNum, customFields);
             EasyExcelExporter easyExcelExporter = new EasyExcelExporter(testCaseExcelData.getClass());
-            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum, headList);
-            easyExcelExporter.exportByCustomWriteHandler(response, headList, generateExportDatas(importFileNeedNum),
+            Map<String,List<String>> caseLevelAndStatusValueMap = testCaseTemplateService.getCaseLevelAndStatusMapByProjectId(projectId);
+            FunctionCaseTemplateWriteHandler handler = new FunctionCaseTemplateWriteHandler(importFileNeedNum,headList,caseLevelAndStatusValueMap);
+            easyExcelExporter.exportByCustomWriteHandler(response,headList, generateExportDatas(importFileNeedNum),
                     Translator.get("test_case_import_template_name"), Translator.get("test_case_import_template_sheet"), handler);
 
         } catch (Exception e) {
@@ -968,7 +968,6 @@ public class TestCaseService {
 
     /**
      * 更新自定义字段
-     *
      * @param request
      */
     public void editTestCaseBath(TestCaseBatchRequest request) {
@@ -1283,7 +1282,6 @@ public class TestCaseService {
                 if (editCustomFieldsPriority(dbCase, item.getPriority())) {
                     item.setCustomFields(dbCase.getCustomFields());
                 }
-                ;
                 editTestCase(item);
             }
         });
