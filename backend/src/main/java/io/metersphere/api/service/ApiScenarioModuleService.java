@@ -221,7 +221,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     private void validateNode(ApiScenarioModule node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
-            throw new RuntimeException(Translator.get("test_case_node_level_tip")
+            MSException.throwException(Translator.get("test_case_node_level_tip")
                     + TestCaseConstants.MAX_NODE_DEPTH + Translator.get("test_case_node_level"));
         }
         checkApiScenarioModuleExist(node);
