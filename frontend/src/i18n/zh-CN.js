@@ -761,6 +761,8 @@ export default {
       api_type: "请求类型",
       api_agreement: "协议/方法",
       api_path: "路径",
+      api_definition_path: "API路径",
+      api_case_path: "用例路径",
       api_principal: "负责人",
       api_last_time: "最后更新时间",
       api_case_number: "用例数",
