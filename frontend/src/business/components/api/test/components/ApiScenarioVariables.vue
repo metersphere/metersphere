@@ -101,7 +101,7 @@ export default {
       params.forEach(item => {
         let line = item.split(/，|,/);
         let required = false;
-        if (line[1] === '必填' || line[1] === 'true') {
+        if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
           required = true;
         }
         keyValues.push(new KeyValue({
