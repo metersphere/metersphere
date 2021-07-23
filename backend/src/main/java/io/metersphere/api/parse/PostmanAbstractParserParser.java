@@ -54,6 +54,9 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
      * @return
      */
     public String parseVariable(String value) {
+        if (StringUtils.isBlank(value)) {
+            return value;
+        }
         try {
             Pattern pattern = Pattern.compile("(\\{\\{(.*?)\\}\\})");
             Matcher matcher = pattern.matcher(value);
@@ -107,7 +110,11 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
             String k = parseVariable(item.getKey());
             String v = parseVariable(item.getValue());
             String desc = parseVariable(item.getDescription());
-            keyValues.add(new KeyValue(k, v, desc, item.getContentType()));
+            KeyValue keyValue = new KeyValue(k, v, desc, item.getContentType());
+            if (StringUtils.isNotBlank(item.getType()) && StringUtils.equals("file", item.getType())) {
+                keyValue.setType("file");
+            }
+            keyValues.add(keyValue);
         });
         return keyValues;
     }
