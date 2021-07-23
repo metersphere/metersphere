@@ -12,6 +12,7 @@ import io.metersphere.track.dto.*;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseNodeService;
 import io.metersphere.track.service.TestPlanProjectService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -32,7 +33,11 @@ public class ReportResultComponent extends ReportComponent {
         TestCaseNodeService testCaseNodeService = (TestCaseNodeService) CommonBeanFactory.getBean("testCaseNodeService");
         ExtTestCaseNodeMapper extTestCaseNodeMapper = (ExtTestCaseNodeMapper) CommonBeanFactory.getBean("extTestCaseNodeMapper");
         TestPlanProjectService testPlanProjectService = (TestPlanProjectService) CommonBeanFactory.getBean("testPlanProjectService");
-        List<TestCaseNodeDTO> nodes = extTestCaseNodeMapper.getNodeTreeByProjectIds(testPlanProjectService.getProjectIdsByPlanId(testPlan.getId()));
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(testPlan.getId());
+        if (CollectionUtils.isEmpty(projectIds)) {
+            projectIds.add(testPlan.getProjectId());
+        }
+        List<TestCaseNodeDTO> nodes = extTestCaseNodeMapper.getNodeTreeByProjectIds(projectIds);
         nodeTrees = testCaseNodeService.getNodeTrees(nodes);
         nodeTrees.forEach(item -> {
             Set<String> childIds = new HashSet<>();
