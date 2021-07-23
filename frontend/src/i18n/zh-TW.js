@@ -314,7 +314,7 @@ export default {
     field_type: '字段類型',
     field_option: '選項值',
     field_text: '選項內容',
-    field_value: '選項值',
+    field_value: '選項ID',
     add_field: '添加字段',
     api_field_name: 'API字段名',
     template_setting: '模板設置',
