@@ -727,6 +727,8 @@ export default {
       api_type: "Api type",
       api_agreement: "Method",
       api_path: "Api path",
+      api_definition_path: "API Path",
+      api_case_path: "Case Path",
       api_principal: "Api principal",
       api_last_time: "Last update time",
       api_case_number: "Number use case",
