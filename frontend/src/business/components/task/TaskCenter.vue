@@ -137,6 +137,7 @@ export default {
       ],
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
+      websocket:Object,
     };
   },
   props: {
@@ -144,11 +145,17 @@ export default {
   },
   created() {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
-      this.getTaskRunning();
       this.condition.executor = getCurrentUser().id;
     }
   },
-  methods: {
+  watch: {
+    taskVisible(v){
+      if(!v){
+        this.close();
+      }
+    }
+  },
+    methods: {
     format(item) {
       return '';
     },
@@ -186,10 +193,6 @@ export default {
       }
     },
     onClose(e) {
-      if (e.code === 1005) {
-        // 强制删除之后关闭socket，不用刷新report
-        return;
-      }
     },
     showTaskCenter() {
       this.getTaskRunning();
@@ -200,6 +203,7 @@ export default {
     close() {
       this.visible = false;
       this.taskVisible = false;
+      this.websocket.close();
     },
     open() {
       this.showTaskCenter();
