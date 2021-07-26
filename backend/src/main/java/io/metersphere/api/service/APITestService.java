@@ -4,7 +4,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.parse.ApiImport;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.old.ApiImportParser;
@@ -28,10 +31,10 @@ import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
-import io.metersphere.service.UserService;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
+import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
@@ -50,7 +53,7 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class APITestService {
     @Resource
-    private UserService userService;
+    private ApiTestEnvironmentService apiTestEnvironmentService;
     @Resource
     private ApiTestMapper apiTestMapper;
     @Resource
@@ -675,5 +678,28 @@ public class APITestService {
 
             }
         }
+    }
+
+    public JmxInfoDTO getJmxInfoDTO(RunDefinitionRequest runRequest, List<MultipartFile> bodyFiles) {
+        ParameterConfig config = new ParameterConfig();
+        config.setProjectId(runRequest.getProjectId());
+
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String, String> map = runRequest.getEnvironmentMap();
+        if (map != null && map.size() > 0) {
+            ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentService.get(map.get(runRequest.getProjectId()));
+            EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig.put(runRequest.getProjectId(), env);
+            config.setConfig(envConfig);
+        }
+        HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
+        String jmxString = runRequest.getTestElement().getJmx(hashTree);
+
+        String testName = runRequest.getName();
+
+        //将jmx处理封装为通用方法
+        JmxInfoDTO dto = updateJmxString(jmxString, testName, false);
+        dto.setName(runRequest.getName() + ".jmx");
+        return dto;
     }
 }

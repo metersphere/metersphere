@@ -6,6 +6,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
@@ -36,6 +37,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private SystemParameterService systemParameterService;
     @Resource
     private IssuesService issuesService;
+    @Resource
+    private PerformanceTestService performanceTestService;
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -54,6 +57,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
         initOperate(issuesService::syncThirdPartyIssues, "init.issue");
         initOperate(issuesService::issuesCount, "init.issueCount");
+        initOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
 
         try {
             Thread.sleep(1 * 60 * 1000);
@@ -65,6 +69,12 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     }
 
 
+    /**
+     * 处理初始化数据、兼容数据
+     * 只在第一次升级的时候执行一次
+     * @param initFuc
+     * @param key
+     */
     private void initOperate(RunInterface initFuc, final String key) {
         try {
             String value = systemParameterService.getValue(key);

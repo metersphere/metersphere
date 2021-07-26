@@ -79,6 +79,11 @@ public class FileUtils {
         return new File(path);
     }
 
+    public static File getBodyFileByName(String name, String requestId) {
+        String path = BODY_FILE_DIR + "/" + requestId + "/" + name;
+        return new File(path);
+    }
+
     public static void copyBdyFile(String originId, String toId) {
         try {
             FileUtil.copyDir(new File(FileUtils.BODY_FILE_DIR + "/" + originId),
