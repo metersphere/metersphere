@@ -101,15 +101,15 @@ export default {
         this.$warning(this.$t('test_track.comment.cannot_delete'));
         return;
       }
-      this.$get("/test/case/comment/delete/" + this.comment.id, () => {
-        this.$success(this.$t('commons.delete_success'));
-        this.$emit("refresh");
-      });
       if(this.imgNameList.length > 0){
         this.imgNameList.forEach(imgName => {
           this.$get('/resource/md/delete/' + imgName);
         });
       }
+      this.$get("/test/case/comment/delete/" + this.comment.id, () => {
+        this.$success(this.$t('commons.delete_success'));
+        this.$emit("refresh");
+      });
     },
     openEdit() {
       if (getCurrentUser().id !== this.comment.author) {
@@ -131,9 +131,9 @@ export default {
       let returnFlag = false;
       if(param){
         let message = param+"";
-        let messageSplitArr = message.split("](/resource/md/get/");
         let matchIndex = message.indexOf("](/resource/md/get/");
         if(matchIndex > 0){
+          let messageSplitArr = message.split("](/resource/md/get/");
           for(let itemIndex = 0;itemIndex < messageSplitArr.length; itemIndex ++){
             let itemStr = messageSplitArr[itemIndex];
             let picNameIndex = itemStr.indexOf("![");
@@ -148,7 +148,6 @@ export default {
 
                 let imgUrl = "/resource/md/get/"+itemStrArr;
                 this.src = imgUrl;
-
                 if(this.srcList.indexOf(itemStrArr) < 0){
                   this.srcList.push(imgUrl);
                 }
@@ -162,6 +161,37 @@ export default {
               }
             }
           }
+        }else{
+          let imgUrlIndex = message.indexOf("](http");
+          if(imgUrlIndex > 0){
+            let imgUrlSplitArr = message.split("](http");
+            for(let itemIndex = 0;itemIndex < imgUrlSplitArr.length; itemIndex ++){
+              let itemStr = imgUrlSplitArr[itemIndex];
+              let picNameIndex = itemStr.indexOf("![");
+              if( picNameIndex < 0){
+                let endUrlIndex = itemStr.indexOf(")");
+                if( endUrlIndex > 0){
+                  let itemStrArr = itemStr.substr(0,endUrlIndex);
+                  //if(imgNameList.)
+                  if(this.imgNameList.indexOf(itemStrArr) < 0){
+                    this.imgNameList.push(itemStrArr);
+                  }
+                  let imgUrl = "http"+itemStrArr;
+                  this.src = imgUrl;
+                  if(this.srcList.indexOf(itemStrArr) < 0){
+                    this.srcList.push(imgUrl);
+                  }
+                }
+              }else{
+                let inputStr = itemStr.substr(0,picNameIndex);
+                if(this.imgDescription === ""){
+                  this.imgDescription = inputStr;
+                }else {
+                  this.imgDescription = "\n" + inputStr;
+                }
+              }
+            }
+          }
         }
         if(this.srcList.length > 0){
           returnFlag = true;
@@ -169,6 +199,17 @@ export default {
       }
       return returnFlag;
     },
+    checkByUrls(url){
+      let checkResultFlag = false;
+      if(this.imgNameList.length > 0){
+        this.imgNameList.forEach(imgName => {
+          if(imgName === url){
+            checkResultFlag = true;
+          }
+        });
+      }
+      return checkResultFlag;
+    }
   }
 }
 </script>
