@@ -508,7 +508,7 @@ public class ApiTestCaseService {
     public void deleteBatchByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),null);
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), null);
         }
         this.deleteBatch(ids);
     }
@@ -516,7 +516,7 @@ public class ApiTestCaseService {
     public void editApiBathByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),null);
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), null);
         }
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
@@ -525,39 +525,6 @@ public class ApiTestCaseService {
             apiDefinitionWithBLOBs.setPriority(request.getPriority());
             apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
             apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
-        }
-        if ((StringUtils.isNotEmpty(request.getMethod()) || StringUtils.isNotEmpty(request.getPath())) && RequestType.HTTP.equals(request.getProtocol())) {
-            List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            bloBs.forEach(apiTestCase -> {
-                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
-                try {
-                    JSONObject element = JSON.parseObject(apiTestCase.getRequest());
-                    if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
-                        LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                        });
-                        req.setHashTree(elements);
-                    }
-                    if (StringUtils.isNotEmpty(request.getMethod())) {
-                        req.setMethod(request.getMethod());
-                    }
-                    if (StringUtils.isNotEmpty(request.getPath())) {
-                        req.setPath(request.getPath());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    LogUtil.error(e.getMessage());
-                }
-                String requestStr = JSON.toJSONString(req);
-                apiTestCase.setRequest(requestStr);
-                batchMapper.updateByPrimaryKeySelective(apiTestCase);
-            });
-            sqlSession.flushStatements();
-
         }
         if (StringUtils.isNotEmpty(request.getEnvId())) {
             List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
@@ -577,7 +544,44 @@ public class ApiTestCaseService {
         }
     }
 
-    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status,String apiId) {
+    public void updateByApiDefinitionId(List<String> ids, String path, String method, String protocol) {
+        if ((StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path) && RequestType.HTTP.equals(protocol))) {
+            ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
+            apiDefinitionExample.createCriteria().andApiDefinitionIdIn(ids);
+            List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            bloBs.forEach(apiTestCase -> {
+                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
+                try {
+                    JSONObject element = JSON.parseObject(apiTestCase.getRequest());
+                    if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                        LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                        });
+                        req.setHashTree(elements);
+                    }
+                    if (StringUtils.isNotEmpty(method)) {
+                        req.setMethod(method);
+                    }
+                    if (StringUtils.isNotEmpty(path)) {
+                        req.setPath(path);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LogUtil.error(e.getMessage());
+                }
+                String requestStr = JSON.toJSONString(req);
+                apiTestCase.setRequest(requestStr);
+                batchMapper.updateByPrimaryKeySelective(apiTestCase);
+            });
+            sqlSession.flushStatements();
+        }
+    }
+
+    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status, String apiId) {
         ApiTestCaseRequest selectRequest = new ApiTestCaseRequest();
         selectRequest.setFilters(filters);
         selectRequest.setModuleIds(moduleIds);
@@ -711,9 +715,9 @@ public class ApiTestCaseService {
             request.setIds(ids);
         }
         List<ApiTestCaseInfo> list = null;
-        if(StringUtils.isEmpty(request.getId()) && CollectionUtils.isEmpty(request.getIds())){
+        if (StringUtils.isEmpty(request.getId()) && CollectionUtils.isEmpty(request.getIds())) {
             list = new ArrayList<>();
-        }else {
+        } else {
             list = extApiTestCaseMapper.getCaseInfo(request);
         }
         for (ApiTestCaseInfo model : list) {
@@ -784,7 +788,7 @@ public class ApiTestCaseService {
     }
 
     public void deleteToGc(List<String> ids) {
-        if(CollectionUtils.isNotEmpty(ids)){
+        if (CollectionUtils.isNotEmpty(ids)) {
             ApiTestCaseRequest request = new ApiTestCaseRequest();
             request.setIds(ids);
             request.setDeleteUserId(SessionUtils.getUserId());
@@ -796,7 +800,7 @@ public class ApiTestCaseService {
     public void deleteToGcByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),request.getApiDefinitionId());
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), request.getApiDefinitionId());
         }
         this.deleteToGc(ids);
     }
@@ -804,22 +808,22 @@ public class ApiTestCaseService {
     public List<String> reduction(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAll()) {
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),null);
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), null);
         }
 
         List<String> cannotReductionAPiName = new ArrayList<>();
-        if(CollectionUtils.isNotEmpty(ids)){
+        if (CollectionUtils.isNotEmpty(ids)) {
             List<ApiTestCaseDTO> cannotReductionApiCaseList = extApiTestCaseMapper.getCannotReductionApiCaseList(ids);
             List<String> cannotReductionCaseId = new ArrayList<>();
-            for (ApiTestCaseDTO apiTestCaseDTO:cannotReductionApiCaseList) {
-                if(!cannotReductionAPiName.contains(apiTestCaseDTO.getApiName())){
+            for (ApiTestCaseDTO apiTestCaseDTO : cannotReductionApiCaseList) {
+                if (!cannotReductionAPiName.contains(apiTestCaseDTO.getApiName())) {
                     cannotReductionAPiName.add(apiTestCaseDTO.getApiName());
                 }
                 cannotReductionCaseId.add(apiTestCaseDTO.getId());
             }
             cannotReductionApiCaseList.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
             List<String> deleteIds = ids.stream().filter(id -> !cannotReductionCaseId.contains(id)).collect(Collectors.toList());
-            if(CollectionUtils.isNotEmpty(deleteIds)){
+            if (CollectionUtils.isNotEmpty(deleteIds)) {
                 extApiTestCaseMapper.checkOriginalStatusByIds(deleteIds);
                 extApiTestCaseMapper.reduction(deleteIds);
             }
@@ -828,9 +832,9 @@ public class ApiTestCaseService {
     }
 
     public List<String> selectCaseIdsByApiIds(List<String> apiIds) {
-        if(CollectionUtils.isEmpty(apiIds)){
-            return  new ArrayList<>(0);
-        }else {
+        if (CollectionUtils.isEmpty(apiIds)) {
+            return new ArrayList<>(0);
+        } else {
             return extApiTestCaseMapper.selectCaseIdsByApiIds(apiIds);
         }
     }
@@ -838,43 +842,43 @@ public class ApiTestCaseService {
     public DeleteCheckResult checkDeleteDatas(ApiTestBatchRequest request) {
         List<String> deleteIds = request.getIds();
         if (request.isSelectAll()) {
-            deleteIds = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(),request.getApiDefinitionId());
+            deleteIds = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus(), request.getApiDefinitionId());
         }
         DeleteCheckResult result = new DeleteCheckResult();
         List<String> checkMsgList = new ArrayList<>();
 
-        if(CollectionUtils.isNotEmpty(deleteIds)){
+        if (CollectionUtils.isNotEmpty(deleteIds)) {
             List<ApiScenarioReferenceId> apiScenarioReferenceIdList = apiScenarioReferenceIdService.findByReferenceIdsAndRefType(deleteIds, MsTestElementConstants.REF.name());
-            if(CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)){
-                Map<String,List<String>> scenarioDic = new HashMap<>();
-                apiScenarioReferenceIdList.forEach( item ->{
+            if (CollectionUtils.isNotEmpty(apiScenarioReferenceIdList)) {
+                Map<String, List<String>> scenarioDic = new HashMap<>();
+                apiScenarioReferenceIdList.forEach(item -> {
                     String refreceID = item.getReferenceId();
                     String scenarioId = item.getApiScenarioId();
-                    if(scenarioDic.containsKey(refreceID)){
+                    if (scenarioDic.containsKey(refreceID)) {
                         scenarioDic.get(refreceID).add(scenarioId);
-                    }else {
+                    } else {
                         List<String> list = new ArrayList<>();
                         list.add(scenarioId);
-                        scenarioDic.put(refreceID,list);
+                        scenarioDic.put(refreceID, list);
                     }
                 });
 
-                for (Map.Entry<String,List<String>> entry : scenarioDic.entrySet()){
+                for (Map.Entry<String, List<String>> entry : scenarioDic.entrySet()) {
                     String refreceId = entry.getKey();
                     List<String> scenarioIdList = entry.getValue();
-                    if(CollectionUtils.isNotEmpty(scenarioIdList)){
+                    if (CollectionUtils.isNotEmpty(scenarioIdList)) {
                         List<String> scenarioNameList = extApiScenarioMapper.selectNameByIdIn(scenarioIdList);
                         String deleteCaseName = extApiTestCaseMapper.selectNameById(refreceId);
 
-                        if(StringUtils.isNotEmpty(deleteCaseName) && CollectionUtils.isNotEmpty(scenarioNameList)){
+                        if (StringUtils.isNotEmpty(deleteCaseName) && CollectionUtils.isNotEmpty(scenarioNameList)) {
                             String nameListStr = "【";
                             for (String name : scenarioNameList) {
-                                nameListStr+= name +",";
+                                nameListStr += name + ",";
                             }
-                            if(nameListStr.length() > 1){
-                                nameListStr = nameListStr.substring(0,nameListStr.length()-1) + "】";
+                            if (nameListStr.length() > 1) {
+                                nameListStr = nameListStr.substring(0, nameListStr.length() - 1) + "】";
                             }
-                            String msg = deleteCaseName+" "+Translator.get("delete_check_reference_by")+": "+nameListStr+" ";
+                            String msg = deleteCaseName + " " + Translator.get("delete_check_reference_by") + ": " + nameListStr + " ";
                             checkMsgList.add(msg);
                         }
                     }
