@@ -10,6 +10,7 @@ import java.util.List;
 @Setter
 public class ApiScenrioExportJmx {
     private String name;
+    private String id;
     private String jmx;
     private Integer version;
 

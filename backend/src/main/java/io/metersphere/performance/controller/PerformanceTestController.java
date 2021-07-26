@@ -88,7 +88,7 @@ public class PerformanceTestController {
     @PostMapping(value = "/sync/scenario")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
     public void syncScenario(@RequestBody EditTestPlanRequest request) {
-        performanceTestService.syncScenario(request);
+        performanceTestService.syncApi(request);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})

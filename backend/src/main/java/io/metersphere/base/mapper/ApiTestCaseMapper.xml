@@ -18,6 +18,7 @@
     <result column="original_status" jdbcType="VARCHAR" property="originalStatus" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user_id" jdbcType="VARCHAR" property="deleteUserId" />
+    <result column="version" jdbcType="INTEGER" property="version" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -82,9 +83,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id, 
-    create_time, update_time, num, tags, last_result_id, `status`, original_status, delete_time, 
-    delete_user_id
+    id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id,
+    create_time, update_time, num, tags, last_result_id, `status`, original_status, delete_time,
+    delete_user_id, version
   </sql>
   <sql id="Blob_Column_List">
     description, request
@@ -120,7 +121,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select 
+    select
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -138,20 +139,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
-    insert into api_test_case (id, project_id, `name`, 
-      priority, api_definition_id, create_user_id, 
-      update_user_id, create_time, update_time, 
-      num, tags, last_result_id, 
-      `status`, original_status, delete_time, 
-      delete_user_id, description, request
-      )
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR}, 
-      #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{lastResultId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleteUserId,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}
-      )
+    insert into api_test_case (id, project_id, `name`,
+      priority, api_definition_id, create_user_id,
+      update_user_id, create_time, update_time,
+      num, tags, last_result_id,
+      `status`, original_status, delete_time,
+      delete_user_id, version, description,
+      request)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+      #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR},
+      #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
+      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{lastResultId,jdbcType=VARCHAR},
+      #{status,jdbcType=VARCHAR}, #{originalStatus,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT},
+      #{deleteUserId,jdbcType=VARCHAR}, #{version,jdbcType=INTEGER}, #{description,jdbcType=LONGVARCHAR},
+      #{request,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     insert into api_test_case
@@ -203,6 +204,9 @@
       </if>
       <if test="deleteUserId != null">
         delete_user_id,
+      </if>
+      <if test="version != null">
+        version,
       </if>
       <if test="description != null">
         description,
@@ -259,6 +263,9 @@
       </if>
       <if test="deleteUserId != null">
         #{deleteUserId,jdbcType=VARCHAR},
+      </if>
+      <if test="version != null">
+        #{version,jdbcType=INTEGER},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -325,6 +332,9 @@
       <if test="record.deleteUserId != null">
         delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
       </if>
+      <if test="record.version != null">
+        version = #{record.version,jdbcType=INTEGER},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -354,6 +364,7 @@
       original_status = #{record.originalStatus,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=INTEGER},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -377,7 +388,8 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       original_status = #{record.originalStatus,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR}
+      delete_user_id = #{record.deleteUserId,jdbcType=VARCHAR},
+      version = #{record.version,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -430,6 +442,9 @@
       <if test="deleteUserId != null">
         delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
       </if>
+      <if test="version != null">
+        version = #{version,jdbcType=INTEGER},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -456,6 +471,7 @@
       original_status = #{originalStatus,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -476,7 +492,8 @@
       `status` = #{status,jdbcType=VARCHAR},
       original_status = #{originalStatus,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
-      delete_user_id = #{deleteUserId,jdbcType=VARCHAR}
+      delete_user_id = #{deleteUserId,jdbcType=VARCHAR},
+      version = #{version,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
