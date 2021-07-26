@@ -2,10 +2,11 @@
   <div v-loading="result.loading">
     <div class="comment-list">
       <review-comment-item v-for="(comment) in comments" v-bind:key="comment.id"
+                           ref="reviewComments"
                            :comment="comment"
                            @refresh="refresh"
                            :review-status="reviewStatus"/>
-      <div v-if="comments.length === 0" style="text-align: center">
+      <div v-if="comments.length === 0" style="text-align: center" >
         <i class="el-icon-chat-line-square" style="font-size: 15px;color: #8a8b8d;">
         <span style="font-size: 15px; color: #8a8b8d;">
           {{ $t('test_track.comment.no_comment') }}
@@ -68,7 +69,7 @@ export default {
         fullscreen: false, // 全屏编辑
         readmodel: false, // 沉浸式阅读
         htmlcode: false, // 展示html源码
-        help: true, // 帮助
+        help: false, // 帮助
         /* 1.3.5 */
         undo: false, // 上一步
         redo: false, // 下一步
@@ -107,7 +108,9 @@ export default {
       this.result = this.$post('/test/case/comment/save', comment, () => {
         this.$success(this.$t('test_track.comment.send_success'));
         this.refresh();
-        this.$refs.md.toolbar_left_click('trash');
+        if(this.$refs.md){
+          this.$refs.md.toolbar_left_click('trash');
+        }
       });
     },
     /* inputLight() {
@@ -145,13 +148,15 @@ export default {
       return isImg;
     },
     imgDel(file) {
-      if (file && !this.clearImg) {
-        this.$get('/resource/md/delete/' + file[1].prefix + "_" + file[1].name);
-      }
+      let fileUrl = file[1].prefix + "_" + file[1].name;
+      let comments = this.$refs.reviewComments;
+      comments.forEach(item => {
+        let imgCheckResult = item.checkByUrls(fileUrl);
+        if(imgCheckResult){
+          item.deleteComment();
+        }
+      });
     },
-    alertComment(){
-      alert(JSON.stringify(this.comments))
-    }
   }
 };
 </script>
