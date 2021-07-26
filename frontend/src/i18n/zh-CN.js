@@ -1437,6 +1437,10 @@ export default {
         import_file: "上传文件",
         ignore_error: "忽略错误",
         continue_upload: "继续上传",
+        import_create: "导入新建",
+        import_update: "导入更新",
+        import_tip1: "项目设置中“测试用例自定义ID” 开关开启时ID为必填项",
+        import_tip2: "导入更新时ID为必填项",
       },
       export: {
         export: "导出用例",
