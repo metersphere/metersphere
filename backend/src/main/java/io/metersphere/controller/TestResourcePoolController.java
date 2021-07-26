@@ -6,6 +6,7 @@ import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.consul.CacheNode;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.dto.UpdatePoolDTO;
@@ -28,24 +29,28 @@ public class TestResourcePoolController {
 
     @PostMapping("/add")
     @MsAuditLog(module = "system_test_resource", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#testResourcePoolDTO.id)", msClass = TestResourcePoolService.class)
+    @CacheNode // 把监控节点缓存起来
     public TestResourcePoolDTO addTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         return testResourcePoolService.addTestResourcePool(testResourcePoolDTO);
     }
 
     @GetMapping("/delete/{testResourcePoolId}")
-    @MsAuditLog(module = "system_test_resource", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testResourcePoolId)",  msClass = TestResourcePoolService.class)
+    @MsAuditLog(module = "system_test_resource", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testResourcePoolId)", msClass = TestResourcePoolService.class)
+    @CacheNode // 把监控节点缓存起来
     public void deleteTestResourcePool(@PathVariable(value = "testResourcePoolId") String testResourcePoolId) {
         testResourcePoolService.deleteTestResourcePool(testResourcePoolId);
     }
 
     @PostMapping("/update")
     @MsAuditLog(module = "system_test_resource", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testResourcePoolDTO.id)", content = "#msClass.getLogDetails(#testResourcePoolDTO.id)", msClass = TestResourcePoolService.class)
+    @CacheNode // 把监控节点缓存起来
     public void updateTestResourcePool(@RequestBody TestResourcePoolDTO testResourcePoolDTO) {
         testResourcePoolService.updateTestResourcePool(testResourcePoolDTO);
     }
 
     @GetMapping("/update/{poolId}/{status}")
     @MsAuditLog(module = "system_test_resource", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#poolId)", content = "#msClass.getLogDetails(#poolId)", msClass = TestResourcePoolService.class)
+    @CacheNode // 把监控节点缓存起来
     public void updateTestResourcePoolStatus(@PathVariable String poolId, @PathVariable String status) {
         testResourcePoolService.updateTestResourcePoolStatus(poolId, status);
     }
