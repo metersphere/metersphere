@@ -265,7 +265,7 @@
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
         t1.id, t1.project_id, t1.name, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
-        a.module_id, a.path, a.protocol, t1.tags,TRIM('"' from JSON_EXTRACT(t1.request, '$.path') )as casePath,
+        a.module_id, a.path, a.protocol, t1.tags,
         t1.delete_time, deleteUser.name AS deleteUser
         from
         api_test_case t1
