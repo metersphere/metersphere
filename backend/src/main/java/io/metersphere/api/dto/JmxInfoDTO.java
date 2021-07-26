@@ -18,6 +18,7 @@ public class JmxInfoDTO {
     private String name;
     private String xml;
     private String id;
+    private Integer version;
     private Map<String, String> attachFiles;
     private List<FileMetadata> fileMetadataList;
 

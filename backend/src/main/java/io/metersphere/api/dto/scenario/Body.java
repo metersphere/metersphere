@@ -8,6 +8,7 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.entity.ContentType;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 
@@ -137,6 +138,9 @@ public class Body {
                     path = FileUtils.BODY_FILE_DIR + '/' + requestId + '/' + file.getName();
                 }
                 String mimetype = keyValue.getContentType();
+                if (StringUtils.isBlank(mimetype)) {
+                    mimetype = ContentType.APPLICATION_OCTET_STREAM.getMimeType();
+                }
                 list.add(new HTTPFileArg(path, paramName, mimetype));
             });
         }
