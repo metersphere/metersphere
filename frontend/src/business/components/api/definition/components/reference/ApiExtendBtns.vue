@@ -5,7 +5,7 @@
     </el-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-      <el-dropdown-item :disabled="isCaseEdit" command="create_performance">{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
+      <el-dropdown-item command="create_performance">{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
   </el-dropdown>
@@ -93,6 +93,8 @@
           jmxObj.attachFiles = response.data.attachFiles;
           jmxObj.attachByteFiles = response.data.attachByteFiles;
           jmxObj.caseId = reqObj.id;
+          jmxObj.version = row.version;
+          jmxObj.envId = this.environment;
           this.$store.commit('setTest', {
             name: row.name,
             jmx: jmxObj

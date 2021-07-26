@@ -979,6 +979,7 @@ export default {
                 jmxObj.attachFiles = item.attachFiles;
                 jmxObj.attachByteFiles = item.attachByteFiles;
                 jmxObj.scenarioId = item.id;
+                jmxObj.version = item.version;
                 jmxObjList.push(jmxObj);
               });
               this.$store.commit('setScenarioJmxs', {

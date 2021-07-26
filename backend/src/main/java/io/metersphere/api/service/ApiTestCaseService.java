@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
 import io.metersphere.api.dto.DeleteCheckResult;
+import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.MsTestElement;
@@ -42,6 +43,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.aspectj.util.FileUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -88,6 +90,9 @@ public class ApiTestCaseService {
     private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    @Lazy
+    private APITestService apiTestService;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -291,6 +296,7 @@ public class ApiTestCaseService {
         test.setPriority(request.getPriority());
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
+        test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
         if (StringUtils.equals("[]", request.getTags())) {
             test.setTags("");
         } else {
@@ -898,4 +904,55 @@ public class ApiTestCaseService {
         result.setCheckMsg(checkMsgList);
         return result;
     }
+
+    public List<JmxInfoDTO> exportJmx(List<String> caseIds, String envId) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(caseIds);
+        List<ApiTestCaseWithBLOBs> apiTestCases = apiTestCaseMapper.selectByExampleWithBLOBs(example);
+        List<JmxInfoDTO> list = new ArrayList<>();
+        apiTestCases.forEach(item -> {
+            list.add(parse2Jmx(item, envId));
+        });
+        return list;
+    }
+
+    private JmxInfoDTO parse2Jmx(ApiTestCaseWithBLOBs apiTestCase, String envId) {
+        String request = apiTestCase.getRequest();
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class);
+        msHTTPSamplerProxy.setName(apiTestCase.getId());
+        msHTTPSamplerProxy.setUseEnvironment(envId);
+
+        LinkedList<MsTestElement> hashTree = new LinkedList<>();
+        hashTree.add(msHTTPSamplerProxy);
+        MsThreadGroup msThreadGroup = new MsThreadGroup();
+        msThreadGroup.setHashTree(hashTree);
+        msThreadGroup.setName("ThreadGroup");
+        msThreadGroup.setLabel("ThreadGroup");
+        msThreadGroup.setId(UUID.randomUUID().toString());
+
+        LinkedList<MsTestElement> planHashTree = new LinkedList<>();
+        planHashTree.add(msThreadGroup);
+        MsTestPlan msTestPlan = new MsTestPlan();
+        msTestPlan.setHashTree(planHashTree);
+        msTestPlan.setId(UUID.randomUUID().toString());
+        msTestPlan.setName("TestPlan");
+        msTestPlan.setLabel("TestPlan");
+
+        HashMap<String, String> envMap = new HashMap<>();
+        envMap.put(apiTestCase.getProjectId(), envId);
+
+        RunDefinitionRequest runRequest = new RunDefinitionRequest();
+        runRequest.setEnvironmentMap(envMap);
+        runRequest.setEnvironmentId(envId);
+        runRequest.setId(apiTestCase.getId());
+        runRequest.setTestElement(msTestPlan);
+        runRequest.setProjectId(apiTestCase.getProjectId());
+
+        JmxInfoDTO jmxInfoDTO = apiTestService.getJmxInfoDTO(runRequest, new ArrayList<>());
+        jmxInfoDTO.setId(apiTestCase.getId());
+        jmxInfoDTO.setVersion(apiTestCase.getVersion());
+        jmxInfoDTO.setName(apiTestCase.getName());
+        return jmxInfoDTO;
+    }
+
 }

@@ -1961,6 +1961,7 @@ public class ApiAutomationService {
                 if (StringUtils.isNotEmpty(jmx)) {
                     ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true).getXml());
                     JmxInfoDTO dto = apiTestService.updateJmxString(jmx, item.getName(), true);
+                    scenrioExportJmx.setId(item.getId());
                     scenrioExportJmx.setVersion(item.getVersion());
                     //扫描需要哪些文件
                     scenrioExportJmx.setFileMetadataList(dto.getFileMetadataList());

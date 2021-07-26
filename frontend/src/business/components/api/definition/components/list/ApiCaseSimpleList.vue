@@ -857,6 +857,8 @@ export default {
         jmxObj.attachFiles = response.data.attachFiles;
         jmxObj.attachByteFiles = response.data.attachByteFiles;
         jmxObj.caseId = reqObj.id;
+        jmxObj.version = row.version;
+        jmxObj.envId = environment.id;
         this.$store.commit('setTest', {
           name: row.name,
           jmx: jmxObj
