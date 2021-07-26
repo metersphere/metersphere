@@ -488,10 +488,10 @@
     <select id="selectIds" resultType="java.lang.String">
         select api_definition.id
         from api_definition
-        left join project on api_definition.project_id = project.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
         select id,path,method
         from api_definition
@@ -589,9 +589,6 @@
                 </when>
                 <when test="request.projectId != null">
                     AND api_definition.project_id = #{request.projectId}
-                </when>
-                <when test="request.projectId != null">
-                    AND project.id = #{request.projectId}
                 </when>
                 <when test="request.workspaceId != null">
                     AND project.workspace_id = #{request.workspaceId}
