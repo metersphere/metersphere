@@ -241,20 +241,34 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(request.getIds());
             List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
-            Map<String, List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition::getModuleId));
+            Map<String,List<ApiDefinition>> nodeMap = new HashMap<>();
+            for (ApiDefinition api:reductionCaseList) {
+                String moduleId = api.getModuleId();
+                if(StringUtils.isEmpty(moduleId)){
+                    moduleId = "";
+                }
+                if(nodeMap.containsKey(moduleId)){
+                    nodeMap.get(moduleId).add(api);
+                }else {
+                    List<ApiDefinition> list = new ArrayList<>();
+                    list.add(api);
+                    nodeMap.put(moduleId,list);
+                }
+            }
+//            Map<String,List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition :: getModuleId));
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-            for (Map.Entry<String, List<ApiDefinition>> entry : nodeMap.entrySet()) {
+            for(Map.Entry<String,List<ApiDefinition>> entry : nodeMap.entrySet()){
                 String nodeId = entry.getKey();
                 long nodeCount = apiModuleService.countById(nodeId);
-                if (nodeCount <= 0) {
+                if(nodeCount <= 0){
                     String projectId = request.getProjectId();
-                    ApiModule node = apiModuleService.getDefaultNode(projectId, request.getProtocol());
+                    ApiModule node = apiModuleService.getDefaultNode(projectId,request.getProtocol());
                     List<ApiDefinition> testCaseList = entry.getValue();
-                    for (ApiDefinition apiDefinition : testCaseList) {
+                    for (ApiDefinition apiDefinition: testCaseList) {
                         ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
                         updateCase.setId(apiDefinition.getId());
                         updateCase.setModuleId(node.getId());
-                        updateCase.setModulePath("/" + node.getName());
+                        updateCase.setModulePath("/"+node.getName());
 
                         apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
                     }
@@ -537,7 +551,7 @@ public class ApiDefinitionService {
                 if (i == 0) {
                     nextNum = apiTestCaseService.getNextNum(item.getApiDefinitionId());
                 } else {
-                    nextNum++;
+                    nextNum ++;
                 }
                 checkRequest.setName(item.getName());
                 checkRequest.setApiDefinitionId(item.getApiDefinitionId());
@@ -649,10 +663,10 @@ public class ApiDefinitionService {
         }
 
 
-        try {
+        try{
             //检查TCP数据结构，等其他进行处理
             tcpApiParamService.checkTestElement(request.getTestElement());
-        } catch (Exception e) {
+        }catch (Exception e){
         }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
@@ -855,10 +869,6 @@ public class ApiDefinitionService {
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
-
-        // 同步修改用例
-        apiTestCaseService.updateByApiDefinitionId(request.getIds(), request.getPath(), request.getMethod(), request.getProtocol());
-
     }
 
     public void testPlanRelevance(ApiCaseRelevanceRequest request) {
@@ -1051,7 +1061,6 @@ public class ApiDefinitionService {
 
     /**
      * 列表开关切换
-     *
      * @param request
      */
     public void switchSchedule(Schedule request) {
@@ -1291,7 +1300,7 @@ public class ApiDefinitionService {
         List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
         List<String> apiIdList = new ArrayList<>();
         apiList.forEach(item -> {
-            apiIdList.add(item.getId());
+         apiIdList.add(item.getId());
         });
         this.removeToGc(apiIdList);
     }
