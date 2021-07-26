@@ -1,7 +1,7 @@
 <template>
   <div @click="exe" class="recycle" :class="{'is-active': condition.trashEnable}">
     <el-row>
-      <el-col :span="21"><i class="el-icon-delete"> 回收站</i></el-col>
+      <el-col :span="21"><i class="el-icon-delete"> {{$t('commons.trash')}}</i></el-col>
       <el-col :span="3"><span style="color: #6C317C">{{ total }}</span></el-col>
     </el-row>
   </div>
