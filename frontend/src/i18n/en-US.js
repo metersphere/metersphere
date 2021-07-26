@@ -1432,6 +1432,10 @@ export default {
         import_file: "upload files",
         ignore_error: "Ignore errors ",
         continue_upload: "Upload continue",
+        import_create: "Import Create",
+        import_update: "Import Update",
+        import_tip1: "The ID is required when the \"Test Case Custom ID\" switch is turned on in the project settings",
+        import_tip2: "ID is required when importing and updating",
       },
       export: {
         export: "Export cases",

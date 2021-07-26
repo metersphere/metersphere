@@ -122,7 +122,7 @@
                          :filters="field.name === '用例等级' ? priorityFilters : null"
                          :field="item"
                          :fields-width="fieldsWidth"
-                         :label="field.name"
+                         :label="field.system ? $t(systemFiledMap[field.name]) :field.name"
                          :min-width="90"
                          :prop="field.name">
           <template v-slot="scope">
@@ -191,6 +191,7 @@ import {getProjectMember} from "@/network/user";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import BatchMove from "@/business/components/track/case/components/BatchMove";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 
 export default {
   name: "TestCaseList",
@@ -321,6 +322,9 @@ export default {
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
     },
+    systemFiledMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    }
   },
   created: function () {
     this.$emit('setCondition', this.condition);
