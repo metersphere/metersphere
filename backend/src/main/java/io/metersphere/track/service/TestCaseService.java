@@ -1157,14 +1157,16 @@ public class TestCaseService {
         List<List<String>> selecteds = request.getSelected();
         TestCaseTest test = new TestCaseTest();
         LogUtil.info("关联的测试用例:" + selecteds);
-        selecteds.forEach(id -> {
-            test.setTestType(id.get(0));
-            test.setTestId(id.get(id.size() - 1));
-            test.setCreateTime(System.currentTimeMillis());
-            test.setUpdateTime(System.currentTimeMillis());
-            test.setTestCaseId(request.getId());
-            testCaseTestMapper.insert(test);
-        });
+        if (selecteds != null) {
+            selecteds.forEach(id -> {
+                test.setTestType(id.get(0));
+                test.setTestId(id.get(id.size() - 1));
+                test.setCreateTime(System.currentTimeMillis());
+                test.setUpdateTime(System.currentTimeMillis());
+                test.setTestCaseId(request.getId());
+                testCaseTestMapper.insert(test);
+            });
+        }
 
         // 新选择了一个文件，删除原来的文件
         List<FileMetadata> updatedFiles = request.getUpdatedFileList();
