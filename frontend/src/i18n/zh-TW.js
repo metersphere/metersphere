@@ -1477,6 +1477,10 @@ export default {
         import_file: "上傳文件",
         ignore_error: "忽略錯誤",
         continue_upload: "繼續上傳",
+        import_create: "導入新建",
+        import_update: "導入更新",
+        import_tip1: "項目設置中“測試用例自定義ID” 開關開啟時ID為必填項",
+        import_tip2: "導入更新時ID為必填項",
       },
       export: {
         export: "導出用例",

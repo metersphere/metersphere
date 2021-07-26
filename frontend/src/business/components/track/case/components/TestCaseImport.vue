@@ -5,8 +5,8 @@
     <el-tabs v-model="activeName" @tab-click="clickTabs" simple>
       <el-tab-pane :label="$t('test_track.case.import.excel_title')" name="excelImport">
         <el-row class="import-row" style="margin-left: 34px">
-          <el-radio v-model="importType" label="Create">导入新建</el-radio>
-          <el-radio v-model="importType" label="Update">导入更新</el-radio>
+          <el-radio v-model="importType" label="Create">{{$t('test_track.case.import.import_create')}}</el-radio>
+          <el-radio v-model="importType" label="Update">{{$t('test_track.case.import.import_create')}}</el-radio>
         </el-row>
         <el-row class="import-row">
           <div class="el-step__icon is-text" style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px">
@@ -17,10 +17,10 @@
         <el-row class="import-row">
           <div style="margin-left: 34px">
             <div v-if="importType === 'Create'">
-              项目设置中“测试用例自定义ID” 开关开启时ID为必填项
+              {{$t('test_track.case.import.import_tip1')}}
             </div>
             <div v-else >
-              导入更新时ID为必填项
+              {{$t('test_track.case.import.import_tip2')}}
             </div>
 
           </div>
@@ -84,8 +84,8 @@
       <!-- Xmind 导入 -->
       <el-tab-pane :label="$t('test_track.case.import.xmind_title')" name="xmindImport" style="border: 0px">
         <el-row class="import-row" style="margin-left: 34px">
-          <el-radio v-model="importType" label="Create">导入新建</el-radio>
-          <el-radio v-model="importType" label="Update">导入更新</el-radio>
+          <el-radio v-model="importType" label="Create">{{$t('test_track.case.import.import_create')}}</el-radio>
+          <el-radio v-model="importType" label="Update">{{$t('test_track.case.import.import_create')}}</el-radio>
         </el-row>
         <el-row class="import-row">
           <div class="el-step__icon is-text" style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px">
@@ -95,10 +95,10 @@
         </el-row>
         <el-row class="import-row" style="margin-left: 34px">
           <div v-if="importType === 'Create'">
-            项目设置中“测试用例自定义ID” 开关开启时ID为必填项
+            {{$t('test_track.case.import.import_tip1')}}
           </div>
           <div v-else >
-            导入更新时ID为必填项
+            {{$t('test_track.case.import.import_tip2')}}
           </div>
         </el-row>
 <!--        <el-row class="import-row">-->

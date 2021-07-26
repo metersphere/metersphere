@@ -1,12 +1,12 @@
 <template>
   <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
     <mavon-editor v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
-                  :subfield="disabled ? false : true" :toolbars="toolbars" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
+                  :subfield="disabled ? false : true" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
 </template>
 
 <script>
-import {getUUID} from "@/common/js/utils";
+import {getCurrentUser, getUUID} from "@/common/js/utils";
 export default {
   name: "FormRichTextItem",
   components: {},
@@ -56,6 +56,20 @@ export default {
         return true;
       }
       return false;
+    },
+    language() {
+      const user = getCurrentUser();
+      const language = user.language;
+      switch (language) {
+        case 'zh_CN':
+          return 'zh-CN';
+        case 'zh_TW':
+          return 'zh-TW';
+        case 'en_US':
+          return 'en';
+        default:
+          return 'zh-CN';
+      }
     }
   },
   methods: {
