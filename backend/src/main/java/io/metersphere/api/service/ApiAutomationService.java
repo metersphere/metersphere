@@ -570,7 +570,20 @@ public class ApiAutomationService {
             ApiScenarioExample example = new ApiScenarioExample();
             example.createCriteria().andIdIn(ids);
             List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
-            Map<String,List<ApiScenario>> nodeMap = scenarioList.stream().collect(Collectors.groupingBy(ApiScenario :: getApiScenarioModuleId));
+            Map<String,List<ApiScenario>> nodeMap = new HashMap<>();
+            for (ApiScenario api:scenarioList) {
+                String moduleId = api.getApiScenarioModuleId();
+                if(StringUtils.isEmpty(moduleId)){
+                    moduleId = "";
+                }
+                if(nodeMap.containsKey(moduleId)){
+                    nodeMap.get(moduleId).add(api);
+                }else {
+                    List<ApiScenario> list = new ArrayList<>();
+                    list.add(api);
+                    nodeMap.put(moduleId,list);
+                }
+            }
             ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
             for(Map.Entry<String,List<ApiScenario>> entry : nodeMap.entrySet()){
                 String nodeId = entry.getKey();
