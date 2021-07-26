@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.consul.CacheNode;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
@@ -74,6 +75,7 @@ public class PerformanceTestController {
     @PostMapping(value = "/save", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "performance_test", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_CREATE)
+    @CacheNode // 把监控节点缓存起来
     public String save(
             @RequestPart("request") SaveTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
@@ -92,6 +94,7 @@ public class PerformanceTestController {
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "performance_test", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT)
+    @CacheNode // 把监控节点缓存起来
     public String edit(
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
@@ -141,6 +144,7 @@ public class PerformanceTestController {
     @PostMapping("/delete")
     @MsAuditLog(module = "performance_test", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE)
+    @CacheNode // 把监控节点缓存起来
     public void delete(@RequestBody DeleteTestPlanRequest request) {
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         performanceTestService.delete(request);
@@ -191,6 +195,7 @@ public class PerformanceTestController {
     @PostMapping(value = "/copy")
     @MsAuditLog(module = "performance_test", type = OperLogConstants.COPY, content = "#msClass.getLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_COPY)
+    @CacheNode // 把监控节点缓存起来
     public void copy(@RequestBody SaveTestPlanRequest request) {
         performanceTestService.copy(request);
     }

@@ -19,15 +19,24 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class ConsulService {
+    private final Map<String, List<String>> cache = new ConcurrentHashMap<>();
     @Resource
     private TestResourcePoolService testResourcePoolService;
     @Resource
     private PerformanceTestService performanceTestService;
 
     public Map<String, List<String>> getActiveNodes() {
+        if (cache.size() == 0) {
+            updateCache();
+        }
+        return cache;
+    }
+
+    public void updateCache() {
         Map<String, List<String>> result = new HashMap<>();
 
         QueryResourcePoolRequest resourcePoolRequest = new QueryResourcePoolRequest();
@@ -65,6 +74,7 @@ public class ConsulService {
                 result.put(node.getIp() + "-" + port, Collections.singletonList("metersphere"));
             }
         }
-        return result;
+        cache.clear();
+        cache.putAll(result);
     }
 }
