@@ -61,6 +61,8 @@ export default {
       failsTreeNodes: [],
       totalTime: 0,
       isRequestResult: false,
+      startTime : 99991611737506593,
+      endTime : 0,
       request: {},
       isActive: false,
       scenarioName: null,
@@ -245,10 +247,10 @@ export default {
         this.$success(this.$t('schedule.event_success'));
       });
     },
-    getTransaction(transRequests, startTime, endTime, resMap) {
+    getTransaction(transRequests,resMap) {
       transRequests.forEach(subItem => {
         if (subItem.method === 'Request') {
-          this.getTransaction(subItem.subRequestResults, startTime, endTime, resMap);
+          this.getTransaction(subItem.subRequestResults, resMap);
         }
         this.reqTotal++;
         let key = subItem.resourceId;
@@ -264,18 +266,18 @@ export default {
         } else {
           this.reqError++;
         }
-        if (subItem.startTime && Number(subItem.startTime) < startTime) {
-          startTime = subItem.startTime;
+        if (subItem.startTime && Number(subItem.startTime) < this.startTime) {
+          this.startTime = subItem.startTime;
         }
-        if (subItem.endTime && Number(subItem.endTime) > endTime) {
-          endTime = subItem.endTime;
+        if (subItem.endTime && Number(subItem.endTime) > this.endTime) {
+          this.endTime = subItem.endTime;
         }
       })
     },
     formatResult(res) {
       let resMap = new Map;
-      let startTime = 99991611737506593;
-      let endTime = 0;
+      this.startTime = 99991611737506593;
+      this.endTime = 0;
       this.clearDebug();
       if (res && res.scenarios) {
         res.scenarios.forEach(item => {
@@ -286,7 +288,7 @@ export default {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
               if (req.method === 'Request') {
-                this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
+                this.getTransaction(req.subRequestResults, resMap);
               } else {
                 this.reqTotal++;
                 let key = req.resourceId;
@@ -302,19 +304,19 @@ export default {
                 } else {
                   this.reqError++;
                 }
-                if (req.startTime && Number(req.startTime) < startTime) {
-                  startTime = req.startTime;
+                if (req.startTime && Number(req.startTime) < this.startTime) {
+                  this.startTime = req.startTime;
                 }
-                if (req.endTime && Number(req.endTime) > endTime) {
-                  endTime = req.endTime;
+                if (req.endTime && Number(req.endTime) > this.endTime) {
+                  this.endTime = req.endTime;
                 }
               }
             })
           }
         })
       }
-      if (startTime < endTime) {
-        this.totalTime = endTime - startTime + 100;
+      if (this.startTime < this.endTime) {
+        this.totalTime = this.endTime - this.startTime + 100;
       }
       this.debugResult = resMap;
       this.setTreeValue(this.fullTreeNodes);
