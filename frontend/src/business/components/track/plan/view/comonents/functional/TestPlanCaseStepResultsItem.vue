@@ -37,7 +37,7 @@
             class="table-edit-input"
             size="mini"
             type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
+            :autosize="{ minRows: 1, maxRows: 4}"
             :rows="2"
             :disabled="isReadOnly"
             v-model="scope.row.actualResult"
@@ -87,4 +87,7 @@ export default {
 </script>
 
 <style scoped>
+/deep/ .table-edit-input .el-textarea__inner, .table-edit-input .el-input__inner {
+  border-style: solid;
+}
 </style>
