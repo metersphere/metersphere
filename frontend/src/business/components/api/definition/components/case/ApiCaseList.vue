@@ -102,9 +102,7 @@ export default {
       },
       api: {},
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'method', name: this.$t('api_test.definition.api_type')},
-        {id: 'path', name: this.$t('api_test.request.path')},
+        {id: 'priority', name: this.$t('test_track.case.priority')}
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},

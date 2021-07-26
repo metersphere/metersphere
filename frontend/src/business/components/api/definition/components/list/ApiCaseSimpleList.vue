@@ -83,14 +83,6 @@
             :fields-width="fieldsWidth"
             :label="'API'+ $t('api_test.definition.api_path')"/>
 
-          <ms-table-column
-            sortable
-            prop="casePath"
-            min-width="180px"
-            :field="item"
-            :fields-width="fieldsWidth"
-            :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
-
           <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
@@ -269,9 +261,7 @@ export default {
         },
       ],
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'method', name: this.$t('api_test.definition.api_type')},
-        {id: 'path', name: this.$t('api_test.request.path')},
+        {id: 'priority', name: this.$t('test_track.case.priority')}
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},
