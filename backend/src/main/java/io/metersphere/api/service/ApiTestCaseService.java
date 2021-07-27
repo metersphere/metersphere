@@ -593,8 +593,20 @@ public class ApiTestCaseService {
         return ids;
     }
 
+    public void batchRun(ApiCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiTestCaseMapper.selectIdsByQuery(query));
+        request.getIds().forEach(id -> {
+            RunCaseRequest runCaseRequest = new RunCaseRequest();
+            runCaseRequest.setRunMode(ApiRunMode.DEFINITION.name());
+            runCaseRequest.setCaseId(id);
+            runCaseRequest.setEnvironmentId(request.getEnvironmentId());
+            run(runCaseRequest);
+        });
+    }
+
     public String run(RunCaseRequest request) {
-        ApiTestCaseWithBLOBs testCaseWithBLOBs = new ApiTestCaseWithBLOBs();
+        ApiTestCaseWithBLOBs testCaseWithBLOBs = null;
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
             testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
             request.setCaseId(request.getReportId());
@@ -620,7 +632,7 @@ public class ApiTestCaseService {
                 jMeterService.runLocal(request.getCaseId(), jmeterHashTree, request.getReportId(), request.getRunMode());
 
             } catch (Exception ex) {
-                LogUtil.error(ex.getMessage());
+                LogUtil.error(ex.getMessage(), ex);
             }
         }
         return request.getReportId();
