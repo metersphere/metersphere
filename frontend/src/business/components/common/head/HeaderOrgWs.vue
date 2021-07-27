@@ -14,7 +14,7 @@
                 'WORKSPACE_USER:READ']">
       <template v-slot:title>
         <div class="org-ws-name" :title="currentOrganizationName + '-' + currentWorkspaceName">
-          <div>{{ currentWorkspaceName || currentOrganizationName }}</div>
+          {{ currentWorkspaceName || currentOrganizationName }}
         </div>
       </template>
       <el-input :placeholder="$t('project.search_by_name')"
@@ -270,7 +270,7 @@ export default {
 .org-ws-name {
   display: inline-block;
   padding-left: 15px;
-  max-width: 110px;
+  max-width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
