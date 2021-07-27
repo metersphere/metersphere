@@ -162,6 +162,12 @@ public class ApiTestCaseController {
         apiTestCaseService.relevanceByApiByReview(request);
     }
 
+    @PostMapping(value = "/batch/run")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
+    public void batchRun(@RequestBody ApiCaseBatchRequest request) {
+        apiTestCaseService.batchRun(request);
+    }
+
     @PostMapping(value = "/jenkins/run")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
     public String jenkinsRun(@RequestBody RunCaseRequest request) {
