@@ -28,10 +28,10 @@
                     :popper-append-to-body="true"
                     :key="index">
           <template v-slot:title>
-            <div @click="changeOrg(item)">
+            <el-menu-item @click="changeOrg(item)">
               {{ item.name }}
               <i class="el-icon-check" v-if="item.id === getCurrentOrganizationId()"></i>
-            </div>
+            </el-menu-item>
           </template>
           <el-input :placeholder="$t('project.search_by_name')"
                     prefix-icon="el-icon-search"
@@ -55,7 +55,13 @@
 </template>
 
 <script>
-import {getCurrentOrganizationId, getCurrentUser, getCurrentWorkspaceId, saveLocalStorage} from "@/common/js/utils";
+import {
+  fullScreenLoading,
+  getCurrentOrganizationId,
+  getCurrentUser,
+  getCurrentWorkspaceId,
+  saveLocalStorage, stopFullScreenLoading
+} from "@/common/js/utils";
 import {ORGANIZATION_ID, PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
@@ -166,6 +172,7 @@ export default {
       if (!orgId) {
         return false;
       }
+      const loading = fullScreenLoading(this);
       this.$post("/user/switch/source/org/" + orgId, {}, response => {
         saveLocalStorage(response);
 
@@ -174,7 +181,7 @@ export default {
         sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
 
         this.$router.push(this.getRedirectUrl(response.data)).then(() => {
-          this.reloadTopMenus();
+          this.reloadTopMenus(stopFullScreenLoading(loading));
         }).catch(err => err);
       });
     },
@@ -184,6 +191,7 @@ export default {
       if (!workspaceId) {
         return false;
       }
+      const loading = fullScreenLoading(this);
       this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
         saveLocalStorage(response);
 
@@ -192,7 +200,7 @@ export default {
         sessionStorage.setItem(PROJECT_ID, response.data.lastProjectId);
 
         this.$router.push(this.getRedirectUrl(response.data)).then(() => {
-          this.reloadTopMenus();
+          this.reloadTopMenus(stopFullScreenLoading(loading));
         }).catch(err => err);
       });
     },
