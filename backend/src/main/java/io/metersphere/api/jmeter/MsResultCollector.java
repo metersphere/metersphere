@@ -21,14 +21,17 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.engine.util.NoThreadClone;
 import org.apache.jmeter.reporters.AbstractListenerElement;
 import org.apache.jmeter.samplers.*;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.testelement.property.BooleanProperty;
+import org.apache.jmeter.threads.JMeterVariables;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 实时结果监听
@@ -124,6 +127,16 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
     @Override
     public void sampleOccurred(SampleEvent event) {
         SampleResult result = event.getResult();
+        JMeterVariables variables = JMeterVars.get(result.hashCode());
+        if (variables != null && CollectionUtils.isNotEmpty(variables.entrySet())) {
+            StringBuilder builder = new StringBuilder();
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                builder.append(entry.getKey()).append("：").append(entry.getValue()).append("\n");
+            }
+            if (StringUtils.isNotEmpty(builder)) {
+                result.setExtVars(builder.toString());
+            }
+        }
         if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
             msResultService.setCache(this.getName(), result);
         }
