@@ -169,6 +169,7 @@ export default {
         '    <div style="margin-left: 100px">\n' +
         '        <p>${testName} 接口测试运行失败/成功<br/>\n' +
         '        <p>执行人:${executor}</p>' +
+        '        <p>负责人:${principal}</p>' +
         '        <p>执行环境:${executionEnvironment}</p>' +
         '        <p>执行时间:${executionTime}</p>' +
         '            请点击下面链接进入测试报告页面</p>\n' +
@@ -181,7 +182,9 @@ export default {
         '</body>\n' +
         '</html>',
       robotTitle:
-        "测试【任务通知】:'${executor}所执行的 ${testName} ${type}测试运行${status}," + "\n" +
+        "测试【任务通知】:'${testName} ${type}测试运行${status}," + "\n" +
+        "执行人:${executor}" + "\n" +
+        "负责人:${principal}" + "\n" +
         "测试环境为:${executionEnvironment}" + "\n" +
         "执行时间：${executionTime}" + "\n" +
         "请点击下面链接进入测试报告页面" + "\n" +
