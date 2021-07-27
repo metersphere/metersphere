@@ -27,6 +27,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.UUID;
 
@@ -162,5 +164,10 @@ public class TestPlanController {
         api.setReportType("iddReport");
         String apiRunConfig = JSONObject.toJSONString(api);
         return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
+    }
+
+    @GetMapping("/report/export/{planId}")
+    public void exportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+        testPlanService.exportPlanReport(planId, response);
     }
 }

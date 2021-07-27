@@ -55,6 +55,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,7 +93,7 @@ public class TestPlanService {
     @Resource
     TestCaseReportMapper testCaseReportMapper;
     @Resource
-    TestPlanProjectMapper testPlanProjectMapper;
+    TestCaseReportService testCaseReportService;
     @Resource
     TestPlanProjectService testPlanProjectService;
     @Resource
@@ -1188,5 +1195,52 @@ public class TestPlanService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+        TestPlan testPlan = getTestPlan(planId);
+        if (StringUtils.isBlank(testPlan.getReportId())) {
+            MSException.throwException("请先创建报告");
+        }
+        TestCaseReport testCaseReport = testCaseReportService.getTestCaseReport(testPlan.getReportId());
+        String content = testCaseReport.getContent();
+        JSONArray components = JSONObject.parseObject(content).getJSONArray("components");
+        List<TestPlanPreviewsDTO.Preview> previews = new ArrayList<>();
+        components.forEach(item -> {
+            previews.add(TestPlanPreviewsDTO.get((Integer) item));
+        });
+        TestCaseReportMetricDTO metric = getMetric(planId);
+        render(previews, metric, response);
+    }
+
+    public void render(List<TestPlanPreviewsDTO.Preview> previews, TestCaseReportMetricDTO metric, HttpServletResponse response) throws UnsupportedEncodingException {
+        response.reset();
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("test", StandardCharsets.UTF_8.name()));
+
+        try (InputStreamReader isr = new InputStreamReader(getClass().getResourceAsStream("/public/plan-report.html"), StandardCharsets.UTF_8);
+             ServletOutputStream outputStream = response.getOutputStream()) {
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            String line = null;
+            while (null != (line = bufferedReader.readLine())) {
+                line = line.replace("\"#metric\"", JSONObject.toJSONString(metric));
+                line = line.replace("\"#preview\"", JSONObject.toJSONString(previews));
+                line += "\n";
+                byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
+                int start = 0;
+                while (start < lineBytes.length) {
+                    if (start + 1024 < lineBytes.length) {
+                        outputStream.write(lineBytes, start, 1024);
+                    } else {
+                        outputStream.write(lineBytes, start, lineBytes.length - start);
+                    }
+                    outputStream.flush();
+                    start += 1024;
+                }
+            }
+        } catch (Exception e) {
+            MSException.throwException(e.getMessage());
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 }

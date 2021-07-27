@@ -19,7 +19,7 @@
         <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
           {{$t('test_track.plan_view.export_report')}}
         </el-button>
-        <el-button v-xpack :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml(report.name)">
+        <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml(report.name)">
           {{'导出HTML'}}
         </el-button>
       </el-col>
@@ -217,7 +217,7 @@
       },
       handleExportHtml(name) {
         let config = {
-          url: '/export/template/plan/report/' + this.planId,
+          url: '/test/plan/report/export/' + this.planId,
           method: 'get',
           responseType: 'blob'
         };
