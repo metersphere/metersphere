@@ -278,7 +278,9 @@ function getCustomTableHeaderByFiledSetting(key, fieldSetting) {
  * @returns {[]|*}
  */
 export function getTableHeaderWithCustomFields(key, customFields) {
-  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]]; // 复制
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+  fieldSetting = JSON.parse(JSON.stringify(fieldSetting)); // 复制，国际化
+  translateLabel(fieldSetting);
   let keys = getCustomFieldsKeys(customFields);
   customFields.forEach(item => {
     if (!item.key) {
@@ -297,6 +299,16 @@ export function getTableHeaderWithCustomFields(key, customFields) {
   return getCustomTableHeaderByFiledSetting(key, fieldSetting);
 }
 
+export function translateLabel(fieldSetting) {
+  if (fieldSetting) {
+    fieldSetting.forEach(item => {
+      if (item.label) {
+        item.label = i18n.t(item.label);
+      }
+    });
+  }
+}
+
 /**
  * 获取所有字段
  * @param key
@@ -305,6 +317,8 @@ export function getTableHeaderWithCustomFields(key, customFields) {
  */
 export function getAllFieldWithCustomFields(key, customFields) {
   let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+  fieldSetting = JSON.parse(JSON.stringify(fieldSetting));
+  translateLabel(fieldSetting);
   if (customFields) {
     customFields.forEach(item => {
       let field = {

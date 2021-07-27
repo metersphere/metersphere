@@ -45,6 +45,13 @@ public class ApiAutomationController {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    @PostMapping("/list")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public List<ApiScenarioDTO> listAll(@RequestBody ApiScenarioRequest request) {
+
+        return apiAutomationService.list(request);
+    }
+
     @PostMapping("/list/all")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {
@@ -122,6 +129,12 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.removeToGcByBatch(request);
+    }
+
+    @PostMapping("/checkBeforeDelete")
+    public DeleteCheckResult checkBeforeDelete(@RequestBody ApiScenarioBatchRequest request) {
+        DeleteCheckResult checkResult = apiAutomationService.checkBeforeDelete(request);
+        return checkResult;
     }
 
     @PostMapping("/reduction")

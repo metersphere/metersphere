@@ -126,7 +126,7 @@ public class JMeterService {
         init();
         FixedTask.tasks.put(testId, System.currentTimeMillis());
         addBackendListener(testId, debugReportId, runMode, testPlan);
-        if (ExecuteType.Debug.name().equals(debugReportId)) {
+        if (ExecuteType.Debug.name().equals(debugReportId) || ApiRunMode.SCENARIO.name().equals(runMode)) {
             addResultCollector(testId, testPlan);
         }
         LocalRunner runner = new LocalRunner(testPlan);

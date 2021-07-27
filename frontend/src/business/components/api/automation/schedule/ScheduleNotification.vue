@@ -214,6 +214,14 @@ export default {
   mounted() {
     this.initForm()
   },
+  activated() {
+    this.initForm()
+  },
+  watch:{
+    testId(){
+      this.initForm();
+    }
+  },
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/' + this.testId, response => {

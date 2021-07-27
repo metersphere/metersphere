@@ -239,10 +239,10 @@ export default {
   },
   data() {
     return {
-      projectName:"",
+      projectName: "",
       type: TEST_CASE_LIST,
-      tableHeaderKey:"TRACK_TEST_CASE",
-      screenHeight: 'calc(100vh - 250px)',
+      tableHeaderKey: "TRACK_TEST_CASE",
+      screenHeight: 'calc(100vh - 258px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
       condition: {
@@ -310,7 +310,7 @@ export default {
         {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+COPY']
         },
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
@@ -365,8 +365,13 @@ export default {
     },
   },
   created: function () {
+    this.getTemplateField();
     this.$emit('setCondition', this.condition);
-    this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    if(this.trashEnable){
+      this.condition.filters = {status: ["Trash"]};
+    }else {
+      this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
+    }
     let orderArr = this.getSortField();
     if(orderArr){
       this.condition.orders = orderArr;
@@ -497,10 +502,13 @@ export default {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
       }
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        // param.nodeIds = this.selectNodeIds;
-        this.condition.nodeIds = this.selectNodeIds;
+      if(!this.trashEnable){
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          // param.nodeIds = this.selectNodeIds;
+          this.condition.nodeIds = this.selectNodeIds;
+        }
       }
+
       this.getData();
     },
     getData() {
@@ -541,6 +549,9 @@ export default {
           this.page.data = data.listObject;
           if (this.$refs.table) {
             this.$refs.table.clear();
+            this.$nextTick(() => {
+              this.$refs.table.doLayout();
+            });
           }
           this.page.data.forEach(item => {
             if (item.customFields) {
@@ -589,6 +600,7 @@ export default {
     reduction(testCase){
       let param = {};
       param.ids = [testCase.id];
+      param.projectId = getCurrentProjectID();
       this.$post('/test/case/reduction', param, () => {
         this.$emit('refreshTable');
         this.initTableData();

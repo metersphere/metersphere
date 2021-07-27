@@ -6,10 +6,10 @@
                top="50px">
 
       <el-container class="main-content">
-        <el-aside class="tree-aside" width="250px">
+        <el-aside class="tree-aside" width="270px">
           <select-menu
             :data="projects"
-            width="160px"
+            width="173px"
             :current-data="currentProject"
             :title="$t('test_track.switch_project')"
             @dataChange="changeProject"/>
@@ -77,7 +77,7 @@
 
             </el-table>
             <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
-            <div style="text-align: center">共 {{total}} 条</div>
+            <div style="text-align: center">{{$t('test_track.total_size', [total])}}</div>
           </el-main>
         </el-container>
       </el-container>
@@ -388,6 +388,9 @@ export default {
 
   .node-tree {
     margin-right: 10px;
+    height: 52vh;
+    overflow-y: auto;
+    padding-right: 4px;
   }
 
   .el-header {

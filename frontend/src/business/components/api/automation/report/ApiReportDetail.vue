@@ -123,7 +123,6 @@ export default {
         let key = item.name;
         let nodeArray = key.split('^@~@^');
         let children = tree;
-
         //运行场景中如果连续将1个场景引入多次，会出现运行结果合并的情况。
         //为了解决这种问题，在转hashTree的时候给场景放了个新ID，前台加载解析的时候也要做处理
         let scenarioId = "";

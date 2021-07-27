@@ -292,7 +292,7 @@ public class TestCaseReviewService {
         // 发送通知
         try {
             List<String> userIds = new ArrayList<>();
-            userIds.add(SessionUtils.getUser().getId());
+            userIds.add(testCaseReview.getCreator());
             SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
             BeanUtils.copyProperties(testCaseReviewRequest, testCaseReview);
             String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.DELETE);

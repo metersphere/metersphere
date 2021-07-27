@@ -90,7 +90,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
         List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
 
-        String url = "https://api.tapd.cn/bugs";
         String tapdId = getProjectId(issuesRequest.getProjectId());
 
         if (StringUtils.isBlank(tapdId)) {

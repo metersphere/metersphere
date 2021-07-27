@@ -41,7 +41,6 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String SETUP_THREAD_GROUP = "SetupThreadGroup";
     private final static String BACKEND_LISTENER = "BackendListener";
     private final static String CONFIG_TEST_ELEMENT = "ConfigTestElement";
-    private final static String DNS_CACHE_MANAGER = "DNSCacheManager";
     private final static String ARGUMENTS = "Arguments";
     private final static String RESPONSE_ASSERTION = "ResponseAssertion";
     private final static String HTTP_SAMPLER_PROXY = "HTTPSamplerProxy";
@@ -96,7 +95,6 @@ public class JmeterDocumentParser implements DocumentParser {
                         parseHashTree(ele);
                     } else if (nodeNameEquals(ele, TEST_PLAN)) {
                         processCheckoutConfigTestElement(ele);
-                        processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
                         processCheckoutResponseAssertion(ele);
                         processCheckoutSerializeThreadgroups(ele);
@@ -118,9 +116,6 @@ public class JmeterDocumentParser implements DocumentParser {
                         processBackendListener(ele);
                     } else if (nodeNameEquals(ele, CONFIG_TEST_ELEMENT)) {
                         processConfigTestElement(ele);
-                    } else if (nodeNameEquals(ele, DNS_CACHE_MANAGER)) {
-                        // todo dns cache manager bug:  https://bz.apache.org/bugzilla/show_bug.cgi?id=63858
-                        // processDnsCacheManager(ele);
                     } else if (nodeNameEquals(ele, ARGUMENTS)) {
                         processArguments(ele);
                     } else if (nodeNameEquals(ele, RESPONSE_ASSERTION)) {
@@ -286,6 +281,9 @@ public class JmeterDocumentParser implements DocumentParser {
         int resourceIndex = context.getResourceIndex();
         String filename = item.getTextContent();
         byte[] content = context.getTestResourceFiles().get(filename);
+        if (content == null) {
+            return;
+        }
         StringTokenizer tokenizer = new StringTokenizer(new String(content), "\n");
         if (!tokenizer.hasMoreTokens()) {
             return;
@@ -458,59 +456,6 @@ public class JmeterDocumentParser implements DocumentParser {
         hashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));
     }
 
-    private void processCheckoutDnsCacheManager(Element ele) {
-        if (context.getProperty("domains") == null || JSON.parseArray(context.getProperty("domains").toString()).size() == 0) {
-            return;
-        }
-        Node hashTree = ele.getNextSibling();
-        while (!(hashTree instanceof Element)) {
-            hashTree = hashTree.getNextSibling();
-        }
-
-        NodeList childNodes = hashTree.getChildNodes();
-        for (int i = 0, size = childNodes.getLength(); i < size; i++) {
-            Node item = childNodes.item(i);
-            if (nodeNameEquals(item, DNS_CACHE_MANAGER)) {
-                // 已经存在不再添加
-                return;
-            }
-        }
-         /*
-        <DNSCacheManager guiclass="DNSCachePanel" testclass="DNSCacheManager" testname="DNS Cache Manager" enabled="true">
-        <collectionProp name="DNSCacheManager.servers"/>
-        <collectionProp name="DNSCacheManager.hosts">
-          <elementProp name="baiud.com" elementType="StaticHost">
-            <stringProp name="StaticHost.Name">baiud.com</stringProp>
-            <stringProp name="StaticHost.Address">172.16.10.187</stringProp>
-          </elementProp>
-        </collectionProp>
-        <boolProp name="DNSCacheManager.clearEachIteration">true</boolProp>
-        <boolProp name="DNSCacheManager.isCustomResolver">true</boolProp>
-      </DNSCacheManager>
-         */
-
-        Document document = ele.getOwnerDocument();
-        Element element = document.createElement(DNS_CACHE_MANAGER);
-        element.setAttribute("guiclass", "DNSCachePanel");
-        element.setAttribute("testclass", "DNSCacheManager");
-        element.setAttribute("testname", "DNS Cache Manager");
-        element.setAttribute("enabled", "true");
-        Element collectionProp = document.createElement(COLLECTION_PROP);
-        collectionProp.setAttribute("name", "DNSCacheManager.servers");
-        element.appendChild(collectionProp);
-
-        Element collectionProp2 = document.createElement(COLLECTION_PROP);
-        collectionProp2.setAttribute("name", "DNSCacheManager.hosts");
-        element.appendChild(collectionProp2);
-
-        element.appendChild(createBoolProp(document, "DNSCacheManager.clearEachIteration", true));
-        element.appendChild(createBoolProp(document, "DNSCacheManager.isCustomResolver", true));
-
-        hashTree.appendChild(element);
-        // 空的 hashTree
-        hashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));
-    }
-
     private void processCheckoutConfigTestElement(Element ele) {
         if (context.getProperty("timeout") == null || StringUtils.isBlank(context.getProperty("timeout").toString())) {
             return;
@@ -599,43 +544,6 @@ public class JmeterDocumentParser implements DocumentParser {
                         item.appendChild(elementProp);
                     }
                 }
-            }
-        }
-
-    }
-
-    private void processDnsCacheManager(Element ele) {
-
-        Object domains = context.getProperty("domains");
-        if (!(domains instanceof List)) {
-            return;
-        }
-        if (((List) domains).size() == 0) {
-            return;
-        }
-        NodeList childNodes = ele.getChildNodes();
-        for (int i = 0, size = childNodes.getLength(); i < size; i++) {
-            Node item = childNodes.item(i);
-            if (item instanceof Element && nodeNameEquals(item, "collectionProp")
-                    && org.apache.commons.lang3.StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.hosts")) {
-
-                Document document = item.getOwnerDocument();
-                for (Object d : (List) domains) {
-                    JSONObject jsonObject = JSON.parseObject(d.toString());
-                    if (!jsonObject.getBooleanValue("enable")) {
-                        continue;
-                    }
-                    Element elementProp = document.createElement("elementProp");
-                    elementProp.setAttribute("name", jsonObject.getString("domain"));
-                    elementProp.setAttribute("elementType", "StaticHost");
-                    elementProp.appendChild(createStringProp(document, "StaticHost.Name", jsonObject.getString("domain")));
-                    elementProp.appendChild(createStringProp(document, "StaticHost.Address", jsonObject.getString("ip")));
-                    item.appendChild(elementProp);
-                }
-            }
-            if (item instanceof Element && nodeNameEquals(item, BOOL_PROP)
-                    && org.apache.commons.lang3.StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.isCustomResolver")) {
-                item.getFirstChild().setNodeValue("true");
             }
         }
 
@@ -846,12 +754,17 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) durations).remove(0);
             duration = o.toString();
         }
+        Object onSampleErrors = context.getProperty("onSampleError");
+        String onSampleError = "continue";
+        if (onSampleErrors instanceof List) {
+            Object o = ((List<?>) onSampleErrors).get(0);
+            ((List<?>) onSampleErrors).remove(0);
+            onSampleError = o.toString();
+        }
         Object units = context.getProperty("unit");
-        String unit = "S";
         if (units instanceof List) {
             Object o = ((List<?>) units).get(0);
             ((List<?>) units).remove(0);
-            unit = o.toString();
         }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
@@ -868,17 +781,6 @@ public class JmeterDocumentParser implements DocumentParser {
             enabled = o.toString();
         }
 
-        switch (unit) {
-            case "M":
-                duration = String.valueOf(Long.parseLong(duration) * 60);
-                break;
-            case "H":
-                duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
-                break;
-            default:
-                break;
-        }
-
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
             threadGroup.setAttribute("enabled", "false");
@@ -892,7 +794,7 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
         elementProp.appendChild(createStringProp(document, "LoopController.loops", "-1"));
         threadGroup.appendChild(elementProp);
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", onSampleError));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.num_threads", threads));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.ramp_time", rampUp));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", duration));
@@ -961,12 +863,17 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) holds).remove(0);
             hold = o.toString();
         }
+        Object onSampleErrors = context.getProperty("onSampleError");
+        String onSampleError = "continue";
+        if (onSampleErrors instanceof List) {
+            Object o = ((List<?>) onSampleErrors).get(0);
+            ((List<?>) onSampleErrors).remove(0);
+            onSampleError = o.toString();
+        }
         Object units = context.getProperty("unit");
-        String unit = "S";
         if (units instanceof List) {
             Object o = ((List<?>) units).get(0);
             ((List<?>) units).remove(0);
-            unit = o.toString();
         }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
@@ -983,17 +890,6 @@ public class JmeterDocumentParser implements DocumentParser {
             enabled = o.toString();
         }
 
-        switch (unit) {
-            case "M":
-                hold = String.valueOf(Long.parseLong(hold) * 60);
-                break;
-            case "H":
-                hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
-                break;
-            default:
-                break;
-        }
-
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
             threadGroup.setAttribute("enabled", "false");
@@ -1002,7 +898,7 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.setAttribute("name", "ThreadGroup.main_controller");
         elementProp.setAttribute("elementType", "com.blazemeter.jmeter.control.VirtualUserController");
         threadGroup.appendChild(elementProp);
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", onSampleError));
         threadGroup.appendChild(createStringProp(document, "TargetLevel", threads));
         threadGroup.appendChild(createStringProp(document, "RampUp", rampUp));
         threadGroup.appendChild(createStringProp(document, "Steps", step));
@@ -1097,6 +993,13 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) iterateNum).remove(0);
             loops = o.toString();
         }
+        Object onSampleErrors = context.getProperty("onSampleError");
+        String onSampleError = "continue";
+        if (onSampleErrors instanceof List) {
+            Object o = ((List<?>) onSampleErrors).get(0);
+            ((List<?>) onSampleErrors).remove(0);
+            onSampleError = o.toString();
+        }
         Object rampUps = context.getProperty("iterateRampUpTime");
         String rampUp = "10";
         if (rampUps instanceof List) {
@@ -1133,7 +1036,7 @@ public class JmeterDocumentParser implements DocumentParser {
         elementProp.appendChild(createStringProp(document, "LoopController.loops", loops));
         threadGroup.appendChild(elementProp);
 
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", onSampleError));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.num_threads", threads));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.ramp_time", rampUp));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.scheduler", false)); // 不指定执行时间

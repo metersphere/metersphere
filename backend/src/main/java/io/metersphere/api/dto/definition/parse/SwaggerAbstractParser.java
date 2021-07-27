@@ -13,8 +13,10 @@ public abstract class SwaggerAbstractParser extends ApiImportAbstractParser<ApiD
     protected void buildModule(ApiModule parentModule, ApiDefinitionWithBLOBs apiDefinition,
                                List<String> tags, String selectModulePath) {
         if (CollectionUtils.isEmpty(tags)) {
-            apiDefinition.setModuleId(parentModule.getId());
-            apiDefinition.setModulePath(selectModulePath);
+            if (parentModule != null) {
+                apiDefinition.setModuleId(parentModule.getId());
+                apiDefinition.setModulePath(selectModulePath);
+            }
         } else {
             tags.forEach(tag -> {
                 ApiModule module = ApiDefinitionImportUtil.buildModule(parentModule, tag, this.projectId);

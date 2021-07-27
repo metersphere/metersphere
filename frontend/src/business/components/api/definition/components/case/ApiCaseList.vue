@@ -30,7 +30,9 @@
                            @showExecResult="showExecResult"
                            @batchEditCase="batchEditCase"
                            @batchRun="batchRun"
+                           @apiCaseSelected="apiCaseSelected"
                            :environment="environment"
+                           :select-size="selectSize"
                            :is-case-edit="isCaseEdit"
                            :api="api"
                            :runResult="runResult"
@@ -44,7 +46,7 @@
     <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :data-count="selectdCases.length" :value-arr="valueArr"/>
   </div>
 </template>
 <script>
@@ -82,6 +84,7 @@ export default {
       environment: "",
       isReadOnly: false,
       selectedEvent: Object,
+      selectSize: 0,
       priorities: CASE_ORDER,
       apiCaseList: [],
       batchLoadingIds: [],
@@ -99,9 +102,7 @@ export default {
       },
       api: {},
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'method', name: this.$t('api_test.definition.api_type')},
-        {id: 'path', name: this.$t('api_test.request.path')},
+        {id: 'priority', name: this.$t('test_track.case.priority')}
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -141,6 +142,16 @@ export default {
     },
   },
   methods: {
+    apiCaseSelected(){
+      this.selectSize = 0;
+      if (this.apiCaseList.length > 0) {
+        this.apiCaseList.forEach(item => {
+          if (item.selected && item.id) {
+            this.selectSize ++;
+          }
+        });
+      }
+    },
     open(api, testCaseId) {
       this.api = api;
       // testCaseId 不为空则为用例编辑页面

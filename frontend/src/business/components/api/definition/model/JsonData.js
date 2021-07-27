@@ -96,6 +96,12 @@ export const TEST = [
   {id: 'testcase', name: '接口用例', module: 'api'},
   {id: 'automation', name: '场景测试', module: 'api'}
 ];
+export const TEST_CASE = [
+  {value: 'HTTP', label: 'HTTP', leaf: true},
+  {value: 'TCP', label: 'TCP', leaf: true},
+  {value: 'DUBBO', label: 'DUBBO', leaf: true},
+  {value: 'SQL', label: 'SQL', leaf: true}
+];
 
 export const API_METHOD_COLOUR = [
   ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],

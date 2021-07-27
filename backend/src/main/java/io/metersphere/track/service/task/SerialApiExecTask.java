@@ -34,9 +34,9 @@ public class SerialApiExecTask<T> implements Callable<T> {
     public T call() {
         try {
             if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReportId(), runMode, null, config);
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config);
             } else {
-                jMeterService.runLocal(runModeDataDTO.getReportId(), runModeDataDTO.getHashTree(), null, runMode);
+                jMeterService.runLocal(runModeDataDTO.getApiCaseId(), runModeDataDTO.getHashTree(), null, runMode);
             }
             // 轮询查看报告状态，最多200次，防止死循环
             ApiDefinitionExecResult report = null;
@@ -44,7 +44,7 @@ public class SerialApiExecTask<T> implements Callable<T> {
             while (index < 200) {
                 Thread.sleep(3000);
                 index++;
-                report = mapper.selectByPrimaryKey(runModeDataDTO.getReportId());
+                report = mapper.selectByPrimaryKey(runModeDataDTO.getApiCaseId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
                     break;
                 }

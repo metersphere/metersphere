@@ -15,9 +15,14 @@
                 @sort-change="sort"
                 @filter-change="filter"
                 :height="screenHeight"
-                @row-click="jumpPage"
       >
-        <el-table-column prop="name" :label="$t('commons.name')" min-width="100" show-overflow-tooltip/>
+        <el-table-column prop="name" :label="$t('commons.name')" min-width="100" show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <el-link type="primary" class="member-size" @click="jumpPage(scope.row)">
+              {{ scope.row.name }}
+            </el-link>
+          </template>
+        </el-table-column>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
           <template v-slot:default="scope">
             <pre>{{ scope.row.description }}</pre>
@@ -120,6 +125,14 @@
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+          <ms-instructions-icon effect="light">
+            <template>
+              禅道流程：产品-项目 | 产品-迭代 | 产品-冲刺 | 项目-迭代 | 项目-冲刺 <br/><br/>
+              根据 "后台 -> 自定义 -> 流程" 查看对应流程，根据流程填写ID <br/><br/>
+              产品-项目 | 产品-迭代 | 产品-冲刺 需要填写产品ID <br/><br/>
+              项目-迭代 | 项目-冲刺 需要填写项目ID
+            </template>
+          </ms-instructions-icon>
         </el-form-item>
         <el-form-item :label-width="labelWidth" :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
@@ -349,8 +362,26 @@ export default {
   },
   methods: {
     jumpPage(row) {
-      window.sessionStorage.setItem(PROJECT_ID, row.id);
-      this.$router.push('/track/home');
+      this.currentWorkspaceRow = row;
+      this.currentProjectId = row.id;
+      let param = {
+        name: '',
+        projectId: row.id
+      };
+      this.wsId = row.id;
+      let path = "/user/project/member/list";
+      this.result = this.$post("/user/project/member/list", param, res => {
+        let data = res.data;
+        this.memberLineData = data;
+        let arr = this.memberLineData.filter(item => item.id == getCurrentUserId());
+        if (arr.length > 0) {
+          window.sessionStorage.setItem(PROJECT_ID, row.id);
+          this.$router.push('/track/home');
+        } else {
+          this.$message(this.$t("commons.project_permission"));
+        }
+      });
+
     },
     getMaintainerOptions() {
       let workspaceId = getCurrentWorkspaceId();

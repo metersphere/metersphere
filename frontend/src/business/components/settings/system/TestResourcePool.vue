@@ -319,7 +319,7 @@ export default {
       this.infoList.forEach(info => {
         for (let key in info) {
           // 排除非必填项
-          if (key === 'nodeSelector') {
+          if (key === 'nodeSelector' || key === 'apiImage') {
             continue;
           }
           if (info[key] != '0' && !info[key]) {

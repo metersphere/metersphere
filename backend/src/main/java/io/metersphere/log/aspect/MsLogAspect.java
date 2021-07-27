@@ -86,16 +86,25 @@ public class MsLogAspect {
                 for (int len = 0; len < params.length; len++) {
                     context.setVariable(params[len], args[len]);
                 }
-                for (Class clazz : msLog.msClass()) {
-                    context.setVariable("msClass", applicationContext.getBean(clazz));
-                }
-                Expression expression = parser.parseExpression(msLog.beforeEvent());
-                String beforeContent = expression.getValue(context, String.class);
                 InvocationHandler invocationHandler = Proxy.getInvocationHandler(msLog);
                 Field value = invocationHandler.getClass().getDeclaredField("memberValues");
                 value.setAccessible(true);
-                Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
-                memberValues.put("beforeValue", beforeContent);
+                boolean isNext = false;
+                for (Class clazz : msLog.msClass()) {
+                    if (clazz.getName().equals("io.metersphere.commons.utils.SessionUtils")) {
+                        Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
+                        memberValues.put("operUser", SessionUtils.getUserId());
+                        continue;
+                    }
+                    context.setVariable("msClass", applicationContext.getBean(clazz));
+                    isNext = true;
+                }
+                if (isNext) {
+                    Expression expression = parser.parseExpression(msLog.beforeEvent());
+                    String beforeContent = expression.getValue(context, String.class);
+                    Map<String, Object> memberValues = (Map<String, Object>) value.get(invocationHandler);
+                    memberValues.put("beforeValue", beforeContent);
+                }
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
@@ -139,6 +148,9 @@ public class MsLogAspect {
                 }
 
                 for (Class clazz : msLog.msClass()) {
+                    if (clazz.getName().equals("io.metersphere.commons.utils.SessionUtils")) {
+                        continue;
+                    }
                     context.setVariable("msClass", applicationContext.getBean(clazz));
                 }
                 // 项目ID 表达式

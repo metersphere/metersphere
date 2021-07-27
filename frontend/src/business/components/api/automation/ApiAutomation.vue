@@ -20,6 +20,27 @@
 
     <ms-main-container style="overflow: hidden">
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
+        <el-tab-pane
+          name="trash"
+          :label="$t('commons.trash')" v-if="trashEnable">
+          <ms-api-scenario-list
+            @getTrashCase="getTrashCase"
+            @refreshTree="refreshTree"
+            :module-tree="nodeTree"
+            :module-options="moduleOptions"
+            :select-node-ids="selectNodeIds"
+            :trash-enable="true"
+            :checkRedirectID="checkRedirectID"
+            :isRedirectEdit="isRedirectEdit"
+            :is-read-only="isReadOnly"
+            @openScenario="editScenario"
+            @edit="editScenario"
+            @changeSelectDataRangeAll="changeSelectDataRangeAll"
+            :custom-num="customNum"
+            :init-api-table-opretion="initApiTableOpretion"
+            @updateInitApiTableOpretion="updateInitApiTableOpretion"
+            ref="apiTrashScenarioList"/>
+        </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
             @getTrashCase="getTrashCase"
@@ -27,7 +48,7 @@
             :module-tree="nodeTree"
             :module-options="moduleOptions"
             :select-node-ids="selectNodeIds"
-            :trash-enable="trashEnable"
+            :trash-enable="false"
             :checkRedirectID="checkRedirectID"
             :isRedirectEdit="isRedirectEdit"
             :is-read-only="isReadOnly"
@@ -39,6 +60,7 @@
             @updateInitApiTableOpretion="updateInitApiTableOpretion"
             ref="apiScenarioList"/>
         </el-tab-pane>
+
 
         <el-tab-pane
           :key="item.name"
@@ -156,12 +178,14 @@ export default {
     },
     selectNodeIds() {
       this.activeName = "default";
+    },
+    activeName(){
     }
   },
   methods: {
     hasPermission,
-    exportAPI() {
-      this.$refs.apiScenarioList.exportApi();
+    exportAPI(nodeTree) {
+      this.$refs.apiScenarioList.exportApi(nodeTree);
     },
     exportJmx() {
       this.$refs.apiScenarioList.exportJmx();
@@ -222,6 +246,8 @@ export default {
     addTab(tab) {
       if (tab.name === 'default') {
         this.$refs.apiScenarioList.search();
+      } else if(tab.name === 'trash'){
+        this.$refs.apiTrashScenarioList.search();
       }
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -322,10 +348,16 @@ export default {
     saveScenario(data) {
       this.setTabLabel(data);
       this.$refs.apiScenarioList.search(data);
+      if(this.$refs.apiTrashScenarioList){
+        this.$refs.apiTrashScenarioList.search(data);
+      }
     },
     refresh(data) {
       this.setTabTitle(data);
       this.$refs.apiScenarioList.search(data);
+      if(this.$refs.apiTrashScenarioList){
+        this.$refs.apiTrashScenarioList.search(data);
+      }
       this.$refs.nodeTree.list();
     },
     refreshTree() {
@@ -334,6 +366,9 @@ export default {
     refreshAll() {
       this.$refs.nodeTree.list();
       this.$refs.apiScenarioList.search();
+      if(this.$refs.apiTrashScenarioList){
+        this.$refs.apiTrashScenarioList.search();
+      }
     },
     setTabTitle(data) {
       for (let index in this.tabs) {
@@ -365,6 +400,12 @@ export default {
       this.activeName = "default";
       this.initApiTableOpretion = "enableTrash";
       this.trashEnable = data;
+      if(data){
+        this.activeName = "trash";
+      }else {
+        this.activeName = "default";
+      }
+
       this.getTrashCase();
     },
     getTrashCase() {

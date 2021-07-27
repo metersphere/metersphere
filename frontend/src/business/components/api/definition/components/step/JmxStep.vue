@@ -13,6 +13,14 @@
         <!--后置脚本-->
         <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')"
                              :jsr223-processor="row" color="#783887" background-color="#F2ECF3"/>
+        <!--前置SQL-->
+        <ms-jdbc-processor v-if="row.label ==='JDBC PreProcessor'" :title="$t('api_test.definition.request.pre_sql')"
+                           @copyRow="copyRow" @remove="remove" :is-read-only="false"
+                           :request="row" :jdbc-processor="row" color="#783887" background-color="#F2ECF3"/>
+        <!--后置SQL-->
+        <ms-jdbc-processor v-if="row.label ==='JDBC PostProcessor'" :title="$t('api_test.definition.request.post_sql')"
+                           @copyRow="copyRow" @remove="remove" :is-read-only="false"
+                           :request="row" :jdbc-processor="row" color="#783887" background-color="#F2ECF3"/>
         <!--断言规则-->
         <div style="margin-top: 10px">
           <ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
@@ -35,10 +43,12 @@
   import {getUUID} from "@/common/js/utils";
   import BatchAddParameter from "../basis/BatchAddParameter";
   import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+  import MsJdbcProcessor from "@/business/components/api/automation/scenario/component/JDBCProcessor";
 
   export default {
     name: "MsJmxStep",
     components: {
+      MsJdbcProcessor,
       MsJsr233Processor,
       BatchAddParameter,
       MsApiExtract,
@@ -188,7 +198,7 @@
           params.forEach(item => {
             let line = item.split(/，|,/);
             let required = false;
-            if (line[1] === '必填' || line[1] === 'true') {
+            if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
               required = true;
             }
             keyValues.push(new KeyValue({name: line[0], required: required, value: line[2], description: line[3], type: "text", valid: false, file: false, encode: true, enable: true, contentType: "text/plain"}));

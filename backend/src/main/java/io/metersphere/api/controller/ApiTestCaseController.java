@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
+import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
@@ -146,6 +147,10 @@ public class ApiTestCaseController {
     public void deleteToGcByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteToGcByParam(request);
     }
+    @PostMapping("/checkDeleteDatas")
+    public DeleteCheckResult checkDeleteDatas(@RequestBody ApiTestBatchRequest request) {
+        return apiTestCaseService.checkDeleteDatas(request);
+    }
 
     @PostMapping("/relevance")
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
@@ -155,6 +160,12 @@ public class ApiTestCaseController {
     @PostMapping("/relevance/review")
     public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByApiByReview(request);
+    }
+
+    @PostMapping(value = "/batch/run")
+    @MsAuditLog(module = "api_definition", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.caseId)", msClass = ApiTestCaseService.class)
+    public void batchRun(@RequestBody ApiCaseBatchRequest request) {
+        apiTestCaseService.batchRun(request);
     }
 
     @PostMapping(value = "/jenkins/run")

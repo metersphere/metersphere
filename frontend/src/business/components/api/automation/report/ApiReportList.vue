@@ -121,13 +121,12 @@ export default {
         {text: this.$t('commons.trigger_mode.manual'), value: 'MANUAL'},
         {text: this.$t('commons.trigger_mode.schedule'), value: 'SCHEDULE'},
         {text: this.$t('commons.trigger_mode.api'), value: 'API'},
-        {text: this.$t('commons.trigger_mode.case'), value: 'CASE'},
         {text: this.$t('api_test.automation.batch_execute'), value: 'BATCH'},
 
       ],
       buttons: [
         {
-          name: this.$t('api_report.batch_delete'), handleClick: this.handleBatchDelete
+          name: this.$t('api_report.batch_delete'), handleClick: this.handleBatchDelete, permissions: ['PROJECT_API_REPORT:READ+DELETE']
         }
       ],
       selectRows: new Set(),

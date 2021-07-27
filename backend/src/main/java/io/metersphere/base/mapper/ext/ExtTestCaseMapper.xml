@@ -511,6 +511,17 @@
         </where>
     </select>
 
+    <select id="selectIdsByNodeIds" resultType="java.lang.String">
+        select id
+        from test_case
+        <where>
+            node_id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
     <update id="deleteToGc">
         update test_case set original_status=status,
         status = 'Trash',
@@ -529,4 +540,14 @@
             #{v}
         </foreach>
     </update>
+    <update id="checkOriginalStatusByIds">
+        update test_case
+        set
+        original_status = 'Underway'
+        where (original_status IS NULL OR original_status = 'Trash') AND id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+
 </mapper>

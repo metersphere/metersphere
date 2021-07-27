@@ -13,7 +13,7 @@
 
     <template v-slot:headerLeft>
 
-      <el-input draggable size="mini" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
+      <el-input draggable size="mini" v-model="controller.variable" style="width: 12%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="mini"
                  @change="change" class="ms-select">
@@ -21,10 +21,13 @@
       </el-select>
 
       <el-input draggable size="mini" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" class="ms-btn"/>
+
+      <el-input draggable size="mini" v-model="controller.remark" :placeholder="$t('commons.remark')" v-if="!hasEmptyOperator && !isMax" class="ms-btn"/>
+
     </template>
 
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="node.data.debug">
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug && node.data.code">
         {{ getCode() }}
       </span>
     </template>
@@ -40,6 +43,7 @@
     props: {
       controller: {},
       node: {},
+      message: String,
       isMax: {
         type: Boolean,
         default: false,
@@ -56,6 +60,7 @@
     },
     data() {
       return {
+        loading: false,
         operators: {
           EQ: {
             label: "commons.adv_search.operators.equals",
@@ -92,7 +97,18 @@
         }
       }
     },
+    watch: {
+      message() {
+        this.reload();
+      },
+    },
     methods: {
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
       getCode() {
         if (this.node && this.node.data.debug) {
           if (this.node.data.code && this.node.data.code === 'error') {
@@ -125,7 +141,7 @@
 
 <style scoped>
   .ms-btn {
-    width: 20%;
+    width: 15%;
     margin-left: 5px;
   }
 
@@ -149,6 +165,6 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 100px;
+    width: 80px;
   }
 </style>

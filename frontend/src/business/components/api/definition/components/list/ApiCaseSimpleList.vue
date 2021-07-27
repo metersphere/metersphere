@@ -41,12 +41,12 @@
         <span v-for="(item) in fields" :key="item.key">
 
           <ms-table-column
-              prop="num"
-              label="ID"
-              :field="item"
-              :fields-width="fieldsWidth"
-              min-width="80px"
-              sortable>
+            prop="num"
+            label="ID"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="80px"
+            sortable>
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
@@ -64,32 +64,24 @@
             :label="$t('test_track.case.name')"/>
 
           <ms-table-column
-              prop="priority"
-              :filters="priorityFilters"
-              :field="item"
-              :fields-width="fieldsWidth"
-              min-width="120px"
-              :label="$t('test_track.case.priority')">
+            prop="priority"
+            :filters="priorityFilters"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="120px"
+            :label="$t('test_track.case.priority')">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </ms-table-column>
 
           <ms-table-column
-              sortable="custom"
-              prop="path"
-              min-width="180px"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="'API'+ $t('api_test.definition.api_path')"/>
-
-          <ms-table-column
-              sortable="custom"
-              prop="casePath"
-              min-width="180px"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"/>
+            sortable="custom"
+            prop="path"
+            min-width="180px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="'API'+ $t('api_test.definition.api_path')"/>
 
           <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')">
             <template v-slot:default="scope">
@@ -99,18 +91,18 @@
           </ms-table-column>
 
           <ms-table-column
-              prop="createUser"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="'创建人'"/>
+            prop="createUser"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="'创建人'"/>
 
           <ms-table-column
-              sortable="updateTime"
-              min-width="160px"
-              :field="item"
-              :fields-width="fieldsWidth"
-              :label="$t('api_test.definition.api_last_time')"
-              prop="updateTime">
+            sortable="updateTime"
+            min-width="160px"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('api_test.definition.api_last_time')"
+            prop="updateTime">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
@@ -124,7 +116,7 @@
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
-          </ms-table-column >
+          </ms-table-column>
         </span>
 
         <template v-if="!trashEnable" v-slot:opt-behind="scope">
@@ -141,13 +133,15 @@
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->
     <ms-reference-view ref="viewRef"/>
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="initTable"/>
+
+    <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
 
   </div>
 
@@ -184,14 +178,17 @@ import {
   _filter,
   _sort,
   getCustomTableHeader,
-  getCustomTableWidth,saveLastTableSortField,getLastTableSortField
+  getCustomTableWidth, saveLastTableSortField, getLastTableSortField
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {apiCaseBatchRun} from "@/network/api";
+import ApiCaseBatchRun from "@/business/components/api/definition/components/list/ApiCaseBatchRun";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
+    ApiCaseBatchRun,
     HeaderLabelOperate,
     MsTableHeaderSelectPopover,
     MsSetEnvironment,
@@ -215,7 +212,7 @@ export default {
   data() {
     return {
       type: API_CASE_LIST,
-      tableHeaderKey:"API_CASE",
+      tableHeaderKey: "API_CASE",
       fields: getCustomTableHeader('API_CASE'),
       fieldsWidth: getCustomTableWidth('API_CASE'),
       condition: {
@@ -229,7 +226,8 @@ export default {
       buttons: [],
       simpleButtons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
       ],
       trashButtons: [
         {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore},
@@ -256,7 +254,7 @@ export default {
           icon: "el-icon-delete",
           type: "danger",
           permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
-        },
+        }
       ],
       trashOperators: [
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reduction},
@@ -269,9 +267,7 @@ export default {
         },
       ],
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'method', name: this.$t('api_test.definition.api_type')},
-        {id: 'path', name: this.$t('api_test.request.path')},
+        {id: 'priority', name: this.$t('test_track.case.priority')}
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -327,22 +323,19 @@ export default {
   },
   created: function () {
     let orderArr = this.getSortField();
-    if(orderArr){
+    if (orderArr) {
       this.condition.orders = orderArr;
     }
 
-    if(this.trashEnable){
+    if (this.trashEnable) {
       this.operators = this.trashOperators;
       this.buttons = this.trashButtons;
-    }else {
+    } else {
       this.operators = this.simpleOperators;
       this.buttons = this.simpleButtons;
     }
 
     this.initTable();
-    // this.$nextTick(() => {
-    //   this.$refs.caseTable.bodyWrapper.scrollTop = 5
-    // })
   },
   watch: {
     selectNodeIds() {
@@ -358,10 +351,10 @@ export default {
       this.initTable();
     },
     trashEnable() {
-      if(this.trashEnable){
+      if (this.trashEnable) {
         this.operators = this.trashOperators;
         this.buttons = this.trashButtons;
-      }else {
+      } else {
         this.operators = this.simpleOperators;
         this.buttons = this.simpleButtons;
       }
@@ -389,6 +382,17 @@ export default {
     }
   },
   methods: {
+    handleRunBatch() {
+      this.$refs.batchRun.open();
+    },
+    runBatch(environment) {
+      this.condition.environmentId = environment.id;
+      this.condition.ids = this.$refs.caseTable.selectIds;
+      apiCaseBatchRun(this.condition);
+      this.condition.ids = [];
+      this.$refs.batchRun.close();
+      this.search();
+    },
     customHeader() {
       this.$refs.caseTable.openCustomHeader();
     },
@@ -396,24 +400,30 @@ export default {
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
+      if (this.condition.orders) {
+        const index = this.condition.orders.findIndex(d => d.name !== undefined && d.name === 'case_path');
+        if (index != -1) {
+          this.condition.orders.splice(index, 1);
+        }
+      }
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         // this.condition.status = "Trash";
         this.condition.moduleIds = [];
-        if(this.condition.filters){
-          if(this.condition.filters.status){
+        if (this.condition.filters) {
+          if (this.condition.filters.status) {
             this.condition.filters.status = ["Trash"];
-          }else{
+          } else {
             this.condition.filters = {status: ["Trash"]};
           }
-        }else{
+        } else {
           this.condition.filters = {};
           this.condition.filters = {status: ["Trash"]};
         }
-      }else {
-        if(this.condition.filters){
-          if(this.condition.filters.status){
+      } else {
+        if (this.condition.filters) {
+          if (this.condition.filters.status) {
             this.condition.filters.status = [];
           }
         }
@@ -540,7 +550,8 @@ export default {
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
               this.$refs.caseTable.clearSelectRows();
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
               this.$success(this.$t('commons.delete_success'));
             });
           }
@@ -548,24 +559,43 @@ export default {
       });
     },
     handleDeleteToGcBatch() {
-      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let obj = {};
-            obj.projectId = this.projectId;
-            obj.selectAllDate = this.selectAll;
-            obj.unSelectIds = this.unSelection;
-            obj.ids = Array.from(this.selectRows).map(row => row.id);
-            obj = Object.assign(obj, this.condition);
-            this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
-              this.$refs.caseTable.clearSelectRows();
-              this.initTable();
-              this.$success(this.$t('commons.delete_success'));
-            });
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = this.selectAll;
+      obj.unSelectIds = this.unSelection;
+      obj.ids = Array.from(this.selectRows).map(row => row.id);
+      obj = Object.assign(obj, this.condition);
+      this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
+        let checkResult = response.data;
+        let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+        if (!checkResult.deleteFlag) {
+          alertMsg = "";
+          checkResult.checkMsg.forEach(item => {
+            alertMsg += item + ";";
+          });
+          if (alertMsg === "") {
+            alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+          } else {
+            alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
+
+        this.$alert(alertMsg, '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+
+              this.$post('/api/testcase/deleteToGcByParam/', obj, () => {
+                this.$refs.caseTable.clearSelectRows();
+                this.initTable();
+                this.$success(this.$t('commons.delete_success'));
+              });
+            }
+          }
+        });
       });
+
+
     },
     handleEditBatch() {
       if (this.currentProtocol == 'HTTP') {
@@ -601,46 +631,70 @@ export default {
           if (action === 'confirm') {
             this.$get('/api/testcase/delete/' + apiCase.id, () => {
               this.$success(this.$t('commons.delete_success'));
-              this.initTable();
+              // this.initTable();
+              this.$emit('refreshTable');
             });
           }
         }
       });
       return;
     },
-    deleteToGc(apiCase){
-      this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.initTable();
-            });
+    deleteToGc(apiCase) {
+
+      let obj = {};
+      obj.projectId = this.projectId;
+      obj.selectAllDate = false;
+      obj.ids = [apiCase.id]
+      obj = Object.assign(obj, this.condition);
+      this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
+        let checkResult = response.data;
+        let alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
+        if (!checkResult.deleteFlag) {
+          alertMsg = "";
+          checkResult.checkMsg.forEach(item => {
+            alertMsg += item + ";";
+          });
+          if (alertMsg === "") {
+            alertMsg = this.$t('api_test.definition.request.delete_case_confirm') + ' ' + apiCase.name + " ？";
+          } else {
+            alertMsg += this.$t('api_test.is_continue') + " ？";
           }
         }
+
+        this.$alert(alertMsg, '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.initTable();
+
+              });
+            }
+          }
+        });
       });
-      return;
     },
     reduction(row) {
       let tmp = JSON.parse(JSON.stringify(row));
       let rows = {ids: [tmp.id]};
       this.$post('/api/testcase/reduction/', rows, response => {
         let cannotReductionApiNameArr = response.data;
-        if(cannotReductionApiNameArr.length > 0){
+        if (cannotReductionApiNameArr.length > 0) {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
-            if(apiNames === ""){
-              apiNames+= item
-            }else{
-              apiNames+= ";"+item;
+            if (apiNames === "") {
+              apiNames += item
+            } else {
+              apiNames += ";" + item;
             }
           });
-          this.$error("请先恢复["+apiNames+"]接口");
-        }else{
+          this.$error("请先恢复[" + apiNames + "]接口");
+        } else {
           this.$success(this.$t('commons.save_success'));
         }
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     handleBatchRestore() {
@@ -652,20 +706,21 @@ export default {
       obj = Object.assign(obj, this.condition);
       this.$post('/api/testcase/reduction/', obj, response => {
         let cannotReductionApiNameArr = response.data;
-        if(cannotReductionApiNameArr.length > 0){
+        if (cannotReductionApiNameArr.length > 0) {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
-            if(apiNames === ""){
-              apiNames+= item
-            }else{
-              apiNames+= ";"+item;
+            if (apiNames === "") {
+              apiNames += item
+            } else {
+              apiNames += ";" + item;
             }
           });
-          this.$error("请先恢复["+apiNames+"]接口");
-        }else{
+          this.$error("请先恢复[" + apiNames + "]接口");
+        } else {
           this.$success(this.$t('commons.save_success'));
         }
-        this.search();
+        // this.search();
+        this.$emit('refreshTable');
       });
     },
     setEnvironment(data) {
@@ -730,16 +785,16 @@ export default {
       column.width = finalWidth;
       column.realWidth = finalWidth;
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
-    getSortField(){
+    getSortField() {
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
       let returnObj = null;
-      if(orderJsonStr){
+      if (orderJsonStr) {
         try {
           returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
+        } catch (e) {
           return null;
         }
       }
@@ -763,7 +818,7 @@ export default {
       row.request.name = row.id;
       row.request.useEnvironment = environment.id;
       let map = new Map;
-      map.set(row.projectId,environment.id);
+      map.set(row.projectId, environment.id);
       row.environmentMap = map;
       runData.push(row.request);
       /*触发执行操作*/

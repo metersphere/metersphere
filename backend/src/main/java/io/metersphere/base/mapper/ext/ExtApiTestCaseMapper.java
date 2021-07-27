@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTestCase;
+import io.metersphere.controller.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -42,8 +43,14 @@ public interface ExtApiTestCaseMapper {
     int deleteToGc(ApiTestCaseRequest request);
 
     int reduction(@Param("ids") List<String> ids);
+    void checkOriginalStatusByIds(@Param("ids") List<String> ids);
 
     List<ApiTestCaseDTO> getCannotReductionApiCaseList(@Param("ids") List<String> ids);
 
     List<String> selectCaseIdsByApiIds(@Param("ids")List<String> apiIds);
+
+    List<String> selectNameByIdIn(@Param("ids")List<String> ids);
+    String selectNameById(String id);
+
+    List<String> selectIdsByQuery(BaseQueryRequest query);
 }

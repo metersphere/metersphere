@@ -204,6 +204,7 @@ public class MsTCPSampler extends MsTestElement {
             tcpSampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         tcpSampler.setProperty("MS-ID", this.getId());
+        tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         tcpSampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

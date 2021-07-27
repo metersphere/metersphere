@@ -33,7 +33,7 @@ public class ApiReportWebSocket {
     public void onOpen(@PathParam("reportId") String reportId, @PathParam("runMode") String runMode, Session session) {
         Timer timer = new Timer(true);
         ApiReportTask task = new ApiReportTask(session, reportId, runMode);
-        timer.schedule(task, 0, 1000);
+        timer.schedule(task, 0, 3 * 1000);
         refreshTasks.putIfAbsent(session, timer);
     }
 

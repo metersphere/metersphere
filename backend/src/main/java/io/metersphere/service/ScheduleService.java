@@ -54,7 +54,6 @@ public class ScheduleService {
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(UUID.randomUUID().toString());
-        schedule.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
         scheduleMapper.insert(schedule);
@@ -96,6 +95,27 @@ public class ScheduleService {
         ScheduleExample scheduleExample = new ScheduleExample();
         scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
         removeJob(resourceId, group);
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
+    public int deleteByProjectId(String projectId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        schedules.forEach(item -> {
+            removeJob(item.getKey(), item.getGroup());
+            swaggerUrlProjectMapper.deleteByPrimaryKey(item.getResourceId());
+        });
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
+    public int deleteByWorkspaceId(String workspaceId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        schedules.forEach(item -> {
+            removeJob(item.getResourceId(), item.getGroup());
+        });
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
@@ -149,6 +169,8 @@ public class ScheduleService {
         schedule.setValue(request.getValue().trim());
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());
+        schedule.setProjectId(request.getProjectId());
+        schedule.setWorkspaceId(request.getWorkspaceId());
         return schedule;
     }
 

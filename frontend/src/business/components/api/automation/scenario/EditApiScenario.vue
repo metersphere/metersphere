@@ -90,7 +90,7 @@
             </el-col>
             <el-col :span="7" v-if="customNum">
               <el-form-item label="ID" prop="customNum">
-                <el-input v-model="currentScenario.customNum" size="small"></el-input>
+                <el-input v-model.trim="currentScenario.customNum" size="small"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -195,7 +195,7 @@
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
-                       <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
+                       <ms-component-config :message="message" :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
                                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
                     </span>
@@ -245,7 +245,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
+        <ms-api-report-detail :scenario="currentScenario" :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -296,7 +296,7 @@ import {
 import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 import MsInputTag from "./MsInputTag";
 import MsRun from "./DebugRun";
-import MsApiReportDetail from "../report/ApiReportDetail";
+import MsApiReportDetail from "../report/SysnApiReportDetail";
 import MsVariableList from "./variable/VariableList";
 import ApiImport from "../../definition/components/import/ApiImport";
 import "@/common/css/material-icons.css"
@@ -414,7 +414,9 @@ export default {
       reqTotalTime: 0,
       reloadDebug: "",
       stopDebug: "",
-      isTop: false
+      isTop: false,
+      stepSize: 0,
+      message: "",
     }
   },
   created() {
@@ -447,6 +449,18 @@ export default {
       this.reqTotal = 0;
       this.reqSuccess = 0;
     },
+    clearResult(arr) {
+      if (arr) {
+        arr.forEach(item => {
+          item.requestResult = [];
+          item.result = undefined;
+          item.code = undefined;
+          if (item.hashTree && item.hashTree.length > 0) {
+            this.clearResult(item.hashTree);
+          }
+        })
+      }
+    },
     editParent(node, status) {
       if (!status) {
         node.data.code = "error";
@@ -456,21 +470,21 @@ export default {
         this.editParent(node.parent, status);
       }
     },
-    findNodeChild(arr, name, index, status) {
+    findNodeChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.name === name && item.data.index === index) {
+        if (item.data.resourceId === resourceId) {
           this.editParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.findNodeChild(item.childNodes, name, index, status);
+          this.findNodeChild(item.childNodes, resourceId, status);
         }
       })
     },
-    findNode(name, index, status) {
+    findNode(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
           if (item.childNodes && item.childNodes.length > 0) {
-            this.findNodeChild(item.childNodes, name, index, status);
+            this.findNodeChild(item.childNodes, resourceId, status);
           }
         })
       }
@@ -496,6 +510,7 @@ export default {
       if (e.data) {
         let data = JSON.parse(e.data);
         this.formatResult(data);
+        this.message = getUUID();
         if (data.end) {
           this.removeReport();
           this.debugLoading = false;
@@ -509,6 +524,33 @@ export default {
         return;
       }
     },
+    getTransaction(transRequests, startTime, endTime, resMap) {
+      transRequests.forEach(subItem => {
+        if (subItem.method === 'Request') {
+          this.getTransaction(subItem.subRequestResults, startTime, endTime, resMap);
+        }
+        this.reqTotal++;
+        let key = subItem.resourceId;
+        if (resMap.get(key)) {
+          if (resMap.get(key).indexOf(subItem) === -1) {
+            resMap.get(key).push(subItem);
+          }
+        } else {
+          resMap.set(key, [subItem]);
+        }
+        if (subItem.success) {
+          this.reqSuccess++;
+        } else {
+          this.reqError++;
+        }
+        if (subItem.startTime && Number(subItem.startTime) < startTime) {
+          startTime = subItem.startTime;
+        }
+        if (subItem.endTime && Number(subItem.endTime) > endTime) {
+          endTime = subItem.endTime;
+        }
+      })
+    },
     formatResult(res) {
       let resMap = new Map;
       let startTime = 99991611737506593;
@@ -516,29 +558,32 @@ export default {
       this.clearDebug();
       if (res && res.scenarios) {
         res.scenarios.forEach(item => {
-          this.reqTotal += item.requestResults.length;
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              let name = req.name.split('<->')[0];
-              let key = req.id + name;
-              if (resMap.get(key)) {
-                if (resMap.get(key).indexOf(req) === -1) {
-                  resMap.get(key).push(req);
+              if (req.method === 'Request') {
+                this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
+              } else {
+                this.reqTotal++;
+                let key = req.resourceId;
+                if (resMap.get(key)) {
+                  if (resMap.get(key).indexOf(req) === -1) {
+                    resMap.get(key).push(req);
+                  }
+                } else {
+                  resMap.set(key, [req]);
                 }
-              } else {
-                resMap.set(key, [req]);
-              }
-              if (req.success) {
-                this.reqSuccess++;
-              } else {
-                this.reqError++;
-              }
-              if (req.startTime && Number(req.startTime) < startTime) {
-                startTime = req.startTime;
-              }
-              if (req.endTime && Number(req.endTime) > endTime) {
-                endTime = req.endTime;
+                if (req.success) {
+                  this.reqSuccess++;
+                } else {
+                  this.reqError++;
+                }
+                if (req.startTime && Number(req.startTime) < startTime) {
+                  startTime = req.startTime;
+                }
+                if (req.endTime && Number(req.endTime) > endTime) {
+                  endTime = req.endTime;
+                }
               }
             })
           }
@@ -549,7 +594,7 @@ export default {
       }
       this.debugResult = resMap;
       this.sort();
-      this.reload();
+      // this.reload();
       this.reloadDebug = getUUID();
     },
     removeReport() {
@@ -570,6 +615,7 @@ export default {
             promise.then(() => {
               let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
               if (!sign) {
+                this.debugLoading = false;
                 return;
               }
               this.editScenario().then(() => {
@@ -600,6 +646,8 @@ export default {
       this.currentScenario.modulePath = data.path;
     },
     setHideBtn() {
+      this.$refs.scenarioRelevance.changeButtonLoadingType();
+      this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.isBtnHide = false;
     },
     // 打开引用的场景
@@ -680,7 +728,7 @@ export default {
     suggestClick(node) {
       this.response = {};
       if (node.parent && node.parent.data.requestResult) {
-        this.response = node.parent.data.requestResult;
+        this.response = node.parent.data.requestResult[0];
       }
     },
     showAll() {
@@ -694,68 +742,41 @@ export default {
       this.isBtnHide = true;
       this.$refs.scenarioApiRelevance.open();
     },
-    recursiveSorting(arr, scenarioProjectId) {
-      for (let i in arr) {
-        arr[i].index = Number(i) + 1;
-        if (!arr[i].resourceId) {
-          arr[i].resourceId = getUUID();
-        }
-        if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
-          arr[i].countController.proceed = true;
-        }
-        if (!arr[i].projectId) {
-          // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-          arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-        } else {
-          const project = this.projectList.find(p => p.id === arr[i].projectId);
-          if (!project) {
-            arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-          }
-        }
-
-        if (arr[i].hashTree !== undefined && arr[i].hashTree.length > 0) {
-          this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
-        }
-        // 添加debug结果
-        let key = arr[i].id + arr[i].name;
-        if (this.debugResult && this.debugResult.get(key)) {
-          arr[i].requestResult = this.debugResult.get(key);
-          arr[i].result = null;
-          arr[i].debug = this.debug;
-          this.findNode(arr[i].name, arr[i].index, arr[i].requestResult.success);
-        }
+    sort(stepArray, scenarioProjectId) {
+      if (!stepArray) {
+        stepArray = this.scenarioDefinition;
       }
-    },
-    sort() {
-      for (let i in this.scenarioDefinition) {
-        // 排序
-        this.scenarioDefinition[i].index = Number(i) + 1;
-        if (!this.scenarioDefinition[i].resourceId) {
-          this.scenarioDefinition[i].resourceId = getUUID();
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
         }
-        // 设置循环控制
-        if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
-          && this.scenarioDefinition[i].hashTree.length > 1) {
-          this.scenarioDefinition[i].countController.proceed = true;
+        if (stepArray[i].type === ELEMENT_TYPE.LoopController
+          && stepArray[i].loopType === "LOOP_COUNT"
+          && stepArray[i].hashTree
+          && stepArray[i].hashTree.length > 1) {
+          stepArray[i].countController.proceed = true;
         }
-        // 设置项目ID
-        if (!this.scenarioDefinition[i].projectId) {
-          this.scenarioDefinition[i].projectId = this.projectId;
+        if (!stepArray[i].projectId) {
+          // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+          stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
         } else {
-          const project = this.projectList.find(p => p.id === this.scenarioDefinition[i].projectId);
+          const project = this.projectList.find(p => p.id === stepArray[i].projectId);
           if (!project) {
-            this.scenarioDefinition[i].projectId = this.projectId;
+            stepArray[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
         }
-
-        if (this.scenarioDefinition[i].hashTree !== undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-          this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
-        }
         // 添加debug结果
-        if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name)) {
-          this.scenarioDefinition[i].result = null;
-          this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id + this.scenarioDefinition[i].name);
-          this.scenarioDefinition[i].debug = this.debug;
+        let key = stepArray[i].resourceId;
+        if (this.debugResult && this.debugResult.get(key)) {
+          stepArray[i].requestResult = this.debugResult.get(key);
+          stepArray[i].result = null;
+          stepArray[i].debug = this.debug;
+          this.findNode(key, stepArray[i].requestResult[0].success);
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.stepSize += stepArray[i].hashTree.length;
+          this.sort(stepArray[i].hashTree, stepArray[i].projectId);
         }
       }
     },
@@ -776,6 +797,7 @@ export default {
         arr.forEach(item => {
           if (item.id === this.currentScenario.id) {
             this.$error("不能引用或复制自身！");
+            this.$refs.scenarioRelevance.changeButtonLoadingType();
             return;
           }
           if (!item.hashTree) {
@@ -814,6 +836,7 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
+      request.requestResult = [];
       if (!request.url) {
         request.url = "";
       }
@@ -831,6 +854,7 @@ export default {
         this.setApiParameter(item, refType, referenced);
       });
       this.isBtnHide = false;
+      this.$refs.scenarioApiRelevance.changeButtonLoadingType();
       this.sort();
       this.reload();
     },
@@ -862,12 +886,23 @@ export default {
         }
       });
     },
+    resetResourceId(hashTree) {
+      hashTree.forEach(item => {
+        item.resourceId = getUUID();
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.resetResourceId(item.hashTree);
+        }
+      })
+    },
     copyRow(row, node) {
       const parent = node.parent
       const hashTree = parent.data.hashTree || parent.data;
       // 深度复制
       let obj = JSON.parse(JSON.stringify(row));
       obj.resourceId = getUUID();
+      if (obj.hashTree && obj.hashTree.length > 0) {
+        this.resetResourceId(obj.hashTree);
+      }
       if (obj.name) {
         obj.name = obj.name + '_copy';
       }
@@ -892,6 +927,7 @@ export default {
       }
       this.stopDebug = "";
       this.clearDebug();
+      this.clearResult(this.scenarioDefinition);
       /*触发执行操作*/
       this.$refs.currentScenario.validate((valid) => {
         if (valid) {
@@ -948,7 +984,6 @@ export default {
         });
       }
     },
-
     checkDataIsCopy() {
       //  如果是复制按钮创建的场景，直接进行保存
       if (this.currentScenario.copy) {
@@ -967,10 +1002,10 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (dropType != "inner") {
+      if (dropType != "inner" && (draggingNode.data && !draggingNode.data.disabled)) {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
         return true;
       }
       return false;
@@ -1096,6 +1131,10 @@ export default {
           }
           this.loading = false;
           this.sort();
+          // 初始化resourceId
+          if (this.scenarioDefinition) {
+            this.resetResourceId(this.scenarioDefinition);
+          }
         })
       }
     },
@@ -1126,8 +1165,7 @@ export default {
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
       this.currentScenario.projectId = this.projectId;
-    }
-    ,
+    },
     runRefresh() {
       if (!this.debug) {
         this.debugVisible = true;
@@ -1199,14 +1237,13 @@ export default {
     shrinkTreeNode() {
       //改变每个节点的状态
       for (let i in this.scenarioDefinition) {
-        if (i > 30 && this.expandedStatus) {
-          continue;
-        }
         if (this.scenarioDefinition[i]) {
           if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
             this.expandedNode.push(this.scenarioDefinition[i].resourceId);
           }
-          this.scenarioDefinition[i].active = this.expandedStatus;
+          if (this.stepSize < 35) {
+            this.scenarioDefinition[i].active = this.expandedStatus;
+          }
           if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
             this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
           }
@@ -1219,7 +1256,9 @@ export default {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          nodes[i].active = this.expandedStatus;
+          if (this.stepSize < 35) {
+            nodes[i].active = this.expandedStatus;
+          }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
           }
@@ -1227,22 +1266,9 @@ export default {
       }
     },
     openExpansion() {
-      if (this.scenarioDefinition && this.scenarioDefinition.length > 30) {
-        this.$alert(this.$t('api_test.definition.request.step_message'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.expandedNode = [];
-              this.expandedStatus = true;
-              this.shrinkTreeNode();
-            }
-          }
-        });
-      } else {
-        this.expandedNode = [];
-        this.expandedStatus = true;
-        this.shrinkTreeNode();
-      }
+      this.expandedNode = [];
+      this.expandedStatus = true;
+      this.shrinkTreeNode();
     },
     closeExpansion() {
       this.expandedStatus = false;

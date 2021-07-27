@@ -122,6 +122,7 @@ export default {
       this.tableData.splice(index, 1);
     },
     refreshTable() {
+      this.$refs.table.reloadTable();
     },
     appendData(customFieldIds) {
       let condition = {};
@@ -148,7 +149,8 @@ export default {
 </script>
 
 <style scoped>
-/*.default-value-item >>> .custom-with {*/
-/*  width: 207px;*/
-/*}*/
+
+/deep/ .el-table--border, .el-table--group {
+  border: 0px;
+}
 </style>

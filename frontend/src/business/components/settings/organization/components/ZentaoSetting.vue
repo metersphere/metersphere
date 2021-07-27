@@ -16,6 +16,10 @@
         <el-form-item :label="$t('organization.integration.zentao_request')" prop="request">
           <el-radio v-model="form.request" label="PATH_INFO" size="small" border> PATH_INFO</el-radio>
           <el-radio v-model="form.request" label="GET" size="small" border>GET</el-radio>
+          <ms-instructions-icon effect="light" style="margin-left: -20px;">
+            参考禅道配置文件中 $config->requestType 的值 <br/><br/>
+            配置文件参考路径：/opt/zbox/app/zentao/config/my.php
+          </ms-instructions-icon>
         </el-form-item>
       </el-form>
     </div>
@@ -55,10 +59,12 @@
 import BugManageBtn from "@/business/components/settings/organization/components/BugManageBtn";
 import {getCurrentOrganizationId, getCurrentUser} from "@/common/js/utils";
 import {ZEN_TAO} from "@/common/js/constants";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 
 export default {
   name: "ZentaoSetting",
   components: {
+    MsInstructionsIcon,
     BugManageBtn
   },
   created() {

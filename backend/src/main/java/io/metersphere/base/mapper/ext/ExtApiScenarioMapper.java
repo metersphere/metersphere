@@ -60,4 +60,12 @@ public interface ExtApiScenarioMapper {
     List<Map<String, Object>> listModuleByCollection(@Param("request") ApiScenarioRequest request);
 
     List<String> selectIdsByUseUrlIsNull();
+
+    String selectNameById(String id);
+
+    List<String> selectNameByIdIn(@Param("ids") List<String> id);
+
+    List<ApiScenarioWithBLOBs> selectByNoReferenceId();
+
+    void checkOriginalStatusByIds(@Param("ids")List<String> ids);
 }

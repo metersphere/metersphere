@@ -13,16 +13,18 @@
       :is-max="isMax"
       :show-btn="showBtn"
       :title="displayTitle">
+      <template v-slot:message>
+        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
+      </template>
 
       <template v-slot:behindHeaderLeft>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{ $t('api_test.automation.reference_deleted') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <span class="ms-tag ms-step-name-api">{{ getProjectName(request.projectId) }}</span>
       </template>
       <template v-slot:debugStepCode>
-         <span class="ms-step-debug-code" :class="request.requestResult.success?'ms-req-success':'ms-req-error'" v-if="request.debug && request.requestResult && request.requestResult.responseResult">
-          {{ request.requestResult.success ? 'success' : 'error' }}
+         <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+          {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
       <template v-slot:button>
@@ -131,7 +133,8 @@ export default {
     currentEnvironmentId: String,
     projectList: Array,
     expandedNode: Array,
-    envMap: Map
+    envMap: Map,
+    message: String
   },
   components: {
     TemplateComponent,
@@ -154,8 +157,12 @@ export default {
     }
   },
   created() {
+    // 历史数据兼容
     if (!this.request.requestResult) {
-      this.request.requestResult = {responseResult: {}};
+      this.request.requestResult = [{responseResult: {}}];
+    } else if (this.request.requestResult && Object.prototype.toString.call(this.request.requestResult) !== '[object Array]') {
+      let obj = JSON.parse(JSON.stringify(this.request.requestResult));
+      this.request.requestResult = [obj];
     }
     // 跨项目关联，如果没有ID，则赋值本项目ID
     if (!this.request.projectId) {
@@ -185,6 +192,9 @@ export default {
   watch: {
     envMap() {
       this.getEnvironments();
+    },
+    message() {
+      this.reload();
     },
   },
   computed: {
@@ -260,11 +270,13 @@ export default {
     initDataSource() {
       let databaseConfigsOptions = [];
       if (this.request.protocol === 'SQL' || this.request.type === 'JDBCSampler') {
-        if (this.environment.config) {
+        if (this.environment && this.environment.config) {
           let config = JSON.parse(this.environment.config);
-          config.databaseConfigs.forEach(item => {
-            databaseConfigsOptions.push(item);
-          });
+          if (config && config.databaseConfigs) {
+            config.databaseConfigs.forEach(item => {
+              databaseConfigsOptions.push(item);
+            });
+          }
         }
       }
       if (databaseConfigsOptions.length > 0 && this.request.environmentId !== this.environment.id) {
@@ -320,7 +332,11 @@ export default {
             if (response.data.method && response.data.method != null) {
               this.request.method = response.data.method;
             }
-            this.request.requestResult = requestResult;
+            if (requestResult && Object.prototype.toString.call(requestResult) !== '[object Array]') {
+              this.request.requestResult = [requestResult];
+            } else {
+              this.request.requestResult = requestResult;
+            }
             this.request.id = response.data.id;
             this.request.disabled = true;
             this.request.root = true;
@@ -333,7 +349,10 @@ export default {
         })
       }
     },
-    recursiveSorting(arr) {
+    sort(arr) {
+      if (!arr) {
+        arr = this.request.hashTree;
+      }
       for (let i in arr) {
         arr[i].disabled = true;
         arr[i].index = Number(i) + 1;
@@ -341,19 +360,7 @@ export default {
           arr[i].resourceId = getUUID();
         }
         if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-          this.recursiveSorting(arr[i].hashTree);
-        }
-      }
-    },
-    sort() {
-      for (let i in this.request.hashTree) {
-        if (!this.request.hashTree[i].resourceId) {
-          this.request.hashTree[i].resourceId = getUUID();
-        }
-        this.request.hashTree[i].disabled = true;
-        this.request.hashTree[i].index = Number(i) + 1;
-        if (this.request.hashTree[i].hashTree != undefined && this.request.hashTree[i].hashTree.length > 0) {
-          this.recursiveSorting(this.request.hashTree[i].hashTree);
+          this.sort(arr[i].hashTree);
         }
       }
     },
@@ -399,6 +406,8 @@ export default {
         enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
       };
       this.runData.push(debugData);
+      this.request.requestResult = [];
+      this.request.result = undefined;
       /*触发执行操作*/
       this.reportId = getUUID();
     },
@@ -406,7 +415,7 @@ export default {
       this.loading = false;
     },
     runRefresh(data) {
-      this.request.requestResult =[data] ;
+      this.request.requestResult = [data];
       this.request.result = undefined;
       this.loading = false;
       this.$emit('refReload', this.request, this.node);
@@ -457,6 +466,7 @@ export default {
   margin: 20px;
   float: right;
 }
+
 .ms-step-name-api {
   display: inline-block;
   margin: 0 5px;
@@ -467,6 +477,7 @@ export default {
   white-space: nowrap;
   width: 60px;
 }
+
 .ms-tag {
   margin-left: 10px;
 }

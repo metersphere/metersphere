@@ -6,11 +6,10 @@
 
       <ms-table
         :data="tableData"
-        :height="screenHeight"
-        :screen-height="screenHeight"
+        :screen-height="isRelate ? 'calc(100vh - 400px)' :  screenHeight"
         :condition="condition"
         :page-size="pageSize"
-        :operators="operators"
+        :operators="isRelate ? [] : operators"
         :batch-operators="buttons"
         :total="total"
         :fields.sync="fields"
@@ -68,7 +67,7 @@
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.customNum }} </a>
               </el-tooltip>
             </template>
-          </ms-table-column >
+          </ms-table-column>
 
           <ms-table-column prop="name"
                            sortable
@@ -116,13 +115,13 @@
             </template>
           </ms-table-column>
 
-          <ms-table-column  prop="principalName"
-                            min-width="120px"
-                            :label="$t('api_test.definition.api_principal')"
-                            :filters="userFilters"
-                            :field="item"
-                            :fields-width="fieldsWidth"
-                            sortable/>
+          <ms-table-column prop="principalName"
+                           min-width="120px"
+                           :label="$t('api_test.definition.api_principal')"
+                           :filters="userFilters"
+                           :field="item"
+                           :fields-width="fieldsWidth"
+                           sortable/>
           <ms-table-column prop="userName" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
@@ -138,7 +137,7 @@
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
-          </ms-table-column >
+          </ms-table-column>
           <ms-table-column prop="createTime"
                            :field="item"
                            :fields-width="fieldsWidth"
@@ -148,7 +147,7 @@
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
-          </ms-table-column >
+          </ms-table-column>
 
           <ms-table-column prop="stepTotal"
                            :field="item"
@@ -170,7 +169,7 @@
                 {{ $t('api_test.automation.fail') }}
               </el-link>
             </template>
-          </ms-table-column >
+          </ms-table-column>
 
           <ms-table-column prop="passRate"
                            :field="item"
@@ -190,6 +189,11 @@
       <div>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
+                   size="90%">
+          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+        </el-drawer>
+        <!-- 执行结果 -->
+        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
@@ -215,7 +219,8 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+import SysnApiReportDetail from "../report/SysnApiReportDetail";
 import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -233,7 +238,7 @@ import MsRunMode from "./common/RunMode";
 import MsTaskCenter from "../../../task/TaskCenter";
 
 import {
-  getCustomTableHeader, getCustomTableWidth,getLastTableSortField,saveLastTableSortField
+  getCustomTableHeader, getCustomTableWidth, getLastTableSortField, saveLastTableSortField
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -260,6 +265,7 @@ export default {
     MsTableHeader,
     MsTag,
     MsApiReportDetail,
+    SysnApiReportDetail,
     MsScenarioExtendButtons,
     MsTestPlanList,
     MsTableOperatorButton,
@@ -268,6 +274,10 @@ export default {
   },
   props: {
     referenced: {
+      type: Boolean,
+      default: false,
+    },
+    isReferenceTable: {
       type: Boolean,
       default: false,
     },
@@ -302,19 +312,21 @@ export default {
       default: false
     },
     initApiTableOpretion: String,
+    isRelate: Boolean,
   },
   data() {
     return {
-      projectName:"",
+      projectName: "",
       result: {},
-      tableHeaderKey:"API_SCENARIO",
+      tableHeaderKey: "API_SCENARIO",
       type: API_SCENARIO_LIST,
       fields: getCustomTableHeader('API_SCENARIO'),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
-      screenHeight: 'calc(100vh - 220px)',//屏幕高度,
+      screenHeight: 'calc(100vh - 228px)',//屏幕高度,
       condition: {
         components: API_SCENARIO_CONFIGS
       },
+      scenarioId: "",
       currentScenario: {},
       schedule: {},
       tableData: [],
@@ -327,6 +339,7 @@ export default {
       content: {},
       infoDb: false,
       runVisible: false,
+      showReportVisible: false,
       planVisible: false,
       runData: [],
       report: {},
@@ -459,14 +472,28 @@ export default {
   },
   created() {
     this.projectId = getCurrentProjectID();
-    if(!this.projectName || this.projectName === ""){
+    if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
-    this.operators = this.unTrashOperators;
-    this.buttons = this.unTrashButtons;
     this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+
+    if (this.trashEnable) {
+      this.condition.filters = {status: ["Trash"]};
+      this.condition.moduleIds = [];
+      this.operators = this.trashOperators;
+      this.buttons = this.trashButtons;
+    } else {
+      if (!this.isReferenceTable) {
+        this.operators = this.unTrashOperators;
+        this.buttons = this.unTrashButtons;
+      } else {
+        this.operators = this.unTrashOperators;
+        this.buttons = this.unTrashButtons;
+      }
+    }
+
     let orderArr = this.getSortField();
-    if(orderArr){
+    if (orderArr) {
       this.condition.orders = orderArr;
     }
     this.search();
@@ -504,10 +531,10 @@ export default {
     },
   },
   methods: {
-    getProjectName (){
+    getProjectName() {
       this.$get('project/get/' + this.projectId, response => {
         let project = response.data;
-        if(project){
+        if (project) {
           this.projectName = project.name;
         }
       });
@@ -517,10 +544,10 @@ export default {
       this.search();
     },
     search(projectId) {
-      if(this.needRefreshModule()){
+      if (this.needRefreshModule()) {
         this.$emit('refreshTree');
       }
-      if(this.selectProjectId){
+      if (this.selectProjectId) {
         projectId = this.selectProjectId;
       }
       this.selectRows = new Set();
@@ -568,6 +595,9 @@ export default {
           });
           if (this.$refs.scenarioTable) {
             this.$refs.scenarioTable.clear();
+            this.$nextTick(() => {
+              this.$refs.scenarioTable.doLayout();
+            });
           }
           this.$emit('getTrashCase');
         });
@@ -735,9 +765,17 @@ export default {
     },
     handleBatchRestore() {
       let ids = this.$refs.scenarioTable.selectIds;
-      this.$post("/api/automation/reduction", ids, response => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
+
+      let params = {};
+      this.buildBatchParam(params);
+      params.ids = ids;
+
+      this.$post("/api/automation/id/all", params, response => {
+        let idParams = response.data;
+        this.$post("/api/automation/reduction", idParams, response => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
       });
     },
     handleDeleteBatch(row) {
@@ -745,30 +783,52 @@ export default {
         //let ids = Array.from(this.selectRows).map(row => row.id);
         let param = {};
         this.buildBatchParam(param);
+        this.result.loading = true;
         this.$post('/api/automation/deleteBatchByCondition/', param, () => {
           this.$success(this.$t('commons.delete_success'));
           this.search();
+        }, (error) => {
+          this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            //let ids = Array.from(this.selectRows).map(row => row.id);
-            let param = {};
-            this.buildBatchParam(param);
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') + " ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
 
     execute(row) {
       this.infoDb = false;
+      this.scenarioId = row.id;
       let url = "/api/automation/run";
       let run = {};
       let scenarioIds = [];
@@ -777,7 +837,6 @@ export default {
       run.projectId = this.projectId;
       run.ids = scenarioIds;
       this.$post(url, run, response => {
-        let data = response.data;
         this.runVisible = true;
         this.reportId = run.id;
       });
@@ -790,7 +849,7 @@ export default {
       this.$emit('edit', rowParam);
     },
     showReport(row) {
-      this.runVisible = true;
+      this.showReportVisible = true;
       this.infoDb = true;
       this.reportId = row.reportId;
     },
@@ -809,40 +868,62 @@ export default {
           this.search();
         });
         return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            // let ids = [row.id];
-            let param = {};
-            this.buildBatchParam(param);
-            param.ids = [row.id];
-            this.$post('/api/automation/removeToGcByBatch/', param, () => {
-              // this.$post('/api/automation/removeToGc/', ids, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
+      }else {
+        let param = {};
+        this.buildBatchParam(param);
+        param.ids = [row.id];
+        this.$post('/api/automation/checkBeforeDelete/', param, response => {
+          let checkResult = response.data;
+          let alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+          if(!checkResult.deleteFlag){
+            alertMsg = "";
+            checkResult.checkMsg.forEach(item => {
+              alertMsg+=item+";";
             });
+            if(alertMsg === ""){
+              alertMsg = this.$t('api_test.definition.request.delete_confirm') +" ？";
+            } else {
+              alertMsg += this.$t('api_test.is_continue') + " ？";
+            }
           }
-        }
-      });
+          this.$alert(alertMsg, '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            cancelButtonText: this.$t('commons.cancel'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$post('/api/automation/removeToGcByBatch/', param, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.search();
+                });
+              }
+            }
+          });
+        });
+      }
     },
     openScenario(item) {
       this.$emit('openScenario', item);
     },
-    exportApi() {
+    exportApi(nodeTree) {
       let param = {};
-      this.buildBatchParam(param);
-      if (param.ids === undefined || param.ids.length < 1) {
-        this.$warning(this.$t("api_test.automation.scenario.check_case"));
-        return;
-      }
-      this.result.loading = true;
-      this.result = this.$post("/api/automation/export", param, response => {
-        this.result.loading = false;
-        let obj = response.data;
-        this.buildApiPath(obj.data);
-        downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
+      this.projectId = getCurrentProjectID();
+      this.$get('project/get/' + this.projectId, response => {
+        let project = response.data;
+        if (project) {
+          this.projectName = project.name;
+          this.buildBatchParam(param);
+          if (param.ids === undefined || param.ids.length < 1) {
+            this.$warning(this.$t("api_test.automation.scenario.check_case"));
+            return;
+          }
+          this.result.loading = true;
+          this.result = this.$post("/api/automation/export", param, response => {
+            this.result.loading = false;
+            let obj = response.data;
+            obj.nodeTree = nodeTree;
+            downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
+          });
+        }
       });
     },
     exportJmx() {
@@ -863,30 +944,21 @@ export default {
         }
       });
     },
-    buildApiPath(scenarios) {
-      scenarios.forEach((scenario) => {
-        this.moduleOptions.forEach(item => {
-          if (scenario.moduleId === item.id) {
-            scenario.modulePath = item.path;
-          }
-        });
-      });
-    },
     getConditions() {
       return this.condition;
     },
-    needRefreshModule(){
-      if(this.initApiTableOpretion === '0'){
+    needRefreshModule() {
+      if (this.initApiTableOpretion === '0') {
         return true;
-      }else {
-        this.$emit('updateInitApiTableOpretion','0');
+      } else {
+        this.$emit('updateInitApiTableOpretion', '0');
         return false;
       }
     },
-    callBackSelectAll(selection){
+    callBackSelectAll(selection) {
       this.$emit('selection', selection);
     },
-    callBackSelect(selection){
+    callBackSelect(selection) {
       this.$emit('selection', selection);
     },
     batchCreatePerformance() {
@@ -921,7 +993,7 @@ export default {
         }
       });
     },
-    batchCopy(){
+    batchCopy() {
       this.$alert(this.$t('api_test.definition.request.batch_copy_confirm') + " ？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
@@ -937,16 +1009,16 @@ export default {
         }
       });
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
-    getSortField(){
+    getSortField() {
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
       let returnObj = null;
-      if(orderJsonStr){
+      if (orderJsonStr) {
         try {
           returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
+        } catch (e) {
           return null;
         }
       }

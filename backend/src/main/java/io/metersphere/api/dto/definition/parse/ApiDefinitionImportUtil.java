@@ -1,14 +1,17 @@
 package io.metersphere.api.dto.definition.parse;
 
 import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.parse.ms.NodeTree;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Iterator;
 import java.util.List;
 
 public class ApiDefinitionImportUtil {
@@ -63,6 +66,48 @@ public class ApiDefinitionImportUtil {
         }
         createModule(module);
         return module;
+    }
+
+    private static void createNodeTree(NodeTree nodeTree, String pid, String projectId,
+                                       ApiModuleService apiModuleService, String path, int baseLevel) {
+        ApiModule module = new ApiModule();
+        BeanUtils.copyBean(module, nodeTree);
+        apiModuleService.buildNewModule(module);
+        module.setProjectId(projectId);
+        module.setParentId(pid);
+        module.setLevel(module.getLevel() + baseLevel);
+        createModule(module, SessionUtils.getUserId());
+        nodeTree.setNewId(module.getId());
+        path = path + nodeTree.getName();
+        nodeTree.setPath(path);
+        List<NodeTree> children = nodeTree.getChildren();
+        if (CollectionUtils.isNotEmpty(children)) {
+            String finalPath = path;
+            children.forEach(item -> {
+                createNodeTree(item, module.getId(), projectId, apiModuleService, finalPath + "/", baseLevel);
+            });
+        }
+    }
+
+    /**
+     * 根据导出的模块树，创建新的模块树
+     * @param nodeTree
+     * @param projectId
+     */
+    public static void createNodeTree(List<NodeTree> nodeTree, String projectId, String moduleId) {
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        Iterator<NodeTree> iterator = nodeTree.iterator();
+        boolean hasModuleSelected = false;
+        ApiModuleDTO selectModule = null;
+        if (StringUtils.isNotBlank(moduleId) && !"root".equals(moduleId)) {
+            selectModule = apiModuleService.getNode(moduleId);
+            hasModuleSelected = true;
+        }
+        while (iterator.hasNext()) {
+            NodeTree node = iterator.next();
+            createNodeTree(node, hasModuleSelected ? selectModule.getId() : null,
+                    projectId, apiModuleService, "/", hasModuleSelected ? selectModule.getLevel() : 0);
+        }
     }
 
     public static ApiModule buildModule(ApiModule parentModule, String name, String projectId, String userId) {

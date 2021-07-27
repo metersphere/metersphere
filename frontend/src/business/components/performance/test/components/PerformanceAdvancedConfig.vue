@@ -76,6 +76,79 @@
         </el-form>
       </el-col>
     </el-row>
+
+    <!-- DNS -->
+    <el-row type="flex" justify="start">
+      <el-col :span="8">
+        <h3>{{ $t('load_test.domain_bind') }}</h3>
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('domains')">
+          {{ $t('commons.add') }}
+        </el-button>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-table :data="domains" size="mini" class="tb-edit" align="center" border highlight-current-row>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.domain')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                :rows="1"
+                class="edit-input"
+                v-model="row.domain"
+                :placeholder="$t('load_test.domain')"
+                clearable>
+              </el-input>
+              <span>{{ row.domain }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.ip')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.ip"
+                :placeholder="$t('load_test.ip')"
+                clearable></el-input>
+              <span>{{ row.ip }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.enable')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-switch
+                :disabled="readOnly"
+                size="mini"
+                v-model="row.enable"
+                inactive-color="#DCDFE6"
+              >
+              </el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('load_test.operating')">
+            <template v-slot:default="{row, $index}">
+              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        type="danger"
+                                        @exec="del(row, 'domains', $index)"/>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
+
     <!--  csv 配置  -->
     <el-row>
       <el-col :span="8">
@@ -113,7 +186,6 @@
         </el-button>
       </el-col>
     </el-row>
-    <!-- -->
     <el-row>
       <el-col :span="24">
         <el-table :data="params" size="mini" class="tb-edit" align="center" border highlight-current-row>
@@ -136,16 +208,77 @@
             </template>
           </el-table-column>
           <el-table-column
+            :label="$t('load_test.param_value')"
+            show-overflow-tooltip align="center">
+            <template v-slot:default="{row}">
+              <!-- <template v-if="row.edit">
+                 <el-input v-model="row.value" class="edit-input" size="mini"/>
+               </template>
+               <span v-else>{{ row.value }}</span>-->
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.value"
+                :placeholder="$t('load_test.param_value')"
+                clearable></el-input>
+              <span>{{ row.value }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             align="center"
             :label="$t('load_test.enable')"
             show-overflow-tooltip>
             <template v-slot:default="{row}">
               <el-switch
-                :disabled="!row.edit || readOnly"
+                :disabled="readOnly"
                 size="mini"
                 v-model="row.enable"
                 inactive-color="#DCDFE6">
               </el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('load_test.operating')">
+            <template v-slot:default="{row, $index}">
+              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        type="danger"
+                                        @exec="del(row, 'params', $index)"/>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
+
+    <!-- JMeter Properties -->
+    <el-row>
+      <el-col :span="8">
+        <h3>JMeter Properties</h3>
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('properties')">
+          {{ $t('commons.add') }}
+        </el-button>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-table :data="properties" size="mini" class="tb-edit" align="center" border highlight-current-row>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.param_name')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                :rows="1"
+                class="edit-input"
+                v-model="row.name"
+                :placeholder="$t('load_test.param_name')"
+                clearable>
+              </el-input>
+              <span>{{ row.name }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -168,33 +301,50 @@
               <span>{{ row.value }}</span>
             </template>
           </el-table-column>
+          <el-table-column
+            align="center"
+            :label="$t('load_test.enable')"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-switch
+                :disabled="readOnly"
+                size="mini"
+                v-model="row.enable"
+                inactive-color="#DCDFE6">
+              </el-switch>
+            </template>
+          </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
               <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
                                         type="danger"
-                                        @exec="del(row, 'params', $index)"/>
+                                        @exec="del(row, 'properties', $index)"/>
             </template>
           </el-table-column>
         </el-table>
       </el-col>
     </el-row>
 
+    <!-- 监控配置   -->
     <el-row>
       <el-col :span="8">
-        <h3>监控集成</h3>
+        <h3>{{ $t('commons.monitor') }}</h3>
         <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="addMonitor">
           {{ $t('commons.add') }}
+        </el-button>
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini"
+                   @click="batchAddMonitor">
+          {{ $t('commons.batch_add') }}
         </el-button>
       </el-col>
     </el-row>
     <el-row>
-
       <el-col :span="24">
-        <el-table :data="monitorParams" size="mini" class="tb-edit" align="center" border highlight-current-row>
+        <el-table :data="monitorParams" size="mini" class="tb-edit" border highlight-current-row>
           <el-table-column
             align="center"
             prop="name"
-            label="名称">
+            :label="$t('commons.name')">
           </el-table-column>
           <!--        <el-table-column-->
           <!--          align="center"-->
@@ -223,7 +373,7 @@
           <el-table-column
             align="center"
             prop="description"
-            label="描述">
+            :label="$t('commons.description')">
           </el-table-column>
           <el-table-column align="center" :label="$t('load_test.operating')">
             <template v-slot:default="{row, $index}">
@@ -240,6 +390,7 @@
     </el-row>
 
     <edit-monitor ref="monitorDialog" :testId="testId" :list.sync="monitorParams"/>
+    <batch-add-monitor ref="batchMonitorDialog" @batchSave="batchSave"/>
   </div>
 </template>
 
@@ -247,10 +398,11 @@
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import EditMonitor from "@/business/components/performance/test/components/EditMonitor";
 import {hasPermission} from "@/common/js/utils";
+import BatchAddMonitor from "@/business/components/performance/test/components/BatchAddMonitor";
 
 export default {
   name: "PerformanceAdvancedConfig",
-  components: {EditMonitor, MsTableOperatorButton},
+  components: {BatchAddMonitor, EditMonitor, MsTableOperatorButton},
   data() {
     return {
       timeout: undefined,
@@ -258,6 +410,7 @@ export default {
       statusCode: [],
       domains: [],
       params: [],
+      properties: [],
       monitorParams: [],
       csvFiles: [],
       csvConfig: [],
@@ -314,6 +467,7 @@ export default {
           this.params = data.params || [];
           this.granularity = data.granularity;
           this.monitorParams = data.monitorParams || [];
+          this.properties = data.properties || [];
           this.csvConfig = data.csvConfig;
         }
       });
@@ -330,6 +484,14 @@ export default {
       if (dataName === 'params') {
         this[dataName].push({
           name: 'param1',
+          enable: true,
+          value: '0',
+          edit: true,
+        });
+      }
+      if (dataName === 'properties') {
+        this[dataName].push({
+          name: 'prop1',
           enable: true,
           value: '0',
           edit: true,
@@ -371,6 +533,13 @@ export default {
           return false;
         }
       }
+      counts = this.groupBy(this.properties, 'name');
+      for (let c in counts) {
+        if (counts[c] > 1) {
+          this.$error(this.$t('load_test.param_is_duplicate'));
+          return false;
+        }
+      }
       if (this.domains.filter(d => !d.domain || !d.ip).length > 0) {
         this.$error(this.$t('load_test.domain_ip_is_empty'));
         return false;
@@ -400,6 +569,7 @@ export default {
         responseTimeout: this.responseTimeout,
         statusCode: statusCode,
         params: this.params,
+        properties: this.properties,
         csvConfig: this.csvFiles.reduce((result, curr) => {
           result[curr.name] = {csvHasHeader: curr.csvHasHeader, csvSplit: curr.csvSplit};
           return result;
@@ -411,6 +581,32 @@ export default {
     },
     addMonitor() {
       this.$refs.monitorDialog.open();
+    },
+    batchAddMonitor() {
+      this.$refs.batchMonitorDialog.open();
+    },
+    batchSave(params) {
+      let targets = this._handleBatchVars(params);
+      targets.forEach(row => {
+        this.monitorParams.push(row);
+      });
+    },
+    _handleBatchVars(data) {
+      let params = data.split("\n");
+      let keyValues = [];
+      params.forEach(item => {
+        let line = item.split(/，|,/);
+        if (line.length < 3) {
+          return;
+        }
+        keyValues.push({
+          name: line[0],
+          ip: line[1],
+          port: line[2],
+          description: line[3] || '',
+        });
+      });
+      return keyValues;
     },
     modifyMonitor(row, index) {
       this.$refs.monitorDialog.open(row, index);

@@ -114,16 +114,17 @@
           },
           {
             label: this.$t('report.export'),
-            permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
             children: [
               {
                 label: this.$t('report.export_to_ms_format'),
+                permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
                 callback: () => {
-                  this.$emit('exportAPI');
+                  this.exportAPI();
                 }
               },
               {
                 label: this.$t('report.export') + 'JMETER 格式',
+                permissions: ['PROJECT_API_SCENARIO:READ+EXPORT_SCENARIO'],
                 callback: () => {
                   this.$emit('exportJmx');
                 }
@@ -151,30 +152,6 @@
       }
     },
     methods: {
-      handleCommand(e) {
-        switch (e) {
-          case "add-scenario":
-            this.addScenario();
-            break;
-          case "import":
-            this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
-              if (response.data != undefined && response.data != null) {
-                this.data = response.data;
-                this.data.forEach(node => {
-                  buildTree(node, {path: ''});
-                });
-              }
-            });
-            this.$refs.apiImport.open(this.currentModule);
-            break;
-          case "export":
-            this.$emit('exportAPI');
-            break;
-          case "exportJmx":
-            this.$emit('exportJmx');
-            break;
-        }
-      },
       handleImport() {
         if (this.projectId) {
           this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
@@ -263,7 +240,7 @@
         }
       },
       exportAPI() {
-        this.$emit('exportAPI');
+        this.$emit('exportAPI', this.data);
       },
       // debug() {
       //   this.$emit('debug');

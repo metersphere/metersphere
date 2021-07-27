@@ -126,6 +126,10 @@
         return uploadFiles;
       },
       _save(environment) {
+        if(!this.projectId){
+          this.$warning(this.$t('api_test.select_project'));
+          return;
+        }
         let bodyFiles = this.geFiles(environment);
         let param = this.buildParam(environment);
         let url = '/api/environment/add';
@@ -139,6 +143,7 @@
           }
           this.$success(this.$t('commons.save_success'));
           this.$emit('refreshAfterSave');   //在EnvironmentList.vue中监听，使在数据修改后进行刷新
+          this.cancel();
         });
       },
       buildParam: function (environment) {

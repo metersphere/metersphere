@@ -33,8 +33,8 @@
       ref="apiCaseList"/>
 
     <template v-slot:footer>
-      <el-button type="primary" @click="copy" @keydown.enter.native.prevent>{{ $t('commons.copy') }}</el-button>
-      <el-button v-if="!isApiListEnable" type="primary" @click="reference" @keydown.enter.native.prevent>
+      <el-button type="primary" @click="copy" :loading="buttonIsWorking" @keydown.enter.native.prevent>{{ $t('commons.copy') }}</el-button>
+      <el-button v-if="!isApiListEnable" type="primary" :loading="buttonIsWorking" @click="reference" @keydown.enter.native.prevent>
         {{ $t('api_test.scenario.reference') }}
       </el-button>
     </template>
@@ -62,6 +62,7 @@ export default {
   },
   data() {
     return {
+      buttonIsWorking:false,
       result: {},
       currentProtocol: null,
       selectNodeIds: [],
@@ -77,10 +78,16 @@ export default {
     }
   },
   methods: {
+    changeButtonLoadingType(){
+      this.refresh();
+      this.buttonIsWorking = false;
+    },
     reference() {
+      this.buttonIsWorking = true;
       this.save('REF');
     },
     copy() {
+      this.buttonIsWorking = true;
       this.save('Copy');
     },
     save(reference) {
@@ -94,10 +101,13 @@ export default {
           let apis = response.data;
           if(apis.length === 0){
             this.$warning('请选择接口');
+            this.buttonIsWorking = false;
           }else {
             this.$emit('save', apis, 'API', reference);
             this.$refs.baseRelevance.close();
           }
+        },(error) => {
+          this.buttonIsWorking = false;
         });
 
       } else {
@@ -106,11 +116,13 @@ export default {
           let apiCases = response.data;
           if(apiCases.length === 0) {
             this.$warning('请选择案例');
+            this.buttonIsWorking = false;
           }else{
             this.$emit('save', apiCases, 'CASE', reference);
             this.$refs.baseRelevance.close();
           }
-
+        },(error) => {
+          this.buttonIsWorking = false;
         });
       }
     },
@@ -120,6 +132,7 @@ export default {
       this.$refs.relevanceDialog.close();
     },
     open() {
+      this.buttonIsWorking = false;
       if (this.$refs.apiList) {
         this.$refs.apiList.clearSelection();
       }

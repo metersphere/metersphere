@@ -64,7 +64,7 @@
               <ms-api-auth-config :is-read-only="isReadOnly" :request="request"/>
             </el-tab-pane>
 
-            <el-tab-pane label="其他设置" name="advancedConfig">
+            <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
               <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
             </el-tab-pane>
 
@@ -219,7 +219,7 @@
           params.forEach(item => {
             let line = item.split(/，|,/);
             let required = false;
-            if (line[1] === '必填' || line[1] === 'true') {
+            if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
               required = true;
             }
             keyValues.push(new KeyValue({name: line[0], required: required, value: line[2], description: line[3], type: "text", valid: false, file: false, encode: true, enable: true, contentType: "text/plain"}));

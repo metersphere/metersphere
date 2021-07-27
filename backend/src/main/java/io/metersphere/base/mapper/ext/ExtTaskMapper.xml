@@ -6,12 +6,15 @@
         SELECT tt.* FROM (
             (select t.id,if(t.scenario_id like "[\"%\"]", t.name,t.scenario_name) as name ,'SCENARIO' as executionModule, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.status as executionStatus
                 from api_scenario_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.actuator  = t2.id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.project_id= #{request.projectId}
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type !='Marge'  and t.project_id= #{request.projectId}
                 <if test="request.triggerMode != null and request.triggerMode != ''">
                     and t.trigger_mode = #{request.triggerMode}
                 </if>
                 <if test="request.executionStatus != null and request.executionStatus != ''">
                     and t.status = #{request.executionStatus}
+                </if>
+                <if test="request.executor != null and request.executor != ''">
+                    and t.user_id = #{request.executor}
                 </if>
              )
              UNION ALL
@@ -27,7 +30,10 @@
                 <if test="request.executionStatus != null and request.executionStatus != ''">
                     and t.status = #{request.executionStatus}
                 </if>
-             )
+                <if test="request.executor != null and request.executor != ''">
+                    and t.user_id = #{request.executor}
+                </if>
+            )
             UNION ALL
             (select t.id,t.name,'PERFORMANCE' as executionModule, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.`status` as executionStatus
                 from load_test_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.test_resource_pool_id  = t2.id
@@ -38,16 +44,19 @@
                 <if test="request.executionStatus != null and request.executionStatus != ''">
                     and t.status = #{request.executionStatus}
                 </if>
+                <if test="request.executor != null and request.executor != ''">
+                    and t.user_id = #{request.executor}
+                </if>
             )
         )tt ORDER BY tt.executionTime DESC;
     </select>
 
 
-    <select id="getRunningTasks" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
-        SELECT tt.* FROM (
+    <select id="getRunningTasks" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT count(tt.id) FROM (
             (select t.id,t.create_time as executionTime
                 from api_scenario_report t left join `user` t1 ON t.user_id = t1.id left join test_resource_pool t2 on t.actuator  = t2.id
-                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.project_id= #{request.projectId} and t.status not in ("saved","completed","success","error")
+                where to_days(FROM_UNIXTIME(t.create_time/1000))= to_days(now()) and t.execute_type !='Debug' and t.execute_type !='Marge' and t.project_id= #{request.projectId} and t.status not in ("saved","completed","success","error")
             )
         UNION ALL
             (select t.id,t.create_time as executionTime

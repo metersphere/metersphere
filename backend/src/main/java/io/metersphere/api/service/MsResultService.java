@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.*;
 import io.metersphere.commons.utils.LogUtil;
@@ -12,15 +13,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import sun.security.util.Cache;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class MsResultService {
     // 零时存放实时结果
     private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
+    private Map<String, List<SampleResult>> processCache = new HashMap<>();
 
     private final static String THREAD_SPLIT = " ";
 
@@ -33,26 +33,59 @@ public class MsResultService {
         return null;
     }
 
+    public List<SampleResult> procResult(String key) {
+        if (this.processCache.get(key) != null) {
+            return this.processCache.get(key);
+        }
+        return new LinkedList<>();
+    }
+
     public void setCache(String key, SampleResult result) {
-        TestResult testResult = this.getResult(key);
+        if (key.startsWith("[") && key.endsWith("]")) {
+            key = JSON.parseArray(key).get(0).toString();
+        }
+        List<SampleResult> testResult = this.procResult(key);
+        testResult.add(result);
+        this.processCache.put(key, testResult);
+    }
+
+    public TestResult sysnSampleResult(String key) {
+        if (key.startsWith("[") && key.endsWith("]")) {
+            key = JSON.parseArray(key).get(0).toString();
+        }
+        String logs = getJmeterLogger(key, false);
+        List<SampleResult> results = this.processCache.get(key);
+        boolean isRemove = false;
+        TestResult testResult = (TestResult) cache.get(key);
         if (testResult == null) {
             testResult = new TestResult();
         }
-        if (result.getResponseCode().equals(MsResultCollector.TEST_END)) {
-            testResult.setEnd(true);
+        if (CollectionUtils.isNotEmpty(results)) {
+            final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
+            for (SampleResult result : results) {
+                if (result.getResponseCode().equals(MsResultCollector.TEST_END)) {
+                    testResult.setEnd(true);
+                    this.cache.put(key, testResult);
+                    isRemove = true;
+                    break;
+                }
+                testResult.setTestId(key);
+                if (StringUtils.isNotEmpty(logs)) {
+                    testResult.setConsole(logs);
+                }
+                testResult.setTotal(0);
+                this.formatTestResult(testResult, scenarios, result);
+            }
+            testResult.getScenarios().clear();
+            testResult.getScenarios().addAll(scenarios.values());
+            testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
             this.cache.put(key, testResult);
-            return;
+
+            if (isRemove) {
+                this.processCache.remove(key);
+            }
         }
-        testResult.setTestId(key);
-        testResult.setConsole(getJmeterLogger(key, false));
-        testResult.setTotal(0);
-        final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
-
-        this.formatTestResult(testResult, scenarios, result);
-
-        testResult.getScenarios().addAll(scenarios.values());
-        testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        this.cache.put(key, testResult);
+        return (TestResult) cache.get(key);
     }
 
     public void delete(String testId) {
@@ -84,7 +117,6 @@ public class MsResultService {
             scenarioResult.addError(result.getErrorCount());
             testResult.addError(result.getErrorCount());
         }
-
         RequestResult requestResult = this.getRequestResult(result);
         scenarioResult.getRequestResults().add(requestResult);
         scenarioResult.addResponseTime(result.getTime());
@@ -98,11 +130,24 @@ public class MsResultService {
 
     public String getJmeterLogger(String testId, boolean removed) {
         Long startTime = FixedTask.tasks.get(testId);
+        if (startTime == null) {
+            startTime = FixedTask.tasks.get("[" + testId + "]");
+        }
+        if (startTime == null) {
+            startTime = System.currentTimeMillis();
+        }
         Long endTime = System.currentTimeMillis();
+        Long finalStartTime = startTime;
         String logMessage = JmeterLoggerAppender.logger.entrySet().stream()
-                .filter(map -> map.getKey() > startTime && map.getKey() < endTime)
+                .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
                 .map(map -> map.getValue()).collect(Collectors.joining());
         if (removed) {
+            if (processCache.get(testId) != null) {
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                }
+            }
             FixedTask.tasks.remove(testId);
         }
         if (FixedTask.tasks.isEmpty()) {
@@ -114,6 +159,7 @@ public class MsResultService {
     public RequestResult getRequestResult(SampleResult result) {
         RequestResult requestResult = new RequestResult();
         requestResult.setId(result.getSamplerId());
+        requestResult.setResourceId(result.getResourceId());
         requestResult.setName(result.getSampleLabel());
         requestResult.setUrl(result.getUrlAsString());
         requestResult.setMethod(getMethod(result));

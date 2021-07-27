@@ -8,7 +8,7 @@
               <el-checkbox class="item-select" v-model="apiCase.selected"/>
             </el-col>
             <el-col :span="2" style="margin-top: 2px">
-              <show-more-btn :is-show="apiCase.selected" :buttons="buttons"/>
+              <show-more-btn :is-show="apiCase.selected" :buttons="buttons" :size="selectSize"/>
             </el-col>
             <el-col :span="20">
               <div class="el-step__icon is-text ms-api-col">
@@ -126,7 +126,7 @@
 
 <script>
   import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
-  import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
+  import {PRIORITY} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
   import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
@@ -173,6 +173,11 @@
       return {
         result: {},
         grades: [],
+        resultMap:new Map([
+          ['success', this.$t('test_track.plan_view.execute_result')+'：'+this.$t('test_track.plan_view.pass')],
+          ['error', this.$t('test_track.plan_view.execute_result')+'：'+this.$t('api_test.home_page.detail_card.execution_failed')],
+          ['default', this.$t('test_track.plan_view.execute_result')+'：'+this.$t('api_test.home_page.detail_card.unexecute')]
+        ]),
         showXpackCompnent: false,
         isReadOnly: false,
         selectedEvent: Object,
@@ -193,6 +198,7 @@
     },
     props: {
       runResult:{},
+      selectSize: Number,
       apiCase: {
         type: Object,
         default() {
@@ -220,7 +226,11 @@
         this.showXpackCompnent = true;
       }
     },
-    watch: {},
+    watch: {
+      'apiCase.selected'(){
+        this.$emit('apiCaseSelected');
+      }
+    },
     methods: {
       openHis(row) {
         this.$refs.changeHistory.open(row.id);
@@ -385,10 +395,10 @@
         item.active = !item.active;
       },
       getResult(data) {
-        if (RESULT_MAP.get(data)) {
-          return RESULT_MAP.get(data);
+        if (this.resultMap.get(data)) {
+          return this.resultMap.get(data);
         } else {
-          return RESULT_MAP.get("default");
+          return this.resultMap.get("default");
         }
       },
       validate(row) {

@@ -17,7 +17,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@JSONType(typeName = "TCPSampler")
+@JSONType(typeName = "DebugSampler")
 public class MsDebugSampler extends MsTestElement {
     @JSONField(ordinal = 40)
     private String type = "DebugSampler";

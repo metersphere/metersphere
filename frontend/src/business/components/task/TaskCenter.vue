@@ -10,10 +10,12 @@
           <template v-slot:content>
             <span>{{ $t('commons.task_center') }}</span>
           </template>
-          <el-badge :value="runningTotal" class="item" type="primary" v-if="runningTotal > 0">
-            <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']"
-                               style="font-size: 18px"/>
-          </el-badge>
+          <div @click="showTaskCenter" v-if="runningTotal > 0" >
+            <el-badge :value="runningTotal" class="item" type="primary">
+              <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"
+                                 style="font-size: 18px"/>
+            </el-badge>
+          </div>
           <font-awesome-icon @click="showTaskCenter" class="icon global focusing" :icon="['fas', 'tasks']" v-else/>
         </el-tooltip>
       </el-menu-item>
@@ -25,17 +27,30 @@
       <div style="color: #2B415C;margin: 0px 20px 0px">
         <el-form label-width="68px">
           <el-row>
-            <el-col :span="12">
+            <el-col :span="8">
               <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
                 <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init">
                   <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="8">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init">
                   <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item :label="$t('commons.executor')" prop="status">
+                <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
+                           style="margin-right: 10px" @change="init">
+                  <el-option
+                    v-for="item in maintainerOptions"
+                    :key="item.id"
+                    :label="item.id + ' (' + item.name + ')'"
+                    :value="item.id">
+                  </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -43,19 +58,28 @@
         </el-form>
       </div>
 
-      <div class="report-container" v-loading="result.loading">
+      <div class="report-container">
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
-            <span>{{ item.name }} </span><br/>
-            <span>执行器：{{ item.actuator }} 由 {{ item.executor }} {{
-                item.executionTime | timestampFormatDate
-              }} {{ getMode(item.triggerMode) }}</span><br/>
+            <span><el-link type="primary">{{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span><br/>
+            <span>
+              执行器：{{ item.actuator }} 由 {{ item.executor }}
+              {{ item.executionTime | timestampFormatDate }}
+              {{ getMode(item.triggerMode) }}
+            </span>
+            <br/>
             <el-row>
               <el-col :span="20">
                 <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
               </el-col>
               <el-col :span="4">
-                <span>{{ item.executionStatus }}</span>
+                  <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'" class="ms-task-error">
+                     error
+                  </span>
+                <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
+                     success
+                </span>
+                <span v-else>{{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}</span>
               </el-col>
             </el-row>
           </el-card>
@@ -73,7 +97,7 @@
 
 <script>
 import MsDrawer from "../common/components/MsDrawer";
-import {getCurrentProjectID, hasPermissions} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, hasPermissions} from "@/common/js/utils";
 import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 
 export default {
@@ -92,13 +116,13 @@ export default {
       result: {},
       taskData: [],
       response: {},
+      initEnd: false,
       visible: false,
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
         {id: 'SCHEDULE', label: this.$t('commons.trigger_mode.schedule')},
         {id: 'MANUAL', label: this.$t('commons.trigger_mode.manual')},
-        {id: 'CASE', label: this.$t('commons.trigger_mode.case')},
         {id: 'API', label: 'API'}
       ],
       runStatus: [
@@ -112,6 +136,8 @@ export default {
         {id: 'success', label: 'Success'}
       ],
       condition: {triggerMode: "", executionStatus: ""},
+      maintainerOptions: [],
+      websocket:Object,
     };
   },
   props: {
@@ -119,12 +145,25 @@ export default {
   },
   created() {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
-      this.getTaskRunning();
+      this.condition.executor = getCurrentUser().id;
     }
   },
-  methods: {
+  watch: {
+    taskVisible(v){
+      if(!v){
+        this.close();
+      }
+    }
+  },
+    methods: {
     format(item) {
       return '';
+    },
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+        this.condition.executor = getCurrentUser().id;
+      });
     },
     initWebSocket() {
       let protocol = "ws://";
@@ -145,32 +184,52 @@ export default {
     onMessage(e) {
       let taskTotal = e.data;
       this.runningTotal = taskTotal;
+      this.initIndex++;
+      if (this.taskVisible && taskTotal > 0 && this.initEnd) {
+        setTimeout(() => {
+          this.initEnd = false;
+          this.init();
+        }, 3000);
+      }
     },
     onClose(e) {
-      if (e.code === 1005) {
-        // 强制删除之后关闭socket，不用刷新report
-        return;
-      }
     },
     showTaskCenter() {
       this.getTaskRunning();
+      this.getMaintainerOptions();
       this.init();
       this.taskVisible = true;
     },
     close() {
       this.visible = false;
+      this.taskVisible = false;
+      this.websocket.close();
     },
     open() {
       this.showTaskCenter();
+      this.initIndex = 0;
     },
     getPercentage(status) {
       if (status) {
         status = status.toLowerCase();
+        if (status === "waiting") {
+          return 0;
+        }
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
           return 100;
         }
       }
       return 60;
+    },
+    getModeName(executionModule) {
+      switch (executionModule) {
+        case "SCENARIO":
+          return this.$t('test_track.scenario_test_case');
+        case "PERFORMANCE":
+          return this.$t('test_track.performance_test_case');
+        case "API":
+          return this.$t('test_track.api_test_case');
+      }
     },
     showReport(row, env) {
       let status = row.executionStatus;
@@ -224,9 +283,6 @@ export default {
       if (mode === 'API') {
         return this.$t('commons.trigger_mode.api');
       }
-      if (mode === 'CASE') {
-        return this.$t('commons.trigger_mode.case');
-      }
       if (mode === 'BATCH') {
         return this.$t('api_test.automation.batch_execute');
       }
@@ -235,11 +291,24 @@ export default {
     getTaskRunning() {
       this.initWebSocket();
     },
+    calculationRunningTotal() {
+      if (this.taskData) {
+        let total = 0;
+        this.taskData.forEach(item => {
+          if (this.getPercentage(item.executionStatus) !== 100) {
+            total++;
+          }
+        })
+        this.runningTotal = total;
+      }
+    },
     init() {
       this.result.loading = true;
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('/task/center/list', this.condition, response => {
         this.taskData = response.data;
+        this.calculationRunningTotal();
+        this.initEnd = true;
       });
     }
   }
@@ -337,5 +406,13 @@ export default {
 
 .item {
   margin-right: 10px;
+}
+
+.ms-task-error {
+  color: #F56C6C;
+}
+
+.ms-task-success {
+  color: #67C23A;
 }
 </style>

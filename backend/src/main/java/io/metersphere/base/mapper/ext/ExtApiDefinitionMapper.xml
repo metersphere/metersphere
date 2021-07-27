@@ -262,7 +262,7 @@
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExampleWithOperation">
         update api_definition
         set original_state=status,
-        status = 'Trash', module_path = null, module_id = null,delete_user_id = #{operator},delete_time = #{operationTime}
+        status = 'Trash', delete_user_id = #{operator},delete_time = #{operationTime}
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
         </if>
@@ -273,6 +273,15 @@
         set
         status = original_state,delete_time = null,delete_user_id = null
         where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+    <update id="checkOriginalStatusByIds">
+        update api_definition
+        set
+        original_state = 'Underway'
+        where (original_state IS NULL OR original_state = 'Trash') AND id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
@@ -479,10 +488,10 @@
     <select id="selectIds" resultType="java.lang.String">
         select api_definition.id
         from api_definition
-        left join project on api_definition.project_id = project.id
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
         select id,path,method
         from api_definition
@@ -580,9 +589,6 @@
                 </when>
                 <when test="request.projectId != null">
                     AND api_definition.project_id = #{request.projectId}
-                </when>
-                <when test="request.projectId != null">
-                    AND project.id = #{request.projectId}
                 </when>
                 <when test="request.workspaceId != null">
                     AND project.workspace_id = #{request.workspaceId}
