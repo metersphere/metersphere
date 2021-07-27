@@ -142,12 +142,12 @@ export default {
     },
   },
   methods: {
-    apiCaseSelected(){
+    apiCaseSelected() {
       this.selectSize = 0;
       if (this.apiCaseList.length > 0) {
         this.apiCaseList.forEach(item => {
           if (item.selected && item.id) {
-            this.selectSize ++;
+            this.selectSize++;
           }
         });
       }
@@ -158,6 +158,18 @@ export default {
       this.testCaseId = testCaseId;
       this.condition = {components: API_CASE_CONFIGS};
       this.getApiTest(true);
+      this.visible = true;
+    },
+    add(api) {
+      this.api = api;
+      this.condition = {components: API_CASE_CONFIGS};
+      this.sysAddition();
+      this.visible = true;
+    },
+    copy(apiCase) {
+      this.api.id = apiCase.apiDefinitionId;
+      this.condition = {components: API_CASE_CONFIGS};
+      this.sysAddition(apiCase);
       this.visible = true;
     },
     runTestCase(api, testCaseId) {
@@ -177,7 +189,7 @@ export default {
     setEnvironment(environment) {
       this.environment = environment;
     },
-    sysAddition() {
+    sysAddition(apiCase) {
       this.condition.projectId = this.projectId;
       this.condition.apiDefinitionId = this.api.id;
       this.$post("/api/testcase/list", this.condition, response => {
@@ -195,7 +207,11 @@ export default {
           }
         });
         this.apiCaseList = data;
-        this.addCase();
+        if (apiCase) {
+          this.copyCase(apiCase);
+        } else {
+          this.addCase();
+        }
       });
     },
 

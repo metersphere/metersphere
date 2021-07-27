@@ -7,7 +7,7 @@
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search"
                 class="search-input" size="small"
                 v-model="condition.name"/>
-
+      <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small" @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}</el-button>
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total"
                 :operators="operators"
@@ -16,7 +16,7 @@
                 :fields.sync="fields"
                 :field-key="tableHeaderKey"
                 @saveSortField="saveSortField"
-                operator-width="170px"
+                operator-width="190px"
                 @refresh="initTable"
                 ref="caseTable"
       >
@@ -163,7 +163,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -249,6 +249,13 @@ export default {
           permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']
         },
         {
+          tip: this.$t('commons.copy'),
+          exec: this.handleCopy,
+          icon: "el-icon-document-copy",
+          type: "primary",
+          permissions: ['PROJECT_API_DEFINITION:READ+COPY_CASE']
+        },
+        {
           tip: this.$t('commons.delete'),
           exec: this.deleteToGc,
           icon: "el-icon-delete",
@@ -294,6 +301,7 @@ export default {
   },
   props: {
     currentProtocol: String,
+    apiDefinitionId: String,
     selectNodeIds: Array,
     activeDom: String,
     visible: {
@@ -405,6 +413,9 @@ export default {
         if (index != -1) {
           this.condition.orders.splice(index, 1);
         }
+      }
+      if (this.apiDefinitionId) {
+        this.condition.apiDefinitionId = this.apiDefinitionId;
       }
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
@@ -537,6 +548,33 @@ export default {
         this.$refs.caseList.open(selectApi, testCase.id);
       });
     },
+    addTestCase() {
+      this.$get('/api/definition/get/' + this.apiDefinitionId, (response) => {
+        let api = response.data;
+        let selectApi = api;
+        let request = {};
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          request = api.request;
+        } else {
+          request = JSON.parse(api.request);
+        }
+        if (!request.hashTree) {
+          request.hashTree = [];
+        }
+        selectApi.url = request.path;
+        this.$refs.caseList.add(selectApi);
+      });
+    },
+    handleCopy(row) {
+      this.$get('/api/testcase/findById/' + row.id, (response) => {
+        let data = response.data;
+        let uuid = getUUID();
+        let apiCaseRequest = JSON.parse(data.request);
+        apiCaseRequest.id = uuid;
+        let obj = {name: "copy_" + data.name, apiDefinitionId: row.apiDefinitionId, priority: data.priority, active: true, tags: data.tags, request: apiCaseRequest, uuid: uuid};
+        this.$refs.caseList.copy(obj);
+      });
+    },
     handleDeleteBatch() {
       this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
@@ -594,8 +632,6 @@ export default {
           }
         });
       });
-
-
     },
     handleEditBatch() {
       if (this.currentProtocol == 'HTTP') {
@@ -640,7 +676,6 @@ export default {
       return;
     },
     deleteToGc(apiCase) {
-
       let obj = {};
       obj.projectId = this.projectId;
       obj.selectAllDate = false;

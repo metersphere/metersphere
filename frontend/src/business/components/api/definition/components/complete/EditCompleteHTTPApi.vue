@@ -9,7 +9,6 @@
             {{ $t('operating_log.change_history') }}
           </el-link>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
-          <el-button type="primary" size="small" @click="runTest">{{ $t('commons.test') }}</el-button>
         </div>
         <br/>
         <p class="tip">{{ $t('test_track.plan_view.base_info') }} </p>
@@ -85,14 +84,11 @@
         <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
         <div class="base-info mock-info">
           <el-row>
-            <el-col :span="20">
+            <el-col :span="24">
               Mock地址：
               <el-link :href="getUrlPrefix" target="_blank" style="color: black"
                        type="primary">{{ this.getUrlPrefix }}
               </el-link>
-            </el-col>
-            <el-col :span="4">
-              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
             </el-col>
           </el-row>
 
@@ -322,21 +318,6 @@
           }
         });
       },
-      mockSetting() {
-        if (this.httpForm.id == null) {
-          this.$alert(this.$t('api_test.mock.create_error'));
-        } else {
-          let mockParam = {};
-          mockParam.projectId = this.projectId;
-          mockParam.apiId = this.httpForm.id;
-
-          this.$post('/mockConfig/genMockConfig', mockParam, response => {
-            let mockConfig = response.data;
-            mockConfig.apiName = this.httpForm.name;
-            this.$emit('mockConfig', mockConfig);
-          });
-        }
-      }
     },
 
     created() {
