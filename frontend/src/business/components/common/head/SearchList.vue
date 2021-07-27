@@ -27,11 +27,12 @@
 
 <script>
 import {
+  fullScreenLoading,
   getCurrentProjectID,
   getCurrentUser,
   getCurrentUserId,
   getCurrentWorkspaceId,
-  saveLocalStorage
+  saveLocalStorage, stopFullScreenLoading
 } from "@/common/js/utils";
 import {mapGetters} from "vuex";
 import {PROJECT_ID} from "@/common/js/constants";
@@ -105,6 +106,7 @@ export default {
       if (projectId === currentProjectId) {
         return;
       }
+      const loading = fullScreenLoading(this);
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, (response) => {
         saveLocalStorage(response);
         this.currentProjectId = projectId;
@@ -114,8 +116,10 @@ export default {
         sessionStorage.setItem(PROJECT_ID, projectId);
         // 刷新路由
         this.reload();
-
+        stopFullScreenLoading(loading, 1500);
         this.changeProjectName(projectId);
+      }, () => {
+        stopFullScreenLoading(loading, 1500);
       });
     },
     changeProjectName(projectId) {
