@@ -170,6 +170,8 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     private String resourceId;
 
+    private String extVars;
+
     public String getSamplerId() {
         return this.samplerId;
     }
@@ -183,6 +185,14 @@ public class SampleResult implements Serializable, Cloneable, Searchable {
 
     public String getScenario() {
         return this.scenario;
+    }
+
+    public void setExtVars(String vars) {
+        this.extVars = vars;
+    }
+
+    public String getExtVars() {
+        return this.extVars;
     }
 
     /**
