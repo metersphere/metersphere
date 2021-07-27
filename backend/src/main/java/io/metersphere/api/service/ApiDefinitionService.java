@@ -237,29 +237,43 @@ public class ApiDefinitionService {
         if (request.getIds() != null || !request.getIds().isEmpty()) {
             //检查模块是否还在
 
-                //检查原来模块是否还在
-                ApiDefinitionExample example = new ApiDefinitionExample();
-                example.createCriteria().andIdIn(request.getIds());
-                List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
-                Map<String,List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition :: getModuleId));
-                ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-                for(Map.Entry<String,List<ApiDefinition>> entry : nodeMap.entrySet()){
-                    String nodeId = entry.getKey();
-                    long nodeCount = apiModuleService.countById(nodeId);
-                    if(nodeCount <= 0){
-                        String projectId = request.getProjectId();
-                        ApiModule node = apiModuleService.getDefaultNode(projectId,request.getProtocol());
-                        List<ApiDefinition> testCaseList = entry.getValue();
-                        for (ApiDefinition apiDefinition: testCaseList) {
-                            ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
-                            updateCase.setId(apiDefinition.getId());
-                            updateCase.setModuleId(node.getId());
-                            updateCase.setModulePath("/"+node.getName());
+            //检查原来模块是否还在
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(request.getIds());
+            List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
+            Map<String,List<ApiDefinition>> nodeMap = new HashMap<>();
+            for (ApiDefinition api:reductionCaseList) {
+                String moduleId = api.getModuleId();
+                if(StringUtils.isEmpty(moduleId)){
+                    moduleId = "";
+                }
+                if(nodeMap.containsKey(moduleId)){
+                    nodeMap.get(moduleId).add(api);
+                }else {
+                    List<ApiDefinition> list = new ArrayList<>();
+                    list.add(api);
+                    nodeMap.put(moduleId,list);
+                }
+            }
+//            Map<String,List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition :: getModuleId));
+            ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+            for(Map.Entry<String,List<ApiDefinition>> entry : nodeMap.entrySet()){
+                String nodeId = entry.getKey();
+                long nodeCount = apiModuleService.countById(nodeId);
+                if(nodeCount <= 0){
+                    String projectId = request.getProjectId();
+                    ApiModule node = apiModuleService.getDefaultNode(projectId,request.getProtocol());
+                    List<ApiDefinition> testCaseList = entry.getValue();
+                    for (ApiDefinition apiDefinition: testCaseList) {
+                        ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
+                        updateCase.setId(apiDefinition.getId());
+                        updateCase.setModuleId(node.getId());
+                        updateCase.setModulePath("/"+node.getName());
 
-                            apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
-                        }
+                        apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
                     }
                 }
+            }
             extApiDefinitionMapper.checkOriginalStatusByIds(request.getIds());
             extApiDefinitionMapper.reduction(request.getIds());
 
