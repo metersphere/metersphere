@@ -8,4 +8,5 @@ public class ApiTestReportVariable extends ApiTestReport {
     public String executionTime;
     public String executor;
     public String executionEnvironment;
+    public String principal;
 }
