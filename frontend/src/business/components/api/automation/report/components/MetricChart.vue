@@ -19,13 +19,15 @@
           </div>
           <ms-chart id="chart" ref="chart" :options="options" :autoresize="true" v-else/>
           <el-row type="flex" justify="center" align="middle">
-            <i class="circle success"/>
+<!--            <i class="circle success"/>-->
+            <span class="ms-point-success"/>
             <div class="metric-box">
               <div class="value">{{ content.success }}</div>
               <div class="name">{{ $t('api_report.success') }}</div>
             </div>
             <div style="width: 40px"></div>
-            <i class="circle fail"/>
+<!--            <i class="circle fail"/>-->
+            <span class="ms-point-error"/>
             <div class="metric-box">
               <div class="value">{{ content.error }}</div>
               <div class="name">{{ $t('api_report.fail') }}</div>
@@ -42,13 +44,15 @@
               <div class="value">{{ content.scenarioTotal ? content.scenarioTotal : 0}}</div>
               <div class="name">{{ $t('api_test.scenario.scenario') }}</div>
             </div>
-            <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>
+<!--            <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>-->
+            <span class="ms-point-success"/>
             <div class="metric-box">
               <div class="value">{{ content.scenarioSuccess ? content.scenarioSuccess: 0 }}</div>
               <div class="name">{{ $t('api_report.success') }}</div>
             </div>
 <!--            <div style="width: 40px"></div>-->
-            <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>
+<!--            <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>-->
+            <span class="ms-point-error"/>
             <div class="metric-box">
               <div class="value">{{ content.scenarioError ? content.scenarioError : 0 }}</div>
               <div class="name">{{ $t('api_report.fail') }}</div>
@@ -61,13 +65,15 @@
                 <div class="value">{{ content.scenarioStepTotal ? content.scenarioStepTotal : 0}}</div>
                 <div class="name">{{ $t('test_track.plan_view.step') }}</div>
               </div>
-              <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>
+              <span class="ms-point-success"/>
+<!--              <i class="circle success" style="margin-left: 20px;margin-right: 20px"/>-->
               <div class="metric-box">
                 <div class="value">{{ content.scenarioStepSuccess ? content.scenarioStepSuccess: 0 }}</div>
                 <div class="name">{{ $t('api_report.success') }}</div>
               </div>
               <!--            <div style="width: 40px"></div>-->
-              <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>
+<!--              <i class="circle fail" style="margin-left: 20px;margin-right: 20px"/>-->
+              <span class="ms-point-error"/>
               <div class="metric-box">
                 <div class="value">{{ content.scenarioStepError ? content.scenarioStepError : 0 }}</div>
                 <div class="name">{{ $t('api_report.fail') }}</div>
@@ -334,5 +340,26 @@
     height: 110px;
     line-height: 110px;
     text-align: center;
+  }
+  .ms-point-success {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color : #67C23A;
+  }
+
+  .ms-point-error {
+    border-radius: 50%;
+    height: 12px;
+    width: 12px;
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 20px;
+    margin-right: 20px;
+    background-color : #F56C6C;
   }
 </style>
