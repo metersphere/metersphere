@@ -222,37 +222,7 @@
         LEFT JOIN `user` u1 ON t1.update_user_id = u1.id
         LEFT JOIN `user` u2 ON t1.create_user_id = u2.id
         LEFT JOIN `user` u3 ON t2.user_id = u3.id
-        <where>
-            <if test="request.name != null and request.name!=''">
-                and t1.name like CONCAT('%', #{request.name},'%')
-            </if>
-            <if test="request.id != null and request.id!=''">
-                AND t1.id = #{request.id}
-            </if>
-            <if test="request.priority != null and request.priority!=''">
-                AND t1.priority = #{request.priority}
-            </if>
-            <if test="request.projectId != null and request.projectId!=''">
-                AND t1.project_id = #{request.projectId}
-            </if>
-            <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
-                AND t1.api_definition_id = #{request.apiDefinitionId}
-            </if>
-            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-                and a.module_id in
-                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                    <property name="objectKey" value="request.combine.tags"/>
-                </include>
-            </if>
-        </where>
-
+        <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -534,6 +504,47 @@
     <select id="selectNameById" resultType="java.lang.String">
         SELECT testCase.name FROM api_test_case testCase
         WHERE testCase.id = #{0}
+    </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.name != null and request.name!=''">
+                and t1.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.id != null and request.id!=''">
+                AND t1.id = #{request.id}
+            </if>
+            <if test="request.priority != null and request.priority!=''">
+                AND t1.priority = #{request.priority}
+            </if>
+            <if test="request.projectId != null and request.projectId!=''">
+                AND t1.project_id = #{request.projectId}
+            </if>
+            <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
+                AND t1.api_definition_id = #{request.apiDefinitionId}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                and a.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+        </where>
+    </sql>
+    <select id="selectIdsByQuery" resultType="java.lang.String">
+        SELECT t1.id
+        FROM api_test_case t1
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            inner join api_definition a on  t1.api_definition_id = a.id
+        </if>
+        <include refid="queryWhereCondition"/>
     </select>
 
     <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">

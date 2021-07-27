@@ -149,6 +149,8 @@
     <!--高级搜索-->
     <ms-table-adv-search-bar :condition.sync="condition" :showLink="false" ref="searchBar" @search="initTable"/>
 
+    <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
+
   </div>
 
 </template>
@@ -188,10 +190,13 @@ import {
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {apiCaseBatchRun} from "@/network/api";
+import ApiCaseBatchRun from "@/business/components/api/definition/components/list/ApiCaseBatchRun";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
+    ApiCaseBatchRun,
     HeaderLabelOperate,
     MsTableHeaderSelectPopover,
     MsSetEnvironment,
@@ -229,7 +234,8 @@ export default {
       buttons: [],
       simpleButtons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
+        {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
       ],
       trashButtons: [
         {name: this.$t('commons.reduction'), handleClick: this.handleBatchRestore},
@@ -256,7 +262,7 @@ export default {
           icon: "el-icon-delete",
           type: "danger",
           permissions: ['PROJECT_API_DEFINITION:READ+DELETE_CASE']
-        },
+        }
       ],
       trashOperators: [
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reduction},
@@ -386,6 +392,17 @@ export default {
     }
   },
   methods: {
+    handleRunBatch() {
+      this.$refs.batchRun.open();
+    },
+    runBatch(environment) {
+      this.condition.environmentId = environment.id;
+      this.condition.ids = this.$refs.caseTable.selectIds;
+      apiCaseBatchRun(this.condition);
+      this.condition.ids = [];
+      this.$refs.batchRun.close();
+      this.search();
+    },
     customHeader() {
       this.$refs.caseTable.openCustomHeader();
     },
