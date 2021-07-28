@@ -239,11 +239,13 @@ export default {
       this.batchEdit(obj);
       this.runResult = {testId: getUUID()};
       this.$success(this.$t('organization.integration.successful_operation'));
+      this.$emit("refresh");
     },
     errorRefresh() {
       this.batchLoadingIds = [];
       this.singleLoading = false;
       this.singleRunId = "";
+      this.$emit("refresh");
     },
     refresh() {
       this.getApiTest();
@@ -388,6 +390,7 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
+      this.$emit("refresh",row.id);
     },
 
     batchRun() {

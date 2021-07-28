@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class TestResultService {
                 if (StringUtils.isBlank(debugReportId)) {
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(), TriggerMode.MANUAL.name());
                 }
-            //jenkins单接口执行
+                //jenkins单接口执行
             } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS.name())) {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(), TriggerMode.API.name());
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
@@ -90,9 +89,9 @@ public class TestResultService {
             } else if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                 //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
                 if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
-                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult,debugReportId, ApiRunMode.SCHEDULE_API_PLAN.name(),ReportTriggerMode.SCHEDULE.name());
+                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
                 } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
-                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult,debugReportId, ApiRunMode.JENKINS_API_PLAN.name(),ReportTriggerMode.API.name());
+                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, ApiRunMode.JENKINS_API_PLAN.name(), ReportTriggerMode.API.name());
                 } else {
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
                 }

@@ -8,17 +8,21 @@
                 class="search-input" size="small"
                 v-model="condition.name"/>
       <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small" @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}</el-button>
-      <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-                :total="total"
-                :operators="operators"
-                :batch-operators="buttons"
-                :screenHeight="screenHeight"
-                :fields.sync="fields"
-                :field-key="tableHeaderKey"
-                @saveSortField="saveSortField"
-                operator-width="190px"
-                @refresh="initTable"
-                ref="caseTable"
+      <ms-table
+        :data="tableData"
+        :select-node-ids="selectNodeIds"
+        :condition="condition"
+        :page-size="pageSize"
+        :total="total"
+        :operators="operators"
+        :batch-operators="buttons"
+        :screenHeight="screenHeight"
+        :fields.sync="fields"
+        :field-key="tableHeaderKey"
+        @saveSortField="saveSortField"
+        operator-width="190px"
+        @refresh="initTable"
+        ref="caseTable"
       >
         <ms-table-column
           prop="deleteTime"
@@ -76,6 +80,19 @@
           </ms-table-column>
 
           <ms-table-column
+            prop="status"
+            :filters="statusFilters"
+            :field="item"
+            :fields-width="fieldsWidth"
+            min-width="120px"
+            :label="$t('test_track.plan_view.execute_result')">
+            <template v-slot:default="scope">
+              <i class="el-icon-loading ms-running" v-if="scope.row.status === 'Running'"/>
+              <span :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</span>
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
             sortable="custom"
             prop="path"
             min-width="180px"
@@ -107,12 +124,13 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </ms-table-column>
-          <ms-table-column prop="createTime"
-                           :field="item"
-                           :fields-width="fieldsWidth"
-                           :label="$t('commons.create_time')"
-                           sortable
-                           min-width="180px">
+          <ms-table-column
+            prop="createTime"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('commons.create_time')"
+            sortable
+            min-width="180px">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
@@ -120,15 +138,20 @@
         </span>
 
         <template v-if="!trashEnable" v-slot:opt-behind="scope">
-          <ms-api-case-table-extend-btns @showCaseRef="showCaseRef"
-                                         @showEnvironment="showEnvironment"
-                                         @createPerformance="createPerformance" :row="scope.row"/>
+          <ms-api-case-table-extend-btns
+            @showCaseRef="showCaseRef"
+            @showEnvironment="showEnvironment"
+            @createPerformance="createPerformance"
+            :row="scope.row"/>
         </template>
 
       </ms-table>
 
-      <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
+      <ms-table-pagination
+        :change="initTable"
+        :current-page.sync="currentPage"
+        :page-size.sync="pageSize"
+        :total="total"/>
     </div>
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
@@ -282,6 +305,12 @@ export default {
         {text: 'P2', value: 'P2'},
         {text: 'P3', value: 'P3'}
       ],
+      statusFilters: [
+        {text: this.$t('api_test.automation.success'), value: 'success'},
+        {text: this.$t('api_test.automation.fail'), value: 'error'},
+        {text: this.$t('api_test.home_page.detail_card.unexecute'), value: ''},
+        {text: '测试中', value: 'Running'}
+      ],
       valueArr: {
         priority: CASE_PRIORITY,
         method: REQ_METHOD,
@@ -390,27 +419,53 @@ export default {
     }
   },
   methods: {
+    getStatusClass(status) {
+      switch (status) {
+        case "success":
+          return "ms-success";
+        case "error":
+          return "ms-error";
+        case "Running":
+          return "ms-running";
+        default:
+          return "ms-unexecute";
+      }
+    },
+    getStatusTitle(status) {
+      switch (status) {
+        case "success":
+          return this.$t('api_test.automation.success');
+        case "error":
+          return this.$t('api_test.automation.fail');
+        case "Running":
+          return "测试中";
+        default:
+          return this.$t('api_test.home_page.detail_card.unexecute');
+      }
+    },
+
     handleRunBatch() {
       this.$refs.batchRun.open();
     },
     runBatch(environment) {
       this.condition.environmentId = environment.id;
       this.condition.ids = this.$refs.caseTable.selectIds;
-      apiCaseBatchRun(this.condition);
-      this.condition.ids = [];
-      this.$refs.batchRun.close();
-      this.search();
+      this.$post('/api/testcase/batch/run', this.condition, () => {
+        this.condition.ids = [];
+        this.$refs.batchRun.close();
+        this.search();
+      });
     },
     customHeader() {
       this.$refs.caseTable.openCustomHeader();
     },
-    initTable() {
+    initTable(id) {
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
       if (this.condition.orders) {
-        const index = this.condition.orders.findIndex(d => d.name !== undefined && d.name === 'case_path');
-        if (index != -1) {
+        const index = this.condition.orders.findIndex(d => d.name && d.name === 'case_path');
+        if (index !== -1) {
           this.condition.orders.splice(index, 1);
         }
       }
@@ -420,7 +475,6 @@ export default {
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
-        // this.condition.status = "Trash";
         this.condition.moduleIds = [];
         if (this.condition.filters) {
           if (this.condition.filters.status) {
@@ -432,12 +486,9 @@ export default {
           this.condition.filters = {};
           this.condition.filters = {status: ["Trash"]};
         }
-      } else {
-        if (this.condition.filters) {
-          if (this.condition.filters.status) {
-            this.condition.filters.status = [];
-          }
-        }
+      }
+      if (this.condition.filters && !this.condition.filters.status) {
+        this.$delete(this.condition.filters, 'status')
       }
       if (!this.selectAll) {
         this.selectAll = false;
@@ -463,31 +514,39 @@ export default {
           this.condition.id = selectParamArr[1];
         }
       }
+      let isNext = false;
       if (this.condition.projectId) {
         this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
-
           if (!this.selectAll) {
             this.unSelection = response.data.listObject.map(s => s.id);
           }
-
           this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
+            if (id && id === item.id) {
+              item.status = "Running";
+            }
+            if (item.status === 'Running') {
+              isNext = true;
+            }
           })
-
           this.$nextTick(function () {
             if (this.$refs.caseTable) {
               this.$refs.caseTable.doLayout();
               this.$refs.caseTable.checkTableRowIsSelect();
             }
           })
+          if (isNext) {
+            setTimeout(() => {
+              this.initTable();
+            }, 5000);
+          }
         });
       }
     },
-
     open() {
       this.$refs.searchBar.open();
     },
@@ -933,4 +992,18 @@ export default {
   top: -2px;
 }
 
+.ms-success {
+  color: #67C23A;
+}
+
+.ms-error {
+  color: #F56C6C;
+}
+
+.ms-running {
+  color: #6D317C;
+}
+
+.ms-unexecute {
+}
 </style>

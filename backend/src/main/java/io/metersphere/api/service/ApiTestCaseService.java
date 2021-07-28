@@ -20,9 +20,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.MsTestElementConstants;
-import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -597,16 +595,50 @@ public class ApiTestCaseService {
         return ids;
     }
 
+    private ApiDefinitionExecResult addResult(String id, String status, ApiDefinitionExecResultMapper batchMapper) {
+        ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
+        apiResult.setId(UUID.randomUUID().toString());
+        apiResult.setCreateTime(System.currentTimeMillis());
+        apiResult.setStartTime(System.currentTimeMillis());
+        apiResult.setEndTime(System.currentTimeMillis());
+        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
+        if (caseWithBLOBs != null) {
+            apiResult.setName(caseWithBLOBs.getName());
+        }
+        apiResult.setTriggerMode(TriggerMode.BATCH.name());
+        apiResult.setActuator("LOCAL");
+        apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        apiResult.setResourceId(id);
+        apiResult.setStartTime(System.currentTimeMillis());
+        apiResult.setType(ApiRunMode.DEFINITION.name());
+        apiResult.setStatus(status);
+        batchMapper.insert(apiResult);
+        caseWithBLOBs.setLastResultId(apiResult.getId());
+        caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        caseWithBLOBs.setStatus(APITestStatus.Running.name());
+        apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+        return apiResult;
+    }
+
     public void batchRun(ApiCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiTestCaseMapper.selectIdsByQuery(query));
-        request.getIds().forEach(id -> {
+        Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+        request.getIds().forEach(testCaseId -> {
+            ApiDefinitionExecResult report = addResult(testCaseId, APITestStatus.Running.name(), batchMapper);
+            executeQueue.put(testCaseId, report);
+        });
+        sqlSession.flushStatements();
+        for (String caseId : executeQueue.keySet()) {
             RunCaseRequest runCaseRequest = new RunCaseRequest();
             runCaseRequest.setRunMode(ApiRunMode.DEFINITION.name());
-            runCaseRequest.setCaseId(id);
+            runCaseRequest.setCaseId(caseId);
+            runCaseRequest.setReportId(executeQueue.get(caseId).getId());
             runCaseRequest.setEnvironmentId(request.getEnvironmentId());
             run(runCaseRequest);
-        });
+        }
     }
 
     public String run(RunCaseRequest request) {
@@ -616,7 +648,6 @@ public class ApiTestCaseService {
             request.setCaseId(request.getReportId());
         } else {
             testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
-
         }
         if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS.name())) {
             request.setReportId(request.getEnvironmentId());
@@ -629,11 +660,8 @@ public class ApiTestCaseService {
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs);
-/*
-                String runMode = ApiRunMode.JENKINS.name();
-*/
                 // 调用执行方法
-                jMeterService.runLocal(request.getCaseId(), jmeterHashTree, request.getReportId(), request.getRunMode());
+                jMeterService.runLocal(request.getReportId(), jmeterHashTree, null, request.getRunMode());
 
             } catch (Exception ex) {
                 LogUtil.error(ex.getMessage(), ex);

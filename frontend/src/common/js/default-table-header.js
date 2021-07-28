@@ -53,11 +53,12 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'name', key: '2', label: 'test_track.case.name'},
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
     {id: 'path', key: '4', label: 'api_test.definition.api_definition_path'},
-    {id: 'casePath', key: '5', label: 'api_test.definition.api_case_path'},
-    {id: 'tags', key: '6', label: 'commons.tag'},
-    {id: 'createUser', key: '7', label: 'api_test.creator'},
-    {id: 'updateTime', key: '8', label: 'api_test.definition.api_last_time'},
-    {id: 'createTime', key: '9', label: 'commons.create_time'},
+    {id: 'status', key: '5', label: 'test_track.plan_view.execute_result'},
+    {id: 'casePath', key: '6', label: 'api_test.definition.api_case_path'},
+    {id: 'tags', key: '7', label: 'commons.tag'},
+    {id: 'createUser', key: '8', label: 'api_test.creator'},
+    {id: 'updateTime', key: '9', label: 'api_test.definition.api_last_time'},
+    {id: 'createTime', key: '10', label: 'commons.create_time'},
   ],
   //场景测试
   API_SCENARIO: [
