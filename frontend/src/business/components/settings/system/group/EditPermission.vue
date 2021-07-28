@@ -10,14 +10,18 @@
         :span-method="objectSpanMethod"
         border
         :data="tableData"
+        class="permission-table"
+        :row-class-name="handleLicenseResource"
         style="width: 100%">
         <el-table-column
           prop="type"
           :label="$t('group.functional_menu')"
           width="180">
           <template v-slot:default="scope">
-            <span v-if="scope.row.type !== 'PROJECT'">{{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}</span>
-            <span v-else>{{_computedMenuName(scope.row.resource)}}</span>
+            <span v-if="scope.row.type !== 'PROJECT'">
+              {{ userGroupType[scope.row.type] ? userGroupType[scope.row.type] : scope.row.type }}
+            </span>
+            <span v-else>{{ _computedMenuName(scope.row.resource) }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -25,7 +29,7 @@
           :label="$t('group.operation_object')"
           width="180">
           <template v-slot:default="scope">
-            {{scope.row.resource.name}}
+            {{ scope.row.resource.name }}
           </template>
         </el-table-column>
         <el-table-column
@@ -46,7 +50,9 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-button type="primary" @click="onSubmit" size="small" style="margin-top: 10px;margin-left: 5px;">{{ $t('commons.confirm') }}</el-button>
+    <el-button type="primary" @click="onSubmit" size="small" style="margin-top: 10px;margin-left: 5px;">
+      {{ $t('commons.confirm') }}
+    </el-button>
     <el-button @click="cancel" size="small">{{ $t('commons.cancel') }}</el-button>
   </el-dialog>
 </template>
@@ -54,6 +60,7 @@
 <script>
 import GroupPermission from "@/business/components/settings/system/group/GroupPermission";
 import {PROJECT_GROUP_SCOPE, USER_GROUP_SCOPE} from "@/common/js/table-constants";
+import {hasLicense} from "@/common/js/utils";
 
 export default {
   name: "EditPermission",
@@ -93,7 +100,7 @@ export default {
       })
     },
     _getUniteMenu() {
-      let menu = ['TRACK', 'API', 'PERFORMANCE'];
+      let menu = ['TRACK', 'API', 'PERFORMANCE', 'REPORT'];
       for (let i = 0; i < this.tableData.length; i++) {
         if (i === 0) {
           this.spanArr.push(1);
@@ -136,7 +143,7 @@ export default {
     cancel() {
       this.dialogVisible = false;
     },
-    objectSpanMethod({row, column, rowIndex, columnIndex}) {
+    objectSpanMethod({rowIndex, columnIndex}) {
       if (columnIndex === 0) {
         const _row = this.spanArr[rowIndex];
         const _col = _row > 0 ? 1 : 0;
@@ -148,11 +155,21 @@ export default {
     },
     handleSelectAll(check, permissions) {
       permissions.map(p => p.checked = check);
+    },
+    handleLicenseResource(row) {
+      if (!row.row.resource.license) {
+        return;
+      }
+      if (!hasLicense()) {
+        return 'hidden-row';
+      }
     }
   }
 }
 </script>
 
 <style scoped>
-
+.permission-table >>> .hidden-row {
+  display: none;
+}
 </style>
