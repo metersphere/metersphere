@@ -803,6 +803,7 @@ export default {
           if (!item.hashTree) {
             item.hashTree = [];
           }
+          this.resetResourceId(item.hashTree);
           item.enable === undefined ? item.enable = true : item.enable;
           if (this.selectedTreeNode !== undefined) {
             this.selectedTreeNode.hashTree.push(item);
@@ -1234,29 +1235,13 @@ export default {
         this.envResult.loading = false;
       })
     },
-    shrinkTreeNode() {
-      //改变每个节点的状态
-      for (let i in this.scenarioDefinition) {
-        if (this.scenarioDefinition[i]) {
-          if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
-            this.expandedNode.push(this.scenarioDefinition[i].resourceId);
-          }
-          if (this.stepSize < 35) {
-            this.scenarioDefinition[i].active = this.expandedStatus;
-          }
-          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
-          }
-        }
-      }
-    },
     changeNodeStatus(nodes) {
       for (let i in nodes) {
         if (nodes[i]) {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          if (this.stepSize < 35) {
+          if (this.stepSize < 35 || !this.expandedStatus) {
             nodes[i].active = this.expandedStatus;
           }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
@@ -1268,24 +1253,13 @@ export default {
     openExpansion() {
       this.expandedNode = [];
       this.expandedStatus = true;
-      this.shrinkTreeNode();
+      this.changeNodeStatus(this.scenarioDefinition);
     },
     closeExpansion() {
       this.expandedStatus = false;
       this.expandedNode = [];
-      this.shrinkTreeNode();
+      this.changeNodeStatus(this.scenarioDefinition);
       this.reload();
-    },
-    stepNode() {
-      //改变每个节点的状态
-      for (let i in this.scenarioDefinition) {
-        if (this.scenarioDefinition[i]) {
-          this.scenarioDefinition[i].enable = this.stepEnable;
-          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.stepStatus(this.scenarioDefinition[i].hashTree);
-          }
-        }
-      }
     },
     stepStatus(nodes) {
       for (let i in nodes) {
@@ -1299,11 +1273,11 @@ export default {
     },
     enableAll() {
       this.stepEnable = true;
-      this.stepNode();
+      this.stepStatus(this.scenarioDefinition);
     },
     disableAll() {
       this.stepEnable = false;
-      this.stepNode();
+      this.stepStatus(this.scenarioDefinition);
     },
     handleScroll() {
       let stepInfo = this.$refs.stepInfo;
