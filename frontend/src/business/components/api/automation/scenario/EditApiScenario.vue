@@ -1241,8 +1241,9 @@ export default {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          if (this.stepSize < 35 || !this.expandedStatus) {
-            nodes[i].active = this.expandedStatus;
+          nodes[i].active = this.expandedStatus;
+          if (this.stepSize > 35 && this.expandedStatus) {
+            nodes[i].active = false;
           }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
