@@ -344,7 +344,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     private String uploadFile(FileSystemResource resource) {
         String id = "";
-        setConfig();
+        zentaoClient.setConfig(getUserConfig());
         String session = zentaoClient.login();
         HttpHeaders httpHeaders = new HttpHeaders();
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
