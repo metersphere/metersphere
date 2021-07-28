@@ -1,7 +1,12 @@
 <template>
   <div>
-    <span v-for="(permission, index) in permissions" :key="index" style="margin-right: 25px;">
-      <el-checkbox v-model="permission['checked']" @change="change($event, permission)">
+    <span v-for="(permission, index) in permissions" :key="index">
+      <el-checkbox v-if="permission.license" v-xpack class="permission-checkbox"
+                   v-model="permission['checked']" @change="change($event, permission)">
+        {{ permission.name }}
+      </el-checkbox>
+      <el-checkbox v-else class="permission-checkbox"
+                   v-model="permission['checked']" @change="change($event, permission)">
         {{ permission.name }}
       </el-checkbox>
     </span>
@@ -51,5 +56,7 @@ export default {
 </script>
 
 <style scoped>
-
+.permission-checkbox {
+  margin-right: 25px;
+}
 </style>

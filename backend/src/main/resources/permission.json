@@ -19,7 +19,8 @@
       "id": "SYSTEM_USER:READ+EDIT",
       "name": "编辑用户",
       "resourceId": "SYSTEM_USER"
-    },    {
+    },
+    {
       "id": "SYSTEM_USER:READ+DELETE",
       "name": "删除用户",
       "resourceId": "SYSTEM_USER"
@@ -783,6 +784,18 @@
       "id": "PROJECT_PERFORMANCE_REPORT:READ+EXPORT",
       "name": "导出报告",
       "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    },
+    {
+      "id": "PROJECT_REPORT_ANALYSIS:READ",
+      "name": "查看",
+      "resourceId": "PROJECT_REPORT_ANALYSIS",
+      "license": true
+    },
+    {
+      "id": "PROJECT_REPORT_ANALYSIS:READ+EXPORT",
+      "name": "导出",
+      "resourceId": "PROJECT_REPORT_ANALYSIS",
+      "license": true
     }
   ],
   "resource": [
@@ -921,6 +934,11 @@
     {
       "id": "PROJECT_PERFORMANCE_REPORT",
       "name": "报告"
+    },
+    {
+      "id": "PROJECT_REPORT_ANALYSIS",
+      "name": "报表",
+      "license": true
     }
   ]
 }
