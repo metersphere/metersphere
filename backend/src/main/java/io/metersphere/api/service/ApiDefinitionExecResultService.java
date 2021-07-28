@@ -107,14 +107,15 @@ public class ApiDefinitionExecResultService {
                             definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
                         // 更新用例最后执行结果
-                        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
-                        apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
-                        apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
-
+                        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(saveResult.getResourceId());
+                        if (apiTestCase != null) {
+                            apiTestCase.setLastResultId(saveResult.getId());
+                            apiTestCase.setStatus(status);
+                            apiTestCaseMapper.updateByPrimaryKey(apiTestCase);
+                        }
                         if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                             saveResult.setTriggerMode(TriggerMode.MANUAL.name());
                         }
-                        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
                         if (!saved) {
                             definitionExecResultMapper.insert(saveResult);
                         } else {
@@ -168,7 +169,7 @@ public class ApiDefinitionExecResultService {
      * @param type
      */
     public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type, String trigeMode) {
-        testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE OVER.");
+        testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER.");
         String saveResultType = type;
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
@@ -249,7 +250,7 @@ public class ApiDefinitionExecResultService {
                 }
             });
         }
-        testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE OVER. API CASE STATUS:"+ JSONObject.toJSONString(apiIdResultMap));
+        testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
     }
