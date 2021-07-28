@@ -1,11 +1,6 @@
 package io.metersphere.commons.json;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.cfg.ValidationConfiguration;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 import com.google.gson.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -310,7 +305,6 @@ public class JSONSchemaGenerator {
         }
     }
 
-    private static final SyntaxValidator VALIDATOR = new SyntaxValidator(ValidationConfiguration.byDefault());
 
     private static String formerJson(String jsonSchema) {
         try {
@@ -328,24 +322,13 @@ public class JSONSchemaGenerator {
     }
 
     public static String getJson(String jsonSchema) {
-        if (StringUtils.isEmpty(jsonSchema)) {
-            return null;
-        }
         try {
-            JsonNode jsonNode = JsonLoader.fromString(jsonSchema);
-            ProcessingReport report = VALIDATOR.validateSchema(jsonNode);
-            if (report.isSuccess()) {
-                return formerJson(jsonSchema);
-            } else {
-                return report.getExceptionThreshold().toString();
+            if (StringUtils.isEmpty(jsonSchema)) {
+                return null;
             }
+            return formerJson(jsonSchema);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            try {
-                return formerJson(jsonSchema);
-            } catch (Exception e) {
-                return jsonSchema;
-            }
+            return jsonSchema;
         }
     }
 }
