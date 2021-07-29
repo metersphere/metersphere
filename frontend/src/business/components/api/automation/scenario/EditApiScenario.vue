@@ -180,6 +180,9 @@
               <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
                 <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="disableAll"/>
               </el-tooltip>
+              <el-link style="float:right;margin-right: 20px;margin-top: 3px" type="primary" @click.stop @click="showHistory">
+                {{ $t("commons.debug_history") }}
+              </el-link>
               <div class="ms-debug-result" v-if="debug">
                 <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
                 <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
@@ -276,6 +279,8 @@
       <ms-change-history ref="changeHistory"/>
 
     </div>
+    <ms-task-center ref="taskCenter"/>
+
   </el-card>
 </template>
 
@@ -311,6 +316,7 @@ import MsDrawer from "../../../common/components/MsDrawer";
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
 import MsChangeHistory from "../../../history/ChangeHistory";
+import MsTaskCenter from "../../../task/TaskCenter";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -339,7 +345,8 @@ export default {
     ScenarioHeader,
     MsDrawer,
     MsSelectTree,
-    MsChangeHistory
+    MsChangeHistory,
+    MsTaskCenter
   },
   data() {
     return {
@@ -1294,6 +1301,9 @@ export default {
           this.isTop = false;
         }
       }
+    },
+    showHistory(){
+      this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
     }
   }
 }

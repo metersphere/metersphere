@@ -88,8 +88,16 @@
             :label="$t('test_track.plan_view.execute_result')">
             <template v-slot:default="scope">
               <i class="el-icon-loading ms-running" v-if="scope.row.status === 'Running'"/>
-              <span :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</span>
+              <el-link @click="getExecResult(scope.row)" :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</el-link>
             </template>
+          </ms-table-column>
+
+           <ms-table-column
+             prop="passRate"
+             :field="item"
+             :fields-width="fieldsWidth"
+             min-width="100px"
+             :label="$t('commons.pass_rate')">
           </ms-table-column>
 
           <ms-table-column
@@ -166,6 +174,10 @@
 
     <api-case-batch-run :project-id="projectId" @batchRun="runBatch" ref="batchRun"/>
 
+    <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
+               :visible.sync="resVisible" class="api-import" destroy-on-close @close="resVisible=false">
+      <ms-request-result-tail :response="response" ref="debugResult"/>
+    </el-dialog>
   </div>
 
 </template>
@@ -205,8 +217,8 @@ import {
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
-import {apiCaseBatchRun} from "@/network/api";
 import ApiCaseBatchRun from "@/business/components/api/definition/components/list/ApiCaseBatchRun";
+import MsRequestResultTail from "../../../../api/definition/components/response/RequestResultTail";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -230,7 +242,8 @@ export default {
     MsReferenceView,
     MsTableAdvSearchBar,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    MsRequestResultTail
   },
   data() {
     return {
@@ -326,6 +339,8 @@ export default {
       unSelection: [],
       selectDataCounts: 0,
       environments: [],
+      resVisible: false,
+      response: {},
     }
   },
   props: {
@@ -419,6 +434,18 @@ export default {
     }
   },
   methods: {
+    getExecResult(apiCase) {
+      if (apiCase.lastResultId) {
+        let url = "/api/definition/report/get/" + apiCase.lastResultId;
+        this.$get(url, response => {
+          if (response.data) {
+            let data = JSON.parse(response.data.content);
+            this.response = data;
+            this.resVisible = true;
+          }
+        });
+      }
+    },
     getStatusClass(status) {
       switch (status) {
         case "success":

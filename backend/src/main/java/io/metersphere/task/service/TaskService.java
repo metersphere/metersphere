@@ -29,4 +29,11 @@ public class TaskService {
         return extTaskMapper.getRunningTasks(request);
     }
 
+    public List<TaskCenterDTO> getCases(String id) {
+        return extTaskMapper.getCases(id);
+    }
+
+    public List<TaskCenterDTO> getScenario(String id) {
+        return extTaskMapper.getScenario(id);
+    }
 }

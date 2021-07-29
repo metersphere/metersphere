@@ -51,6 +51,22 @@
         )tt ORDER BY tt.executionTime DESC;
     </select>
 
+    <select id="getCases" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
+        select t.id,t.name,'API' as executionModule, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, ifnull(t.trigger_mode,'MANUAL') as triggerMode ,ifnull(t.status,'Saved') as executionStatus
+        from api_definition_exec_result t
+        left join `user` t1 ON t.user_id = t1.id
+        left join test_resource_pool t2 on t.actuator  = t2.id
+        left join api_test_case t4 on t4.id = t.resource_id
+        where t4.id=#{id} and t.content != "" LIMIT 5;
+    </select>
+
+    <select id="getScenario" resultType="io.metersphere.task.dto.TaskCenterDTO" parameterType="java.lang.String">
+        select t.id,if(t.scenario_id like "[\"%\"]", t.name,t.scenario_name) as name ,'SCENARIO' as executionModule, ifnull(t2.name,'LOCAL') as actuator, t1.`name` as executor,t.create_time as executionTime, t.trigger_mode as triggerMode ,t.status as executionStatus
+        from api_scenario_report t
+        left join `user` t1 ON t.user_id = t1.id
+        left join test_resource_pool t2 on t.actuator  = t2.id
+        where  t.execute_type ='Debug' and t.scenario_id=#{id} ORDER BY t.create_time desc LIMIT 5;
+    </select>
 
     <select id="getRunningTasks" resultType="java.lang.Integer" parameterType="java.lang.String">
         SELECT count(tt.id) FROM (

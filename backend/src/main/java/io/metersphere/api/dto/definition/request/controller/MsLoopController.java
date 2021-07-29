@@ -70,9 +70,9 @@ public class MsLoopController extends MsTestElement {
             groupTree.add(resultAction);
         }
         // 循环间隔时长设置
-        ConstantTimer cnstantTimer = getCnstantTimer();
-        if (cnstantTimer != null) {
-            groupTree.add(cnstantTimer);
+        ConstantTimer constantTimer = getConstantTimer();
+        if (constantTimer != null) {
+            groupTree.add(constantTimer);
         }
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -238,7 +238,7 @@ public class MsLoopController extends MsTestElement {
         return null;
     }
 
-    private ConstantTimer getCnstantTimer() {
+    private ConstantTimer getConstantTimer() {
         ConstantTimer constantTimer = new ConstantTimer();
         constantTimer.setEnabled(this.isEnable());
         constantTimer.setProperty(TestElement.TEST_CLASS, ConstantTimer.class.getName());

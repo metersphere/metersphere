@@ -10,7 +10,7 @@
           <template v-slot:content>
             <span>{{ $t('commons.task_center') }}</span>
           </template>
-          <div @click="showTaskCenter" v-if="runningTotal > 0" >
+          <div @click="showTaskCenter" v-if="runningTotal > 0">
             <el-badge :value="runningTotal" class="item" type="primary">
               <font-awesome-icon class="icon global focusing" :icon="['fas', 'tasks']"
                                  style="font-size: 18px"/>
@@ -118,6 +118,7 @@ export default {
       response: {},
       initEnd: false,
       visible: false,
+      showType: "",
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
@@ -137,7 +138,7 @@ export default {
       ],
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
-      websocket:Object,
+      websocket: Object,
     };
   },
   props: {
@@ -149,13 +150,13 @@ export default {
     }
   },
   watch: {
-    taskVisible(v){
-      if(!v){
+    taskVisible(v) {
+      if (!v) {
         this.close();
       }
     }
   },
-    methods: {
+  methods: {
     format(item) {
       return '';
     },
@@ -203,7 +204,10 @@ export default {
     close() {
       this.visible = false;
       this.taskVisible = false;
-      this.websocket.close();
+      this.showType = "";
+      if (this.websocket && this.websocket.close instanceof Function) {
+        this.websocket.close();
+      }
     },
     open() {
       this.showTaskCenter();
@@ -303,6 +307,9 @@ export default {
       }
     },
     init() {
+      if (this.showType === "CASE" || this.showType === "SCENARIO") {
+        return;
+      }
       this.result.loading = true;
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('/task/center/list', this.condition, response => {
@@ -310,6 +317,23 @@ export default {
         this.calculationRunningTotal();
         this.initEnd = true;
       });
+    },
+    initCaseHistory(id) {
+      this.result = this.$get('/task/center/case/' + id, response => {
+        this.taskData = response.data;
+      });
+    },
+    openHistory(id) {
+      this.initCaseHistory(id);
+      this.taskVisible = true;
+      this.showType = "CASE";
+    },
+    openScenarioHistory(id) {
+      this.result = this.$get('/task/center/scenario/' + id, response => {
+        this.taskData = response.data;
+      });
+      this.showType = "SCENARIO";
+      this.taskVisible = true;
     }
   }
 };
