@@ -12,10 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.control.ForeachController;
-import org.apache.jmeter.control.LoopController;
-import org.apache.jmeter.control.RunTime;
-import org.apache.jmeter.control.WhileController;
+import org.apache.jmeter.control.*;
 import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
@@ -116,7 +113,7 @@ public class MsLoopController extends MsTestElement {
         String variable = "\"" + this.whileController.getVariable() + "\"";
         String operator = this.whileController.getOperator();
         String value;
-        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
+        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">") && StringUtils.isNumeric(this.whileController.getValue())) {
             value = this.whileController.getValue();
         } else {
             value = "\"" + this.whileController.getValue() + "\"";
@@ -127,22 +124,33 @@ public class MsLoopController extends MsTestElement {
         }
 
         if (StringUtils.equals(operator, "is empty")) {
-            variable = variable + "==" + "\"\\" + this.whileController.getVariable() + "\"" + "|| empty(" + variable + ")";
+            variable = "(" + variable + "==" + "\"\\" + this.whileController.getVariable() + "\"" + "|| empty(" + variable + "))";
             operator = "";
             value = "";
         }
 
         if (StringUtils.equals(operator, "is not empty")) {
-            variable = variable + "!=" + "\"\\" + this.whileController.getVariable() + "\"" + "&& !empty(" + variable + ")";
+            variable = "(" + variable + "!=" + "\"\\" + this.whileController.getVariable() + "\"" + "&& !empty(" + variable + "))";
             operator = "";
             value = "";
         }
         ms_current_timer = UUID.randomUUID().toString();
-        return "${__jexl3(" + variable + operator + value + " && \"${" + ms_current_timer + "}\" !=\"stop\")}";
+        return variable + operator + value;
     }
 
-    private WhileController initWhileController() {
-        String condition = getCondition();
+    private IfController ifController(String condition) {
+        IfController ifController = new IfController();
+        ifController.setEnabled(this.isEnable());
+        ifController.setName("while ifController");
+        ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
+        ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
+        ifController.setCondition(condition);
+        ifController.setEvaluateAll(false);
+        ifController.setUseExpression(true);
+        return ifController;
+    }
+
+    private WhileController initWhileController(String condition) {
         if (StringUtils.isEmpty(condition)) {
             return null;
         }
@@ -204,7 +212,12 @@ public class MsLoopController extends MsTestElement {
                 timeout = 1;
             }
             runTime.setRuntime(timeout);
-            HashTree hashTree = tree.add(initWhileController());
+
+            String condition = getCondition();
+            String ifCondition = "${__jexl3(" + condition + ")}";
+            String whileCondition = "${__jexl3(" + condition + " && \"${" + ms_current_timer + "}\" !=\"stop\")}";
+            HashTree ifHashTree = tree.add(ifController(ifCondition));
+            HashTree hashTree = ifHashTree.add(initWhileController(whileCondition));
             // 添加超时处理，防止死循环
             JSR223PreProcessor jsr223PreProcessor = new JSR223PreProcessor();
             jsr223PreProcessor.setName("循环超时处理");
