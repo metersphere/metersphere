@@ -514,7 +514,7 @@ export function fullScreenLoading(component) {
     lock: true,
     text: '资源切换中...',
     spinner: 'el-icon-loading',
-    background: 'rgba(246,241,241,0.6)',
+    background: 'rgba(218,218,218,0.6)',
     customClass: 'ms-full-loading'
   });
 }
