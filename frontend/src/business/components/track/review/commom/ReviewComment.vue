@@ -15,7 +15,7 @@
       </div>
     </div>
     <div>
-      <div>
+      <div id="editorsDiv">
         <mavon-editor v-if="showEditor" @imgAdd="imgAdd" :default-open="'edit'" class="mavon-editor" :imageFilter="imageFilter"
                       :toolbars="richDataToolbars"  @imgDel="imgDel" v-model="textarea"  ref="md"/>
       </div>
@@ -113,10 +113,22 @@ export default {
         }
       });
     },
-    /* inputLight() {
-       this.$refs.md.focus();
-     },*/
+    inputLight() {
+      let textAreaDom = this.$refs.md.getTextareaDom();
+      let editorDivDom = document.getElementById("editorsDiv");
+      if(editorDivDom){
+        editorDivDom.setAttribute("style","-webkit-box-shadow: 0 0 8px rgb(205,51,43);");
+      }
+      textAreaDom.focus();
+     },
+    resetInputLight(){
+      let editorDivDom = document.getElementById("editorsDiv");
+      if(editorDivDom){
+        editorDivDom.setAttribute("style","-webkit-box-shadow: 0 0 0px rgb(-1,0,0);");
+      }
+    },
     refresh() {
+      this.resetInputLight();
       this.$emit('getComments');
     },
     //富文本框
@@ -170,5 +182,8 @@ export default {
 .comment-list {
   overflow-y: scroll;
   height: calc(100vh - 450px);
+}
+.editors-div{
+  -webkit-box-shadow: 0 0 8px rgb(-1,0,0);
 }
 </style>
