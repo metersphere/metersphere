@@ -40,7 +40,7 @@
                     class="search-input"
                     size="small"/>
           <div class="org-ws-menu">
-            <el-menu-item :index="1+'-'+index+'-'+index2" @click="changeWs(ws)"
+            <el-menu-item @click="changeWs(ws)"
                           v-for="(ws,index2) in item.workspaceList" :key="index2">
               <span class="title">
                 {{ ws.name }}
