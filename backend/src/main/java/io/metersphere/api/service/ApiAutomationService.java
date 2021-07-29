@@ -1099,6 +1099,10 @@ public class ApiAutomationService {
                     @Override
                     public void run() {
                         List<String> reportIds = new LinkedList<>();
+                        //记录串行执行中的环境参数，供下一个场景执行时使用。 <envId,<key,data>>
+                        Map<String,Map<String,String>> execute_env_param_datas = new LinkedHashMap<>();
+                        ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                        HashTreeUtil hashTreeUtil = new HashTreeUtil();
                         for (String key : executeQueue.keySet()) {
                             reportIds.add(key);
                             APIScenarioReportResult report = executeQueue.get(key).getReport();
@@ -1112,6 +1116,13 @@ public class ApiAutomationService {
                                 apiScenarioReportMapper.updateByPrimaryKey(report);
                             }
                             try {
+                                if(!execute_env_param_datas.isEmpty()){
+                                    try {
+                                        HashTree hashTree = executeQueue.get(key).getHashTree();
+                                        hashTreeUtil.setEnvParamsMapToHashTree(hashTree,execute_env_param_datas);
+                                        executeQueue.get(key).setHashTree(hashTree);
+                                    }catch (Exception e){}
+                                }
                                 Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
                                 ApiScenarioReport scenarioReport = future.get();
                                 // 如果开启失败结束执行，则判断返回结果状态
@@ -1121,6 +1132,12 @@ public class ApiAutomationService {
                                         break;
                                     }
                                 }
+
+                                try {
+                                    Map<String,Map<String,String>> envParamsMap = hashTreeUtil.getEnvParamsDataByHashTree(executeQueue.get(key).getHashTree(),apiTestEnvironmentService);
+                                    execute_env_param_datas = hashTreeUtil.mergeParamDataMap(execute_env_param_datas,envParamsMap);
+                                }catch (Exception e){}
+
                             } catch (Exception e) {
                                 reportIds.remove(key);
                                 LogUtil.error("执行终止：" + e.getMessage());
@@ -1156,7 +1173,6 @@ public class ApiAutomationService {
             }
         }
     }
-
     /**
      * 生成HashTree
      *
