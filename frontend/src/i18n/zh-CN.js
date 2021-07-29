@@ -169,6 +169,8 @@ export default {
     create_user: '创建人',
     run_message: "任务执行中，请到任务中心查看详情",
     executor: "执行人",
+    execute_history: "执行历史",
+    debug_history: "调试历史",
     table: {
       select_tip: "已选中 {0} 条数据"
     },

@@ -31,6 +31,7 @@
                            @batchEditCase="batchEditCase"
                            @batchRun="batchRun"
                            @apiCaseSelected="apiCaseSelected"
+                           @showHistory="showHistory"
                            :environment="environment"
                            :select-size="selectSize"
                            :is-case-edit="isCaseEdit"
@@ -47,6 +48,9 @@
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :data-count="selectdCases.length" :value-arr="valueArr"/>
+
+    <ms-task-center ref="taskCenter"/>
+
   </div>
 </template>
 <script>
@@ -59,6 +63,7 @@ import MsDrawer from "../../../../common/components/MsDrawer";
 import {CASE_ORDER, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsBatchEdit from "../basis/BatchEdit";
+import MsTaskCenter from "../../../../task/TaskCenter";
 
 export default {
   name: 'ApiCaseList',
@@ -67,7 +72,8 @@ export default {
     MsRun,
     ApiCaseHeader,
     ApiCaseItem,
-    MsBatchEdit
+    MsBatchEdit,
+    MsTaskCenter,
   },
   props: {
     createCase: String,
@@ -470,6 +476,9 @@ export default {
         this.getApiTest();
       });
     },
+    showHistory(id){
+      this.$refs.taskCenter.openHistory(id);
+    }
   }
 };
 </script>

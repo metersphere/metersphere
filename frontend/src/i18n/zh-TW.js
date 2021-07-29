@@ -169,6 +169,8 @@ export default {
     create_user: "創建人",
     run_message: "任務執行中，請到任務中心查看詳情",
     executor: "執行人",
+    execute_history: "執行歷史",
+    debug_history: "調試歷史",
     selector: {
       required: "必填",
       not_required: "非必填",

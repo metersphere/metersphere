@@ -9,8 +9,12 @@ import java.util.List;
 public interface ExtTaskMapper {
 
     void deleteByResourceId(String id);
-    List<TaskCenterDTO> getTasks (@Param("request") TaskCenterRequest request);
 
-    int getRunningTasks (@Param("request") TaskCenterRequest request);
+    List<TaskCenterDTO> getTasks(@Param("request") TaskCenterRequest request);
 
+    int getRunningTasks(@Param("request") TaskCenterRequest request);
+
+    List<TaskCenterDTO> getCases(@Param("id") String id);
+
+    List<TaskCenterDTO> getScenario(@Param("id") String id);
 }

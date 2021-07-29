@@ -168,6 +168,8 @@ export default {
     create_user: 'Creator',
     run_message: "The task is being executed, please go to the task center to view the details",
     executor: "Executor",
+    execute_history: "Execute history",
+    debug_history: "Debug history",
     table: {
       select_tip: "Item {0} data is selected"
     },
