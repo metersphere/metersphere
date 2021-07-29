@@ -333,8 +333,11 @@ public class ApiTestCaseService {
     public int getNextNum(String definitionId) {
         ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
         if (apiTestCase == null) {
-            int n = apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum();
-            return n * 1000 + 1;
+            ApiDefinitionWithBLOBs baseColumnList = apiDefinitionMapper.selectByPrimaryKey(definitionId);
+            if (baseColumnList == null) {
+                return 1;
+            }
+            return baseColumnList.getNum() * 1000 + 1;
         } else {
             return Optional.of(apiTestCase.getNum() + 1)
                     .orElse(apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1);
