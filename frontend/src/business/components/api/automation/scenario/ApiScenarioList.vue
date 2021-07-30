@@ -836,6 +836,7 @@ export default {
       run.id = getUUID();
       run.projectId = this.projectId;
       run.ids = scenarioIds;
+      run.executeType = "Saved";
       this.$post(url, run, response => {
         this.runVisible = true;
         this.reportId = run.id;
