@@ -2,6 +2,7 @@ package io.metersphere.performance.parse.xml.reader.jmx;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.KafkaProperties;
@@ -9,6 +10,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.parse.xml.reader.DocumentParser;
+import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
@@ -587,6 +589,11 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processBackendListener(Element backendListener) {
+        String resourcePoolId = context.getResourcePoolId();
+        TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
+        if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+            return;
+        }
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Document document = backendListener.getOwnerDocument();
         // 清空child
@@ -647,6 +654,12 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutBackendListener(Element element) {
+        String resourcePoolId = context.getResourcePoolId();
+        TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
+        if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+            return;
+        }
+
         Document document = element.getOwnerDocument();
 
         Node listenerParent = element.getNextSibling();

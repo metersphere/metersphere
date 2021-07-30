@@ -4,6 +4,7 @@
       :data="tableData"
       stripe
       border
+      height="calc(100vh - 235px)"
       style="width: 100%"
     >
       <el-table-column label="Requests" min-width="150" align="center">

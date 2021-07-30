@@ -15,6 +15,7 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="api" jdbcType="BIT" property="api" />
     <result column="performance" jdbcType="BIT" property="performance" />
+    <result column="backend_listener" jdbcType="BIT" property="backendListener" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, description, `status`, create_time, update_time, image, `heap`, 
-    gc_algo, create_user, api, performance
+    gc_algo, create_user, api, performance, backend_listener
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestResourcePoolExample" resultMap="BaseResultMap">
     select
@@ -113,12 +114,12 @@
       description, `status`, create_time, 
       update_time, image, `heap`, 
       gc_algo, create_user, api, 
-      performance)
+      performance, backend_listener)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{image,jdbcType=VARCHAR}, #{heap,jdbcType=VARCHAR}, 
       #{gcAlgo,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{api,jdbcType=BIT}, 
-      #{performance,jdbcType=BIT})
+      #{performance,jdbcType=BIT}, #{backendListener,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestResourcePool">
     insert into test_resource_pool
@@ -162,6 +163,9 @@
       <if test="performance != null">
         performance,
       </if>
+      <if test="backendListener != null">
+        backend_listener,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +206,9 @@
       </if>
       <if test="performance != null">
         #{performance,jdbcType=BIT},
+      </if>
+      <if test="backendListener != null">
+        #{backendListener,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -253,6 +260,9 @@
       <if test="record.performance != null">
         performance = #{record.performance,jdbcType=BIT},
       </if>
+      <if test="record.backendListener != null">
+        backend_listener = #{record.backendListener,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +282,8 @@
       gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       api = #{record.api,jdbcType=BIT},
-      performance = #{record.performance,jdbcType=BIT}
+      performance = #{record.performance,jdbcType=BIT},
+      backend_listener = #{record.backendListener,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +327,9 @@
       <if test="performance != null">
         performance = #{performance,jdbcType=BIT},
       </if>
+      <if test="backendListener != null">
+        backend_listener = #{backendListener,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -332,7 +346,8 @@
       gc_algo = #{gcAlgo,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       api = #{api,jdbcType=BIT},
-      performance = #{performance,jdbcType=BIT}
+      performance = #{performance,jdbcType=BIT},
+      backend_listener = #{backendListener,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
