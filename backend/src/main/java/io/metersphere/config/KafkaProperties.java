@@ -27,6 +27,7 @@ public class KafkaProperties {
     private String queueSize = "20000"; // backend listener queue size
     private KafkaProperties.Ssl ssl = new KafkaProperties.Ssl();
     private KafkaProperties.Log log = new KafkaProperties.Log();
+    private KafkaProperties.Report report = new KafkaProperties.Report();
 
     @Getter
     @Setter
@@ -47,6 +48,12 @@ public class KafkaProperties {
     @Getter
     @Setter
     public static class Log {
+        private String topic;
+    }
+
+    @Getter
+    @Setter
+    public static class Report {
         private String topic;
     }
 }
