@@ -171,6 +171,7 @@ export default {
     executor: "执行人",
     execute_history: "执行历史",
     debug_history: "调试历史",
+    testing: "测试中",
     table: {
       select_tip: "已选中 {0} 条数据"
     },

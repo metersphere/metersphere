@@ -23,6 +23,10 @@
         <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
       </template>
       <template v-slot:debugStepCode>
+         <span v-if="request.testing" class="ms-test-running">
+           <i class="el-icon-loading" style="font-size: 16px"/>
+           {{$t('commons.testing')}}
+         </span>
          <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
@@ -495,6 +499,9 @@ export default {
 
 .ms-req-error {
   color: #F56C6C;
+}
+.ms-test-running {
+  color: #6D317C;
 }
 
 .ms-req-success {

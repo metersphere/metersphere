@@ -459,6 +459,8 @@ export default {
       isTop: false,
       stepSize: 0,
       message: "",
+      websocket: {},
+      messageWebSocket: {},
     }
   },
   created() {
@@ -503,10 +505,27 @@ export default {
         })
       }
     },
+    clearNodeStatus(arr) {
+      if (arr) {
+        arr.forEach(item => {
+          item.code = undefined;
+          item.data.code = undefined;
+          item.testing = undefined;
+          item.data.testing = undefined;
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.clearNodeStatus(item.childNodes);
+          }
+        })
+      }
+    },
     evaluationParent(node, status) {
+      if (!node.data.code) {
+        node.data.code = "success";
+      }
       if (!status) {
         node.data.code = "error";
       }
+      node.data.testing = false;
       node.data.debug = true;
       if (node.parent && node.parent.data && node.parent.data.id) {
         this.evaluationParent(node.parent, status);
@@ -515,6 +534,7 @@ export default {
     resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
         if (item.data.resourceId === resourceId) {
+          item.data.testing = false;
           this.evaluationParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
@@ -525,6 +545,9 @@ export default {
     resultEvaluation(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
+          if (item.data.resourceId === resourceId) {
+            item.data.testing = false;
+          }
           if (item.childNodes && item.childNodes.length > 0) {
             this.resultEvaluationChild(item.childNodes, resourceId, status);
           }
@@ -539,14 +562,6 @@ export default {
       const uri = protocol + window.location.host + "/api/scenario/report/get/real/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
-      this.websocket.onopen = this.onOpen;
-      this.websocket.onerror = this.onError;
-      this.websocket.onclose = this.onClose;
-    },
-    onOpen() {
-    },
-    onError(e) {
-      window.console.error(e)
     },
     onMessage(e) {
       if (e.data) {
@@ -558,12 +573,6 @@ export default {
           this.debugLoading = false;
           this.stopDebug = "stop";
         }
-      }
-    },
-    onClose(e) {
-      if (e.code === 1005) {
-        // 强制删除之后关闭socket，不用刷新report
-        return;
       }
     },
     getTransaction(transRequests, startTime, endTime, resMap) {
@@ -593,6 +602,52 @@ export default {
         }
       })
     },
+
+    initMessageSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/ws/" + this.reportId;
+      this.messageWebSocket = new WebSocket(uri);
+      this.messageWebSocket.onmessage = this.onMessage2;
+    },
+    runningEditParent(node) {
+      if (node) {
+        node.data.testing = true;
+        if (node.parent && node.parent.data && node.parent.data.id) {
+          this.runningEditParent(node.parent);
+        }
+      }
+    },
+    runningNodeChild(arr, resourceId) {
+      arr.forEach(item => {
+        if (item.data && item.data.resourceId === resourceId) {
+          item.data.testing = true;
+          this.runningEditParent(item.parent);
+        }
+        if (item.childNodes && item.childNodes.length > 0) {
+          this.runningNodeChild(item.childNodes, resourceId);
+        }
+      })
+    },
+    runningEvaluation(resourceId) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root) {
+        this.$refs.stepTree.root.childNodes.forEach(item => {
+          if (item.data && item.data.resourceId === resourceId) {
+            item.data.testing = true;
+          }
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.runningNodeChild(item.childNodes, resourceId);
+          }
+        })
+      }
+    },
+    onMessage2(e) {
+      this.runningEvaluation(e.data);
+      this.message = getUUID();
+    },
+
     formatResult(res) {
       let resMap = new Map;
       let startTime = 99991611737506593;
@@ -642,6 +697,8 @@ export default {
     removeReport() {
       let url = "/api/scenario/report/remove/real/" + this.reportId;
       this.$get(url, response => {
+        this.messageWebSocket.close();
+        this.websocket.close();
       });
     },
     handleCommand() {
@@ -971,6 +1028,7 @@ export default {
       this.stopDebug = "";
       this.clearDebug();
       this.clearResult(this.scenarioDefinition);
+      this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       /*触发执行操作*/
       this.$refs.currentScenario.validate((valid) => {
         if (valid) {
@@ -1215,6 +1273,7 @@ export default {
         this.loading = false;
       } else {
         this.initWebSocket();
+        this.initMessageSocket();
       }
     },
     showScenarioParameters() {
@@ -1337,7 +1396,7 @@ export default {
         }
       }
     },
-    showHistory(){
+    showHistory() {
       this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
     }
   }

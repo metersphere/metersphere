@@ -170,6 +170,7 @@ export default {
     executor: "Executor",
     execute_history: "Execute history",
     debug_history: "Debug history",
+    testing: "Testing",
     table: {
       select_tip: "Item {0} data is selected"
     },

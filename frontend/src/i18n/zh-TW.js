@@ -171,6 +171,7 @@ export default {
     executor: "執行人",
     execute_history: "執行歷史",
     debug_history: "調試歷史",
+    testing: "測試中",
     selector: {
       required: "必填",
       not_required: "非必填",
