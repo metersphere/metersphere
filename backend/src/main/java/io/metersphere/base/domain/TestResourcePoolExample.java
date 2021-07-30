@@ -973,6 +973,66 @@ public class TestResourcePoolExample {
             addCriterion("performance not between", value1, value2, "performance");
             return (Criteria) this;
         }
+
+        public Criteria andBackendListenerIsNull() {
+            addCriterion("backend_listener is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerIsNotNull() {
+            addCriterion("backend_listener is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerEqualTo(Boolean value) {
+            addCriterion("backend_listener =", value, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerNotEqualTo(Boolean value) {
+            addCriterion("backend_listener <>", value, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerGreaterThan(Boolean value) {
+            addCriterion("backend_listener >", value, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("backend_listener >=", value, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerLessThan(Boolean value) {
+            addCriterion("backend_listener <", value, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerLessThanOrEqualTo(Boolean value) {
+            addCriterion("backend_listener <=", value, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerIn(List<Boolean> values) {
+            addCriterion("backend_listener in", values, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerNotIn(List<Boolean> values) {
+            addCriterion("backend_listener not in", values, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerBetween(Boolean value1, Boolean value2) {
+            addCriterion("backend_listener between", value1, value2, "backendListener");
+            return (Criteria) this;
+        }
+
+        public Criteria andBackendListenerNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("backend_listener not between", value1, value2, "backendListener");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

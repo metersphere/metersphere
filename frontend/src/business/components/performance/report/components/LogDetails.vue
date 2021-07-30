@@ -146,7 +146,7 @@ export default {
 }
 
 .infinite-list {
-  height: calc(100vh - 390px);
+  height: calc(100vh - 295px);
   padding: 0;
   margin: 0;
   list-style: none;

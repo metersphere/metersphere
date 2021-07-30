@@ -1744,6 +1744,7 @@ export default {
     node_selector_invalid: 'nodeSelector 必须是有效的JSON',
     pod_thread_limit: '单POD最大线程数',
     usage: '用途',
+    backend_listener: '后置监听器',
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',
