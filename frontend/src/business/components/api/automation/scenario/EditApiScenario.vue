@@ -533,7 +533,7 @@ export default {
     },
     resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.resourceId === resourceId) {
+        if (item.data.resourceId + "_" + item.data.index === resourceId) {
           item.data.testing = false;
           this.evaluationParent(item.parent, status);
         }
@@ -545,7 +545,7 @@ export default {
     resultEvaluation(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data.resourceId === resourceId) {
+          if (item.data.resourceId + "_" + item.data.index === resourceId) {
             item.data.testing = false;
           }
           if (item.childNodes && item.childNodes.length > 0) {
@@ -622,7 +622,7 @@ export default {
     },
     runningNodeChild(arr, resourceId) {
       arr.forEach(item => {
-        if (item.data && item.data.resourceId === resourceId) {
+        if (item.data && item.data.resourceId + "_" + item.data.index === resourceId) {
           item.data.testing = true;
           this.runningEditParent(item.parent);
         }
@@ -634,7 +634,7 @@ export default {
     runningEvaluation(resourceId) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data && item.data.resourceId === resourceId) {
+          if (item.data && item.data.resourceId + "_" + item.data.index === resourceId) {
             item.data.testing = true;
           }
           if (item.childNodes && item.childNodes.length > 0) {
@@ -866,7 +866,7 @@ export default {
           }
         }
         // 添加debug结果
-        let key = stepArray[i].resourceId;
+        let key = stepArray[i].resourceId + "_" + stepArray[i].index;
         if (this.debugResult && this.debugResult.get(key)) {
           stepArray[i].requestResult = this.debugResult.get(key);
           stepArray[i].result = null;
