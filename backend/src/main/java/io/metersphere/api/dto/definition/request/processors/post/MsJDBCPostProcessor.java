@@ -244,7 +244,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
         jdbcPostProcessor.setProperty(TestElement.TEST_CLASS, JDBCPostProcessor.class.getName());
         jdbcPostProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         jdbcPostProcessor.setProperty("MS-ID", this.getId());
-        jdbcPostProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId());
+        jdbcPostProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId()+ "_" + this.getIndex());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         jdbcPostProcessor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

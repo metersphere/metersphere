@@ -3,7 +3,9 @@
     <ms-main-container>
       <el-card>
         <section class="report-container">
-          <ms-api-report-view-header :debug="debug" :export-flag="exportFlag" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          <div style="margin-top: 10px">
+            <ms-api-report-view-header :debug="debug" :export-flag="exportFlag" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          </div>
           <main>
             <ms-metric-chart :content="content" :totalTime="totalTime" v-if="!loading"/>
             <div>
@@ -71,7 +73,7 @@ export default {
       fullTreeNodes: [],
       debugResult: new Map,
       scenarioMap: new Map,
-      exportFlag:false,
+      exportFlag: false,
     }
   },
   activated() {
@@ -156,7 +158,7 @@ export default {
         hashTree.forEach(item => {
           if (item.enable) {
             let name = item.name ? item.name : item.type;
-            let obj = {resId: item.resourceId, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+            let obj = {resId: item.resourceId + "_" + item.index, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
             tree.children.push(obj);
             if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
               obj.unsolicited = false;
@@ -501,10 +503,6 @@ export default {
 
 .report-header {
   font-size: 15px;
-}
-
-/deep/ .el-card__body {
-  padding: 10px;
 }
 
 .report-header a {
