@@ -90,6 +90,7 @@ public class DockerTestEngine extends AbstractEngine {
         env.put("REPORT_ID", this.getReportId());
         env.put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
         env.put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
+        env.put("JMETER_REPORTS_TOPIC", kafkaProperties.getReport().getTopic());
         env.put("RESOURCE_ID", resource.getId());
         env.put("THREAD_NUM", "0");// 传入0表示不用修改线程数
         env.put("HEAP", HEAP);
