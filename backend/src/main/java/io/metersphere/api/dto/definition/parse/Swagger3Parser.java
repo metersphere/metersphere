@@ -308,6 +308,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 }
             }
             if (body != null) {
+                if (body.getKvs() == null) {
+                    body.setKvs(new ArrayList<>());
+                }
                 body.getKvs().add(kv);
             }
         }
