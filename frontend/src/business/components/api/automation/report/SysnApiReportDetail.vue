@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card>
         <section class="report-container">
-          <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport"/>
+          <ms-api-report-view-header :debug="debug" :export-flag="exportFlag" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
           <main>
             <ms-metric-chart :content="content" :totalTime="totalTime" v-if="!loading"/>
             <div>
@@ -61,8 +61,8 @@ export default {
       failsTreeNodes: [],
       totalTime: 0,
       isRequestResult: false,
-      startTime : 99991611737506593,
-      endTime : 0,
+      startTime: 99991611737506593,
+      endTime: 0,
       request: {},
       isActive: false,
       scenarioName: null,
@@ -71,6 +71,7 @@ export default {
       fullTreeNodes: [],
       debugResult: new Map,
       scenarioMap: new Map,
+      exportFlag:false,
     }
   },
   activated() {
@@ -247,7 +248,7 @@ export default {
         this.$success(this.$t('schedule.event_success'));
       });
     },
-    getTransaction(transRequests,resMap) {
+    getTransaction(transRequests, resMap) {
       transRequests.forEach(subItem => {
         if (subItem.method === 'Request') {
           this.getTransaction(subItem.subRequestResults, resMap);
@@ -365,6 +366,7 @@ export default {
         })
         this.formatTree(array, this.failsTreeNodes);
         this.recursiveSorting(this.failsTreeNodes);
+        this.exportFlag = true;
       }
     },
     formatTree(array, tree) {
@@ -459,6 +461,22 @@ export default {
         }
       }
     },
+    handleSave() {
+      if (!this.report.name) {
+        this.$warning(this.$t('api_test.automation.report_name_info'));
+        return;
+      }
+      this.loading = true;
+      this.report.projectId = this.projectId;
+      let url = "/api/scenario/report/update";
+      this.result = this.$post(url, this.report, response => {
+        this.$success(this.$t('commons.save_success'));
+        this.loading = false;
+        this.$emit('refresh');
+      }, error => {
+        this.loading = false;
+      });
+    },
   },
   computed: {
     projectId() {
@@ -486,7 +504,7 @@ export default {
 }
 
 /deep/ .el-card__body {
-  padding: 0px;
+  padding: 10px;
 }
 
 .report-header a {
