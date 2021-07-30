@@ -1,6 +1,8 @@
 package io.metersphere.performance.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.ApiScenarioBatchRequest;
 import io.metersphere.api.dto.automation.ApiScenrioExportJmx;
@@ -14,6 +16,7 @@ import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
@@ -27,6 +30,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.performance.PerformanceReference;
+import io.metersphere.performance.base.GranularityData;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
@@ -56,6 +60,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Service
@@ -649,6 +654,7 @@ public class PerformanceTestService {
 
     /**
      * 一键更新由接口用例或者场景用例转换的性能测试
+     *
      * @param request
      */
     public void syncApi(EditTestPlanRequest request) {
@@ -779,5 +785,45 @@ public class PerformanceTestService {
             scenarioLoadTest.setId(UUID.randomUUID().toString());
             mapper.insert(scenarioLoadTest);
         });
+    }
+
+    public Integer getGranularity(String reportId) {
+        Integer granularity = CommonBeanFactory.getBean(JmeterProperties.class).getReport().getGranularity();
+        try {
+            LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
+            LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(report.getTestId());
+            JSONObject advancedConfig = JSON.parseObject(loadTest.getAdvancedConfiguration());
+            if (advancedConfig.getInteger("granularity") != null) {
+                granularity = advancedConfig.getInteger("granularity");
+                return granularity * 1000; // 单位是ms
+            }
+            AtomicReference<Integer> maxDuration = new AtomicReference<>(0);
+            List<List<JSONObject>> pressureConfigLists = JSON.parseObject(loadTest.getLoadConfiguration(), new TypeReference<List<List<JSONObject>>>() {
+            });
+            // 按照最长的执行时间来确定
+            pressureConfigLists.forEach(pcList -> {
+
+                Optional<Integer> maxOp = pcList.stream()
+                        .filter(pressureConfig -> StringUtils.equalsAnyIgnoreCase(pressureConfig.getString("key"), "hold", "duration"))
+                        .map(pressureConfig -> pressureConfig.getInteger("value"))
+                        .max(Comparator.naturalOrder());
+                Integer max = maxOp.orElse(0);
+                if (maxDuration.get() < max) {
+                    maxDuration.set(max);
+                }
+            });
+            Optional<GranularityData.Data> dataOptional = GranularityData.dataList.stream()
+                    .filter(data -> maxDuration.get() >= data.getStart() && maxDuration.get() <= data.getEnd())
+                    .findFirst();
+
+            if (dataOptional.isPresent()) {
+                GranularityData.Data data = dataOptional.get();
+                granularity = data.getGranularity();
+            }
+
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return granularity;
     }
 }
