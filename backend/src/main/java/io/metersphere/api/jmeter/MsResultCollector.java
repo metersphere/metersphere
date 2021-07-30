@@ -17,10 +17,13 @@
 
 package io.metersphere.api.jmeter;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.websocket.c.to.c.MsWebSocketClient;
+import io.metersphere.websocket.c.to.c.util.MsgDto;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.engine.util.NoThreadClone;
@@ -48,6 +51,8 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
     public static final String TEST_END = "MS_TEST_END";
 
     private MsResultService msResultService;
+
+    private MsWebSocketClient client;
 
     @Override
     public Object clone() {
@@ -95,6 +100,11 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
         SampleResult result = new SampleResult();
         result.setResponseCode(TEST_END);
         msResultService.setCache(this.getName(), result);
+        try {
+            client.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -103,6 +113,12 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
         msResultService = CommonBeanFactory.getBean(MsResultService.class);
         if (msResultService == null) {
             LogUtil.error("testResultService is required");
+        }
+        try {
+            client = new MsWebSocketClient("ws://127.0.0.1:8081/ws/" + "send." + this.getName());
+            client.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -118,6 +134,16 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
 
     @Override
     public void sampleStarted(SampleEvent e) {
+        System.out.println("start ====");
+        try {
+            MsgDto dto = new MsgDto();
+            dto.setContent(e.getThreadGroup());
+            dto.setReportId("send." + this.getName());
+            dto.setToReport(this.getName());
+            client.send(JSON.toJSONString(dto));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
