@@ -96,6 +96,7 @@ public class DockerTestEngine extends AbstractEngine {
         env.put("HEAP", HEAP);
         env.put("GC_ALGO", GC_ALGO);
         env.put("GRANULARITY", performanceTestService.getGranularity(this.getReportId()).toString());
+        env.put("BACKEND_LISTENER", resourcePool.getBackendListener().toString());
 
 
         StartTestRequest startTestRequest = new StartTestRequest();

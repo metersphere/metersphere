@@ -1736,6 +1736,7 @@ export default {
     node_selector_invalid: 'nodeSelector must be JSON',
     pod_thread_limit: 'Maximum number of threads per POD',
     usage: 'Usage',
+    backend_listener: 'Backend Listener',
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',
