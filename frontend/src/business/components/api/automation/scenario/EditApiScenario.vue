@@ -195,9 +195,22 @@
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
-                       <ms-component-config :message="message" :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
-                                            :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
+                       <ms-component-config
+                         :message="message"
+                         :type="data.type"
+                         :scenario="data"
+                         :response="response"
+                         :currentScenario="currentScenario"
+                         :expandedNode="expandedNode"
+                         :currentEnvironmentId="currentEnvironmentId"
+                         :node="node"
+                         :project-list="projectList"
+                         :env-map="projectEnvMap"
+                         @remove="remove"
+                         @copyRow="copyRow"
+                         @suggestClick="suggestClick"
+                         @refReload="refReload"
+                         @openScenario="openScenario"/>
                     </span>
               </el-tree>
             </div>
@@ -257,21 +270,43 @@
       <!--步骤最大化-->
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
-          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap"
-                           :projectIds.sync="projectIds" :projectList="projectList"
-                           :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           :onSampleError="onSampleError"
-                           :execDebug="stopDebug"
-                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen"
-                           @showAllBtn="showAllBtn" @runDebug="runDebug" @handleCommand="handleCommand" @setProjectEnvMap="setProjectEnvMap"
-                           @showScenarioParameters="showScenarioParameters"
-                           @setCookieShare="setCookieShare" @setSampleError="setSampleError"
-                           ref="maximizeHeader"/>
+          <scenario-header
+            :currentScenario="currentScenario"
+            :projectEnvMap="projectEnvMap"
+            :projectIds.sync="projectIds"
+            :projectList="projectList"
+            :scenarioDefinition="scenarioDefinition"
+            :enableCookieShare="enableCookieShare"
+            :onSampleError="onSampleError"
+            :execDebug="stopDebug"
+            :isFullUrl.sync="isFullUrl"
+            @closePage="close"
+            @unFullScreen="unFullScreen"
+            @showAllBtn="showAllBtn"
+            @runDebug="runDebug"
+            @handleCommand="handleCommand"
+            @setProjectEnvMap="setProjectEnvMap"
+            @showScenarioParameters="showScenarioParameters"
+            @setCookieShare="setCookieShare"
+            @setSampleError="setSampleError"
+            ref="maximizeHeader"/>
         </template>
 
-        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
-                           :req-error="reqError" :req-success="reqSuccess" :req-total="reqTotal" :req-total-time="reqTotalTime"
-                           :currentScenario="currentScenario" :type="type" :debug="debug" :reloadDebug="reloadDebug" :stepReEnable="stepEnable" ref="maximizeScenario" @openScenario="openScenario"/>
+        <maximize-scenario
+          :scenario-definition="scenarioDefinition"
+          :envMap="projectEnvMap"
+          :moduleOptions="moduleOptions"
+          :req-error="reqError"
+          :req-success="reqSuccess"
+          :req-total="reqTotal"
+          :req-total-time="reqTotalTime"
+          :currentScenario="currentScenario"
+          :type="type"
+          :debug="debug"
+          :reloadDebug="reloadDebug"
+          :stepReEnable="stepEnable"
+          @openScenario="openScenario"
+          ref="maximizeScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
 
@@ -461,30 +496,30 @@ export default {
         })
       }
     },
-    editParent(node, status) {
+    evaluationParent(node, status) {
       if (!status) {
         node.data.code = "error";
       }
       node.data.debug = true;
       if (node.parent && node.parent.data && node.parent.data.id) {
-        this.editParent(node.parent, status);
+        this.evaluationParent(node.parent, status);
       }
     },
-    findNodeChild(arr, resourceId, status) {
+    resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
         if (item.data.resourceId === resourceId) {
-          this.editParent(item.parent, status);
+          this.evaluationParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.findNodeChild(item.childNodes, resourceId, status);
+          this.resultEvaluationChild(item.childNodes, resourceId, status);
         }
       })
     },
-    findNode(resourceId, status) {
+    resultEvaluation(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
           if (item.childNodes && item.childNodes.length > 0) {
-            this.findNodeChild(item.childNodes, resourceId, status);
+            this.resultEvaluationChild(item.childNodes, resourceId, status);
           }
         })
       }
@@ -772,7 +807,7 @@ export default {
           stepArray[i].requestResult = this.debugResult.get(key);
           stepArray[i].result = null;
           stepArray[i].debug = this.debug;
-          this.findNode(key, stepArray[i].requestResult[0].success);
+          this.resultEvaluation(key, stepArray[i].requestResult[0].success);
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.stepSize += stepArray[i].hashTree.length;
@@ -1003,7 +1038,7 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (dropType != "inner" && (draggingNode.data && !draggingNode.data.disabled)) {
+      if (dropType != "inner") {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
         && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
