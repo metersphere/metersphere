@@ -94,6 +94,7 @@ public class DockerTestEngine extends AbstractEngine {
         env.put("THREAD_NUM", "0");// 传入0表示不用修改线程数
         env.put("HEAP", HEAP);
         env.put("GC_ALGO", GC_ALGO);
+        env.put("GRANULARITY", performanceTestService.getGranularity(this.getReportId()).toString());
 
 
         StartTestRequest startTestRequest = new StartTestRequest();
