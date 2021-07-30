@@ -27,7 +27,11 @@
     </template>
 
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug && node.data.code">
+      <span v-if="node.data.testing" class="ms-test-running">
+         <i class="el-icon-loading" style="font-size: 16px"/>
+         {{ $t('commons.testing') }}
+       </span>
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && !node.data.testing && node.data.debug && node.data.code">
         {{ getCode() }}
       </span>
     </template>
@@ -110,7 +114,7 @@
         })
       },
       getCode() {
-        if (this.node && this.node.data.debug) {
+        if (this.node && this.node.data.code && this.node.data.debug) {
           if (this.node.data.code && this.node.data.code === 'error') {
             return 'error';
           } else {
@@ -166,5 +170,8 @@
     vertical-align: middle;
     white-space: nowrap;
     width: 80px;
+  }
+  .ms-test-running {
+    color: #6D317C;
   }
 </style>

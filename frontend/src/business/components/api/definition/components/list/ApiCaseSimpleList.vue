@@ -322,7 +322,7 @@ export default {
         {text: this.$t('api_test.automation.success'), value: 'success'},
         {text: this.$t('api_test.automation.fail'), value: 'error'},
         {text: this.$t('api_test.home_page.detail_card.unexecute'), value: ''},
-        {text: '测试中', value: 'Running'}
+        {text: this.$t('commons.testing'), value: 'Running'}
       ],
       valueArr: {
         priority: CASE_PRIORITY,
@@ -465,7 +465,7 @@ export default {
         case "error":
           return this.$t('api_test.automation.fail');
         case "Running":
-          return "测试中";
+          return this.$t('commons.testing');
         default:
           return this.$t('api_test.home_page.detail_card.unexecute');
       }

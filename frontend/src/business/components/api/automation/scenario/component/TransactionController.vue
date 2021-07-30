@@ -11,7 +11,11 @@
     background-color="#FCF6EE"
     :title="$t('api_test.automation.transcation_controller')">
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
+      <span v-if="node.data.testing" class="ms-test-running">
+         <i class="el-icon-loading" style="font-size: 16px"/>
+         {{ $t('commons.testing') }}
+       </span>
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading &&!node.data.testing && node.data.debug">
         {{ getCode() }}
       </span>
     </template>
@@ -109,7 +113,7 @@ export default {
       });
     },
     getCode() {
-      if (this.node && this.node.data.debug) {
+      if (this.node && this.node.data.code && this.node.data.debug) {
         if (this.node.data.code && this.node.data.code === 'error') {
           return 'error';
         } else {
@@ -156,6 +160,7 @@ export default {
   width: 15%;
   margin-left: 5px;
 }
+
 .ms-req-error {
   color: #F56C6C;
 }
@@ -163,6 +168,7 @@ export default {
 .ms-req-success {
   color: #67C23A;
 }
+
 .ms-step-debug-code {
   display: inline-block;
   margin: 0 5px;
@@ -172,5 +178,8 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
   width: 100px;
+}
+.ms-test-running {
+  color: #6D317C;
 }
 </style>
