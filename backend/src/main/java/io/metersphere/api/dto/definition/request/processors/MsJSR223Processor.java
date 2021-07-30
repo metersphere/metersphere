@@ -72,7 +72,7 @@ public class MsJSR223Processor extends MsTestElement {
             processor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         processor.setProperty("MS-ID", this.getId());
-        processor.setProperty("MS-RESOURCE-ID", this.getResourceId());
+        processor.setProperty("MS-RESOURCE-ID", this.getResourceId()+ "_" + this.getIndex());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         processor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

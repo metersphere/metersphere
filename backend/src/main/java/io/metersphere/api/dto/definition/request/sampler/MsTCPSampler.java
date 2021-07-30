@@ -184,10 +184,10 @@ public class MsTCPSampler extends MsTestElement {
         if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
             this.server = config.getTcpConfig().getServer();
             this.port = config.getTcpConfig().getPort();
-            if(StringUtils.equals(this.eolByte," ")){
+            if (StringUtils.equals(this.eolByte, " ")) {
                 this.eolByte = "";
-            }else{
-                if(StringUtils.isEmpty(this.eolByte)){
+            } else {
+                if (StringUtils.isEmpty(this.eolByte)) {
                     this.eolByte = config.getTcpConfig().getEolByte();
                 }
             }
@@ -204,7 +204,7 @@ public class MsTCPSampler extends MsTestElement {
             tcpSampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         tcpSampler.setProperty("MS-ID", this.getId());
-        tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId());
+        tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getIndex());
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         tcpSampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
@@ -222,16 +222,16 @@ public class MsTCPSampler extends MsTestElement {
         tcpSampler.setEolByte(this.getEolByte());
 
         String value = this.getRequest();
-        if(StringUtils.isNotEmpty(this.getConnectEncoding())){
-            if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
+        if (StringUtils.isNotEmpty(this.getConnectEncoding())) {
+            if (StringUtils.equalsIgnoreCase("utf-8", this.getConnectEncoding())) {
                 try {
-                    value = new String(value.getBytes(),StandardCharsets.UTF_8);
-                }catch (Exception e){
+                    value = new String(value.getBytes(), StandardCharsets.UTF_8);
+                } catch (Exception e) {
                 }
-            }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
+            } else if (StringUtils.equalsIgnoreCase("gbk", this.getConnectEncoding())) {
                 try {
-                    value = new String(value.getBytes(),"GBK");
-                }catch (Exception e){
+                    value = new String(value.getBytes(), "GBK");
+                } catch (Exception e) {
                 }
 
             }
@@ -256,18 +256,18 @@ public class MsTCPSampler extends MsTestElement {
             this.parameters.forEach(item -> {
                 names.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getName()));
                 String value = item.getValue();
-                if(StringUtils.isNotEmpty(value)){
+                if (StringUtils.isNotEmpty(value)) {
                     value = this.formatMockValue(value);
-                    if(StringUtils.isNotEmpty(this.getConnectEncoding())){
-                        if(StringUtils.equalsIgnoreCase("utf-8",this.getConnectEncoding())){
+                    if (StringUtils.isNotEmpty(this.getConnectEncoding())) {
+                        if (StringUtils.equalsIgnoreCase("utf-8", this.getConnectEncoding())) {
                             try {
-                                value = new String(value.getBytes(),StandardCharsets.UTF_8);
-                            }catch (Exception e){
+                                value = new String(value.getBytes(), StandardCharsets.UTF_8);
+                            } catch (Exception e) {
                             }
-                        }else if(StringUtils.equalsIgnoreCase("gbk",this.getConnectEncoding())){
+                        } else if (StringUtils.equalsIgnoreCase("gbk", this.getConnectEncoding())) {
                             try {
-                                value = new String(value.getBytes(),"GBK");
-                            }catch (Exception e){
+                                value = new String(value.getBytes(), "GBK");
+                            } catch (Exception e) {
                             }
                         }
                     }
@@ -281,29 +281,31 @@ public class MsTCPSampler extends MsTestElement {
         userParameters.setThreadLists(new CollectionProperty(UserParameters.THREAD_VALUES, collectionPropertyList));
         tree.add(userParameters);
     }
+
     private String formatMockValue(String value) {
 
         String patten = ">@[^>@]+</?";
         Pattern r = Pattern.compile(patten);
-        try{
+        try {
             Matcher m = r.matcher(value);
-            while (m.find()){
+            while (m.find()) {
                 String findStr = m.group();
-                if(findStr.length() > 3){
-                    findStr = findStr.substring(1,findStr.length()-2);
+                if (findStr.length() > 3) {
+                    findStr = findStr.substring(1, findStr.length() - 2);
                     String replaceStr = ScriptEngineUtils.buildFunctionCallString(findStr);
-                    if(StringUtils.equals(findStr,replaceStr)){
+                    if (StringUtils.equals(findStr, replaceStr)) {
                         replaceStr = "";
                     }
-                    value = value.replace(">"+findStr+"</",">"+replaceStr+"</");
-                    m  = r.matcher(value);
+                    value = value.replace(">" + findStr + "</", ">" + replaceStr + "</");
+                    m = r.matcher(value);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return value;
     }
+
     private ConfigTestElement tcpConfig() {
         ConfigTestElement configTestElement = new ConfigTestElement();
         configTestElement.setEnabled(true);
