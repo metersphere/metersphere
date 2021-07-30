@@ -1206,40 +1206,39 @@ public class TestCaseService {
 
     public void minderEdit(TestCaseMinderEditRequest request) {
         List<TestCaseWithBLOBs> data = request.getData();
-        if (CollectionUtils.isEmpty(data)) {
-            return;
+        if (CollectionUtils.isNotEmpty(data)) {
+            List<String> editIds = data.stream()
+                    .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
+                    .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
+
+            Map<String, TestCaseWithBLOBs> testCaseMap = new HashMap<>();
+            if (CollectionUtils.isNotEmpty(editIds)) {
+                TestCaseExample example = new TestCaseExample();
+                example.createCriteria().andIdIn(editIds);
+                List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
+                testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
+            }
+
+            Map<String, TestCaseWithBLOBs> finalTestCaseMap = testCaseMap;
+            data.forEach(item -> {
+                if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
+                    item.setNodeId("");
+                }
+                item.setProjectId(request.getProjectId());
+                if (StringUtils.isBlank(item.getId()) || item.getId().length() < 20) {
+                    item.setId(UUID.randomUUID().toString());
+                    item.setMaintainer(SessionUtils.getUserId());
+                    addTestCase(item);
+                } else {
+                    TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
+                    if (editCustomFieldsPriority(dbCase, item.getPriority())) {
+                        item.setCustomFields(dbCase.getCustomFields());
+                    };
+                    editTestCase(item);
+                }
+            });
         }
 
-        List<String> editIds = data.stream()
-                .filter(t -> StringUtils.isNotBlank(t.getId()) && t.getId().length() > 20)
-                .map(TestCaseWithBLOBs::getId).collect(Collectors.toList());
-
-        Map<String, TestCaseWithBLOBs> testCaseMap = new HashMap<>();
-        if (CollectionUtils.isNotEmpty(editIds)) {
-            TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andIdIn(editIds);
-            List<TestCaseWithBLOBs> testCaseWithBLOBs = testCaseMapper.selectByExampleWithBLOBs(example);
-            testCaseMap = testCaseWithBLOBs.stream().collect(Collectors.toMap(TestCaseWithBLOBs::getId, t -> t));
-        }
-
-        Map<String, TestCaseWithBLOBs> finalTestCaseMap = testCaseMap;
-        data.forEach(item -> {
-            if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
-                item.setNodeId("");
-            }
-            item.setProjectId(request.getProjectId());
-            if (StringUtils.isBlank(item.getId()) || item.getId().length() < 20) {
-                item.setId(UUID.randomUUID().toString());
-                item.setMaintainer(SessionUtils.getUserId());
-                addTestCase(item);
-            } else {
-                TestCaseWithBLOBs dbCase = finalTestCaseMap.get(item.getId());
-                if (editCustomFieldsPriority(dbCase, item.getPriority())) {
-                    item.setCustomFields(dbCase.getCustomFields());
-                };
-                editTestCase(item);
-            }
-        });
         List<String> ids = request.getIds();
         if (CollectionUtils.isNotEmpty(ids)) {
             TestCaseBatchRequest deleteRequest = new TestCaseBatchRequest();
