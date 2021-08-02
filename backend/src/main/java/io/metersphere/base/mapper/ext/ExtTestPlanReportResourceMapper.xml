@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanReportResourceMapper">
+
+
+  <select id="selectResourceIdAndResourceTypeAndExecuteResultByTestPlanReportId" resultType="io.metersphere.base.domain.TestPlanReportResource">
+    select resource_id,resource_type,execute_result from test_plan_report_resource
+        where test_plan_report_id = #{0}
+  </select>
+
+</mapper>

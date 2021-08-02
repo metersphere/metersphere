@@ -11,8 +11,6 @@ public class TestPlanTestCase implements Serializable {
 
     private String caseId;
 
-    private String reportId;
-
     private String executor;
 
     private String status;
@@ -22,6 +20,8 @@ public class TestPlanTestCase implements Serializable {
     private Long createTime;
 
     private Long updateTime;
+
+    private String reportId;
 
     private String createUser;
 
