@@ -101,7 +101,9 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
         result.setResponseCode(TEST_END);
         msResultService.setCache(this.getName(), result);
         try {
-            client.close();
+            if (client != null) {
+                client.close();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -140,7 +142,9 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
             dto.setContent(e.getThreadGroup());
             dto.setReportId("send." + this.getName());
             dto.setToReport(this.getName());
-            client.send(JSON.toJSONString(dto));
+            if (client != null) {
+                client.send(JSON.toJSONString(dto));
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
