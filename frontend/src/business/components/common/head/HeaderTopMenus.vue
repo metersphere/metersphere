@@ -9,11 +9,11 @@
            :key="menuKey"
            router>
 
-    <el-menu-item index="/track" v-if="check('testTrack')"
+    <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
                   v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']">
       {{ $t('test_track.test_track') }}
     </el-menu-item>
-    <el-menu-item index="/api" @click="active()" v-if="check('api')"
+    <el-menu-item index="/api" @click="active()" v-if="check('api')" onselectstart="return false"
                   v-permission="['PROJECT_API_DEFINITION:READ','PROJECT_API_SCENARIO:READ','PROJECT_API_REPORT:READ']">
       {{ $t('commons.api') }}
     </el-menu-item>
@@ -22,7 +22,7 @@
                   v-permission="['PROJECT_PERFORMANCE_TEST:READ','PROJECT_PERFORMANCE_REPORT:READ']">
       {{ $t('commons.performance') }}
     </el-menu-item>
-    <el-menu-item index="/report"
+    <el-menu-item index="/report" onselectstart="return false"
                   v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']"
                   v-if="isReport && check('reportStat')">
       {{ $t('commons.report_statistics.title') }}
