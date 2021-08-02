@@ -6,7 +6,7 @@ export const ELEMENTS = new Map([
   ['JDBCSampler', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", 'JDBCPreProcessor','JDBCPostProcessor', "Assertions", "Extract"]],
   ['TCPSampler', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", 'JDBCPreProcessor','JDBCPostProcessor', "Assertions", "Extract"]],
   ['OT_IMPORT', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", 'JDBCPreProcessor','JDBCPostProcessor', "Assertions", "Extract"]],
-  ['IfController', ["IfController", "TransactionController","scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor",  'JDBCPreProcessor','JDBCPostProcessor',"Assertions", "Extract", "CustomizeReq"]],
+  ['IfController', ["IfController","LoopController", "TransactionController","scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor",  'JDBCPreProcessor','JDBCPostProcessor',"Assertions", "Extract", "CustomizeReq"]],
   ['TransactionController', ["TransactionController", "scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", 'JDBCPreProcessor','JDBCPostProcessor', "Assertions", "Extract", "CustomizeReq"]],
   ['LoopController', ["IfController", "TransactionController","scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", 'JDBCPreProcessor','JDBCPostProcessor', "Assertions", "Extract", "CustomizeReq"]],
   ['ConstantTimer', []],
