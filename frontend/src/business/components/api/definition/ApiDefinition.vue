@@ -235,7 +235,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -384,13 +384,29 @@ export default {
       }
     }
   },
-
+  created() {
+    this.getEnv();
+  },
   methods: {
     setEnvironment(data) {
       if (data) {
         this.useEnvironment = data.id;
         this.$store.state.useEnvironment = data.id;
+        this.addEnv(data.id);
       }
+    },
+    addEnv(envId) {
+      this.$post('/api/definition/env/create', {userId: getCurrentUserId(), envId: envId}, response => {
+      });
+    },
+    getEnv() {
+      this.$get("/api/definition/env/get/" + getCurrentUserId(), response => {
+        let env = response.data;
+        if (env) {
+          this.$store.state.useEnvironment = env.envId;
+          this.useEnvironment = env.envId;
+        }
+      });
     },
     hasPermission,
     getPath(id, arr) {
