@@ -151,7 +151,7 @@ public class TestResultService {
                 }
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
