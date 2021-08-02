@@ -88,6 +88,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         testResult.setConsole(resultService.getJmeterLogger(testId, true));
         testResultService.saveResult(testResult, this.runMode, this.debugReportId, this.testId);
+        // 清除已经中断的过程数据
+        if (!MessageCache.reportCache.containsKey(testId) && resultService.processCache.containsKey(testId)) {
+            resultService.processCache.remove(testId);
+        }
     }
 
     private void setParam(BackendListenerContext context) {
