@@ -23,6 +23,7 @@ export default {
       loading: false,
       runId: "",
       reqNumber: 0,
+      websocket: {}
     }
   },
 
@@ -42,24 +43,12 @@ export default {
       const uri = protocol + window.location.host + "/api/definition/run/report/" + this.runId + "/" + runMode;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
-      this.websocket.onopen = this.onOpen;
-      this.websocket.onerror = this.onError;
-      this.websocket.onclose = this.onClose;
-    },
-    onOpen() {
-    },
-    onError(e) {
-      this.$emit('runRefresh', {});
     },
     onMessage(e) {
       if (e.data) {
         let data = JSON.parse(e.data);
+        this.websocket.close();
         this.$emit('runRefresh', data);
-      }
-    },
-    onClose(e) {
-      if (e.code === 1005) {
-        return;
       }
     },
     run() {
