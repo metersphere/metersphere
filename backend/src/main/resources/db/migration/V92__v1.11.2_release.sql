@@ -43,3 +43,18 @@ CREATE TABLE IF NOT EXISTS `api_load_test` (
 -- 添加版本号
 ALTER TABLE api_test_case
     ADD version INT(10) DEFAULT 0 NULL COMMENT '版本号';
+
+-- 测试计划资源表
+CREATE TABLE IF NOT EXISTS test_plan_report_resource  (
+    `id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+    `test_plan_report_id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `resource_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `resource_type` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `execute_result` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `test_plan_report_id`(`test_plan_report_id`) USING BTREE,
+    INDEX `resource_id`(`resource_id`) USING BTREE,
+    INDEX `resource_type`(`resource_type`) USING BTREE,
+    INDEX `report_resource_id`(`test_plan_report_id`,`resource_id`) USING BTREE,
+    INDEX `report_resource_type_id`(`test_plan_report_id`,`resource_id`,`resource_type`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
