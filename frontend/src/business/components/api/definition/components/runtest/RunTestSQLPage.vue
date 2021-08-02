@@ -176,6 +176,12 @@ export default {
       updateApi() {
         let url = "/api/definition/update";
         let bodyFiles = this.getBodyUploadFiles();
+        if (Object.prototype.toString.call(this.api.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+          this.api.response = JSON.parse(this.api.response);
+        }
+        if (this.api.tags instanceof  Array) {
+          this.api.tags = JSON.stringify(this.api.tags);
+        }
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
           if (this.syncTabs.indexOf(this.api.id) === -1) {

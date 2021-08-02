@@ -20,6 +20,13 @@
       </ms-aside-container>
 
       <ms-main-container>
+        <ms-environment-select
+          :project-id="projectId"
+          :is-read-only="false"
+          :useEnvironment='useEnvironment'
+          @setEnvironment="setEnvironment"
+          class="ms-api-button"
+          ref="environmentSelect"/>
         <!-- 主框架列表 -->
         <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
           <el-tab-pane
@@ -92,8 +99,6 @@
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
-                @runTest="runTest"
-                @refreshTree="refreshTree"
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
@@ -104,6 +109,8 @@
                 :queryDataType="queryDataType"
                 :selectDataRange="selectDataRange"
                 :is-read-only="isReadOnly"
+                @runTest="runTest"
+                @refreshTree="refreshTree"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @editApi="editApi"
                 @handleCase="handleCase"
@@ -239,6 +246,7 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
 import MsEditCompleteContainer from "./components/EditCompleteContainer";
+import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
 
 
 export default {
@@ -278,7 +286,8 @@ export default {
     MsRunTestDubboPage,
     ApiDocumentsPage,
     MockConfig,
-    MsEditCompleteContainer
+    MsEditCompleteContainer,
+    MsEnvironmentSelect
   },
   props: {
     visible: {
@@ -322,6 +331,7 @@ export default {
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
       param: {},
+      useEnvironment: String,
     };
   },
   activated() {
@@ -376,6 +386,12 @@ export default {
   },
 
   methods: {
+    setEnvironment(data) {
+      if (data) {
+        this.useEnvironment = data.id;
+        this.$store.state.useEnvironment = data.id;
+      }
+    },
     hasPermission,
     getPath(id, arr) {
       if (id === null) {
@@ -652,7 +668,7 @@ export default {
 
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
-  /*width: calc(100% - 90px);*/
+  width: calc(100% - 200px);
 }
 
 /deep/ .el-card {
@@ -665,4 +681,16 @@ export default {
   margin-top: 10px;
 }
 
+.ms-api-button {
+  position: absolute;
+  top: 92px;
+  right: 10px;
+  padding: 0;
+  background: 0 0;
+  border: none;
+  outline: 0;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 16px;
+}
 </style>

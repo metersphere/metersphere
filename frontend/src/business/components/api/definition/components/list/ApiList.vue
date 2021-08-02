@@ -7,7 +7,8 @@
                 @keyup.enter.native="enterSearch"
                 v-model="condition.name" ref="inputVal"/>
 
-      <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
+      <ms-table
+        :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
                 :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
                 :operators="tableOperatorButtons" operator-width="200px"
