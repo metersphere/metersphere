@@ -3,6 +3,8 @@ package io.metersphere.track.request.report;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 /**
  * @author song.tianyang
  * @Date 2021/1/8 4:36 下午
@@ -21,9 +23,12 @@ public class TestPlanReportSaveRequest {
     private boolean scenarioIsExecuting;
     private boolean performanceIsExecuting;
 
-    private String apiCaseIdListJSON;
-    private String scenarioIdListJSON;
-    private String performanceIdListJSON;
+//    private String apiCaseIdListJSON;
+//    private String scenarioIdListJSON;
+//    private String performanceIdListJSON;
+    Map<String,String> apiCaseIdMap;
+    Map<String,String> scenarioIdMap;
+    Map<String,String> performanceIdMap;
 
     public TestPlanReportSaveRequest(String reportID, String planId, String userId, String triggerMode) {
         this.reportID = reportID;
@@ -34,7 +39,8 @@ public class TestPlanReportSaveRequest {
         this.countResources = true;
     }
 
-    public TestPlanReportSaveRequest(String reportID, String planId, String userId, String triggerMode, boolean apiCaseIsExecuting, boolean scenarioIsExecuting, boolean performanceIsExecuting, String apiCaseIdListJSON, String scenarioIdListJSON, String performanceIdListJSON) {
+    public TestPlanReportSaveRequest(String reportID, String planId, String userId, String triggerMode, boolean apiCaseIsExecuting, boolean scenarioIsExecuting, boolean performanceIsExecuting,
+                                     Map<String,String> apiCaseIdMap, Map<String,String> scenarioIdMap, Map<String,String> performanceIdMap) {
         this.reportID = reportID;
         this.planId = planId;
         this.userId = userId;
@@ -46,8 +52,8 @@ public class TestPlanReportSaveRequest {
         this.scenarioIsExecuting = scenarioIsExecuting;
         this.performanceIsExecuting = performanceIsExecuting;
 
-        this.apiCaseIdListJSON = apiCaseIdListJSON;
-        this.scenarioIdListJSON = scenarioIdListJSON;
-        this.performanceIdListJSON = performanceIdListJSON;
+        this.apiCaseIdMap = apiCaseIdMap;
+        this.scenarioIdMap = scenarioIdMap;
+        this.performanceIdMap = performanceIdMap;
     }
 }
