@@ -15,13 +15,14 @@ import org.springframework.stereotype.Service;
 import sun.security.util.Cache;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
 public class MsResultService {
     // 零时存放实时结果
     private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
-    private Map<String, List<SampleResult>> processCache = new HashMap<>();
+    public ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
 
     private final static String THREAD_SPLIT = " ";
 
@@ -91,6 +92,7 @@ public class MsResultService {
 
     public void delete(String testId) {
         this.cache.remove(testId);
+        MessageCache.reportCache.remove(testId);
     }
 
     public void formatTestResult(TestResult testResult, Map<String, ScenarioResult> scenarios, SampleResult result) {
