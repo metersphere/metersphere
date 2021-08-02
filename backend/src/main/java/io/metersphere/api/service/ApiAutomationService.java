@@ -564,43 +564,43 @@ public class ApiAutomationService {
     }
 
     public void reduction(List<String> ids) {
-        if(CollectionUtils.isNotEmpty(ids)){
+        if (CollectionUtils.isNotEmpty(ids)) {
             extApiScenarioMapper.checkOriginalStatusByIds(ids);
             //检查原来模块是否还在
             ApiScenarioExample example = new ApiScenarioExample();
             example.createCriteria().andIdIn(ids);
             List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
-            Map<String,List<ApiScenario>> nodeMap = new HashMap<>();
-            for (ApiScenario api:scenarioList) {
+            Map<String, List<ApiScenario>> nodeMap = new HashMap<>();
+            for (ApiScenario api : scenarioList) {
                 String moduleId = api.getApiScenarioModuleId();
-                if(StringUtils.isEmpty(moduleId)){
+                if (StringUtils.isEmpty(moduleId)) {
                     moduleId = "";
                 }
-                if(nodeMap.containsKey(moduleId)){
+                if (nodeMap.containsKey(moduleId)) {
                     nodeMap.get(moduleId).add(api);
-                }else {
+                } else {
                     List<ApiScenario> list = new ArrayList<>();
                     list.add(api);
-                    nodeMap.put(moduleId,list);
+                    nodeMap.put(moduleId, list);
                 }
             }
             ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
-            for(Map.Entry<String,List<ApiScenario>> entry : nodeMap.entrySet()){
+            for (Map.Entry<String, List<ApiScenario>> entry : nodeMap.entrySet()) {
                 String nodeId = entry.getKey();
                 List<ApiScenario> scenariosListItem = entry.getValue();
-                Map<String,List<ApiScenario>> projectMap = scenariosListItem.stream().collect(Collectors.groupingBy(ApiScenario :: getProjectId));
-                for(Map.Entry<String,List<ApiScenario>> projectEntry : projectMap.entrySet()){
+                Map<String, List<ApiScenario>> projectMap = scenariosListItem.stream().collect(Collectors.groupingBy(ApiScenario::getProjectId));
+                for (Map.Entry<String, List<ApiScenario>> projectEntry : projectMap.entrySet()) {
                     String projectId = projectEntry.getKey();
                     List<ApiScenario> checkList = projectEntry.getValue();
-                    if(StringUtils.isNotEmpty(projectId)){
+                    if (StringUtils.isNotEmpty(projectId)) {
                         long nodeCount = apiScenarioModuleService.countById(nodeId);
-                        if(nodeCount <= 0){
+                        if (nodeCount <= 0) {
                             ApiScenarioModule node = apiScenarioModuleService.getDefaultNode(projectId);
-                            for (ApiScenario testCase: checkList) {
+                            for (ApiScenario testCase : checkList) {
                                 ApiScenarioWithBLOBs updateCase = new ApiScenarioWithBLOBs();
                                 updateCase.setId(testCase.getId());
                                 updateCase.setApiScenarioModuleId(node.getId());
-                                updateCase.setModulePath("/"+node.getName());
+                                updateCase.setModulePath("/" + node.getName());
                                 apiScenarioMapper.updateByPrimaryKeySelective(updateCase);
                             }
                         }
@@ -1100,7 +1100,7 @@ public class ApiAutomationService {
                     public void run() {
                         List<String> reportIds = new LinkedList<>();
                         //记录串行执行中的环境参数，供下一个场景执行时使用。 <envId,<key,data>>
-                        Map<String,Map<String,String>> execute_env_param_datas = new LinkedHashMap<>();
+                        Map<String, Map<String, String>> execute_env_param_datas = new LinkedHashMap<>();
                         ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
                         HashTreeUtil hashTreeUtil = new HashTreeUtil();
                         for (String key : executeQueue.keySet()) {
@@ -1116,12 +1116,13 @@ public class ApiAutomationService {
                                 apiScenarioReportMapper.updateByPrimaryKey(report);
                             }
                             try {
-                                if(!execute_env_param_datas.isEmpty()){
+                                if (!execute_env_param_datas.isEmpty()) {
                                     try {
                                         HashTree hashTree = executeQueue.get(key).getHashTree();
-                                        hashTreeUtil.setEnvParamsMapToHashTree(hashTree,execute_env_param_datas);
+                                        hashTreeUtil.setEnvParamsMapToHashTree(hashTree, execute_env_param_datas);
                                         executeQueue.get(key).setHashTree(hashTree);
-                                    }catch (Exception e){}
+                                    } catch (Exception e) {
+                                    }
                                 }
                                 Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
                                 ApiScenarioReport scenarioReport = future.get();
@@ -1134,9 +1135,10 @@ public class ApiAutomationService {
                                 }
 
                                 try {
-                                    Map<String,Map<String,String>> envParamsMap = hashTreeUtil.getEnvParamsDataByHashTree(executeQueue.get(key).getHashTree(),apiTestEnvironmentService);
-                                    execute_env_param_datas = hashTreeUtil.mergeParamDataMap(execute_env_param_datas,envParamsMap);
-                                }catch (Exception e){}
+                                    Map<String, Map<String, String>> envParamsMap = hashTreeUtil.getEnvParamsDataByHashTree(executeQueue.get(key).getHashTree(), apiTestEnvironmentService);
+                                    execute_env_param_datas = hashTreeUtil.mergeParamDataMap(execute_env_param_datas, envParamsMap);
+                                } catch (Exception e) {
+                                }
 
                             } catch (Exception e) {
                                 reportIds.remove(key);
@@ -1173,6 +1175,7 @@ public class ApiAutomationService {
             }
         }
     }
+
     /**
      * 生成HashTree
      *
@@ -1377,7 +1380,7 @@ public class ApiAutomationService {
         List<String> reportIds = new LinkedList<>();
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-            jMeterService.runLocal(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
+            jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         } catch (Exception e) {
             LogUtil.error(e.getMessage());
             MSException.throwException(e.getMessage());

@@ -1,28 +1,52 @@
 <template>
-  <ms-container v-loading="loading">
+  <ms-container>
     <ms-main-container>
       <el-card>
         <section class="report-container">
           <div style="margin-top: 10px">
-            <ms-api-report-view-header :debug="debug" :export-flag="exportFlag" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+            <ms-api-report-view-header
+              :debug="debug"
+              :export-flag="exportFlag"
+              :report="report"
+              @reportExport="handleExport"
+              @reportSave="handleSave"/>
           </div>
           <main>
-            <ms-metric-chart :content="content" :totalTime="totalTime" v-if="!loading"/>
+            <ms-metric-chart
+              :content="content"
+              :totalTime="totalTime"
+              v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" :default-expand="true" :console="content.console" v-on:requestResult="requestResult"/>
+                  <ms-scenario-results
+                    :treeData="fullTreeNodes"
+                    :default-expand="true"
+                    :console="content.console"
+                    v-on:requestResult="requestResult"
+                  />
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
-                    <span class="fail">{{ $t('api_report.fail') }}</span>
+                    <span class="fail">
+                      {{ $t('api_report.fail') }}
+                    </span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="failsTreeNodes"/>
+                  <ms-scenario-results
+                    :console="content.console"
+                    :treeData="failsTreeNodes"
+                    v-on:requestResult="requestResult"
+                  />
                 </el-tab-pane>
               </el-tabs>
             </div>
-            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
-                                  :content="content" :total-time="totalTime"/>
+            <ms-api-report-export
+              :title="report.testName"
+              :content="content"
+              :total-time="totalTime"
+              id="apiTestReport"
+              v-if="reportExportVisible"
+            />
           </main>
         </section>
       </el-card>
@@ -42,7 +66,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
-import {windowPrint, getCurrentProjectID} from "@/common/js/utils";
+import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {ELEMENTS} from "../scenario/Setting";
 
 export default {
@@ -74,6 +98,8 @@ export default {
       debugResult: new Map,
       scenarioMap: new Map,
       exportFlag: false,
+      messageWebSocket: {},
+      websocket: {}
     }
   },
   activated() {
@@ -87,6 +113,7 @@ export default {
         this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
         this.initTree();
         this.initWebSocket();
+        this.initMessageSocket();
         this.clearDebug();
       }
     }
@@ -112,6 +139,7 @@ export default {
             this.content.scenarioStepTotal = obj.hashTree.length;
             this.initTree();
             this.initWebSocket();
+            this.initMessageSocket();
             this.clearDebug();
             this.loading = false;
           }
@@ -120,7 +148,7 @@ export default {
     },
     initTree() {
       this.fullTreeNodes = [];
-      let obj = {index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+      let obj = {index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
       this.formatContent(this.scenario.scenarioDefinition.hashTree, obj);
       this.fullTreeNodes.push(obj);
     },
@@ -158,7 +186,7 @@ export default {
         hashTree.forEach(item => {
           if (item.enable) {
             let name = item.name ? item.name : item.type;
-            let obj = {resId: item.resourceId + "_" + item.index, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+            let obj = {resId: item.resourceId + "_" + item.index, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
             tree.children.push(obj);
             if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
               obj.unsolicited = false;
@@ -219,14 +247,6 @@ export default {
       const uri = protocol + window.location.host + "/api/scenario/report/get/real/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
-      this.websocket.onopen = this.onOpen;
-      this.websocket.onerror = this.onError;
-      this.websocket.onclose = this.onClose;
-    },
-    onOpen() {
-    },
-    onError(e) {
-      window.console.error(e)
     },
     onMessage(e) {
       if (e.data) {
@@ -239,15 +259,12 @@ export default {
         }
       }
     },
-    onClose(e) {
-      if (e.code === 1005) {
-        return;
-      }
-    },
     removeReport() {
       let url = "/api/scenario/report/remove/real/" + this.reportId;
       this.$get(url, response => {
         this.$success(this.$t('schedule.event_success'));
+        this.websocket.close();
+        this.messageWebSocket.close();
       });
     },
     getTransaction(transRequests, resMap) {
@@ -478,6 +495,44 @@ export default {
       }, error => {
         this.loading = false;
       });
+    },
+
+    initMessageSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/ws/" + this.reportId;
+      this.messageWebSocket = new WebSocket(uri);
+      this.messageWebSocket.onmessage = this.onMessage2;
+    },
+
+    runningNodeChild(arr, resourceId) {
+      arr.forEach(item => {
+        if (resourceId === item.resId) {
+          item.value.testing = true;
+        }
+        if (item.children && item.children.length > 0) {
+          this.runningNodeChild(item.children, resourceId);
+        }
+      })
+    },
+    runningEvaluation(resourceId) {
+      if (this.fullTreeNodes) {
+        this.fullTreeNodes.forEach(item => {
+          if (resourceId === item.resId) {
+            item.value.testing = true;
+          }
+          if (item.children && item.children.length > 0) {
+            this.runningNodeChild(item.children, resourceId);
+          }
+        })
+      }
+    },
+    onMessage2(e) {
+      if (e.data) {
+        this.runningEvaluation(e.data);
+      }
     },
   },
   computed: {
