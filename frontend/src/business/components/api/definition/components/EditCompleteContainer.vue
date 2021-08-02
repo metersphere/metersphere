@@ -5,7 +5,7 @@
         <el-button plain :class="{active: showApiList}" @click="changeTab('api')" size="small">API</el-button>
       </el-tooltip>
       <el-tooltip class="item" effect="dark" :content="$t('commons.test')" placement="top">
-        <el-button plain :class="{active: showTest}" @click="changeTab('test')" size="small">{{ $t('commons.test') }}</el-button>
+        <el-button plain :class="{active: showTest}" @click="changeTab('test')" size="small">TEST</el-button>
       </el-tooltip>
       <el-tooltip class="item" effect="dark" :content="$t('api_test.definition.case_title')" placement="top">
         <el-button plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">CASE</el-button>

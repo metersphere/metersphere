@@ -9,7 +9,6 @@
             {{ $t('operating_log.change_history') }}
           </el-link>
           <el-button type="primary" size="small" @click="saveApi" title="ctrl + s">{{ $t('commons.save') }}</el-button>
-          <el-button type="primary" size="small" @click="runTest">{{ $t('commons.test') }}</el-button>
         </div>
       </el-col>
     </el-row>

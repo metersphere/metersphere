@@ -124,6 +124,9 @@ export default {
     };
   },
   watch: {
+    '$store.state.useEnvironment': function () {
+      this.environment = this.$store.state.useEnvironment;
+    },
     refreshSign() {
       this.api = this.currentApi;
       this.getApiTest();
@@ -396,7 +399,7 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
-      this.$emit("refresh",row.id);
+      this.$emit("refresh", row.id);
     },
 
     batchRun() {
@@ -476,7 +479,7 @@ export default {
         this.getApiTest();
       });
     },
-    showHistory(id){
+    showHistory(id) {
       this.$refs.taskCenter.openHistory(id);
     }
   }

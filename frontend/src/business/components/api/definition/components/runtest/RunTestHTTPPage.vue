@@ -15,7 +15,7 @@
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <environment-select :current-data="api" :project-id="projectId"/>
+          <environment-select  :current-data="api" :project-id="projectId"/>
         </el-form-item>
 
         <!-- 请求地址 -->
@@ -114,6 +114,16 @@
       }
     },
     props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+    computed:{
+      'api.environmentId'(){
+        return this.$store.state.useEnvironment;
+      }
+    },
+    watch:{
+      '$store.state.useEnvironment':function (){
+        this.api.environmentId = this.$store.state.useEnvironment;
+      }
+    },
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -207,6 +217,12 @@
         let bodyFiles = this.getBodyUploadFiles();
         this.api.method = this.api.request.method;
         this.api.path = this.api.request.path;
+        if (Object.prototype.toString.call(this.api.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+          this.api.response = JSON.parse(this.api.response);
+        }
+        if (this.api.tags instanceof  Array) {
+          this.api.tags = JSON.stringify(this.api.tags);
+        }
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
           this.$emit('saveApi', this.api);
