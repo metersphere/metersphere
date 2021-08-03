@@ -533,7 +533,7 @@ export default {
     },
     resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.resourceId + "_" + item.data.index === resourceId) {
+        if (item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
           item.data.testing = false;
           this.evaluationParent(item.parent, status);
         }
@@ -545,7 +545,7 @@ export default {
     resultEvaluation(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data.resourceId + "_" + item.data.index === resourceId) {
+          if (item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
             item.data.testing = false;
           }
           if (item.childNodes && item.childNodes.length > 0) {
@@ -622,7 +622,7 @@ export default {
     },
     runningNodeChild(arr, resourceId) {
       arr.forEach(item => {
-        if (item.data && item.data.resourceId + "_" + item.data.index === resourceId) {
+        if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
           item.data.testing = true;
           this.runningEditParent(item.parent);
         }
@@ -634,7 +634,7 @@ export default {
     runningEvaluation(resourceId) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
-          if (item.data && item.data.resourceId + "_" + item.data.index === resourceId) {
+          if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
             item.data.testing = true;
           }
           if (item.childNodes && item.childNodes.length > 0) {
@@ -841,7 +841,7 @@ export default {
       this.isBtnHide = true;
       this.$refs.scenarioApiRelevance.open();
     },
-    sort(stepArray, scenarioProjectId) {
+    sort(stepArray, scenarioProjectId,fullPath) {
       if (!stepArray) {
         stepArray = this.scenarioDefinition;
       }
@@ -866,7 +866,8 @@ export default {
           }
         }
         // 添加debug结果
-        let key = stepArray[i].resourceId + "_" + stepArray[i].index;
+        stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
+        let key = stepArray[i].resourceId + "_" + stepArray[i].parentIndex;
         if (this.debugResult && this.debugResult.get(key)) {
           stepArray[i].requestResult = this.debugResult.get(key);
           stepArray[i].result = null;
@@ -875,7 +876,7 @@ export default {
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.stepSize += stepArray[i].hashTree.length;
-          this.sort(stepArray[i].hashTree, stepArray[i].projectId);
+          this.sort(stepArray[i].hashTree, stepArray[i].projectId,stepArray[i].parentIndex);
         }
       }
     },
