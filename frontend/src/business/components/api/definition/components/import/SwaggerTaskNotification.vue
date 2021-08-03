@@ -200,7 +200,6 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/' + this.apiTestId, response => {
-        // console.log(response.data);
         this.scheduleTask = response.data;
       });
     },
@@ -250,7 +249,6 @@ export default {
       }
     },
     addTask(data) {
-      console.log(data);
       data.testId = this.apiTestId;
       this.$success(this.$t('commons.save_success'));
       this.result = this.$post("/notice/save/message/task", data, () => {
