@@ -141,6 +141,9 @@ export default {
     if (this.createCase) {
       this.sysAddition();
     }
+    if (!this.environment && this.$store.state.useEnvironment) {
+      this.environment = this.$store.state.useEnvironment;
+    }
   },
   computed: {
     isCaseEdit() {
