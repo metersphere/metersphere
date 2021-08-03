@@ -811,7 +811,7 @@ public class ApiAutomationService {
         return null;
     }
 
-    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfig config) {
+    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfig config,String desc) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
             triggerMode = ReportTriggerMode.MANUAL.name();
@@ -844,7 +844,7 @@ public class ApiAutomationService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
-
+        report.setDescription(desc);
         return report;
     }
 
@@ -1027,14 +1027,14 @@ public class ApiAutomationService {
                 if (request.isTestPlanScheduleJob()) {
                     String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
                     report = createScenarioReport(reportId, savedScenarioId, item.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
                 } else {
                     report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
                 }
             } else {
                 report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
-                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
             }
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
@@ -1058,7 +1058,7 @@ public class ApiAutomationService {
             APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(),
                     JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 50 ? scenarioIds.subList(0, 50) : scenarioIds),
                     scenarioNames.length() >= 3000 ? scenarioNames.substring(0, 2000) : scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(),
-                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
+                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig(),JSON.toJSONString(scenarioIds));
 
             report.setName(request.getConfig().getReportName());
             report.setId(serialReportId);
@@ -1252,14 +1252,14 @@ public class ApiAutomationService {
                         if (request.isTestPlanScheduleJob()) {
                             String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
                             report = createScenarioReport(group.getName(), savedScenarioId, item.getName(), request.getTriggerMode(),
-                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
                         } else {
                             report = createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
                         }
                     } else {
                         report = createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
                     }
                     batchMapper.insert(report);
                     reportIds.add(group.getName());
@@ -1476,7 +1476,7 @@ public class ApiAutomationService {
         }
 
         APIScenarioReportResult report = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
-                SessionUtils.getUserId(), request.getConfig());
+                SessionUtils.getUserId(), request.getConfig(),request.getId());
         apiScenarioReportMapper.insert(report);
 
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);

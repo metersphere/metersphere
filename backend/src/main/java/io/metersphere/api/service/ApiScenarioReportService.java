@@ -254,7 +254,7 @@ public class ApiScenarioReportService {
         return returnReport;
     }
 
-    public ApiScenarioReport  updateSchedulePlanCase(TestResult result, String runMode) {
+    public ApiScenarioReport updateSchedulePlanCase(TestResult result, String runMode) {
 
         ApiScenarioReport lastReport = null;
         List<ScenarioResult> scenarioResultList = result.getScenarios();
@@ -264,7 +264,7 @@ public class ApiScenarioReportService {
 
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
-        Map<String,String> scenarioAndErrorMap = new HashMap<>();
+        Map<String, String> scenarioAndErrorMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -332,10 +332,10 @@ public class ApiScenarioReportService {
         }
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
 
-        testPlanLog.info("TestPlanReportId"+ JSONArray.toJSONString(testPlanReportIdList) +" EXECUTE OVER. SCENARIO STATUS : "+JSONObject.toJSONString(scenarioAndErrorMap));
+        testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
 
-        for (String planId :testPlanReportIdList) {
-            testPlanReportService.updateExecuteApis(planId,null,scenarioAndErrorMap,null);
+        for (String planId : testPlanReportIdList) {
+            testPlanReportService.updateExecuteApis(planId, null, scenarioAndErrorMap, null);
         }
 
         return lastReport;
@@ -390,7 +390,8 @@ public class ApiScenarioReportService {
             List<ApiScenarioReportDetail> details = apiScenarioReportDetailMapper.selectByExampleWithBLOBs(example);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
+            // 记录单场景通过率
+            Map<String, String> passRateMap = new HashMap<>();
             for (ApiScenarioReportDetail detail : details) {
                 try {
                     String content = new String(detail.getContent(), StandardCharsets.UTF_8);
@@ -409,6 +410,8 @@ public class ApiScenarioReportService {
                     testResult.setScenarioStepError(scenarioResult.getScenarioStepError() + testResult.getScenarioStepError());
                     testResult.setScenarioStepSuccess(scenarioResult.getScenarioStepSuccess() + testResult.getScenarioStepSuccess());
                     testResult.setScenarioStepTotal(scenarioResult.getScenarioStepTotal() + testResult.getScenarioStepTotal());
+                    String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
+                    passRateMap.put(detail.getReportId(), passRate);
                 } catch (Exception e) {
                     LogUtil.error(e.getMessage());
                 }
@@ -430,32 +433,25 @@ public class ApiScenarioReportService {
                 apiScenarioReportDetailMapper.insert(detail);
             }
             // 更新场景状态
-            if (StringUtils.isNotEmpty(report.getScenarioId())) {
-                List<String> strings = JSON.parseObject(report.getScenarioId(), List.class);
-                ApiScenarioExample scenarioExample = new ApiScenarioExample();
-                scenarioExample.createCriteria().andIdIn(strings);
-
-                List<ApiScenario> scenarios = apiScenarioMapper.selectByExample(scenarioExample);
-                if (CollectionUtils.isNotEmpty(scenarios)) {
-                    SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-                    ApiScenarioMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioMapper.class);
-                    scenarios.forEach(scenario -> {
-                        if (testResult.getError() > 0) {
-                            scenario.setLastResult("Fail");
-                        } else {
-                            scenario.setLastResult("Success");
-                        }
-                        String passRate = new DecimalFormat("0%").format((float) testResult.getSuccess() / (testResult.getSuccess() + testResult.getError()));
-                        scenario.setPassRate(passRate);
-                        scenario.setReportId(report.getId());
-                        scenarioReportMapper.updateByPrimaryKey(scenario);
-                    });
-                    sqlSession.flushStatements();
-                }
+            if (CollectionUtils.isNotEmpty(reportIds)) {
+                ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+                scenarioReportExample.createCriteria().andIdIn(reportIds);
+                List<ApiScenarioReport> reports = apiScenarioReportMapper.selectByExampleWithBLOBs(scenarioReportExample);
+                SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+                ApiScenarioMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioMapper.class);
+                reports.forEach(apiScenarioReport -> {
+                    ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
+                    scenario.setId(apiScenarioReport.getDescription());
+                    scenario.setLastResult(StringUtils.equals("Error", apiScenarioReport.getStatus()) ? "Fail" : apiScenarioReport.getStatus());
+                    scenario.setPassRate(passRateMap.get(apiScenarioReport.getId()));
+                    scenario.setReportId(report.getId());
+                    scenarioReportMapper.updateByPrimaryKeySelective(scenario);
+                });
+                sqlSession.flushStatements();
             }
             // 清理其他报告保留一份合并后的报告
-            this.deleteByIds(reportIds);
-
+            passRateMap.clear();
+            deleteByIds(reportIds);
         }
     }
 
