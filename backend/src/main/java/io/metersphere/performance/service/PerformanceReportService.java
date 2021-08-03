@@ -59,6 +59,8 @@ public class PerformanceReportService {
     @Resource
     private LoadTestReportResultMapper loadTestReportResultMapper;
     @Resource
+    private LoadTestReportResultPartMapper loadTestReportResultPartMapper;
+    @Resource
     private LoadTestReportLogMapper loadTestReportLogMapper;
     @Resource
     private TestResourceService testResourceService;
@@ -122,6 +124,11 @@ public class PerformanceReportService {
         LoadTestReportResultExample loadTestReportResultExample = new LoadTestReportResultExample();
         loadTestReportResultExample.createCriteria().andReportIdEqualTo(reportId);
         loadTestReportResultMapper.deleteByExample(loadTestReportResultExample);
+
+        // delete load_test_report_result
+        LoadTestReportResultPartExample loadTestReportResultPartExample = new LoadTestReportResultPartExample();
+        loadTestReportResultPartExample.createCriteria().andReportIdEqualTo(reportId);
+        loadTestReportResultPartMapper.deleteByExample(loadTestReportResultPartExample);
 
         // delete load_test_report_detail
         LoadTestReportDetailExample example = new LoadTestReportDetailExample();
