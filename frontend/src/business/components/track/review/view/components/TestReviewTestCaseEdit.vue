@@ -273,7 +273,7 @@ export default {
           });
         } else {
           this.$refs.reviewComment.inputLight();
-          // this.$warning(this.$t('test_track.comment.description_is_null'));
+          this.$warning(this.$t('test_track.comment.description_is_null'));
         }
       } else {
         this.$post('/test/review/case/edit', param, () => {
@@ -334,6 +334,7 @@ export default {
         }
         // this.getRelatedTest();
         this.getComments(item);
+        this.$refs.reviewComment.resetInputLight();
         /*  this.initTest();*/
         //this.getFileMetaData(data);
       })
