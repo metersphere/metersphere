@@ -16,6 +16,7 @@ public class ApiTestImportRequest {
     private Boolean useEnvironment;
     private String swaggerUrl;
     private String fileName;
+    private String resourceId;
     //导入策略
     private String modeId;
     private String userId;

@@ -38,11 +38,14 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.api.DefinitionReference;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.request.testreview.SaveTestCaseReviewRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -109,6 +112,8 @@ public class ApiDefinitionService {
     private SystemParameterService systemParameterService;
     @Resource
     private TestPlanMapper testPlanMapper;
+    @Resource
+    private NoticeSendService noticeSendService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -473,6 +478,7 @@ public class ApiDefinitionService {
         } else {
             _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
         }
+
         return apiDefinition;
     }
 
@@ -766,6 +772,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
+
         ApiImportParser apiImportParser = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
@@ -773,6 +780,22 @@ public class ApiDefinitionService {
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
+            // 发送通知
+            if (StringUtils.equals(request.getType(), "schedule")) {
+                String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
+                String context = request.getSwaggerUrl() + "导入失败";
+                Map<String, Object> paramMap = new HashMap<>();
+                paramMap.put("url", request.getSwaggerUrl());
+                NoticeModel noticeModel = NoticeModel.builder()
+                        .context(context)
+                        .testId(scheduleId)
+                        .subject(Translator.get("swagger_url_scheduled_import_notification"))
+                        .failedMailTemplate("SwaggerImportFaild")
+                        .paramMap(paramMap)
+                        .event(NoticeConstants.Event.IMPORT)
+                        .build();
+                noticeSendService.send(NoticeConstants.TaskType.SWAGGER_TASK, noticeModel);
+            }
         }
         importApi(request, apiImport);
         if (CollectionUtils.isNotEmpty(apiImport.getData())) {
@@ -780,6 +803,22 @@ public class ApiDefinitionService {
             request.setName(String.join(",", names));
             List<String> ids = apiImport.getData().stream().map(ApiDefinitionWithBLOBs::getId).collect(Collectors.toList());
             request.setId(JSON.toJSONString(ids));
+        }
+        // 发送通知
+        if (StringUtils.equals(request.getType(), "schedule")) {
+            String scheduleId = scheduleService.getScheduleInfo(request.getResourceId());
+            String context = request.getSwaggerUrl() + "导入成功";
+            Map<String, Object> paramMap = new HashMap<>();
+            paramMap.put("url", request.getSwaggerUrl());
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .context(context)
+                    .testId(scheduleId)
+                    .subject(Translator.get("swagger_url_scheduled_import_notification"))
+                    .successMailTemplate("SwaggerImport")
+                    .paramMap(paramMap)
+                    .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
+                    .build();
+            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, noticeModel);
         }
         return apiImport;
     }

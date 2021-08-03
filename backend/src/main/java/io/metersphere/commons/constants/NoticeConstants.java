@@ -7,6 +7,7 @@ public interface NoticeConstants {
         String TEST_PLAN_TASK = "TEST_PLAN_TASK";
         String REVIEW_TASK = "REVIEW_TASK";
         String DEFECT_TASK = "DEFECT_TASK";
+        String SWAGGER_TASK = "SWAGGER_TASK";
     }
 
     interface Mode {
@@ -28,6 +29,7 @@ public interface NoticeConstants {
         String UPDATE = "UPDATE";
         String DELETE = "DELETE";
         String COMMENT = "COMMENT";
+        String IMPORT = "IMPORT";
     }
 
     interface RelatedUser {
