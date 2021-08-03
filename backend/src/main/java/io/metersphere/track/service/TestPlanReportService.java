@@ -87,15 +87,15 @@ public class TestPlanReportService {
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
     public List<TestPlanReportDTO> list(QueryTestPlanReportRequest request) {
+        List<TestPlanReportDTO> list = new ArrayList<>();
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        String projectId = SessionUtils.getCurrentProjectId();
-        if (StringUtils.isNotBlank(projectId)) {
-            request.setProjectId(projectId);
+        if (StringUtils.isBlank(request.getProjectId())) {
+            return list;
         }
-        List<TestPlanReportDTO> list = extTestPlanReportMapper.list(request);
-//        this.checkReport(list);
+        list = extTestPlanReportMapper.list(request);
         return list;
     }
+
 //    private void checkReport(List<TestPlanReportDTO> list) {
 //        if(CollectionUtils.isNotEmpty(list)){
 //            for (TestPlanReportDTO dto : list){
