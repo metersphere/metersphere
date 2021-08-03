@@ -289,10 +289,22 @@ public class ScheduleService {
         }
         this.editSchedule(request);
 
-        this.addOrUpdateCronJob(request,jobKey ,triggerKey , clazz);
+        this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
     }
 
     public Object getCurrentlyExecutingJobs() {
         return scheduleManager.getCurrentlyExecutingJobs();
+    }
+
+    public String getScheduleInfo(String id) {
+        ScheduleExample schedule = new ScheduleExample();
+        schedule.createCriteria().andResourceIdEqualTo(id);
+        List<Schedule> list = scheduleMapper.selectByExample(schedule);
+        if (list.size() > 0) {
+            return list.get(0).getKey();
+        } else {
+            return "";
+        }
+
     }
 }

@@ -2,6 +2,7 @@ package io.metersphere.job.sechedule;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.base.domain.SwaggerUrlProject;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -30,6 +31,7 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("schedule");
         request.setUserId(jobDataMap.getString("userId"));
+        request.setResourceId(resourceId);
         apiDefinitionService.apiTestImport(null, request);
     }
 
