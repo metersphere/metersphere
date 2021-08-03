@@ -9,6 +9,7 @@
           v-model="form.userIds"
           multiple
           filterable
+          :filter-method="userFilter"
           :popper-append-to-body="false"
           class="select-width"
           :placeholder="$t('member.please_choose_member')">
@@ -63,6 +64,7 @@ export default {
         ]
       },
       userList: [],
+      copyUserList: [],
       result: {}
     }
   },
@@ -96,6 +98,7 @@ export default {
       this.dialogVisible = true;
       this.result = this.$get('/user/list/', response => {
         this.userList = response.data;
+        this.copyUserList = response.data;
       })
       this.result = this.$post('/user/group/list', {type: this.groupType, resourceId: this.groupScopeId}, response => {
         this.$set(this.form, "groups", response.data);
@@ -104,6 +107,17 @@ export default {
     close() {
       this.dialogVisible = false;
       this.form = {};
+    },
+    userFilter(val) {
+      if (val) {
+        this.userList = this.copyUserList.filter((item) => {
+          if (!!~item.id.indexOf(val) || (item.name && !!~item.name.indexOf(val))) {
+            return true;
+          }
+        })
+      } else {
+        this.userList = this.copyUserList;
+      }
     }
   }
 }
