@@ -2366,10 +2366,12 @@ public class ApiAutomationService {
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
         for (ApiScenarioWithBLOBs apiModel : apiScenarioList) {
+            long time = System.currentTimeMillis();
             ApiScenarioWithBLOBs newModel = apiModel;
             newModel.setId(UUID.randomUUID().toString());
             newModel.setName("copy_" + apiModel.getName());
-            newModel.setCreateTime(System.currentTimeMillis());
+            newModel.setCreateTime(time);
+            newModel.setUpdateTime(time);
             newModel.setNum(getNextNum(newModel.getProjectId()));
 
             ApiScenarioExample example = new ApiScenarioExample();
