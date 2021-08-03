@@ -164,6 +164,13 @@
           exportTip: this.$t('api_test.api_import.esb_export_tip'),
           suffixes: new Set(['xlsx', 'xls'])
         },
+        jmeterPlatform: {
+          name: 'JMeter',
+          value: 'Jmeter',
+          tip: this.$t('api_test.api_import.jmeter_tip'),
+          exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
+          suffixes: new Set(['jmx'])
+        },
         selectedPlatform: {},
         selectedPlatformValue: 'Metersphere',
         result: {},
@@ -189,6 +196,7 @@
       this.platforms.push(this.postmanPlanform);
       this.platforms.push(this.swaggerPlanform);
       this.platforms.push(this.harPlanform);
+      this.platforms.push(this.jmeterPlatform);
       this.selectedPlatform = this.platforms[0];
     },
     watch: {
@@ -381,7 +389,7 @@
   }
 
   .header-bar {
-    padding: 10px 30px;
+    padding: 10px 15px;
   }
 
   .api-import >>> .el-dialog__body {

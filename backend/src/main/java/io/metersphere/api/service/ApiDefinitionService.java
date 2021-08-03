@@ -478,11 +478,11 @@ public class ApiDefinitionService {
             int nextNum = 0;
             for (int i = 0; i < cases.size(); i++) {
                 ApiTestCaseWithBLOBs item = cases.get(i);
-                if (i == 0) {
-                    nextNum = apiTestCaseService.getNextNum(item.getApiDefinitionId());
-                } else {
-                    nextNum ++;
+                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getApiDefinitionId());
+                if (apiDefinitionWithBLOBs == null) {
+                    continue;
                 }
+                nextNum = apiTestCaseService.getNextNum(item.getApiDefinitionId());
                 checkRequest.setName(item.getName());
                 checkRequest.setApiDefinitionId(item.getApiDefinitionId());
                 if (!apiTestCaseService.hasSameCase(checkRequest)) {
