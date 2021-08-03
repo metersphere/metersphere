@@ -153,12 +153,13 @@ export default {
         }
       })
     },
-    formatContent(hashTree, tree) {
+    formatContent(hashTree, tree, fullPath) {
       if (hashTree) {
         hashTree.forEach(item => {
           if (item.enable) {
+            item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
             let name = item.name ? item.name : item.type;
-            let obj = {resId: item.resourceId + "_" + item.index, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+            let obj = {resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
             tree.children.push(obj);
             if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
               obj.unsolicited = false;
@@ -167,7 +168,7 @@ export default {
               this.content.scenarioTotal += 1;
             }
             if (item.hashTree && item.hashTree.length > 0 && ELEMENTS.get("AllSamplerProxy").indexOf(item.type) === -1) {
-              this.formatContent(item.hashTree, obj);
+              this.formatContent(item.hashTree, obj, item.parentIndex);
             }
           }
         })

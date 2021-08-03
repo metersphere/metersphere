@@ -158,7 +158,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if(StringUtils.isEmpty(this.getEnvironmentId())){
+        if (StringUtils.isEmpty(this.getEnvironmentId())) {
             this.setEnvironmentId(this.useEnvironment);
         }
         // 非导出操作，且不是启用状态则跳过执行
@@ -182,7 +182,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId()+ "_" + this.getIndex());
+        String indexPath = this.getIndex();
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
@@ -253,7 +254,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                if(this.getEnvironmentId() == null || el.getEnvironmentId() == null){
+                if (this.getEnvironmentId() == null || el.getEnvironmentId() == null) {
                     el.setEnvironmentId(useEnvironment);
                 }
 
@@ -270,7 +271,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private HttpConfig getHttpConfig(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
             String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
-            if(StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId,this.getEnvironmentId())){
+            if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                 this.setEnvironmentId(useEvnId);
             }
             return getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
@@ -585,7 +586,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private Arguments httpArguments(List<KeyValue> list) {
         Arguments arguments = new Arguments();
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
-            HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
+                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.buildFunctionCallString(keyValue.getValue()) : keyValue.getValue());
                     if (keyValue.getValue() == null) {
                         httpArgument.setValue("");
                     }
