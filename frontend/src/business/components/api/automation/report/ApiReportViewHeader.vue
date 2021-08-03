@@ -4,7 +4,7 @@
       <el-col>
         <!--        <span v-if="!debug"><el-input size="mini" style="width: 200px" v-model="report.name"/> </span>-->
         <span v-if="!debug">
-          <el-input v-if="nameIsEdit" size="mini" @blur="nameIsEdit = false" style="width: 200px" v-model="report.name"/>
+          <el-input v-if="nameIsEdit" size="mini" @blur="handleSave(report.name)" style="width: 200px" v-model="report.name"/>
           <span v-else>
             <router-link v-if="isSingleScenario" :to="{name: 'ApiAutomation', params: { dataSelectRange: 'edit:' + scenarioId }}">
               {{ report.name }}
@@ -19,10 +19,6 @@
 
         <el-button v-if="!debug || exportFlag" v-permission="['PROJECT_API_REPORT:READ+EXPORT']" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
           {{ $t('test_track.plan_view.export_report') }}
-        </el-button>
-
-        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleSave(report.name)" style="margin-right: 10px">
-          {{ $t('commons.save') }}
         </el-button>
 
       </el-col>
@@ -76,6 +72,7 @@ export default {
       this.$emit('reportExport', name);
     },
     handleSave(name) {
+      this.nameIsEdit = false;
       this.$emit('reportSave', name);
     }
   }
