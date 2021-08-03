@@ -102,6 +102,10 @@ public class TestResultService {
                 //环境
                 ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
                 String name = "";
+                //执行人
+                String userName = "";
+                //负责人
+                String principal = "";
                 if (apiScenario != null) {
                     String executionEnvironment = apiScenario.getScenarioDefinition();
                     JSONObject json = JSONObject.parseObject(executionEnvironment);
@@ -110,11 +114,9 @@ public class TestResultService {
                         String environmentId = environment.get(apiScenario.getProjectId()).toString();
                         name = apiAutomationService.get(environmentId).getName();
                     }
+                    userName = apiAutomationService.getUser(apiScenario.getUserId());
+                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                 }
-                //执行人
-                String userName = apiAutomationService.getUser(apiScenario.getUserId());
-                //负责人
-                String principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                 //报告内容
                 reportTask = new ApiTestReportVariable();
                 reportTask.setStatus(scenarioReport.getStatus());
