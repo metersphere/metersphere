@@ -724,6 +724,7 @@ export default {
                   type: "scenario",
                   variables: this.currentScenario.variables,
                   referenced: 'Created',
+                  onSampleError: this.onSampleError,
                   enableCookieShare: this.enableCookieShare,
                   headers: this.currentScenario.headers,
                   environmentMap: this.projectEnvMap,
