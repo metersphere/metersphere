@@ -6,7 +6,7 @@
       <el-tab-pane :label="$t('test_track.case.import.excel_title')" name="excelImport">
         <el-row class="import-row" style="margin-left: 34px">
           <el-radio v-model="importType" label="Create">{{$t('test_track.case.import.import_create')}}</el-radio>
-          <el-radio v-model="importType" label="Update">{{$t('test_track.case.import.import_create')}}</el-radio>
+          <el-radio v-model="importType" label="Update">{{$t('test_track.case.import.import_update')}}</el-radio>
         </el-row>
         <el-row class="import-row">
           <div class="el-step__icon is-text" style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px">
@@ -85,7 +85,7 @@
       <el-tab-pane :label="$t('test_track.case.import.xmind_title')" name="xmindImport" style="border: 0px">
         <el-row class="import-row" style="margin-left: 34px">
           <el-radio v-model="importType" label="Create">{{$t('test_track.case.import.import_create')}}</el-radio>
-          <el-radio v-model="importType" label="Update">{{$t('test_track.case.import.import_create')}}</el-radio>
+          <el-radio v-model="importType" label="Update">{{$t('test_track.case.import.import_update')}}</el-radio>
         </el-row>
         <el-row class="import-row">
           <div class="el-step__icon is-text" style="background-color: #C9E6F8;border-color: #C9E6F8;margin-right: 10px">
