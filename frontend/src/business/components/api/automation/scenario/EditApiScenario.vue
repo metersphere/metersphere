@@ -663,6 +663,7 @@ export default {
                   enableCookieShare: this.enableCookieShare,
                   headers: this.currentScenario.headers,
                   environmentMap: this.projectEnvMap,
+                  onSampleError: this.onSampleError,
                   hashTree: this.scenarioDefinition
                 };
                 this.reportId = getUUID().substring(0, 8);
