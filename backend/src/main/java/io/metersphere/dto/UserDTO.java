@@ -29,6 +29,7 @@ public class UserDTO extends User {
         private String  tapdUserName;
         private String  zentaoUserName;
         private String  zentaoPassword;
+        private String  azureDevopsPat;
     }
 
 }

@@ -58,3 +58,6 @@ CREATE TABLE IF NOT EXISTS test_plan_report_resource  (
     INDEX `report_resource_id`(`test_plan_report_id`,`resource_id`) USING BTREE,
     INDEX `report_resource_type_id`(`test_plan_report_id`,`resource_id`,`resource_type`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+
+alter table project add azure_devops_id varchar(50) null after zentao_id;
+alter table custom_field_template modify default_value varchar(100) null ;

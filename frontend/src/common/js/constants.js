@@ -38,6 +38,7 @@ export const EN_US = 'en_US';
 export const TAPD = 'Tapd';
 export const JIRA = 'Jira';
 export const ZEN_TAO = 'Zentao';
+export const AZURE_DEVOPS = 'AzureDevops';
 
 export const GROUP_SYSTEM = 'SYSTEM';
 export const GROUP_ORGANIZATION = 'ORGANIZATION';

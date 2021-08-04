@@ -25,5 +25,5 @@ public abstract class LocalAbstractPlatform extends AbstractIssuePlatform {
     public void syncIssues(Project project, List<IssuesDao> tapdIssues) {}
 
     @Override
-    String getProjectId(String projectId) { return null; }
+    public String getProjectId(String projectId) { return null; }
 }

@@ -70,7 +70,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId(String projectId) {
+    public String getProjectId(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             return projectService.getProjectById(projectId).getZentaoId();
         }
