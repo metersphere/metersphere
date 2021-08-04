@@ -43,7 +43,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                     returnMap.put("ID",index);
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"所属模块","所屬模塊","Module")){
                     returnMap.put("Module",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"责任人","維護人","Maintainer")){
+                }else if(StringUtils.equalsAnyIgnoreCase(head,"责任人(ID)","維護人(ID)","Maintainer(ID)")){
                     returnMap.put("Maintainer",index);
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"用例等级","用例等級","Priority")){
                     returnMap.put("Priority",index);
@@ -51,6 +51,8 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                     returnMap.put("Tag",index);
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"用例状态","用例狀態","Case status")){
                     returnMap.put("Status",index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "编辑模式", "編輯模式", "Edit Model")) {
+                    returnMap.put("StepModel",index);
                 }
                 index ++;
             }
@@ -94,7 +96,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Maintainer")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
-                        comment.setString(new XSSFRichTextString(Translator.get("please_input_workspace_member")));
+                        comment.setString(new XSSFRichTextString(Translator.get("please_input_project_member")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Priority")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
@@ -122,6 +124,10 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                             comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
                             sheet.getRow(0).getCell(1).setCellComment(comment);
                         }
+                    } else if (StringUtils.equalsAnyIgnoreCase(coloum, "StepModel")) {
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        comment.setString(new XSSFRichTextString(Translator.get("step_model_tip")));
+                        sheet.getRow(0).getCell(1).setCellComment(comment);
                     }
                 }
             }
