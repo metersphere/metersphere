@@ -126,6 +126,12 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                         case "NOT_EQUALS":
                             msg = "Value not equals to be '%s', but found '%s'";
                             break;
+                        case "GT":
+                            msg = "Value > '%s', but found '%s'";
+                            break;
+                        case "LT":
+                            msg = "Value < '%s', but found '%s'";
+                            break;
                     }
                 } else {
                     msg = "Value expected to be '%s', but found '%s'";
@@ -153,6 +159,22 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         }
     }
 
+    private boolean isGt(String v1, String v2) {
+        try {
+            return Long.parseLong(v1) > Long.parseLong(v2);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isLt(String v1, String v2) {
+        try {
+            return Long.parseLong(v1) < Long.parseLong(v2);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     private boolean isEquals(Object subj) {
         String str = objectToString(subj);
         if (this.isUseRegex()) {
@@ -174,6 +196,13 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                     case "NOT_EQUALS":
                         refFlag = !str.equals(getExpectedValue());
                         break;
+                    case "GT":
+                        refFlag = isGt(str, getExpectedValue());
+                        break;
+                    case "LT":
+                        refFlag = isLt(str, getExpectedValue());
+                        break;
+
                 }
                 return refFlag;
             }

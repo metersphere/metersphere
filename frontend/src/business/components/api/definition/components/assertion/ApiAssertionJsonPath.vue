@@ -11,6 +11,8 @@
           <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
           <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
           <el-option :label="$t('commons.adv_search.operators.not_equals')" value="NOT_EQUALS"/>
+          <el-option :label="$t('commons.adv_search.operators.gt')" value="GT"/>
+          <el-option :label="$t('commons.adv_search.operators.lt')" value="LT"/>
           <el-option label="正则匹配" value="REGEX"/>
         </el-select>
         <el-input :disabled="isReadOnly" v-model="jsonPath.expect" size="small" show-word-limit
