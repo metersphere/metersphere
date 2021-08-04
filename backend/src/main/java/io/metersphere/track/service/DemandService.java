@@ -34,6 +34,7 @@ public class DemandService {
         boolean tapd = issuesService.isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
         boolean jira = issuesService.isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
         boolean zentao = issuesService.isIntegratedPlatform(orgId, IssuesManagePlatform.Zentao.toString());
+        boolean azureDevops = issuesService.isIntegratedPlatform(orgId, IssuesManagePlatform.AzureDevops.toString());
         List<DemandDTO> list = new ArrayList<>();
         List<String> platforms = new ArrayList<>();
         IssuesRequest issueRequest = new IssuesRequest();
@@ -56,6 +57,13 @@ public class DemandService {
             String zentaoId = project.getZentaoId();
             if (StringUtils.isNotBlank(zentaoId)) {
                 platforms.add(IssuesManagePlatform.Zentao.name());
+            }
+        }
+
+        if (azureDevops) {
+            String azureDevopsId = project.getAzureDevopsId();
+            if (StringUtils.isNotBlank(azureDevopsId)) {
+                platforms.add(IssuesManagePlatform.AzureDevops.name());
             }
         }
 
