@@ -159,6 +159,7 @@ export default {
     node_name_tip: "The name cannot contain'\\'",
     more_operator: "More operator",
     mock: "Mock settings",
+    trash: "Trash",
     all_module_title: "All module",
     create_user: 'Creator',
     table: {

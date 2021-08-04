@@ -160,6 +160,7 @@ export default {
     node_name_tip: "名称不能包含'\\'",
     more_operator: "更多操作",
     mock: "Mock 设置",
+    trash: "回收站",
     all_module_title: "全部模块",
     create_user: '创建人',
     table: {

@@ -84,7 +84,6 @@ public class JmeterDefinitionParser extends ApiImportAbstractParser<ApiDefinitio
                     ApiTestCaseWithBLOBs apiTestCase =  new ApiTestCaseWithBLOBs();
                     BeanUtils.copyBean(apiTestCase, apiDefinitionWithBLOBs);
                     apiTestCase.setApiDefinitionId(apiDefinitionWithBLOBs.getId());
-                    apiTestCase.setStatus("Prepare");
                     apiTestCase.setPriority("P0");
                     definitionCases.add(apiTestCase);
                 }
