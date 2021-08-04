@@ -309,7 +309,7 @@ public abstract class MsTestElement {
     }
 
     public String getFullIndexPath(MsTestElement element, String path) {
-        if (element.getParent() == null) {
+        if (element == null || element.getParent() == null) {
             return path;
         }
         path = element.getIndex() + "_" + path;
