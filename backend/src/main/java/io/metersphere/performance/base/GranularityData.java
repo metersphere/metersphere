@@ -20,7 +20,7 @@ public class GranularityData {
         dataList.add(new Data(30001, 60000, 600_000));
         dataList.add(new Data(60001, 180000, 1800_000));
         dataList.add(new Data(180001, 360000, 3600_000));
-        dataList.add(new Data(360000, Integer.MAX_VALUE, 3600));
+        dataList.add(new Data(360000, Integer.MAX_VALUE, 3600_000));
     }
 
     @Getter
