@@ -40,6 +40,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,6 +89,8 @@ public class IssuesService {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, issuesRequest);
         abstractPlatform.testAuth();
     }
+
+
 
     public void addIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
@@ -453,6 +457,9 @@ public class IssuesService {
             List<IssuesDao> zentaoIssues = issues.stream()
                     .filter(item -> item.getPlatform().equals(IssuesManagePlatform.Zentao.name()))
                     .collect(Collectors.toList());
+            List<IssuesDao> azureDevopsIssues = issues.stream()
+                    .filter(item -> item.getPlatform().equals(IssuesManagePlatform.AzureDevops.name()))
+                    .collect(Collectors.toList());
 
             IssuesRequest issuesRequest = new IssuesRequest();
             issuesRequest.setProjectId(projectId);
@@ -468,6 +475,25 @@ public class IssuesService {
             if (CollectionUtils.isNotEmpty(zentaoIssues)) {
                 ZentaoPlatform zentaoPlatform = new ZentaoPlatform(issuesRequest);
                 syncThirdPartyIssues(zentaoPlatform::syncIssues, project, zentaoIssues);
+            }
+            if (CollectionUtils.isNotEmpty(azureDevopsIssues)) {
+                ClassLoader loader = Thread.currentThread().getContextClassLoader();
+                try {
+                    Class clazz = loader.loadClass("io.metersphere.xpack.issue.azureDevops.AzureDevopsPlatform");
+                    Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
+                    AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
+                    syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

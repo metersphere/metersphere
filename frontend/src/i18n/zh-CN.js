@@ -420,7 +420,18 @@ export default {
       successful_operation: '操作成功',
       not_integrated: '未集成该平台',
       choose_platform: '请选择集成的平台',
-      verified: '验证通过'
+      verified: '验证通过',
+      azure_issuetype: '问题类型',
+      azure_storytype: '需求类型',
+      input_azure_issuetype: '请输入问题类型',
+      input_azure_storytype: '请输入需求类型',
+      azure_pat:'PersonalAccessTokens',
+      azure_devops_url:'Azure Devops 地址',
+      azure_organization_id:'Azure 组织ID',
+      input_azure_pat:'请输入 Personal Access Token',
+      input_azure_url:'请输入 Azure Devops 地址',
+      input_azure_organization_id:'请输入 Azure 组织ID',
+      use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
     }
   },
   project: {
@@ -441,6 +452,7 @@ export default {
     tapd_id: 'TAPD项目ID',
     jira_key: 'JIRA项目key',
     zentao_id: 'Zentao项目ID',
+    azureDevops_id: 'AzureDevops项目ID',
     manager: '项目管理',
     no_data: '无数据',
     select: '选择项目',

@@ -421,7 +421,17 @@ export default {
       successful_operation: 'Successful operation',
       not_integrated: 'The platform is not integrated',
       choose_platform: 'Please choose an integrated platform',
-      verified: 'Verified'
+      azure_issuetype: 'Azure issue type',
+      azure_storytype: 'Azure story type',
+      input_azure_issuetype: 'Please enter the issue type',
+      input_azure_storytype: 'Please enter the story type',
+      azure_pat:'PersonalAccessTokens',
+      azure_devops_url:'Azure Devops url',
+      azure_organization_id:'Azure Organization ID',
+      input_azure_pat:'Please enter Personal Access Token',
+      input_azure_url:'Please enter Azure Devops Url',
+      input_azure_id:'Please enter Azure Organization ID',
+      use_tip_azure: 'Azure Devops URL+PersonalAccessTokens(User Settings-Personal Access Tokens-New Token)',
     }
   },
   project: {
@@ -442,6 +452,7 @@ export default {
     tapd_id: 'TAPD Project ID',
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
+    azureDevops_id: 'AzureDevops Project ID',
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',
