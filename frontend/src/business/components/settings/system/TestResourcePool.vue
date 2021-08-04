@@ -304,7 +304,11 @@ export default {
     },
 
     addResourceInfo() {
-      this.infoList.push({});
+      this.infoList.push({
+        port: '8082',
+        monitorPort: '9100',
+        maxConcurrency: 100
+      });
     },
     removeResourceInfo(index) {
       if (this.infoList.length > 1) {
