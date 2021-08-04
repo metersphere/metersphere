@@ -53,13 +53,13 @@
     </el-card>
 
     <el-dialog
-        :close-on-click-modal="false"
-        :title="form.id ? $t('test_resource_pool.update_resource_pool') : $t('test_resource_pool.create_resource_pool')"
-        :visible.sync="dialogVisible" width="80%"
-        top="5%"
-        @closed="closeFunc"
-        :destroy-on-close="true"
-        v-loading="result.loading"
+      :close-on-click-modal="false"
+      :title="form.id ? $t('test_resource_pool.update_resource_pool') : $t('test_resource_pool.create_resource_pool')"
+      :visible.sync="dialogVisible" width="80%"
+      top="5%"
+      @closed="closeFunc"
+      :destroy-on-close="true"
+      v-loading="result.loading"
     >
       <div style="height: 60vh;overflow: auto;">
         <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
@@ -164,33 +164,33 @@
                 </el-row>
                 <el-table :data="infoList" class="tb-edit" align="center" border highlight-current-row>
                   <el-table-column
-                      align="center"
-                      prop="ip"
-                      label="IP">
+                    align="center"
+                    prop="ip"
+                    label="IP">
                     <template v-slot:default="{row}">
                       <el-input size="small" v-model="row.ip" autocomplete="off"/>
                     </template>
                   </el-table-column>
                   <el-table-column
-                      align="center"
-                      prop="port"
-                      label="Port">
+                    align="center"
+                    prop="port"
+                    label="Port">
                     <template v-slot:default="{row}">
                       <el-input-number size="small" v-model="row.port" :min="1" :max="65535"></el-input-number>
                     </template>
                   </el-table-column>
                   <el-table-column
-                      align="center"
-                      prop="monitorPort"
-                      label="Monitor">
+                    align="center"
+                    prop="monitorPort"
+                    label="Monitor">
                     <template v-slot:default="{row}">
                       <el-input-number size="small" v-model="row.monitorPort" :min="1" :max="65535"></el-input-number>
                     </template>
                   </el-table-column>
                   <el-table-column
-                      align="center"
-                      prop="maxConcurrency"
-                      :label="$t('test_resource_pool.max_threads')">
+                    align="center"
+                    prop="maxConcurrency"
+                    :label="$t('test_resource_pool.max_threads')">
                     <template v-slot:default="{row}">
                       <el-input-number size="small" v-model="row.maxConcurrency" :min="1"
                                        :max="1000000000"></el-input-number>
@@ -212,13 +212,13 @@
       </div>
       <template v-slot:footer>
         <ms-dialog-footer
-            v-if="form.id"
-            @cancel="dialogVisible = false"
-            @confirm="updateTestResourcePool()"/>
+          v-if="form.id"
+          @cancel="dialogVisible = false"
+          @confirm="updateTestResourcePool()"/>
         <ms-dialog-footer
-            v-else
-            @cancel="dialogVisible = false"
-            @confirm="createTestResourcePool()"/>
+          v-else
+          @cancel="dialogVisible = false"
+          @confirm="createTestResourcePool()"/>
       </template>
     </el-dialog>
   </div>
@@ -246,7 +246,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      form: {performance: true, api: true},
+      form: {performance: true, api: true, backendListener: true},
       screenHeight: 'calc(100vh - 195px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
@@ -396,11 +396,11 @@ export default {
             this.convertSubmitResources();
             this.result = this.$post("/testresourcepool/add", this.form, () => {
               this.$message({
-                    type: 'success',
-                    message: this.$t('commons.save_success')
-                  },
-                  this.dialogVisible = false,
-                  this.initTableData());
+                  type: 'success',
+                  message: this.$t('commons.save_success')
+                },
+                this.dialogVisible = false,
+                this.initTableData());
             });
           } else {
             this.$warning(vri.msg);
@@ -433,12 +433,12 @@ export default {
             this.convertSubmitResources();
             this.result = this.$post("/testresourcepool/update", this.form, () => {
               this.$message({
-                    type: 'success',
-                    message: this.$t('commons.modify_success')
-                  },
-                  this.dialogVisible = false,
-                  this.initTableData(),
-                  self.loading = false);
+                  type: 'success',
+                  message: this.$t('commons.modify_success')
+                },
+                this.dialogVisible = false,
+                this.initTableData(),
+                self.loading = false);
             });
           } else {
             this.$warning(vri.msg);
@@ -450,7 +450,7 @@ export default {
       });
     },
     closeFunc() {
-      this.form = {performance: true, api: true};
+      this.form = {performance: true, api: true, backendListener: true};
       this.dialogVisible = false;
       removeGoBackListener(this.closeFunc);
     },
@@ -492,10 +492,10 @@ export default {
     },
     updatePoolStatus(row) {
       this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
-          .then(() => {
-            this.$success(this.$t('test_resource_pool.status_change_success'));
-            this.result.loading = false;
-          }).catch(() => {
+        .then(() => {
+          this.$success(this.$t('test_resource_pool.status_change_success'));
+          this.result.loading = false;
+        }).catch(() => {
         this.$error(this.$t('test_resource_pool.status_change_failed'));
         row.status = 'INVALID';
         this.result.loading = false;
