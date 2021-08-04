@@ -46,7 +46,8 @@
                 AND u.id like CONCAT('%', #{userRequest.id},'%')
             </if>
             <if test="userRequest.name != null">
-                AND u.name like CONCAT('%', #{userRequest.name},'%')
+                AND (u.name like CONCAT('%', #{userRequest.name},'%')
+                        or u.id like CONCAT('%', #{userRequest.name},'%'))
             </if>
             <if test="userRequest.email != null">
                 AND u.email like CONCAT('%', #{userRequest.email},'%')
