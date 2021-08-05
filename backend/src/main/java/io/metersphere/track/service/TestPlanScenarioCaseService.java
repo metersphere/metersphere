@@ -10,6 +10,7 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.ProjectService;
@@ -141,6 +142,9 @@ public class TestPlanScenarioCaseService {
             }
         }
         testPlanScenarioRequest.setPlanCaseIds(planCaseIdList);
+        if (CollectionUtils.isEmpty(planCaseIdList)) {
+            MSException.throwException("未找到执行对象！");
+        }
         planCaseIdList.forEach(item -> {
             idStr.append("\"").append(item).append("\"").append(",");
         });
