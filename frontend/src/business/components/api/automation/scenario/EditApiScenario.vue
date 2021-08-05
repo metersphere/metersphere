@@ -222,7 +222,7 @@
           <el-col :span="3">
             <div @click="fabClick">
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
-                       :click-auto-close="false" v-outside-click="outsideClick">
+                       :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                 <fab-item
                   v-for="(item, index) in buttons"
                   :key="index"
@@ -478,6 +478,7 @@ export default {
     this.$nextTick(() => {
       this.addListener();
     });
+    this.$refs.refFab.openMenu();
   },
   directives: {OutsideClick},
   computed: {
@@ -824,6 +825,7 @@ export default {
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
+      this.$store.state.selectStep = data;
     },
     suggestClick(node) {
       this.response = {};
@@ -836,13 +838,14 @@ export default {
       if (!this.customizeVisible && !this.isBtnHide) {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
+        this.$store.state.selectStep = undefined;
       }
     },
     apiListImport() {
       this.isBtnHide = true;
       this.$refs.scenarioApiRelevance.open();
     },
-    sort(stepArray, scenarioProjectId,fullPath) {
+    sort(stepArray, scenarioProjectId, fullPath) {
       if (!stepArray) {
         stepArray = this.scenarioDefinition;
       }
@@ -877,7 +880,7 @@ export default {
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.stepSize += stepArray[i].hashTree.length;
-          this.sort(stepArray[i].hashTree, stepArray[i].projectId,stepArray[i].parentIndex);
+          this.sort(stepArray[i].hashTree, stepArray[i].projectId, stepArray[i].parentIndex);
         }
       }
     },

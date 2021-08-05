@@ -1,12 +1,12 @@
 <template>
-  <el-card>
+  <el-card :style="{'border-color':colorStyle}">
     <div class="header" @click="active(data)">
       <slot name="beforeHeaderLeft">
         <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
-          <div class="el-step__icon-inner">{{data.index}}</div>
+          <div class="el-step__icon-inner">{{ data.index }}</div>
         </div>
-        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
-        <el-tag size="mini" v-if="data.method">{{getMethod()}}</el-tag>
+        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{ title }}</el-tag>
+        <el-tag size="mini" v-if="data.method">{{ getMethod() }}</el-tag>
       </slot>
       <slot name="behindHeaderLeft" v-if="!isMax"></slot>
 
@@ -22,7 +22,7 @@
             <i class="el-icon-edit" style="cursor:pointer;" @click="editName"
                v-if="data.referenced!='REF' && !data.disabled"/>
             <el-tooltip placement="top" :content="data.name">
-              <span>{{data.name}}</span>
+              <span>{{ data.name }}</span>
             </el-tooltip>
           </span>
         </slot>
@@ -63,183 +63,197 @@
 </template>
 
 <script>
-  import StepExtendBtns from "../component/StepExtendBtns";
-  import {ELEMENTS} from "../Setting";
+import StepExtendBtns from "../component/StepExtendBtns";
+import {ELEMENTS} from "../Setting";
 
-  export default {
-    name: "ApiBaseComponent",
-    components: {StepExtendBtns},
-    data() {
-      return {
-        isShowInput: false
+export default {
+  name: "ApiBaseComponent",
+  components: {StepExtendBtns},
+  data() {
+    return {
+      isShowInput: false,
+      colorStyle: "",
+    }
+  },
+  props: {
+    draggable: Boolean,
+    isMax: {
+      type: Boolean,
+      default: false,
+    },
+    showBtn: {
+      type: Boolean,
+      default: true,
+    },
+    data: {
+      type: Object,
+      default() {
+        return {}
+      },
+    },
+    color: {
+      type: String,
+      default() {
+        return "#B8741A"
       }
     },
-    props: {
-      draggable: Boolean,
-      isMax: {
-        type: Boolean,
-        default: false,
-      },
-      showBtn: {
-        type: Boolean,
-        default: true,
-      },
-      data: {
-        type: Object,
-        default() {
-          return {}
-        },
-      },
-      color: {
-        type: String,
-        default() {
-          return "#B8741A"
-        }
-      },
-      backgroundColor: {
-        type: String,
-        default() {
-          return "#F9F1EA"
-        }
-      },
-      showCollapse: {
-        type: Boolean,
-        default() {
-          return true
-        }
-      },
-      isShowNameInput: {
-        type: Boolean,
-        default() {
-          return true
-        }
-      },
-      title: String
-    },
-    created() {
-      if (!this.data.name) {
-        this.isShowInput = true;
-      }
-      if (this.$refs.nameEdit) {
-        this.$nextTick(() => {
-          this.$refs.nameEdit.focus();
-        });
-      }
-      if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
-        if (!this.data.method) {
-          this.data.method = this.data.protocol;
-        }
+    backgroundColor: {
+      type: String,
+      default() {
+        return "#F9F1EA"
       }
     },
-    methods: {
-      active() {
-        this.$emit('active');
-      },
-      getMethod() {
-        if (this.data.protocol === "HTTP") {
-          return this.data.method;
-        }
-        else if (this.data.protocol === "dubbo://") {
-          return "DUBBO";
-        }
-        else {
-          return this.data.protocol;
-        }
-      },
-      copyRow() {
-        this.$emit('copy');
-      },
-      remove() {
-        this.$emit('remove');
-      },
-      openScenario(data) {
-        this.$emit('openScenario', data);
-      },
-      editName() {
-        this.isShowInput = true;
-        this.$nextTick(() => {
-          this.$refs.nameEdit.focus();
-        });
+    showCollapse: {
+      type: Boolean,
+      default() {
+        return true
+      }
+    },
+    isShowNameInput: {
+      type: Boolean,
+      default() {
+        return true
+      }
+    },
+    title: String
+  },
+  watch: {
+    '$store.state.selectStep': function () {
+      if (this.$store.state.selectStep && this.$store.state.selectStep.resourceId === this.data.resourceId) {
+        this.colorStyle = this.color;
+      } else {
+        this.colorStyle = "";
       }
     }
+  },
+  created() {
+    if (!this.data.name) {
+      this.isShowInput = true;
+    }
+    if (this.$refs.nameEdit) {
+      this.$nextTick(() => {
+        this.$refs.nameEdit.focus();
+      });
+    }
+    if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
+      if (!this.data.method) {
+        this.data.method = this.data.protocol;
+      }
+    }
+  },
+  methods: {
+    active() {
+      this.$emit('active');
+    },
+    getMethod() {
+      if (this.data.protocol === "HTTP") {
+        return this.data.method;
+      } else if (this.data.protocol === "dubbo://") {
+        return "DUBBO";
+      } else {
+        return this.data.protocol;
+      }
+    },
+    copyRow() {
+      this.$emit('copy');
+    },
+    remove() {
+      this.$emit('remove');
+    },
+    openScenario(data) {
+      this.$emit('openScenario', data);
+    },
+    editName() {
+      this.isShowInput = true;
+      this.$nextTick(() => {
+        this.$refs.nameEdit.focus();
+      });
+    }
   }
+}
 </script>
 
 <style scoped>
 
-  .icon.is-active {
-    transform: rotate(90deg);
-  }
+.icon.is-active {
+  transform: rotate(90deg);
+}
 
-  .name-input {
-    width: 30%;
-  }
+.name-input {
+  width: 30%;
+}
 
-  .el-icon-arrow-right {
-    margin-right: 5px;
-  }
+.el-icon-arrow-right {
+  margin-right: 5px;
+}
 
-  .ms-left-btn {
-    font-size: 13px;
-    margin-right: 15px;
-  }
+.ms-left-btn {
+  font-size: 13px;
+  margin-right: 15px;
+}
 
-  .header-right {
-    margin-top: 0px;
-    float: right;
-    z-index: 1;
-  }
+.header-right {
+  margin-top: 0px;
+  float: right;
+  z-index: 1;
+}
 
-  .enable-switch {
-    margin-right: 10px;
-  }
+.enable-switch {
+  margin-right: 10px;
+}
 
-  .ms-step-name {
-    display: inline-block;
-    font-size: 13px;
-    margin: 0 5px;
-    overflow-x: hidden;
-    padding-bottom: 0;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    white-space: nowrap;
-    width: 140px;
-  }
+.ms-step-name {
+  display: inline-block;
+  font-size: 13px;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 140px;
+}
 
-  .scenario-name {
-    display: inline-block;
-    font-size: 13px;
-    margin: 0 5px;
-    overflow-x: hidden;
-    padding-bottom: 0;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    white-space: nowrap;
-    width: calc(100% - 35rem);
-  }
+.scenario-name {
+  display: inline-block;
+  font-size: 13px;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: calc(100% - 35rem);
+}
 
-  /deep/ .el-step__icon {
-    width: 20px;
-    height: 20px;
-    font-size: 12px;
-  }
+/deep/ .el-step__icon {
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+}
 
-  fieldset {
-    padding: 0px;
-    margin: 0px;
-    min-width: 100%;
-    min-inline-size: 0px;
-    border: 0px;
-  }
-  .ms-step-name-width {
-    display: inline-block;
-    margin: 0 5px;
-    overflow-x: hidden;
-    padding-bottom: 0;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    white-space: nowrap;
-    width: 400px;
-  }
+fieldset {
+  padding: 0px;
+  margin: 0px;
+  min-width: 100%;
+  min-inline-size: 0px;
+  border: 0px;
+}
+
+.ms-step-name-width {
+  display: inline-block;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 400px;
+}
+
+.ms-step-selected {
+  cursor: pointer;
+  border-color: #783887;
+}
 
 </style>
