@@ -9,10 +9,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanReportMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -58,6 +55,8 @@ public class TestPlanReportService {
     TestPlanReportMapper testPlanReportMapper;
     @Resource
     TestPlanReportDataMapper testPlanReportDataMapper;
+    @Resource
+    ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
     @Resource
     ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
     @Resource
@@ -118,15 +117,11 @@ public class TestPlanReportService {
         Map<String, String> apiTestCaseIdMap = new LinkedHashMap<>();
         Map<String, String> performanceIdMap = new LinkedHashMap<>();
 
-        TestPlanApiScenarioExample scenarioCaseExample = new TestPlanApiScenarioExample();
-        scenarioCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanApiScenario> testPlanApiScenarioList = testPlanScenarioCaseMapper.selectByExample(scenarioCaseExample);
+        List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(planId);
         for (TestPlanApiScenario model : testPlanApiScenarioList) {
             planScenarioIdMap.put(model.getApiScenarioId(), model.getId());
         }
-        TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
-        apiCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanApiCase> testPlanApiCaseList = testPlanApiCaseMapper.selectByExample(apiCaseExample);
+        List<TestPlanApiCase> testPlanApiCaseList = extTestPlanApiCaseMapper.selectLegalDataByTestPlanId(planId);
         for (TestPlanApiCase model :
                 testPlanApiCaseList) {
             apiTestCaseIdMap.put(model.getApiCaseId(), model.getId());
@@ -203,16 +198,12 @@ public class TestPlanReportService {
         Map<String, String> performanceInfoMap = new HashMap<>();
 
         if (saveRequest.isCountResources()) {
-            TestPlanApiCaseExample apiExample = new TestPlanApiCaseExample();
-            apiExample.createCriteria().andTestPlanIdEqualTo(saveRequest.getPlanId());
-            List<String> apiCaseIdList = testPlanApiCaseMapper.selectByExample(apiExample)
-                    .stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
+            List<TestPlanApiCase> testPlanApiCaseList = extTestPlanApiCaseMapper.selectLegalDataByTestPlanId(saveRequest.getPlanId());
+            List<String> apiCaseIdList = testPlanApiCaseList.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
             testPlanReport.setIsApiCaseExecuting(!apiCaseIdList.isEmpty());
 
-            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-            example.createCriteria().andTestPlanIdEqualTo(saveRequest.getPlanId());
-            List<String> scenarioIdList = testPlanScenarioCaseMapper.selectByExample(example)
-                    .stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList());
+            List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectLegalDataByTestPlanId(saveRequest.getPlanId());
+            List<String> scenarioIdList = testPlanApiScenarioList.stream().map(TestPlanApiScenario::getApiScenarioId).collect(Collectors.toList());
             testPlanReport.setIsScenarioExecuting(!scenarioIdList.isEmpty());
 
             LoadCaseRequest loadCaseRequest = new LoadCaseRequest();
@@ -1012,7 +1003,7 @@ public class TestPlanReportService {
      * @param testPlanReport
      * @param performaneReportIDList
      */
-    public void updatePerformanceInfo(TestPlanReport testPlanReport, List<String> performaneReportIDList, String triggerMode) {
+    public void updatePerformanceInfo(TestPlanReport testPlanReport, Map<String,String> performaneReportIDMap, String triggerMode) {
 //        TestPlanReportDataExample example = new TestPlanReportDataExample();
 //        example.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
 //        List<TestPlanReportDataWithBLOBs> reportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);
@@ -1025,11 +1016,11 @@ public class TestPlanReportService {
          * 虽然kafka已经设置了topic推送，但是当执行机器性能不够时会影响到报告状态当修改
          * 同时如果执行过程中报告删除，那么此时也应当记为失败。
          */
-        List<String> updatePerformaneReportIDList = new ArrayList<>(performaneReportIDList);
         Map<String, String> finishLoadTestId = new HashMap<>();
         executorService.submit(() -> {
             //错误数据检查集合。 如果错误数据出现超过20次，则取消该条数据的检查
             Map<String, Integer> errorDataCheckMap = new HashMap<>();
+            List<String> performaneReportIDList = new ArrayList<>(performaneReportIDMap.keySet());
             while (performaneReportIDList.size() > 0) {
                 List<String> selectList = new ArrayList<>(performaneReportIDList);
                 for (String loadTestReportId : selectList) {
@@ -1039,6 +1030,9 @@ public class TestPlanReportService {
                         if (errorDataCheckMap.containsKey(loadTestReportId)) {
                             if (errorDataCheckMap.get(loadTestReportId) > 10) {
                                 performaneReportIDList.remove(loadTestReportId);
+                                if(performaneReportIDMap.containsKey(loadTestReportId)){
+                                    finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.FAILD.name());
+                                }
                             } else {
                                 errorDataCheckMap.put(loadTestReportId, errorDataCheckMap.get(loadTestReportId) + 1);
                             }
@@ -1053,7 +1047,7 @@ public class TestPlanReportService {
                 }
                 if (performaneReportIDList.isEmpty()) {
                     if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
-                        for (String string : updatePerformaneReportIDList) {
+                        for (String string : finishLoadTestId.keySet()) {
                             TestPlanLoadCaseEventDTO eventDTO = new TestPlanLoadCaseEventDTO();
                             eventDTO.setReportId(string);
                             eventDTO.setTriggerMode(triggerMode);
