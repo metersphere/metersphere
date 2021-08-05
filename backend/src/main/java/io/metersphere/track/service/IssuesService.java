@@ -479,7 +479,7 @@ public class IssuesService {
             if (CollectionUtils.isNotEmpty(azureDevopsIssues)) {
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
                 try {
-                    Class clazz = loader.loadClass("io.metersphere.xpack.issue.azureDevops.AzureDevopsPlatform");
+                    Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
                     Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
                     AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
                     syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
