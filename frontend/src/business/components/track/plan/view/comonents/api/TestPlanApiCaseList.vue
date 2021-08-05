@@ -62,7 +62,7 @@
             sortable
             min-width="100"
             :filters="userFilters"
-            :label="'创建人'">
+            :label="$t('commons.create_user')">
             <template v-slot:default="scope">
               {{scope.row.creatorName}}
             </template>
