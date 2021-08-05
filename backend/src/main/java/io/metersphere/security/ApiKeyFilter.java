@@ -28,6 +28,12 @@ public class ApiKeyFilter extends AnonymousFilter {
                 if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
                     String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
                     SecurityUtils.getSubject().login(new MsUserToken(userId, ApiKeySessionHandler.random, "LOCAL"));
+                } else {
+                    String id = (String) SecurityUtils.getSubject().getSession().getId();
+                    // 防止调用时使用 ak 作为 cookie 跳过登入逻辑
+                    if (id.length() < 20) {
+                        SecurityUtils.getSubject().logout();
+                    }
                 }
             }
 
