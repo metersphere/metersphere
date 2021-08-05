@@ -1,7 +1,10 @@
 package io.metersphere.track.service;
 
 
+import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -24,6 +27,7 @@ import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.excel.listener.TestCaseNoModelDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.excel.utils.FunctionCaseImportEnum;
+import io.metersphere.exception.ExcelException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -37,6 +41,8 @@ import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.xmind.XmindCaseParser;
+import io.metersphere.xmind.pojo.TestCaseXmindData;
+import io.metersphere.xmind.utils.XmindExportUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +53,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.xmind.core.IWorkbook;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -54,6 +61,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -691,7 +699,7 @@ public class TestCaseService {
                 .andProjectIdEqualTo(projectId);
         List<TestCase> testCasesList = testCaseMapper.selectByExample(example);
         Map<String, String> customIdMap = testCasesList.stream()
-                .collect(Collectors.toMap(TestCase::getCustomNum, TestCase::getId));
+                .collect(Collectors.toMap(TestCase::getCustomNum, TestCase::getId, (k1,k2) -> k1));
 
 
         if (!testCases.isEmpty()) {
@@ -863,6 +871,56 @@ public class TestCaseService {
             MSException.throwException(e);
         }
     }
+
+
+    public void testCaseXmindExport(HttpServletResponse response, TestCaseBatchRequest request) {
+        try {
+            request.getCondition().setStatusIsNot("Trash");
+            List<TestCaseDTO> testCaseDTOList= this.findByBatchRequest(request);
+
+            TestCaseXmindData rootXmindData = this.generateTestCaseXmind(testCaseDTOList);
+            boolean isUseCustomId = projectService.useCustomNum(request.getProjectId());
+            XmindExportUtil xmindExportUtil = new XmindExportUtil(isUseCustomId);
+            xmindExportUtil.exportXmind(response,rootXmindData);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e);
+        }
+    }
+
+    private TestCaseXmindData generateTestCaseXmind(List<TestCaseDTO> testCaseDTOList) {
+        Map<String,List<TestCaseDTO>> moduleTestCaseMap = new HashMap<>();
+        for (TestCaseDTO dto : testCaseDTOList) {
+            String moduleId = dto.getNodeId();
+            if(StringUtils.isEmpty(moduleId)){
+                moduleId = "default";
+            }
+             if(moduleTestCaseMap.containsKey(moduleId)){
+                 moduleTestCaseMap.get(moduleId).add(dto);
+             }else {
+                 List<TestCaseDTO> list = new ArrayList<>();
+                 list.add(dto);
+                 moduleTestCaseMap.put(moduleId,list);
+             }
+        }
+
+        TestCaseXmindData rootMind = new TestCaseXmindData("ROOT","ROOT");
+
+        for (Map.Entry<String,List<TestCaseDTO>> entry:moduleTestCaseMap.entrySet()) {
+            String moduleId = entry.getKey();
+            List<TestCaseDTO> dataList = entry.getValue();
+
+            if(StringUtils.equals(moduleId,"ROOT")){
+                rootMind.setTestCaseList(dataList);
+            }else {
+                LinkedList<TestCaseNode> modulePathDataList = testCaseNodeService.getPathNodeById(moduleId);
+                rootMind.setItem(modulePathDataList,dataList);
+            }
+        }
+
+        return rootMind;
+    }
+
     private List<List<Object>> generateTestCaseExcel(List<List<String>> headListParams,List<TestCaseExcelData> datas) {
         List<List<Object>> returnDatas = new ArrayList<>();
         //转化excel头
@@ -921,10 +979,10 @@ public class TestCaseService {
         }
         return returnDatas;
     }
-    private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
+
+    public List<TestCaseDTO> findByBatchRequest(TestCaseBatchRequest request){
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
-        boolean isUseCustomId = projectService.useCustomNum(request.getProjectId());
         QueryTestCaseRequest condition = request.getCondition();
         List<OrderRequest> orderList = new ArrayList<>();
         if (condition != null) {
@@ -935,11 +993,18 @@ public class TestCaseService {
         order.setType("desc");
         orderList.add(order);
         request.setOrders(orderList);
-        List<TestCaseDTO> TestCaseList = extTestCaseMapper.listByTestCaseIds(request);
+        List<TestCaseDTO> testCaseList = extTestCaseMapper.listByTestCaseIds(request);
+        return testCaseList;
+    }
+
+    private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
+        request.getCondition().setStatusIsNot("Trash");
+        List<TestCaseDTO> testCaseList = this.findByBatchRequest(request);
+        boolean isUseCustomId = projectService.useCustomNum(request.getProjectId());
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder step = new StringBuilder("");
         StringBuilder result = new StringBuilder("");
-        TestCaseList.forEach(t -> {
+        testCaseList.forEach(t -> {
             TestCaseExcelData data = new TestCaseExcelData();
             data.setNum(t.getNum());
             data.setName(t.getName());

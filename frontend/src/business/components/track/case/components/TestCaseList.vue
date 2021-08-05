@@ -693,18 +693,31 @@ export default {
       }
       this.$refs.testCaseImport.open();
     },
-    exportTestCase() {
+    exportTestCase(exportType) {
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
 
-      let config = {
-        url: '/test/case/export/testcase',
-        method: 'post',
-        responseType: 'blob',
-        data: buildBatchParam(this, this.$refs.table.selectIds)
-      };
+      let config = {};
+      let fileNameSuffix = "";
+      if(exportType === 'xmind'){
+        config = {
+          url: '/test/case/export/testcase/xmind',
+          method: 'post',
+          responseType: 'blob',
+          data: buildBatchParam(this, this.$refs.table.selectIds)
+        };
+        fileNameSuffix = ".xmind";
+      }else {
+        config = {
+          url: '/test/case/export/testcase',
+          method: 'post',
+          responseType: 'blob',
+          data: buildBatchParam(this, this.$refs.table.selectIds)
+        };
+        fileNameSuffix = ".xlsx";
+      }
 
       if (config.data.ids === undefined || config.data.ids.length < 1) {
         this.$warning(this.$t("test_track.case.check_select"));
@@ -712,7 +725,7 @@ export default {
       }
 
       this.page.result = this.$request(config).then(response => {
-        const filename = "Metersphere_case_" + this.projectName+ ".xlsx";
+        const filename = "Metersphere_case_" + this.projectName+ fileNameSuffix;
         const blob = new Blob([response.data]);
         if ("download" in document.createElement("a")) {
           let aTag = document.createElement('a');
@@ -728,7 +741,7 @@ export default {
     handleBatch(type) {
       if (this.$refs.selectRows.size < 1) {
         if (type === 'export') {
-          this.exportTestCase();
+          this.handleExportTestCase();
           return;
         } else {
           this.$warning(this.$t('test_track.plan_view.select_manipulate'));
@@ -741,7 +754,7 @@ export default {
       } else if (type === 'delete') {
         this.handleDeleteBatch();
       } else {
-        this.exportTestCase();
+        this.handleExportTestCase();
       }
     },
     batchEdit(form) {

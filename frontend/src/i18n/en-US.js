@@ -6,6 +6,8 @@ export default {
     trash: "Trash",
     yes: "yes",
     no: "no",
+    excelFile: "Excel",
+    xmindFile: "Xmind",
     default: "default",
     please_select_import_mode: 'Please select import mode',
     please_select_import_module: 'Please select import module',

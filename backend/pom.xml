@@ -434,7 +434,12 @@
             <artifactId>Java-WebSocket</artifactId>
             <version>1.3.5</version>
         </dependency>
-
+        <!-- xmind export-->
+        <dependency>
+            <groupId>com.github.eljah</groupId>
+            <artifactId>xmindjbehaveplugin</artifactId>
+            <version>0.8</version>
+        </dependency>
     </dependencies>
 
     <build>
