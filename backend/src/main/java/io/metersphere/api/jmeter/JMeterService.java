@@ -69,7 +69,7 @@ public class JMeterService {
             String runMode = StringUtils.isBlank(debugReportId) ? ApiRunMode.RUN.name() : ApiRunMode.DEBUG.name();
             addBackendListener(testId, debugReportId, runMode, testPlan);
             LocalRunner runner = new LocalRunner(testPlan);
-            runner.run();
+            runner.run(testId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("api_load_script_error"));
@@ -130,7 +130,7 @@ public class JMeterService {
             addResultCollector(testId, testPlan);
         }
         LocalRunner runner = new LocalRunner(testPlan);
-        runner.run();
+        runner.run(testId);
     }
 
     public void runTest(String testId, String reportId, String runMode, String testPlanScenarioId, RunModeConfig config) {
