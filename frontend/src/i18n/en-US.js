@@ -171,6 +171,8 @@ export default {
     execute_history: "Execute history",
     debug_history: "Debug history",
     testing: "Testing",
+    api_case: "Api Case",
+    scenario_case: "Scenario Case",
     table: {
       select_tip: "Item {0} data is selected"
     },

@@ -172,6 +172,8 @@ export default {
     execute_history: "執行歷史",
     debug_history: "調試歷史",
     testing: "測試中",
+    api_case: "接口用例",
+    scenario_case: "場景用例",
     selector: {
       required: "必填",
       not_required: "非必填",

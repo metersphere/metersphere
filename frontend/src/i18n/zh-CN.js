@@ -172,6 +172,8 @@ export default {
     execute_history: "执行历史",
     debug_history: "调试历史",
     testing: "测试中",
+    api_case: "接口用例",
+    scenario_case: "场景用例",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
