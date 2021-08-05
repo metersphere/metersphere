@@ -164,6 +164,8 @@ export default {
     node_name_tip: "名称不能包含'\\'",
     more_operator: "更多操作",
     mock: "Mock 设置",
+    api_case: "接口用例",
+    scenario_case: "场景用例",
     task_center: "任务中心",
     all_module_title: "全部模块",
     create_user: '创建人',

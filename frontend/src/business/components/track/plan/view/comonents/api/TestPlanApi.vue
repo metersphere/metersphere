@@ -14,8 +14,8 @@
         ref="apiNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
-            <el-radio v-model="model" label="api">接口用例</el-radio>
-            <el-radio v-model="model" label="scenario">场景用例</el-radio>
+            <el-radio v-model="model" label="api">{{ $t('commons.api_case') }}</el-radio>
+            <el-radio v-model="model" label="scenario">{{ $t('commons.scenario_case') }}</el-radio>
           </div>
         </template>
       </ms-api-module>
@@ -30,8 +30,8 @@
         ref="scenarioNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
-          <el-radio v-model="model" label="api">接口用例</el-radio>
-          <el-radio v-model="model" label="scenario">场景用例</el-radio>
+          <el-radio v-model="model" label="api">{{ $t('commons.api_case') }}</el-radio>
+          <el-radio v-model="model" label="scenario">{{ $t('commons.scenario_case') }}</el-radio>
           </div>
         </template>
       </ms-api-scenario-module>
