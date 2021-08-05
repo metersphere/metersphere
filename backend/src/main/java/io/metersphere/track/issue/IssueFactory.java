@@ -19,7 +19,7 @@ public class IssueFactory {
         } else if (StringUtils.equals(IssuesManagePlatform.AzureDevops.toString(), platform)) {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             try {
-                Class clazz = loader.loadClass("io.metersphere.xpack.issue.azureDevops.AzureDevopsPlatform");
+                Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
                 Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
                 AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(addIssueRequest);
                 return azureDevopsPlatform;
