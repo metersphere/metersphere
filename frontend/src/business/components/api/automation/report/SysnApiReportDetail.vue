@@ -160,14 +160,15 @@ export default {
             for (let i = 0; i < arrValue.length; i++) {
               let obj = {resId: item.resId, index: i, label: item.resId, value: arrValue[i], children: []};
               let isAdd = true;
-              arr.forEach(obj => {
-                if (obj.value.name === arrValue[i].name) {
+              for (let h = 0; h < arr.length; h++) {
+                let node = arr [h];
+                if (node.value.name === arrValue[i].name) {
                   isAdd = false;
                 }
-                if (obj.value.name.indexOf("循环-") === -1) {
-                  arr.splice(0, 1);
+                if (node.resId === arrValue[i].resourceId && node.value.unexecute) {
+                  arr.splice(h, 1);
                 }
-              })
+              }
               if (isAdd) {
                 arr.push(obj);
               }
