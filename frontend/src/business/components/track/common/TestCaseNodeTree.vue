@@ -25,6 +25,7 @@
       </template>
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
+    <test-case-export @refreshAll="refreshAll" @exportTestCase="exportTestCase" ref="testCaseExport"></test-case-export>
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
@@ -41,6 +42,7 @@ import NodeEdit from "./NodeEdit";
 import MsNodeTree from "./NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/components/track/case/components/TestCaseImport";
+import TestCaseExport from "@/business/components/track/case/components/TestCaseExport";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {buildTree} from "../../api/definition/model/NodeTree";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
@@ -49,7 +51,7 @@ import ModuleTrashButton from "@/business/components/api/definition/components/m
 
 export default {
   name: "TestCaseNodeTree",
-  components: {MsSearchBar, TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit,ModuleTrashButton},
+  components: {MsSearchBar, TestCaseImport,TestCaseExport, TestCaseCreate, MsNodeTree, NodeEdit,ModuleTrashButton},
   data() {
     return {
       defaultProps: {
@@ -75,9 +77,7 @@ export default {
         },
         {
           label: this.$t('api_test.export_config'),
-          callback: () => {
-            this.$emit('exportTestCase');
-          },
+          callback: this.handleExport,
           permissions: ['PROJECT_TRACK_CASE:READ+EXPORT']
         }
       ]
@@ -175,6 +175,16 @@ export default {
         return;
       }
       this.$refs.testCaseImport.open();
+    },
+    handleExport() {
+      if (!this.projectId) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
+      this.$refs.testCaseExport.open();
+    },
+    exportTestCase(type){
+      this.$emit('exportTestCase',type);
     },
     remove(nodeIds) {
       this.$post("/case/node/delete", nodeIds, () => {

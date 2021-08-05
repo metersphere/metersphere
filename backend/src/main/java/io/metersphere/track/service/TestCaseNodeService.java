@@ -749,4 +749,19 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         example.createCriteria().andIdEqualTo(nodeId);
         return testCaseNodeMapper.countByExample(example);
     }
+
+    public LinkedList<TestCaseNode> getPathNodeById(String moduleId) {
+        TestCaseNode testCaseNode = testCaseNodeMapper.selectByPrimaryKey(moduleId);
+        LinkedList<TestCaseNode> returnList = new LinkedList<>();
+
+        while (testCaseNode != null){
+            returnList.addFirst(testCaseNode);
+            if(testCaseNode.getParentId() == null){
+                testCaseNode = null;
+            }else {
+                testCaseNode = testCaseNodeMapper.selectByPrimaryKey(testCaseNode.getParentId());
+            }
+        }
+        return returnList;
+    }
 }

@@ -29,6 +29,8 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
 
     private String nodeId;
 
+    private String statusIsNot;
+
     private long createTime = 0;
     private long relevanceCreateTime = 0;
     private List<String> testCaseContainIds;
