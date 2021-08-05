@@ -15,10 +15,13 @@
       </div>
     </div>
     <div>
-      <div id="editorsDiv">
-        <mavon-editor v-if="showEditor" @imgAdd="imgAdd" :default-open="'edit'" class="mavon-editor" :imageFilter="imageFilter"
-                      :toolbars="richDataToolbars"  @imgDel="imgDel" v-model="textarea"  ref="md"/>
+      <div class="editorsDivStyle">
+        <div id="editorsDiv" >
+          <mavon-editor v-if="showEditor" @imgAdd="imgAdd" :default-open="'edit'" class="review-mavon-editor" :imageFilter="imageFilter"
+                        :toolbars="richDataToolbars"  @imgDel="imgDel" v-model="textarea"  ref="md"/>
+        </div>
       </div>
+
       <el-button type="primary" size="mini" class="send-btn"
                  v-permission="['PROJECT_TRACK_REVIEW:READ+COMMENT']"
                  @click="sendComment" :disabled="isReadOnly">
@@ -185,5 +188,15 @@ export default {
 }
 .editors-div{
   -webkit-box-shadow: 0 0 8px rgb(-1,0,0);
+}
+.editors_div_style {
+  height: 300px;
+  overflow: auto
+}
+
+.review-mavon-editor {
+  min-height: 20px;
+  height: 300px;
+  overflow: auto
 }
 </style>

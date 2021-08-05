@@ -101,7 +101,7 @@ public class TestResult {
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
                 String itemAndScenarioName = "";
-                if (StringUtils.isNotEmpty(item.getScenario())) {
+                 if (StringUtils.isNotEmpty(item.getScenario())) {
                     //第1个：当前场景， 第all_id_names个：最后一层场景
                     List<String> all_id_names = JSON.parseObject(item.getScenario(), List.class);
                     if(all_id_names.size()>1){

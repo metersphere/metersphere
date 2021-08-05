@@ -1027,7 +1027,7 @@ public class TestPlanService {
         Map<String, String> executeScenarioCaseIdMap = new HashMap<>();
 
         //执行性能测试任务
-        List<String> performaneReportIDList = new ArrayList<>();
+        Map<String,String> performaneReportIDMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
             String id = entry.getKey();
@@ -1044,7 +1044,7 @@ public class TestPlanService {
             try {
                 reportId = performanceTestService.run(performanceRequest);
                 if (reportId != null) {
-                    performaneReportIDList.add(reportId);
+                    performaneReportIDMap.put(reportId,caseID);
                     TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
                     testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
                     testPlanLoadCase.setLoadReportId(reportId);
@@ -1063,9 +1063,9 @@ public class TestPlanService {
                 executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
             }
         }
-        if (!performaneReportIDList.isEmpty()) {
+        if (!performaneReportIDMap.isEmpty()) {
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
-            testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDList, triggerMode);
+            testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDMap, triggerMode);
 
         }
 

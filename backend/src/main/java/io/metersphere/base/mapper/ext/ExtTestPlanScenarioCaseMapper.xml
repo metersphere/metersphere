@@ -15,6 +15,13 @@
       )
   </insert>
 
+  <select id="selectLegalDataByTestPlanId" resultType="io.metersphere.base.domain.TestPlanApiScenario">
+    SELECT t.* FROM test_plan_api_scenario t WHERE t.test_plan_id = #{0}
+        AND t.api_scenario_id IN (
+            SELECT id FROM API_SCENARIO WHERE status IS NULL OR status != 'Trash'
+        )
+  </select>
+
   <select id="list" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
     select
       t.id, t.environment, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id, c.scenario_definition,
