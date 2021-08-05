@@ -31,7 +31,8 @@
           <el-dropdown-item>{{ $t('api_test.automation.generate_report') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
+      <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
+
       <font-awesome-icon class="ms-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
     </div>
   </div>
@@ -99,6 +100,11 @@ export default {
           });
         }, 1000);
       });
+    },
+    stop() {
+      this.debug = false;
+      this.debugLoading = false;
+      this.$emit('stop');
     },
     showAll() {
       this.$emit('showAllBtn');

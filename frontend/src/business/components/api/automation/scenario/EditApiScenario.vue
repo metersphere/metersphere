@@ -152,7 +152,7 @@
                         </el-dropdown-menu>
                       </el-dropdown>
                     </el-tooltip>
-                    <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
+                    <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
                     <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
                       <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
                                  v-prevent-re-click @click="getApiScenario"></el-button>
@@ -292,6 +292,7 @@
             @showScenarioParameters="showScenarioParameters"
             @setCookieShare="setCookieShare"
             @setSampleError="setSampleError"
+            @stop="stop"
             ref="maximizeHeader"/>
         </template>
 
@@ -308,14 +309,14 @@
           :debug="debug"
           :reloadDebug="reloadDebug"
           :stepReEnable="stepEnable"
+          :message="message"
           @openScenario="openScenario"
           ref="maximizeScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
-
+      <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
     </div>
     <ms-task-center ref="taskCenter"/>
-
   </el-card>
 </template>
 
@@ -488,6 +489,22 @@ export default {
     },
   },
   methods: {
+    stop() {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, response => {
+        this.debugLoading = false;
+        if (this.websocket) {
+          this.websocket.close();
+        }
+        if (this.messageWebSocket) {
+          this.messageWebSocket.close();
+        }
+        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+        this.clearDebug();
+        this.$success(this.$t('report.test_stop_success'));
+        this.reload();
+      });
+    },
     clearDebug() {
       this.reqError = 0;
       this.reqTotalTime = 0;
@@ -1452,6 +1469,7 @@ export default {
 
 #fab {
   right: 90px;
+  bottom: 120px;
   z-index: 5;
 }
 
