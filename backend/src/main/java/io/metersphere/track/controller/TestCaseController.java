@@ -196,6 +196,13 @@ public class TestCaseController {
         testCaseService.testCaseExport(response, request);
     }
 
+    @PostMapping("/export/testcase/xmind")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
+    @MsAuditLog(module = "track_test_case", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
+    public void testCaseXmindExport(HttpServletResponse response, @RequestBody TestCaseBatchRequest request) {
+        testCaseService.testCaseXmindExport(response, request);
+    }
+
     @PostMapping("/batch/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EDIT)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = TestCaseService.class)

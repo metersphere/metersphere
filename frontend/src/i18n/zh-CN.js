@@ -6,6 +6,8 @@ export default {
     trash: "回收站",
     yes: "是",
     no: "否",
+    excelFile: "表格文件.xls",
+    xmindFile: "思维导图.xmind",
     default: "默认值",
     please_select_import_mode: '请选择导入模式',
     please_select_import_module: '请选择导入模块',

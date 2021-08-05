@@ -292,12 +292,12 @@ export default {
         this.activeName = "default";
       }
     },
-    exportTestCase() {
+    exportTestCase(type) {
       if (this.activeDom !== 'left') {
         this.$warning(this.$t('test_track.case.export.export_tip'));
         return;
       }
-      this.$refs.testCaseList.exportTestCase();
+      this.$refs.testCaseList.exportTestCase(type);
     },
     addListener() {
       let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
