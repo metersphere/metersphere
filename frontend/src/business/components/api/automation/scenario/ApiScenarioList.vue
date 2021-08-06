@@ -404,11 +404,6 @@ export default {
       ],
       unTrashButtons: [
         {
-          name: this.$t('api_test.automation.batch_add_plan'),
-          handleClick: this.handleBatchAddCase,
-          permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
-        },
-        {
           name: this.$t('api_test.automation.batch_execute'),
           handleClick: this.handleBatchExecute,
           permissions: ['PROJECT_API_SCENARIO:READ+RUN']
@@ -417,11 +412,6 @@ export default {
           name: this.$t('test_track.case.batch_edit_case'),
           handleClick: this.handleBatchEdit,
           permissions: ['PROJECT_API_SCENARIO:READ+EDIT']
-        },
-        {
-          name: this.$t('api_test.create_performance_test_batch'),
-          handleClick: this.batchCreatePerformance,
-          permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH']
         },
         {
           name: this.$t('api_test.batch_copy'),
@@ -437,6 +427,16 @@ export default {
           name: this.$t('api_test.definition.request.batch_delete'),
           handleClick: this.handleDeleteBatch,
           permissions: ['PROJECT_API_SCENARIO:READ+DELETE']
+        },
+        {
+          name: this.$t('api_test.automation.batch_add_plan'),
+          handleClick: this.handleBatchAddCase,
+          permissions: ['PROJECT_API_SCENARIO:READ+MOVE_BATCH']
+        },
+        {
+          name: this.$t('api_test.create_performance_test_batch'),
+          handleClick: this.batchCreatePerformance,
+          permissions: ['PROJECT_API_SCENARIO:READ+CREATE_PERFORMANCE_BATCH']
         },
       ],
       ...API_SCENARIO_FILTERS,
