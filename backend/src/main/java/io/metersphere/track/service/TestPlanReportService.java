@@ -1001,16 +1001,8 @@ public class TestPlanReportService {
      * 更新TestPlanReportData的PerformanceInfo
      *
      * @param testPlanReport
-     * @param performaneReportIDList
      */
     public void updatePerformanceInfo(TestPlanReport testPlanReport, Map<String,String> performaneReportIDMap, String triggerMode) {
-//        TestPlanReportDataExample example = new TestPlanReportDataExample();
-//        example.createCriteria().andTestPlanReportIdEqualTo(testPlanReport.getId());
-//        List<TestPlanReportDataWithBLOBs> reportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);
-//        for (TestPlanReportDataWithBLOBs models : reportDataList) {
-//            models.setPerformanceInfo(JSONArray.toJSONString(performaneReportIDList));
-//            testPlanReportDataMapper.updateByPrimaryKeyWithBLOBs(models);
-//        }
 
         /**
          * 虽然kafka已经设置了topic推送，但是当执行机器性能不够时会影响到报告状态当修改
@@ -1023,29 +1015,42 @@ public class TestPlanReportService {
             List<String> performaneReportIDList = new ArrayList<>(performaneReportIDMap.keySet());
             while (performaneReportIDList.size() > 0) {
                 List<String> selectList = new ArrayList<>(performaneReportIDList);
+                testPlanLog.info("TestPlanReportId["+testPlanReport.getId()+"] SELECT performance BATCH START:"+JSONArray.toJSONString(selectList));
                 for (String loadTestReportId : selectList) {
-                    LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReportId);
-                    if (loadTestReportFromDatabase == null) {
-                        //检查错误数据
-                        if (errorDataCheckMap.containsKey(loadTestReportId)) {
-                            if (errorDataCheckMap.get(loadTestReportId) > 10) {
-                                performaneReportIDList.remove(loadTestReportId);
-                                if(performaneReportIDMap.containsKey(loadTestReportId)){
-                                    finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.FAILD.name());
+                    try{
+                        LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReportId);
+                        if (loadTestReportFromDatabase == null) {
+                            testPlanLog.info("TestPlanReportId["+testPlanReport.getId()+"] SELECT performance ID:"+loadTestReportId+",RESULT IS NULL");
+                            //检查错误数据
+                            if (errorDataCheckMap.containsKey(loadTestReportId)) {
+                                if (errorDataCheckMap.get(loadTestReportId) > 10) {
+                                    performaneReportIDList.remove(loadTestReportId);
+                                    if(performaneReportIDMap.containsKey(loadTestReportId)){
+                                        finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.FAILD.name());
+                                    }
+                                } else {
+                                    errorDataCheckMap.put(loadTestReportId, errorDataCheckMap.get(loadTestReportId) + 1);
                                 }
                             } else {
-                                errorDataCheckMap.put(loadTestReportId, errorDataCheckMap.get(loadTestReportId) + 1);
+                                errorDataCheckMap.put(loadTestReportId, 1);
                             }
-                        } else {
-                            errorDataCheckMap.put(loadTestReportId, 1);
+                        } else{
+                            testPlanLog.info("TestPlanReportId["+testPlanReport.getId()+"] SELECT performance ID:"+loadTestReportId+",RESULT :"+loadTestReportFromDatabase.getStatus());
+                            if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
+                                    PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
+                                finishLoadTestId.put(loadTestReportFromDatabase.getTestId(), TestPlanApiExecuteStatus.SUCCESS.name());
+                                performaneReportIDList.remove(loadTestReportId);
+                            }
                         }
-                    } else if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
-                            PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
-                        finishLoadTestId.put(loadTestReportFromDatabase.getTestId(), TestPlanApiExecuteStatus.SUCCESS.name());
+                    }catch (Exception e){
                         performaneReportIDList.remove(loadTestReportId);
+                        finishLoadTestId.put(performaneReportIDMap.get(loadTestReportId), TestPlanApiExecuteStatus.FAILD.name());
+                        testPlanLog.error(e.getMessage());
                     }
                 }
+                testPlanLog.info("TestPlanReportId["+testPlanReport.getId()+"] SELECT performance BATCH OVER:"+JSONArray.toJSONString(selectList));
                 if (performaneReportIDList.isEmpty()) {
+                    testPlanLog.info("TestPlanReportId["+testPlanReport.getId()+"] performance EXECUTE OVER. TRIGGER_MODE:"+triggerMode+",REsult:"+JSONObject.toJSONString(finishLoadTestId));
                     if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
                         for (String string : finishLoadTestId.keySet()) {
                             TestPlanLoadCaseEventDTO eventDTO = new TestPlanLoadCaseEventDTO();
@@ -1054,10 +1059,8 @@ public class TestPlanReportService {
                             eventDTO.setStatus(PerformanceTestStatus.Completed.name());
                             this.updatePerformanceTestStatus(eventDTO);
                         }
-                    } else {
-                        this.updateExecuteApis(testPlanReport.getId(), null, null, finishLoadTestId);
                     }
-
+                    this.updateExecuteApis(testPlanReport.getId(), null, null, finishLoadTestId);
                 } else {
                     try {
                         //查询定时任务是否关闭
