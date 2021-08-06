@@ -34,9 +34,9 @@
     <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber" resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
         SELECT * FROM (
             -- api_test_case 只查找测试计划执行的结果
-            SELECT testCase.testCaseID,testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
+            SELECT testCase.testCaseID AS testCaseID,testCase.id AS id,testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (
-            SELECT testPlanCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
+            SELECT testPlanCase.id AS testCaseID,apiCase.id AS id,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
             FROM api_test_case apiCase
             inner join api_definition on api_definition.id = apiCase.api_definition_id
            INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
@@ -55,7 +55,7 @@
             ) caseErrorCountData ON caseErrorCountData.testPlanCaseID =testCase.testCaseID
             WHERE testCase.updateTime >= #{startTimestamp}
             UNION
-            SELECT scene.id AS testCaseID,scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
+            SELECT scene.id AS testCaseID,scene.id AS id,scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
             FROM api_scenario_report report
             INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
             INNER JOIN api_scenario scene ON report.scenario_id = scene.id
@@ -69,7 +69,7 @@
               AND ( report.STATUS = 'Error' OR report.STATUS = 'Fail' )  AND report.create_time >= #{startTimestamp}
             GROUP BY scene.id
             UNION
-            SELECT ltr.test_id as testCaseID, ltr.name as caseName,tplt.testPlanName AS testPlan, count(ltr.id) as failureTimes, 'load' as caseType FROM load_test_report ltr
+            SELECT ltr.test_id as testCaseID,ltr.id AS id, ltr.name as caseName,tplt.testPlanName AS testPlan, count(ltr.id) as failureTimes, 'load' as caseType FROM load_test_report ltr
             join load_test on load_test.id = ltr.test_id
             JOIN (
                 select tplc.load_case_id, group_concat(tp.`name`) AS testPlanName, tp.project_id

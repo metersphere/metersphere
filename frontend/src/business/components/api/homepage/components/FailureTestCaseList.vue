@@ -9,7 +9,7 @@
       <el-table-column prop="sortIndex"  :label="$t('api_test.home_page.failed_case_list.table_coloum.index')" width="100" show-overflow-tooltip/>
       <el-table-column prop="caseName"  :label="$t('api_test.home_page.failed_case_list.table_coloum.case_name')" width="150">
         <template v-slot:default="{row}">
-            <el-link type="info" @click="redirect(row.caseType,row.caseID)">
+            <el-link type="info" @click="redirect(row.caseType,row.id)">
               {{ row.caseName }}
             </el-link>
         </template>

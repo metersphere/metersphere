@@ -236,7 +236,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
     private JDBCPostProcessor jdbcPostProcessor(ParameterConfig config) {
         JDBCPostProcessor jdbcPostProcessor = new JDBCPostProcessor();
         jdbcPostProcessor.setEnabled(this.isEnable());
-        jdbcPostProcessor.setName(this.getName());
+        jdbcPostProcessor.setName(this.getName() == null? "JDBCPostProcessor" : this.getName());
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             jdbcPostProcessor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);

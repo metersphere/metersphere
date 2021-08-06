@@ -15,7 +15,7 @@
       </div>
     </div>
     <div>
-      <div class="editorsDivStyle">
+      <div class="editors_div_style">
         <div id="editorsDiv" >
           <mavon-editor v-if="showEditor" @imgAdd="imgAdd" :default-open="'edit'" class="review-mavon-editor" :imageFilter="imageFilter"
                         :toolbars="richDataToolbars"  @imgDel="imgDel" v-model="textarea"  ref="md"/>
