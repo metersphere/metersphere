@@ -332,6 +332,7 @@ public class APITestController {
                 dataDTO.setTestPlan(selectData.getTestPlan());
                 dataDTO.setFailureTimes(selectData.getFailureTimes());
                 dataDTO.setCaseType(selectData.getCaseType());
+                dataDTO.setId(selectData.getId());
                 dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
             } else {
                 dataDTO.setCaseName("");
