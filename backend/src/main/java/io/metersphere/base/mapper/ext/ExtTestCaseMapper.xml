@@ -381,7 +381,9 @@
     </sql>
 
     <select id="countPriority" resultType="io.metersphere.track.response.TrackCountResult">
-        SELECT test_case.priority as groupField,count(id) AS countNumber FROM test_case WHERE project_id = #{projectId} GROUP BY test_case.priority
+        SELECT test_case.priority as groupField,count(id) AS countNumber FROM test_case
+        WHERE project_id = #{projectId} AND (test_case.status IS NULL OR test_case.status != 'Trash')
+        GROUP BY test_case.priority
     </select>
 
     <!-- todo 排除删除的用例统计-->
