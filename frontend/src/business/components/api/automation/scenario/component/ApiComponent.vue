@@ -70,22 +70,41 @@
       <template v-slot:result>
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <div v-if="request.result">
-          <el-tabs v-model="request.activeName" closable class="ms-tabs">
-            <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
-              <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-                <api-response-component v-if="result.id===request.id" :result="result"/>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
+          <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+            <el-tabs v-model="request.activeName" closable class="ms-tabs">
+              <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
         </div>
         <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="request.protocol" :request="request" :is-api-component="false"
-                                   :show-options-button="false" :show-header="true" :result="request.requestResult"/>
+          <esb-definition-response
+            :currentProtocol="request.protocol"
+            :request="request"
+            :is-api-component="false"
+            :show-options-button="false"
+            :show-header="true"
+            :result="request.requestResult"
+            v-xpack
+            v-if="showXpackCompnent"
+          />
         </div>
         <div v-else>
-          <div v-for="(item,i) in request.requestResult" :key="i" style="margin-bottom: 5px">
-            <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
-          </div>
+          <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
+            <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+              <api-response-component
+                :currentProtocol="request.protocol"
+                :apiActive="true"
+                :result="item"
+              />
+            </el-tab-pane>
+          </el-tabs>
+          <api-response-component
+            :currentProtocol="request.protocol"
+            :apiActive="true"
+            :result="request.requestResult[0]"
+            v-else/>
         </div>
       </template>
     </api-base-component>
@@ -164,6 +183,7 @@ export default {
       let obj = JSON.parse(JSON.stringify(this.request.requestResult));
       this.request.requestResult = [obj];
     }
+    this.request.activeName = "";
     // 跨项目关联，如果没有ID，则赋值本项目ID
     if (!this.request.projectId) {
       this.request.projectId = getCurrentProjectID();
