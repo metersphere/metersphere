@@ -188,6 +188,41 @@
                 @refreshModule="refreshModule"
                 v-if="currentProtocol==='DUBBO'"/>
             </div>
+            <!-- 测试-->
+            <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
+              <ms-run-test-http-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='HTTP'"/>
+              <ms-run-test-tcp-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='TCP'"/>
+              <ms-run-test-sql-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='SQL'"/>
+              <ms-run-test-dubbo-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='DUBBO'"/>
+            </div>
 
             <!-- 定时任务 -->
             <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
@@ -573,7 +608,12 @@ export default {
         } else {
           name = this.$t('api_test.definition.request.title');
         }
-
+      }
+      if (row != null && row.tags != 'null' && row.tags != undefined) {
+        if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+          row.tags = JSON.parse(row.tags);
+        }
       }
       this.handleTabsEdit(name, "ADD", row);
     },
