@@ -236,7 +236,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
     private JDBCPreProcessor jdbcPreProcessor(ParameterConfig config) {
         JDBCPreProcessor jdbcPreProcessor = new JDBCPreProcessor();
         jdbcPreProcessor.setEnabled(this.isEnable());
-        jdbcPreProcessor.setName(this.getName());
+        jdbcPreProcessor.setName(this.getName() == null? "JDBCPreProcessor" : this.getName());
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             jdbcPreProcessor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
