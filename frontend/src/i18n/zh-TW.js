@@ -1193,7 +1193,7 @@ export default {
       post_export_tip: "通過 Postman 導出測試集合",
       swagger_export_tip: "通過 Swagger 頁面導出",
       jmeter_export_tip: "通過 JMeter 生成JMX文件",
-      jmeter_tip: "支持 JMeter 5.2版本的JMX 文件",
+      jmeter_tip: "支持 JMeter5.2-5.4版本的JMX文件",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",
