@@ -391,6 +391,7 @@ public class PerformanceTestService {
             loadTest.setStatus(PerformanceTestStatus.Error.name());
             loadTest.setDescription(e.getMessage());
             loadTestMapper.updateByPrimaryKeySelective(loadTest);
+            loadTestReportMapper.deleteByPrimaryKey(testReport.getId());
             throw e;
         }
     }
