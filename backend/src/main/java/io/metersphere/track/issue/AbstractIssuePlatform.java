@@ -238,7 +238,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
             return "";
         }
         Matcher matcher = pattern.matcher(input);
-        String result = "";
+        String result = input;
         while (matcher.find()) {
             String path = matcher.group(2);
             if (endpoint.endsWith("/")) {
