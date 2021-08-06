@@ -176,6 +176,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         // transfer description
         try {
             zentaoSteps = ms2ZentaoDescription(description);
+            zentaoSteps = zentaoSteps.replaceAll("\\n", "<br/>");
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
