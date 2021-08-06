@@ -17,17 +17,12 @@ values (UUID(), 'read_only', 'PROJECT_REPORT_ANALYSIS:READ', 'PROJECT_REPORT_ANA
 
 -- 重建中间表
 DROP TABLE load_test_report_detail;
-CREATE TABLE `load_test_report_detail`
-(
-    `report_id` VARCHAR(50)           NOT NULL,
-    `part`      BIGINT AUTO_INCREMENT NOT NULL,
-    `content`   LONGTEXT,
-    PRIMARY KEY (`report_id`, `part`)
-)
-    ENGINE = MyISAM
-    DEFAULT CHARSET = utf8mb4
-    COLLATE utf8mb4_general_ci;
-
+CREATE TABLE IF NOT EXISTS `load_test_report_detail` (
+     `part`      BIGINT(11) AUTO_INCREMENT NOT NULL,
+     `report_id` VARCHAR(50)               NOT NULL,
+     `content`   LONGTEXT,
+     PRIMARY KEY (`part`, `report_id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
 
 -- 关联场景测试和性能测试，一键更新性能测试
 CREATE TABLE IF NOT EXISTS `api_load_test` (
