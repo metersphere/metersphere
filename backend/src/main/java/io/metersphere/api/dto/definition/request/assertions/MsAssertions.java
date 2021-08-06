@@ -59,7 +59,7 @@ public class MsAssertions extends MsTestElement {
             );
         }
 
-        if (this.getDuration().isValid()) {
+        if (this.getDuration() != null && this.getDuration().isValid()) {
             hashTree.add(durationAssertion(this.getDuration()));
         }
     }
