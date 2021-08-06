@@ -25,9 +25,9 @@
       <template v-slot:debugStepCode>
          <span v-if="request.testing" class="ms-test-running">
            <i class="el-icon-loading" style="font-size: 16px"/>
-           {{$t('commons.testing')}}
+           {{ $t('commons.testing') }}
          </span>
-         <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
@@ -42,54 +42,76 @@
         <legend style="width: 100%">
           <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-api-request-form v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
-                               :isShowEnable="true"
-                               :referenced="true"
-                               :headers="request.headers "
-                               :is-read-only="isCompReadOnly"
-                               :request="request"/>
+          <ms-api-request-form
+            v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
+            :isShowEnable="true"
+            :referenced="true"
+            :headers="request.headers "
+            :is-read-only="isCompReadOnly"
+            :request="request"/>
+          <esb-definition
+            v-if="showXpackCompnent&&request.esbDataStruct!=null"
+            v-xpack
+            :request="request"
+            :showScript="false"
+            :is-read-only="isCompReadOnly" ref="esbDefinition"/>
+          <ms-tcp-format-parameters
+            v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
+            :is-read-only="isCompReadOnly"
+            :show-script="false" :request="request"/>
 
-          <esb-definition v-if="showXpackCompnent&&request.esbDataStruct!=null"
-                          v-xpack
-                          :request="request"
-                          :showScript="false"
-                          :is-read-only="isCompReadOnly" ref="esbDefinition"/>
+          <ms-sql-basis-parameters
+            v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
+            :request="request"
+            :is-read-only="isCompReadOnly"
+            :showScript="false"/>
 
-          <ms-tcp-format-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
-                                    :is-read-only="isCompReadOnly"
-                                    :show-script="false" :request="request"/>
-
-          <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-                                   :request="request"
-                                   :is-read-only="isCompReadOnly"
-                                   :showScript="false"/>
-
-          <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
-                                     :request="request"
-                                     :is-read-only="isCompReadOnly"
-                                     :showScript="false"/>
+          <ms-dubbo-basis-parameters
+            v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+            :request="request"
+            :is-read-only="isCompReadOnly"
+            :showScript="false"/>
         </legend>
       </template>
       <!-- 执行结果内容 -->
       <template v-slot:result>
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
         <div v-if="request.result">
-          <el-tabs v-model="request.activeName" closable class="ms-tabs">
-            <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
-              <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-                <api-response-component v-if="result.id===request.id" :result="result"/>
-              </div>
-            </el-tab-pane>
-          </el-tabs>
+          <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+            <el-tabs v-model="request.activeName" closable class="ms-tabs">
+              <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
         </div>
         <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
-          <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="request.protocol" :request="request" :is-api-component="false"
-                                   :show-options-button="false" :show-header="true" :result="request.requestResult"/>
+          <esb-definition-response
+            :currentProtocol="request.protocol"
+            :request="request"
+            :is-api-component="false"
+            :show-options-button="false"
+            :show-header="true"
+            :result="request.requestResult"
+            v-xpack
+            v-if="showXpackCompnent"
+          />
         </div>
         <div v-else>
-          <div v-for="(item,i) in request.requestResult" :key="i" style="margin-bottom: 5px">
-            <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
-          </div>
+          <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
+            <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+              <api-response-component
+                :currentProtocol="request.protocol"
+                :apiActive="true"
+                :result="item"
+              />
+            </el-tab-pane>
+          </el-tabs>
+          <api-response-component
+            :currentProtocol="request.protocol"
+            :apiActive="true"
+            :result="request.requestResult[0]"
+            v-else/>
         </div>
       </template>
     </api-base-component>
@@ -500,6 +522,7 @@ export default {
 .ms-req-error {
   color: #F56C6C;
 }
+
 .ms-test-running {
   color: #6D317C;
 }
