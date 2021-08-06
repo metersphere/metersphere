@@ -1,28 +1,9 @@
 package io.metersphere.api.dto.definition.request;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.annotation.JSONField;
-import com.alibaba.fastjson.annotation.JSONType;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
-import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
-import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
-import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
-import io.metersphere.api.dto.definition.request.extract.MsExtract;
-import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
-import io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor;
-import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
-import io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor;
-import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
-import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
-import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
-import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
-import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
-import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
-import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -35,8 +16,7 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
-import io.metersphere.commons.utils.LogUtil;
-import lombok.Data;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -46,120 +26,25 @@ import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = MsHTTPSamplerProxy.class, name = "HTTPSamplerProxy"),
-        @JsonSubTypes.Type(value = MsHeaderManager.class, name = "HeaderManager"),
-        @JsonSubTypes.Type(value = MsJSR223Processor.class, name = "JSR223Processor"),
-        @JsonSubTypes.Type(value = MsJSR223PostProcessor.class, name = "JSR223PostProcessor"),
-        @JsonSubTypes.Type(value = MsJSR223PreProcessor.class, name = "JSR223PreProcessor"),
-        @JsonSubTypes.Type(value = MsJDBCPreProcessor.class, name = "JDBCPreProcessor"),
-        @JsonSubTypes.Type(value = MsJDBCPostProcessor.class, name = "JDBCPostProcessor"),
-        @JsonSubTypes.Type(value = MsTestPlan.class, name = "TestPlan"),
-        @JsonSubTypes.Type(value = MsThreadGroup.class, name = "ThreadGroup"),
-        @JsonSubTypes.Type(value = MsAuthManager.class, name = "AuthManager"),
-        @JsonSubTypes.Type(value = MsAssertions.class, name = "Assertions"),
-        @JsonSubTypes.Type(value = MsExtract.class, name = "Extract"),
-        @JsonSubTypes.Type(value = MsTCPSampler.class, name = "TCPSampler"),
-        @JsonSubTypes.Type(value = MsDubboSampler.class, name = "DubboSampler"),
-        @JsonSubTypes.Type(value = MsJDBCSampler.class, name = "JDBCSampler"),
-        @JsonSubTypes.Type(value = MsConstantTimer.class, name = "ConstantTimer"),
-        @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
-        @JsonSubTypes.Type(value = MsTransactionController.class, name = "TransactionController"),
-        @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
-        @JsonSubTypes.Type(value = MsLoopController.class, name = "LoopController"),
-        @JsonSubTypes.Type(value = MsJmeterElement.class, name = "JmeterElement"),
-
-})
-@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class, MsJDBCPreProcessor.class, MsJDBCPostProcessor.class,
-        MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, MsAuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsTransactionController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
-@Data
-public abstract class MsTestElement {
-    private String type;
-    @JSONField(ordinal = 1)
-    private String id;
-    @JSONField(ordinal = 2)
-    private String name;
-    @JSONField(ordinal = 3)
-    private String label;
-    @JSONField(ordinal = 4)
-    private String resourceId;
-    @JSONField(ordinal = 5)
-    private String referenced;
-    @JSONField(ordinal = 6)
-    private boolean active;
-    @JSONField(ordinal = 7)
-    private String index;
-    @JSONField(ordinal = 8)
-    private boolean enable = true;
-    @JSONField(ordinal = 9)
-    private String refType;
-    @JSONField(ordinal = 10)
-    private LinkedList<MsTestElement> hashTree;
-    @JSONField(ordinal = 11)
-    private boolean customizeReq;
-    @JSONField(ordinal = 12)
-    private String projectId;
-    @JSONField(ordinal = 13)
-    private boolean isMockEnvironment;
-    @JSONField(ordinal = 14)
-    private String environmentId;
-    private MsTestElement parent;
+public class ElementUtil {
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
-    /**
-     * todo 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
-     */
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (CollectionUtils.isNotEmpty(hashTree)) {
-            for (MsTestElement el : hashTree) {
-                el.toHashTree(tree, el.hashTree, config);
-            }
-        }
-    }
-
-    /**
-     * 转换JMX
-     *
-     * @param hashTree
-     * @return
-     */
-    public String getJmx(HashTree hashTree) {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            SaveService.saveTree(hashTree, baos);
-            return baos.toString();
-        } catch (Exception e) {
-            e.printStackTrace();
-            LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
-        }
-        return null;
-    }
-
-    public HashTree generateHashTree(ParameterConfig config) {
-        HashTree jmeterTestPlanHashTree = new ListedHashTree();
-        this.toHashTree(jmeterTestPlanHashTree, this.hashTree, config);
-        return jmeterTestPlanHashTree;
-    }
-
-    public Arguments addArguments(ParameterConfig config) {
-        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+    public static Arguments addArguments(ParameterConfig config, String projectId, String name) {
+        if (config.isEffective(projectId) && config.getConfig().get(projectId).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(projectId).getCommonConfig().getVariables())) {
             Arguments arguments = new Arguments();
             arguments.setEnabled(true);
-            arguments.setName(StringUtils.isNoneBlank(this.getName()) ? this.getName() : "Arguments");
+            arguments.setName(StringUtils.isNoneBlank(name) ? name : "Arguments");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+            config.getConfig().get(projectId).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
             if (arguments.getArguments().size() > 0) {
@@ -169,7 +54,7 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId) {
+    public static Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId, String projectId, boolean isMockEnvironment) {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
@@ -178,7 +63,7 @@ public abstract class MsTestElement {
             }
             // 单独接口执行
             Map<String, EnvironmentConfig> map = new HashMap<>();
-            map.put(this.getProjectId(), JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+            map.put(projectId, JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             return map;
         }
 
@@ -186,7 +71,7 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
+    public static void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config, String shareMode) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -215,7 +100,7 @@ public abstract class MsTestElement {
         }
     }
 
-    protected void addCounter(HashTree tree, List<ScenarioVariable> variables) {
+    public static void addCounter(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -237,7 +122,7 @@ public abstract class MsTestElement {
         }
     }
 
-    protected void addRandom(HashTree tree, List<ScenarioVariable> variables) {
+    public static void addRandom(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isRandom).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -258,7 +143,7 @@ public abstract class MsTestElement {
         }
     }
 
-    public String getFullPath(MsTestElement element, String path) {
+    public static String getFullPath(MsTestElement element, String path) {
         if (element.getParent() == null) {
             return path;
         }
@@ -279,7 +164,7 @@ public abstract class MsTestElement {
         return getFullPath(element.getParent(), path);
     }
 
-    public void getScenarioSet(MsTestElement element, List<String> id_names) {
+    public static void getScenarioSet(MsTestElement element, List<String> id_names) {
         if (StringUtils.equals(element.getType(), "scenario")) {
             id_names.add(element.getResourceId() + "_" + element.getName());
         }
@@ -289,7 +174,7 @@ public abstract class MsTestElement {
         getScenarioSet(element.getParent(), id_names);
     }
 
-    protected String getParentName(MsTestElement parent) {
+    public static String getParentName(MsTestElement parent) {
         if (parent != null) {
             if (MsTestElementConstants.TransactionController.name().equals(parent.getType())) {
                 MsTransactionController transactionController = (MsTransactionController) parent;
@@ -308,7 +193,7 @@ public abstract class MsTestElement {
         return "";
     }
 
-    public String getFullIndexPath(MsTestElement element, String path) {
+    public static String getFullIndexPath(MsTestElement element, String path) {
         if (element == null || element.getParent() == null) {
             return path;
         }
@@ -316,7 +201,7 @@ public abstract class MsTestElement {
         return getFullIndexPath(element.getParent(), path);
     }
 
-    public boolean isURL(String str) {
+    public static boolean isURL(String str) {
         try {
             if (StringUtils.isEmpty(str)) {
                 return false;
@@ -350,9 +235,55 @@ public abstract class MsTestElement {
         }
         return requests;
     }
+
+
+    public final static HashMap<String, String> clazzMap = new HashMap<String, String>() {
+        {
+            put("scenario", "io.metersphere.api.dto.definition.request.MsScenario");
+            put("HTTPSamplerProxy", "io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy");
+            put("DubboSampler", "io.metersphere.api.dto.definition.request.sampler.MsDubboSampler");
+            put("JDBCSampler", "io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler");
+            put("TCPSampler", "io.metersphere.api.dto.definition.request.sampler.MsTCPSampler");
+            put("IfController", "io.metersphere.api.dto.definition.request.controller.MsIfController");
+            put("TransactionController", "io.metersphere.api.dto.definition.request.controller.MsTransactionController");
+            put("LoopController", "io.metersphere.api.dto.definition.request.controller.MsLoopController");
+            put("ConstantTimer", "io.metersphere.api.dto.definition.request.timer.MsConstantTimer");
+            put("JSR223Processor", "io.metersphere.api.dto.definition.request.processors.MsJSR223Processor");
+            put("JSR223PreProcessor", "io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor");
+            put("JSR223PostProcessor", "io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor");
+            put("JDBCPreProcessor", "io.metersphere.api.dto.definition.request.processors.pre.MsJDBCPreProcessor");
+            put("JDBCPostProcessor", "io.metersphere.api.dto.definition.request.processors.post.MsJDBCPostProcessor");
+            put("Assertions", "io.metersphere.api.dto.definition.request.assertions.MsAssertions");
+            put("Extract", "io.metersphere.api.dto.definition.request.extract.MsExtract");
+            put("JmeterElement", "io.metersphere.api.dto.definition.request.unknown.MsJmeterElement");
+            put("TestPlan", "io.metersphere.api.dto.definition.request.MsTestPlan");
+            put("ThreadGroup", "io.metersphere.api.dto.definition.request.MsThreadGroup");
+            put("DNSCacheManager", "io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager");
+            put("DebugSampler", "io.metersphere.api.dto.definition.request.sampler.MsDebugSampler");
+
+        }
+    };
+
+    public static void dataFormatting(JSONArray hashTree) {
+        for (int i = 0; i < hashTree.size(); i++) {
+            JSONObject element = hashTree.getJSONObject(i);
+            if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+                element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
+            }
+            if (element.containsKey("hashTree")) {
+                JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                dataFormatting(elementJSONArray);
+            }
+        }
+    }
+
+    public static void dataFormatting(JSONObject element) {
+        if (element != null && element.get("clazzName") == null && clazzMap.containsKey(element.getString("type"))) {
+            element.fluentPut("clazzName", clazzMap.get(element.getString("type")));
+        }
+        if (element != null && element.containsKey("hashTree")) {
+            JSONArray elementJSONArray = element.getJSONArray("hashTree");
+            dataFormatting(elementJSONArray);
+        }
+    }
 }
-
-
-
-
-

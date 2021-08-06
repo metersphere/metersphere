@@ -225,7 +225,7 @@
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                        :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                 <fab-item
-                  v-for="(item, index) in buttons"
+                  v-for="(item, index) in buttonData"
                   :key="index"
                   :idx="getIdx(index)"
                   :title="item.title"
@@ -325,7 +325,7 @@
 import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
 import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
+import {ELEMENT_TYPE, ELEMENTS, TYPE_TO_C} from "./Setting";
 import MsApiCustomize from "./ApiCustomize";
 import {
   getUUID,
@@ -463,6 +463,7 @@ export default {
       message: "",
       websocket: {},
       messageWebSocket: {},
+      buttonData: []
     }
   },
   created() {
@@ -475,6 +476,8 @@ export default {
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
+    this.initPlugins();
+    this.buttonData = buttons(this);
   },
   mounted() {
     this.$nextTick(() => {
@@ -486,12 +489,32 @@ export default {
   },
   directives: {OutsideClick},
   computed: {
-    buttons,
     projectId() {
       return getCurrentProjectID();
     },
   },
   methods: {
+    initPlugins() {
+      let url = "/plugin/list";
+      this.$get(url, response => {
+        let data = response.data;
+        if (data) {
+          data.forEach(item => {
+            let plugin = {
+              title: item.name,
+              show: this.showButton(item.name),
+              titleColor: "#555855",
+              titleBgColor: "#F4F4FF",
+              icon: "colorize",
+              click: () => {
+                this.addComponent(item.name, item)
+              }
+            }
+            this.buttonData.push(plugin);
+          });
+        }
+      });
+    },
     stop() {
       let url = "/api/automation/stop/" + this.reportId;
       this.$get(url, response => {
@@ -827,14 +850,16 @@ export default {
     outsideClick(e) {
       e.stopPropagation();
       this.showAll();
+      this.buttonData = buttons(this);
+      this.initPlugins();
     },
     fabClick() {
-      if (this.operatingElements.length < 1) {
+      if (this.operatingElements && this.operatingElements.length < 1) {
         this.$info("引用的场景或接口无法添加配置");
       }
     },
-    addComponent(type) {
-      setComponent(type, this);
+    addComponent(type, plugin) {
+      setComponent(type, this, plugin);
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
@@ -842,9 +867,13 @@ export default {
       } else {
         this.operatingElements = [];
       }
+      if (!this.operatingElements) {
+        this.operatingElements = ELEMENTS.get("ALL");
+      }
       this.selectedTreeNode = data;
       this.selectedNode = node;
       this.$store.state.selectStep = data;
+      this.buttonData = buttons(this);
     },
     suggestClick(node) {
       this.response = {};
@@ -878,6 +907,9 @@ export default {
           && stepArray[i].hashTree
           && stepArray[i].hashTree.length > 1) {
           stepArray[i].countController.proceed = true;
+        }
+        if (!stepArray[i].clazzName) {
+          stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
         if (!stepArray[i].projectId) {
           // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
@@ -1130,7 +1162,7 @@ export default {
       if (dropType != "inner") {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
+        && ELEMENTS.get(dropNode.data.type) && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
         return true;
       }
       return false;
@@ -1160,9 +1192,10 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, (response) => {
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this,(response) => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
+              this.$store.state.pluginFiles = [];
               if (response.data) {
                 this.currentScenario.id = response.data.id;
               }
@@ -1272,6 +1305,7 @@ export default {
         enableCookieShare: this.enableCookieShare,
         name: this.currentScenario.name,
         type: "scenario",
+        clazzName: TYPE_TO_C.get("scenario"),
         variables: this.currentScenario.variables,
         headers: this.currentScenario.headers,
         referenced: 'Created',

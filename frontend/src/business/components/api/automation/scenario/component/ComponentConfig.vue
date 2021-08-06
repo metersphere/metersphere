@@ -22,10 +22,11 @@
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import JmeterElementComponent from "./JmeterElementComponent";
   import MsJdbcProcessor from "@/business/components/api/automation/scenario/component/JDBCProcessor";
+  import PluginComponent from "./PluginComponent";
 
   export default {
     name: "ComponentConfig",
-    components: {MsConstantTimer, MsIfController, MsTransactionController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, MsJdbcProcessor,JmeterElementComponent},
+    components: {PluginComponent,MsConstantTimer, MsIfController, MsTransactionController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, MsJdbcProcessor,JmeterElementComponent},
     props: {
       type: String,
       message: String,
@@ -105,8 +106,20 @@
           case "JmeterElement":
             name = "JmeterElementComponent";
             break;
-          default:
+          case "DubboSampler":
             name = "MsApiComponent";
+            break;
+          case "HTTPSamplerProxy":
+            name = "MsApiComponent";
+            break;
+          case "JDBCSampler":
+            name = "MsApiComponent";
+            break;
+          case "TCPSampler":
+            name = "MsApiComponent";
+            break;
+          default:
+            name = this.getComponent(ELEMENT_TYPE.Plugin);
             break;
         }
         return name;
@@ -134,7 +147,13 @@
           this.titleColor = "#1483F6";
           this.backgroundColor = "#F2ECF3";
           return "MsJdbcProcessor";
-        } else {
+        }
+        else if (type === ELEMENT_TYPE.Plugin) {
+          this.titleColor = "#1483F6";
+          this.backgroundColor = "#F2ECF3";
+          return "PluginComponent";
+        }
+        else {
           this.title = this.$t('api_test.automation.customize_script');
           this.titleColor = "#7B4D12";
           this.backgroundColor = "#F1EEE9";

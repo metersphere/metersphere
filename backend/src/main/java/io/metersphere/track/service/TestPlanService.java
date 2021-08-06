@@ -14,7 +14,10 @@ import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.service.*;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -33,6 +36,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
@@ -940,6 +944,8 @@ public class TestPlanService {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             JSONObject element = JSON.parseObject(item.getScenarioDefinition());
+            ElementUtil.dataFormatting(element);
+
             MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取

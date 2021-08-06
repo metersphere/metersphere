@@ -13,7 +13,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
@@ -35,6 +35,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
@@ -279,6 +280,8 @@ public class TestPlanApiCaseService {
         try {
             String api = caseWithBLOBs.getRequest();
             JSONObject element = JSON.parseObject(api);
+            ElementUtil.dataFormatting(element);
+
             LinkedList<MsTestElement> list = new LinkedList<>();
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),

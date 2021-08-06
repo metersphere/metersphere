@@ -3,7 +3,7 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.automation.parse.TcpTreeTableDataParser;
 import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

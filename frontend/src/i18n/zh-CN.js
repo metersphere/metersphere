@@ -435,12 +435,12 @@ export default {
       azure_storytype: '需求类型',
       input_azure_issuetype: '请输入问题类型',
       input_azure_storytype: '请输入需求类型',
-      azure_pat:'PersonalAccessTokens',
-      azure_devops_url:'Azure Devops 地址',
-      azure_organization_id:'Azure 组织ID',
-      input_azure_pat:'请输入 Personal Access Token',
-      input_azure_url:'请输入 Azure Devops 地址',
-      input_azure_organization_id:'请输入 Azure 组织ID',
+      azure_pat: 'PersonalAccessTokens',
+      azure_devops_url: 'Azure Devops 地址',
+      azure_organization_id: 'Azure 组织ID',
+      input_azure_pat: '请输入 Personal Access Token',
+      input_azure_url: '请输入 Azure Devops 地址',
+      input_azure_organization_id: '请输入 Azure 组织ID',
       use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
     }
   },
@@ -1994,5 +1994,11 @@ export default {
     share: "分享",
     change_history: "变更历史",
     change_content: "变更内容"
+  },
+  plugin: {
+    title: "插件管理",
+    script_entry: "脚本执行入口",
+    plugin_id: "插件ID",
+    script_view: "查看脚本",
   }
 };

@@ -24,6 +24,7 @@ const state = {
   useEnvironment: "",
   testPlanViewSelectNode: {},
   selectStep: {},
+  pluginFiles: [],
 }
 
 const store = new Vuex.Store({

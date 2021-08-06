@@ -10,7 +10,7 @@ import io.metersphere.api.dto.DeleteCheckResult;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
@@ -29,6 +29,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.DefinitionReference;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.UserService;
@@ -545,8 +546,6 @@ public class ApiTestCaseService {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             bloBs.forEach(apiTestCase -> {
                 JSONObject req = JSON.parseObject(apiTestCase.getRequest());
                 req.put("useEnvironment", request.getEnvId());
@@ -572,6 +571,8 @@ public class ApiTestCaseService {
                 MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
                 try {
                     JSONObject element = JSON.parseObject(apiTestCase.getRequest());
+                    ElementUtil.dataFormatting(element);
+
                     if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                         LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                         });
@@ -707,7 +708,10 @@ public class ApiTestCaseService {
     public HashTree generateHashTree(RunCaseRequest request, ApiTestCaseWithBLOBs testCaseWithBLOBs) throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
+        JSONObject elementObj = JSON.parseObject(testCaseWithBLOBs.getRequest());
+        ElementUtil.dataFormatting(elementObj);
+
+        MsTestElement element = mapper.readValue(elementObj.toJSONString(), new TypeReference<MsTestElement>() {
         });
         element.setProjectId(testCaseWithBLOBs.getProjectId());
         if (StringUtils.isBlank(request.getEnvironmentId())) {

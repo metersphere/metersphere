@@ -42,6 +42,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.AutomationReference;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -630,6 +631,7 @@ public class ApiAutomationService {
         JSONObject element = JSON.parseObject(definition);
         try {
             if (element != null) {
+                ElementUtil.dataFormatting(element);
                 return objectMapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                 });
             }
@@ -640,9 +642,7 @@ public class ApiAutomationService {
     }
 
     public ScenarioEnv getApiScenarioEnv(String definition) {
-        ObjectMapper mapper = new ObjectMapper();
         ScenarioEnv env = new ScenarioEnv();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         List<MsTestElement> hashTree = getScenarioHashTree(definition);
         for (int i = 0; i < hashTree.size(); i++) {
             MsTestElement tr = hashTree.get(i);
@@ -756,6 +756,7 @@ public class ApiAutomationService {
                                 env.getProjectIds().add(apiScenario.getProjectId());
                                 String scenarioDefinition = apiScenario.getScenarioDefinition();
                                 JSONObject element1 = JSON.parseObject(scenarioDefinition);
+                                ElementUtil.dataFormatting(element1);
                                 LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                                 });
                                 tr.setHashTree(hashTree1);
@@ -767,7 +768,7 @@ public class ApiAutomationService {
                         // 校验是否是全路径
                         MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                         if (httpSamplerProxy.isEnable()) {
-                            if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !tr.isURL(httpSamplerProxy.getUrl())) {
+                            if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !ElementUtil.isURL(httpSamplerProxy.getUrl())) {
                                 env.setFullUrl(false);
                                 env.getProjectIds().add(httpSamplerProxy.getProjectId());
                             }
@@ -812,7 +813,7 @@ public class ApiAutomationService {
         return null;
     }
 
-    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfig config,String desc) {
+    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfig config, String desc) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
             triggerMode = ReportTriggerMode.MANUAL.name();
@@ -855,6 +856,8 @@ public class ApiAutomationService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JSONObject element = JSON.parseObject(scenarioDefinition);
+            ElementUtil.dataFormatting(element);
+
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
@@ -1028,14 +1031,14 @@ public class ApiAutomationService {
                 if (request.isTestPlanScheduleJob()) {
                     String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
                     report = createScenarioReport(reportId, savedScenarioId, item.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
+                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
                 } else {
                     report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
-                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
+                            request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
                 }
             } else {
                 report = createScenarioReport(reportId, ExecuteType.Marge.name().equals(request.getExecuteType()) ? serialReportId : item.getId(), item.getName(), request.getTriggerMode(),
-                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
+                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
             }
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
@@ -1059,7 +1062,7 @@ public class ApiAutomationService {
             APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(),
                     JSON.toJSONString(CollectionUtils.isNotEmpty(scenarioIds) && scenarioIds.size() > 50 ? scenarioIds.subList(0, 50) : scenarioIds),
                     scenarioNames.length() >= 3000 ? scenarioNames.substring(0, 2000) : scenarioNames.deleteCharAt(scenarioNames.toString().length() - 1).toString(),
-                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig(),JSON.toJSONString(scenarioIds));
+                    ReportTriggerMode.MANUAL.name(), ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig(), JSON.toJSONString(scenarioIds));
 
             report.setName(request.getConfig().getReportName());
             report.setId(serialReportId);
@@ -1195,7 +1198,7 @@ public class ApiAutomationService {
             ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
             for (ApiScenarioWithBLOBs item : apiScenarios) {
                 if (item.getStepTotal() == null || item.getStepTotal() == 0) {
-                    // 只有一个场景且没有测试步骤，则提示
+                    // 只有 一个场景且没有测试步骤，则提示
                     if (apiScenarios.size() == 1) {
                         MSException.throwException((item.getName() + "，" + Translator.get("automation_exec_info")));
                     }
@@ -1215,6 +1218,9 @@ public class ApiAutomationService {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 JSONObject element = JSON.parseObject(item.getScenarioDefinition());
+                // 历史数据处理
+                ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
+
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
                 group.setOnSampleError(scenario.getOnSampleError());
                 this.preduceMsScenario(scenario);
@@ -1253,14 +1259,14 @@ public class ApiAutomationService {
                         if (request.isTestPlanScheduleJob()) {
                             String savedScenarioId = testPlanScenarioId + ":" + request.getTestPlanReportId();
                             report = createScenarioReport(group.getName(), savedScenarioId, item.getName(), request.getTriggerMode(),
-                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
+                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
                         } else {
                             report = createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
+                                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
                         }
                     } else {
                         report = createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(),item.getId());
+                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), item.getId());
                     }
                     batchMapper.insert(report);
                     reportIds.add(group.getName());
@@ -1289,8 +1295,6 @@ public class ApiAutomationService {
     }
 
     private boolean checkScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenario testPlanApiScenarios) {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         String definition = apiScenarioWithBLOBs.getScenarioDefinition();
         MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
         boolean isEnv = true;
@@ -1479,7 +1483,7 @@ public class ApiAutomationService {
         }
 
         APIScenarioReportResult report = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
-                SessionUtils.getUserId(), request.getConfig(),request.getId());
+                SessionUtils.getUserId(), request.getConfig(), request.getId());
         apiScenarioReportMapper.insert(report);
 
         uploadBodyFiles(request.getBodyFileRequestIds(), bodyFiles);

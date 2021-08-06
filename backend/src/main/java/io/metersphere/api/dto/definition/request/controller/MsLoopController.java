@@ -2,12 +2,14 @@ package io.metersphere.api.dto.definition.request.controller;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
 import io.metersphere.commons.constants.LoopConstants;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -30,6 +32,8 @@ import java.util.UUID;
 @JSONType(typeName = "LoopController")
 public class MsLoopController extends MsTestElement {
     private String type = "LoopController";
+    private String clazzName = "io.metersphere.api.dto.definition.request.controller.MsLoopController";
+
     @JSONField(ordinal = 20)
     private String loopType;
 
@@ -46,16 +50,18 @@ public class MsLoopController extends MsTestElement {
     private String ms_current_timer = UUID.randomUUID().toString();
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
+
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
-            this.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
-            this.addCounter(groupTree, config.getVariables());
-            this.addRandom(groupTree, config.getVariables());
+            ElementUtil.addCsvDataSet(groupTree, config.getVariables(), config, "shareMode.thread");
+            ElementUtil.addCounter(groupTree, config.getVariables());
+            ElementUtil.addRandom(groupTree, config.getVariables());
         }
 
         // 循环下都增加一个计数器，用于结果统计

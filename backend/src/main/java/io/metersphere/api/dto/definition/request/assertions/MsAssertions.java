@@ -1,8 +1,9 @@
 package io.metersphere.api.dto.definition.request.assertions;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,6 +19,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "Assertions")
 public class MsAssertions extends MsTestElement {
+    private String clazzName = "io.metersphere.api.dto.definition.request.assertions.MsAssertions";
+
     private List<MsAssertionRegex> regex;
     private List<MsAssertionJsonPath> jsonPath;
     private List<MsAssertionJSR223> jsr223;
@@ -26,7 +29,8 @@ public class MsAssertions extends MsTestElement {
     private String type = "Assertions";
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -68,7 +72,7 @@ public class MsAssertions extends MsTestElement {
         ResponseAssertion assertion = new ResponseAssertion();
         assertion.setEnabled(this.isEnable());
         assertion.setName(assertionRegex.getDescription());
-        if(StringUtils.isEmpty(assertionRegex.getDescription())){
+        if (StringUtils.isEmpty(assertionRegex.getDescription())) {
             assertion.setName("AssertionRegex");
         }
         assertion.setName(StringUtils.isNotEmpty(assertionRegex.getDescription()) ? assertionRegex.getDescription() : this.getName());
@@ -97,7 +101,7 @@ public class MsAssertions extends MsTestElement {
         JSONPathAssertion assertion = new JSONPathAssertion();
         assertion.setEnabled(this.isEnable());
         assertion.setName(StringUtils.isNotEmpty(assertionJsonPath.getDescription()) ? assertionJsonPath.getDescription() : this.getName());
-        if(StringUtils.isEmpty(assertion.getName())){
+        if (StringUtils.isEmpty(assertion.getName())) {
             assertion.setName("JSONPathAssertion");
         }
         /* assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "JSONPathAssertion");*/
@@ -121,7 +125,7 @@ public class MsAssertions extends MsTestElement {
         XPath2Assertion assertion = new XPath2Assertion();
         assertion.setEnabled(this.isEnable());
         assertion.setName(StringUtils.isNotEmpty(assertionXPath2.getExpression()) ? assertionXPath2.getExpression() : this.getName());
-        if(StringUtils.isEmpty(assertion.getName())){
+        if (StringUtils.isEmpty(assertion.getName())) {
             assertion.setName("XPath2Assertion");
         }
         /*assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "XPath2Assertion");*/
@@ -147,7 +151,7 @@ public class MsAssertions extends MsTestElement {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
         assertion.setName(StringUtils.isNotEmpty(assertionJSR223.getDesc()) ? assertionJSR223.getDesc() : this.getName());
-        if(StringUtils.isEmpty(assertion.getName())){
+        if (StringUtils.isEmpty(assertion.getName())) {
             assertion.setName("JSR223Assertion");
         }
         /*assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "JSR223Assertion");*/

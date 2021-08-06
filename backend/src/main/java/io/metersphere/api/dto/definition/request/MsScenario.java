@@ -19,6 +19,8 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 public class MsScenario extends MsTestElement {
 
     private String type = "scenario";
+    private String clazzName = "io.metersphere.api.dto.definition.request.MsScenario";
 
     @JSONField(ordinal = 21)
     private String referenced;
@@ -77,7 +80,8 @@ public class MsScenario extends MsTestElement {
     }
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -92,6 +96,8 @@ public class MsScenario extends MsTestElement {
                 ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
                 if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                    // 历史数据处理
+                    ElementUtil.dataFormatting(element.getJSONArray("hashTree"));
                     this.setName(scenario.getName());
                     this.setProjectId(scenario.getProjectId());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
@@ -161,9 +167,9 @@ public class MsScenario extends MsTestElement {
         if (arguments != null) {
             tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
-        this.addCsvDataSet(tree, variables, config, "shareMode.group");
-        this.addCounter(tree, variables);
-        this.addRandom(tree, variables);
+        ElementUtil.addCsvDataSet(tree, variables, config, "shareMode.group");
+        ElementUtil.addCounter(tree, variables);
+        ElementUtil.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
             setHeader(tree, this.headers);
         }

@@ -54,6 +54,30 @@ public class FileUtils {
         }
     }
 
+    public static String create(String id, MultipartFile item) {
+        String filePath = BODY_FILE_DIR + "/plugin";
+        if (item != null) {
+            File testDir = new File(filePath);
+            if (!testDir.exists()) {
+                testDir.mkdirs();
+            }
+            File file = new File(filePath + "/" + id + "_" + item.getOriginalFilename());
+            try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
+                file.createNewFile();
+                final int MAX = 4096;
+                byte[] buf = new byte[MAX];
+                for (int bytesRead = in.read(buf, 0, MAX); bytesRead != -1; bytesRead = in.read(buf, 0, MAX)) {
+                    out.write(buf, 0, bytesRead);
+                }
+            } catch (IOException e) {
+                LogUtil.error(e);
+                MSException.throwException(Translator.get("upload_fail"));
+            }
+            return file.getPath();
+        }
+        return null;
+    }
+
     public static void createBodyFiles(String requestId, List<MultipartFile> bodyFiles) {
         if (CollectionUtils.isNotEmpty(bodyFiles) && StringUtils.isNotBlank(requestId)) {
             String path = BODY_FILE_DIR + "/" + requestId;
@@ -156,7 +180,6 @@ public class FileUtils {
             file.delete();
         }
     }
-
 
 
     /**

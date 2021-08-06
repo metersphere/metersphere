@@ -692,7 +692,7 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, (response) => {
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this,(response) => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               if (response.data) {

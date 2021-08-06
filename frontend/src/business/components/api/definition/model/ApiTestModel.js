@@ -1036,6 +1036,34 @@ export class IfController extends Controller {
   }
 }
 
+export class PluginController extends BaseConfig {
+  constructor(options = {}) {
+    super("Plugin", options);
+    this.type = "Plugin";
+    this.active = false;
+    this.enable = true;
+    this.hashTree = [];
+    this.set(options);
+  }
+
+  isValid() {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
+      return !!this.variable && !!this.operator;
+    }
+    return !!this.variable && !!this.operator && !!this.value;
+  }
+
+  label() {
+    if (this.isValid()) {
+      let label = this.variable;
+      if (this.operator) label += " " + this.operator;
+      if (this.value) label += " " + this.value;
+      return label;
+    }
+    return "";
+  }
+}
+
 export class LoopController extends Controller {
   constructor(options = {}) {
     super("LoopController", options);

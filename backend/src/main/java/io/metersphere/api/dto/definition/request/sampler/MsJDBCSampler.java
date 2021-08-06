@@ -7,7 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -24,6 +24,8 @@ import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,6 +48,8 @@ import java.util.stream.Collectors;
 public class MsJDBCSampler extends MsTestElement {
     // type 必须放最前面，以便能够转换正确的类
     private String type = "JDBCSampler";
+    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler";
+
     @JSONField(ordinal = 20)
     private DatabaseConfig dataSource;
     @JSONField(ordinal = 21)
@@ -68,8 +72,13 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 30)
     private String useEnvironment;
 
+    @JSONField(ordinal = 31)
+    private boolean customizeReq;
+
+
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -80,7 +89,7 @@ public class MsJDBCSampler extends MsTestElement {
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
-            config.setConfig(getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId));
+            config.setConfig(ElementUtil.getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId, this.getProjectId(), this.isMockEnvironment()));
         }
 
         // 数据兼容处理
@@ -170,7 +179,9 @@ public class MsJDBCSampler extends MsTestElement {
                 if (bloBs != null) {
                     this.setName(bloBs.getName());
                     this.setProjectId(bloBs.getProjectId());
-                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsJDBCSampler>() {
+                    JSONObject element = JSON.parseObject(bloBs.getRequest());
+                    ElementUtil.dataFormatting(element);
+                    proxy = mapper.readValue(element.toJSONString(), new TypeReference<MsJDBCSampler>() {
                     });
                 }
             } else {
@@ -233,7 +244,7 @@ public class MsJDBCSampler extends MsTestElement {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        String name = this.getParentName(this.getParent());
+        String name = ElementUtil.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
@@ -241,9 +252,9 @@ public class MsJDBCSampler extends MsTestElement {
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         sampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
-        this.getScenarioSet(this, id_names);
+        ElementUtil.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         // request.getDataSource() 是ID，需要转换为Name

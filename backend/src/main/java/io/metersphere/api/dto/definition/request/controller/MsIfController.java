@@ -1,8 +1,9 @@
 package io.metersphere.api.dto.definition.request.controller;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -21,6 +22,8 @@ import java.util.regex.Pattern;
 @JSONType(typeName = "IfController")
 public class MsIfController extends MsTestElement {
     private String type = "IfController";
+    private String clazzName = "io.metersphere.api.dto.definition.request.controller.MsIfController";
+
     private String id;
     private String variable;
     private String operator;
@@ -28,7 +31,8 @@ public class MsIfController extends MsTestElement {
     private String remark;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
