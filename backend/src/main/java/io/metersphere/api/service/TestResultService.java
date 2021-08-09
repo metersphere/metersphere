@@ -117,20 +117,24 @@ public class TestResultService {
                     userName = apiAutomationService.getUser(apiScenario.getUserId());
                     principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                 }
+
                 //报告内容
                 reportTask = new ApiTestReportVariable();
-                reportTask.setStatus(scenarioReport.getStatus());
-                reportTask.setId(scenarioReport.getId());
-                reportTask.setTriggerMode(scenarioReport.getTriggerMode());
-                reportTask.setName(scenarioReport.getName());
-                reportTask.setExecutor(userName);
-                reportTask.setPrincipal(principal);
-                reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-                reportTask.setExecutionEnvironment(name);
-                SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-                assert systemParameterService != null;
-                BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-                reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+                if(StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
+                    reportTask.setStatus(scenarioReport.getStatus());
+                    reportTask.setId(scenarioReport.getId());
+                    reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+                    reportTask.setName(scenarioReport.getName());
+                    reportTask.setExecutor(userName);
+                    reportTask.setPrincipal(principal);
+                    reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
+                    reportTask.setExecutionEnvironment(name);
+                    SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                    assert systemParameterService != null;
+                    BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                    reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+
+                }
                 testResult.setTestId(scenarioReport.getScenarioId());
                 planScenarioId = scenarioReport.getTestPlanScenarioId();
             } else {
