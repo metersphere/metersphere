@@ -1019,7 +1019,7 @@ public class TestPlanService {
 
         String planReportId = testPlanReport.getId();
 
-        testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. ");
+        testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. "+"API Run Config:【"+apiRunConfig+"】");
 
         //不同任务的执行ID
         Map<String, String> executePerformanceIdMap = new HashMap<>();

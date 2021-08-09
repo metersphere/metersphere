@@ -1144,7 +1144,7 @@ public class TestPlanReportService {
 
     public synchronized TestPlanReport updateExecuteApis(String planReportId, Map<String, String> executeApiCaseIdMap, Map<String, String> executeScenarioCaseIdMap, Map<String, String> executePerformanceIdMap) {
         TestPlanReportDataExample example = new TestPlanReportDataExample();
-        List<String> resourceIdList = new ArrayList<>();
+//        List<String> resourceIdList = new ArrayList<>();
         if(executeApiCaseIdMap == null){
             executeApiCaseIdMap = new HashMap<>();
         }
