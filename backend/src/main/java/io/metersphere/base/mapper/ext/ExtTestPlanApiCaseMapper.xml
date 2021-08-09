@@ -27,7 +27,7 @@
   </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
-    t.id, t.environment_id, t.create_time, t.update_time,
+    t.id, t.environment_id,(select name from api_test_environment where id = t.environment_id) as environment_name, t.create_time, t.update_time,
     c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id,
     c.update_user_id, c.num, c.tags, t.create_user,
     a.module_id, a.path, a.protocol, t.status execResult, a.user_id

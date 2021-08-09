@@ -176,6 +176,7 @@ export default {
     execute_history: "执行历史",
     debug_history: "调试历史",
     testing: "测试中",
+    environment: "运行环境",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -1542,6 +1543,7 @@ export default {
       plan_delete: "删除计划",
       api_case: "接口测试用例",
       scenario_case: "场景测试用例",
+      execute_result: "执行结果",
       load_case: {
         case: "性能用例",
         execution_status: "执行状态",

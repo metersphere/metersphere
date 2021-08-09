@@ -69,6 +69,18 @@
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="environmentName"
+            min-width="120"
+            show-overflow-tooltip
+            :label="$t('commons.environment')">
+            <template v-slot:default="scope">
+              {{scope.row.environmentName || '-'}}
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
             v-if="item.id == 'maintainer'"
             prop="userId"
             :fields-width="fieldsWidth"
@@ -97,7 +109,7 @@
           <ms-table-column :field="item"
                            prop="execResult"
                            :fields-width="fieldsWidth"
-                           :label="'执行状态'" min-width="150" align="center">
+                           :label="$t('test_track.plan.execute_result')" min-width="150" align="center">
             <template v-slot:default="scope">
               <div v-loading="rowLoading === scope.row.id">
                 <el-link type="danger"

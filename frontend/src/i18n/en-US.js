@@ -175,6 +175,7 @@ export default {
     execute_history: "Execute history",
     debug_history: "Debug history",
     testing: "Testing",
+    environment: "Environment",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -1536,6 +1537,7 @@ export default {
       plan_delete: "Delete test plan",
       api_case: "Api case",
       scenario_case: "Scenario case",
+      execute_result: "Execute Result",
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",
