@@ -328,7 +328,6 @@ export default {
               })
             } catch (error) {
               this.$set(item, 'envs', {});
-              console.log("transfer env fail.")
             }
           })
           this.loading = false;
