@@ -116,8 +116,8 @@ export const REQUIRED = [
 ];
 
 export const RESULT_MAP = new Map([
-  ['success', '执行结果：通过'],
-  ['error', '执行结果：未通过'],
-  ['default', '执行结果：未执行']
+  ['success', '通过'],
+  ['error', '未通过'],
+  ['default', '未执行']
 ]);
 

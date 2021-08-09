@@ -176,6 +176,7 @@ export default {
     execute_history: "執行歷史",
     debug_history: "調試歷史",
     testing: "測試中",
+    environment: "運行環境",
     selector: {
       required: "必填",
       not_required: "非必填",
@@ -1543,6 +1544,7 @@ export default {
       plan_delete: "刪除計劃",
       api_case: "接口測試用例",
       scenario_case: "場景測試用例",
+      execute_result: "執行結果",
       load_case: {
         case: "性能用例",
         execution_status: "執行狀態",
