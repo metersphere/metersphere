@@ -24,4 +24,5 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
     private List<String> projectIds;
 
     private String caseId;
+    private String environment;
 }

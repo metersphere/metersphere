@@ -47,6 +47,34 @@
             </template>
           </ms-table-column>
 
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="envs"
+            :label="$t('commons.environment')"
+            min-width="120">
+            <template v-slot:default="{row}">
+              <div v-if="row.envs">
+                <span v-for="(k, v, index) in row.envs" :key="index">
+                  <span v-if="index===0 || index===1">{{v}}:
+                    <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                  </span>
+                  <el-popover
+                    placement="top"
+                    width="350"
+                    trigger="click">
+                    <div v-for="(k, v, index) in row.envs" :key="index">
+                      <span class="plan-case-env">{{v}}:
+                        <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                      </span>
+                    </div>
+                    <el-link v-if="index === 2" slot="reference" type="info" :underline="false" icon="el-icon-more"/>
+                  </el-popover>
+                </span>
+              </div>
+            </template>
+          </ms-table-column>
+
           <ms-table-column :field="item"
                            :fields-width="fieldsWidth"
                            prop="tagNames" :label="$t('api_test.automation.tag')"
@@ -292,6 +320,17 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
+          this.tableData.forEach(item => {
+            try {
+              const envs = JSON.parse(item.environment);
+              this.$post("/test/plan/scenario/case/env", envs, res => {
+                this.$set(item, 'envs', res.data);
+              })
+            } catch (error) {
+              this.$set(item, 'envs', {});
+              console.log("transfer env fail.")
+            }
+          })
           this.loading = false;
           if (this.$refs.table) {
             this.$refs.table.selectRows.clear();
@@ -485,5 +524,16 @@ export default {
 /*/deep/ .el-drawer__header {*/
 /*  margin-bottom: 0px;*/
 /*}*/
+
+.plan-case-env {
+  display: inline-block;
+  padding: 0 0;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  margin-left: 5px;
+}
 
 </style>

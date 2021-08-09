@@ -6,6 +6,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
@@ -43,6 +44,8 @@ public class TestPlanScenarioCaseService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private ProjectService projectService;
+    @Resource
+    private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -291,5 +294,28 @@ public class TestPlanScenarioCaseService {
                 .andApiScenarioIdIn(automationIds)
                 .andLastResultEqualTo("Fail");
         return testPlanApiScenarioMapper.countByExample(example) > 0 ? true : false;
+    }
+
+    public Map<String, String> getScenarioCaseEnv(HashMap<String, String> map) {
+        Set<String> set = map.keySet();
+        HashMap<String, String> envMap = new HashMap<>(16);
+        if (set.isEmpty()) {
+            return envMap;
+        }
+        for (String projectId : set) {
+            String envId = map.get(projectId);
+            if (StringUtils.isBlank(envId)) {
+                continue;
+            }
+            Project project = projectService.getProjectById(projectId);
+            ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
+            String projectName = project.getName();
+            String envName = environment.getName();
+            if (StringUtils.isBlank(projectName) || StringUtils.isBlank(envName)) {
+                continue;
+            }
+            envMap.put(projectName, envName);
+        }
+        return envMap;
     }
 }
