@@ -337,11 +337,6 @@ public class JMeterService {
 
         String uri = String.format(BASE_URL + "/jmeter/api/run", nodeIp, port);
         try {
-            File file = new File(FileUtils.BODY_FILE_DIR + "/tmp");
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(testId);
             runRequest.setDebug(isDebug);
@@ -355,10 +350,17 @@ public class JMeterService {
             }
             runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
             MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
+            File file = new File(FileUtils.BODY_FILE_DIR + "/" + UUID.randomUUID().toString());
             if (CollectionUtils.isEmpty(multipartFiles)) {
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
                 multipartFiles.add(new FileSystemResource(file));
             }
             if (CollectionUtils.isEmpty(jarFiles)) {
+                if (!file.exists()) {
+                    file.createNewFile();
+                }
                 jarFiles.add(new FileSystemResource(file));
             }
             postParameters.put("files", multipartFiles);
@@ -376,6 +378,9 @@ public class JMeterService {
                 ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
                 apiScenarioReportService.delete(testId);
                 MSException.throwException("执行失败：" + result);
+            }
+            if (file.exists()) {
+                file.delete();
             }
         } catch (Exception e) {
             e.printStackTrace();
