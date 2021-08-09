@@ -508,3 +508,20 @@ export function getNodePath(id, moduleOptions) {
 export function getDefaultTableHeight() {
   return document.documentElement.clientHeight - 200;
 }
+
+export function fullScreenLoading(component) {
+  return component.$loading({
+    lock: true,
+    text: '资源切换中...',
+    spinner: 'el-icon-loading',
+    background: 'rgba(218,218,218,0.6)',
+    customClass: 'ms-full-loading'
+  });
+}
+
+export function stopFullScreenLoading(loading, timeout) {
+  timeout = timeout ? timeout : 2000;
+  setTimeout(() => {
+    loading.close();
+  }, timeout);
+}

@@ -32,7 +32,7 @@
                                 v-permission="['PROJECT_PERFORMANCE_TEST:READ+SCHEDULE']"
                                 :check-open="checkScheduleEdit" :test-id="testId" :custom-validate="durationValidate"/>
 
-            <ms-tip-button v-if="test.scenarioId"
+            <ms-tip-button v-if="test.isNeedUpdate"
                            class="sync-btn" type="primary" size="small" circle
                            icon="el-icon-connection"
                            @click="syncScenario"
@@ -156,11 +156,24 @@ export default {
         if (apiTest.jmx.scenarioId) {
           this.$refs.basicConfig.importScenario(apiTest.jmx.scenarioId);
           this.$refs.basicConfig.handleUpload();
-          this.$set(this.test, "scenarioId", apiTest.jmx.scenarioId);
-          this.$set(this.test, "scenarioVersion", apiTest.jmx.version);
+          let relateApiList = [];
+          relateApiList.push({
+            apiId : apiTest.jmx.scenarioId,
+            apiVersion: apiTest.jmx.version,
+            type: 'SCENARIO'
+          });
+          this.$set(this.test, "apiList", relateApiList);
         }
         if (apiTest.jmx.caseId) {
           this.$refs.basicConfig.importCase(apiTest.jmx);
+          let relateApiList = [];
+          relateApiList.push({
+            apiId : apiTest.jmx.caseId,
+            apiVersion: apiTest.jmx.version,
+            envId: apiTest.jmx.envId,
+            type: 'API_CASE'
+          });
+          this.$set(this.test, "apiList", relateApiList);
         }
         if (JSON.stringify(apiTest.jmx.attachFiles) !== "{}") {
           let attachFiles = [];
@@ -177,11 +190,17 @@ export default {
         let scenarioJmxs = this.$store.state.scenarioJmxs;
         if (scenarioJmxs && scenarioJmxs.name) {
           this.$set(this.test, "name", scenarioJmxs.name);
+          let relateApiList = [];
           if (scenarioJmxs.jmxs) {
             scenarioJmxs.jmxs.forEach(item => {
               if (item.scenarioId) {
                 this.$refs.basicConfig.importScenario(item.scenarioId);
                 this.$refs.basicConfig.handleUpload();
+                relateApiList.push({
+                  apiId : item.scenarioId,
+                  apiVersion: item.version,
+                  type: 'SCENARIO'
+                });
               }
               if (item.caseId) {
                 this.$refs.basicConfig.importCase(item);
@@ -195,6 +214,7 @@ export default {
                   this.$refs.basicConfig.selectAttachFileById(attachFiles);
                 }
               }
+              this.$set(this.test, "apiList", relateApiList);
             });
             this.active = '1';
             this.$store.commit("clearScenarioJmxs");

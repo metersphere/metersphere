@@ -1,26 +1,52 @@
 <template>
-  <ms-container v-loading="loading">
+  <ms-container>
     <ms-main-container>
       <el-card>
         <section class="report-container">
-          <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport"/>
+          <div style="margin-top: 10px">
+            <ms-api-report-view-header
+              :debug="debug"
+              :export-flag="exportFlag"
+              :report="report"
+              @reportExport="handleExport"
+              @reportSave="handleSave"/>
+          </div>
           <main>
-            <ms-metric-chart :content="content" :totalTime="totalTime" v-if="!loading"/>
+            <ms-metric-chart
+              :content="content"
+              :totalTime="totalTime"
+              v-if="!loading"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :treeData="fullTreeNodes" :default-expand="true" :console="content.console" v-on:requestResult="requestResult"/>
+                  <ms-scenario-results
+                    :treeData="fullTreeNodes"
+                    :default-expand="true"
+                    :console="content.console"
+                    v-on:requestResult="requestResult"
+                  />
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
-                    <span class="fail">{{ $t('api_report.fail') }}</span>
+                    <span class="fail">
+                      {{ $t('api_report.fail') }}
+                    </span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :console="content.console" :treeData="failsTreeNodes"/>
+                  <ms-scenario-results
+                    :console="content.console"
+                    :treeData="failsTreeNodes"
+                    v-on:requestResult="requestResult"
+                  />
                 </el-tab-pane>
               </el-tabs>
             </div>
-            <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
-                                  :content="content" :total-time="totalTime"/>
+            <ms-api-report-export
+              :title="report.testName"
+              :content="content"
+              :total-time="totalTime"
+              id="apiTestReport"
+              v-if="reportExportVisible"
+            />
           </main>
         </section>
       </el-card>
@@ -40,7 +66,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
-import {windowPrint, getCurrentProjectID} from "@/common/js/utils";
+import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {ELEMENTS} from "../scenario/Setting";
 
 export default {
@@ -61,6 +87,8 @@ export default {
       failsTreeNodes: [],
       totalTime: 0,
       isRequestResult: false,
+      startTime: 99991611737506593,
+      endTime: 0,
       request: {},
       isActive: false,
       scenarioName: null,
@@ -69,6 +97,9 @@ export default {
       fullTreeNodes: [],
       debugResult: new Map,
       scenarioMap: new Map,
+      exportFlag: false,
+      messageWebSocket: {},
+      websocket: {}
     }
   },
   activated() {
@@ -82,6 +113,7 @@ export default {
         this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
         this.initTree();
         this.initWebSocket();
+        this.initMessageSocket();
         this.clearDebug();
       }
     }
@@ -107,6 +139,7 @@ export default {
             this.content.scenarioStepTotal = obj.hashTree.length;
             this.initTree();
             this.initWebSocket();
+            this.initMessageSocket();
             this.clearDebug();
             this.loading = false;
           }
@@ -115,7 +148,7 @@ export default {
     },
     initTree() {
       this.fullTreeNodes = [];
-      let obj = {index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+      let obj = {index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
       this.formatContent(this.scenario.scenarioDefinition.hashTree, obj);
       this.fullTreeNodes.push(obj);
     },
@@ -127,14 +160,15 @@ export default {
             for (let i = 0; i < arrValue.length; i++) {
               let obj = {resId: item.resId, index: i, label: item.resId, value: arrValue[i], children: []};
               let isAdd = true;
-              arr.forEach(obj => {
-                if (obj.value.name === arrValue[i].name) {
+              for (let h = 0; h < arr.length; h++) {
+                let node = arr [h];
+                if (node.value.name === arrValue[i].name) {
                   isAdd = false;
                 }
-                if (obj.value.name.indexOf("循环-") === -1) {
-                  arr.splice(0, 1);
+                if (node.resId === arrValue[i].resourceId && node.value.unexecute) {
+                  arr.splice(h, 1);
                 }
-              })
+              }
               if (isAdd) {
                 arr.push(obj);
               }
@@ -148,12 +182,13 @@ export default {
         }
       })
     },
-    formatContent(hashTree, tree) {
+    formatContent(hashTree, tree, fullPath) {
       if (hashTree) {
         hashTree.forEach(item => {
           if (item.enable) {
+            item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
             let name = item.name ? item.name : item.type;
-            let obj = {resId: item.resourceId, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true}, children: [], unsolicited: true};
+            let obj = {resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
             tree.children.push(obj);
             if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
               obj.unsolicited = false;
@@ -162,7 +197,7 @@ export default {
               this.content.scenarioTotal += 1;
             }
             if (item.hashTree && item.hashTree.length > 0 && ELEMENTS.get("AllSamplerProxy").indexOf(item.type) === -1) {
-              this.formatContent(item.hashTree, obj);
+              this.formatContent(item.hashTree, obj, item.parentIndex);
             }
           }
         })
@@ -214,14 +249,6 @@ export default {
       const uri = protocol + window.location.host + "/api/scenario/report/get/real/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
-      this.websocket.onopen = this.onOpen;
-      this.websocket.onerror = this.onError;
-      this.websocket.onclose = this.onClose;
-    },
-    onOpen() {
-    },
-    onError(e) {
-      window.console.error(e)
     },
     onMessage(e) {
       if (e.data) {
@@ -234,21 +261,45 @@ export default {
         }
       }
     },
-    onClose(e) {
-      if (e.code === 1005) {
-        return;
-      }
-    },
     removeReport() {
       let url = "/api/scenario/report/remove/real/" + this.reportId;
       this.$get(url, response => {
         this.$success(this.$t('schedule.event_success'));
+        this.websocket.close();
+        this.messageWebSocket.close();
       });
+    },
+    getTransaction(transRequests, resMap) {
+      transRequests.forEach(subItem => {
+        if (subItem.method === 'Request') {
+          this.getTransaction(subItem.subRequestResults, resMap);
+        }
+        this.reqTotal++;
+        let key = subItem.resourceId;
+        if (resMap.get(key)) {
+          if (resMap.get(key).indexOf(subItem) === -1) {
+            resMap.get(key).push(subItem);
+          }
+        } else {
+          resMap.set(key, [subItem]);
+        }
+        if (subItem.success) {
+          this.reqSuccess++;
+        } else {
+          this.reqError++;
+        }
+        if (subItem.startTime && Number(subItem.startTime) < this.startTime) {
+          this.startTime = subItem.startTime;
+        }
+        if (subItem.endTime && Number(subItem.endTime) > this.endTime) {
+          this.endTime = subItem.endTime;
+        }
+      })
     },
     formatResult(res) {
       let resMap = new Map;
-      let startTime = 99991611737506593;
-      let endTime = 0;
+      this.startTime = 99991611737506593;
+      this.endTime = 0;
       this.clearDebug();
       if (res && res.scenarios) {
         res.scenarios.forEach(item => {
@@ -259,28 +310,7 @@ export default {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
               if (req.method === 'Request') {
-                req.subRequestResults.forEach(subItem => {
-                  this.reqTotal++;
-                  let key = subItem.resourceId;
-                  if (resMap.get(key)) {
-                    if (resMap.get(key).indexOf(subItem) === -1) {
-                      resMap.get(key).push(subItem);
-                    }
-                  } else {
-                    resMap.set(key, [subItem]);
-                  }
-                  if (subItem.success) {
-                    this.reqSuccess++;
-                  } else {
-                    this.reqError++;
-                  }
-                  if (subItem.startTime && Number(subItem.startTime) < startTime) {
-                    startTime = subItem.startTime;
-                  }
-                  if (subItem.endTime && Number(subItem.endTime) > endTime) {
-                    endTime = subItem.endTime;
-                  }
-                })
+                this.getTransaction(req.subRequestResults, resMap);
               } else {
                 this.reqTotal++;
                 let key = req.resourceId;
@@ -296,19 +326,19 @@ export default {
                 } else {
                   this.reqError++;
                 }
-                if (req.startTime && Number(req.startTime) < startTime) {
-                  startTime = req.startTime;
+                if (req.startTime && Number(req.startTime) < this.startTime) {
+                  this.startTime = req.startTime;
                 }
-                if (req.endTime && Number(req.endTime) > endTime) {
-                  endTime = req.endTime;
+                if (req.endTime && Number(req.endTime) > this.endTime) {
+                  this.endTime = req.endTime;
                 }
               }
             })
           }
         })
       }
-      if (startTime < endTime) {
-        this.totalTime = endTime - startTime + 100;
+      if (this.startTime < this.endTime) {
+        this.totalTime = this.endTime - this.startTime + 100;
       }
       this.debugResult = resMap;
       this.setTreeValue(this.fullTreeNodes);
@@ -357,6 +387,7 @@ export default {
         })
         this.formatTree(array, this.failsTreeNodes);
         this.recursiveSorting(this.failsTreeNodes);
+        this.exportFlag = true;
       }
     },
     formatTree(array, tree) {
@@ -451,6 +482,60 @@ export default {
         }
       }
     },
+    handleSave() {
+      if (!this.report.name) {
+        this.$warning(this.$t('api_test.automation.report_name_info'));
+        return;
+      }
+      this.loading = true;
+      this.report.projectId = this.projectId;
+      let url = "/api/scenario/report/update";
+      this.result = this.$post(url, this.report, response => {
+        this.$success(this.$t('commons.save_success'));
+        this.loading = false;
+        this.$emit('refresh');
+      }, error => {
+        this.loading = false;
+      });
+    },
+
+    initMessageSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/ws/" + this.reportId;
+      this.messageWebSocket = new WebSocket(uri);
+      this.messageWebSocket.onmessage = this.onMessage2;
+    },
+
+    runningNodeChild(arr, resourceId) {
+      arr.forEach(item => {
+        if (resourceId === item.resId) {
+          item.value.testing = true;
+        }
+        if (item.children && item.children.length > 0) {
+          this.runningNodeChild(item.children, resourceId);
+        }
+      })
+    },
+    runningEvaluation(resourceId) {
+      if (this.fullTreeNodes) {
+        this.fullTreeNodes.forEach(item => {
+          if (resourceId === item.resId) {
+            item.value.testing = true;
+          }
+          if (item.children && item.children.length > 0) {
+            this.runningNodeChild(item.children, resourceId);
+          }
+        })
+      }
+    },
+    onMessage2(e) {
+      if (e.data) {
+        this.runningEvaluation(e.data);
+      }
+    },
   },
   computed: {
     projectId() {
@@ -475,10 +560,6 @@ export default {
 
 .report-header {
   font-size: 15px;
-}
-
-/deep/ .el-card__body {
-  padding: 0px;
 }
 
 .report-header a {

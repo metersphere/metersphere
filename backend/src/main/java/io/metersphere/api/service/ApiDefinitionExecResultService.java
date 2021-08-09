@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -24,6 +25,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,6 +36,7 @@ import java.util.*;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionExecResultService {
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
@@ -61,15 +65,21 @@ public class ApiDefinitionExecResultService {
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiDefinitionExecResultMapper definitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+            final boolean[] isFirst = {true};
             result.getScenarios().forEach(scenarioResult -> {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                     scenarioResult.getRequestResults().forEach(item -> {
                         ApiDefinitionExecResult saveResult = definitionExecResultMapper.selectByPrimaryKey(result.getTestId());
                         item.getResponseResult().setConsole(result.getConsole());
                         boolean saved = true;
-                        if (saveResult == null) {
+                        if (saveResult == null || scenarioResult.getRequestResults().size() > 1) {
                             saveResult = new ApiDefinitionExecResult();
-                            saveResult.setId(result.getTestId());
+                            if (isFirst[0]) {
+                                isFirst[0] = false;
+                                saveResult.setId(result.getTestId());
+                            } else {
+                                saveResult.setId(UUID.randomUUID().toString());
+                            }
                             saveResult.setActuator("LOCAL");
                             saveResult.setName(item.getName());
                             saveResult.setTriggerMode(triggerMode);
@@ -90,21 +100,22 @@ public class ApiDefinitionExecResultService {
                         saveResult.setStartTime(item.getStartTime());
                         saveResult.setEndTime(item.getResponseResult().getResponseTime());
 
-                        // 清空上次执行结果的内容，只保留当前最新一条内容
+                        // 清空上次执行结果的内容，只保留近五条结果
                         ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
                         if (prevResult != null) {
                             prevResult.setContent(null);
                             definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
                         // 更新用例最后执行结果
-                        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
-                        apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
-                        apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
-
+                        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(saveResult.getResourceId());
+                        if (apiTestCase != null) {
+                            apiTestCase.setLastResultId(saveResult.getId());
+                            apiTestCase.setStatus(status);
+                            apiTestCaseMapper.updateByPrimaryKey(apiTestCase);
+                        }
                         if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                             saveResult.setTriggerMode(TriggerMode.MANUAL.name());
                         }
-                        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
                         if (!saved) {
                             definitionExecResultMapper.insert(saveResult);
                         } else {
@@ -121,7 +132,7 @@ public class ApiDefinitionExecResultService {
         if (id.indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
             return id.substring(0, id.indexOf(DelimiterConstants.SEPARATOR.toString()));
         }
-        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(),ApiRunMode.SCHEDULE_API_PLAN.name(),ApiRunMode.JENKINS_API_PLAN.name())) {
+        if (StringUtils.equalsAnyIgnoreCase(type, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(id);
             ApiTestCaseWithBLOBs caseWithBLOBs = null;
             if (testPlanApiCase != null) {
@@ -157,14 +168,15 @@ public class ApiDefinitionExecResultService {
      * @param result
      * @param type
      */
-    public void saveApiResultByScheduleTask(TestResult result,String testPlanReportId, String type,String trigeMode) {
+    public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type, String trigeMode) {
+        testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER.");
         String saveResultType = type;
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
         String finalSaveResultType = saveResultType;
 
-        Map<String,String> apiIdResultMap = new HashMap<>();
+        Map<String, String> apiIdResultMap = new HashMap<>();
 
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             result.getScenarios().forEach(scenarioResult -> {
@@ -179,13 +191,13 @@ public class ApiDefinitionExecResultService {
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
                         if (apiDefinitionWithBLOBs != null) {
                             saveResult.setName(apiDefinitionWithBLOBs.getName());
-                            apiIdResultMap.put(apiDefinitionWithBLOBs.getId(),item.isSuccess()? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                            apiIdResultMap.put(apiDefinitionWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                         } else {
                             ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
                             if (caseWithBLOBs != null) {
                                 saveResult.setName(caseWithBLOBs.getName());
-                                apiIdResultMap.put(caseWithBLOBs.getId(),item.isSuccess()? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
-                            }else {
+                                apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                            } else {
                                 caseWithBLOBs = testPlanApiCaseService.getApiTestCaseById(item.getName());
                                 if (caseWithBLOBs != null) {
                                     saveResult.setName(caseWithBLOBs.getName());
@@ -238,9 +250,9 @@ public class ApiDefinitionExecResultService {
                 }
             });
         }
-
+        testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateExecuteApis(testPlanReportId,apiIdResultMap,null,null);
+        testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
     }
 
     public void deleteByResourceId(String resourceId) {

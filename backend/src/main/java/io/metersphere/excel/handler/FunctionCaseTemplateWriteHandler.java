@@ -3,7 +3,9 @@ package io.metersphere.excel.handler;
 import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
 import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
 import com.alibaba.excel.write.style.row.AbstractRowHeightStyleStrategy;
+import com.alibaba.fastjson.JSONArray;
 import io.metersphere.i18n.Translator;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.ss.usermodel.Comment;
 import org.apache.poi.ss.usermodel.Drawing;
@@ -11,10 +13,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFRichTextString;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * @author song.tianyang
@@ -26,9 +26,11 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
     private boolean isNeedId;
     List<List<String>> headList = new ArrayList<>();
     Map<String,Integer> rowDispseIndexMap;
-    public FunctionCaseTemplateWriteHandler(boolean isNeedId,List<List<String>> headList){
+    Map<String,List<String>> caseLevelAndStatusValueMap;
+    public FunctionCaseTemplateWriteHandler(boolean isNeedId,List<List<String>> headList,Map<String,List<String>> caseLevelAndStatusValueMap){
         this.isNeedId = isNeedId;
         rowDispseIndexMap = this.buildFiledMap(headList);
+        this.caseLevelAndStatusValueMap = caseLevelAndStatusValueMap;
     }
 
     private Map<String, Integer> buildFiledMap(List<List<String>> headList) {
@@ -41,12 +43,16 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                     returnMap.put("ID",index);
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"所属模块","所屬模塊","Module")){
                     returnMap.put("Module",index);
-                }else if(StringUtils.equalsAnyIgnoreCase(head,"责任人","維護人","Maintainer")){
+                }else if(StringUtils.equalsAnyIgnoreCase(head,"责任人(ID)","維護人(ID)","Maintainer(ID)")){
                     returnMap.put("Maintainer",index);
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"用例等级","用例等級","Priority")){
                     returnMap.put("Priority",index);
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"标签","標簽","Tag")){
                     returnMap.put("Tag",index);
+                }else if(StringUtils.equalsAnyIgnoreCase(head,"用例状态","用例狀態","Case status")){
+                    returnMap.put("Status",index);
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "编辑模式", "編輯模式", "Edit Model")) {
+                    returnMap.put("StepModel",index);
                 }
                 index ++;
             }
@@ -90,15 +96,37 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Maintainer")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
-                        comment.setString(new XSSFRichTextString(Translator.get("please_input_workspace_member")));
+                        comment.setString(new XSSFRichTextString(Translator.get("please_input_project_member")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Priority")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
-                        comment.setString(new XSSFRichTextString(Translator.get("options") + "（P0、P1、P2、P3）"));
+                        List<String> list = new ArrayList<>();
+                        if(caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseLevel")){
+                            list = caseLevelAndStatusValueMap.get("caseLevel");
+                        }
+                        if(CollectionUtils.isEmpty(list)){
+                            comment.setString(new XSSFRichTextString(Translator.get("options") + "（P0、P1、P2、P3）"));
+                        }else {
+                            comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
+                        }
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Tag")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
                         comment.setString(new XSSFRichTextString(Translator.get("tag_tip_pattern")));
+                        sheet.getRow(0).getCell(1).setCellComment(comment);
+                    }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Status")){
+                        List<String> list = new ArrayList<>();
+                        if(caseLevelAndStatusValueMap != null && caseLevelAndStatusValueMap.containsKey("caseStatus")){
+                            list = caseLevelAndStatusValueMap.get("caseStatus");
+                        }
+                        if(!CollectionUtils.isEmpty(list)){
+                            Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                            comment.setString(new XSSFRichTextString(Translator.get("options") + JSONArray.toJSONString(list)));
+                            sheet.getRow(0).getCell(1).setCellComment(comment);
+                        }
+                    } else if (StringUtils.equalsAnyIgnoreCase(coloum, "StepModel")) {
+                        Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
+                        comment.setString(new XSSFRichTextString(Translator.get("step_model_tip")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }
                 }

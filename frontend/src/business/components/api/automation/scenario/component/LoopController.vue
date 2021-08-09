@@ -71,7 +71,11 @@
       </div>
 
       <template v-slot:debugStepCode>
-        <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
+        <span v-if="node.data.testing" class="ms-test-running">
+           <i class="el-icon-loading" style="font-size: 16px"/>
+           {{ $t('commons.testing') }}
+         </span>
+        <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && !node.data.testing && node.data.debug">
           {{ getCode() }}
         </span>
       </template>
@@ -164,7 +168,7 @@ export default {
   },
   methods: {
     getCode() {
-      if (this.node && this.node.data.debug) {
+      if (this.node && this.node.data.code && this.node.data.debug) {
         if (this.node.data.code && this.node.data.code === 'error') {
           return 'error';
         } else {
@@ -303,7 +307,7 @@ export default {
             item.result = this.requestResult;
             item.activeName = this.activeName;
             item.active = true;
-            item.requestResult = undefined;
+            item.requestResult = [];
           }
           if (item.hashTree && item.hashTree.length > 0) {
             this.setResult(item.hashTree);
@@ -396,6 +400,10 @@ export default {
 
 /deep/ .el-radio {
   margin-right: 5px;
+}
+
+.ms-test-running {
+  color: #6D317C;
 }
 
 .ms-step-debug-code {

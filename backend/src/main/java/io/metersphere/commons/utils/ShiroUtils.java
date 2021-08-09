@@ -1,7 +1,10 @@
 package io.metersphere.commons.utils;
 
+import io.metersphere.security.CustomSessionIdGenerator;
+import io.metersphere.security.CustomSessionManager;
 import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.session.mgt.SessionManager;
+import org.apache.shiro.session.mgt.eis.AbstractSessionDAO;
 import org.apache.shiro.web.servlet.Cookie;
 import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
@@ -57,6 +60,8 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/v1/health/**", "anon");
         //mock接口
         filterChainDefinitionMap.put("/mock/**", "anon");
+        filterChainDefinitionMap.put("/ws/**", "anon");
+
     }
 
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
@@ -76,13 +81,15 @@ public class ShiroUtils {
     }
 
     public static SessionManager getSessionManager(Long sessionTimeout, CacheManager cacheManager){
-        DefaultWebSessionManager sessionManager = new DefaultWebSessionManager();
+        DefaultWebSessionManager sessionManager = new CustomSessionManager();
         sessionManager.setSessionIdUrlRewritingEnabled(false);
         sessionManager.setDeleteInvalidSessions(true);
         sessionManager.setSessionValidationSchedulerEnabled(true);
         sessionManager.setSessionIdCookie(ShiroUtils.getSessionIdCookie());
         sessionManager.setGlobalSessionTimeout(sessionTimeout * 1000);// 超时时间ms
         sessionManager.setCacheManager(cacheManager);
+        AbstractSessionDAO sessionDAO = (AbstractSessionDAO) sessionManager.getSessionDAO();
+        sessionDAO.setSessionIdGenerator(new CustomSessionIdGenerator());
 
         //sessionManager.setSessionIdCookieEnabled(true);
         return sessionManager;

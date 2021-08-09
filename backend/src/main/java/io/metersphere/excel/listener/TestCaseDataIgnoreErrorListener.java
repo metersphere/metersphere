@@ -6,10 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ListUtils;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.utils.ExcelValidateHelper;
@@ -19,8 +16,6 @@ import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -132,8 +127,12 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
             }
         }
         //校验维护人
-        if (!userIds.contains(data.getMaintainer())) {
-            stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
+        if (StringUtils.isBlank(data.getMaintainer())) {
+            data.setMaintainer(SessionUtils.getUserId());
+        } else {
+            if (!userIds.contains(data.getMaintainer())) {
+                stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
+            }
         }
 
         /*
@@ -259,11 +258,11 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if(StringUtils.equalsAny(data.getStatus(),"Underway","进行中","進行中")){
+        if(StringUtils.equalsAny(data.getStatus(),"Underway","underway","进行中","進行中")){
             caseStatusValue = "Underway";
-        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","未开始","未開始")){
+        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","prepare","未开始","未開始")){
             caseStatusValue = "Prepare";
-        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","已完成","已完成")){
+        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","completed","已完成","已完成")){
             caseStatusValue = "Completed";
         }
         if(StringUtils.isNotEmpty(caseStatusValue)){
@@ -330,11 +329,11 @@ public class TestCaseDataIgnoreErrorListener extends EasyExcelListener<TestCaseE
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if(StringUtils.equalsAny(data.getStatus(),"Underway","进行中","進行中")){
+        if(StringUtils.equalsAny(data.getStatus(),"Underway","underway","进行中","進行中")){
             caseStatusValue = "Underway";
-        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","未开始","未開始")){
+        }else if(StringUtils.equalsAny(data.getStatus(),"Prepare","prepare","未开始","未開始")){
             caseStatusValue = "Prepare";
-        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","已完成","已完成")){
+        }else if(StringUtils.equalsAny(data.getStatus(),"Completed","completed","已完成","已完成")){
             caseStatusValue = "Completed";
         }
         if(StringUtils.isNotEmpty(caseStatusValue)){

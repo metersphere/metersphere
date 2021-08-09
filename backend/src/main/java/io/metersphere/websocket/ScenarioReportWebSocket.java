@@ -1,18 +1,22 @@
 package io.metersphere.websocket;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @ServerEndpoint("/api/scenario/report/get/real/{reportId}")
 @Component
@@ -31,6 +35,7 @@ public class ScenarioReportWebSocket {
      */
     @OnOpen
     public void onOpen(@PathParam("reportId") String reportId, Session session) {
+        MessageCache.reportCache.put(reportId, session);
         Timer timer = new Timer(true);
         ApiDebugResultTask task = new ApiDebugResultTask(session, reportId);
         timer.schedule(task, 0, 1000);
@@ -46,6 +51,13 @@ public class ScenarioReportWebSocket {
         if (timer != null) {
             timer.cancel();
             refreshTasks.remove(session);
+        }
+        // 清理掉过程数据
+        List<String> reports = MessageCache.reportCache.entrySet().stream()
+                .filter(x -> x.getValue() == session).map(x -> x.getKey())
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(reports)) {
+            resultService.delete(reports.get(0));
         }
     }
 
@@ -88,7 +100,7 @@ public class ScenarioReportWebSocket {
         @Override
         public void run() {
             try {
-                TestResult report = resultService.getResult(reportId);
+                TestResult report = resultService.sysnSampleResult(reportId);
                 if (!session.isOpen()) {
                     return;
                 }

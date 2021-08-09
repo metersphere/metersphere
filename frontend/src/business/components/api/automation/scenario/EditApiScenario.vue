@@ -45,7 +45,7 @@
                   <el-option
                     v-for="item in maintainerOptions"
                     :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
+                    :label="item.name + ' (' + item.id + ')'"
                     :value="item.id">
                   </el-option>
                 </el-select>
@@ -152,7 +152,7 @@
                         </el-dropdown-menu>
                       </el-dropdown>
                     </el-tooltip>
-                    <el-button icon="el-icon-loading" size="mini" type="primary" :disabled="debug" v-else>执行中</el-button>
+                    <el-button size="mini" type="primary" v-else @click="stop">{{ $t('report.stop_btn') }}</el-button>
                     <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="top-start">
                       <el-button :disabled="scenarioDefinition.length < 1" size="mini" icon="el-icon-refresh"
                                  v-prevent-re-click @click="getApiScenario"></el-button>
@@ -180,6 +180,9 @@
               <el-tooltip :content="$t('api_test.scenario.enable')" placement="top" effect="light" v-else>
                 <font-awesome-icon class="ms-open-btn" :icon="['fas', 'toggle-on']" v-prevent-re-click @click="disableAll"/>
               </el-tooltip>
+              <el-link style="float:right;margin-right: 20px;margin-top: 3px" type="primary" @click.stop @click="showHistory">
+                {{ $t("commons.debug_history") }}
+              </el-link>
               <div class="ms-debug-result" v-if="debug">
                 <span class="ms-message-right"> {{ reqTotalTime }} ms </span>
                 <span class="ms-message-right">{{ $t('api_test.automation.request_total') }} {{ reqTotal }}</span>
@@ -195,9 +198,22 @@
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
-                       <ms-component-config :message="message" :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario" :expandedNode="expandedNode"
-                                            :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
+                       <ms-component-config
+                         :message="message"
+                         :type="data.type"
+                         :scenario="data"
+                         :response="response"
+                         :currentScenario="currentScenario"
+                         :expandedNode="expandedNode"
+                         :currentEnvironmentId="currentEnvironmentId"
+                         :node="node"
+                         :project-list="projectList"
+                         :env-map="projectEnvMap"
+                         @remove="remove"
+                         @copyRow="copyRow"
+                         @suggestClick="suggestClick"
+                         @refReload="refReload"
+                         @openScenario="openScenario"/>
                     </span>
               </el-tree>
             </div>
@@ -206,7 +222,7 @@
           <el-col :span="3">
             <div @click="fabClick">
               <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
-                       :click-auto-close="false" v-outside-click="outsideClick">
+                       :click-auto-close="false" v-outside-click="outsideClick" ref="refFab">
                 <fab-item
                   v-for="(item, index) in buttons"
                   :key="index"
@@ -257,25 +273,50 @@
       <!--步骤最大化-->
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
-          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap"
-                           :projectIds.sync="projectIds" :projectList="projectList"
-                           :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           :onSampleError="onSampleError"
-                           :execDebug="stopDebug"
-                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen"
-                           @showAllBtn="showAllBtn" @runDebug="runDebug" @handleCommand="handleCommand" @setProjectEnvMap="setProjectEnvMap"
-                           @showScenarioParameters="showScenarioParameters"
-                           @setCookieShare="setCookieShare" @setSampleError="setSampleError"
-                           ref="maximizeHeader"/>
+          <scenario-header
+            :currentScenario="currentScenario"
+            :projectEnvMap="projectEnvMap"
+            :projectIds.sync="projectIds"
+            :projectList="projectList"
+            :scenarioDefinition="scenarioDefinition"
+            :enableCookieShare="enableCookieShare"
+            :onSampleError="onSampleError"
+            :execDebug="stopDebug"
+            :isFullUrl.sync="isFullUrl"
+            @closePage="close"
+            @unFullScreen="unFullScreen"
+            @showAllBtn="showAllBtn"
+            @runDebug="runDebug"
+            @handleCommand="handleCommand"
+            @setProjectEnvMap="setProjectEnvMap"
+            @showScenarioParameters="showScenarioParameters"
+            @setCookieShare="setCookieShare"
+            @setSampleError="setSampleError"
+            @stop="stop"
+            ref="maximizeHeader"/>
         </template>
 
-        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
-                           :req-error="reqError" :req-success="reqSuccess" :req-total="reqTotal" :req-total-time="reqTotalTime"
-                           :currentScenario="currentScenario" :type="type" :debug="debug" :reloadDebug="reloadDebug" :stepReEnable="stepEnable" ref="maximizeScenario" @openScenario="openScenario"/>
+        <maximize-scenario
+          :scenario-definition="scenarioDefinition"
+          :envMap="projectEnvMap"
+          :moduleOptions="moduleOptions"
+          :req-error="reqError"
+          :req-success="reqSuccess"
+          :req-total="reqTotal"
+          :req-total-time="reqTotalTime"
+          :currentScenario="currentScenario"
+          :type="type"
+          :debug="debug"
+          :reloadDebug="reloadDebug"
+          :stepReEnable="stepEnable"
+          :message="message"
+          @openScenario="openScenario"
+          ref="maximizeScenario"/>
       </ms-drawer>
       <ms-change-history ref="changeHistory"/>
-
+      <el-backtop target=".card-content" :visibility-height="100" :right="50"></el-backtop>
     </div>
+    <ms-task-center ref="taskCenter"/>
   </el-card>
 </template>
 
@@ -311,6 +352,7 @@ import MsDrawer from "../../../common/components/MsDrawer";
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
 import MsChangeHistory from "../../../history/ChangeHistory";
+import MsTaskCenter from "../../../task/TaskCenter";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -339,7 +381,8 @@ export default {
     ScenarioHeader,
     MsDrawer,
     MsSelectTree,
-    MsChangeHistory
+    MsChangeHistory,
+    MsTaskCenter
   },
   data() {
     return {
@@ -417,6 +460,8 @@ export default {
       isTop: false,
       stepSize: 0,
       message: "",
+      websocket: {},
+      messageWebSocket: {},
     }
   },
   created() {
@@ -434,6 +479,7 @@ export default {
     this.$nextTick(() => {
       this.addListener();
     });
+    this.$refs.refFab.openMenu();
   },
   directives: {OutsideClick},
   computed: {
@@ -443,6 +489,22 @@ export default {
     },
   },
   methods: {
+    stop() {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, response => {
+        this.debugLoading = false;
+        if (this.websocket) {
+          this.websocket.close();
+        }
+        if (this.messageWebSocket) {
+          this.messageWebSocket.close();
+        }
+        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+        this.clearDebug();
+        this.$success(this.$t('report.test_stop_success'));
+        this.reload();
+      });
+    },
     clearDebug() {
       this.reqError = 0;
       this.reqTotalTime = 0;
@@ -452,7 +514,7 @@ export default {
     clearResult(arr) {
       if (arr) {
         arr.forEach(item => {
-          item.requestResult = undefined;
+          item.requestResult = [];
           item.result = undefined;
           item.code = undefined;
           if (item.hashTree && item.hashTree.length > 0) {
@@ -461,30 +523,51 @@ export default {
         })
       }
     },
-    editParent(node, status) {
+    clearNodeStatus(arr) {
+      if (arr) {
+        arr.forEach(item => {
+          item.code = undefined;
+          item.data.code = undefined;
+          item.testing = undefined;
+          item.data.testing = undefined;
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.clearNodeStatus(item.childNodes);
+          }
+        })
+      }
+    },
+    evaluationParent(node, status) {
+      if (!node.data.code) {
+        node.data.code = "success";
+      }
       if (!status) {
         node.data.code = "error";
       }
+      node.data.testing = false;
       node.data.debug = true;
       if (node.parent && node.parent.data && node.parent.data.id) {
-        this.editParent(node.parent, status);
+        this.evaluationParent(node.parent, status);
       }
     },
-    findNodeChild(arr, resourceId, status) {
+    resultEvaluationChild(arr, resourceId, status) {
       arr.forEach(item => {
-        if (item.data.resourceId === resourceId) {
-          this.editParent(item.parent, status);
+        if (item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+          item.data.testing = false;
+          this.evaluationParent(item.parent, status);
         }
         if (item.childNodes && item.childNodes.length > 0) {
-          this.findNodeChild(item.childNodes, resourceId, status);
+          this.resultEvaluationChild(item.childNodes, resourceId, status);
         }
       })
     },
-    findNode(resourceId, status) {
+    resultEvaluation(resourceId, status) {
       if (this.$refs.stepTree && this.$refs.stepTree.root) {
         this.$refs.stepTree.root.childNodes.forEach(item => {
+          if (item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+            item.data.testing = false;
+          }
           if (item.childNodes && item.childNodes.length > 0) {
-            this.findNodeChild(item.childNodes, resourceId, status);
+            this.resultEvaluationChild(item.childNodes, resourceId, status);
           }
         })
       }
@@ -497,14 +580,6 @@ export default {
       const uri = protocol + window.location.host + "/api/scenario/report/get/real/" + this.reportId;
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
-      this.websocket.onopen = this.onOpen;
-      this.websocket.onerror = this.onError;
-      this.websocket.onclose = this.onClose;
-    },
-    onOpen() {
-    },
-    onError(e) {
-      window.console.error(e)
     },
     onMessage(e) {
       if (e.data) {
@@ -518,12 +593,79 @@ export default {
         }
       }
     },
-    onClose(e) {
-      if (e.code === 1005) {
-        // 强制删除之后关闭socket，不用刷新report
-        return;
+    getTransaction(transRequests, startTime, endTime, resMap) {
+      transRequests.forEach(subItem => {
+        if (subItem.method === 'Request') {
+          this.getTransaction(subItem.subRequestResults, startTime, endTime, resMap);
+        }
+        this.reqTotal++;
+        let key = subItem.resourceId;
+        if (resMap.get(key)) {
+          if (resMap.get(key).indexOf(subItem) === -1) {
+            resMap.get(key).push(subItem);
+          }
+        } else {
+          resMap.set(key, [subItem]);
+        }
+        if (subItem.success) {
+          this.reqSuccess++;
+        } else {
+          this.reqError++;
+        }
+        if (subItem.startTime && Number(subItem.startTime) < startTime) {
+          startTime = subItem.startTime;
+        }
+        if (subItem.endTime && Number(subItem.endTime) > endTime) {
+          endTime = subItem.endTime;
+        }
+      })
+    },
+
+    initMessageSocket() {
+      let protocol = "ws://";
+      if (window.location.protocol === 'https:') {
+        protocol = "wss://";
+      }
+      const uri = protocol + window.location.host + "/ws/" + this.reportId;
+      this.messageWebSocket = new WebSocket(uri);
+      this.messageWebSocket.onmessage = this.onMessage2;
+    },
+    runningEditParent(node) {
+      if (node) {
+        node.data.testing = true;
+        if (node.parent && node.parent.data && node.parent.data.id) {
+          this.runningEditParent(node.parent);
+        }
       }
     },
+    runningNodeChild(arr, resourceId) {
+      arr.forEach(item => {
+        if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+          item.data.testing = true;
+          this.runningEditParent(item.parent);
+        }
+        if (item.childNodes && item.childNodes.length > 0) {
+          this.runningNodeChild(item.childNodes, resourceId);
+        }
+      })
+    },
+    runningEvaluation(resourceId) {
+      if (this.$refs.stepTree && this.$refs.stepTree.root) {
+        this.$refs.stepTree.root.childNodes.forEach(item => {
+          if (item.data && item.data.resourceId + "_" + item.data.parentIndex === resourceId) {
+            item.data.testing = true;
+          }
+          if (item.childNodes && item.childNodes.length > 0) {
+            this.runningNodeChild(item.childNodes, resourceId);
+          }
+        })
+      }
+    },
+    onMessage2(e) {
+      this.runningEvaluation(e.data);
+      this.message = getUUID();
+    },
+
     formatResult(res) {
       let resMap = new Map;
       let startTime = 99991611737506593;
@@ -535,28 +677,7 @@ export default {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
               if (req.method === 'Request') {
-                req.subRequestResults.forEach(subItem => {
-                  this.reqTotal++;
-                  let key = subItem.resourceId;
-                  if (resMap.get(key)) {
-                    if (resMap.get(key).indexOf(subItem) === -1) {
-                      resMap.get(key).push(subItem);
-                    }
-                  } else {
-                    resMap.set(key, [subItem]);
-                  }
-                  if (subItem.success) {
-                    this.reqSuccess++;
-                  } else {
-                    this.reqError++;
-                  }
-                  if (subItem.startTime && Number(subItem.startTime) < startTime) {
-                    startTime = subItem.startTime;
-                  }
-                  if (subItem.endTime && Number(subItem.endTime) > endTime) {
-                    endTime = subItem.endTime;
-                  }
-                })
+                this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
               } else {
                 this.reqTotal++;
                 let key = req.resourceId;
@@ -594,6 +715,8 @@ export default {
     removeReport() {
       let url = "/api/scenario/report/remove/real/" + this.reportId;
       this.$get(url, response => {
+        this.messageWebSocket.close();
+        this.websocket.close();
       });
     },
     handleCommand() {
@@ -619,6 +742,7 @@ export default {
                   type: "scenario",
                   variables: this.currentScenario.variables,
                   referenced: 'Created',
+                  onSampleError: this.onSampleError,
                   enableCookieShare: this.enableCookieShare,
                   headers: this.currentScenario.headers,
                   environmentMap: this.projectEnvMap,
@@ -718,6 +842,7 @@ export default {
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
+      this.$store.state.selectStep = data;
     },
     suggestClick(node) {
       this.response = {};
@@ -730,13 +855,14 @@ export default {
       if (!this.customizeVisible && !this.isBtnHide) {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
+        this.$store.state.selectStep = undefined;
       }
     },
     apiListImport() {
       this.isBtnHide = true;
       this.$refs.scenarioApiRelevance.open();
     },
-    sort(stepArray, scenarioProjectId) {
+    sort(stepArray, scenarioProjectId, fullPath) {
       if (!stepArray) {
         stepArray = this.scenarioDefinition;
       }
@@ -761,16 +887,17 @@ export default {
           }
         }
         // 添加debug结果
-        let key = stepArray[i].resourceId;
+        stepArray[i].parentIndex = fullPath ? fullPath + "_" + stepArray[i].index : stepArray[i].index;
+        let key = stepArray[i].resourceId + "_" + stepArray[i].parentIndex;
         if (this.debugResult && this.debugResult.get(key)) {
           stepArray[i].requestResult = this.debugResult.get(key);
           stepArray[i].result = null;
           stepArray[i].debug = this.debug;
-          this.findNode(key, stepArray[i].requestResult[0].success);
+          this.resultEvaluation(key, stepArray[i].requestResult[0].success);
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.stepSize += stepArray[i].hashTree.length;
-          this.sort(stepArray[i].hashTree, stepArray[i].projectId);
+          this.sort(stepArray[i].hashTree, stepArray[i].projectId, stepArray[i].parentIndex);
         }
       }
     },
@@ -797,6 +924,7 @@ export default {
           if (!item.hashTree) {
             item.hashTree = [];
           }
+          this.resetResourceId(item.hashTree);
           item.enable === undefined ? item.enable = true : item.enable;
           if (this.selectedTreeNode !== undefined) {
             this.selectedTreeNode.hashTree.push(item);
@@ -830,7 +958,7 @@ export default {
       request.active = false;
       request.resourceId = getUUID();
       request.projectId = item.projectId;
-      request.requestResult = undefined;
+      request.requestResult = [];
       if (!request.url) {
         request.url = "";
       }
@@ -880,12 +1008,23 @@ export default {
         }
       });
     },
+    resetResourceId(hashTree) {
+      hashTree.forEach(item => {
+        item.resourceId = getUUID();
+        if (item.hashTree && item.hashTree.length > 0) {
+          this.resetResourceId(item.hashTree);
+        }
+      })
+    },
     copyRow(row, node) {
       const parent = node.parent
       const hashTree = parent.data.hashTree || parent.data;
       // 深度复制
       let obj = JSON.parse(JSON.stringify(row));
       obj.resourceId = getUUID();
+      if (obj.hashTree && obj.hashTree.length > 0) {
+        this.resetResourceId(obj.hashTree);
+      }
       if (obj.name) {
         obj.name = obj.name + '_copy';
       }
@@ -911,6 +1050,7 @@ export default {
       this.stopDebug = "";
       this.clearDebug();
       this.clearResult(this.scenarioDefinition);
+      this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
       /*触发执行操作*/
       this.$refs.currentScenario.validate((valid) => {
         if (valid) {
@@ -985,7 +1125,7 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if (dropType != "inner" && (draggingNode.data && !draggingNode.data.disabled)) {
+      if (dropType != "inner") {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
         && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
@@ -1114,6 +1254,10 @@ export default {
           }
           this.loading = false;
           this.sort();
+          // 初始化resourceId
+          if (this.scenarioDefinition) {
+            this.resetResourceId(this.scenarioDefinition);
+          }
         })
       }
     },
@@ -1151,6 +1295,7 @@ export default {
         this.loading = false;
       } else {
         this.initWebSocket();
+        this.initMessageSocket();
       }
     },
     showScenarioParameters() {
@@ -1213,30 +1358,15 @@ export default {
         this.envResult.loading = false;
       })
     },
-    shrinkTreeNode() {
-      //改变每个节点的状态
-      for (let i in this.scenarioDefinition) {
-        if (this.scenarioDefinition[i]) {
-          if (this.expandedStatus && this.expandedNode.indexOf(this.scenarioDefinition[i].resourceId) === -1) {
-            this.expandedNode.push(this.scenarioDefinition[i].resourceId);
-          }
-          if (this.stepSize < 35) {
-            this.scenarioDefinition[i].active = this.expandedStatus;
-          }
-          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.changeNodeStatus(this.scenarioDefinition[i].hashTree);
-          }
-        }
-      }
-    },
     changeNodeStatus(nodes) {
       for (let i in nodes) {
         if (nodes[i]) {
           if (this.expandedStatus) {
             this.expandedNode.push(nodes[i].resourceId);
           }
-          if (this.stepSize < 35) {
-            nodes[i].active = this.expandedStatus;
+          nodes[i].active = this.expandedStatus;
+          if (this.stepSize > 35 && this.expandedStatus) {
+            nodes[i].active = false;
           }
           if (nodes[i].hashTree != undefined && nodes[i].hashTree.length > 0) {
             this.changeNodeStatus(nodes[i].hashTree);
@@ -1247,24 +1377,13 @@ export default {
     openExpansion() {
       this.expandedNode = [];
       this.expandedStatus = true;
-      this.shrinkTreeNode();
+      this.changeNodeStatus(this.scenarioDefinition);
     },
     closeExpansion() {
       this.expandedStatus = false;
       this.expandedNode = [];
-      this.shrinkTreeNode();
+      this.changeNodeStatus(this.scenarioDefinition);
       this.reload();
-    },
-    stepNode() {
-      //改变每个节点的状态
-      for (let i in this.scenarioDefinition) {
-        if (this.scenarioDefinition[i]) {
-          this.scenarioDefinition[i].enable = this.stepEnable;
-          if (this.scenarioDefinition[i].hashTree && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.stepStatus(this.scenarioDefinition[i].hashTree);
-          }
-        }
-      }
     },
     stepStatus(nodes) {
       for (let i in nodes) {
@@ -1278,11 +1397,11 @@ export default {
     },
     enableAll() {
       this.stepEnable = true;
-      this.stepNode();
+      this.stepStatus(this.scenarioDefinition);
     },
     disableAll() {
       this.stepEnable = false;
-      this.stepNode();
+      this.stepStatus(this.scenarioDefinition);
     },
     handleScroll() {
       let stepInfo = this.$refs.stepInfo;
@@ -1298,6 +1417,9 @@ export default {
           this.isTop = false;
         }
       }
+    },
+    showHistory() {
+      this.$refs.taskCenter.openScenarioHistory(this.currentScenario.id);
     }
   }
 }
@@ -1347,6 +1469,7 @@ export default {
 
 #fab {
   right: 90px;
+  bottom: 120px;
   z-index: 5;
 }
 

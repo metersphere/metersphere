@@ -17,18 +17,24 @@
 
 package io.metersphere.api.jmeter;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.websocket.c.to.c.MsWebSocketClient;
+import io.metersphere.websocket.c.to.c.util.MsgDto;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.engine.util.NoThreadClone;
 import org.apache.jmeter.reporters.AbstractListenerElement;
 import org.apache.jmeter.samplers.*;
 import org.apache.jmeter.testelement.TestStateListener;
 import org.apache.jmeter.testelement.property.BooleanProperty;
+import org.apache.jmeter.threads.JMeterVariables;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
  * 实时结果监听
@@ -45,6 +51,8 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
     public static final String TEST_END = "MS_TEST_END";
 
     private MsResultService msResultService;
+
+    private MsWebSocketClient client;
 
     @Override
     public Object clone() {
@@ -92,6 +100,13 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
         SampleResult result = new SampleResult();
         result.setResponseCode(TEST_END);
         msResultService.setCache(this.getName(), result);
+        try {
+            if (client != null) {
+                client.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -100,6 +115,12 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
         msResultService = CommonBeanFactory.getBean(MsResultService.class);
         if (msResultService == null) {
             LogUtil.error("testResultService is required");
+        }
+        try {
+            client = new MsWebSocketClient("ws://127.0.0.1:8081/ws/" + "send." + this.getName());
+            client.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -115,6 +136,18 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
 
     @Override
     public void sampleStarted(SampleEvent e) {
+        System.out.println("start ====");
+        try {
+            MsgDto dto = new MsgDto();
+            dto.setContent(e.getThreadGroup());
+            dto.setReportId("send." + this.getName());
+            dto.setToReport(this.getName());
+            if (client != null) {
+                client.send(JSON.toJSONString(dto));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -124,6 +157,16 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
     @Override
     public void sampleOccurred(SampleEvent event) {
         SampleResult result = event.getResult();
+        JMeterVariables variables = JMeterVars.get(result.hashCode());
+        if (variables != null && CollectionUtils.isNotEmpty(variables.entrySet())) {
+            StringBuilder builder = new StringBuilder();
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                builder.append(entry.getKey()).append("：").append(entry.getValue()).append("\n");
+            }
+            if (StringUtils.isNotEmpty(builder)) {
+                result.setExtVars(builder.toString());
+            }
+        }
         if (isSampleWanted(result.isSuccessful()) && !StringUtils.equals(result.getSampleLabel(), RunningParamKeys.RUNNING_DEBUG_SAMPLER_NAME)) {
             msResultService.setCache(this.getName(), result);
         }

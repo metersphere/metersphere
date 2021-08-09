@@ -43,11 +43,25 @@
       </el-form>
 
       <div style="margin-top: 20px;" class="clearfix">
-        <el-button v-if="!formData.id" type="primary" style="float: right" size="mini" @click="saveCron">{{$t('commons.add')}}</el-button>
-        <div v-else>
-          <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">{{$t('commons.clear')}}</el-button>
-          <el-button type="primary" style="float: right" size="mini" @click="saveCron">{{$t('commons.update')}}</el-button>
-        </div>
+        <el-row>
+          <el-col :span="4">
+            <el-button type="primary" style="float: right" size="mini" @click="openSchedule">
+              {{ $t('schedule.task_notification') }}
+            </el-button>
+          </el-col>
+          <el-col :span="20">
+            <el-button v-if="!formData.id" type="primary" style="float: right" size="mini" @click="saveCron">
+              {{ $t('commons.add') }}
+            </el-button>
+            <div v-else>
+              <el-button type="primary" style="float: right;margin-left: 10px" size="mini" @click="clear">
+                {{ $t('commons.clear') }}
+              </el-button>
+              <el-button type="primary" style="float: right" size="mini" @click="saveCron">{{ $t('commons.update') }}
+              </el-button>
+            </div>
+          </el-col>
+        </el-row>
       </div>
     </div>
 
@@ -62,6 +76,17 @@
     <el-dialog width="60%" :title="$t('schedule.generate_expression')" :visible.sync="showCron" :modal="false">
       <crontab @hide="showCron=false" @fill="crontabFill" :expression="formData.value" ref="crontab"/>
     </el-dialog>
+    <el-dialog
+      :title="$t('schedule.task_notification')"
+      :visible.sync="dialogVisible"
+      width="60%"
+    >
+      <swagger-task-notification :api-test-id="formData.id" :scheduleReceiverOptions="scheduleReceiverOptions"
+                                 ref="schedule-task-notification">
+
+      </swagger-task-notification>
+    </el-dialog>
+
 
   </el-main>
 </template>
@@ -72,11 +97,17 @@ import SwaggerTaskList from "@/business/components/api/definition/components/imp
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import Crontab from "@/business/components/common/cron/Crontab";
 import {cronValidate} from "@/common/js/cron";
-import {getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentOrganizationId, getCurrentProjectID, getCurrentUser, getCurrentWorkspaceId} from "@/common/js/utils";
 import SelectTree from "@/business/components/common/select-tree/SelectTree";
+import ScheduleTaskNotification from "@/business/components/settings/organization/components/ScheduleTaskNotification";
+import SwaggerTaskNotification from "@/business/components/api/definition/components/import/SwaggerTaskNotification";
+
 export default {
   name: "ApiSchedule",
-  components: {SelectTree, MsFormDivider,SwaggerTaskList, CrontabResult, Crontab},
+  components: {
+    SwaggerTaskNotification,
+    ScheduleTaskNotification, SelectTree, MsFormDivider, SwaggerTaskList, CrontabResult, Crontab
+  },
   props: {
     customValidate: {
       type: Function,
@@ -116,6 +147,8 @@ export default {
       schedule: {
         value: "",
       },
+      scheduleReceiverOptions: [],
+      dialogVisible: false,
       showCron: false,
       activeName: 'first',
       swaggerUrl: String,
@@ -153,6 +186,25 @@ export default {
   },
 
   methods: {
+    openSchedule() {
+      if (this.formData.id !== null && this.formData.id !== undefined) {
+        this.dialogVisible = true;
+        this.initUserList();
+      } else {
+        this.$warning("请先选择您要添加通知的定时任务");
+      }
+
+    },
+
+    initUserList() {
+      let param = {
+        name: '',
+        organizationId: getCurrentOrganizationId()
+      };
+      this.result = this.$post('user/org/member/list/all', param, response => {
+        this.scheduleReceiverOptions = response.data;
+      });
+    },
     currentUser: () => {
       return getCurrentUser();
     },

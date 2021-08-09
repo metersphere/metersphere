@@ -61,7 +61,7 @@
       <div class="report-container">
         <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
           <el-card class="ms-card-task" @click.native="showReport(item,$event)">
-            <span><el-link type="primary">{{getModeName(item.executionModule)}} </el-link>: {{ item.name }} </span><br/>
+            <span><el-link type="primary">{{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span><br/>
             <span>
               执行器：{{ item.actuator }} 由 {{ item.executor }}
               {{ item.executionTime | timestampFormatDate }}
@@ -118,6 +118,7 @@ export default {
       response: {},
       initEnd: false,
       visible: false,
+      showType: "",
       runMode: [
         {id: '', label: this.$t('api_test.definition.document.data_set.all')},
         {id: 'BATCH', label: this.$t('api_test.automation.batch_execute')},
@@ -137,6 +138,7 @@ export default {
       ],
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
+      websocket: Object,
     };
   },
   props: {
@@ -144,8 +146,14 @@ export default {
   },
   created() {
     if (hasPermissions('PROJECT_API_SCENARIO:READ')) {
-      this.getTaskRunning();
       this.condition.executor = getCurrentUser().id;
+    }
+  },
+  watch: {
+    taskVisible(v) {
+      if (!v) {
+        this.close();
+      }
     }
   },
   methods: {
@@ -186,10 +194,6 @@ export default {
       }
     },
     onClose(e) {
-      if (e.code === 1005) {
-        // 强制删除之后关闭socket，不用刷新report
-        return;
-      }
     },
     showTaskCenter() {
       this.getTaskRunning();
@@ -200,6 +204,10 @@ export default {
     close() {
       this.visible = false;
       this.taskVisible = false;
+      this.showType = "";
+      if (this.websocket && this.websocket.close instanceof Function) {
+        this.websocket.close();
+      }
     },
     open() {
       this.showTaskCenter();
@@ -217,7 +225,7 @@ export default {
       }
       return 60;
     },
-    getModeName(executionModule){
+    getModeName(executionModule) {
       switch (executionModule) {
         case "SCENARIO":
           return this.$t('test_track.scenario_test_case');
@@ -287,13 +295,45 @@ export default {
     getTaskRunning() {
       this.initWebSocket();
     },
+    calculationRunningTotal() {
+      if (this.taskData) {
+        let total = 0;
+        this.taskData.forEach(item => {
+          if (this.getPercentage(item.executionStatus) !== 100) {
+            total++;
+          }
+        })
+        this.runningTotal = total;
+      }
+    },
     init() {
+      if (this.showType === "CASE" || this.showType === "SCENARIO") {
+        return;
+      }
       this.result.loading = true;
       this.condition.projectId = getCurrentProjectID();
       this.result = this.$post('/task/center/list', this.condition, response => {
         this.taskData = response.data;
+        this.calculationRunningTotal();
         this.initEnd = true;
       });
+    },
+    initCaseHistory(id) {
+      this.result = this.$get('/task/center/case/' + id, response => {
+        this.taskData = response.data;
+      });
+    },
+    openHistory(id) {
+      this.initCaseHistory(id);
+      this.taskVisible = true;
+      this.showType = "CASE";
+    },
+    openScenarioHistory(id) {
+      this.result = this.$get('/task/center/scenario/' + id, response => {
+        this.taskData = response.data;
+      });
+      this.showType = "SCENARIO";
+      this.taskVisible = true;
     }
   }
 };

@@ -37,7 +37,6 @@ import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
 import io.metersphere.track.dto.*;
-import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
@@ -49,9 +48,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -61,6 +61,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class TestPlanService {
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
+
     @Resource
     ExtScheduleMapper extScheduleMapper;
     @Resource
@@ -457,7 +459,8 @@ public class TestPlanService {
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(testCaseIds);
         List<TestCase> testCaseList = testCaseMapper.selectByExample(testCaseExample);
-        Map<String, String> userMap = testCaseList.stream().collect(Collectors.toMap(TestCase::getId, TestCase::getMaintainer));
+        Map<String, String> userMap = testCaseList.stream()
+                .collect(HashMap::new, (m, v) -> m.put(v.getId(), v.getMaintainer()), HashMap::putAll);
 
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
@@ -844,7 +847,7 @@ public class TestPlanService {
                         Comparator.comparing(Issues::getCreateTime, (t1, t2) -> {
                             if (t1 == null) {
                                 return 1;
-                            } else  if (t2 == null) {
+                            } else if (t2 == null) {
                                 return -1;
                             }
                             return t2.compareTo(t1);
@@ -996,7 +999,7 @@ public class TestPlanService {
             APIScenarioReportResult report = apiAutomationService.createScenarioReport(group.getName(),
                     planScenarioID + ":" + request.getTestPlanReportId(),
                     item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
+                    request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig(), null);
             apiScenarioReportMapper.insert(report);
             group.setHashTree(scenarios);
             testPlan.getHashTree().add(group);
@@ -1006,16 +1009,9 @@ public class TestPlanService {
     }
 
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
-        if (StringUtils.isEmpty(apiRunConfig)) {
-            apiRunConfig =
-                    "{\"mode\":\"parallel\"," +
-                            "\"reportType\":\"iddReport\"," +
-                            "\"onSampleError\":true," +
-                            "\"runWithinResourcePool\":true," +
-                            "\"resourcePoolId\":\"29773f4f-55e4-4bce-ad3d-b531b4eb59c2\"}";
-        }
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
-        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID,testPlanID,userId,triggerMode);
+        TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
+
         TestPlanReport testPlanReport = reportInfoDTO.getTestPlanReport();
         Map<String, String> planScenarioIdMap = reportInfoDTO.getPlanScenarioIdMap();
         Map<String, String> apiTestCaseIdMap = reportInfoDTO.getApiTestCaseIdMap();
@@ -1023,13 +1019,15 @@ public class TestPlanService {
 
         String planReportId = testPlanReport.getId();
 
+        testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. ");
+
         //不同任务的执行ID
-        Map<String,String> executePerformanceIdMap = new HashMap<>();
-        Map<String,String> executeApiCaseIdMap = new HashMap<>();
-        Map<String,String> executeScenarioCaseIdMap = new HashMap<>();
+        Map<String, String> executePerformanceIdMap = new HashMap<>();
+        Map<String, String> executeApiCaseIdMap = new HashMap<>();
+        Map<String, String> executeScenarioCaseIdMap = new HashMap<>();
 
         //执行性能测试任务
-        List<String> performaneReportIDList = new ArrayList<>();
+        Map<String,String> performaneReportIDMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
             String id = entry.getKey();
@@ -1046,7 +1044,7 @@ public class TestPlanService {
             try {
                 reportId = performanceTestService.run(performanceRequest);
                 if (reportId != null) {
-                    performaneReportIDList.add(reportId);
+                    performaneReportIDMap.put(reportId,caseID);
                     TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
                     testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
                     testPlanLoadCase.setLoadReportId(reportId);
@@ -1062,23 +1060,24 @@ public class TestPlanService {
                 e.printStackTrace();
             }
             if (StringUtils.isNotEmpty(reportId)) {
-                executePerformanceIdMap.put(caseID,TestPlanApiExecuteStatus.RUNNING.name());
+                executePerformanceIdMap.put(caseID, TestPlanApiExecuteStatus.RUNNING.name());
             }
         }
-        if (!performaneReportIDList.isEmpty()) {
+        if (!performaneReportIDMap.isEmpty()) {
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
-            testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDList, triggerMode);
+            testPlanReportService.updatePerformanceInfo(testPlanReport, performaneReportIDMap, triggerMode);
 
         }
 
         for (Map.Entry<String, String> entry : apiTestCaseIdMap.entrySet()) {
             String apiCaseID = entry.getKey();
-            executeApiCaseIdMap.put(apiCaseID,TestPlanApiExecuteStatus.RUNNING.name());
+            executeApiCaseIdMap.put(apiCaseID, TestPlanApiExecuteStatus.RUNNING.name());
         }
         for (String id : planScenarioIdMap.keySet()) {
-            executeScenarioCaseIdMap.put(id,TestPlanApiExecuteStatus.RUNNING.name());
+            executeScenarioCaseIdMap.put(id, TestPlanApiExecuteStatus.RUNNING.name());
         }
-        testPlanReportService.updateExecuteApis(planReportId,executeApiCaseIdMap,executeScenarioCaseIdMap,executePerformanceIdMap);
+        testPlanLog.info("ReportId[" + planReportId + "] start run. TestPlanID:[" + testPlanID + "].  Execute api :" + JSONObject.toJSONString(executeApiCaseIdMap) + "; Execute scenario:" + JSONObject.toJSONString(executeScenarioCaseIdMap) + "; Execute performance:" + JSONObject.toJSONString(executePerformanceIdMap));
+        testPlanReportService.updateExecuteApis(planReportId, executeApiCaseIdMap, executeScenarioCaseIdMap, executePerformanceIdMap);
 
 
         //执行接口案例任务
@@ -1092,7 +1091,7 @@ public class TestPlanService {
             } else {
                 apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanID, ApiRunMode.SCHEDULE_API_PLAN.name());
             }
-            executeApiCaseIdMap.put(apiCaseID,TestPlanApiExecuteStatus.RUNNING.name());
+            executeApiCaseIdMap.put(apiCaseID, TestPlanApiExecuteStatus.RUNNING.name());
         }
 
         //执行场景执行任务
@@ -1121,10 +1120,6 @@ public class TestPlanService {
             RunModeConfig runModeConfig = JSONObject.parseObject(apiRunConfig, RunModeConfig.class);
             scenarioRequest.setConfig(runModeConfig);
             String scenarioReportID = this.scenarioRunModeConfig(scenarioRequest);
-//            if (StringUtils.isNotEmpty(scenarioReportID)) {
-//                scenarioIsExcuting = true;
-//                scenarioCaseIdArray = JSONArray.toJSONString(new ArrayList<>(planScenarioIdMap.keySet()));
-//            }
         }
         return testPlanReport.getId();
     }

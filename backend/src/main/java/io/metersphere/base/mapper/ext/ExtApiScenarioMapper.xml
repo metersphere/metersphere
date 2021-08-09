@@ -250,6 +250,18 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='principal_name'">
+                                and api_scenario.principal in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='user_name'">
+                                and api_scenario.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
 
                         </choose>
                     </if>

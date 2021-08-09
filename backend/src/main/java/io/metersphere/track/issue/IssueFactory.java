@@ -4,10 +4,9 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 
 public class IssueFactory {
     public static AbstractIssuePlatform createPlatform(String platform, IssuesRequest addIssueRequest) {
@@ -17,6 +16,24 @@ public class IssueFactory {
             return new JiraPlatform(addIssueRequest);
         } else if (StringUtils.equals(IssuesManagePlatform.Zentao.toString(), platform)) {
             return new ZentaoPlatform(addIssueRequest);
+        } else if (StringUtils.equals(IssuesManagePlatform.AzureDevops.toString(), platform)) {
+            ClassLoader loader = Thread.currentThread().getContextClassLoader();
+            try {
+                Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
+                Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
+                AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(addIssueRequest);
+                return azureDevopsPlatform;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
         } else if (StringUtils.equalsIgnoreCase(IssuesManagePlatform.Local.toString(), platform)) {
             return new LocalPlatform(addIssueRequest);
         }

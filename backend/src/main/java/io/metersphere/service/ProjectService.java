@@ -86,6 +86,8 @@ public class ProjectService {
     private ExtUserGroupMapper extUserGroupMapper;
     @Resource
     private ExtUserMapper extUserMapper;
+    @Resource
+    private ScheduleService scheduleService;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -189,6 +191,9 @@ public class ProjectService {
 
         // delete project
         projectMapper.deleteByPrimaryKey(projectId);
+
+        // 删除定时任务
+        scheduleService.deleteByProjectId(projectId);
     }
 
     private void deleteProjectUserGroup(String projectId) {

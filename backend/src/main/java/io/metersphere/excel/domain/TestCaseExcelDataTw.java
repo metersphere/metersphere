@@ -135,7 +135,11 @@ public class TestCaseExcelDataTw extends TestCaseExcelData {
                     continue;
                 }
                 List<String> list = new ArrayList<>();
-                list.add(dto.getName());
+                if (StringUtils.equals(dto.getName(), "责任人")) {
+                    list.add("維護人(ID)");
+                } else {
+                    list.add(dto.getName());
+                }
                 returnList.add(list);
             }
         }

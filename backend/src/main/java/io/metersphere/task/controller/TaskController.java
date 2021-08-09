@@ -4,10 +4,7 @@ import io.metersphere.task.dto.TaskCenterDTO;
 import io.metersphere.task.dto.TaskCenterRequest;
 import io.metersphere.task.service.TaskService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -24,10 +21,22 @@ public class TaskController {
         return taskService.getTasks(request);
     }
 
+    @GetMapping("/case/{id}")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public List<TaskCenterDTO> getCase(@PathVariable String id) {
+        return taskService.getCases(id);
+    }
+
+    @GetMapping("/scenario/{id}")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public List<TaskCenterDTO> getScenario(@PathVariable String id) {
+        return taskService.getScenario(id);
+    }
+
     @PostMapping("/count/running")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public int getRunningTasks(@RequestBody TaskCenterRequest request) {
-        return taskService.getRunningTasks(request).size();
+        return taskService.getRunningTasks(request);
     }
 
 }

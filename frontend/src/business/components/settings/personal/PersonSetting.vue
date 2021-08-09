@@ -54,6 +54,7 @@
       <jira-user-info @auth="handleAuth" v-if="hasJira" :data="currentPlatformInfo"/>
       <tapd-user-info @auth="handleAuth" v-if="hasTapd" :data="currentPlatformInfo"/>
       <zentao-user-info @auth="handleAuth" v-if="hasZentao" :data="currentPlatformInfo"/>
+      <azure-devops-user-info @auth="handleAuth" v-if="hasAzure" :data="currentPlatformInfo"/>
       <template v-slot:footer>
         <ms-dialog-footer
           @cancel="updateVisible = false"
@@ -100,10 +101,11 @@ import JiraUserInfo from "@/business/components/settings/personal/JiraUserInfo";
 import TapdUserInfo from "@/business/components/settings/personal/TapdUserInfo";
 import {getIntegrationService} from "@/network/organization";
 import ZentaoUserInfo from "@/business/components/settings/personal/ZentaoUserInfo";
+import AzureDevopsUserInfo from "@/business/components/settings/personal/AzureDevopsUserInfo";
 
 export default {
   name: "MsPersonSetting",
-  components: {ZentaoUserInfo, TapdUserInfo, JiraUserInfo, MsDialogFooter, MsTableOperatorButton},
+  components: {ZentaoUserInfo, TapdUserInfo, JiraUserInfo,AzureDevopsUserInfo, MsDialogFooter, MsTableOperatorButton},
   inject: [
     'reload'
   ],
@@ -122,12 +124,14 @@ export default {
         jiraPassword: '',
         tapdUserName: '',
         zentaoUserName: '',
-        zentaoPassword: ''
+        zentaoPassword: '',
+        azureDevopsPat:''
       },
       ruleForm: {},
       hasJira: false,
       hasTapd: false,
       hasZentao: false,
+      hasAzure:false,
       rule: {
         name: [
           {required: true, message: this.$t('member.input_name'), trigger: 'blur'},
@@ -216,6 +220,9 @@ export default {
         }
         if (platforms.indexOf("Zentao") !== -1) {
           this.hasZentao = true;
+        }
+        if (platforms.indexOf("AzureDevops") !== -1) {
+          this.hasAzure = true;
         }
       });
     },

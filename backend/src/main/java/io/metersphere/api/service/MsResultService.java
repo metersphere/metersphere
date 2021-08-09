@@ -9,19 +9,20 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.samplers.SampleResult;
+import org.apache.jmeter.threads.JMeterVariables;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import sun.security.util.Cache;
 
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
 public class MsResultService {
     // 零时存放实时结果
     private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
+    public ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
 
     private final static String THREAD_SPLIT = " ";
 
@@ -34,33 +35,64 @@ public class MsResultService {
         return null;
     }
 
+    public List<SampleResult> procResult(String key) {
+        if (this.processCache.get(key) != null) {
+            return this.processCache.get(key);
+        }
+        return new LinkedList<>();
+    }
+
     public void setCache(String key, SampleResult result) {
         if (key.startsWith("[") && key.endsWith("]")) {
             key = JSON.parseArray(key).get(0).toString();
         }
-        TestResult testResult = this.getResult(key);
+        List<SampleResult> testResult = this.procResult(key);
+        testResult.add(result);
+        this.processCache.put(key, testResult);
+    }
+
+    public TestResult sysnSampleResult(String key) {
+        if (key.startsWith("[") && key.endsWith("]")) {
+            key = JSON.parseArray(key).get(0).toString();
+        }
+        String logs = getJmeterLogger(key, false);
+        List<SampleResult> results = this.processCache.get(key);
+        boolean isRemove = false;
+        TestResult testResult = (TestResult) cache.get(key);
         if (testResult == null) {
             testResult = new TestResult();
         }
-        if (result.getResponseCode().equals(MsResultCollector.TEST_END)) {
-            testResult.setEnd(true);
+        if (CollectionUtils.isNotEmpty(results)) {
+            final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
+            for (SampleResult result : results) {
+                if (result.getResponseCode().equals(MsResultCollector.TEST_END)) {
+                    testResult.setEnd(true);
+                    this.cache.put(key, testResult);
+                    isRemove = true;
+                    break;
+                }
+                testResult.setTestId(key);
+                if (StringUtils.isNotEmpty(logs)) {
+                    testResult.setConsole(logs);
+                }
+                testResult.setTotal(0);
+                this.formatTestResult(testResult, scenarios, result);
+            }
+            testResult.getScenarios().clear();
+            testResult.getScenarios().addAll(scenarios.values());
+            testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
             this.cache.put(key, testResult);
-            return;
+
+            if (isRemove) {
+                this.processCache.remove(key);
+            }
         }
-        testResult.setTestId(key);
-        testResult.setConsole(getJmeterLogger(key, false));
-        testResult.setTotal(0);
-        final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
-
-        this.formatTestResult(testResult, scenarios, result);
-
-        testResult.getScenarios().addAll(scenarios.values());
-        testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
-        this.cache.put(key, testResult);
+        return (TestResult) cache.get(key);
     }
 
     public void delete(String testId) {
         this.cache.remove(testId);
+        MessageCache.reportCache.remove(testId);
     }
 
     public void formatTestResult(TestResult testResult, Map<String, ScenarioResult> scenarios, SampleResult result) {
@@ -88,7 +120,6 @@ public class MsResultService {
             scenarioResult.addError(result.getErrorCount());
             testResult.addError(result.getErrorCount());
         }
-
         RequestResult requestResult = this.getRequestResult(result);
         scenarioResult.getRequestResults().add(requestResult);
         scenarioResult.addResponseTime(result.getTime());
@@ -114,6 +145,12 @@ public class MsResultService {
                 .filter(map -> map.getKey() > finalStartTime && map.getKey() < endTime)
                 .map(map -> map.getValue()).collect(Collectors.joining());
         if (removed) {
+            if (processCache.get(testId) != null) {
+                try {
+                    Thread.sleep(2000);
+                } catch (Exception e) {
+                }
+            }
             FixedTask.tasks.remove(testId);
         }
         if (FixedTask.tasks.isEmpty()) {
@@ -154,9 +191,13 @@ public class MsResultService {
         responseResult.setResponseSize(result.getResponseData().length);
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
-        if (JMeterVars.get(result.hashCode()) != null && CollectionUtils.isNotEmpty(JMeterVars.get(result.hashCode()).entrySet())) {
+        JMeterVariables variables = JMeterVars.get(result.hashCode());
+        if (StringUtils.isNotEmpty(result.getExtVars())) {
+            responseResult.setVars(result.getExtVars());
+            JMeterVars.remove(result.hashCode());
+        } else if (variables != null && CollectionUtils.isNotEmpty(variables.entrySet())) {
             StringBuilder builder = new StringBuilder();
-            for (Map.Entry<String, Object> entry : JMeterVars.get(result.hashCode()).entrySet()) {
+            for (Map.Entry<String, Object> entry : variables.entrySet()) {
                 builder.append(entry.getKey()).append("：").append(entry.getValue()).append("\n");
             }
             if (StringUtils.isNotEmpty(builder)) {
@@ -164,6 +205,7 @@ public class MsResultService {
             }
             JMeterVars.remove(result.hashCode());
         }
+
         for (AssertionResult assertionResult : result.getAssertionResults()) {
             ResponseAssertionResult responseAssertionResult = getResponseAssertionResult(assertionResult);
             if (responseAssertionResult.isPass()) {

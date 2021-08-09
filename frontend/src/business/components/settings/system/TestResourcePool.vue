@@ -73,7 +73,10 @@
           <el-form-item :label="$t('commons.image')" prop="image">
             <el-input v-model="form.image"/>
           </el-form-item>
-          <el-form-item :label="$t('test_resource_pool.usage')" prop="image">
+          <el-form-item :label="$t('test_resource_pool.backend_listener')" prop="backendListener">
+            <el-switch v-model="form.backendListener"/>
+          </el-form-item>
+          <el-form-item :label="$t('test_resource_pool.usage')" prop="usage">
             <el-checkbox :label="$t('commons.api')" v-model="form.api"></el-checkbox>
             <el-checkbox :label="$t('commons.performance')" v-model="form.performance"></el-checkbox>
           </el-form-item>
@@ -243,7 +246,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      form: {performance: true, api: true},
+      form: {performance: true, api: true, backendListener: true},
       screenHeight: 'calc(100vh - 195px)',
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
@@ -301,7 +304,11 @@ export default {
     },
 
     addResourceInfo() {
-      this.infoList.push({});
+      this.infoList.push({
+        port: '8082',
+        monitorPort: '9100',
+        maxConcurrency: 100
+      });
     },
     removeResourceInfo(index) {
       if (this.infoList.length > 1) {
@@ -319,7 +326,7 @@ export default {
       this.infoList.forEach(info => {
         for (let key in info) {
           // 排除非必填项
-          if (key === 'nodeSelector') {
+          if (key === 'nodeSelector' || key === 'apiImage') {
             continue;
           }
           if (info[key] != '0' && !info[key]) {
@@ -447,7 +454,7 @@ export default {
       });
     },
     closeFunc() {
-      this.form = {performance: true, api: true};
+      this.form = {performance: true, api: true, backendListener: true};
       this.dialogVisible = false;
       removeGoBackListener(this.closeFunc);
     },

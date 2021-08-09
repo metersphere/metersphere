@@ -3,17 +3,13 @@ package io.metersphere.excel.listener;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.alibaba.excel.exception.ExcelAnalysisException;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ListUtils;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.excel.annotation.NotRequired;
 import io.metersphere.excel.domain.ExcelErrData;
@@ -231,8 +227,12 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
                 }else if (StringUtils.equals(customName, "maintainer")) {
                     value = data.getMaintainer();
                     //校验维护人
-                    if (!userIds.contains(data.getMaintainer())) {
-                        stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
+                    if (StringUtils.isBlank(data.getMaintainer())) {
+                        data.setMaintainer(SessionUtils.getUserId());
+                    } else {
+                        if (!userIds.contains(data.getMaintainer())) {
+                            stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
+                        }
                     }
                     continue;
                 } else {
@@ -404,11 +404,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAny(data.getStatus(), "Underway", "进行中", "進行中")) {
+        if (StringUtils.equalsAny(data.getStatus(), "Underway","underway", "进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare", "未开始", "未開始")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare","prepare", "未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "已完成", "已完成")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "completed","已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);
@@ -454,11 +454,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAny(data.getStatus(), "Underway", "进行中", "進行中")) {
+        if (StringUtils.equalsAny(data.getStatus(), "Underway","underway" ,"进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare", "未开始", "未開始")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare","prepare" ,"未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "已完成", "已完成")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "completed","已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);

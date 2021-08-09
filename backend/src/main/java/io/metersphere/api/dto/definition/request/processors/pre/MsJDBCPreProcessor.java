@@ -236,7 +236,7 @@ public class MsJDBCPreProcessor extends MsTestElement {
     private JDBCPreProcessor jdbcPreProcessor(ParameterConfig config) {
         JDBCPreProcessor jdbcPreProcessor = new JDBCPreProcessor();
         jdbcPreProcessor.setEnabled(this.isEnable());
-        jdbcPreProcessor.setName(this.getName());
+        jdbcPreProcessor.setName(this.getName() == null? "JDBCPreProcessor" : this.getName());
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             jdbcPreProcessor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
@@ -244,7 +244,8 @@ public class MsJDBCPreProcessor extends MsTestElement {
         jdbcPreProcessor.setProperty(TestElement.TEST_CLASS, JDBCPreProcessor.class.getName());
         jdbcPreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         jdbcPreProcessor.setProperty("MS-ID", this.getId());
-        jdbcPreProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId());
+        String indexPath = this.getIndex();
+        jdbcPreProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         jdbcPreProcessor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

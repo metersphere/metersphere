@@ -70,7 +70,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId(String projectId) {
+    public String getProjectId(String projectId) {
         if (StringUtils.isNotBlank(projectId)) {
             return projectService.getProjectById(projectId).getZentaoId();
         }
@@ -178,6 +178,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         // transfer description
         try {
             zentaoSteps = ms2ZentaoDescription(description);
+            zentaoSteps = zentaoSteps.replaceAll("\\n", "<br/>");
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
@@ -344,7 +345,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     private String uploadFile(FileSystemResource resource) {
         String id = "";
-        setConfig();
+        zentaoClient.setConfig(getUserConfig());
         String session = zentaoClient.login();
         HttpHeaders httpHeaders = new HttpHeaders();
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
@@ -381,6 +382,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             // upload zentao
             String id = uploadFile(mdImage.getBody());
             // todo delete local file
+            int index = fileName.lastIndexOf(".");
+            if (index != -1) {
+                fileName = fileName.substring(0, index);
+            }
             // replace id
             zentaoSteps = zentaoSteps.replaceAll(Pattern.quote(fileName), id);
         }

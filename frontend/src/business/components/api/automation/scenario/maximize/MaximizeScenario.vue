@@ -46,6 +46,7 @@
                    :node="node"
                    :project-list="projectList"
                    :env-map="projectEnvMap"
+                   :message="message"
                    @remove="remove" @copyRow="copyRow"
                    @suggestClick="suggestClick"
                    @refReload="refReload" @openScenario="openScenario"/>
@@ -53,7 +54,7 @@
           </el-tree>
           <div @click="fabClick">
             <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
-                     :click-auto-close="false">
+                     :click-auto-close="false" ref="refFab">
               <fab-item
                 v-for="(item, index) in buttons"
                 :key="index"
@@ -140,6 +141,8 @@
                       class="ms-sc-variable-header"/>
     <!--外部导入-->
     <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
+    <el-backtop target=".el-main .ms-main-container" :visibility-height="10" :right="50" :bottom="20"></el-backtop>
+
   </div>
 </template>
 
@@ -184,6 +187,7 @@ export default {
     reqSuccess: Number,
     reqError: Number,
     reqTotalTime: Number,
+    message: String,
   },
   components: {
     MsVariableList,
@@ -259,6 +263,10 @@ export default {
     this.projectEnvMap = this.envMap;
     this.stepEnable = this.stepReEnable;
   },
+  mounted() {
+    this.$refs.refFab.openMenu();
+  },
+
   watch: {
     envMap() {
       this.projectEnvMap = this.envMap;
@@ -344,7 +352,7 @@ export default {
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
-      this.reload();
+      this.$store.state.selectStep = data;
     },
     suggestClick(node) {
       this.response = {};
@@ -358,6 +366,7 @@ export default {
       if (!this.customizeVisible) {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
+        this.$store.state.selectStep = undefined;
       }
     },
     apiListImport() {
@@ -761,6 +770,7 @@ export default {
     },
     refReload(data, node) {
       this.selectedTreeNode = data;
+      this.$store.state.selectStep = data;
       this.selectedNode = node;
       this.initProjectIds();
       this.reload();

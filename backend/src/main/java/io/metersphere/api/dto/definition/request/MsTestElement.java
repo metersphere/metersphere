@@ -308,6 +308,14 @@ public abstract class MsTestElement {
         return "";
     }
 
+    public String getFullIndexPath(MsTestElement element, String path) {
+        if (element == null || element.getParent() == null) {
+            return path;
+        }
+        path = element.getIndex() + "_" + path;
+        return getFullIndexPath(element.getParent(), path);
+    }
+
     public boolean isURL(String str) {
         try {
             if (StringUtils.isEmpty(str)) {

@@ -205,6 +205,12 @@ export default {
     updateApi() {
       let url = "/api/definition/update";
       let bodyFiles = this.getBodyUploadFiles();
+      if (Object.prototype.toString.call(this.api.response).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+        this.api.response = JSON.parse(this.api.response);
+      }
+      if (this.api.tags instanceof  Array) {
+        this.api.tags = JSON.stringify(this.api.tags);
+      }
       if(this.api.method==='ESB'){
         this.api.esbDataStruct = JSON.stringify(this.api.request.esbDataStruct);
         this.api.backEsbDataStruct = JSON.stringify(this.api.request.backEsbDataStruct);

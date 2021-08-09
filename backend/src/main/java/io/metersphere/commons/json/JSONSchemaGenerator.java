@@ -1,11 +1,6 @@
 package io.metersphere.commons.json;
 
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.github.fge.jackson.JsonLoader;
-import com.github.fge.jsonschema.cfg.ValidationConfiguration;
-import com.github.fge.jsonschema.core.report.ProcessingReport;
-import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
 import com.google.gson.*;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -310,30 +305,30 @@ public class JSONSchemaGenerator {
         }
     }
 
-    private static final SyntaxValidator VALIDATOR = new SyntaxValidator(ValidationConfiguration.byDefault());
+
+    private static String formerJson(String jsonSchema) {
+        try {
+            JSONObject root = new JSONObject();
+            generator(jsonSchema, root);
+            // 格式化返回
+            Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
+            if (root.get("MS-OBJECT") != null) {
+                return gson.toJson(root.get("MS-OBJECT"));
+            }
+            return gson.toJson(root);
+        } catch (Exception e) {
+            return jsonSchema;
+        }
+    }
 
     public static String getJson(String jsonSchema) {
-        if (StringUtils.isEmpty(jsonSchema)) {
-            return null;
-        }
         try {
-            JsonNode jsonNode = JsonLoader.fromString(jsonSchema);
-            ProcessingReport report = VALIDATOR.validateSchema(jsonNode);
-            if (report.isSuccess()) {
-                JSONObject root = new JSONObject();
-                generator(jsonSchema, root);
-                // 格式化返回
-                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().disableHtmlEscaping().create();
-                if (root.get("MS-OBJECT") != null) {
-                    return gson.toJson(root.get("MS-OBJECT"));
-                }
-                return gson.toJson(root);
-            } else {
-                return report.getExceptionThreshold().toString();
+            if (StringUtils.isEmpty(jsonSchema)) {
+                return null;
             }
+            return formerJson(jsonSchema);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            return ex.getMessage();
+            return jsonSchema;
         }
     }
 }

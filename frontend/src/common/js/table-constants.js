@@ -29,6 +29,7 @@ export const ISSUE_PLATFORM_OPTION = [
   {value: 'Jira',text: 'JIRA'},
   {value: 'Tapd',text: 'Tapd'},
   {value: 'Zentao',text: '禅道'},
+  {value: 'AzureDevops',text: 'Azure Devops'},
 ];
 
 export const FIELD_TYPE_MAP = {
@@ -101,5 +102,6 @@ export const USER_GROUP_SCOPE = {
 export const PROJECT_GROUP_SCOPE = {
   'TRACK': '测试跟踪',
   'API': '接口测试',
-  'PERFORMANCE': '性能测试'
+  'PERFORMANCE': '性能测试',
+  'REPORT': '报告统计'
 }

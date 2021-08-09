@@ -240,7 +240,8 @@ public class MsJDBCSampler extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         sampler.setProperty("MS-ID", this.getId());
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId());
+        String indexPath = this.getIndex();
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

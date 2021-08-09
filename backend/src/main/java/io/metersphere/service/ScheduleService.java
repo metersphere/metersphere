@@ -98,6 +98,27 @@ public class ScheduleService {
         return scheduleMapper.deleteByExample(scheduleExample);
     }
 
+    public int deleteByProjectId(String projectId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        schedules.forEach(item -> {
+            removeJob(item.getKey(), item.getGroup());
+            swaggerUrlProjectMapper.deleteByPrimaryKey(item.getResourceId());
+        });
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
+    public int deleteByWorkspaceId(String workspaceId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        schedules.forEach(item -> {
+            removeJob(item.getResourceId(), item.getGroup());
+        });
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
     private void removeJob(String resourceId, String group) {
         if(StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(), group)){
             scheduleManager.removeJob(ApiScenarioTestJob.getJobKey(resourceId), ApiScenarioTestJob.getTriggerKey(resourceId));
@@ -268,10 +289,22 @@ public class ScheduleService {
         }
         this.editSchedule(request);
 
-        this.addOrUpdateCronJob(request,jobKey ,triggerKey , clazz);
+        this.addOrUpdateCronJob(request, jobKey, triggerKey, clazz);
     }
 
     public Object getCurrentlyExecutingJobs() {
         return scheduleManager.getCurrentlyExecutingJobs();
+    }
+
+    public String getScheduleInfo(String id) {
+        ScheduleExample schedule = new ScheduleExample();
+        schedule.createCriteria().andResourceIdEqualTo(id);
+        List<Schedule> list = scheduleMapper.selectByExample(schedule);
+        if (list.size() > 0) {
+            return list.get(0).getKey();
+        } else {
+            return "";
+        }
+
     }
 }

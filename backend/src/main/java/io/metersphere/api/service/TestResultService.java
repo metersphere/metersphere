@@ -23,7 +23,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,7 +67,7 @@ public class TestResultService {
                 if (StringUtils.isBlank(debugReportId)) {
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(), TriggerMode.MANUAL.name());
                 }
-            //jenkins单接口执行
+                //jenkins单接口执行
             } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS.name())) {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name(), TriggerMode.API.name());
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
@@ -90,9 +89,9 @@ public class TestResultService {
             } else if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                 //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
                 if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
-                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult,debugReportId, ApiRunMode.SCHEDULE_API_PLAN.name(),ReportTriggerMode.SCHEDULE.name());
+                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
                 } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
-                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult,debugReportId, ApiRunMode.JENKINS_API_PLAN.name(),ReportTriggerMode.API.name());
+                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, ApiRunMode.JENKINS_API_PLAN.name(), ReportTriggerMode.API.name());
                 } else {
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
                 }
@@ -103,6 +102,10 @@ public class TestResultService {
                 //环境
                 ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
                 String name = "";
+                //执行人
+                String userName = "";
+                //负责人
+                String principal = "";
                 if (apiScenario != null) {
                     String executionEnvironment = apiScenario.getScenarioDefinition();
                     JSONObject json = JSONObject.parseObject(executionEnvironment);
@@ -111,22 +114,27 @@ public class TestResultService {
                         String environmentId = environment.get(apiScenario.getProjectId()).toString();
                         name = apiAutomationService.get(environmentId).getName();
                     }
+                    userName = apiAutomationService.getUser(apiScenario.getUserId());
+                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                 }
-                //执行人
-                String userName = apiAutomationService.getUser(apiScenario.getUserId());
+
                 //报告内容
                 reportTask = new ApiTestReportVariable();
-                reportTask.setStatus(scenarioReport.getStatus());
-                reportTask.setId(scenarioReport.getId());
-                reportTask.setTriggerMode(scenarioReport.getTriggerMode());
-                reportTask.setName(scenarioReport.getName());
-                reportTask.setExecutor(userName);
-                reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-                reportTask.setExecutionEnvironment(name);
-                SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-                assert systemParameterService != null;
-                BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-                reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+                if(StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
+                    reportTask.setStatus(scenarioReport.getStatus());
+                    reportTask.setId(scenarioReport.getId());
+                    reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+                    reportTask.setName(scenarioReport.getName());
+                    reportTask.setExecutor(userName);
+                    reportTask.setPrincipal(principal);
+                    reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
+                    reportTask.setExecutionEnvironment(name);
+                    SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                    assert systemParameterService != null;
+                    BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                    reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+
+                }
                 testResult.setTestId(scenarioReport.getScenarioId());
                 planScenarioId = scenarioReport.getTestPlanScenarioId();
             } else {
@@ -149,7 +157,7 @@ public class TestResultService {
                 }
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e.getMessage(), e);
         }
     }
 
@@ -202,13 +210,13 @@ public class TestResultService {
         String subject = "";
         String event = "";
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "接口测试 API任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试 API任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            successContext = "接口测试 API任务通知:jenkins所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            failedContext = "接口测试 API任务通知:jenkins所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "接口测试定时任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
-            failedContext = "接口测试定时任务通知:'" + report.getExecutor() + "所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            successContext = "接口测试定时任务通知:定时任务所执行的" + report.getName() + "'执行成功" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            failedContext = "接口测试定时任务通知:定时任务所执行的" + report.getName() + "'执行失败" + "\n" + "执行环境:" + report.getExecutionEnvironment() + "\n" + "[接口定义暂无报告链接]" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {
@@ -232,6 +240,7 @@ public class TestResultService {
         paramMap.put("executor", report.getExecutor());
         paramMap.put("executionTime", report.getExecutionTime());
         paramMap.put("executionEnvironment", report.getExecutionEnvironment());
+        paramMap.put("principal", report.getPrincipal());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")

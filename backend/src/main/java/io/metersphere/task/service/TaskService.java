@@ -22,11 +22,18 @@ public class TaskService {
         return extTaskMapper.getTasks(request);
     }
 
-    public List<TaskCenterDTO> getRunningTasks(TaskCenterRequest request) {
+    public int getRunningTasks(TaskCenterRequest request) {
         if (StringUtils.isEmpty(request.getProjectId())) {
-            return new ArrayList<>();
+            return 0;
         }
         return extTaskMapper.getRunningTasks(request);
     }
 
+    public List<TaskCenterDTO> getCases(String id) {
+        return extTaskMapper.getCases(id);
+    }
+
+    public List<TaskCenterDTO> getScenario(String id) {
+        return extTaskMapper.getScenario(id);
+    }
 }

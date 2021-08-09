@@ -101,7 +101,7 @@ public class TestResult {
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
                 String itemAndScenarioName = "";
-                if (StringUtils.isNotEmpty(item.getScenario())) {
+                 if (StringUtils.isNotEmpty(item.getScenario())) {
                     //第1个：当前场景， 第all_id_names个：最后一层场景
                     List<String> all_id_names = JSON.parseObject(item.getScenario(), List.class);
                     if(all_id_names.size()>1){
@@ -124,19 +124,7 @@ public class TestResult {
                         subItem.setName(array[0]);
                     });
                 } else {
-                    item.getSubRequestResults().forEach(subItem -> {
-                        if (StringUtils.isNotEmpty(subItem.getName()) && subItem.getName().indexOf(SEPARATOR) != -1) {
-                            String array[] = subItem.getName().split(SEPARATOR);
-                            subItem.setName(array[0]);
-                            try {
-                                if (StringUtils.isNotEmpty(subItem.getScenario())) {
-                                    List<String> id_names = JSON.parseObject(subItem.getScenario(), List.class);
-                                    this.setStatus(id_names, subItem.getError() > 0);
-                                }
-                            } catch (Exception e) {
-                            }
-                        }
-                    });
+                    this.genScenarioInSubReqeustResult(item);
                 }
                 this.setStepStatus(itemAndScenarioName,item.getError()>0);
             });
@@ -171,5 +159,27 @@ public class TestResult {
 
         this.setScenarioStepTotal(this.scenarioStepMap.size());
 
+    }
+
+    //一般多层的事务控制器会出现这种情况
+    private String genScenarioInSubReqeustResult(RequestResult item) {
+
+        if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
+            String array[] = item.getName().split(SEPARATOR);
+            item.setName(array[0]);
+        }
+
+        if(StringUtils.isNotEmpty(item.getScenario())){
+            List<String> id_names = JSON.parseObject(item.getScenario(), List.class);
+            this.setStatus(id_names, item.getError() > 0);
+            return item.getScenario();
+        }else{
+            if(CollectionUtils.isNotEmpty(item.getSubRequestResults())){
+                for (RequestResult requestResult:item.getSubRequestResults()) {
+                    String result = this.genScenarioInSubReqeustResult(requestResult);
+                }
+            }
+            return null;
+        }
     }
 }

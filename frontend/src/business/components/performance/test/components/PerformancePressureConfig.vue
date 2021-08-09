@@ -70,6 +70,16 @@
                   :max="maxThreadNumbers"
                   size="mini"/>
               </el-form-item>
+              <el-form-item :label="$t('load_test.on_sample_error')">
+                <el-select v-model="threadGroup.onSampleError" :disabled="isReadOnly" size="mini">
+                  <el-option
+                    v-for="item in onSampleErrors"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
               <br>
               <el-form-item>
                 <el-radio-group v-model="threadGroup.threadType" @change="calculateTotalChart()">
@@ -197,6 +207,7 @@ import {hasPermission} from "@/common/js/utils";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
+const ON_SAMPLE_ERROR = "onSampleError";
 const SERIALIZE_THREAD_GROUPS = "serializeThreadGroups";
 const AUTO_STOP = "autoStop";
 const AUTO_STOP_DELAY = "autoStopDelay";
@@ -255,6 +266,17 @@ export default {
       isReadOnly: false,
       rampUpTimeVisible: true,
     };
+  },
+  computed: {
+    onSampleErrors() {
+      return [
+        {value: 'continue', label: this.$t('load_test.continue')},
+        {value: 'startnextloop', label: this.$t('load_test.startnextloop')},
+        {value: 'stopthread', label: this.$t('load_test.stopthread')},
+        {value: 'stoptest', label: this.$t('load_test.stoptest')},
+        {value: 'stoptestnow', label: this.$t('load_test.stoptestnow')},
+      ];
+    }
   },
   mounted() {
     if (this.testId) {
@@ -345,6 +367,9 @@ export default {
                 case THREAD_GROUP_TYPE:
                   this.threadGroups[i].tgType = item.value;
                   break;
+                case ON_SAMPLE_ERROR:
+                  this.threadGroups[i].onSampleError = item.value;
+                  break;
                 case SERIALIZE_THREAD_GROUPS:
                   this.serializeThreadGroups = item.value;// 所有的线程组值一样
                   break;
@@ -364,6 +389,7 @@ export default {
               this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
               this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
               this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
+              this.$set(this.threadGroups[i], "onSampleError", this.threadGroups[i].onSampleError || 'continue');
             });
           }
           for (let i = 0; i < this.threadGroups.length; i++) {
@@ -454,7 +480,7 @@ export default {
           tg.threadType === 'ITERATION') {
           continue;
         }
-        if (tg.duration < tg.rampUpTime) {
+        if (this.getDuration(tg) < tg.rampUpTime) {
           tg.rampUpTime = tg.duration;
         }
         if (tg.rampUpTime < tg.step) {
@@ -651,6 +677,7 @@ export default {
           {key: ITERATE_RAMP_UP, value: this.threadGroups[i].iterateRampUp},
           {key: ENABLED, value: this.threadGroups[i].enabled},
           {key: DELETED, value: this.threadGroups[i].deleted},
+          {key: ON_SAMPLE_ERROR, value: this.threadGroups[i].onSampleError},
           {key: THREAD_GROUP_TYPE, value: this.threadGroups[i].tgType},
           {key: SERIALIZE_THREAD_GROUPS, value: this.serializeThreadGroups},
           {key: AUTO_STOP, value: this.autoStop},

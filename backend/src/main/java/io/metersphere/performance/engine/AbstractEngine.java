@@ -33,6 +33,7 @@ public abstract class AbstractEngine implements Engine {
     protected PerformanceTestService performanceTestService;
     protected Integer threadNum;
     protected List<TestResource> resourceList;
+    protected TestResourcePool resourcePool;
     private final TestResourcePoolService testResourcePoolService;
     private final TestResourceService testResourceService;
 
@@ -45,9 +46,10 @@ public abstract class AbstractEngine implements Engine {
         this.startTime = System.currentTimeMillis();
         this.reportId = UUID.randomUUID().toString();
     }
+
     protected void initApiConfig(RunRequest runRequest) {
         String resourcePoolId = runRequest.getPoolId();
-        TestResourcePool resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
+        resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
         if (resourcePool == null || StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.DELETE.name())) {
             MSException.throwException("Resource Pool is empty");
         }
@@ -78,6 +80,7 @@ public abstract class AbstractEngine implements Engine {
             MSException.throwException("Test Resource is empty");
         }
     }
+
     protected void init(LoadTestWithBLOBs loadTest) {
         if (loadTest == null) {
             MSException.throwException("LoadTest is null.");
@@ -91,7 +94,7 @@ public abstract class AbstractEngine implements Engine {
         if (StringUtils.isBlank(resourcePoolId)) {
             MSException.throwException("Resource Pool ID is empty");
         }
-        TestResourcePool resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
+        resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
         if (resourcePool == null || StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.DELETE.name())) {
             MSException.throwException("Resource Pool is empty");
         }

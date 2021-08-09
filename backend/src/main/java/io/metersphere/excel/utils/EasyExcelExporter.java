@@ -42,30 +42,16 @@ public class EasyExcelExporter {
         }
     }
 
-    public void exportByCustomWriteHandler(HttpServletResponse response, Set<String> excludeColumnFiledNames,  List data, String fileName, String sheetName, WriteHandler writeHandler) {
+    public void exportByCustomWriteHandler(HttpServletResponse response, List<List<String>> headList,  List<List<Object>> data, String fileName, String sheetName) {
+        if(CollectionUtils.isEmpty(headList)){
+            headList = new ArrayList<>();
+        }
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
-        List<List<String>> list = new ArrayList<>();
-        List<String>aaaList = new ArrayList<>();
-        aaaList.add("aaaaa");
-        List<String>nameList = new ArrayList<>();
-        nameList.add("所属模块");
-        List<String>name2List = new ArrayList<>();
-        name2List.add("用例名称");
-        list.add(aaaList);
-        list.add(nameList);
-        list.add(name2List);
         try {
             response.setHeader("Content-disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8") + ".xlsx");
-            if(CollectionUtils.isNotEmpty(excludeColumnFiledNames)){
-                EasyExcel.write(response.getOutputStream()).head(list).
-                        registerWriteHandler(writeHandler).
-//                        excludeColumnFiledNames(excludeColumnFiledNames).
-//                        includeColumnFiledNames(list).
-                        sheet(sheetName).doWrite(data);
-            }else {
-                EasyExcel.write(response.getOutputStream(), this.clazz).registerWriteHandler(writeHandler).sheet(sheetName).doWrite(data);
-            }
+            EasyExcel.write(response.getOutputStream()).head(headList).
+                    sheet(sheetName).doWrite(data);
         } catch (UnsupportedEncodingException e) {
             LogUtil.error(e.getMessage(), e);
             throw new ExcelException("Utf-8 encoding is not supported");
@@ -76,6 +62,9 @@ public class EasyExcelExporter {
     }
 
     public void exportByCustomWriteHandler(HttpServletResponse response, List<List<String>> headList,  List<List<Object>> data, String fileName, String sheetName, WriteHandler writeHandler) {
+        if(CollectionUtils.isEmpty(headList)){
+            headList = new ArrayList<>();
+        }
         response.setContentType("application/vnd.ms-excel");
         response.setCharacterEncoding("utf-8");
         try {

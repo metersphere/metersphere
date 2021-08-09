@@ -23,6 +23,8 @@ public class Project implements Serializable {
 
     private String zentaoId;
 
+    private String azureDevopsId;
+
     private Boolean repeatable;
 
     private String caseTemplateId;

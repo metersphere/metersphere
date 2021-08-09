@@ -17,7 +17,7 @@ public class JmeterLoggerAppender extends UnsynchronizedAppenderBase<ILoggingEve
             if (logger == null) {
                 logger = new LinkedHashMap<>();
             }
-            if (event.getLevel().levelStr.equals(LogUtil.INFO)) {
+            if (!event.getLevel().levelStr.equals(LogUtil.DEBUG)) {
                 StringBuffer message = new StringBuffer();
                 message.append(DateUtils.getTimeStr(event.getTimeStamp())).append(" ")
                         .append(event.getLevel()).append(" ")

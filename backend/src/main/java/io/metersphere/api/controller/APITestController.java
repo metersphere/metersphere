@@ -58,8 +58,6 @@ public class APITestController {
     private ScheduleService scheduleService;
     @Resource
     private HistoricalDataUpgradeService historicalDataUpgradeService;
-    @Resource
-    private ApiTestEnvironmentService environmentService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -334,6 +332,7 @@ public class APITestController {
                 dataDTO.setTestPlan(selectData.getTestPlan());
                 dataDTO.setFailureTimes(selectData.getFailureTimes());
                 dataDTO.setCaseType(selectData.getCaseType());
+                dataDTO.setId(selectData.getId());
                 dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
             } else {
                 dataDTO.setCaseName("");
@@ -373,27 +372,7 @@ public class APITestController {
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
     public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) throws Exception {
-
-        ParameterConfig config = new ParameterConfig();
-        config.setProjectId(runRequest.getProjectId());
-
-        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
-        Map<String, String> map = runRequest.getEnvironmentMap();
-        if (map != null && map.size() > 0) {
-            ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(runRequest.getProjectId()));
-            EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-            envConfig.put(runRequest.getProjectId(), env);
-            config.setConfig(envConfig);
-        }
-        HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
-        String jmxString = runRequest.getTestElement().getJmx(hashTree);
-
-        String testName = runRequest.getName();
-
-        //将jmx处理封装为通用方法
-        JmxInfoDTO dto = apiTestService.updateJmxString(jmxString, testName, false);
-        dto.setName(runRequest.getName() + ".jmx");
-        return dto;
+        return apiTestService.getJmxInfoDTO(runRequest, bodyFiles);
     }
 
 }

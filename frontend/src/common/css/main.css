@@ -289,3 +289,7 @@ textarea {
   border-color: #409EFF;
   color: white;
 }
+
+.ms-full-loading .el-loading-spinner {
+  font-size: 16px;
+}

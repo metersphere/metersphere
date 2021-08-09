@@ -6,6 +6,7 @@ import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.jmeter.LocalRunner;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -20,6 +21,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -182,7 +184,9 @@ public class ApiAutomationController {
     @PostMapping(value = "/run")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXECUTE, content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
     public String run(@RequestBody RunScenarioRequest request) {
-        request.setExecuteType(ExecuteType.Completed.name());
+        if (!StringUtils.equals(request.getExecuteType(), ExecuteType.Saved.name())) {
+            request.setExecuteType(ExecuteType.Completed.name());
+        }
         request.setTriggerMode(TriggerMode.MANUAL.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
@@ -296,6 +300,11 @@ public class ApiAutomationController {
     @MsAuditLog(module = "api_automation", type = OperLogConstants.EXPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")
     public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
         return apiAutomationService.exportJmx(request);
+    }
+
+    @GetMapping(value = "/stop/{reportId}")
+    public void stop(@PathVariable String reportId) {
+        new LocalRunner().stop(reportId);
     }
 }
 

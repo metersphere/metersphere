@@ -9,7 +9,7 @@ Vue.use(Vuex)
 const state = {
   projectId: "",
   test: {},
-  scenarioJmxs:{},
+  scenarioJmxs: {},
   versionSwitch: "new",
   isReadOnly: true,
   theme: undefined,
@@ -21,9 +21,9 @@ const state = {
   testReviewSelectNode: {},
   testReviewSelectNodeIds: [],
   testReviewModuleOptions: [],
-
-  testPlanViewSelectNode: {}
-
+  useEnvironment: "",
+  testPlanViewSelectNode: {},
+  selectStep: {},
 }
 
 const store = new Vuex.Store({

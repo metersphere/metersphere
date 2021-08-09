@@ -8,4 +8,5 @@ public class GroupPermission {
     private String name;
     private String resourceId;
     private Boolean checked = false;
+    private Boolean license = false;
 }

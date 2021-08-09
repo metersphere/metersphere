@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 public class ExecutedCaseInfoResult {
     private String testCaseID;
+    private String id;
     //案例名称
     private String caseName;
     //所属测试计划

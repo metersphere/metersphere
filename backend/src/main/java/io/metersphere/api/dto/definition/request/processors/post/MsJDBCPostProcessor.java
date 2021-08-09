@@ -236,7 +236,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
     private JDBCPostProcessor jdbcPostProcessor(ParameterConfig config) {
         JDBCPostProcessor jdbcPostProcessor = new JDBCPostProcessor();
         jdbcPostProcessor.setEnabled(this.isEnable());
-        jdbcPostProcessor.setName(this.getName());
+        jdbcPostProcessor.setName(this.getName() == null? "JDBCPostProcessor" : this.getName());
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             jdbcPostProcessor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
@@ -244,7 +244,8 @@ public class MsJDBCPostProcessor extends MsTestElement {
         jdbcPostProcessor.setProperty(TestElement.TEST_CLASS, JDBCPostProcessor.class.getName());
         jdbcPostProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         jdbcPostProcessor.setProperty("MS-ID", this.getId());
-        jdbcPostProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId());
+        String indexPath = this.getIndex();
+        jdbcPostProcessor.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
         this.getScenarioSet(this, id_names);
         jdbcPostProcessor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));

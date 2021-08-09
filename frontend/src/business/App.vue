@@ -154,7 +154,7 @@ export default {
         this.isShow = true;
       });
     },
-    reloadTopMenus() {
+    reloadTopMenus(callback) {
       this.$get("/isLogin").then(response => {
         if (response.data.success) {
           this.$setLang(response.data.data.language);
@@ -165,11 +165,17 @@ export default {
           this.$nextTick(() => {
             this.isShow = true;
             this.isMenuShow = true;
+            if (callback) {
+              callback();
+            }
           });
         } else {
           window.location.href = "/login";
         }
       }).catch(() => {
+        if (callback) {
+          callback();
+        }
         window.location.href = "/login";
       });
     }

@@ -715,7 +715,7 @@ export default {
 }
 
 .test-detail {
-  height: calc(100vh - 345px);
+  height: calc(100vh - 285px);
   overflow: auto;
 }
 

@@ -31,6 +31,7 @@
                            @batchEditCase="batchEditCase"
                            @batchRun="batchRun"
                            @apiCaseSelected="apiCaseSelected"
+                           @showHistory="showHistory"
                            :environment="environment"
                            :select-size="selectSize"
                            :is-case-edit="isCaseEdit"
@@ -47,6 +48,9 @@
             @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :data-count="selectdCases.length" :value-arr="valueArr"/>
+
+    <ms-task-center ref="taskCenter"/>
+
   </div>
 </template>
 <script>
@@ -59,6 +63,7 @@ import MsDrawer from "../../../../common/components/MsDrawer";
 import {CASE_ORDER, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsBatchEdit from "../basis/BatchEdit";
+import MsTaskCenter from "../../../../task/TaskCenter";
 
 export default {
   name: 'ApiCaseList',
@@ -67,7 +72,8 @@ export default {
     MsRun,
     ApiCaseHeader,
     ApiCaseItem,
-    MsBatchEdit
+    MsBatchEdit,
+    MsTaskCenter,
   },
   props: {
     createCase: String,
@@ -102,9 +108,7 @@ export default {
       },
       api: {},
       typeArr: [
-        {id: 'priority', name: this.$t('test_track.case.priority')},
-        {id: 'method', name: this.$t('api_test.definition.api_type')},
-        {id: 'path', name: this.$t('api_test.request.path')},
+        {id: 'priority', name: this.$t('test_track.case.priority')}
       ],
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -120,6 +124,9 @@ export default {
     };
   },
   watch: {
+    '$store.state.useEnvironment': function () {
+      this.environment = this.$store.state.useEnvironment;
+    },
     refreshSign() {
       this.api = this.currentApi;
       this.getApiTest();
@@ -134,6 +141,9 @@ export default {
     if (this.createCase) {
       this.sysAddition();
     }
+    if (!this.environment && this.$store.state.useEnvironment) {
+      this.environment = this.$store.state.useEnvironment;
+    }
   },
   computed: {
     isCaseEdit() {
@@ -144,12 +154,12 @@ export default {
     },
   },
   methods: {
-    apiCaseSelected(){
+    apiCaseSelected() {
       this.selectSize = 0;
       if (this.apiCaseList.length > 0) {
         this.apiCaseList.forEach(item => {
           if (item.selected && item.id) {
-            this.selectSize ++;
+            this.selectSize++;
           }
         });
       }
@@ -160,6 +170,18 @@ export default {
       this.testCaseId = testCaseId;
       this.condition = {components: API_CASE_CONFIGS};
       this.getApiTest(true);
+      this.visible = true;
+    },
+    add(api) {
+      this.api = api;
+      this.condition = {components: API_CASE_CONFIGS};
+      this.sysAddition();
+      this.visible = true;
+    },
+    copy(apiCase) {
+      this.api.id = apiCase.apiDefinitionId;
+      this.condition = {components: API_CASE_CONFIGS};
+      this.sysAddition(apiCase);
       this.visible = true;
     },
     runTestCase(api, testCaseId) {
@@ -179,7 +201,7 @@ export default {
     setEnvironment(environment) {
       this.environment = environment;
     },
-    sysAddition() {
+    sysAddition(apiCase) {
       this.condition.projectId = this.projectId;
       this.condition.apiDefinitionId = this.api.id;
       this.$post("/api/testcase/list", this.condition, response => {
@@ -197,7 +219,11 @@ export default {
           }
         });
         this.apiCaseList = data;
-        this.addCase();
+        if (apiCase) {
+          this.copyCase(apiCase);
+        } else {
+          this.addCase();
+        }
       });
     },
 
@@ -225,11 +251,13 @@ export default {
       this.batchEdit(obj);
       this.runResult = {testId: getUUID()};
       this.$success(this.$t('organization.integration.successful_operation'));
+      this.$emit("refresh");
     },
     errorRefresh() {
       this.batchLoadingIds = [];
       this.singleLoading = false;
       this.singleRunId = "";
+      this.$emit("refresh");
     },
     refresh() {
       this.getApiTest();
@@ -374,6 +402,7 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
+      this.$emit("refresh", row.id);
     },
 
     batchRun() {
@@ -453,6 +482,9 @@ export default {
         this.getApiTest();
       });
     },
+    showHistory(id) {
+      this.$refs.taskCenter.openHistory(id);
+    }
   }
 };
 </script>

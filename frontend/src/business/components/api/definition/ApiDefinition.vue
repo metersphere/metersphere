@@ -20,6 +20,13 @@
       </ms-aside-container>
 
       <ms-main-container>
+        <ms-environment-select
+          :project-id="projectId"
+          :is-read-only="false"
+          :useEnvironment='useEnvironment'
+          @setEnvironment="setEnvironment"
+          class="ms-api-button"
+          ref="environmentSelect"/>
         <!-- 主框架列表 -->
         <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
           <el-tab-pane
@@ -33,7 +40,7 @@
               :middle-button-enable="false"
               left-content="API"
               right-content="CASE"
-              >
+            >
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="trashActiveDom==='left'"
@@ -92,8 +99,6 @@
               <!-- 列表集合 -->
               <ms-api-list
                 v-if="activeDom==='left'"
-                @runTest="runTest"
-                @refreshTree="refreshTree"
                 :module-tree="nodeTree"
                 :module-options="moduleOptions"
                 :current-protocol="currentProtocol"
@@ -104,6 +109,8 @@
                 :queryDataType="queryDataType"
                 :selectDataRange="selectDataRange"
                 :is-read-only="isReadOnly"
+                @runTest="runTest"
+                @refreshTree="refreshTree"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @editApi="editApi"
                 @handleCase="handleCase"
@@ -126,60 +133,100 @@
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
                 ref="caseList"/>
-              <api-documents-page class="api-doc-page"
-                                  v-if="activeDom==='right'"
-                                  :project-id="projectId"
-                                  :trash-enable="trashEnable"
-                                  :module-ids="selectNodeIds"/>
+              <api-documents-page
+                class="api-doc-page"
+                v-if="activeDom==='right'"
+                :project-id="projectId"
+                :trash-enable="trashEnable"
+                :module-ids="selectNodeIds"/>
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
             <div v-if="item.type=== 'ADD'" class="ms-api-div">
-              <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @mockConfig="mockConfig"
-                             @createRootModel="createRootModel" ref="apiConfig"
-                             :current-api="item.api"
-                             :project-id="projectId"
-                             :currentProtocol="currentProtocol"
-                             :moduleOptions="moduleOptions"/>
+              <ms-edit-complete-container
+                :syncTabs="syncTabs"
+                @runTest="runTest"
+                @saveApi="saveApi"
+                @createRootModel="createRootModel"
+                @editApi="editApi"
+                @refresh="refresh"
+                :current-api="item.api"
+                :project-id="projectId"
+                :currentProtocol="currentProtocol"
+                :moduleOptions="moduleOptions"
+
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
+
+                ref="apiConfig"
+              />
             </div>
             <!-- 快捷调试 -->
             <div v-else-if="item.type=== 'debug'" class="ms-api-div">
-              <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                  @refreshModule="refreshModule"
-                                  v-if="currentProtocol==='HTTP'"/>
-              <ms-debug-jdbc-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                  @refreshModule="refreshModule"
-                                  v-if="currentProtocol==='SQL'"/>
-              <ms-debug-tcp-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                 @refreshModule="refreshModule"
-                                 v-if="currentProtocol==='TCP'"/>
-              <ms-debug-dubbo-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                   @refreshModule="refreshModule"
-                                   v-if="currentProtocol==='DUBBO'"/>
+              <ms-debug-http-page
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='HTTP'"/>
+              <ms-debug-jdbc-page
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='SQL'"/>
+              <ms-debug-tcp-page
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='TCP'"/>
+              <ms-debug-dubbo-page
+                :currentProtocol="currentProtocol"
+                :testCase="item.api"
+                @saveAs="editApi"
+                @refreshModule="refreshModule"
+                v-if="currentProtocol==='DUBBO'"/>
             </div>
-
             <!-- 测试-->
             <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-              <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
-                                     :project-id="projectId"
-                                     @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
-              <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
-                                    :project-id="projectId"
-                                    @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='TCP'"/>
-              <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
-                                    :project-id="projectId"
-                                    @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='SQL'"/>
-              <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
-                                      :project-id="projectId"
-                                      @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
+              <ms-run-test-http-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='HTTP'"/>
+              <ms-run-test-tcp-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='TCP'"/>
+              <ms-run-test-sql-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='SQL'"/>
+              <ms-run-test-dubbo-page
+                :syncTabs="syncTabs"
+                :currentProtocol="currentProtocol"
+                :api-data="item.api"
+                :project-id="projectId"
+                @saveAsApi="editApi"
+                @refresh="refresh"
+                v-if="currentProtocol==='DUBBO'"/>
             </div>
 
             <!-- 定时任务 -->
             <div v-if="item.type=== 'SCHEDULE'" class="ms-api-div">
               <api-schedule :param="param" :module-options="nodeTree" ref="apiSchedules"/>
-            </div>
-
-            <div v-else-if="item.type=== 'MOCK'" class="ms-api-div">
-              <mock-config :base-mock-config-data="item.mock"></mock-config>
             </div>
           </el-tab-pane>
 
@@ -223,7 +270,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getCurrentUserId, getUUID, hasPermission} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -233,6 +280,9 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
 
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
 import ApiSchedule from "@/business/components/api/definition/components/import/ApiSchedule";
+import MsEditCompleteContainer from "./components/EditCompleteContainer";
+import MsEnvironmentSelect from "./components/case/MsEnvironmentSelect";
+
 
 export default {
   name: "ApiDefinition",
@@ -270,7 +320,9 @@ export default {
     MsRunTestSqlPage,
     MsRunTestDubboPage,
     ApiDocumentsPage,
-    MockConfig
+    MockConfig,
+    MsEditCompleteContainer,
+    MsEnvironmentSelect
   },
   props: {
     visible: {
@@ -314,6 +366,7 @@ export default {
       //影响API表格刷新的操作。 为了防止高频率刷新模块列表用。如果是模块更新而造成的表格刷新，则不回调模块刷新方法
       initApiTableOpretion: 'init',
       param: {},
+      useEnvironment: String,
     };
   },
   activated() {
@@ -322,10 +375,10 @@ export default {
       this.activeDom = 'middle';
     }
     let dataType = this.$route.params.dataType;
-    if(dataType){
-      if(dataType === "api"){
+    if (dataType) {
+      if (dataType === "api") {
         this.activeDom = 'left';
-      }else {
+      } else {
         this.activeDom = 'middle';
       }
     }
@@ -366,8 +419,30 @@ export default {
       }
     }
   },
-
+  created() {
+    this.getEnv();
+  },
   methods: {
+    setEnvironment(data) {
+      if (data) {
+        this.useEnvironment = data.id;
+        this.$store.state.useEnvironment = data.id;
+        this.addEnv(data.id);
+      }
+    },
+    addEnv(envId) {
+      this.$post('/api/definition/env/create', {userId: getCurrentUserId(), envId: envId}, response => {
+      });
+    },
+    getEnv() {
+      this.$get("/api/definition/env/get/" + getCurrentUserId(), response => {
+        let env = response.data;
+        if (env) {
+          this.$store.state.useEnvironment = env.envId;
+          this.useEnvironment = env.envId;
+        }
+      });
+    },
     hasPermission,
     getPath(id, arr) {
       if (id === null) {
@@ -390,17 +465,19 @@ export default {
     addTab(tab) {
       if (tab.name === 'add') {
         this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
-      }else if(tab.name === 'trash'){
-        if(this.$refs.trashApiList){
+      } else if (tab.name === 'trash') {
+        if (this.$refs.trashApiList) {
           this.$refs.trashApiList.initTable();
         }
-        if(this.$refs.trashCaseList){
+        if (this.$refs.trashCaseList) {
           this.$refs.trashCaseList.initTable();
         }
       }
       if (this.$refs.apiConfig) {
         this.$refs.apiConfig.forEach(item => {
-          item.removeListener();
+          if (item) {
+            item.removeListener();
+          }
         }); //  删除所有tab的 ctrl + s 监听
         let tabs = this.apiTabs;
         let index = tabs.findIndex(item => item.name === tab.name); //  找到当前选中tab的index
@@ -526,12 +603,17 @@ export default {
         name = "copy" + "-" + row.name;
         row.name = "copy" + "-" + row.name;
       } else {
-        if(row.name){
+        if (row.name) {
           name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
-        }else {
+        } else {
           name = this.$t('api_test.definition.request.title');
         }
-
+      }
+      if (row != null && row.tags != 'null' && row.tags != undefined) {
+        if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+          row.tags = JSON.parse(row.tags);
+        }
       }
       this.handleTabsEdit(name, "ADD", row);
     },
@@ -553,16 +635,16 @@ export default {
       this.$refs.nodeTree.list();
     },
     refresh(data) {
-      if(this.$refs.caseList && this.$refs.caseList[0]){
+      if (this.$refs.caseList && this.$refs.caseList[0]) {
         this.$refs.caseList[0].initTable();
       }
-      if(this.$refs.trashApiList){
+      if (this.$refs.trashApiList) {
         this.$refs.trashApiList.initTable();
       }
-      if(this.$refs.trashCaseList){
+      if (this.$refs.trashCaseList) {
         this.$refs.trashCaseList.initTable();
       }
-      if(this.$refs.apiDefList && this.$refs.apiDefList[0]){
+      if (this.$refs.apiDefList && this.$refs.apiDefList[0]) {
         this.$refs.apiDefList[0].initTable();
       }
 
@@ -616,13 +698,13 @@ export default {
     enableTrash(data) {
       this.initApiTableOpretion = "trashEnable";
       this.trashEnable = data;
-      if(data){
+      if (data) {
         this.apiDefaultTab = "trash";
-      }else {
+      } else {
         this.apiDefaultTab = "default"
       }
     },
-    updateInitApiTableOpretion(param){
+    updateInitApiTableOpretion(param) {
       this.initApiTableOpretion = param;
     }
   }
@@ -642,7 +724,7 @@ export default {
 
 /deep/ .el-tabs__header {
   margin: 0 0 0px;
-  /*width: calc(100% - 90px);*/
+  width: calc(100% - 200px);
 }
 
 /deep/ .el-card {
@@ -655,4 +737,16 @@ export default {
   margin-top: 10px;
 }
 
+.ms-api-button {
+  position: absolute;
+  top: 92px;
+  right: 10px;
+  padding: 0;
+  background: 0 0;
+  border: none;
+  outline: 0;
+  cursor: pointer;
+  margin-right: 10px;
+  font-size: 16px;
+}
 </style>

@@ -13,7 +13,7 @@
 
     <template v-slot:headerLeft>
 
-      <el-input draggable size="mini" v-model="controller.variable" style="width: 15%" :placeholder="$t('api_test.request.condition_variable')"/>
+      <el-input draggable size="mini" v-model="controller.variable" style="width: 12%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="mini"
                  @change="change" class="ms-select">
@@ -27,7 +27,11 @@
     </template>
 
     <template v-slot:debugStepCode>
-      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && node.data.debug">
+      <span v-if="node.data.testing" class="ms-test-running">
+         <i class="el-icon-loading" style="font-size: 16px"/>
+         {{ $t('commons.testing') }}
+       </span>
+      <span class="ms-step-debug-code" :class="node.data.code ==='error'?'ms-req-error':'ms-req-success'" v-if="!loading && !node.data.testing && node.data.debug && node.data.code">
         {{ getCode() }}
       </span>
     </template>
@@ -110,7 +114,7 @@
         })
       },
       getCode() {
-        if (this.node && this.node.data.debug) {
+        if (this.node && this.node.data.code && this.node.data.debug) {
           if (this.node.data.code && this.node.data.code === 'error') {
             return 'error';
           } else {
@@ -141,7 +145,7 @@
 
 <style scoped>
   .ms-btn {
-    width: 20%;
+    width: 15%;
     margin-left: 5px;
   }
 
@@ -165,6 +169,9 @@
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 100px;
+    width: 80px;
+  }
+  .ms-test-running {
+    color: #6D317C;
   }
 </style>

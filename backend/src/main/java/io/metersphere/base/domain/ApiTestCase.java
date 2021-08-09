@@ -37,5 +37,7 @@ public class ApiTestCase implements Serializable {
 
     private String deleteUserId;
 
+    private Integer version;
+
     private static final long serialVersionUID = 1L;
 }
