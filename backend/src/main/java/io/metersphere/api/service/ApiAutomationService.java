@@ -1368,6 +1368,8 @@ public class ApiAutomationService {
         String runMode = ApiRunMode.SCENARIO.name();
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
+        }else if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
+            runMode = ApiRunMode.SCHEDULE_SCENARIO.name();
         }
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             runMode = ApiRunMode.DEFINITION.name();
