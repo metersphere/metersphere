@@ -40,4 +40,13 @@ CREATE TABLE `load_test_report_result_realtime`
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
 
+ALTER TABLE api_definition
+    ADD follow_people VARCHAR(100) NULL;
+
+ALTER TABLE load_test
+    ADD follow_people VARCHAR(100) NULL;
+
+ALTER TABLE api_test_case
+    ADD follow_people VARCHAR(100) NULL;
+
 ALTER TABLE test_plan ADD report_summary TEXT NULL COMMENT '测试计划报告总结';

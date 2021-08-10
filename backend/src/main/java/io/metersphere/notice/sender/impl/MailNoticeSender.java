@@ -35,7 +35,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
         LogUtil.info("发件人地址" + javaMailSender.getUsername());
         LogUtil.info("helper" + helper);
         helper.setSubject("MeterSphere " + noticeModel.getSubject());
-        List<String> emails = super.getUserEmails(messageDetail.getUserIds());
+        List<String> emails = super.getUserEmails(noticeModel, messageDetail.getUserIds());
         String[] users = emails.toArray(new String[0]);
         LogUtil.info("收件人地址: " + emails);
         helper.setText(context, true);

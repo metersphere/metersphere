@@ -30,6 +30,8 @@ public class TestPlanRequest {
 
     private String testResourcePoolId;
 
+    private String followPeople;
+
     private static final long serialVersionUID = 1L;
 
 }

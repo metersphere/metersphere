@@ -8,10 +8,12 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import org.springframework.web.bind.annotation.*;
@@ -81,12 +83,14 @@ public class ApiTestCaseController {
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_CREATE, mailTemplate = "api/CaseCreate", subject = "接口用例通知")
     public ApiTestCase create(@RequestPart("request") SaveApiTestCaseRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return apiTestCaseService.create(request, bodyFiles);
     }
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, mailTemplate = "api/CaseUpdate", subject = "接口用例通知")
     public ApiTestCase update(@RequestPart("request") SaveApiTestCaseRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return apiTestCaseService.update(request, bodyFiles);
     }
@@ -99,9 +103,11 @@ public class ApiTestCaseController {
 
     @GetMapping("/deleteToGc/{id}")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, mailTemplate = "api/CaseDelete", subject = "接口用例通知")
     public void deleteToGc(@PathVariable String id) {
         apiTestCaseService.deleteToGc(id);
     }
+
     @PostMapping("/removeToGc")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiTestCaseService.class)
     public void removeToGc(@RequestBody List<String> ids) {
@@ -123,6 +129,7 @@ public class ApiTestCaseController {
     public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.editApiBathByParam(request);
     }
+
     @PostMapping("/reduction")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     public List<String> reduction(@RequestBody ApiTestBatchRequest request) {
@@ -147,6 +154,7 @@ public class ApiTestCaseController {
     public void deleteToGcByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteToGcByParam(request);
     }
+
     @PostMapping("/checkDeleteDatas")
     public DeleteCheckResult checkDeleteDatas(@RequestBody ApiTestBatchRequest request) {
         return apiTestCaseService.checkDeleteDatas(request);

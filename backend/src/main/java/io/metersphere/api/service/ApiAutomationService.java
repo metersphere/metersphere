@@ -342,7 +342,7 @@ public class ApiAutomationService {
         }
     }
 
-    public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+    public ApiScenario update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
         checkNameExist(request);
         checkScenarioNum(request);
 
@@ -367,6 +367,7 @@ public class ApiAutomationService {
         apiScenarioReferenceIdService.saveByApiScenario(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
         uploadFiles(request, bodyFiles, scenarioFiles);
+        return scenario;
     }
 
     /**

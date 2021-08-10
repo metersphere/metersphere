@@ -25,7 +25,7 @@
         <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading" class="case-form">
           <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
           <el-row>
-            <el-col :span="7">
+            <el-col :span="6">
               <el-form-item
                 :placeholder="$t('test_track.case.input_name')"
                 :label="$t('test_track.case.name')"
@@ -35,16 +35,32 @@
               </el-form-item>
             </el-col>
 
-            <el-col :span="7">
+            <el-col :span="6">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
                 <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
                                 @getValue="setModule" clearable checkStrictly size="small"/>
               </el-form-item>
             </el-col>
 
-            <el-col :span="7">
+            <el-col :span="6">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="6">
+              <el-form-item :label="$t('api_test.automation.follow_people')" :label-width="formLabelWidth"
+                            prop="followPeople">
+                <el-select v-model="form.followPeople"
+                           clearable
+                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small">
+                  <el-option
+                      v-for="item in maintainerOptions"
+                      :key="item.id"
+                      :label="item.id + ' (' + item.name + ')'"
+                      :value="item.id">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>
@@ -212,7 +228,8 @@
           stepDescription: '',
           expectedResult: '',
           stepModel: 'STEP',
-          customNum: ''
+          customNum: '',
+          followPeople: '',
         },
         maintainerOptions: [],
         // testOptions: [],
@@ -605,14 +622,13 @@
             this.$success(this.$t('commons.save_success'));
             this.path = "/test/case/edit";
             // this.operationType = "edit"
-            this.form.id = response.id;
             this.$emit("refreshTestCase",);
             //this.tableType = 'edit';
             this.$emit("refresh", this.form);
-            this.form.id = response.data;
+            this.form.id = response.data.id;
 
             if (this.type === 'add' || this.type === 'copy') {
-              param.id = response.data;
+              param.id = response.data.id;
               this.$emit("caseCreate", param);
               this.close();
             } else {

@@ -51,5 +51,7 @@ public class ApiDefinition implements Serializable {
 
     private String deleteUserId;
 
+    private String followPeople;
+
     private static final long serialVersionUID = 1L;
 }
