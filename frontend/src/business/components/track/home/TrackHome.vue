@@ -53,7 +53,7 @@ import CaseMaintenance from "@/business/components/track/home/components/CaseMai
 import {COUNT_NUMBER, COUNT_NUMBER_SHALLOW} from "@/common/js/constants";
 import BugCountCard from "@/business/components/track/home/components/BugCountCard";
 import ReviewList from "@/business/components/track/home/components/ReviewList";
-import MsRunningTaskList from "@/business/components/api/homepage/components/RunningTaskList";
+import MsRunningTaskList from "@/business/components/track/home/components/RunningTaskList";
 import MsFailureTestCaseList from "@/business/components/api/homepage/components/FailureTestCaseList";
 import {getCurrentProjectID} from "@/common/js/utils";
 

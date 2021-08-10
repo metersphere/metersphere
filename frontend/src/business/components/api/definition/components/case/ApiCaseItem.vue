@@ -20,7 +20,7 @@
             </el-col>
           </el-row>
         </el-col>
-        <el-col :span="api.protocol==='HTTP'?6:10" v-loading="loading && !(apiCase.active||type==='detail')">
+        <el-col :span="api.protocol==='HTTP'?4:8" v-loading="loading && !(apiCase.active||type==='detail')">
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
@@ -62,6 +62,22 @@
         </el-col>
 
         <el-col :span="3">
+          <div class="tag-item" @click.stop>
+            <el-select v-model="apiCase.followPeople"
+                       clearable
+                       :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
+                       @change="saveTestCase(apiCase)">
+              <el-option
+                  v-for="item in maintainerOptions"
+                  :key="item.id"
+                  :label="item.id + ' (' + item.name + ')'"
+                  :value="item.id">
+              </el-option>
+            </el-select>
+          </div>
+        </el-col>
+
+        <el-col :span="3">
           <span @click.stop>
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
                            class="run-button" size="mini" :disabled="!apiCase.id" circle v-if="!loading"/>
@@ -80,7 +96,7 @@
           </span>
         </el-col>
 
-        <el-col :span="3">
+        <el-col :span="2">
           <el-link @click.stop type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
@@ -204,6 +220,7 @@ export default {
         {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
       ],
       methodColorMap: new Map(API_METHOD_COLOUR),
+      maintainerOptions: [],
     }
   },
   props: {
@@ -241,6 +258,7 @@ export default {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
+    this.getMaintainerOptions();
   },
   watch: {
     'apiCase.selected'() {
@@ -248,6 +266,11 @@ export default {
     }
   },
   methods: {
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
+    },
     openHis(row) {
       this.$refs.changeHistory.open(row.id);
     },

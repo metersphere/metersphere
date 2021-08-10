@@ -2,8 +2,9 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <h3>{{ $t('organization.message.test_plan_task_notification') }}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel" v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
+        <h5>接口自动化</h5>
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
+                   v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
         <el-popover
@@ -19,8 +20,9 @@
         <el-popover
           placement="right-end"
           title="示例"
-          width="600"
-          trigger="click">
+          width="400"
+          trigger="click"
+          :content="robotTitle">
           <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.robot_template') }}
@@ -31,7 +33,7 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="testCasePlanTask"
+          :data="defectTask"
           class="tb-edit"
           border
           :cell-style="rowClass"
@@ -39,11 +41,11 @@
         >
           <el-table-column :label="$t('schedule.event')" min-width="15%" prop="events">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')"
-                         @change="handleTestPlanReceivers(scope.row)" size="mini"
-                         prop="events" :disabled="!scope.row.isSet">
+              <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')" size="mini"
+                         @change="handleReceivers(scope.row)"
+                         prop="event" :disabled="!scope.row.isSet">
                 <el-option
-                  v-for="item in otherEventOptions"
+                  v-for="item in eventOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
@@ -51,12 +53,13 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
+          <el-table-column :label="$t('schedule.receiver')" prop="receiver" min-width="20%">
             <template v-slot:default="{row}">
               <el-select v-model="row.userIds" filterable multiple size="mini"
-                         :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
+                         :placeholder="$t('commons.please_select')"
+                         style="width: 100%;" :disabled="!row.isSet">
                 <el-option
-                  v-for="item in row.testPlanReceiverOptions"
+                  v-for="item in row.receiverOptions"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
@@ -86,43 +89,49 @@
           </el-table-column>
           <el-table-column :label="$t('commons.operating')" min-width="25%" prop="result">
             <template v-slot:default="scope">
-              <el-button
+              <ms-tip-button
+                circle
                 type="success"
                 size="mini"
                 v-if="scope.row.isSet"
                 v-xpack
                 @click="handleTemplate(scope.$index,scope.row)"
-              >{{ $t('organization.message.template') }}
-              </el-button>
-              <el-button
+                :tip="$t('organization.message.template')"
+                icon="el-icon-tickets"/>
+              <ms-tip-button
+                circle
                 type="primary"
                 size="mini"
                 v-show="scope.row.isSet"
                 @click="handleAddTask(scope.$index,scope.row)"
-              >{{ $t('commons.add') }}
-              </el-button>
-              <el-button
+                :tip="$t('commons.add')"
+                icon="el-icon-check"/>
+              <ms-tip-button
+                circle
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,testCasePlanTask)"
-              >{{ $t('commons.cancel') }}
-              </el-button>
-              <el-button
+                @click="removeRowTask(scope.$index,defectTask)"
+                :tip="$t('commons.cancel')"
+                icon="el-icon-refresh-left"/>
+              <ms-tip-button
+                el-button
+                circle
                 type="primary"
                 size="mini"
+                icon="el-icon-edit"
                 v-show="!scope.row.isSet"
+                :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"
-              >{{ $t('commons.edit') }}
-              </el-button>
-              <el-button
+                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
+              <ms-tip-button
+                circle
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"
-                @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
-              ></el-button>
+                @click="deleteRowTask(scope.$index,scope.row)"
+                :tip="$t('commons.delete')"
+                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
@@ -130,25 +139,26 @@
     </el-row>
     <notice-template v-xpack ref="noticeTemplate"/>
   </div>
-
 </template>
 
 <script>
 import {hasLicense} from "@/common/js/utils";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import MsTipButton from "@/business/components/common/components/MsTipButton";
 
-const TASK_TYPE = 'TEST_PLAN_TASK';
+const TASK_TYPE = 'API_AUTOMATION_TASK';
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
-  name: "TestPlanTaskNotification",
+  name: "ApiAutomationNotification",
   components: {
+    MsTipButton,
     MsCodeEdit,
     "NoticeTemplate": noticeTemplate.default
   },
   props: {
-    testPlanReceiverOptions: {
+    receiverOptions: {
       type: Array
     }
   },
@@ -163,21 +173,13 @@ export default {
         "</head>\n" +
         "<body>\n" +
         "<div>\n" +
-        "    <p style=\"text-align: left\">${creator} 创建的:<br>\n" +
-        "        ${testPlanName}<br>\n" +
-        "        计划开始时间是:${start}<br>\n" +
-        "        计划结束时间为:${end}<br>\n" +
-        "        请跟进！<br>\n" +
-        "        点击下面链接进入测试计划页面</p>\n" +
-        "    <a href=\"${url}/#/track/plan/all\">${url}/#/track/plan/all</a>\n" +
+        "    <p>${creator}创建了测试用例</p>\n" +
         "</div>\n" +
         "</body>\n" +
         "</html>",
-      robotTitle:
-        "   【任务通知】:${creator} 创建的:${testPlanName}计划开始时间是:${start}计划结束时间是：${end}请跟进！/ ${status}！" +
-        "点击下面链接进入测试计划页面${url}/#/track/plan/all",
-      testCasePlanTask: [{
-        taskType: "testPlanTask",
+      robotTitle: "【任务通知】:${creator}创建了测试用例",
+      defectTask: [{
+        taskType: "defectTask",
         event: "",
         userIds: [],
         type: [],
@@ -186,10 +188,10 @@ export default {
         identification: "",
         isReadOnly: false,
       }],
-      otherEventOptions: [
+      eventOptions: [
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
-        {value: 'DELETE', label: this.$t('commons.delete')}
+        {value: 'DELETE', label: this.$t('commons.delete')},
       ],
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
@@ -202,21 +204,23 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
-        this.testCasePlanTask = response.data;
-        this.testCasePlanTask.forEach(planTask => {
-          this.handleTestPlanReceivers(planTask);
+        this.defectTask = response.data;
+        // 上报通知数
+        this.$emit("noticeSize", {taskType: 'api', size: this.defectTask.length});
+        this.defectTask.forEach(planTask => {
+          this.handleReceivers(planTask);
         });
-      })
+      });
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
       if (data.type === 'EMAIL') {
-        data.isReadOnly = !data.isReadOnly
+        data.isReadOnly = !data.isReadOnly;
         data.webhook = '';
       }
     },
     handleEditTask(index, data) {
-      data.isSet = true
+      data.isSet = true;
       if (data.type === 'EMAIL') {
         data.isReadOnly = false;
         data.webhook = '';
@@ -225,15 +229,16 @@ export default {
       }
     },
     handleAddTaskModel() {
-      let Task = {};
-      Task.event = [];
-      Task.userIds = [];
-      Task.type = '';
-      Task.webhook = '';
-      Task.isSet = true;
-      Task.identification = '';
-      Task.taskType = TASK_TYPE
-      this.testCasePlanTask.push(Task)
+      let task = {};
+      task.receiverOptions = this.receiverOptions;
+      task.event = [];
+      task.userIds = [];
+      task.type = '';
+      task.webhook = '';
+      task.isSet = true;
+      task.identification = '';
+      task.taskType = TASK_TYPE;
+      this.defectTask.push(task);
     },
     handleAddTask(index, data) {
 
@@ -253,61 +258,75 @@ export default {
       }
     },
     addTask(data) {
-      data.isSet = false
+      data.isSet = false;
       this.result = this.$post("/notice/save/message/task", data, () => {
-        this.initForm()
+        this.initForm();
         this.$success(this.$t('commons.save_success'));
-      })
+      });
     },
     removeRowTask(index, data) { //移除
       if (!data[index].identification) {
-        data.splice(index, 1)
+        data.splice(index, 1);
       } else {
-        data[index].isSet = false
+        data[index].isSet = false;
       }
     },
     deleteRowTask(index, data) { //删除
       this.result = this.$get("/notice/delete/message/" + data.identification, response => {
         this.$success(this.$t('commons.delete_success'));
-        this.initForm()
-      })
+        this.initForm();
+      });
     },
     rowClass() {
-      return "text-align:center"
+      return "text-align:center";
     },
     headClass() {
-      return "text-align:center;background:'#ededed'"
-    },
-    handleTestPlanReceivers(row) {
-      let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
-      switch (row.event) {
-        case  "CREATE":
-          testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')})
-          break;
-        case "UPDATE":
-        case "DELETE":
-        case "COMMENT":
-          testPlanReceivers.unshift({id: 'FOUNDER', name: this.$t('api_test.creator')});
-          break;
-        default:
-          break;
-      }
-      row.testPlanReceiverOptions = testPlanReceivers;
+      return "text-align:center;background:'#ededed'";
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
         this.$refs.noticeTemplate.open(row);
       }
+    },
+    handleReceivers(row) {
+      let receiverOptions = JSON.parse(JSON.stringify(this.receiverOptions));
+      let i = row.userIds.indexOf('FOLLOW_PEOPLE');
+
+      switch (row.event) {
+        case "UPDATE":
+          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.userIds.indexOf('CREATOR') < 0) {
+            row.userIds.unshift('CREATOR');
+          }
+          if (row.userIds.indexOf('FOLLOW_PEOPLE') < 0) {
+            row.userIds.unshift('FOLLOW_PEOPLE');
+          }
+          break;
+        case "DELETE":
+          receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.userIds.indexOf('CREATOR') < 0) {
+            row.userIds.unshift('CREATOR');
+          }
+          if (i > -1) {
+            row.userIds.splice(i, 1);
+          }
+          break;
+        default:
+          break;
+      }
+      row.receiverOptions = receiverOptions;
     }
   },
   watch: {
-    testPlanReceiverOptions(value) {
+    receiverOptions(value) {
       if (value && value.length > 0) {
         this.initForm();
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -316,20 +335,6 @@ export default {
 }
 
 .el-button {
-  margin-left: 10px;
-}
-
-/deep/ .el-select .el-input.is-disabled .el-input__inner {
-  background-color: #F5F7FA;
-  border-color: #E4E7ED;
-  color: #0a0a0a;
-  cursor: not-allowed;
-}
-
-/deep/ .el-input.is-disabled .el-input__inner {
-  background-color: #F5F7FA;
-  border-color: #E4E7ED;
-  color: #0a0a0a;
-  cursor: not-allowed;
+  margin-right: 10px;
 }
 </style>
