@@ -47,7 +47,7 @@ public class TestCaseCommentService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void saveComment(SaveCommentRequest request) {
+    public TestCaseComment saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
         testCaseComment.setId(request.getId());
         testCaseComment.setAuthor(SessionUtils.getUser().getId());
@@ -57,30 +57,31 @@ public class TestCaseCommentService {
         testCaseComment.setDescription(request.getDescription());
         testCaseComment.setStatus(request.getStatus());
         testCaseCommentMapper.insert(testCaseComment);
-        TestCaseWithBLOBs testCaseWithBLOBs;
-        testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
-
-        // 发送通知
-        User user = userMapper.selectByPrimaryKey(testCaseComment.getAuthor());
-        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        List<String> userIds = new ArrayList<>();
-        userIds.add(testCaseWithBLOBs.getMaintainer());//用例维护人
-        String context = getReviewContext(testCaseComment, testCaseWithBLOBs);
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("maintainer", user.getName());
-        paramMap.put("testCaseName", testCaseWithBLOBs.getName());
-        paramMap.put("description", request.getDescription());
-        paramMap.put("url", baseSystemConfigDTO.getUrl());
-        paramMap.put("id", request.getReviewId());
-        NoticeModel noticeModel = NoticeModel.builder()
-                .context(context)
-                .relatedUsers(userIds)
-                .subject(Translator.get("test_review_task_notice"))
-                .mailTemplate("ReviewComments")
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.COMMENT)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
+//        TestCaseWithBLOBs testCaseWithBLOBs;
+//        testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
+//
+//        // 发送通知
+//        User user = userMapper.selectByPrimaryKey(testCaseComment.getAuthor());
+//        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+//        List<String> userIds = new ArrayList<>();
+//        userIds.add(testCaseWithBLOBs.getMaintainer());//用例维护人
+//        String context = getReviewContext(testCaseComment, testCaseWithBLOBs);
+//        Map<String, Object> paramMap = new HashMap<>();
+//        paramMap.put("maintainer", user.getName());
+//        paramMap.put("testCaseName", testCaseWithBLOBs.getName());
+//        paramMap.put("description", request.getDescription());
+//        paramMap.put("url", baseSystemConfigDTO.getUrl());
+//        paramMap.put("id", request.getReviewId());
+//        NoticeModel noticeModel = NoticeModel.builder()
+//                .context(context)
+//                .relatedUsers(userIds)
+//                .subject(Translator.get("test_review_task_notice"))
+//                .mailTemplate("ReviewComments")
+//                .paramMap(paramMap)
+//                .event(NoticeConstants.Event.COMMENT)
+//                .build();
+//        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
+        return testCaseComment;
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId) {
@@ -112,9 +113,10 @@ public class TestCaseCommentService {
         testCaseCommentMapper.deleteByPrimaryKey(commentId);
     }
 
-    public void edit(SaveCommentRequest request) {
+    public TestCaseComment edit(SaveCommentRequest request) {
         checkCommentOwner(request.getId());
         testCaseCommentMapper.updateByPrimaryKeySelective(request);
+        return testCaseCommentMapper.selectByPrimaryKey(request.getId());
     }
 
     private void checkCommentOwner(String commentId) {

@@ -303,6 +303,7 @@ public class ApiTestCaseService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
         test.setVersion(request.getVersion() == null ? 0 : request.getVersion() + 1);
+        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.equals("[]", request.getTags())) {
             test.setTags("");
         } else {
@@ -332,6 +333,7 @@ public class ApiTestCaseService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
+        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.equals("[]", request.getTags())) {
             test.setTags("");
         } else {

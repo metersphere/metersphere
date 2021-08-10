@@ -16,13 +16,13 @@ import java.util.List;
 public class WeComNoticeSender extends AbstractNoticeSender {
 
 
-    public void sendWechatRobot(MessageDetail messageDetail, String context) {
+    public void sendWechatRobot(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<String> userIds = messageDetail.getUserIds();
         if (CollectionUtils.isEmpty(userIds)) {
             return;
         }
         TextMessage message = new TextMessage(context);
-        List<String> phoneLists = super.getUserPhones(userIds);
+        List<String> phoneLists = super.getUserPhones(noticeModel, userIds);
         message.setMentionedMobileList(phoneLists);
         try {
             WxChatbotClient.send(messageDetail.getWebhook(), message);
@@ -34,6 +34,6 @@ public class WeComNoticeSender extends AbstractNoticeSender {
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendWechatRobot(messageDetail, context);
+        sendWechatRobot(messageDetail, noticeModel, context);
     }
 }

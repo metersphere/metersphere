@@ -239,7 +239,7 @@ export default {
       }
     },
     updateTask(param) {
-      this.result = this.$post('/api/schedule/updateEnableByPrimyKey', param, response => {
+      this.result = this.$post('/test/plan/schedule/updateEnableByPrimyKey', param, response => {
         let paramTestId = "";
         if (this.paramRow.redirectFrom === 'testPlan') {
           paramTestId = this.paramRow.id;

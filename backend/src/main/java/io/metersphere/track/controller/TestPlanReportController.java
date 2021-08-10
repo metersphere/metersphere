@@ -3,12 +3,14 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestPlanReport;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.dto.TestPlanReportDTO;
 import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
@@ -30,11 +32,13 @@ public class TestPlanReportController {
 
     @Resource
     private TestPlanReportService testPlanReportService;
+
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanReportDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanReportRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanReportService.list(request));
     }
+
     @GetMapping("/getMetric/{planId}")
     public TestPlanReportDTO getMetric(@PathVariable String planId) {
         return testPlanReportService.getMetric(planId);
@@ -56,6 +60,8 @@ public class TestPlanReportController {
 
     @PostMapping("/delete")
     @MsAuditLog(module = "track_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanReportIdList)", msClass = TestPlanReportService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_REPORT_TASK, target = "#targetClass.getReports(#testPlanReportIdList)", targetClass = TestPlanReportService.class,
+            event = NoticeConstants.Event.DELETE, mailTemplate = "track/ReportDelete", subject = "报告通知")
     public void delete(@RequestBody List<String> testPlanReportIdList) {
         testPlanReportService.delete(testPlanReportIdList);
     }
@@ -67,20 +73,20 @@ public class TestPlanReportController {
 
 
     @GetMapping("/apiExecuteFinish/{planId}/{userId}")
-    public void apiExecuteFinish(@PathVariable String planId,@PathVariable String userId) {
+    public void apiExecuteFinish(@PathVariable String planId, @PathVariable String userId) {
         String reportId = UUID.randomUUID().toString();
-        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,ReportTriggerMode.API.name());
+        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, ReportTriggerMode.API.name());
         TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name(),null);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(), null, ReportTriggerMode.API.name(), null);
     }
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
-    public String saveTestPlanReport(@PathVariable String planId,@PathVariable String triggerMode) {
+    public String saveTestPlanReport(@PathVariable String planId, @PathVariable String triggerMode) {
         String userId = SessionUtils.getUser().getId();
         String reportId = UUID.randomUUID().toString();
-        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,triggerMode);
+        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId, planId, userId, triggerMode);
         TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
-        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode,null);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(), null, triggerMode, null);
         return "success";
     }
 }

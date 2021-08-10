@@ -61,6 +61,7 @@
             <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
                 <el-select v-model="currentScenario.followPeople"
+                           clearable
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            class="ms-scenario-input">
                   <el-option
