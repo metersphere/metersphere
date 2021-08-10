@@ -52,6 +52,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -299,6 +300,7 @@ public class TestPlanService {
         deleteTestCaseByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
+        testPlanLoadCaseService.deleteByPlanId(planId);
 
         //删除定时任务
         scheduleService.deleteByResourceId(planId, ScheduleGroup.TEST_PLAN_TEST.name());
@@ -1147,5 +1149,109 @@ public class TestPlanService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public TestPlan copy(String planId) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        if (testPlan == null) {
+            return null;
+        }
+        String sourcePlanId = testPlan.getId();
+        String targetPlanId = UUID.randomUUID().toString();
+
+        TestPlan targetPlan = new TestPlan();
+        targetPlan.setId(targetPlanId);
+        targetPlan.setName(testPlan.getName() + "_COPY");
+        targetPlan.setWorkspaceId(testPlan.getWorkspaceId());
+        targetPlan.setDescription(testPlan.getDescription());
+        targetPlan.setStage(testPlan.getStage());
+        targetPlan.setPrincipal(testPlan.getPrincipal());
+        targetPlan.setTags(testPlan.getTags());
+        targetPlan.setProjectId(testPlan.getProjectId());
+        testPlan.setAutomaticStatusUpdate(testPlan.getAutomaticStatusUpdate());
+        targetPlan.setStatus(TestPlanStatus.Prepare.name());
+        targetPlan.setCreator(SessionUtils.getUserId());
+        targetPlan.setCreateTime(System.currentTimeMillis());
+        targetPlan.setUpdateTime(System.currentTimeMillis());
+        testPlanMapper.insert(targetPlan);
+
+        copyPlanCase(sourcePlanId, targetPlanId);
+
+        return targetPlan;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public void copyPlanCase(String sourcePlanId, String targetPlanId) {
+        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
+        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(sourcePlanId);
+        List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
+        try(SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)){
+            TestPlanTestCaseMapper testCaseMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
+            testPlanTestCases.forEach(testCase -> {
+                TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+                testPlanTestCase.setId(UUID.randomUUID().toString());
+                testPlanTestCase.setPlanId(targetPlanId);
+                testPlanTestCase.setCaseId(testCase.getCaseId());
+                testPlanTestCase.setStatus("Prepare");
+                testPlanTestCase.setExecutor(testCase.getExecutor());
+                testPlanTestCase.setCreateTime(System.currentTimeMillis());
+                testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+                testPlanTestCase.setCreateUser(SessionUtils.getUserId());
+                testPlanTestCase.setRemark(testCase.getRemark());
+                testCaseMapper.insert(testPlanTestCase);
+            });
+            sqlSession.flushStatements();
+
+            TestPlanApiCaseExample testPlanApiCaseExample = new TestPlanApiCaseExample();
+            testPlanApiCaseExample.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
+            List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
+            TestPlanApiCaseMapper apiCaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
+            testPlanApiCases.forEach(apiCase -> {
+                TestPlanApiCase api = new TestPlanApiCase();
+                api.setId(UUID.randomUUID().toString());
+                api.setTestPlanId(targetPlanId);
+                api.setApiCaseId(apiCase.getApiCaseId());
+                api.setEnvironmentId(apiCase.getEnvironmentId());
+                api.setCreateTime(System.currentTimeMillis());
+                api.setUpdateTime(System.currentTimeMillis());
+                api.setCreateUser(SessionUtils.getUserId());
+                apiCaseMapper.insert(api);
+            });
+            sqlSession.flushStatements();
+
+            TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
+            testPlanApiScenarioExample.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
+            List<TestPlanApiScenario> apiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
+            TestPlanApiScenarioMapper apiScenarioMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
+            apiScenarios.forEach(apiScenario -> {
+                TestPlanApiScenario planScenario = new TestPlanApiScenario();
+                planScenario.setId(UUID.randomUUID().toString());
+                planScenario.setTestPlanId(targetPlanId);
+                planScenario.setApiScenarioId(apiScenario.getApiScenarioId());
+                planScenario.setEnvironment(apiScenario.getEnvironment());
+                planScenario.setCreateTime(System.currentTimeMillis());
+                planScenario.setUpdateTime(System.currentTimeMillis());
+                planScenario.setCreateUser(SessionUtils.getUserId());
+                apiScenarioMapper.insert(planScenario);
+            });
+            sqlSession.flushStatements();
+
+            TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+            example.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
+            List<TestPlanLoadCase> loadCases = testPlanLoadCaseMapper.selectByExample(example);
+            TestPlanLoadCaseMapper mapper = sqlSession.getMapper(TestPlanLoadCaseMapper.class);
+            loadCases.forEach(loadCase -> {
+                TestPlanLoadCase load = new TestPlanLoadCase();
+                load.setId(UUID.randomUUID().toString());
+                load.setTestPlanId(targetPlanId);
+                load.setLoadCaseId(loadCase.getLoadCaseId());
+                load.setCreateTime(System.currentTimeMillis());
+                load.setUpdateTime(System.currentTimeMillis());
+                load.setCreateUser(SessionUtils.getUserId());
+                mapper.insert(load);
+            });
+            sqlSession.flushStatements();
+        }
     }
 }

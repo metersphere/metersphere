@@ -309,6 +309,9 @@ public class TestPlanScenarioCaseService {
             }
             Project project = projectService.getProjectById(projectId);
             ApiTestEnvironmentWithBLOBs environment = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
+            if (project == null || environment == null) {
+                continue;
+            }
             String projectName = project.getName();
             String envName = environment.getName();
             if (StringUtils.isBlank(projectName) || StringUtils.isBlank(envName)) {

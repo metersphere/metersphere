@@ -323,9 +323,11 @@ export default {
           this.tableData.forEach(item => {
             try {
               const envs = JSON.parse(item.environment);
-              this.$post("/test/plan/scenario/case/env", envs, res => {
-                this.$set(item, 'envs', res.data);
-              })
+              if (envs) {
+                this.$post("/test/plan/scenario/case/env", envs, res => {
+                  this.$set(item, 'envs', res.data);
+                });
+              }
             } catch (error) {
               this.$set(item, 'envs', {});
             }

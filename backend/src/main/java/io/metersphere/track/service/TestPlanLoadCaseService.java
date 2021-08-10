@@ -342,4 +342,13 @@ public class TestPlanLoadCaseService {
                 .andStatusEqualTo("error");
         return testPlanLoadCaseMapper.countByExample(example) > 0 ? true : false;
     }
+
+    public void deleteByPlanId(String planId) {
+        if (StringUtils.isBlank(planId)) {
+            return;
+        }
+        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        testPlanLoadCaseMapper.deleteByExample(example);
+    }
 }

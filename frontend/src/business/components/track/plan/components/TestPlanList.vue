@@ -185,10 +185,11 @@
         <template v-slot:default="scope">
           <div>
             <ms-table-operator :edit-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                               :delete-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"
-                               @editClick="handleEdit(scope.row)"
-                               @deleteClick="handleDelete(scope.row)">
+                               :show-delete="false"
+                               @editClick="handleEdit(scope.row)">
               <template v-slot:middle>
+                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
+                                          @exec="handleCopy(scope.row)"/>
                 <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                           v-if="!scope.row.reportId"
                                           :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
@@ -199,17 +200,19 @@
                                           @exec="openReport(scope.row.id, scope.row.reportId)"/>
               </template>
             </ms-table-operator>
-            <ms-table-operator-button class="schedule-btn"
-                                      v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-                                      v-if="!scope.row.scheduleOpen" type="text"
-                                      :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
-                                      @exec="scheduleTask(scope.row)"/>
-            <ms-table-operator-button
-              class="schedule-btn"
-              v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-              v-if="scope.row.scheduleOpen" type="text"
-              :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
-              @exec="scheduleTask(scope.row)"/>
+            <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn">
+              <el-link type="primary" :underline="false">
+                <el-icon class="el-icon-more"></el-icon>
+              </el-link>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']">
+                  {{ $t('commons.delete') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']">
+                  {{ $t('commons.trigger_mode.schedule') }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </template>
       </el-table-column>
@@ -462,6 +465,22 @@ export default {
         }
       }
       return returnObj;
+    },
+    handleCommand(cmd, row) {
+      switch (cmd) {
+        case  "delete":
+          this.handleDelete(row);
+          break;
+        case "schedule_task":
+          this.scheduleTask(row);
+          break;
+      }
+    },
+    handleCopy(row) {
+      this.cardResult.loading = true;
+      this.$post('test/plan/copy/' + row.id, {},() => {
+        this.initTableData();
+      });
     }
   }
 };
@@ -484,5 +503,9 @@ export default {
   color:#85888E;
   border-color: #85888E;
   border-width: thin;
+}
+
+.scenario-ext-btn {
+  margin-left: 10px;
 }
 </style>

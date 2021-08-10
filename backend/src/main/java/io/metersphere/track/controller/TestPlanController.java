@@ -41,7 +41,7 @@ public class TestPlanController {
     CheckPermissionService checkPermissionService;
 
     @PostMapping("/autoCheck/{testPlanId}")
-    public void autoCheck(@PathVariable String testPlanId){
+    public void autoCheck(@PathVariable String testPlanId) {
         testPlanService.checkStatus(testPlanId);
     }
 
@@ -162,4 +162,8 @@ public class TestPlanController {
         return testPlanService.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(), testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
     }
 
+    @PostMapping("/copy/{id}")
+    public TestPlan copy(@PathVariable String id) {
+        return testPlanService.copy(id);
+    }
 }
