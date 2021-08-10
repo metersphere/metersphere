@@ -90,9 +90,9 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseTest">
-    insert into test_case_test (test_case_id, test_id, test_type, 
+    insert into test_case_test (test_case_id, test_id, test_type,
       create_time, update_time)
-    values (#{testCaseId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{testType,jdbcType=VARCHAR}, 
+    values (#{testCaseId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{testType,jdbcType=VARCHAR},
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTest">
@@ -137,6 +137,89 @@
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
+  </select>
+  <select id="relevanceApiList" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+    SELECT
+    atc.id, atc.project_id , atc.name , atc.num , atc.priority , atc.tags
+    from api_test_case atc
+    left join test_case_test tct on atc.id = tct.test_id
+    inner join api_definition ad on ad.id = atc.api_definition_id
+    where tct.test_id is NULL and ad.status != 'Trash'
+    <if test="request.protocol != null and request.protocol!=''">
+      and ad.protocol = #{request.protocol}
+    </if>
+    <if test="request.projectId != null and request.projectId!=''">
+      and ad.project_id = #{request.projectId}
+    </if>
+    <if test="request.name != null and request.name!=''">
+      and (atc.name like CONCAT('%', #{request.name},'%')
+      or atc.tags like CONCAT('%', #{request.name},'%')
+      or atc.num like CONCAT('%', #{request.name},'%'))
+    </if>
+    <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+      and ad.module_id in
+      <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+        #{nodeId}
+      </foreach>
+    </if>
+    <if test="request.filters != null and request.filters.size() > 0">
+      <foreach collection="request.filters.entrySet()" index="key" item="values">
+        <if test="values != null and values.size() > 0">
+          <choose>
+            <when test="key == 'priority'">
+              and atc.priority in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+            <when test="key=='status'">
+              and atc.status in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+          </choose>
+        </if>
+      </foreach>
+    </if>
+    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+  </select>
+  <select id="relevanceScenarioList" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
+    SELECT
+    atc.id, atc.project_id , atc.name , atc.num , atc.`level`, atc.step_total, atc.status
+    from api_scenario atc
+    left join test_case_test tct on atc.id = tct.test_id
+    where tct.test_id is NULL and atc.status != 'Trash'
+    <if test="request.projectId != null and request.projectId!=''">
+      and atc.project_id = #{request.projectId}
+    </if>
+    <if test="request.name != null and request.name!=''">
+      and (atc.name like CONCAT('%', #{request.name},'%')
+      or atc.tags like CONCAT('%', #{request.name},'%')
+      or atc.num like CONCAT('%', #{request.name},'%'))
+    </if>
+    <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+      and atc.api_scenario_module_id in
+      <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+        #{nodeId}
+      </foreach>
+    </if>
+    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+  </select>
+  <select id="relevanceLoadList" resultType="io.metersphere.dto.LoadTestDTO">
+    SELECT
+    atc.id, atc.project_id , atc.name , atc.num , atc.status
+    from load_test atc
+    left join test_case_test tct on atc.id = tct.test_id
+    where tct.test_id is NULL and atc.status != 'Trash'
+    <if test="request.projectId != null and request.projectId!=''">
+      and atc.project_id = #{request.projectId}
+    </if>
+    <if test="request.name != null and request.name!=''">
+      and (atc.name like CONCAT('%', #{request.name},'%')
+      or atc.num like CONCAT('%', #{request.name},'%'))
+    </if>
+    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
     update test_case_test

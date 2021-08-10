@@ -987,4 +987,12 @@ public class ApiTestCaseService {
         return jmxInfoDTO;
     }
 
+    public List<ApiTestCase> getApiCaseByIds(List<String> apiCaseIds) {
+        if (CollectionUtils.isNotEmpty(apiCaseIds)) {
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            example.createCriteria().andIdIn(apiCaseIds);
+            return apiTestCaseMapper.selectByExample(example);
+        }
+        return new ArrayList<>();
+    }
 }
