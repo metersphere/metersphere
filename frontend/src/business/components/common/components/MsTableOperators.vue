@@ -37,13 +37,6 @@ export default {
       }
       return false;
     }
-  },
-  computed: {
-    isTesterPermission() {
-      return function (btn) {
-        return btn.isTesterPermission !== false;
-      };
-    },
   }
 };
 </script>
