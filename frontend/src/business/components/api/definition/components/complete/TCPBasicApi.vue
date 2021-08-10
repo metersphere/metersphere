@@ -47,12 +47,27 @@
       </el-row>
 
       <el-row>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item :label="$t('commons.tag')" prop="tag">
             <ms-input-tag :currentScenario="basicForm" ref="tag"/>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="8">
+          <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
+            <el-select v-model="basicForm.followPeople"
+                       clearable
+                       :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
+                       class="ms-http-textarea">
+              <el-option
+                  v-for="item in maintainerOptions"
+                  :key="item.id"
+                  :label="item.id + ' (' + item.name + ')'"
+                  :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
           <el-form-item :label="$t('commons.description')" prop="description">
             <el-input class="ms-http-textarea"
                       v-model="basicForm.description"
@@ -151,4 +166,7 @@
 </script>
 
 <style scoped>
+.ms-http-textarea {
+  width: 100%;
+}
 </style>

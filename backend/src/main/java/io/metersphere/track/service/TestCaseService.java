@@ -1243,7 +1243,7 @@ public class TestCaseService {
         return false;
     }
 
-    public String save(EditTestCaseRequest request, List<MultipartFile> files) {
+    public TestCase save(EditTestCaseRequest request, List<MultipartFile> files) {
 
 
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
@@ -1282,10 +1282,10 @@ public class TestCaseService {
             });
         }
 
-        return testCaseWithBLOBs.getId();
+        return testCaseWithBLOBs;
     }
 
-    public String edit(EditTestCaseRequest request, List<MultipartFile> files) {
+    public TestCase edit(EditTestCaseRequest request, List<MultipartFile> files) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
         request.setNum(testCaseWithBLOBs.getNum());
         if (testCaseWithBLOBs == null) {
@@ -1339,7 +1339,7 @@ public class TestCaseService {
         }
         this.setNode(request);
         editTestCase(request);
-        return request.getId();
+        return testCaseWithBLOBs;
     }
 
     public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files) {

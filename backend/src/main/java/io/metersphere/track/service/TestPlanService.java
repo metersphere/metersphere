@@ -162,7 +162,7 @@ public class TestPlanService {
     @Resource
     private IssueTemplateService issueTemplateService;
 
-    public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
+    public synchronized TestPlan addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
         }
@@ -175,22 +175,7 @@ public class TestPlanService {
         }
         testPlanMapper.insert(testPlan);
 
-        List<String> userIds = new ArrayList<>();
-        userIds.add(testPlan.getPrincipal());
-        String context = getTestPlanContext(testPlan, NoticeConstants.Event.CREATE);
-        User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
-        Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
-        paramMap.put("creator", user.getName());
-        NoticeModel noticeModel = NoticeModel.builder()
-                .context(context)
-                .relatedUsers(userIds)
-                .subject(Translator.get("test_plan_notification"))
-                .mailTemplate("TestPlanStart")
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.CREATE)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
-        return testPlan.getId();
+        return testPlan;
     }
 
     public List<TestPlan> getTestPlanByName(String name) {
@@ -205,7 +190,7 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
     }
 
-    public String editTestPlan(TestPlanDTO testPlan, Boolean isSendMessage) {
+    public TestPlan editTestPlan(TestPlanDTO testPlan) {
         checkTestPlanExist(testPlan);
         TestPlan res = testPlanMapper.selectByPrimaryKey(testPlan.getId()); //  先查一次库
         testPlan.setUpdateTime(System.currentTimeMillis());
@@ -232,9 +217,7 @@ public class TestPlanService {
             }   //  非已结束->已结束，更新结束时间
         }
 
-        List<String> userIds = new ArrayList<>();
-        userIds.add(testPlan.getPrincipal());
-        AddTestPlanRequest testPlans = new AddTestPlanRequest();
+
         int i;
         if (testPlan.getName() == null) {//  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
             i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
@@ -242,23 +225,8 @@ public class TestPlanService {
             extScheduleMapper.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
             i = testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
         }
-        if (!StringUtils.isBlank(testPlan.getStatus()) && isSendMessage) {
-            BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
-            String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
-            User user = userMapper.selectByPrimaryKey(testPlans.getCreator());
-            Map<String, Object> paramMap = getTestPlanParamMap(testPlans);
-            paramMap.put("creator", user.getName());
-            NoticeModel noticeModel = NoticeModel.builder()
-                    .context(context)
-                    .relatedUsers(userIds)
-                    .subject(Translator.get("test_plan_notification"))
-                    .mailTemplate("TestPlanEnd")
-                    .paramMap(paramMap)
-                    .event(NoticeConstants.Event.UPDATE)
-                    .build();
-            noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
-        }
-        return testPlan.getId();
+
+        return testPlan;
     }
 
     //计划内容
@@ -313,7 +281,6 @@ public class TestPlanService {
     }
 
     public int deleteTestPlan(String planId) {
-        TestPlan testPlan = getTestPlan(planId);
         deleteTestCaseByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
@@ -322,29 +289,7 @@ public class TestPlanService {
         //删除定时任务
         scheduleService.deleteByResourceId(planId, ScheduleGroup.TEST_PLAN_TEST.name());
 
-        int num = testPlanMapper.deleteByPrimaryKey(planId);
-        List<String> relatedUsers = new ArrayList<>();
-        AddTestPlanRequest testPlans = new AddTestPlanRequest();
-        relatedUsers.add(testPlan.getCreator());
-        try {
-            BeanUtils.copyBean(testPlans, testPlan);
-            String context = getTestPlanContext(testPlans, NoticeConstants.Event.DELETE);
-            User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
-            Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
-            paramMap.put("creator", user.getName());
-            NoticeModel noticeModel = NoticeModel.builder()
-                    .context(context)
-                    .relatedUsers(relatedUsers)
-                    .subject(Translator.get("test_plan_notification"))
-                    .mailTemplate("TestPlanDelete")
-                    .paramMap(paramMap)
-                    .event(NoticeConstants.Event.DELETE)
-                    .build();
-            noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-        return num;
+        return testPlanMapper.deleteByPrimaryKey(planId);
     }
 
     public void deleteTestCaseByPlanId(String testPlanId) {
@@ -432,7 +377,7 @@ public class TestPlanService {
         testPlanDTO.setId(testPlanId);
         if (statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
             testPlanDTO.setStatus(TestPlanStatus.Prepare.name());
-            editTestPlan(testPlanDTO, false);
+            editTestPlan(testPlanDTO);
             return;
         }
         int passNum = 0, prepareNum = 0, failNum = 0;
@@ -449,13 +394,13 @@ public class TestPlanService {
         }
         if (passNum == statusList.size()) {   //  全部通过
             testPlanDTO.setStatus(TestPlanStatus.Completed.name());
-            this.editTestPlan(testPlanDTO, false);
+            this.editTestPlan(testPlanDTO);
         } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
             testPlanDTO.setStatus(TestPlanStatus.Finished.name());
-            editTestPlan(testPlanDTO, false);
+            editTestPlan(testPlanDTO);
         } else if (prepareNum != 0) {    //  进行中
             testPlanDTO.setStatus(TestPlanStatus.Underway.name());
-            editTestPlan(testPlanDTO, false);
+            editTestPlan(testPlanDTO);
         }
     }
 
@@ -669,12 +614,12 @@ public class TestPlanService {
                 String context = getTestPlanContext(_testPlans, NoticeConstants.Event.UPDATE);
                 User user = userMapper.selectByPrimaryKey(_testPlans.getCreator());
                 Map<String, Object> paramMap = getTestPlanParamMap(_testPlans);
-                paramMap.put("creator", user.getName());
+                paramMap.put("operator", user.getName());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .context(context)
                         .relatedUsers(userIds)
                         .subject(Translator.get("test_plan_notification"))
-                        .mailTemplate("TestPlanEnd")
+                        .mailTemplate("track/TestPlanEnd")
                         .paramMap(paramMap)
                         .event(NoticeConstants.Event.UPDATE)
                         .build();

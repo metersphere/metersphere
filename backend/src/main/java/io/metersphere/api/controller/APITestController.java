@@ -16,6 +16,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -24,6 +25,7 @@ import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import org.apache.jorphan.collections.HashTree;
@@ -359,10 +361,12 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/updateEnableByPrimyKey")
-    public void updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
+    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
+    public Schedule updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
         apiAutomationService.updateSchedule(schedule);
+        return schedule;
     }
 
     @PostMapping(value = "/historicalDataUpgrade")

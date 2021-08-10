@@ -16,7 +16,7 @@ import java.util.List;
 @Component
 public class DingNoticeSender extends AbstractNoticeSender {
 
-    public void sendNailRobot(MessageDetail messageDetail, String context) {
+    public void sendNailRobot(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<String> userIds = messageDetail.getUserIds();
         if (CollectionUtils.isEmpty(userIds)) {
             return;
@@ -28,7 +28,7 @@ public class DingNoticeSender extends AbstractNoticeSender {
         text.setContent(context);
         request.setText(text);
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        List<String> phoneList = super.getUserPhones(userIds);
+        List<String> phoneList = super.getUserPhones(noticeModel, userIds);
         LogUtil.info("收件人地址: " + phoneList);
         at.setAtMobiles(phoneList);
         request.setAt(at);
@@ -42,6 +42,6 @@ public class DingNoticeSender extends AbstractNoticeSender {
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendNailRobot(messageDetail, context);
+        sendNailRobot(messageDetail, noticeModel, context);
     }
 }

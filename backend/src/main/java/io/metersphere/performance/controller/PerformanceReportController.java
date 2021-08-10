@@ -4,30 +4,27 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTestReportLog;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
-import io.metersphere.base.domain.UserGroup;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.dto.ReportDTO;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.controller.request.DeleteReportRequest;
 import io.metersphere.performance.controller.request.RenameReportRequest;
 import io.metersphere.performance.controller.request.ReportRequest;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.service.PerformanceReportService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "performance/report")
@@ -54,6 +51,8 @@ public class PerformanceReportController {
     @PostMapping("/delete/{reportId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE)
     @MsAuditLog(module = "performance_test_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reportId)", msClass = PerformanceReportService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_REPORT_TASK, event = NoticeConstants.Event.DELETE,
+            target = "#targetClass.getReport(#reportId)", targetClass = PerformanceReportService.class, mailTemplate = "performance/ReportDelete", subject = "性能测试报告通知")
     public void deleteReport(@PathVariable String reportId) {
         performanceReportService.deleteReport(reportId);
     }

@@ -14,6 +14,10 @@ public class NoticeModel {
      */
     private String testId;
     /**
+     * 操作人
+     */
+    private String operator;
+    /**
      * 保存状态
      */
     private String status;

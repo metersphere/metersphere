@@ -5,12 +5,14 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseReview;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewDTOWithMetric;
@@ -45,7 +47,8 @@ public class TestCaseReviewController {
     @PostMapping("/save")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_CREATE)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.CREATE, title = "#reviewRequest.name", content = "#msClass.getLogDetails(#reviewRequest.id)", msClass = TestCaseReviewService.class)
-    public String saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "track/ReviewInitiate", subject = "测试评审通知")
+    public TestCaseReview saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
         reviewRequest.setId(UUID.randomUUID().toString());
         return testCaseReviewService.saveTestCaseReview(reviewRequest);
     }
@@ -70,13 +73,16 @@ public class TestCaseReviewController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#testCaseReview.id)", title = "#testCaseReview.name", content = "#msClass.getLogDetails(#testCaseReview.id)", msClass = TestCaseReviewService.class)
-    public String editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "track/ReviewEnd", subject = "测试评审通知")
+    public TestCaseReview editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         return testCaseReviewService.editCaseReview(testCaseReview);
     }
 
     @GetMapping("/delete/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_DELETE)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reviewId)", msClass = TestCaseReviewService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, target = "#targetClass.getTestReview(#reviewId)", targetClass = TestCaseReviewService.class,
+            event = NoticeConstants.Event.DELETE, mailTemplate = "track/ReviewDelete", subject = "测试评审通知")
     public void deleteCaseReview(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.deleteCaseReview(reviewId);
@@ -117,6 +123,7 @@ public class TestCaseReviewController {
 
     @PostMapping("/edit/status/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
+    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "track/ReviewEnd", subject = "测试评审通知")
     public void editTestPlanStatus(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);

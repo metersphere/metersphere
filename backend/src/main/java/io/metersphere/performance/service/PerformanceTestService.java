@@ -144,7 +144,7 @@ public class PerformanceTestService {
         loadTestFileMapper.deleteByExample(loadTestFileExample);
     }
 
-    public String save(SaveTestPlanRequest request, List<MultipartFile> files) {
+    public LoadTest save(SaveTestPlanRequest request, List<MultipartFile> files) {
         checkQuota(request, true);
         LoadTestWithBLOBs loadTest = saveLoadTest(request);
 
@@ -156,7 +156,7 @@ public class PerformanceTestService {
         this.saveUploadFiles(files, loadTest, request.getFileSorts());
         //关联转化的文件
         this.conversionFiles(loadTest.getId(), request.getConversionFileIdList());
-        return loadTest.getId();
+        return loadTest;
     }
 
     private void conversionFiles(String id, List<String> conversionFileIdList) {
@@ -230,13 +230,14 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
+        loadTest.setFollowPeople(request.getFollowPeople());
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
         loadTestMapper.insert(loadTest);
         return loadTest;
     }
 
-    public String edit(EditTestPlanRequest request, List<MultipartFile> files) {
+    public LoadTest edit(EditTestPlanRequest request, List<MultipartFile> files) {
         checkQuota(request, false);
         //
         String testId = request.getId();
@@ -278,9 +279,10 @@ public class PerformanceTestService {
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
+        loadTest.setFollowPeople(request.getFollowPeople());
         loadTestMapper.updateByPrimaryKeySelective(loadTest);
 
-        return testId;
+        return loadTest;
     }
 
     @Transactional(noRollbackFor = MSException.class)//  保存失败的信息

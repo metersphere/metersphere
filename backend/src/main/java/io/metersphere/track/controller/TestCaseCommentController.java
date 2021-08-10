@@ -1,11 +1,15 @@
 package io.metersphere.track.controller;
 
+import io.metersphere.base.domain.TestCaseComment;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import io.metersphere.track.service.TestCaseCommentService;
+import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +27,11 @@ public class TestCaseCommentController {
     @PostMapping("/save")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
-    public void saveComment(@RequestBody SaveCommentRequest request) {
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.caseId)", targetClass = TestCaseService.class,
+            event = NoticeConstants.Event.COMMENT, mailTemplate = "track/TestCaseComment", subject = "测试用例通知")
+    public TestCaseComment saveComment(@RequestBody SaveCommentRequest request) {
         request.setId(UUID.randomUUID().toString());
-        testCaseCommentService.saveComment(request);
+        return testCaseCommentService.saveComment(request);
     }
 
     @GetMapping("/list/{caseId}")
@@ -43,7 +49,9 @@ public class TestCaseCommentController {
     @PostMapping("/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_COMMENT)
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseCommentService.class)
-    public void editComment(@RequestBody SaveCommentRequest request) {
-        testCaseCommentService.edit(request);
+//    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.caseId)", targetClass = TestCaseService.class,
+//            event = NoticeConstants.Event.COMMENT, mailTemplate = "track/TestCaseComment", subject = "测试用例通知")
+    public TestCaseComment editComment(@RequestBody SaveCommentRequest request) {
+       return testCaseCommentService.edit(request);
     }
 }

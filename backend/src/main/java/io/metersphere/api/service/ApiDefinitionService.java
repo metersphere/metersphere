@@ -368,6 +368,7 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
+        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
@@ -404,6 +405,7 @@ public class ApiDefinitionService {
         test.setStatus(APITestStatus.Underway.name());
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
+        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("默认模块");
