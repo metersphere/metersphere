@@ -48,13 +48,13 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="7">
+            <el-col :span="8">
               <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
                 <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
 
-            <el-col :span="7">
+            <el-col :span="8">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select class="ms-http-select" size="small" v-model="httpForm.status">
                   <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
@@ -342,9 +342,9 @@
     margin: 20px 45px;
   }
 
-  .base-info .el-form-item >>> .el-form-item__content {
-    width: 80%;
-  }
+  /*.base-info .el-form-item >>> .el-form-item__content {*/
+  /*  width: 80%;*/
+  /*}*/
 
   .base-info .ms-http-select {
     width: 100%;

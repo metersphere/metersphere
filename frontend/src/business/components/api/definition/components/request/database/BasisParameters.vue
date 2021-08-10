@@ -1,8 +1,8 @@
 <template>
   <div v-loading="isReloadData">
     <el-row>
-      <el-col :span="21" style="padding-bottom: 20px">
-        <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
+      <el-col :span="spanNum" style="padding-bottom: 20px">
+        <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
           <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
             <el-row>
               <el-col :span="8">
@@ -123,6 +123,7 @@
     },
     data() {
       return {
+        spanNum: 21,
         environments: [],
         currentEnvironment: {},
         databaseConfigsOptions: [],
@@ -137,6 +138,11 @@
       },
     },
     created() {
+      if(this.showScript){
+        this.spanNum = 21;
+      }else {
+        this.spanNum = 24;
+      }
       this.getEnvironments();
     },
     computed: {
