@@ -6,6 +6,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -18,7 +24,9 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.TestCaseTemplateDao;
+import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.excel.listener.TestCaseNoModelDataListener;
@@ -29,6 +37,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
@@ -36,6 +45,7 @@ import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
+import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.xmind.XmindCaseParser;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -119,6 +129,15 @@ public class TestCaseService {
     private IssuesMapper issuesMapper;
     @Resource
     private CustomFieldService customFieldService;
+    @Resource
+    @Lazy
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    @Lazy
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    @Lazy
+    private PerformanceTestService performanceTestService;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -305,6 +324,7 @@ public class TestCaseService {
         TestCaseTestExample examples = new TestCaseTestExample();
         examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
         testCaseTestMapper.deleteByExample(examples);
+        relateDelete(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -1711,5 +1731,94 @@ public class TestCaseService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<ApiTestCaseDTO> getTestCaseApiCaseRelateList(ApiTestCaseRequest request) {
+        return testCaseTestMapper.relevanceApiList(request);
+    }
+
+    public void relateTest(String type, String caseId, List<String> apiIds) {
+        apiIds.forEach(testId -> {
+            TestCaseTest testCaseTest = new TestCaseTest();
+            testCaseTest.setTestType(type);
+            testCaseTest.setTestCaseId(caseId);
+            testCaseTest.setTestId(testId);
+            testCaseTest.setCreateTime(System.currentTimeMillis());
+            testCaseTest.setUpdateTime(System.currentTimeMillis());
+            testCaseTestMapper.insert(testCaseTest);
+        });
+    }
+
+    public void relateDelete(String caseId, String testId) {
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria()
+                .andTestCaseIdEqualTo(caseId)
+                .andTestIdEqualTo(testId);
+        testCaseTestMapper.deleteByExample(example);
+    }
+
+    public void relateDelete(String caseId) {
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria()
+                .andTestCaseIdEqualTo(caseId);
+        testCaseTestMapper.deleteByExample(example);
+    }
+
+    public List<TestCaseTestDao> getRelateTest(String caseId) {
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria()
+                .andTestCaseIdEqualTo(caseId);
+        List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
+        Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
+                .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
+        List<ApiTestCase> apiCases = apiTestCaseService.getApiCaseByIds(
+                getTestIds(testCaseTests, "testcase")
+        );
+        List<ApiScenario> apiScenarios = apiAutomationService.getScenarioCaseByIds(
+                getTestIds(testCaseTests, "automation")
+        );
+        List<LoadTest> apiLoadTests = performanceTestService.getLoadCaseByIds(
+                getTestIds(testCaseTests, "performance")
+        );
+        List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
+        apiCases.forEach(item -> {
+            getTestCaseTestDaoList("testcase", item.getNum(), item.getName(), item.getId(),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        apiScenarios.forEach(item -> {
+            getTestCaseTestDaoList("automation", item.getNum(), item.getName(), item.getId(),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        apiLoadTests.forEach(item -> {
+            getTestCaseTestDaoList("performance", item.getNum(), item.getName(), item.getId(),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        return testCaseTestList;
+    }
+
+    public void getTestCaseTestDaoList(String type, Object num, String name, String testId,
+                                       List<TestCaseTestDao> testCaseTestList, Map<String, TestCaseTest> testCaseTestsMap) {
+        TestCaseTestDao testCaseTestDao = new TestCaseTestDao();
+        BeanUtils.copyBean(testCaseTestDao, testCaseTestsMap.get(testId));
+        testCaseTestDao.setNum(num.toString());
+        testCaseTestDao.setName(name);
+        testCaseTestDao.setTestType(type);
+        testCaseTestList.add(testCaseTestDao);
+    }
+
+    public List<String> getTestIds(List<TestCaseTest> testCaseTests, String type) {
+        List<String> caseIds = testCaseTests.stream()
+                .filter(item -> item.getTestType().equals(type))
+                .map(TestCaseTest::getTestId)
+                .collect(Collectors.toList());
+        return caseIds;
+    }
+
+    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
+        return testCaseTestMapper.relevanceScenarioList(request);
+    }
+
+    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
+        return testCaseTestMapper.relevanceLoadList(request);
     }
 }

@@ -2,7 +2,7 @@
   <el-dialog :title="title"
              :visible.sync="dialogVisible"
              @close="close"
-             width="75%" v-loading="result.loading"
+             :width="width ? width : '75%'" v-loading="result.loading"
              :close-on-click-modal="false"
              top="50px" append-to-body>
 
@@ -44,7 +44,7 @@
         dialogVisible: false,
       };
     },
-    props: ['title'],
+    props: ['title', 'width'],
     methods: {
       open() {
         this.dialogVisible = true;
