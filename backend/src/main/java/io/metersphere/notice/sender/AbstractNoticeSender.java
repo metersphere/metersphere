@@ -29,7 +29,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
         }
         // 处理 userIds 中包含的特殊值
-        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel.getRelatedUsers(), messageDetail.getEvent());
+        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent());
         messageDetail.setUserIds(realUserIds);
 
         // 处理 WeCom Ding context
@@ -50,7 +50,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             default:
                 break;
         }
-        return context;
+        return getContent(context, noticeModel.getParamMap());
     }
 
     protected String getHtmlContext(MessageDetail messageDetail, NoticeModel noticeModel) {
@@ -59,7 +59,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
         }
         // 处理 userIds 中包含的特殊值
-        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel.getRelatedUsers(), messageDetail.getEvent());
+        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent());
         messageDetail.setUserIds(realUserIds);
 
         // 处理 mail context
@@ -70,6 +70,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 case NoticeConstants.Event.UPDATE:
                 case NoticeConstants.Event.DELETE:
                 case NoticeConstants.Event.COMMENT:
+                case NoticeConstants.Event.CLOSE_SCHEDULE:
+                case NoticeConstants.Event.CASE_CREATE:
+                case NoticeConstants.Event.CASE_UPDATE:
+                case NoticeConstants.Event.CASE_DELETE:
                     URL resource = this.getClass().getResource("/mail/" + noticeModel.getMailTemplate() + ".html");
                     context = IOUtils.toString(resource, StandardCharsets.UTF_8);
                     break;
@@ -82,6 +86,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     context = IOUtils.toString(resource2, StandardCharsets.UTF_8);
                     break;
                 default:
+                    URL resource3 = this.getClass().getResource("/mail/" + noticeModel.getMailTemplate() + ".html");
+                    context = IOUtils.toString(resource3, StandardCharsets.UTF_8);
                     break;
             }
         } catch (IOException e) {
@@ -103,7 +109,11 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return template;
     }
 
-    protected List<String> getUserPhones(List<String> userIds) {
+    protected List<String> getUserPhones(NoticeModel noticeModel, List<String> userIds) {
+        // 排除自己操作的
+        String operator = noticeModel.getOperator();
+        userIds.remove(operator);
+
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getPhone()));
@@ -111,7 +121,11 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return phoneList.stream().distinct().collect(Collectors.toList());
     }
 
-    protected List<String> getUserEmails(List<String> userIds) {
+    protected List<String> getUserEmails(NoticeModel noticeModel, List<String> userIds) {
+        // 排除自己操作的
+        String operator = noticeModel.getOperator();
+        userIds.remove(operator);
+
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getEmail()));
@@ -119,24 +133,35 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return phoneList.stream().distinct().collect(Collectors.toList());
     }
 
-    private List<String> getRealUserIds(List<String> userIds, List<String> relatedUsers, String event) {
+    private List<String> getRealUserIds(List<String> userIds, NoticeModel noticeModel, String event) {
         List<String> toUserIds = new ArrayList<>();
+        Map<String, Object> paramMap = noticeModel.getParamMap();
         for (String userId : userIds) {
             switch (userId) {
                 case NoticeConstants.RelatedUser.EXECUTOR:
                     if (StringUtils.equals(NoticeConstants.Event.CREATE, event)) {
-                        toUserIds.addAll(relatedUsers);
+                        toUserIds.addAll(noticeModel.getRelatedUsers());
                     }
                     break;
-                case NoticeConstants.RelatedUser.FOUNDER:
-                    if (StringUtils.equals(NoticeConstants.Event.UPDATE, event)
-                            || StringUtils.equals(NoticeConstants.Event.DELETE, event)) {
-                        toUserIds.addAll(relatedUsers);
+                case NoticeConstants.RelatedUser.CREATOR:
+                    Object creator = paramMap.get("creator");
+                    if (creator != null) {
+                        toUserIds.add(creator.toString());
+                    }
+                    Object createUser = paramMap.get("createUser");
+                    if (createUser != null) {
+                        toUserIds.add(createUser.toString());
                     }
                     break;
                 case NoticeConstants.RelatedUser.MAINTAINER:
                     if (StringUtils.equals(NoticeConstants.Event.COMMENT, event)) {
-                        toUserIds.addAll(relatedUsers);
+                        toUserIds.addAll(noticeModel.getRelatedUsers());
+                    }
+                    break;
+                case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
+                    Object followPeople = paramMap.get("followPeople");
+                    if (followPeople != null) {
+                        toUserIds.add(followPeople.toString());
                     }
                     break;
                 default:

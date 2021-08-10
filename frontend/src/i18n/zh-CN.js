@@ -375,7 +375,7 @@ export default {
     defect_manage: '项目管理平台',
     message_settings: '消息设置',
     message: {
-      jenkins_task_notification: 'Jenkins接口调用任务通知',
+      jenkins_task_notification: 'Jenkins 任务通知',
       test_plan_task_notification: '测试计划任务通知',
       test_review_task_notice: '测试评审任务通知',
       create_new_notification: '创建新通知',
@@ -388,9 +388,9 @@ export default {
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
       lark: '飞书机器人',
-      notes: '1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
-        '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
-        '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
+      notes: '1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;<br/>' +
+        '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";<br/>' +
+        '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号',
       message: '事件，接收人，接收方式为必填项',
       message_webhook: '接收方式为钉钉和企业机器人,飞书时，webhook为必填项',
       template: "模版"

@@ -11,14 +11,12 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.OperLogConstants;
-import io.metersphere.commons.constants.PermissionConstants;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -89,6 +87,7 @@ public class ApiAutomationController {
     @PostMapping(value = "/create")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/AutomationCreate", subject = "接口自动化通知")
     public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
                               @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         return apiAutomationService.create(request, bodyFiles, scenarioFiles);
@@ -97,9 +96,10 @@ public class ApiAutomationController {
     @PostMapping(value = "/update")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiAutomationService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
-    public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
-                       @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
-        apiAutomationService.update(request, bodyFiles, scenarioFiles);
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
+    public ApiScenario update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
+                              @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
+        return apiAutomationService.update(request, bodyFiles, scenarioFiles);
     }
 
     @GetMapping("/delete/{id}")
@@ -123,12 +123,16 @@ public class ApiAutomationController {
 
     @PostMapping("/removeToGc")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiAutomationService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getApiScenarios(#ids)", targetClass = ApiAutomationService.class,
+            event = NoticeConstants.Event.DELETE, mailTemplate = "api/AutomationDelete", subject = "接口自动化通知")
     public void removeToGc(@RequestBody List<String> ids) {
         apiAutomationService.removeToGc(ids);
     }
 
     @PostMapping("/removeToGcByBatch")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getApiScenarios(#request.ids)", targetClass = ApiAutomationService.class,
+            event = NoticeConstants.Event.DELETE, mailTemplate = "api/AutomationDelete", subject = "接口自动化通知")
     public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.removeToGcByBatch(request);
     }

@@ -13,12 +13,10 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
@@ -90,7 +88,6 @@ public class IssuesService {
     }
 
 
-
     public void addIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
@@ -108,27 +105,6 @@ public class IssuesService {
                 LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
             }
         });
-        noticeIssueEven(issuesRequest, "IssuesCreate");
-    }
-
-    public void noticeIssueEven(IssuesUpdateRequest issuesRequest, String type) {
-        SessionUser user = SessionUtils.getUser();
-        String orgId = user.getLastOrganizationId();
-        List<String> userIds = new ArrayList<>();
-        userIds.add(orgId);
-        String context = getIssuesContext(user, issuesRequest, NoticeConstants.Event.CREATE);
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("issuesName", issuesRequest.getTitle());
-        paramMap.put("creator", user.getName());
-        NoticeModel noticeModel = NoticeModel.builder()
-                .context(context)
-                .relatedUsers(userIds)
-                .subject(Translator.get("task_defect_notification"))
-                .mailTemplate(type)
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.CREATE)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.DEFECT_TASK, noticeModel);
     }
 
 
@@ -324,6 +300,10 @@ public class IssuesService {
         testCaseIssuesMapper.deleteByExample(example);
     }
 
+    public IssuesWithBLOBs get(String id) {
+        return issuesMapper.selectByPrimaryKey(id);
+    }
+
     private static String getIssuesContext(SessionUser user, IssuesUpdateRequest issuesRequest, String type) {
         String context = "";
         if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
@@ -476,7 +456,7 @@ public class IssuesService {
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
                 try {
                     Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
-                    Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
+                    Constructor cons = clazz.getDeclaredConstructor(new Class[]{IssuesRequest.class});
                     AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
                     syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
                 } catch (ClassNotFoundException e) {

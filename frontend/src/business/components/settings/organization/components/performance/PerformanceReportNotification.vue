@@ -2,8 +2,9 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <h3>{{ $t('organization.message.jenkins_task_notification') }}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel" v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
+        <h5>报告</h5>
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
+                   v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
         <el-popover
@@ -19,33 +20,32 @@
         <el-popover
           placement="right-end"
           title="示例"
-          width="600"
-          trigger="click">
+          width="400"
+          trigger="click"
+          :content="robotTitle">
           <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.robot_template') }}
           </el-button>
         </el-popover>
-
-
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="jenkinsTask"
+          :data="defectTask"
           class="tb-edit"
           border
           :cell-style="rowClass"
-          :header-cell-style="headClass">
+          :header-cell-style="headClass"
+        >
           <el-table-column :label="$t('schedule.event')" min-width="15%" prop="events">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.event"
-                         :placeholder="$t('organization.message.select_events')"
-                         size="mini"
-                         prop="events" :disabled="!scope.row.isSet">
+              <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')" size="mini"
+                         @change="handleReceivers(scope.row)"
+                         prop="event" :disabled="!scope.row.isSet">
                 <el-option
-                  v-for="item in jenkinsEventOptions"
+                  v-for="item in eventOptions"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value">
@@ -53,12 +53,13 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
+          <el-table-column :label="$t('schedule.receiver')" prop="receiver" min-width="20%">
             <template v-slot:default="{row}">
               <el-select v-model="row.userIds" filterable multiple size="mini"
-                         :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
+                         :placeholder="$t('commons.please_select')"
+                         style="width: 100%;" :disabled="!row.isSet">
                 <el-option
-                  v-for="item in jenkinsReceiverOptions"
+                  v-for="item in row.receiverOptions"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
@@ -70,8 +71,7 @@
             <template slot-scope="scope">
               <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
                          size="mini"
-                         :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)"
-              >
+                         :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)">
                 <el-option
                   v-for="item in receiveTypeOptions"
                   :key="item.value"
@@ -83,50 +83,55 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址"
-                        size="mini"
+              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.operating')" min-width="25%" prop="result">
             <template v-slot:default="scope">
-              <el-button
+              <ms-tip-button
+                circle
                 type="success"
                 size="mini"
                 v-if="scope.row.isSet"
                 v-xpack
                 @click="handleTemplate(scope.$index,scope.row)"
-              >{{ $t('organization.message.template') }}
-              </el-button>
-              <el-button
+                :tip="$t('organization.message.template')"
+                icon="el-icon-tickets"/>
+              <ms-tip-button
+                circle
                 type="primary"
                 size="mini"
-                v-if="scope.row.isSet"
+                v-show="scope.row.isSet"
                 @click="handleAddTask(scope.$index,scope.row)"
-              >{{ $t('commons.add') }}
-              </el-button>
-              <el-button
+                :tip="$t('commons.add')"
+                icon="el-icon-check"/>
+              <ms-tip-button
+                circle
                 size="mini"
-                v-if="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,jenkinsTask)"
-              >{{ $t('commons.cancel') }}
-              </el-button>
-              <el-button
+                v-show="scope.row.isSet"
+                @click="removeRowTask(scope.$index,defectTask)"
+                :tip="$t('commons.cancel')"
+                icon="el-icon-refresh-left"/>
+              <ms-tip-button
+                el-button
+                circle
                 type="primary"
                 size="mini"
-                v-if="!scope.row.isSet"
+                icon="el-icon-edit"
+                v-show="!scope.row.isSet"
+                :tip="$t('commons.edit')"
                 @click="handleEditTask(scope.$index,scope.row)"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"
-              >{{ $t('commons.edit') }}
-              </el-button>
-              <el-button
+                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
+              <ms-tip-button
+                circle
                 type="danger"
                 icon="el-icon-delete"
                 size="mini"
                 v-show="!scope.row.isSet"
-                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"
-                @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
-              ></el-button>
+                @click="deleteRowTask(scope.$index,scope.row)"
+                :tip="$t('commons.delete')"
+                v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']"/>
             </template>
           </el-table-column>
         </el-table>
@@ -139,62 +144,42 @@
 <script>
 import {hasLicense} from "@/common/js/utils";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
+import MsTipButton from "@/business/components/common/components/MsTipButton";
 
-const TASK_TYPE = 'JENKINS_TASK';
-
+const TASK_TYPE = 'PERFORMANCE_REPORT_TASK';
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
-  name: "JenkinsNotification",
+  name: "PerformanceReportNotification",
   components: {
+    MsTipButton,
     MsCodeEdit,
     "NoticeTemplate": noticeTemplate.default
   },
   props: {
-    jenkinsReceiverOptions: {
+    receiverOptions: {
       type: Array
     }
   },
   data() {
     return {
       modes: ['text', 'html'],
-      title: '<!DOCTYPE html>\n' +
-        '<html lang="en">\n' +
-        '<head>\n' +
-        '    <meta charset="UTF-8">\n' +
-        '    <title>MeterSphere</title>\n' +
-        '</head>\n' +
-        '<body>\n' +
-        '<div>\n' +
-        '    <div style="text-align: left">\n' +
-        '        <p>尊敬的用户：</p>\n' +
-        '        <p style="margin-left: 60px">您好:\n' +
-        '    </div>\n' +
-        '    <div style="margin-left: 100px">\n' +
-        '        <p>${testName} 接口测试运行失败/成功<br/>\n' +
-        '        <p>执行人:${executor}</p>' +
-        '        <p>执行环境:${executionEnvironment}</p>' +
-        '        <p>执行时间:${executionTime}</p>' +
-        '            请点击下面链接进入测试报告页面</p>\n' +
-        '        <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>\n' +
-        '        <p>新版接口测试报告路径</p>\n' +
-        '        <a href="${url}/#/api/automation/report/view/">${url}/#/api/automation/report/view/${id}</a>\n' +
-        '    </div>\n' +
-        '\n' +
-        '</div>\n' +
-        '</body>\n' +
-        '</html>',
-      robotTitle:
-        "测试【任务通知】:'${executor}所执行的 ${testName} ${type}测试运行${status}\n" +
-        "测试环境为:${executionEnvironment}\n" +
-        "执行时间：${executionTime}\n" +
-        "请点击下面链接进入测试报告页面\n" +
-        "${url}/#/${type}/report/view/${id}" +
-        "新版接口测试报告路径\n" +
-        "${url}/#/api/automation/report/view/${id}",
-      jenkinsTask: [{
-        taskType: "jenkinsTask",
+      title: "<!DOCTYPE html>\n" +
+        "<html lang=\"en\">\n" +
+        "<head>\n" +
+        "    <meta charset=\"UTF-8\">\n" +
+        "    <title>MeterSphere</title>\n" +
+        "</head>\n" +
+        "<body>\n" +
+        "<div>\n" +
+        "    <p>${creator}创建了测试用例</p>\n" +
+        "</div>\n" +
+        "</body>\n" +
+        "</html>",
+      robotTitle: "【任务通知】:${creator}创建了测试用例",
+      defectTask: [{
+        taskType: "defectTask",
         event: "",
         userIds: [],
         type: [],
@@ -203,9 +188,8 @@ export default {
         identification: "",
         isReadOnly: false,
       }],
-      jenkinsEventOptions: [
-        {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
-        {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
+      eventOptions: [
+        {value: 'DELETE', label: this.$t('commons.delete')},
       ],
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
@@ -213,16 +197,18 @@ export default {
         {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
         {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
-    }
-  },
-  activated() {
-    this.initForm();
+    };
   },
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
-        this.jenkinsTask = response.data;
-      })
+        this.defectTask = response.data;
+        // 上报通知数
+        this.$emit("noticeSize", {taskType: 'performance', size: this.defectTask.length});
+        this.defectTask.forEach(planTask => {
+          this.handleReceivers(planTask);
+        });
+      });
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
@@ -231,18 +217,29 @@ export default {
         data.webhook = '';
       }
     },
+    handleEditTask(index, data) {
+      data.isSet = true;
+      if (data.type === 'EMAIL') {
+        data.isReadOnly = false;
+        data.webhook = '';
+      } else {
+        data.isReadOnly = true;
+      }
+    },
     handleAddTaskModel() {
-      let Task = {};
-      Task.event = [];
-      Task.userIds = [];
-      Task.type = '';
-      Task.webhook = '';
-      Task.isSet = true;
-      Task.identification = '';
-      Task.taskType = TASK_TYPE
-      this.jenkinsTask.push(Task)
+      let task = {};
+      task.receiverOptions = this.receiverOptions;
+      task.event = [];
+      task.userIds = [];
+      task.type = '';
+      task.webhook = '';
+      task.isSet = true;
+      task.identification = '';
+      task.taskType = TASK_TYPE;
+      this.defectTask.push(task);
     },
     handleAddTask(index, data) {
+
       if (data.event && data.userIds.length > 0 && data.type) {
         // console.log(data.type)
         if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT' || data.type === 'LARK') {
@@ -258,48 +255,60 @@ export default {
         this.$warning(this.$t('organization.message.message'));
       }
     },
-    handleEditTask(index, data) {
-      data.isSet = true
-      if (data.type === 'EMAIL') {
-        data.isReadOnly = false;
-        data.webhook = '';
-      } else {
-        data.isReadOnly = true;
-      }
-    },
     addTask(data) {
+      data.isSet = false;
       this.result = this.$post("/notice/save/message/task", data, () => {
         this.initForm();
         this.$success(this.$t('commons.save_success'));
-      })
+      });
     },
     removeRowTask(index, data) { //移除
       if (!data[index].identification) {
-        data.splice(index, 1)
+        data.splice(index, 1);
       } else {
-        data[parseInt(index)].isSet = false;
+        data[index].isSet = false;
       }
-
     },
     deleteRowTask(index, data) { //删除
       this.result = this.$get("/notice/delete/message/" + data.identification, response => {
         this.$success(this.$t('commons.delete_success'));
-        this.initForm()
-      })
+        this.initForm();
+      });
     },
     rowClass() {
-      return "text-align:center"
+      return "text-align:center";
     },
     headClass() {
-      return "text-align:center;background:'#ededed'"
+      return "text-align:center;background:'#ededed'";
     },
     handleTemplate(index, row) {
       if (hasLicense()) {
         this.$refs.noticeTemplate.open(row);
       }
+    },
+    handleReceivers(row) {
+      let receiverOptions = JSON.parse(JSON.stringify(this.receiverOptions));
+      switch (row.event) {
+        case "DELETE":
+          receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          if (row.userIds.indexOf('CREATOR') < 0) {
+            row.userIds.unshift('CREATOR');
+          }
+          break;
+        default:
+          break;
+      }
+      row.receiverOptions = receiverOptions;
+    }
+  },
+  watch: {
+    receiverOptions(value) {
+      if (value && value.length > 0) {
+        this.initForm();
+      }
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -308,20 +317,6 @@ export default {
 }
 
 .el-button {
-  margin-left: 10px;
-}
-
-/deep/ .el-select .el-input.is-disabled .el-input__inner {
-  background-color: #F5F7FA;
-  border-color: #E4E7ED;
-  color: #0a0a0a;
-  cursor: not-allowed;
-}
-
-/deep/ .el-input.is-disabled .el-input__inner {
-  background-color: #F5F7FA;
-  border-color: #E4E7ED;
-  color: #0a0a0a;
-  cursor: not-allowed;
+  margin-right: 10px;
 }
 </style>
