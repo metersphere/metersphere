@@ -609,7 +609,7 @@ export default {
           name = this.$t('api_test.definition.request.title');
         }
       }
-      if (row != null && row.tags != 'null' && row.tags != undefined) {
+      if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
         if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
           && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
           row.tags = JSON.parse(row.tags);

@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="21" style="padding-bottom: 20px">
-        <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
+      <el-col :span="spanNum" style="padding-bottom: 20px">
+        <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;">
 
           <el-form :model="request" ref="request" label-width="100px" :disabled="isReadOnly" style="margin: 10px">
 
@@ -117,10 +117,18 @@
     },
     data() {
       return {
+        spanNum: 21,
         activeName: "interface",
         activeName2: "args",
         protocols: DubboRequest.PROTOCOLS,
         isReloadData: false,
+      }
+    },
+    created() {
+      if(this.showScript){
+        this.spanNum = 21;
+      }else {
+        this.spanNum = 24;
       }
     },
     methods: {
