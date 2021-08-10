@@ -2,15 +2,18 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.FileMetadata;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.TestCase;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
@@ -21,6 +24,7 @@ import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -108,6 +112,39 @@ public class TestCaseController {
     public Pager<List<TestCaseDTO>> getTestCaseIssueRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseIssueRelateList(request));
+    }
+
+    @PostMapping("/relevance/api/list/{goPage}/{pageSize}")
+    public Pager<List<ApiTestCaseDTO>> getTestCaseApiCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestCaseApiCaseRelateList(request));
+    }
+
+    @PostMapping("/relevance/scenario/list/{goPage}/{pageSize}")
+    public Pager<List<ApiScenarioDTO>> getTestCaseScenarioCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestCaseScenarioCaseRelateList(request));
+    }
+
+    @PostMapping("/relevance/load/list/{goPage}/{pageSize}")
+    public Pager<List<LoadTestDTO>> getTestCaseLoadCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestCaseLoadCaseRelateList(request));
+    }
+
+    @GetMapping("/relate/test/list/{caseId}")
+    public List<TestCaseTestDao> getRelateTest(@PathVariable String caseId) {
+        return testCaseService.getRelateTest(caseId);
+    }
+
+    @PostMapping("/relate/test/{type}/{caseId}")
+    public void relateTest(@PathVariable String type, @PathVariable String caseId, @RequestBody List<String> apiIds) {
+        testCaseService.relateTest(type, caseId, apiIds);
+    }
+
+    @GetMapping("/relate/delete/{caseId}/{testId}")
+    public void relateDelete(@PathVariable String caseId, @PathVariable String testId) {
+        testCaseService.relateDelete(caseId, testId);
     }
 
     @PostMapping("/reviews/case/{goPage}/{pageSize}")
