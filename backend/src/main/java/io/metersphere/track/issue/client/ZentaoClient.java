@@ -36,11 +36,11 @@ public class ZentaoClient extends BaseClient {
         if (user == null) {
             LogUtil.error(JSONObject.toJSON(getUserResponse));
             // 登录失败，获取的session无效，置空session
-            MSException.throwException("zentao login fail");
+            MSException.throwException("zentao login fail, user null");
         }
         if (!StringUtils.equals(user.getAccount(), USER_NAME)) {
             LogUtil.error("login fail，inconsistent users");
-            MSException.throwException("zentao login fail");
+            MSException.throwException("zentao login fail, inconsistent user");
         }
         return sessionId;
     }

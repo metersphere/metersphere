@@ -731,4 +731,13 @@ public class PerformanceTestService {
             loadTestFileMapper.insert(loadTestFile);
         }
     }
+
+    public List<LoadTest> getLoadCaseByIds(List<String> ids) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(ids)) {
+            LoadTestExample example = new LoadTestExample();
+            example.createCriteria().andIdIn(ids);
+            return loadTestMapper.selectByExample(example);
+        }
+        return new ArrayList<>();
+    }
 }
