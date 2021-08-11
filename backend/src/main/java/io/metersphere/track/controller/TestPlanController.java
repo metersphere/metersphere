@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RequestMapping("/test/plan")
@@ -165,6 +166,11 @@ public class TestPlanController {
     @PostMapping("/copy/{id}")
     public TestPlan copy(@PathVariable String id) {
         return testPlanService.copy(id);
+    }
+
+    @PostMapping("/api/case/env")
+    public Map<String, List<String>> getApiCaseEnv(@RequestBody List<String> caseIds) {
+        return testPlanService.getApiCaseEnv(caseIds);
     }
 
     @GetMapping("/report/export/{planId}")

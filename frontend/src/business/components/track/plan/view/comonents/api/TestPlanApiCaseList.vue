@@ -145,7 +145,7 @@
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                   :select-row="$refs.table ? $refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
 
-      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="testPlanCaseIds"/>
     </el-card>
     <ms-task-center ref="taskCenter"/>
   </div>
@@ -179,7 +179,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTaskCenter from "../../../../../task/TaskCenter";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunMode";
+import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 
@@ -579,8 +579,10 @@ export default {
       this.$post("/test/plan/api/case/run", obj, response => {
         this.$message(this.$t('commons.run_message'));
         this.$refs.taskCenter.open();
+        this.search();
+      }, () => {
+        this.search();
       });
-      this.search();
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态
       if (!this.planId) {

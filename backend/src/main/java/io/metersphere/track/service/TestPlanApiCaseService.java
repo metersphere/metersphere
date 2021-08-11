@@ -475,9 +475,48 @@ public class TestPlanApiCaseService {
                     MSException.throwException("并发数量过大，请重新选择！");
                 }
             }
+            Map<String, String> envMap = request.getConfig().getEnvMap();
+            if (!envMap.isEmpty()) {
+                setApiCaseEnv(request.getPlanIds(), envMap);
+            }
             return this.modeRun(request);
         }
         return request.getId();
+    }
+
+    private void setApiCaseEnv(List<String> planIds, Map<String, String> map) {
+        if (CollectionUtils.isEmpty(planIds)) {
+            return;
+        }
+
+        TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
+        caseExample.createCriteria().andIdIn(planIds);
+        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
+        List<String> apiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(apiCaseIds)) {
+            return;
+        }
+
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(apiCaseIds);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        Map<String, String> projectCaseIdMap = new HashMap<>(16);
+        apiTestCases.forEach(c -> projectCaseIdMap.put(c.getId(), c.getProjectId()));
+
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiCaseMapper mapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
+
+        testPlanApiCases.forEach(testPlanApiCase -> {
+            String caseId = testPlanApiCase.getApiCaseId();
+            String projectId = projectCaseIdMap.get(caseId);
+            String envId = map.get(projectId);
+            if (StringUtils.isNotBlank(envId)) {
+                testPlanApiCase.setEnvironmentId(envId);
+                mapper.updateByPrimaryKey(testPlanApiCase);
+            }
+        });
+
+        sqlSession.flushStatements();
     }
 
     public Boolean hasFailCase(String planId, List<String> apiCaseIds) {
