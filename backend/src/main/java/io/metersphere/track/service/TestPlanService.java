@@ -1254,4 +1254,44 @@ public class TestPlanService {
             sqlSession.flushStatements();
         }
     }
+
+    public Map<String, List<String>> getApiCaseEnv(List<String> planApiCaseIds) {
+        Map<String, List<String>> envMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(planApiCaseIds)) {
+            return envMap;
+        }
+
+        TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
+        caseExample.createCriteria().andIdIn(planApiCaseIds);
+        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
+        List<String> apiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getApiCaseId).collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(apiCaseIds)) {
+            return envMap;
+        }
+
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(apiCaseIds);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        Map<String, String> projectCaseIdMap = new HashMap<>(16);
+        apiTestCases.forEach(c -> projectCaseIdMap.put(c.getId(), c.getProjectId()));
+
+        testPlanApiCases.forEach(testPlanApiCase -> {
+            String caseId = testPlanApiCase.getApiCaseId();
+            String envId = testPlanApiCase.getEnvironmentId();
+            String projectId = projectCaseIdMap.get(caseId);
+            if (StringUtils.isNotBlank(projectId)) {
+                if (envMap.containsKey(projectId)) {
+                    List<String> list = envMap.get(projectId);
+                    if (!list.contains(envId)) {
+                        list.add(envId);
+                    }
+                } else {
+                    List<String> envs = new ArrayList<>();
+                    envs.add(envId);
+                    envMap.put(projectId, envs);
+                }
+            }
+        });
+        return envMap;
+    }
 }
