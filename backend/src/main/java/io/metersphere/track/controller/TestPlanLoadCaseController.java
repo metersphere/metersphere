@@ -90,4 +90,9 @@ public class TestPlanLoadCaseController {
     public void updateByApi(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.updateByApi(testPlanLoadCase);
     }
+
+    @GetMapping("/list/failure/{planId}")
+    public List<TestPlanLoadCaseDTO> getFailureCases(@PathVariable String planId) {
+        return testPlanLoadCaseService.getFailureCases(planId);
+    }
 }

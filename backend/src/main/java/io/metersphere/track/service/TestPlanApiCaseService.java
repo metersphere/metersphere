@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.RunModeDataDTO;
+import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
@@ -29,15 +30,13 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.RunModeConstants;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.task.ParallelApiExecTask;
 import io.metersphere.track.service.task.SerialApiExecTask;
@@ -495,5 +494,28 @@ public class TestPlanApiCaseService {
 
     public ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId) {
         return  extTestPlanApiCaseMapper.getApiTestCaseById(testPlanApiCaseId);
+    }
+
+    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanApiCaseMapper.selectForPlanReport(planId);
+
+        TestPlanApiResultReportDTO apiResult = report.getApiResult();
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+
+        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "success");
+
+        TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
+
+        apiResult.setApiCaseData(statusResult);
+    }
+
+    public List<TestPlanFailureApiDTO> getFailureList(String planId) {
+        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureList(planId);
+        if (CollectionUtils.isEmpty(apiTestCases)) {
+            return apiTestCases;
+        }
+        buildUserInfo(apiTestCases);
+        return apiTestCases;
     }
 }

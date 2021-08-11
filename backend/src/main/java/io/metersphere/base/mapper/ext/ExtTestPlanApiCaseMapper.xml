@@ -245,5 +245,22 @@
   <select id="getStatusByTestPlanId" resultType="java.lang.String">
     SELECT `status` FROM test_plan_api_case WHERE test_plan_id = #{0}
   </select>
+    <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
+      select id,status from test_plan_api_case where test_plan_id = #{planId};
+    </select>
+    <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanFailureApiDTO">
+      select
+        t.id,
+        c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.create_user_id,
+        c.num,t.create_user,
+        t.status execResult
+      from
+        test_plan_api_case t
+      inner join
+        api_test_case c
+        on t.api_case_id = c.id
+      and t.test_plan_id = #{request.planId} and t.status = 'error'
+      where t.test_plan_id = #{planId};
+    </select>
 
 </mapper>

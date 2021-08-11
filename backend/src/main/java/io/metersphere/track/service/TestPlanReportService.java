@@ -173,7 +173,7 @@ public class TestPlanReportService {
      * saveRequest.performanceIsExecuting 性能案例是否执行中
      */
     public TestPlanReport genTestPlanReport(TestPlanReportSaveRequest saveRequest) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(saveRequest.getPlanId());
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(saveRequest.getPlanId());
         String testPlanReportID = saveRequest.getReportID();
         TestPlanReport testPlanReport = new TestPlanReport();
         testPlanReport.setTestPlanId(saveRequest.getPlanId());
@@ -916,7 +916,7 @@ public class TestPlanReportService {
         if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting()) {
             try {
                 //更新TestPlan状态为完成
-                TestPlan testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
+                TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
                 if (testPlan != null) {
                     testPlan.setStatus(TestPlanStatus.Completed.name());
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);

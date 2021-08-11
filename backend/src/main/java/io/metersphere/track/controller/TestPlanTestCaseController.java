@@ -130,4 +130,8 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.deleteTestCase(id);
     }
 
+    @GetMapping("/list/failure/{planId}")
+    public List<TestPlanCaseDTO> getFailureCases(@PathVariable String planId) {
+        return testPlanTestCaseService.getFailureCases(planId);
+    }
 }

@@ -117,7 +117,15 @@
     <select id="getMaxSystemId" resultType="java.lang.String">
         SELECT max(system_id) FROM project
     </select>
-
+    <select id="queryNameByIds" resultType="io.metersphere.base.domain.Project">
+        select id, name, custom_num
+        from project
+        WHERE id IN
+        <foreach collection="ids" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
 
     <update id="removeIssuePlatform">
         update project

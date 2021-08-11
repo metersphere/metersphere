@@ -229,7 +229,7 @@
       },
     }
   }
-</script>cd
+</script>
 
 <style scoped>
 

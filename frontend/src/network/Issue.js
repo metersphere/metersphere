@@ -32,6 +32,17 @@ export function getIssuesByCaseId(caseId, page) {
   }
 }
 
+export function getIssuesByPlanId(planId, callback) {
+  if (planId) {
+    return get('/issues/plan/get/' + planId, (response) => {
+      if (callback) {
+        callback(response.data);
+      }
+    });
+  }
+  return {};
+}
+
 export function buildPlatformIssue(data) {
   data.customFields = JSON.stringify(data.customFields);
   return post("issues/get/platform/issue", data).then(response => {

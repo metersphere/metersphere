@@ -13,6 +13,7 @@
       :class="{'ms-select-all-fixed': showSelectAll}"
       :height="screenHeight"
       v-loading="tableIsLoading"
+      :highlight-current-row="highlightCurrentRow"
       ref="table" @row-click="handleRowClick">
 
       <el-table-column v-if="enableSelection" width="50" type="selection"/>
@@ -194,7 +195,8 @@ export default {
     },
     fields: Array,
     fieldKey: String,
-    customFields: Array
+    customFields: Array,
+    highlightCurrentRow: Boolean,
   },
   mounted() {
     getLabel(this, TEST_CASE_LIST);

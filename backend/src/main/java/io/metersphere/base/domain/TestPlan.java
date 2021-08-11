@@ -45,7 +45,5 @@ public class TestPlan implements Serializable {
 
     private Boolean automaticStatusUpdate;
 
-    private String tags;
-
     private static final long serialVersionUID = 1L;
 }

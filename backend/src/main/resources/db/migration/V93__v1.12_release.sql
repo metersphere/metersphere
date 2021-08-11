@@ -39,3 +39,5 @@ CREATE TABLE `load_test_report_result_realtime`
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
+
+ALTER TABLE test_plan ADD report_summary TEXT NULL COMMENT '测试计划报告总结';
