@@ -192,7 +192,7 @@ public class TestPlanService {
     }
 
     public TestPlan getTestPlan(String testPlanId) {
-        return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlan());
+        return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
     }
 
     public String editTestPlan(TestPlanDTO testPlan, Boolean isSendMessage) {
@@ -644,7 +644,7 @@ public class TestPlanService {
     }
 
     public void editTestPlanStatus(String planId) {
-        TestPlan testPlan = new TestPlan();
+        TestPlanWithBLOBs testPlan = new TestPlanWithBLOBs();
         testPlan.setId(planId);
         String status = calcTestPlanStatus(planId);
         testPlan.setStatus(status);
@@ -1160,14 +1160,14 @@ public class TestPlanService {
 
     @Transactional(rollbackFor = Exception.class)
     public TestPlan copy(String planId) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan == null) {
             return null;
         }
         String sourcePlanId = testPlan.getId();
         String targetPlanId = UUID.randomUUID().toString();
 
-        TestPlan targetPlan = new TestPlan();
+        TestPlanWithBLOBs targetPlan = new TestPlanWithBLOBs();
         targetPlan.setId(targetPlanId);
         targetPlan.setName(testPlan.getName() + "_COPY");
         targetPlan.setWorkspaceId(testPlan.getWorkspaceId());
@@ -1307,5 +1307,33 @@ public class TestPlanService {
             MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
         }
+    }
+
+    public TestPlanSimpleReportDTO getReport(String planId) {
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
+        TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
+        TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();
+        report.setFunctionResult(functionResult);
+        report.setApiResult(apiResult);
+        report.setStartTime(testPlan.getActualStartTime());
+        report.setStartTime(testPlan.getActualEndTime());
+        report.setSummary(testPlan.getReportSummary());
+        testPlanTestCaseService.calculatePlanReport(planId, report);
+        issuesService.calculatePlanReport(planId, report);
+        testPlanApiCaseService.calculatePlanReport(planId, report);
+        testPlanScenarioCaseService.calculatePlanReport(planId, report);
+        testPlanLoadCaseService.calculatePlanReport(planId, report);
+        report.setExecuteRate(report.getExecuteCount() * 0.1 / report.getCaseCount());
+        report.setPassRate(report.getPassCount() * 0.1 / report.getCaseCount());
+        return report;
+    }
+
+    public void editReport(TestPlanWithBLOBs testPlanWithBLOBs) {
+        testPlanMapper.updateByPrimaryKeySelective(testPlanWithBLOBs);
+    }
+
+    public TestCaseReportStatusResultDTO getFunctionalResultReport(String planId) {
+        return null;
     }
 }

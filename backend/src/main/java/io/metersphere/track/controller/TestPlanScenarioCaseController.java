@@ -31,6 +31,11 @@ public class TestPlanScenarioCaseController {
         return PageUtils.setPageInfo(page, testPlanScenarioCaseService.list(request));
     }
 
+    @GetMapping("/list/failure/{planId}")
+    public List<TestPlanFailureScenarioDTO> getFailureList(@PathVariable String planId) {
+        return testPlanScenarioCaseService.getFailureList(planId);
+    }
+
     @PostMapping("/selectAllTableRows")
     public List<ApiScenarioDTO> selectAllTableRows(@RequestBody TestPlanScenarioCaseBatchRequest request) {
         return testPlanScenarioCaseService.selectAllTableRows(request);

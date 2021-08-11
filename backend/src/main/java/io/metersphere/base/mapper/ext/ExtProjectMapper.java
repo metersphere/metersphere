@@ -1,10 +1,13 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.base.domain.Project;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ExtProjectMapper {
 
@@ -21,4 +24,7 @@ public interface ExtProjectMapper {
     List<String> getProjectIds();
 
     String getMaxSystemId();
+
+    @MapKey("id")
+    Map<String, Project> queryNameByIds(@Param("ids") List<String> ids);
 }

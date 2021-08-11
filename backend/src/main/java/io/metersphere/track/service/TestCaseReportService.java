@@ -1,10 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.base.domain.TestCaseReport;
-import io.metersphere.base.domain.TestCaseReportExample;
-import io.metersphere.base.domain.TestCaseReportTemplate;
-import io.metersphere.base.domain.TestPlan;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.TestCaseReportMapper;
 import io.metersphere.base.mapper.TestCaseReportTemplateMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
@@ -69,7 +66,7 @@ public class TestCaseReportService {
         TestCaseReportTemplate template = testCaseReportTemplateMapper.selectByPrimaryKey(request.getTemplateId());
         TestCaseReport report = new TestCaseReport();
         BeanUtils.copyBean(report, template);
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         report.setName(testPlan.getName());
         report.setId(request.getId());
         report.setCreateUser(SessionUtils.getUserId());

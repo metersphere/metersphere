@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
@@ -12,10 +13,12 @@ import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.dto.RelevanceScenarioRequest;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +54,15 @@ public class TestPlanScenarioCaseService {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
+        if (CollectionUtils.isEmpty(apiTestCases)) {
+            return apiTestCases;
+        }
+        buildProjectInfo(apiTestCases);
+        buildUserInfo(apiTestCases);
+        return apiTestCases;
+    }
+
+    public void buildProjectInfo(List<? extends ApiScenarioDTO> apiTestCases) {
         List<String> projectIds = apiTestCases.stream()
                 .map(ApiScenarioDTO::getProjectId)
                 .collect(Collectors.toSet())
@@ -67,12 +79,6 @@ public class TestPlanScenarioCaseService {
                 item.setCustomNum(item.getNum().toString());
             }
         });
-
-        if (CollectionUtils.isEmpty(apiTestCases)) {
-            return apiTestCases;
-        }
-        buildUserInfo(apiTestCases);
-        return apiTestCases;
     }
 
     public void buildUserInfo(List<? extends ApiScenarioDTO> apiTestCases) {
@@ -320,5 +326,81 @@ public class TestPlanScenarioCaseService {
             envMap.put(projectName, envName);
         }
         return envMap;
+    }
+
+    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanScenarioCaseMapper.selectForPlanReport(planId);
+        TestPlanApiResultReportDTO apiResult = report.getApiResult();
+
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "Success");
+        TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
+        TestPlanScenarioStepCountDTO stepCount = new TestPlanScenarioStepCountDTO();
+        for (PlanReportCaseDTO item : planReportCaseDTOS) {
+            calculateScenarioResultDTO(item, stepCount);
+        }
+
+        int underwayStepsCounts = getUnderwayStepsCounts(stepCount.getUnderwayIds());
+
+        List<TestCaseReportStatusResultDTO> stepResult = new ArrayList<>();
+        getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Failure.name(), stepCount.getScenarioStepError(), stepResult);
+        getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Pass.name(), stepCount.getScenarioStepSuccess(), stepResult);
+        getScenarioCaseReportStatusResultDTO(TestPlanTestCaseStatus.Underway.name(),
+                stepCount.getScenarioStepTotal() - stepCount.getScenarioStepSuccess() - stepCount.getScenarioStepError() + underwayStepsCounts, stepResult);
+
+        apiResult.setApiScenarioData(statusResult);
+        apiResult.setApiScenarioStepData(stepResult);
+    }
+
+    private int getUnderwayStepsCounts(List<String> underwayIds){
+        if (CollectionUtils.isNotEmpty(underwayIds)) {
+            List<Integer> underwayStepsCounts = extTestPlanScenarioCaseMapper.getUnderwaySteps(underwayIds);
+            Optional<Integer> underwayStepCount = underwayStepsCounts.stream().reduce((total, count) -> {
+                if (count != null) {
+                    total += count;
+                }
+                return total;
+            });
+            return underwayStepCount.orElse(0);
+        }
+        return 0;
+    }
+
+    private void calculateScenarioResultDTO(PlanReportCaseDTO item,
+                                            TestPlanScenarioStepCountDTO stepCount) {
+        if (StringUtils.isNotBlank(item.getReportId())) {
+            APIScenarioReportResult apiScenarioReportResult = apiScenarioReportService.get(item.getReportId());
+            if (apiScenarioReportResult != null) {
+                String content = apiScenarioReportResult.getContent();
+                if (StringUtils.isNotBlank(content)) {
+                    JSONObject jsonObject = JSONObject.parseObject(content);
+                    stepCount.setScenarioStepTotal(stepCount.getScenarioStepTotal() + jsonObject.getIntValue("scenarioStepTotal"));
+                    stepCount.setScenarioStepSuccess(stepCount.getScenarioStepSuccess() + jsonObject.getIntValue("scenarioStepSuccess"));
+                    stepCount.setScenarioStepError(stepCount.getScenarioStepError() + jsonObject.getIntValue("scenarioStepError"));
+                }
+            }
+        } else {
+            stepCount.getUnderwayIds().add(item.getCaseId());
+        }
+    }
+
+    private void getScenarioCaseReportStatusResultDTO(String status, int count, List<TestCaseReportStatusResultDTO> scenarioCaseList) {
+        if (count > 0) {
+            TestCaseReportStatusResultDTO scenarioCase = new TestCaseReportStatusResultDTO();
+            scenarioCase.setStatus(status);
+            scenarioCase.setCount(count);
+            scenarioCaseList.add(scenarioCase);
+        }
+    }
+
+    public List<TestPlanFailureScenarioDTO> getFailureList(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.getFailureList(planId);
+        if (CollectionUtils.isEmpty(apiTestCases)) {
+            return apiTestCases;
+        }
+        buildProjectInfo(apiTestCases);
+        buildUserInfo(apiTestCases);
+        return apiTestCases;
     }
 }

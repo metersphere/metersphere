@@ -23,8 +23,9 @@
     <result column="execution_times" jdbcType="INTEGER" property="executionTimes" />
     <result column="automatic_status_update" jdbcType="BIT" property="automaticStatusUpdate" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlan">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanWithBLOBs">
     <result column="tags" jdbcType="LONGVARCHAR" property="tags" />
+    <result column="report_summary" jdbcType="LONGVARCHAR" property="reportSummary" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -90,7 +91,7 @@
     actual_start_time, actual_end_time, creator, project_id, execution_times, automatic_status_update
   </sql>
   <sql id="Blob_Column_List">
-    tags
+    tags, report_summary
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanExample" resultMap="ResultMapWithBLOBs">
     select
@@ -140,25 +141,25 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.TestPlan">
+  <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan (id, workspace_id, report_id, 
       `name`, description, `status`, 
       stage, principal, test_case_match_rule, 
       executor_match_rule, create_time, update_time, 
       planned_start_time, planned_end_time, actual_start_time, 
       actual_end_time, creator, project_id, 
-      execution_times, automatic_status_update, tags
-      )
+      execution_times, automatic_status_update, tags, 
+      report_summary)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{stage,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, 
       #{executorMatchRule,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, 
       #{actualEndTime,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{executionTimes,jdbcType=INTEGER}, #{automaticStatusUpdate,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}
-      )
+      #{executionTimes,jdbcType=INTEGER}, #{automaticStatusUpdate,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}, 
+      #{reportSummary,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlan">
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -224,6 +225,9 @@
       <if test="tags != null">
         tags,
       </if>
+      <if test="reportSummary != null">
+        report_summary,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -288,6 +292,9 @@
       </if>
       <if test="tags != null">
         #{tags,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="reportSummary != null">
+        #{reportSummary,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -363,6 +370,9 @@
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.reportSummary != null">
+        report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -390,7 +400,8 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
-      tags = #{record.tags,jdbcType=LONGVARCHAR}
+      tags = #{record.tags,jdbcType=LONGVARCHAR},
+      report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -421,7 +432,7 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestPlan">
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     update test_plan
     <set>
       <if test="workspaceId != null">
@@ -484,10 +495,13 @@
       <if test="tags != null">
         tags = #{tags,jdbcType=LONGVARCHAR},
       </if>
+      <if test="reportSummary != null">
+        report_summary = #{reportSummary,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestPlan">
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     update test_plan
     set workspace_id = #{workspaceId,jdbcType=VARCHAR},
       report_id = #{reportId,jdbcType=VARCHAR},
@@ -508,7 +522,8 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       execution_times = #{executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
-      tags = #{tags,jdbcType=LONGVARCHAR}
+      tags = #{tags,jdbcType=LONGVARCHAR},
+      report_summary = #{reportSummary,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlan">

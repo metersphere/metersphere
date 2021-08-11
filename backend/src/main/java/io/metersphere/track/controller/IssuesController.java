@@ -55,6 +55,11 @@ public class IssuesController {
         return issuesService.getIssues(id);
     }
 
+    @GetMapping("/plan/get/{planId}")
+    public List<IssuesDao> getIssuesByPlanoId(@PathVariable String planId) {
+        return issuesService.getIssuesByPlanoId(planId);
+    }
+
     @GetMapping("/auth/{orgId}/{platform}")
     public void testAuth(@PathVariable String orgId, @PathVariable String platform) {
         issuesService.testAuth(orgId, platform);

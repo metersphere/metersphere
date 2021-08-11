@@ -73,7 +73,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
-            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+            issues = extIssuesMapper.getIssues(issuesRequest);
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
