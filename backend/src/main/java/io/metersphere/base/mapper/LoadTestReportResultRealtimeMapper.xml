@@ -6,6 +6,7 @@
     <id column="report_key" jdbcType="VARCHAR" property="reportKey" />
     <id column="resource_index" jdbcType="INTEGER" property="resourceIndex" />
     <id column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="duration" jdbcType="BIGINT" property="duration" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestReportResultRealtime">
     <result column="report_value" jdbcType="LONGVARCHAR" property="reportValue" />
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    report_id, report_key, resource_index, sort
+    report_id, report_key, resource_index, sort, duration
   </sql>
   <sql id="Blob_Column_List">
     report_value
@@ -130,9 +131,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestReportResultRealtime">
     insert into load_test_report_result_realtime (report_id, report_key, resource_index, 
-      sort, report_value)
+      sort, duration, report_value
+      )
     values (#{reportId,jdbcType=VARCHAR}, #{reportKey,jdbcType=VARCHAR}, #{resourceIndex,jdbcType=INTEGER}, 
-      #{sort,jdbcType=INTEGER}, #{reportValue,jdbcType=LONGVARCHAR})
+      #{sort,jdbcType=INTEGER}, #{duration,jdbcType=BIGINT}, #{reportValue,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestReportResultRealtime">
     insert into load_test_report_result_realtime
@@ -148,6 +151,9 @@
       </if>
       <if test="sort != null">
         sort,
+      </if>
+      <if test="duration != null">
+        duration,
       </if>
       <if test="reportValue != null">
         report_value,
@@ -165,6 +171,9 @@
       </if>
       <if test="sort != null">
         #{sort,jdbcType=INTEGER},
+      </if>
+      <if test="duration != null">
+        #{duration,jdbcType=BIGINT},
       </if>
       <if test="reportValue != null">
         #{reportValue,jdbcType=LONGVARCHAR},
@@ -192,6 +201,9 @@
       <if test="record.sort != null">
         sort = #{record.sort,jdbcType=INTEGER},
       </if>
+      <if test="record.duration != null">
+        duration = #{record.duration,jdbcType=BIGINT},
+      </if>
       <if test="record.reportValue != null">
         report_value = #{record.reportValue,jdbcType=LONGVARCHAR},
       </if>
@@ -206,6 +218,7 @@
       report_key = #{record.reportKey,jdbcType=VARCHAR},
       resource_index = #{record.resourceIndex,jdbcType=INTEGER},
       sort = #{record.sort,jdbcType=INTEGER},
+      duration = #{record.duration,jdbcType=BIGINT},
       report_value = #{record.reportValue,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -216,7 +229,8 @@
     set report_id = #{record.reportId,jdbcType=VARCHAR},
       report_key = #{record.reportKey,jdbcType=VARCHAR},
       resource_index = #{record.resourceIndex,jdbcType=INTEGER},
-      sort = #{record.sort,jdbcType=INTEGER}
+      sort = #{record.sort,jdbcType=INTEGER},
+      duration = #{record.duration,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -224,6 +238,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.LoadTestReportResultRealtime">
     update load_test_report_result_realtime
     <set>
+      <if test="duration != null">
+        duration = #{duration,jdbcType=BIGINT},
+      </if>
       <if test="reportValue != null">
         report_value = #{reportValue,jdbcType=LONGVARCHAR},
       </if>
@@ -235,7 +252,16 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestReportResultRealtime">
     update load_test_report_result_realtime
-    set report_value = #{reportValue,jdbcType=LONGVARCHAR}
+    set duration = #{duration,jdbcType=BIGINT},
+      report_value = #{reportValue,jdbcType=LONGVARCHAR}
+    where report_id = #{reportId,jdbcType=VARCHAR}
+      and report_key = #{reportKey,jdbcType=VARCHAR}
+      and resource_index = #{resourceIndex,jdbcType=INTEGER}
+      and sort = #{sort,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTestReportResultRealtime">
+    update load_test_report_result_realtime
+    set duration = #{duration,jdbcType=BIGINT}
     where report_id = #{reportId,jdbcType=VARCHAR}
       and report_key = #{reportKey,jdbcType=VARCHAR}
       and resource_index = #{resourceIndex,jdbcType=INTEGER}

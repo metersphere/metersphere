@@ -32,4 +32,6 @@ public interface LoadTestReportResultRealtimeMapper {
     int updateByPrimaryKeySelective(LoadTestReportResultRealtime record);
 
     int updateByPrimaryKeyWithBLOBs(LoadTestReportResultRealtime record);
+
+    int updateByPrimaryKey(LoadTestReportResultRealtime record);
 }

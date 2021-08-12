@@ -33,6 +33,7 @@ CREATE TABLE `load_test_report_result_realtime`
     `report_key`     VARCHAR(64) NOT NULL,
     `resource_index` INT         NOT NULL,
     `sort`           INT         NOT NULL,
+    `duration`       BIGINT      NOT NULL,
     `report_value`   TEXT,
     PRIMARY KEY `load_test_report_result_report_id_report_key_index` (`report_id`, `report_key`, `resource_index`, `sort`)
 )
