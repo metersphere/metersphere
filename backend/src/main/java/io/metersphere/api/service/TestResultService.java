@@ -21,6 +21,7 @@ import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TestResultService {
 
     @Resource
