@@ -42,8 +42,8 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
-import {windowPrint, getCurrentProjectID} from "@/common/js/utils";
-import {ELEMENTS} from "../scenario/Setting";
+import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {ELEMENT_TYPE, ELEMENTS} from "../scenario/Setting";
 
 export default {
   name: "SysnApiReportDetail",
@@ -113,10 +113,25 @@ export default {
             this.initTree();
             this.initWebSocket();
             this.clearDebug();
+            if (this.scenario.scenarioDefinition && this.scenario.scenarioDefinition.hashTree) {
+              this.sort(this.scenario.scenarioDefinition.hashTree);
+            }
             this.loading = false;
           }
         }
       })
+    },
+    sort(stepArray) {
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.stepSize += stepArray[i].hashTree.length;
+          this.sort(stepArray[i].hashTree);
+        }
+      }
     },
     initTree() {
       this.fullTreeNodes = [];
