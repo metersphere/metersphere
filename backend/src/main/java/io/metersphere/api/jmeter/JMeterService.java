@@ -30,6 +30,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -39,6 +40,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class JMeterService {
     private static final String BASE_URL = "http://%s:%d";
     @Resource

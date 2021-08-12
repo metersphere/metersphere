@@ -11,12 +11,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.List;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class BaseDisplayService {
     @Resource
     private SystemParameterMapper systemParameterMapper;

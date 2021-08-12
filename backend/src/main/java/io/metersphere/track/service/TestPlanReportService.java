@@ -34,6 +34,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -47,6 +48,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TestPlanReportService {
 
     Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");

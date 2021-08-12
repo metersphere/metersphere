@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.exec.SystemCommand;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class CommandService {
 
     public List<KeyStoreEntry> get(String password, MultipartFile file) {
