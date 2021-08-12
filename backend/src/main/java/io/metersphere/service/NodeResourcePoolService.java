@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class NodeResourcePoolService {
     private final static String nodeControllerUrl = "http://%s:%s/status";
 

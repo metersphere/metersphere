@@ -21,6 +21,7 @@ import org.springframework.ldap.core.support.DefaultDirObjectFactory;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import javax.naming.directory.DirContext;
@@ -32,6 +33,7 @@ import java.util.Map;
 import static org.springframework.ldap.query.LdapQueryBuilder.query;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class LdapService {
 
     @Resource
