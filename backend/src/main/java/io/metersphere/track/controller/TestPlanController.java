@@ -178,6 +178,16 @@ public class TestPlanController {
         return testPlanService.getApiScenarioEnv(caseIds);
     }
 
+    @PostMapping("/case/env")
+    public Map<String, List<String>> getPlanCaseEnv(@RequestBody TestPlan plan) {
+        return testPlanService.getPlanCaseEnv(plan.getId());
+    }
+
+    @PostMapping("/run")
+    public String run(@RequestBody TestplanRunRequest testplanRunRequest) {
+        return testPlanService.runPlan(testplanRunRequest);
+    }
+
     @GetMapping("/report/export/{planId}")
     public void exportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
         testPlanService.exportPlanReport(planId, response);

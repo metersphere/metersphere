@@ -177,6 +177,8 @@ export default {
     debug_history: "調試歷史",
     testing: "測試中",
     environment: "運行環境",
+    run_success: "執行成功",
+    run_fail: "執行失敗",
     selector: {
       required: "必填",
       not_required: "非必填",

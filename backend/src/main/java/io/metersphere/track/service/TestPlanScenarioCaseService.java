@@ -187,7 +187,7 @@ public class TestPlanScenarioCaseService {
         return apiAutomationService.run(request);
     }
 
-    private void setScenarioEnv(List<String> planScenarioIds, Map<String, String> envMap) {
+    public void setScenarioEnv(List<String> planScenarioIds, Map<String, String> envMap) {
         if (CollectionUtils.isEmpty(planScenarioIds)) {
             return;
         }
