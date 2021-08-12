@@ -40,10 +40,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -481,5 +478,9 @@ public class ProjectService {
 
     public List<String> getProjectIds() {
         return extProjectMapper.getProjectIds();
+    }
+
+    public Map<String, Project> queryNameByIds(List<String> ids) {
+        return extProjectMapper.queryNameByIds(ids);
     }
 }

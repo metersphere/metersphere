@@ -380,7 +380,12 @@ export default {
       }
     },
     editScenario(row) {
-      this.addTab({name: 'edit', currentScenario: row});
+      const index = this.tabs.find(p => p.currentScenario.id === row.id);
+      if (!index) {
+        this.addTab({name: 'edit', currentScenario: row});
+      }else{
+        this.activeName = index.name;
+      }
     },
 
     nodeChange(node, nodeIds, pNodes) {

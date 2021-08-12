@@ -25,7 +25,8 @@
                    :plan-id="planId"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
                     :plan-id="planId"/>
-    <test-case-statistics-report-view :test-plan="currentPlan" v-if="activeIndex === 'report'"/>
+<!--    <test-case-statistics-report-view :test-plan="currentPlan" v-if="activeIndex === 'report'"/>-->
+    <test-plan-detail-report :test-plan="currentPlan" v-if="activeIndex === 'report'"/>
 
     <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
 
@@ -49,10 +50,12 @@ import TestCaseStatisticsReportView from "./comonents/report/statistics/TestCase
 import TestReportTemplateList from "./comonents/TestReportTemplateList";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
 import {getCurrentProjectID} from "@/common/js/utils";
+import TestPlanDetailReport from "./comonents/report/TestPlanDetailReport";
 
 export default {
   name: "TestPlanView",
   components: {
+    TestPlanDetailReport,
     TestReportTemplateList,
     TestCaseStatisticsReportView,
     TestPlanApi,

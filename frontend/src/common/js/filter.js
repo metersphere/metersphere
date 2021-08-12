@@ -10,7 +10,7 @@ const options = function (value, array) {
   return value;
 };
 
-const timestampFormatDate = function (timestamp, showMs) {
+export const timestampFormatDate = function (timestamp, showMs) {
   if (!timestamp) {
     return timestamp
   }

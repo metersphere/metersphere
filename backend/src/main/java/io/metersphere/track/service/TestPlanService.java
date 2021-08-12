@@ -56,6 +56,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -88,7 +95,7 @@ public class TestPlanService {
     @Resource
     TestCaseReportMapper testCaseReportMapper;
     @Resource
-    TestPlanProjectMapper testPlanProjectMapper;
+    TestCaseReportService testCaseReportService;
     @Resource
     TestPlanProjectService testPlanProjectService;
     @Resource
@@ -185,7 +192,7 @@ public class TestPlanService {
     }
 
     public TestPlan getTestPlan(String testPlanId) {
-        return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlan());
+        return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
     }
 
     public String editTestPlan(TestPlanDTO testPlan, Boolean isSendMessage) {
@@ -637,7 +644,7 @@ public class TestPlanService {
     }
 
     public void editTestPlanStatus(String planId) {
-        TestPlan testPlan = new TestPlan();
+        TestPlanWithBLOBs testPlan = new TestPlanWithBLOBs();
         testPlan.setId(planId);
         String status = calcTestPlanStatus(planId);
         testPlan.setStatus(status);
@@ -1153,14 +1160,14 @@ public class TestPlanService {
 
     @Transactional(rollbackFor = Exception.class)
     public TestPlan copy(String planId) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
         if (testPlan == null) {
             return null;
         }
         String sourcePlanId = testPlan.getId();
         String targetPlanId = UUID.randomUUID().toString();
 
-        TestPlan targetPlan = new TestPlan();
+        TestPlanWithBLOBs targetPlan = new TestPlanWithBLOBs();
         targetPlan.setId(targetPlanId);
         targetPlan.setName(testPlan.getName() + "_COPY");
         targetPlan.setWorkspaceId(testPlan.getWorkspaceId());
@@ -1186,7 +1193,7 @@ public class TestPlanService {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(sourcePlanId);
         List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
-        try(SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)){
+        try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
             TestPlanTestCaseMapper testCaseMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
             testPlanTestCases.forEach(testCase -> {
                 TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
@@ -1293,5 +1300,80 @@ public class TestPlanService {
             }
         });
         return envMap;
+    }
+
+    public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+        TestPlan testPlan = getTestPlan(planId);
+        if (StringUtils.isBlank(testPlan.getReportId())) {
+            MSException.throwException("请先创建报告");
+        }
+        TestCaseReport testCaseReport = testCaseReportService.getTestCaseReport(testPlan.getReportId());
+        String content = testCaseReport.getContent();
+        JSONArray components = JSONObject.parseObject(content).getJSONArray("components");
+        List<TestPlanPreviewsDTO.Preview> previews = new ArrayList<>();
+        components.forEach(item -> {
+            previews.add(TestPlanPreviewsDTO.get((Integer) item));
+        });
+        TestCaseReportMetricDTO metric = getMetric(planId);
+        render(previews, metric, response);
+    }
+
+    public void render(List<TestPlanPreviewsDTO.Preview> previews, TestCaseReportMetricDTO metric, HttpServletResponse response) throws UnsupportedEncodingException {
+        response.reset();
+        response.setContentType("application/octet-stream");
+        response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("test", StandardCharsets.UTF_8.name()));
+
+        try (InputStreamReader isr = new InputStreamReader(getClass().getResourceAsStream("/public/plan-report.html"), StandardCharsets.UTF_8);
+             ServletOutputStream outputStream = response.getOutputStream()) {
+            BufferedReader bufferedReader = new BufferedReader(isr);
+            String line = null;
+            while (null != (line = bufferedReader.readLine())) {
+                line = line.replace("\"#metric\"", JSONObject.toJSONString(metric));
+                line = line.replace("\"#preview\"", JSONObject.toJSONString(previews));
+                line += "\n";
+                byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
+                int start = 0;
+                while (start < lineBytes.length) {
+                    if (start + 1024 < lineBytes.length) {
+                        outputStream.write(lineBytes, start, 1024);
+                    } else {
+                        outputStream.write(lineBytes, start, lineBytes.length - start);
+                    }
+                    outputStream.flush();
+                    start += 1024;
+                }
+            }
+        } catch (Exception e) {
+            MSException.throwException(e.getMessage());
+            LogUtil.error(e.getMessage(), e);
+        }
+    }
+
+    public TestPlanSimpleReportDTO getReport(String planId) {
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
+        TestPlanSimpleReportDTO report = new TestPlanSimpleReportDTO();
+        TestPlanFunctionResultReportDTO functionResult = new TestPlanFunctionResultReportDTO();
+        TestPlanApiResultReportDTO apiResult = new TestPlanApiResultReportDTO();
+        report.setFunctionResult(functionResult);
+        report.setApiResult(apiResult);
+        report.setStartTime(testPlan.getActualStartTime());
+        report.setStartTime(testPlan.getActualEndTime());
+        report.setSummary(testPlan.getReportSummary());
+        testPlanTestCaseService.calculatePlanReport(planId, report);
+        issuesService.calculatePlanReport(planId, report);
+        testPlanApiCaseService.calculatePlanReport(planId, report);
+        testPlanScenarioCaseService.calculatePlanReport(planId, report);
+        testPlanLoadCaseService.calculatePlanReport(planId, report);
+        report.setExecuteRate(report.getExecuteCount() * 0.1 / report.getCaseCount());
+        report.setPassRate(report.getPassCount() * 0.1 / report.getCaseCount());
+        return report;
+    }
+
+    public void editReport(TestPlanWithBLOBs testPlanWithBLOBs) {
+        testPlanMapper.updateByPrimaryKeySelective(testPlanWithBLOBs);
+    }
+
+    public TestCaseReportStatusResultDTO getFunctionalResultReport(String planId) {
+        return null;
     }
 }

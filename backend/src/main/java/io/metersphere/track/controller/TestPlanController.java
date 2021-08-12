@@ -5,16 +5,14 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestPlan;
+import io.metersphere.base.domain.TestPlanWithBLOBs;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.CheckPermissionService;
-import io.metersphere.track.dto.ApiRunConfigDTO;
-import io.metersphere.track.dto.TestCaseReportMetricDTO;
-import io.metersphere.track.dto.TestPlanDTO;
-import io.metersphere.track.dto.TestPlanDTOWithMetric;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
@@ -26,6 +24,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -171,5 +171,25 @@ public class TestPlanController {
     @PostMapping("/api/case/env")
     public Map<String, List<String>> getApiCaseEnv(@RequestBody List<String> caseIds) {
         return testPlanService.getApiCaseEnv(caseIds);
+    }
+
+    @GetMapping("/report/export/{planId}")
+    public void exportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+        testPlanService.exportPlanReport(planId, response);
+    }
+
+    @GetMapping("/report/{planId}")
+    public TestPlanSimpleReportDTO getReport(@PathVariable String planId){
+        return testPlanService.getReport(planId);
+    }
+
+    @GetMapping("/report/functional/result")
+    public TestCaseReportStatusResultDTO getFunctionalResultReport(@PathVariable String planId){
+        return testPlanService.getFunctionalResultReport(planId);
+    }
+
+    @PostMapping("/edit/report")
+    public void editReport(@RequestBody TestPlanWithBLOBs testPlanWithBLOBs) {
+        testPlanService.editReport(testPlanWithBLOBs);
     }
 }

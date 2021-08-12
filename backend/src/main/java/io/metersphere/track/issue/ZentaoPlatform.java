@@ -84,7 +84,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
-            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+            issues = extIssuesMapper.getIssues(issuesRequest);
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }

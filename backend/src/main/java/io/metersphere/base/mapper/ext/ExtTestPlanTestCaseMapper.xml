@@ -463,6 +463,19 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
+        select id,status from test_plan_test_case where plan_id = #{planId};
+    </select>
+    <select id="getFailureCases" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select tptc.id, tc.id as caseId, tc.name, tc.priority, tc.num, tc.custom_num, tc.project_id,
+               tc.node_id, tc.tags, tptc.actual_result,
+               tptc.update_time, tptc.create_time,
+               tptc.issues_count,
+               tptc.plan_id, tptc.executor
+        from test_plan_test_case tptc
+        inner join test_case tc on tptc.case_id = tc.id and tptc.status = 'Failure'
+        where tptc.plan_id = #{planId}
+    </select>
     <update id="updateTestCaseStates" parameterType="java.lang.String">
         update test_plan_test_case
         <set>

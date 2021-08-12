@@ -7,13 +7,11 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -26,6 +24,10 @@ import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.dto.PlanReportIssueDTO;
+import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
+import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
@@ -42,10 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -181,16 +180,13 @@ public class IssuesService {
     }
 
     public List<IssuesDao> getIssuesByProject(IssuesRequest issueRequest, Project project) {
-        List<IssuesDao> list = new ArrayList<>();
-        List<String> platforms = getPlatforms(project);
-        platforms.add(IssuesManagePlatform.Local.toString());
-        List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, issueRequest);
-        platformList.forEach(platform -> {
-            List<IssuesDao> issue = platform.getIssue(issueRequest);
-            list.addAll(issue);
-        });
-
-        return list;
+        List<IssuesDao> issues;
+        if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
+            issues = extIssuesMapper.getIssues(issueRequest);
+        } else {
+            issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
+        }
+        return issues;
     }
 
     public String getPlatformsByCaseId(String caseId) {
@@ -343,7 +339,7 @@ public class IssuesService {
 
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
+        List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         List<String> ids = issues.stream()
                 .map(IssuesDao::getCreator)
@@ -547,5 +543,38 @@ public class IssuesService {
         issuesRequest.setOrganizationId(authUserIssueRequest.getOrgId());
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(authUserIssueRequest.getPlatform(), issuesRequest);
         abstractPlatform.userAuth(authUserIssueRequest);
+    }
+
+    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+        List<PlanReportIssueDTO> planReportIssueDTOS = extIssuesMapper.selectForPlanReport(planId);
+        TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+
+        planReportIssueDTOS.forEach(item -> {
+            String status = null;
+            // 本地缺陷
+            if (StringUtils.equalsIgnoreCase(item.getPlatform(), IssuesManagePlatform.Local.name())
+                    || StringUtils.isBlank(item.getPlatform())) {
+                status = item.getStatus();
+            } else {
+                status = item.getPlatformStatus();
+            }
+            if (StringUtils.isBlank(status)) {
+                status = IssuesStatus.NEW.toString();
+            }
+            TestPlanUtils.getStatusResultMap(statusResultMap, status);
+        });
+        Set<String> status = statusResultMap.keySet();
+        status.forEach(item -> {
+            TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, item);
+        });
+        functionResult.setIssueData(statusResult);
+    }
+
+    public List<IssuesDao> getIssuesByPlanoId(String planId) {
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setResourceId(planId);
+        return extIssuesMapper.getIssues(issueRequest);
     }
 }

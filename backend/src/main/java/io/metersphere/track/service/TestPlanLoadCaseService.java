@@ -10,12 +10,14 @@ import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.TestPlanUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.track.dto.TestPlanLoadCaseDTO;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
@@ -23,18 +25,15 @@ import io.metersphere.track.request.testplan.RunBatchTestPlanRequest;
 import io.metersphere.track.service.utils.ParallelExecTask;
 import io.metersphere.track.service.utils.SerialExecTask;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -350,5 +349,31 @@ public class TestPlanLoadCaseService {
         TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
         example.createCriteria().andTestPlanIdEqualTo(planId);
         testPlanLoadCaseMapper.deleteByExample(example);
+    }
+
+    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanLoadCaseMapper.selectForPlanReport(planId);
+        TestPlanLoadResultReportDTO loadResult = new TestPlanLoadResultReportDTO();
+        report.setLoadResult(loadResult);
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+
+        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, "success");
+        TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
+
+        loadResult.setCaseData(statusResult);
+    }
+
+    public List<TestPlanLoadCaseDTO> getFailureCases(String planId) {
+        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getFailureCases(planId);
+//        Map<String, Project> projectMap = ServiceUtils.getProjectMap(
+//                failureCases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
+        Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
+                failureCases.stream().map(TestPlanLoadCaseDTO::getCreateUser).collect(Collectors.toList()));
+        failureCases.forEach(item -> {
+//            item.setProjectName(projectMap.get(item.getProjectId()).getName());
+            item.setUserName(userNameMap.get(item.getCreateUser()));
+        });
+        return failureCases;
     }
 }
