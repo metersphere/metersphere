@@ -6,6 +6,7 @@ import io.metersphere.base.mapper.TestPlanReportResourceMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanReportResourceMapper;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -17,6 +18,7 @@ import java.util.Map;
  * @Date 2021/8/2 1:57 下午
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TestPlanReportResourceService {
     @Resource
     private TestPlanReportResourceMapper testPlanReportResourceMapper;

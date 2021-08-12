@@ -13,6 +13,7 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.performance.request.QueryTestPlanRequest;
 import io.metersphere.service.ScheduleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -21,6 +22,7 @@ import java.util.List;
 
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ApiAndPerformanceHelper {
     @Resource
     private ExtLoadTestMapper extLoadTestMapper;
