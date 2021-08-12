@@ -138,11 +138,14 @@ export function _sort(column, condition) {
   let field = humpToLine(column.column.columnKey ? column.column.columnKey : column.prop);
   if (column.order === 'descending') {
     column.order = 'desc';
-  } else {
+  } else if (column.order === 'ascending'){
     column.order = 'asc';
   }
   if (!condition.orders) {
     condition.orders = [];
+  }
+  if (column.order == null) {
+    return;
   }
   let hasProp = false;
   condition.orders.forEach(order => {

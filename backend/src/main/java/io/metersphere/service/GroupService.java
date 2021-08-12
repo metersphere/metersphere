@@ -314,7 +314,7 @@ public class GroupService {
         types = map.get(groupType);
         request.setTypes(types);
         request.setScopes(scopes);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+//        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<GroupDTO> groups = extGroupMapper.getGroupList(request);
         return PageUtils.setPageInfo(page, groups);
     }
