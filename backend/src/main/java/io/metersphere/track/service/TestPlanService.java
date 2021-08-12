@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TestPlanService {
     Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
 
