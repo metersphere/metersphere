@@ -10,6 +10,7 @@ import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class CheckPermissionService {
     @Resource
     private ExtApiTestMapper extApiTestMapper;

@@ -16,11 +16,13 @@ import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ConsulService {
     @Resource
     private TestResourcePoolService testResourcePoolService;
