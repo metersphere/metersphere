@@ -141,10 +141,25 @@ export default {
             this.initWebSocket();
             this.initMessageSocket();
             this.clearDebug();
+            if (this.scenario.scenarioDefinition && this.scenario.scenarioDefinition.hashTree) {
+              this.sort(this.scenario.scenarioDefinition.hashTree);
+            }
             this.loading = false;
           }
         }
       })
+    },
+    sort(stepArray) {
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.stepSize += stepArray[i].hashTree.length;
+          this.sort(stepArray[i].hashTree);
+        }
+      }
     },
     initTree() {
       this.fullTreeNodes = [];
