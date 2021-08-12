@@ -98,7 +98,7 @@ export default {
       projectIds: new Set(),
     };
   },
-  props: ['planCaseIds'],
+  props: ['planCaseIds', 'type'],
   methods: {
     open(testType) {
       this.runModeVisible = true;
@@ -141,7 +141,13 @@ export default {
     },
     showPopover() {
       this.projectIds.clear();
-      this.$post('/test/plan/api/case/env', this.planCaseIds, res => {
+      let url = "";
+      if (this.type === 'apiCase') {
+        url = '/test/plan/api/case/env';
+      } else if (this.type === 'apiScenario') {
+        url = '/test/plan/api/scenario/env';
+      }
+      this.$post(url, this.planCaseIds, res => {
         let data = res.data;
         if (data) {
           this.projectEnvListMap = data;
@@ -150,7 +156,7 @@ export default {
           }
         }
         this.$refs.envPopover.openEnvSelect();
-      })
+      });
     }
   },
 };

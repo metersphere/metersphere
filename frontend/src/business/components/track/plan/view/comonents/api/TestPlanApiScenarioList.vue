@@ -56,8 +56,12 @@
             <template v-slot:default="{row}">
               <div v-if="row.envs">
                 <span v-for="(k, v, index) in row.envs" :key="index">
-                  <span v-if="index===0 || index===1">{{v}}:
-                    <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                  <span v-if="index===0 || index===1">
+                    <span class="project-name" :title="v">{{v}}</span>:
+                    <el-tag type="success" size="mini" effect="plain">
+                      {{k}}
+                    </el-tag>
+                    <br/>
                   </span>
                   <el-popover
                     placement="top"
@@ -157,7 +161,7 @@
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
-    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="planCaseIds" :type="'apiScenario'"/>
     <ms-task-center ref="taskCenter"/>
   </div>
 </template>
@@ -180,7 +184,7 @@ import {
 import {TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
-import MsPlanRunMode from "../../../common/PlanRunMode";
+import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import MsTaskCenter from "../../../../../task/TaskCenter";
@@ -275,6 +279,7 @@ export default {
       valueArr: {
         projectEnv: []
       },
+      planCaseIds: []
     }
   },
   computed: {
@@ -373,6 +378,11 @@ export default {
       })
     },
     handleBatchExecute() {
+      let rows = this.orderBySelectRows(this.$refs.table.selectRows);
+      this.planCaseIds = [];
+      rows.forEach(row => {
+        this.planCaseIds.push(row.id);
+      })
       this.$refs.runMode.open('API');
     },
     orderBySelectRows(rows){
@@ -409,9 +419,12 @@ export default {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.$message(this.$t('commons.run_message'));
           this.$refs.taskCenter.open();
+          this.search();
+        }, () => {
+          this.search();
         });
       }
-      this.search();
+
     },
     execute(row) {
       this.infoDb = false;
@@ -535,6 +548,15 @@ export default {
   text-overflow: ellipsis;
   margin-top: 2px;
   margin-left: 5px;
+}
+
+.project-name {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100px;
+  vertical-align: middle;
 }
 
 </style>

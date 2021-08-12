@@ -1302,6 +1302,42 @@ public class TestPlanService {
         return envMap;
     }
 
+    public Map<String, List<String>> getApiScenarioEnv(List<String> planApiScenarioIds) {
+        Map<String, List<String>> envMap = new HashMap<>();
+        if (CollectionUtils.isEmpty(planApiScenarioIds)) {
+            return envMap;
+        }
+
+        TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
+        scenarioExample.createCriteria().andIdIn(planApiScenarioIds);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(scenarioExample);
+
+        for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+            String env = testPlanApiScenario.getEnvironment();
+            if (StringUtils.isBlank(env)) {
+                continue;
+            }
+            Map<String, String> map = JSON.parseObject(env, Map.class);
+            if (!map.isEmpty()) {
+                Set<String> set = map.keySet();
+                for (String s : set) {
+                    String e = map.get(s);
+                    if (envMap.containsKey(s)) {
+                        List<String> list = envMap.get(s);
+                        if (!list.contains(e)) {
+                            list.add(e);
+                        }
+                    } else {
+                        List<String> envs = new ArrayList<>();
+                        envs.add(e);
+                        envMap.put(s, envs);
+                    }
+                }
+            }
+        }
+        return envMap;
+    }
+
     public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
         TestPlan testPlan = getTestPlan(planId);
         if (StringUtils.isBlank(testPlan.getReportId())) {

@@ -22,6 +22,9 @@ import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,6 +52,8 @@ public class TestPlanScenarioCaseService {
     private ProjectService projectService;
     @Resource
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -154,6 +159,9 @@ public class TestPlanScenarioCaseService {
         if (CollectionUtils.isEmpty(planCaseIdList)) {
             MSException.throwException("未找到执行场景！");
         }
+        if (testPlanScenarioRequest.getConfig() != null && !testPlanScenarioRequest.getConfig().getEnvMap().isEmpty()) {
+            this.setScenarioEnv(planCaseIdList, testPlanScenarioRequest.getConfig().getEnvMap());
+        }
         planCaseIdList.forEach(item -> {
             idStr.append("\"").append(item).append("\"").append(",");
         });
@@ -177,6 +185,36 @@ public class TestPlanScenarioCaseService {
         request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
         request.setConfig(testPlanScenarioRequest.getConfig());
         return apiAutomationService.run(request);
+    }
+
+    private void setScenarioEnv(List<String> planScenarioIds, Map<String, String> envMap) {
+        if (CollectionUtils.isEmpty(planScenarioIds)) {
+            return;
+        }
+        TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
+        testPlanApiScenarioExample.createCriteria().andIdIn(planScenarioIds);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestPlanApiScenarioMapper mapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
+        for (TestPlanApiScenario testPlanApiScenario : testPlanApiScenarios) {
+            String env = testPlanApiScenario.getEnvironment();
+            if (StringUtils.isBlank(env)) {
+                continue;
+            }
+            Map<String, String> map = JSON.parseObject(env, Map.class);
+            if (map.isEmpty()) {
+                continue;
+            }
+            Set<String> set = map.keySet();
+            for (String s : set) {
+                if (StringUtils.isNotBlank(envMap.get(s))) {
+                    map.put(s, envMap.get(s));
+                }
+            }
+            testPlanApiScenario.setEnvironment(JSON.toJSONString(map));
+            mapper.updateByPrimaryKeyWithBLOBs(testPlanApiScenario);
+        }
+        sqlSession.flushStatements();
     }
 
     public List<TestPlanApiScenario> getCasesByPlanId(String planId) {
