@@ -187,6 +187,10 @@
             <ms-table-operator :edit-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                :show-delete="false"
                                @editClick="handleEdit(scope.row)">
+              <template v-slot:front>
+                <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play" class="run-button"
+                                          @exec="handleRun(scope.row)"/>
+              </template>
               <template v-slot:middle>
                 <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
                                           @exec="handleCopy(scope.row)"/>
@@ -230,6 +234,7 @@
       {{ $t('test_track.plan.plan_delete_tip') }}
     </ms-delete-confirm>
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData"/>
+    <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'" :plan-id="currentPlanId"/>
   </el-card>
 </template>
 
@@ -260,7 +265,8 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, hasPermission} from "@/common/js/utils";
+import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 
 export default {
   name: "TestPlanList",
@@ -274,7 +280,7 @@ export default {
     PlanStageTableItem,
     PlanStatusTableItem,
     MsTestPlanScheduleMaintain,
-    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination
+    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination, PlanRunModeWithEnv
   },
   data() {
     return {
@@ -308,6 +314,7 @@ export default {
         {text: this.$t('test_track.plan.system_test'), value: 'system'},
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
+      currentPlanId: ""
     };
   },
   watch: {
@@ -480,6 +487,22 @@ export default {
       this.cardResult.loading = true;
       this.$post('test/plan/copy/' + row.id, {},() => {
         this.initTableData();
+      });
+    },
+    handleRun(row) {
+      this.currentPlanId = row.id;
+      this.$refs.runMode.open('API');
+    },
+    _handleRun(config) {
+      let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap} = config;
+      let param = {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap};
+      param.testPlanId = this.currentPlanId;
+      param.projectId = getCurrentProjectID();
+      param.userId = getCurrentUserId();
+      this.result = this.$post('test/plan/run/', param,() => {
+        this.$success(this.$t('commons.run_success'));
+      }, () => {
+        this.$error(this.$t('commons.run_fail'));
       });
     }
   }

@@ -484,7 +484,7 @@ public class TestPlanApiCaseService {
         return request.getId();
     }
 
-    private void setApiCaseEnv(List<String> planIds, Map<String, String> map) {
+    public void setApiCaseEnv(List<String> planIds, Map<String, String> map) {
         if (CollectionUtils.isEmpty(planIds)) {
             return;
         }

@@ -98,7 +98,7 @@ export default {
       projectIds: new Set(),
     };
   },
-  props: ['planCaseIds', 'type'],
+  props: ['planCaseIds', 'type', 'planId'],
   methods: {
     open(testType) {
       this.runModeVisible = true;
@@ -141,13 +141,19 @@ export default {
     },
     showPopover() {
       this.projectIds.clear();
+      let param = undefined;
       let url = "";
       if (this.type === 'apiCase') {
         url = '/test/plan/api/case/env';
+        param = this.planCaseIds;
       } else if (this.type === 'apiScenario') {
         url = '/test/plan/api/scenario/env';
+        param = this.planCaseIds;
+      } else if (this.type === 'plan') {
+        url = '/test/plan/case/env';
+        param = {id: this.planId};
       }
-      this.$post(url, this.planCaseIds, res => {
+      this.$post(url, param, res => {
         let data = res.data;
         if (data) {
           this.projectEnvListMap = data;

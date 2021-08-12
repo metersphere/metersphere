@@ -41,7 +41,9 @@ import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -66,6 +68,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class TestPlanService {
@@ -1411,5 +1414,74 @@ public class TestPlanService {
 
     public TestCaseReportStatusResultDTO getFunctionalResultReport(String planId) {
         return null;
+    }
+
+    public Map<String, List<String>> getPlanCaseEnv(String planId) {
+        Map<String, List<String>> envMap = new HashMap<>();
+        if (StringUtils.isBlank(planId)) {
+            return envMap;
+        }
+
+        TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
+        caseExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
+        List<String> apiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getId).collect(Collectors.toList());
+        envMap = this.getApiCaseEnv(apiCaseIds);
+
+        TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
+        scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
+        List<String> scenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
+        Map<String, List<String>> scenarioEnv = this.getApiScenarioEnv(scenarioIds);
+
+        Set<String> projectIds = scenarioEnv.keySet();
+        for (String projectId : projectIds) {
+            if (envMap.containsKey(projectId)) {
+                List<String> apiList = envMap.get(projectId);
+                List<String> scenarioList = scenarioEnv.get(projectId);
+                List<String> result = Stream.of(apiList, scenarioList)
+                        .flatMap(Collection::stream)
+                        .distinct()
+                        .collect(Collectors.toList());
+                envMap.put(projectId, result);
+            } else {
+                envMap.put(projectId, scenarioEnv.get(projectId));
+            }
+        }
+
+        return envMap;
+    }
+
+    public String runPlan(TestplanRunRequest testplanRunRequest) {
+        if (MapUtils.isNotEmpty(testplanRunRequest.getEnvMap())) {
+            this.setPlanCaseEnv(testplanRunRequest.getTestPlanId(), testplanRunRequest.getEnvMap());
+        }
+
+        ApiRunConfigDTO api = new ApiRunConfigDTO();
+        api.setMode(testplanRunRequest.getMode());
+        api.setResourcePoolId(testplanRunRequest.getResourcePoolId());
+        api.setOnSampleError(Boolean.parseBoolean(testplanRunRequest.getOnSampleError()));
+        if (StringUtils.isBlank(testplanRunRequest.getReportType())) {
+            api.setReportType("iddReport");
+        } else {
+            api.setReportType(testplanRunRequest.getReportType());
+        }
+        String apiRunConfig = JSONObject.toJSONString(api);
+        return this.run(testplanRunRequest.getTestPlanId(), testplanRunRequest.getProjectId(),
+                testplanRunRequest.getUserId(), testplanRunRequest.getTriggerMode(), apiRunConfig);
+    }
+
+    public void setPlanCaseEnv(String planId, Map<String, String> envMap) {
+        TestPlanApiCaseExample caseExample = new TestPlanApiCaseExample();
+        caseExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(caseExample);
+        List<String> planApiCaseIds = testPlanApiCases.stream().map(TestPlanApiCase::getId).collect(Collectors.toList());
+        testPlanApiCaseService.setApiCaseEnv(planApiCaseIds, envMap);
+
+        TestPlanApiScenarioExample scenarioExample = new TestPlanApiScenarioExample();
+        scenarioExample.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
+        List<String> planScenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
+        testPlanScenarioCaseService.setScenarioEnv(planScenarioIds, envMap);
     }
 }
