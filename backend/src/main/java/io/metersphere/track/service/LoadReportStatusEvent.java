@@ -7,9 +7,12 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 
 @Component
+@Transactional(rollbackFor = Exception.class)
 public class LoadReportStatusEvent implements LoadTestFinishEvent {
 
     @Resource

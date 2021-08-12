@@ -38,6 +38,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
@@ -50,6 +51,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class JMeterService {
     private static final String BASE_URL = "http://%s:%d";
     @Resource

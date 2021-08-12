@@ -12,6 +12,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.dto.NodeDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class ResourcePoolCalculation {
     @Resource
     TestResourcePoolMapper testResourcePoolMapper;
