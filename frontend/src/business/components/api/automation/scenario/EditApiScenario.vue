@@ -678,7 +678,7 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              if (req.method === 'Request') {
+              if (req.method === 'Request' && req.subRequestResults && req.subRequestResults.length > 0) {
                 this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
               } else {
                 this.reqTotal++;
@@ -711,7 +711,6 @@ export default {
       }
       this.debugResult = resMap;
       this.sort();
-      // this.reload();
       this.reloadDebug = getUUID();
     },
     removeReport() {
