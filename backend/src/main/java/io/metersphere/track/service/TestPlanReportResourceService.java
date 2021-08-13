@@ -4,7 +4,10 @@ import io.metersphere.base.domain.TestPlanReportResource;
 import io.metersphere.base.domain.TestPlanReportResourceExample;
 import io.metersphere.base.mapper.TestPlanReportResourceMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanReportResourceMapper;
+import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,7 @@ import java.util.Map;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanReportResourceService {
+    Logger testPlanLog = LoggerFactory.getLogger("testPlanExecuteLog");
     @Resource
     private TestPlanReportResourceMapper testPlanReportResourceMapper;
     @Resource
@@ -71,5 +75,17 @@ public class TestPlanReportResourceService {
 
     public void deleteByExample(TestPlanReportResourceExample resourceExample) {
         testPlanReportResourceMapper.deleteByExample(resourceExample);
+    }
+
+    public void clearExecuteStatus(String planReportId) {
+        TestPlanReportResourceExample example = new TestPlanReportResourceExample();
+        example.createCriteria().andTestPlanReportIdEqualTo(planReportId).andExecuteResultEqualTo("RUNNING");
+        long dataCount = testPlanReportResourceMapper.countByExample(example);
+        if(dataCount > 0){
+            testPlanLog.info("TestPlanReport Execute Check error: ["+planReportId+"],error data count:"+dataCount);
+            TestPlanReportResource updateModel = new TestPlanReportResource();
+            updateModel.setExecuteResult(TestPlanApiExecuteStatus.FAILD.name());
+            testPlanReportResourceMapper.updateByExampleSelective(updateModel,example);
+        }
     }
 }

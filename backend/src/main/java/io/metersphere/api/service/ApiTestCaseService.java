@@ -657,6 +657,7 @@ public class ApiTestCaseService {
                 jMeterService.runLocal(id, jmeterHashTree, debugReportId, runMode);
             } catch (Exception ex) {
                 LogUtil.error(ex.getMessage());
+                MSException.throwException(ex.getMessage());
             }
         }
         return id;

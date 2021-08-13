@@ -493,6 +493,10 @@ public class TestPlanApiCaseService {
         return testPlanApiCaseMapper.countByExample(example) > 0 ? true : false;
     }
 
+    public String getApiTestCaseNameById(String testPlanApiCaseId) {
+        return  extTestPlanApiCaseMapper.getApiTestCaseNameById(testPlanApiCaseId);
+    }
+
     public ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId) {
         return  extTestPlanApiCaseMapper.getApiTestCaseById(testPlanApiCaseId);
     }

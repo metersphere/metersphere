@@ -43,7 +43,7 @@ public class TestPlanReportController {
     @GetMapping("/sendTask/{planId}")
     public String sendTask(@PathVariable String planId) {
         TestPlanReport report = testPlanReportService.getTestPlanReport(planId);
-        testPlanReportService.update(report);
+        testPlanReportService.update(report,false);
         return "sucess";
     }
 
