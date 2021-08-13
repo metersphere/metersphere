@@ -4,7 +4,6 @@ import io.metersphere.api.dto.document.ApiDocumentInfoDTO;
 import io.metersphere.api.dto.document.ApiDocumentRequest;
 import io.metersphere.api.dto.document.ApiDocumentShareDTO;
 import io.metersphere.api.dto.document.ApiDocumentShareRequest;
-import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiDocumentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
@@ -29,8 +28,6 @@ public class ApiDocumentController {
     ApiDocumentService apiDocumentService;
     @Resource
     ApiDefinitionService apiDefinitionService;
-    @Resource
-    APITestService apiTestService;
 
     @PostMapping("/selectApiSimpleInfo")
     public List<ApiDocumentInfoDTO> list(@RequestBody ApiDocumentRequest request) {
@@ -78,4 +75,5 @@ public class ApiDocumentController {
         ApiDocumentShareDTO returnDTO = apiDocumentService.conversionApiDocumentShareToDTO(apiShare);
         return returnDTO;
     }
+
 }
