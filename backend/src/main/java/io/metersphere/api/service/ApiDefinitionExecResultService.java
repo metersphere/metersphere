@@ -3,6 +3,8 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
+import io.metersphere.api.jmeter.RequestResult;
+import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
@@ -175,35 +177,39 @@ public class ApiDefinitionExecResultService {
         }
         String finalSaveResultType = saveResultType;
 
-        Map<String, String> apiIdResultMap = new HashMap<>();
+        Map<String,String> apiIdResultMap = new HashMap<>();
+        Map<String,String> cannotFindMap = new HashMap<>();
 
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
-            result.getScenarios().forEach(scenarioResult -> {
+            for (ScenarioResult scenarioResult : result.getScenarios()) {
                 if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
-                    scenarioResult.getRequestResults().forEach(item -> {
+                    for (RequestResult item : scenarioResult.getRequestResults()) {
                         String status = item.isSuccess() ? "success" : "error";
                         ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
-//                        saveResult.setName(item.getName());
                         saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime()));
-                        ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
-                        if (apiDefinitionWithBLOBs != null) {
-                            saveResult.setName(apiDefinitionWithBLOBs.getName());
-                            apiIdResultMap.put(apiDefinitionWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+
+                        ApiTestCaseWithBLOBs caseWithBLOBs = testPlanApiCaseService.getApiTestCaseById(item.getName());
+                        if (caseWithBLOBs != null) {
+                            saveResult.setName(caseWithBLOBs.getName());
+                            apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                         } else {
-                            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
+                            caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
                             if (caseWithBLOBs != null) {
                                 saveResult.setName(caseWithBLOBs.getName());
                                 apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
-                            } else {
-                                caseWithBLOBs = testPlanApiCaseService.getApiTestCaseById(item.getName());
-                                if (caseWithBLOBs != null) {
-                                    saveResult.setName(caseWithBLOBs.getName());
-                                    apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                            }else {
+                                ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
+                                if (apiDefinitionWithBLOBs != null) {
+                                    saveResult.setName(apiDefinitionWithBLOBs.getName());
+                                    apiIdResultMap.put(apiDefinitionWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                                } else {
+                                    cannotFindMap.put(item.getName(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                                 }
                             }
                         }
+
                         if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
                             saveResult.setTriggerMode(TriggerMode.API.name());
                         } else {
@@ -245,11 +251,19 @@ public class ApiDefinitionExecResultService {
                             apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
                         apiDefinitionExecResultMapper.insert(saveResult);
-                    });
+                    }
                 }
-            });
+            }
         }
-        testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE OVER. API CASE STATUS:"+ JSONObject.toJSONString(apiIdResultMap));
+        if(apiIdResultMap.isEmpty()){
+            testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE IS ERROR:"+JSONObject.toJSONString(result)+"; ERROR MAP:"+JSONObject.toJSONString(cannotFindMap));
+            if(!cannotFindMap.isEmpty()){
+                apiIdResultMap = cannotFindMap;
+            }
+        }else {
+            testPlanLog.info("TestPlanReportId["+testPlanReportId+"] APICASE OVER. API CASE STATUS:"+ JSONObject.toJSONString(apiIdResultMap));
+        }
+
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
     }

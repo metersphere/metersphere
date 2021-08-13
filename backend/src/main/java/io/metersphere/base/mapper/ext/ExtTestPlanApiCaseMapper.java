@@ -26,4 +26,6 @@ public interface ExtTestPlanApiCaseMapper {
     ApiTestCaseWithBLOBs getApiTestCaseById(String testPlanApiCaseId);
 
     List<TestPlanApiCase> selectLegalDataByTestPlanId(String planId);
+
+    String getApiTestCaseNameById(String testPlanApiCaseId);
 }
