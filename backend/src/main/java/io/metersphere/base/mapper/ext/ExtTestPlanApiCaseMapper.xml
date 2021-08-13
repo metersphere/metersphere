@@ -19,6 +19,11 @@
     WHERE tpac.id = #{0}
   </select>
 
+  <select id="getApiTestCaseNameById" resultType="java.lang.String">
+    SELECT t.name FROM api_test_case t
+                      INNER JOIN test_plan_api_case tpac ON t.id = tpac.api_case_id
+    WHERE tpac.id = #{0}
+  </select>
   <select id="selectLegalDataByTestPlanId" resultType="io.metersphere.base.domain.TestPlanApiCase">
     SELECT t.* FROM test_plan_api_case t WHERE t.test_plan_id = #{0}
     AND t.api_case_id IN (

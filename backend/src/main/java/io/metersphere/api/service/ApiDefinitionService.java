@@ -912,9 +912,13 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinition> selectApiDefinitionBydIds(List<String> ids) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(ids);
-        return apiDefinitionMapper.selectByExample(example);
+        if(ids.isEmpty()){
+            return new ArrayList<>();
+        }else {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids);
+            return apiDefinitionMapper.selectByExample(example);
+        }
     }
 
     public void deleteByParams(ApiBatchRequest request) {
