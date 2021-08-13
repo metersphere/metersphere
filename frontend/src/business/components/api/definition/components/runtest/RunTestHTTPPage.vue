@@ -1,7 +1,7 @@
 <template>
 
   <div class="card-container">
-    <el-card class="card-content" v-loading="loading">
+    <el-card class="card-content">
 
       <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
 
@@ -27,7 +27,7 @@
         <!-- 操作按钮 -->
         <el-form-item>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                       @command="handleCommand" size="small">
+                       @command="handleCommand" size="small" v-if="!runLoading">
             {{ $t('commons.test') }}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="load_case">{{ $t('api_test.definition.request.load_case') }}
@@ -39,6 +39,8 @@
             </el-dropdown-menu>
           </el-dropdown>
 
+          <el-button size="small" type="primary" v-else @click.once="stop">{{ $t('report.stop_btn') }}</el-button>
+
         </el-form-item>
 
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -49,7 +51,7 @@
       <!--返回结果-->
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-      <ms-request-result-tail :response="responseData" ref="runResult"/>
+      <ms-request-result-tail v-loading="loading" :response="responseData" ref="runResult"/>
 
       <ms-jmx-step :request="api.request" :response="responseData"/>
 
@@ -110,7 +112,8 @@ export default {
       },
       runData: [],
       reportId: "",
-      envMap: new Map
+      envMap: new Map,
+      runLoading: false
     }
   },
   props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
@@ -142,6 +145,7 @@ export default {
     runTest() {
       this.$refs['apiData'].validate((valid) => {
         if (valid) {
+          this.runLoading = true;
           this.loading = true;
           this.api.request.name = this.api.id;
           this.api.request.url = undefined;
@@ -156,6 +160,7 @@ export default {
     },
     errorRefresh() {
       this.loading = false;
+      this.runLoading = false;
     },
     runRefresh(data) {
       this.responseData = {type: 'HTTP', responseResult: {responseCode: ""}, subRequestResults: []};
@@ -163,6 +168,7 @@ export default {
         this.responseData = data;
       }
       this.loading = false;
+      this.runLoading = false;
     },
     saveAs() {
       this.$emit('saveAs', this.api);
@@ -252,7 +258,15 @@ export default {
           }
         });
       }
-    }
+    },
+    stop() {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, () => {
+        this.runLoading = false;
+        this.loading = false;
+        this.$success(this.$t('report.test_stop_success'));
+      });
+    },
   },
   created() {
     // 深度复制
@@ -262,6 +276,7 @@ export default {
     if (!this.api.environmentId && this.$store.state.useEnvironment) {
       this.api.environmentId = this.$store.state.useEnvironment;
     }
+    this.runLoading = false;
     //this.getResult();
   }
 }
