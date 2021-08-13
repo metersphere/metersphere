@@ -111,7 +111,7 @@ public class JMeterService {
         BackendListener backendListener = new BackendListener();
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
-        arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
+        arguments.addArgument(APIBackendListenerResultHandler.TEST_ID, testId);
         if (StringUtils.isNotBlank(runMode)) {
             arguments.addArgument("runMode", runMode);
         }
@@ -128,10 +128,10 @@ public class JMeterService {
         backendListener.setName(testId);
         Arguments arguments = new Arguments();
         if (config != null && config.getMode().equals(RunModeConstants.SERIAL.toString()) && config.getReportType().equals(RunModeConstants.SET_REPORT.toString())) {
-            arguments.addArgument(APIBackendListenerClient.TEST_REPORT_ID, config.getReportId());
+            arguments.addArgument(APIBackendListenerResultHandler.TEST_REPORT_ID, config.getReportId());
 
         }
-        arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
+        arguments.addArgument(APIBackendListenerResultHandler.TEST_ID, testId);
         if (StringUtils.isNotBlank(runMode)) {
             arguments.addArgument("runMode", runMode);
         }
