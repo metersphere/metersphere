@@ -806,7 +806,7 @@ public class ApiAutomationService {
             }
             return bos.toByteArray();
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
         }
         return null;
     }
@@ -869,7 +869,7 @@ public class ApiAutomationService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
     }
 
@@ -1384,7 +1384,7 @@ public class ApiAutomationService {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
             jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
         return request.getId();

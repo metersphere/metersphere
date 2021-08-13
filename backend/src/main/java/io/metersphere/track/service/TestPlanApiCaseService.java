@@ -317,7 +317,7 @@ public class TestPlanApiCaseService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
         return null;
     }

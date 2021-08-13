@@ -35,7 +35,7 @@ public class LocalRunner {
                 MessageCache.runningEngine.remove(report);
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
     }
 }

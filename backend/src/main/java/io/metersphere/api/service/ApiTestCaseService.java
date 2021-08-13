@@ -575,7 +575,7 @@ public class ApiTestCaseService {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    LogUtil.error(e.getMessage());
+                    LogUtil.error(e);
                 }
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
@@ -688,7 +688,7 @@ public class ApiTestCaseService {
                 // 调用执行方法
                 jMeterService.runLocal(id, jmeterHashTree, debugReportId, runMode);
             } catch (Exception ex) {
-                LogUtil.error(ex.getMessage());
+                LogUtil.error(ex);
             }
         }
         return id;

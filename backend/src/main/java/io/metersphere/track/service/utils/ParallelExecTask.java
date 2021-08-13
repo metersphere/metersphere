@@ -35,7 +35,7 @@ public class ParallelExecTask<T> implements Callable<T> {
             return (T) reportId;
 
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
             return null;
         }

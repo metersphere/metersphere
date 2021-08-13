@@ -198,7 +198,7 @@ public class MsJDBCPostProcessor extends MsTestElement {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
         }
     }
 

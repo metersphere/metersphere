@@ -24,7 +24,7 @@ public class FileUtil {
                 os.write(buffer, 0, bytesRead);
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
     }
 
@@ -41,7 +41,7 @@ public class FileUtil {
                 inputStreamToFile(ins, toFile);
                 return toFile;
             } catch (Exception e) {
-                LogUtil.error(e.getMessage());
+                LogUtil.error(e);
             }
         }
         return null;

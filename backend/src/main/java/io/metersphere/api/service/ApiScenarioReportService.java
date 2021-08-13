@@ -413,7 +413,7 @@ public class ApiScenarioReportService {
                     String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
                     passRateMap.put(detail.getReportId(), passRate);
                 } catch (Exception e) {
-                    LogUtil.error(e.getMessage());
+                    LogUtil.error(e);
                 }
             }
 
