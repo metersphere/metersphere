@@ -78,7 +78,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 demandList.add(demand);
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
 
         return demandList;

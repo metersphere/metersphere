@@ -142,6 +142,13 @@ public class LogUtil {
         }
     }
 
+    public static void error(Throwable e) {
+        Logger logger = LogUtil.getLogger();
+        if (logger != null && logger.isErrorEnabled()) {
+            logger.error(LogUtil.getMsg(e), e);// 同时打印错误堆栈信息
+        }
+    }
+
     public static void error(Object msg, Object o) {
         Logger logger = LogUtil.getLogger();
         if (logger != null && logger.isErrorEnabled()) {

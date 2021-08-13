@@ -58,7 +58,7 @@ public class CommandService {
             FileUtils.deleteFile(path);
             return dtoList;
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
         return null;
@@ -148,14 +148,14 @@ public class CommandService {
                                     MSException.throwException("合并条目：【" + entry.getOriginalAsName() + " 】失败");
                                 }
                             } catch (Exception e) {
-                                LogUtil.error(e.getMessage());
+                                LogUtil.error(e);
                             }
                         });
                     }
                 });
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
     }
@@ -177,7 +177,7 @@ public class CommandService {
             }
             return true;
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
             return false;
         }

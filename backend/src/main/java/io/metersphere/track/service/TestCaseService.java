@@ -776,7 +776,7 @@ public class TestCaseService {
                 i = bis.read(buff);
             }
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
             MSException.throwException("下载思维导图模版失败");
         }
     }
