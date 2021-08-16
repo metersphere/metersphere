@@ -65,17 +65,20 @@ export default {
     return {
       data: [],
       result: {},
-      isThirdPart: false
+      isThirdPart: false,
     }
   },
-  props: ['planId'],
+  props: ['planId', 'isTemplate', 'report'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
     },
   },
   mounted() {
-    getIssueTemplate()
+    if (this.isTemplate) {
+      this.isThirdPart = this.report.isThirdPartIssue;
+    } else {
+      getIssueTemplate()
         .then((template) => {
           if (template.platform === 'metersphere') {
             this.isThirdPart = false;
@@ -83,13 +86,18 @@ export default {
             this.isThirdPart = true;
           }
         });
+    }
     this.getIssues();
   },
   methods: {
     getIssues() {
-      this.result = getIssuesByPlanId(this.planId, (data) => {
-        this.data = data;
-      });
+      if (this.isTemplate) {
+        this.data = this.report.issueList;
+      } else {
+        this.result = getIssuesByPlanId(this.planId, (data) => {
+          this.data = data;
+        });
+      }
     },
   }
 }

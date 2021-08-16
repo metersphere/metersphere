@@ -3,10 +3,11 @@ import ElementUI, {Button, Col, Form, FormItem, Input, Row, Main, Card, Table, T
 import '@/assets/theme/index.css';
 import '@/common/css/menu-header.css';
 import '@/common/css/main.css';
-import PlanReport from "./PlanReport.vue";
 import i18n from "@/i18n/i18n";
 import chart from "@/common/js/chart";
-import CKEditor from '@ckeditor/ckeditor5-vue';
+// import CKEditor from '@ckeditor/ckeditor5-vue';
+import PlanReportTemplate from "@/template/report/plan/PlanReportTemplate";
+// import PlanReport from "@/template/report/plan/PlanReport";
 
 
 Vue.use(ElementUI, {
@@ -24,11 +25,12 @@ Vue.use(Main);
 Vue.use(Card);
 Vue.use(TableColumn);
 Vue.use(Table);
-Vue.use(CKEditor);
+// Vue.use(CKEditor);
 
 
 new Vue({
   el: '#planReport',
   i18n,
-  render: h => h(PlanReport)
+  // render: h => h(PlanReport)
+  render: h => h(PlanReportTemplate)
 });

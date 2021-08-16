@@ -22,7 +22,7 @@
         </el-col>
       </el-row>
       <el-form-item :label="'报告总结'">
-        <el-link @click="isEdit = true">
+        <el-link v-if="!isTemplate" @click="isEdit = true">
           编辑
         </el-link>
       </el-form-item>
@@ -52,7 +52,8 @@ export default {
   components: {TestPlanReportContainer, MsFormDivider},
   props: {
     planId: String,
-    report: Object
+    report: Object,
+    isTemplate: Boolean
   },
   data() {
     return {

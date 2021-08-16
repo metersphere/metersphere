@@ -24,7 +24,7 @@ export default {
   props: {
     prop: String,
     label: String,
-    width: String,
+    width: [String, Number],
     minWidth: [String, Number],
     fixed: String,
     // 排序列， 后端mapper处理filters

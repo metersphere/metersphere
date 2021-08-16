@@ -69,13 +69,14 @@ export default {
     MsRequestResultTail,
     MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
-    planId: String
+    planId: String,
+    isTemplate: Boolean,
+    report: Object
   },
   data() {
     return {
       apiCases:  [],
       result: {},
-      report: {},
       response: {}
     }
   },
@@ -84,17 +85,28 @@ export default {
   },
   methods: {
     getScenarioApiCase() {
-      this.result = getPlanApiFailureCase(this.planId, (data) => {
-        this.apiCases = data;
-        if (data && data.length > 0) {
-          this.rowClick(data[0]);
+      if (this.isTemplate) {
+        this.apiCases = this.report.apiFailureResult;
+        if (this.apiCases && this.apiCases.length > 0) {
+          this.rowClick(this.apiCases[0]);
         }
-      });
+      } else {
+        this.result = getPlanApiFailureCase(this.planId, (data) => {
+          this.apiCases = data;
+          if (data && data.length > 0) {
+            this.rowClick(data[0]);
+          }
+        });
+      }
     },
     rowClick(row) {
-      getApiReport(row.id, (data) => {
-        this.response = JSON.parse(data.content);
-      });
+      if (this.isTemplate) {
+        this.response = JSON.parse(row.response);
+      } else {
+        getApiReport(row.id, (data) => {
+          this.response = JSON.parse(data.content);
+        });
+      }
     }
   }
 }

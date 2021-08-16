@@ -17,25 +17,19 @@
             :label="$t('commons.id')"
             prop="customNum">
           </ms-table-column>
-
           <ms-table-column
             :label="$t('commons.name')"
             prop="name">
           </ms-table-column>
-
           <ms-table-column
             :label="'创建人'"
-            prop="creatorName">
-
+            prop="creatorName"/>
           <ms-table-column
             :label="$t('test_track.case.priority')"
-            :width="80"
-            prop="level">
+            :width="80">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.level" ref="priority"/>
             </template>
-          </ms-table-column>
-
           </ms-table-column>
           <ms-table-column
             :width="70"
@@ -51,7 +45,7 @@
         </ms-table>
       </el-col>
       <el-col :span="16" v-if="scenarioCases.length > 0">
-        <ms-api-report @refresh="search" :infoDb="true" :report-id="reportId"/>
+        <ms-api-report :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
       </el-col>
     </el-row>
   </div>
@@ -72,14 +66,16 @@ export default {
     MsApiReport,
     MsTableColumn, MsTable, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
-    planId: String
+    planId: String,
+    isTemplate: Boolean,
+    report: Object
   },
   data() {
     return {
       scenarioCases:  [],
       result: {},
-      report: {},
-      reportId: null
+      reportId: null,
+      response: {}
     }
   },
   mounted() {
@@ -87,15 +83,26 @@ export default {
   },
   methods: {
     getScenarioApiCase() {
-      this.result = getPlanScenarioFailureCase(this.planId, (data) => {
-        this.scenarioCases = data;
-        if (data && data.length > 0) {
-          this.reportId = data[0].reportId;
+      if (this.isTemplate) {
+        this.scenarioCases = this.report.scenarioFailureResult;
+        if (this.scenarioCases && this.scenarioCases.length > 0) {
+          this.rowClick(this.scenarioCases[0]);
         }
-      });
+      } else {
+        this.result = getPlanScenarioFailureCase(this.planId, (data) => {
+          this.scenarioCases = data;
+          if (data && data.length > 0) {
+            this.reportId = data[0].reportId;
+          }
+        });
+      }
     },
     rowClick(row) {
-      this.reportId = row.reportId;
+      if (this.isTemplate) {
+        this.response = row.response;
+      } else {
+        this.reportId = row.reportId;
+      }
     }
   }
 }

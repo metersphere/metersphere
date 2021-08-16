@@ -74,7 +74,9 @@ export default {
   name: "FunctionalFailureResult",
   components: {StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
-    planId: String
+    planId: String,
+    isTemplate: Boolean,
+    report: {}
   },
   data() {
     return {
@@ -86,9 +88,13 @@ export default {
   },
   methods: {
     getFailureTestCase() {
-      getPlanFunctionFailureCase(this.planId, (data) => {
-        this.failureTestCases = data;
-      });
+      if (this.isTemplate) {
+        this.failureTestCases = this.report.failureTestCases;
+      } else {
+        getPlanFunctionFailureCase(this.planId, (data) => {
+          this.failureTestCases = data;
+        });
+      }
     }
   }
 }

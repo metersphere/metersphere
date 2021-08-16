@@ -146,8 +146,9 @@ export function fileUpload(url, file, files, param, success, failure) {
   return request(axiosRequestConfig, success, failure);
 }
 
-export function download(config, fileName) {
-  return this.$request(config).then(response => {
+export function download(config, fileName, success) {
+  let result = {loading: true};
+  this.$request(config).then(response => {
     const content = response.data;
     const blob = new Blob([content], {type: "application/octet-stream"});
     if ("download" in document.createElement("a")) {
@@ -158,11 +159,15 @@ export function download(config, fileName) {
       aTag.href = URL.createObjectURL(blob);
       aTag.click();
       URL.revokeObjectURL(aTag.href);
+      then(success, response, result);
     } else {
       // IE10+下载
       navigator.msSaveBlob(blob, this.filename);
     }
+  }).catch(error => {
+    exception(error, result, "");
   });
+  return result;
 }
 
 export function all(array, callback) {

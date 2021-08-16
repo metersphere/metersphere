@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-          <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          <ms-api-report-view-header :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
           <main v-if="isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
@@ -76,10 +76,19 @@ export default {
     currentProjectId: String,
     infoDb: Boolean,
     debug: Boolean,
+    isTemplate: Boolean,
+    templateReport: Object,
   },
   watch: {
     reportId() {
-      this.getReport();
+      if (!this.isTemplate) {
+        this.getReport();
+      }
+    },
+    templateReport() {
+      if (this.isTemplate) {
+        this.getReport();
+      }
     }
   },
   methods: {
@@ -225,32 +234,41 @@ export default {
     },
     getReport() {
       this.init();
-      if (this.reportId) {
-        let url = "/api/scenario/report/get/" + this.reportId;
-        this.$get(url, response => {
-          this.report = response.data || {};
-          if (response.data) {
-            if (this.isNotRunning) {
-              try {
-                this.content = JSON.parse(this.report.content);
-                if (!this.content) {
-                  this.content = {scenarios: []};
-                }
-                this.formatResult(this.content);
-              } catch (e) {
-                throw e;
-              }
-              this.getFails();
-              this.computeTotalTime();
-              this.loading = false;
-            } else {
-              setTimeout(this.getReport, 2000)
+      if (this.isTemplate) {
+        // 测试计划报告导出
+        this.report = this.templateReport;
+        this.buildReport();
+      } else {
+        if (this.reportId) {
+            let url = "/api/scenario/report/get/" + this.reportId;
+            this.$get(url, response => {
+              this.report = response.data || {};
+              this.buildReport();
+            });
+        }
+      }
+    },
+    buildReport() {
+      if (this.report) {
+        if (this.isNotRunning) {
+          try {
+            this.content = JSON.parse(this.report.content);
+            if (!this.content) {
+              this.content = {scenarios: []};
             }
-          } else {
-            this.loading = false;
-            this.$error(this.$t('api_report.not_exist'));
+            this.formatResult(this.content);
+          } catch (e) {
+            throw e;
           }
-        });
+          this.getFails();
+          this.computeTotalTime();
+          this.loading = false;
+        } else {
+          setTimeout(this.getReport, 2000)
+        }
+      } else {
+        this.loading = false;
+        this.$error(this.$t('api_report.not_exist'));
       }
     },
     getFails() {

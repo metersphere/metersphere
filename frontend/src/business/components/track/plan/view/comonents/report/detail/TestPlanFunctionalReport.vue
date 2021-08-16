@@ -5,10 +5,10 @@
         <functional-result :function-result="report.functionResult"/>
       </el-tab-pane>
       <el-tab-pane label="失败用例" name="second">
-        <functional-failure-result :plan-id="planId"/>
+        <functional-failure-result :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
       <el-tab-pane label="缺陷列表" name="third">
-        <functional-issue-list :plan-id="planId"/>
+        <functional-issue-list :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
 <!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
     </el-tabs>
@@ -33,7 +33,7 @@ export default {
     };
   },
   props: [
-    'report','planId'
+    'report','planId', 'isTemplate'
   ],
   methods: {
     handleClick(tab, event) {
