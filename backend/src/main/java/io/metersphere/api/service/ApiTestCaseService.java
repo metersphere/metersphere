@@ -265,16 +265,24 @@ public class ApiTestCaseService {
     }
 
     public Boolean hasSameCase(SaveApiTestCaseRequest request) {
+        if (getSameCase(request) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public ApiTestCase getSameCase(SaveApiTestCaseRequest request) {
         ApiTestCaseExample example = new ApiTestCaseExample();
         ApiTestCaseExample.Criteria criteria = example.createCriteria();
         criteria.andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
         if (StringUtils.isNotBlank(request.getId())) {
             criteria.andIdNotEqualTo(request.getId());
         }
-        if (apiTestCaseMapper.countByExample(example) > 0) {
-            return true;
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(apiTestCases)) {
+            return apiTestCases.get(0);
         }
-        return false;
+        return null;
     }
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
