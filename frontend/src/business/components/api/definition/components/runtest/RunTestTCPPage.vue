@@ -32,16 +32,16 @@
         <!--        <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>-->
         <!--        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>-->
 
-        <div v-if="api.method=='TCP'">
+        <div v-if="api.method=='TCP'" v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 <!--          <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>-->
           <ms-tcp-format-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
           <!--返回结果-->
           <!-- HTTP 请求返回数据 -->
           <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-          <ms-request-result-tail :response="responseData" ref="runResult" v-loading="loading"/>
+          <ms-request-result-tail :response="responseData" ref="runResult"/>
         </div>
-        <div v-else-if="api.method=='ESB'">
+        <div v-else-if="api.method=='ESB'" v-loading="loading">
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
           <esb-definition v-xpack v-if="showXpackCompnent" :show-script="true" :request="api.request"  @callback="runTest" ref="requestForm"/>
         </div>

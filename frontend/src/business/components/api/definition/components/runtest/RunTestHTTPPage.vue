@@ -43,15 +43,18 @@
 
         </el-form-item>
 
+
+
+      </el-form>
+      <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
         <ms-api-request-form :isShowEnable="true" :headers="api.request.headers" :request="api.request"/>
-
-      </el-form>
-      <!--返回结果-->
-      <!-- HTTP 请求返回数据 -->
-      <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-      <ms-request-result-tail v-loading="loading" :response="responseData" ref="runResult"/>
+        <!--返回结果-->
+        <!-- HTTP 请求返回数据 -->
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <ms-request-result-tail :response="responseData" ref="runResult"/>
+      </div>
 
       <ms-jmx-step :request="api.request" :response="responseData"/>
 
