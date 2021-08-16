@@ -4,20 +4,20 @@
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_code')}} :</div>
         <el-tooltip
-          :content="response.responseResult.responseCode"
+          :content="responseResult.responseCode"
           placement="top">
           <div class="node-title">
-            {{response.responseResult && response.responseResult.responseCode ? response.responseResult.responseCode :'0'}}
+            {{responseResult && responseResult.responseCode ? responseResult.responseCode :'0'}}
           </div>
         </el-tooltip>
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_time')}} :</div>
-        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{response.responseResult && response.responseResult.responseTime?response.responseResult.responseTime:0}} ms</div>
+        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{responseResult && responseResult.responseTime?responseResult.responseTime:0}} ms</div>
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_size')}} :</div>
-        <div style="font-size: 14px;color:#61C550; margin-top:2px;margin-left:10px;float: left">{{response.responseResult && response.responseResult.responseSize?response.responseResult.responseSize:0}} bytes</div>
+        <div style="font-size: 14px;color:#61C550; margin-top:2px;margin-left:10px;float: left">{{responseResult && responseResult.responseSize?responseResult.responseSize:0}} bytes</div>
       </el-col>
     </el-row>
   </div>
@@ -28,10 +28,19 @@
     name: "MsRequestMetric",
 
     props: {
-      response: Object
+      response: {
+        type: Object,
+        default() {
+          return {}
+        }
+      }
     },
 
+
     computed: {
+      responseResult() {
+        return this.response && this.response.responseResult ? this.response.responseResult : {};
+      },
       error() {
         return this.response && this.response.responseCode && this.response.responseCode >= 400;
       }

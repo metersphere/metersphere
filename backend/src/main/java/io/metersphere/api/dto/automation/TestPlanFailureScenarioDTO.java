@@ -12,4 +12,6 @@ public class TestPlanFailureScenarioDTO extends ApiScenarioDTO {
     private String projectName;
 
     private String caseId;
+
+    private APIScenarioReportResult response;
 }

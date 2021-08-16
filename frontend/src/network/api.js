@@ -12,8 +12,8 @@ export function getScenarioReport(reportId, callback) {
   return reportId ? baseGet('/api/scenario/report/get/' + reportId, callback) : {};
 }
 
-export function getApiReport(reportId, callback) {
-  return reportId ? baseGet('/api/definition/report/getReport/' + reportId, callback) : {};
+export function getApiReport(testId, callback) {
+  return testId ? baseGet('/api/definition/report/getReport/' + testId, callback) : {};
 }
 
 

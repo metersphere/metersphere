@@ -45,7 +45,9 @@ export default {
   name: "LoadFailureResult",
   components: {StatusTableItem, MethodTableItem, TypeTableItem},
   props: {
-    planId: String
+    planId: String,
+    report: Object,
+    isTemplate: Boolean
   },
   data() {
     return {
@@ -57,9 +59,13 @@ export default {
   },
   methods: {
     getFailureTestCase() {
-      getPlanLoadFailureCase(this.planId, (data) => {
-        this.failureTestCases = data;
-      });
+      if (this.isTemplate) {
+        this.failureTestCases = this.report.loadFailureTestCases;
+      } else {
+        getPlanLoadFailureCase(this.planId, (data) => {
+          this.failureTestCases = data;
+        });
+      }
     }
   }
 }

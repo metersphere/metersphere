@@ -7,14 +7,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.service.ApiAutomationService;
-import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -23,6 +23,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -32,6 +33,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
+import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
@@ -99,8 +101,6 @@ public class TestPlanService {
     @Resource
     TestCaseReportMapper testCaseReportMapper;
     @Resource
-    TestCaseReportService testCaseReportService;
-    @Resource
     TestPlanProjectService testPlanProjectService;
     @Resource
     ProjectMapper projectMapper;
@@ -155,6 +155,12 @@ public class TestPlanService {
     @Lazy
     @Resource
     private IssuesService issuesService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private IssueTemplateService issueTemplateService;
 
     public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -1343,22 +1349,37 @@ public class TestPlanService {
     }
 
     public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
-        TestPlan testPlan = getTestPlan(planId);
-        if (StringUtils.isBlank(testPlan.getReportId())) {
-            MSException.throwException("请先创建报告");
-        }
-        TestCaseReport testCaseReport = testCaseReportService.getTestCaseReport(testPlan.getReportId());
-        String content = testCaseReport.getContent();
-        JSONArray components = JSONObject.parseObject(content).getJSONArray("components");
-        List<TestPlanPreviewsDTO.Preview> previews = new ArrayList<>();
-        components.forEach(item -> {
-            previews.add(TestPlanPreviewsDTO.get((Integer) item));
+
+        TestPlanSimpleReportDTO report = getReport(planId);
+
+        List<TestPlanCaseDTO> failureTestCases = testPlanTestCaseService.getFailureCases(planId);
+        report.setFailureTestCases(failureTestCases);
+
+        List<IssuesDao> issueList = issuesService.getIssuesByPlanoId(planId);
+        report.setIssueList(issueList);
+
+        List<TestPlanFailureApiDTO> apiFailureResult = testPlanApiCaseService.getFailureList(planId);
+        apiFailureResult.forEach(item -> {
+            APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
+            if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
+                item.setResponse(dbResult.getContent());
+            }
         });
-        TestCaseReportMetricDTO metric = getMetric(planId);
-        render(previews, metric, response);
+        report.setApiFailureResult(apiFailureResult);
+
+        List<TestPlanFailureScenarioDTO> scenarioFailureResult = testPlanScenarioCaseService.getFailureList(planId);
+        scenarioFailureResult.forEach((item) -> {
+            item.setResponse(apiScenarioReportService.get(item.getReportId()));
+        });
+        report.setScenarioFailureResult(scenarioFailureResult);
+
+        List<TestPlanLoadCaseDTO> loadFailureTestCases = testPlanLoadCaseService.getFailureCases(planId);
+        report.setLoadFailureTestCases(loadFailureTestCases);
+
+        render(report, response);
     }
 
-    public void render(List<TestPlanPreviewsDTO.Preview> previews, TestCaseReportMetricDTO metric, HttpServletResponse response) throws UnsupportedEncodingException {
+    public void render(TestPlanSimpleReportDTO report, HttpServletResponse response) throws UnsupportedEncodingException {
         response.reset();
         response.setContentType("application/octet-stream");
         response.addHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("test", StandardCharsets.UTF_8.name()));
@@ -1368,8 +1389,8 @@ public class TestPlanService {
             BufferedReader bufferedReader = new BufferedReader(isr);
             String line = null;
             while (null != (line = bufferedReader.readLine())) {
-                line = line.replace("\"#metric\"", JSONObject.toJSONString(metric));
-                line = line.replace("\"#preview\"", JSONObject.toJSONString(previews));
+                line = line.replace("\"#report\"", JSONObject.toJSONString(report));
+//                line = line.replace("\"#preview\"", JSONObject.toJSONString(previews));
                 line += "\n";
                 byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
                 int start = 0;
@@ -1399,6 +1420,7 @@ public class TestPlanService {
         report.setStartTime(testPlan.getActualStartTime());
         report.setStartTime(testPlan.getActualEndTime());
         report.setSummary(testPlan.getReportSummary());
+        IssueTemplateDao template = issueTemplateService.getTemplate(testPlan.getProjectId());
         testPlanTestCaseService.calculatePlanReport(planId, report);
         issuesService.calculatePlanReport(planId, report);
         testPlanApiCaseService.calculatePlanReport(planId, report);
@@ -1406,6 +1428,12 @@ public class TestPlanService {
         testPlanLoadCaseService.calculatePlanReport(planId, report);
         report.setExecuteRate(report.getExecuteCount() * 0.1 / report.getCaseCount());
         report.setPassRate(report.getPassCount() * 0.1 / report.getCaseCount());
+        report.setName(testPlan.getName());
+        if (template == null || template.getPlatform().equals("metersphere")) {
+            report.setIsThirdPartIssue(false);
+        } else {
+            report.setIsThirdPartIssue(true);
+        }
         return report;
     }
 

@@ -2,10 +2,10 @@
   <div>
     <el-tabs type="card">
       <el-tab-pane label="接口用例">
-        <api-case-failure-result :plan-id="planId"/>
+        <api-case-failure-result :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
       <el-tab-pane label="场景用例">
-        <api-scenario-failure-result :plan-id="planId"/>
+        <api-scenario-failure-result :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -26,7 +26,9 @@ export default {
     ApiCaseFailureResult,
     ApiScenarioFailureResult, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
-    planId: String
+    planId: String,
+    isTemplate: Boolean,
+    report: {}
   },
   data() {
     return {
