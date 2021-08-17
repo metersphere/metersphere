@@ -280,7 +280,7 @@ export default {
       let options = this.getSaveOption();
 
       this.result = this.$request(options, (response) => {
-        this.test.id = response.data;
+        this.test.id = response.data.id;
         this.$success(this.$t('commons.save_success'));
         this.result = this.$post(this.runPath, {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
           let reportId = response.data;
