@@ -619,7 +619,7 @@ export default {
       //   this.environmentId = data.id;
     },
     getReportResult(apiCase) {
-      let url = "/api/definition/report/getReport/" + apiCase.id + '/' + 'API_PLAN';
+      let url = "/api/definition/report/plan/getReport/" + apiCase.id + '/' + 'API_PLAN';
       this.$get(url, response => {
         if (response.data) {
           this.response = JSON.parse(response.data.content);
