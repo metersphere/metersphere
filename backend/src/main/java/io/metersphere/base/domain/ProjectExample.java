@@ -1243,6 +1243,126 @@ public class ProjectExample {
             addCriterion("system_id not between", value1, value2, "systemId");
             return (Criteria) this;
         }
+
+        public Criteria andMockTcpPortIsNull() {
+            addCriterion("mock_tcp_port is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortIsNotNull() {
+            addCriterion("mock_tcp_port is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortEqualTo(Integer value) {
+            addCriterion("mock_tcp_port =", value, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortNotEqualTo(Integer value) {
+            addCriterion("mock_tcp_port <>", value, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortGreaterThan(Integer value) {
+            addCriterion("mock_tcp_port >", value, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortGreaterThanOrEqualTo(Integer value) {
+            addCriterion("mock_tcp_port >=", value, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortLessThan(Integer value) {
+            addCriterion("mock_tcp_port <", value, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortLessThanOrEqualTo(Integer value) {
+            addCriterion("mock_tcp_port <=", value, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortIn(List<Integer> values) {
+            addCriterion("mock_tcp_port in", values, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortNotIn(List<Integer> values) {
+            addCriterion("mock_tcp_port not in", values, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortBetween(Integer value1, Integer value2) {
+            addCriterion("mock_tcp_port between", value1, value2, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andMockTcpPortNotBetween(Integer value1, Integer value2) {
+            addCriterion("mock_tcp_port not between", value1, value2, "mockTcpPort");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenIsNull() {
+            addCriterion("is_mock_tcp_open is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenIsNotNull() {
+            addCriterion("is_mock_tcp_open is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenEqualTo(Boolean value) {
+            addCriterion("is_mock_tcp_open =", value, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenNotEqualTo(Boolean value) {
+            addCriterion("is_mock_tcp_open <>", value, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenGreaterThan(Boolean value) {
+            addCriterion("is_mock_tcp_open >", value, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_mock_tcp_open >=", value, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenLessThan(Boolean value) {
+            addCriterion("is_mock_tcp_open <", value, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_mock_tcp_open <=", value, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenIn(List<Boolean> values) {
+            addCriterion("is_mock_tcp_open in", values, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenNotIn(List<Boolean> values) {
+            addCriterion("is_mock_tcp_open not in", values, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_mock_tcp_open between", value1, value2, "isMockTcpOpen");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsMockTcpOpenNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_mock_tcp_open not between", value1, value2, "isMockTcpOpen");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

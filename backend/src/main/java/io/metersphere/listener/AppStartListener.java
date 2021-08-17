@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.JarConfigService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.IssuesService;
@@ -38,6 +39,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     @Resource
     private IssuesService issuesService;
     @Resource
+    private ProjectService projectService;
+    @Resource
     private PerformanceTestService performanceTestService;
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -53,6 +56,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initPythonEnv();
 
+        projectService.initMockTcpService();
+
         initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
         initOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
         initOperate(issuesService::syncThirdPartyIssues, "init.issue");
@@ -66,6 +71,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         }
 
         scheduleService.startEnableSchedules();
+
     }
 
 

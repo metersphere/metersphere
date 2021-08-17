@@ -11,7 +11,7 @@
         <el-button plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">CASE</el-button>
       </el-tooltip>
 
-      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol==='HTTP'">
+      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
         <el-button plain :class="{active: showMock}" @click="changeTab('mock')" size="small"> Mock</el-button>
       </el-tooltip>
 
@@ -72,8 +72,11 @@
       />
     </div>
 
-    <div v-if="showMock" class="ms-api-div">
-      <mock-config :base-mock-config-data="baseMockConfigData"/>
+    <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
+      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>
+    </div>
+    <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
+      <tcp-mock-config :base-mock-config-data="baseMockConfigData" type="tcp"/>
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
@@ -96,6 +99,7 @@ import MsRunTestTcpPage from "./runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./runtest/RunTestDubboPage";
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
+import TcpMockConfig from "@/business/components/api/definition/components/mock/TcpMockConfig";
 import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
 
 export default {
@@ -107,6 +111,7 @@ export default {
     MsRunTestSqlPage,
     MsRunTestDubboPage,
     MockConfig,
+    TcpMockConfig,
     ApiCaseSimpleList
   },
   data() {
@@ -139,7 +144,7 @@ export default {
   },
   created() {
     this.refreshButtonActiveClass(this.activeDom);
-    if (this.currentApi.id !== null && this.currentProtocol === "HTTP") {
+    if (this.currentApi.id !== null && (this.currentProtocol === "HTTP" || this.currentProtocol === "TCP")) {
       this.mockSetting();
     }
   },
