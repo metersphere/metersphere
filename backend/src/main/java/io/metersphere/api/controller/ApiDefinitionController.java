@@ -195,6 +195,11 @@ public class ApiDefinitionController {
         return apiDefinitionService.getDbResult(testId, type);
     }
 
+    @GetMapping("/report/plan/getReport/{testId}/{type}")
+    public APIReportResult getTestPlanApiCaseReport(@PathVariable String testId, @PathVariable String type) {
+        return apiDefinitionService.getTestPlanApiCaseReport(testId, type);
+    }
+
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_IMPORT_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.IMPORT, sourceId = "#request.id", title = "#request.name", project = "#request.projectId")

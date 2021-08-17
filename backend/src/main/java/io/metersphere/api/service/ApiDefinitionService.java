@@ -1346,4 +1346,9 @@ public class ApiDefinitionService {
         });
         this.removeToGc(apiIdList);
     }
+
+    public APIReportResult getTestPlanApiCaseReport(String testId, String type) {
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
+        return buildAPIReportResult(result);
+    }
 }
