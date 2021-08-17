@@ -39,5 +39,9 @@ public class Project implements Serializable {
 
     private String systemId;
 
+    private Integer mockTcpPort;
+
+    private Boolean isMockTcpOpen;
+
     private static final long serialVersionUID = 1L;
 }
