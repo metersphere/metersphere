@@ -2,8 +2,9 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -19,6 +20,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DebugSampler")
 public class MsDebugSampler extends MsTestElement {
+    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsDebugSampler";
+
     @JSONField(ordinal = 40)
     private String type = "DebugSampler";
     @JSONField(ordinal = 41)
@@ -29,7 +32,8 @@ public class MsDebugSampler extends MsTestElement {
     private boolean displaySystemProperties = false;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;

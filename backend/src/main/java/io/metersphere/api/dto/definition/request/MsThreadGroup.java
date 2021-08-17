@@ -3,6 +3,8 @@ package io.metersphere.api.dto.definition.request;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.dto.definition.request.sampler.MsDebugSampler;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -20,11 +22,14 @@ import java.util.List;
 @JSONType(typeName = "ThreadGroup")
 public class MsThreadGroup extends MsTestElement {
     private String type = "ThreadGroup";
+    private String clazzName = "io.metersphere.api.dto.definition.request.MsThreadGroup";
+
     private boolean enableCookieShare;
     private Boolean onSampleError;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         final HashTree groupTree = tree.add(getThreadGroup());
         if ((config != null && config.isEnableCookieShare()) || enableCookieShare) {
             CookieManager cookieManager = new CookieManager();

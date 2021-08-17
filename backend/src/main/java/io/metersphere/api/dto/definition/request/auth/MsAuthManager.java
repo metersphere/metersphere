@@ -2,8 +2,9 @@ package io.metersphere.api.dto.definition.request.auth;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
@@ -21,6 +22,8 @@ import java.util.List;
 @JSONType(typeName = "AuthManager")
 public class MsAuthManager extends MsTestElement {
     private String type = "AuthManager";
+    private String clazzName = "io.metersphere.api.dto.definition.request.auth.MsAuthManager";
+
     @JSONField(ordinal = 20)
     private String username;
 
@@ -49,10 +52,11 @@ public class MsAuthManager extends MsTestElement {
     private String environment;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         if (!this.isEnable()) {
             return;
         }
+        ParameterConfig config = (ParameterConfig) msParameter;
         AuthManager authManager = new AuthManager();
         authManager.setEnabled(true);
         authManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "AuthManager");

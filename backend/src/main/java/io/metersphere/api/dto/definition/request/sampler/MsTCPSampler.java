@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -8,7 +9,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -22,6 +23,8 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,6 +54,8 @@ import java.util.regex.Pattern;
 public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 20)
     private String type = "TCPSampler";
+    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsTCPSampler";
+
     @JSONField(ordinal = 21)
     private String classname = "";
     @JSONField(ordinal = 22)
@@ -98,6 +103,9 @@ public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 44)
     private String rawDataStruct;
 
+    @JSONField(ordinal = 45)
+    private boolean customizeReq;
+
 
     /**
      * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
@@ -106,7 +114,8 @@ public class MsTCPSampler extends MsTestElement {
     private List<EsbDataStruct> backEsbDataStruct;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -117,14 +126,14 @@ public class MsTCPSampler extends MsTestElement {
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
-            config.setConfig(getEnvironmentConfig(useEnvironment));
+            config.setConfig(ElementUtil.getEnvironmentConfig(useEnvironment, this.getProjectId(), this.isMockEnvironment()));
         }
         if (config.getConfig() != null) {
             parseEnvironment(config.getConfig().get(this.projectId));
         }
 
         // 添加环境中的公共变量
-        Arguments arguments = this.addArguments(config);
+        Arguments arguments = ElementUtil.addArguments(config, this.getProjectId(), this.getName());
         if (arguments != null) {
             tree.add(arguments);
         }
@@ -155,7 +164,9 @@ public class MsTCPSampler extends MsTestElement {
                 if (bloBs != null) {
                     this.setName(bloBs.getName());
                     this.setProjectId(bloBs.getProjectId());
-                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsTCPSampler>() {
+                    JSONObject element = JSON.parseObject(bloBs.getRequest());
+                    ElementUtil.dataFormatting(element);
+                    proxy = mapper.readValue(element.toJSONString(), new TypeReference<MsTCPSampler>() {
                     });
                 }
             } else {
@@ -199,15 +210,15 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
-        String name = this.getParentName(this.getParent());
+        String name = ElementUtil.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             tcpSampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         tcpSampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
-        tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
+        tcpSampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
-        this.getScenarioSet(this, id_names);
+        ElementUtil.getScenarioSet(this, id_names);
         tcpSampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());

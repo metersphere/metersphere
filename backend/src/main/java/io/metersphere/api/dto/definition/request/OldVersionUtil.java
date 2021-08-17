@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition.request;
 
 
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;

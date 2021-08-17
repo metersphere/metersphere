@@ -132,26 +132,31 @@ export default {
     {
       path: 'operatingLog/system',
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
-      name:'system',
+      name: 'system',
       meta: {system: true, title: 'operating_log.title', permissions: ['SYSTEM_OPERATING_LOG:READ']}
     },
     {
       path: 'operatingLog/organization',
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
-      name:'organization',
+      name: 'organization',
       meta: {organization: true, title: 'operating_log.title', permissions: ['ORGANIZATION_OPERATING_LOG:READ']}
     },
     {
       path: 'operatingLog/workspace',
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
-      name:'workspace',
+      name: 'workspace',
       meta: {workspace: true, title: 'operating_log.title', permissions: ['WORKSPACE_OPERATING_LOG:READ']}
     },
     {
       path: 'operatingLog/project',
-      name:'project',
+      name: 'project',
       component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
       meta: {project: true, title: 'operating_log.title', permissions: ['PROJECT_OPERATING_LOG:READ']}
-    }
+    },
+    {
+      path: 'plugin',
+      component: () => import('@/business/components/settings/plugin/PluginConfig'),
+      meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_USER:READ']}
+    },
   ]
 };
