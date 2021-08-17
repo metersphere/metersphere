@@ -49,4 +49,20 @@ ALTER TABLE load_test
 ALTER TABLE api_test_case
     ADD follow_people VARCHAR(100) NULL;
 
-ALTER TABLE test_plan ADD report_summary TEXT NULL COMMENT '测试计划报告总结';
+ALTER TABLE test_plan
+    ADD report_summary TEXT NULL COMMENT '测试计划报告总结';
+
+CREATE TABLE IF NOT EXISTS `notification`
+(
+    `id`          BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `type`        VARCHAR(30)  DEFAULT NULL COMMENT '通知类型',
+    `receiver`    VARCHAR(100) DEFAULT NULL COMMENT '接收人',
+    `title`       VARCHAR(100) DEFAULT NULL COMMENT '标题',
+    `content`     LONGTEXT COMMENT '内容',
+    `status`      VARCHAR(30)  DEFAULT NULL COMMENT '状态',
+    `create_time` BIGINT(13)   DEFAULT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `IDX_RECEIVER` (`receiver`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE utf8mb4_general_ci;
