@@ -1007,6 +1007,8 @@ public class TestPlanService {
             performanceRequest.setTestPlanLoadId(caseID);
             if (StringUtils.equals(ReportTriggerMode.API.name(), triggerMode)) {
                 performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_API.name());
+            } else if (StringUtils.equals(ReportTriggerMode.MANUAL.name(), triggerMode)) {
+                performanceRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
             } else {
                 performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
             }

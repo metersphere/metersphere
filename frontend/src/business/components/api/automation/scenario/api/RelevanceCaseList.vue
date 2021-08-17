@@ -5,7 +5,7 @@
       @isApiListEnableChange="isApiListEnableChange">
 
       <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly"
-                             @setEnvironment="setEnvironment"/>
+                             @setEnvironment="setEnvironment" ref="msEnvironmentSelect"/>
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
                 @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
@@ -240,6 +240,13 @@ export default {
       if (this.$refs.table) {
         this.$refs.table.clear();
       }
+    },
+    clearEnvAndSelect() {
+      this.environmentId = "";
+      if (this.$refs.msEnvironmentSelect) {
+        this.$refs.msEnvironmentSelect.environmentId = "";
+      }
+      this.clear();
     },
     showExecResult(row) {
       this.visible = false;

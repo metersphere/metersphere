@@ -169,6 +169,7 @@ export default {
     api_case: "接口用例",
     scenario_case: "场景用例",
     task_center: "任务中心",
+    notice_center: "消息中心",
     all_module_title: "全部模块",
     create_user: '创建人',
     run_message: "任务执行中，请到任务中心查看详情",
