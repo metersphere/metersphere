@@ -24,7 +24,11 @@ import java.util.stream.Collectors;
 public class MsResultService {
     // 零时存放实时结果
     private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
-    public ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
+
+    public ConcurrentHashMap<String, List<SampleResult>> getProcessCache() {
+        return processCache;
+    }
 
     private final static String THREAD_SPLIT = " ";
 

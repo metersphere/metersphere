@@ -82,8 +82,8 @@ public class APIBackendListenerHandler {
         testResult.setConsole(resultService.getJmeterLogger(testId, true));
         testResultService.saveResult(testResult, this.runMode, this.debugReportId, this.testId);
         // 清除已经中断的过程数据
-        if (!MessageCache.reportCache.containsKey(testId) && resultService.processCache.containsKey(testId)) {
-            resultService.processCache.remove(testId);
+        if (!MessageCache.reportCache.containsKey(testId) && resultService.getProcessCache().containsKey(testId)) {
+            resultService.getProcessCache().remove(testId);
         }
     }
 
