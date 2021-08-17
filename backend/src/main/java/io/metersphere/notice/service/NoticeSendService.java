@@ -16,6 +16,7 @@ import io.metersphere.notice.sender.impl.WeComNoticeSender;
 import io.metersphere.service.UserService;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.RegExUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -75,24 +76,32 @@ public class NoticeSendService {
                     messageDetails = noticeService.searchMessageByType(taskType);
                     break;
             }
-            // 发送实体通知
-            messageDetails.stream()
-                    .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
-                    .forEach(messageDetail -> this.getNoticeSender(messageDetail).send(messageDetail, noticeModel));
-            // 发送站内通知
             QueryOrgMemberRequest request = new QueryOrgMemberRequest();
             request.setOrganizationId(SessionUtils.getCurrentOrganizationId());
             List<User> orgAllMember = userService.getOrgAllMember(request);
-            // 替换变量
-            noticeModel.setContext(getContent(noticeModel));
-            orgAllMember.forEach(receiver -> {
-                String context = noticeModel.getContext();
-                LogUtil.debug("发送站内通知: {}, 内容: {}", receiver.getName(), context);
-                notificationService.sendAnnouncement(noticeModel.getSubject(), context, receiver.getId());
-            });
+
+
+            // 异步发送实体通知
+            messageDetails.stream()
+                    .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
+                    .forEach(messageDetail -> this.getNoticeSender(messageDetail).send(messageDetail, noticeModel));
+
+            // 异步发送站内通知
+            sendAnnouncement(noticeModel, orgAllMember);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
+    }
+
+    @Async
+    public void sendAnnouncement(NoticeModel noticeModel, List<User> orgAllMember) {
+        // 替换变量
+        noticeModel.setContext(getContent(noticeModel));
+        orgAllMember.forEach(receiver -> {
+            String context = noticeModel.getContext();
+            LogUtil.debug("发送站内通知: {}, 内容: {}", receiver.getName(), context);
+            notificationService.sendAnnouncement(noticeModel.getSubject(), context, receiver.getId());
+        });
     }
 
     private String getContent(NoticeModel noticeModel) {
