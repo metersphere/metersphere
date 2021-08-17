@@ -34,7 +34,7 @@
     <select id="getProjectWithWorkspace" resultType="io.metersphere.dto.ProjectDTO">
         select p.id, p.workspace_id, p.name, p.description, p.update_time, p.issue_template_id, p.case_template_id,
         p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id,p.azure_devops_id,p.repeatable, p.custom_num,
-        user.name as createUserName,
+        user.name as createUserName,p.mock_tcp_port AS mockTcpPort,p.is_mock_tcp_open AS isMockTcpOpen,
         p.scenario_custom_num
         from project p
         join workspace w on p.workspace_id = w.id

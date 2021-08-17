@@ -19,6 +19,8 @@
     <result column="scenario_custom_num" jdbcType="BIT" property="scenarioCustomNum" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="system_id" jdbcType="VARCHAR" property="systemId" />
+    <result column="mock_tcp_port" jdbcType="INTEGER" property="mockTcpPort" />
+    <result column="is_mock_tcp_open" jdbcType="BIT" property="isMockTcpOpen" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,7 +83,7 @@
   <sql id="Base_Column_List">
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
     zentao_id, azure_devops_id, `repeatable`, case_template_id, issue_template_id, custom_num, 
-    scenario_custom_num, create_user, system_id
+    scenario_custom_num, create_user, system_id, mock_tcp_port, is_mock_tcp_open
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -119,13 +121,15 @@
       tapd_id, jira_key, zentao_id, 
       azure_devops_id, `repeatable`, case_template_id, 
       issue_template_id, custom_num, scenario_custom_num, 
-      create_user, system_id)
+      create_user, system_id, mock_tcp_port, 
+      is_mock_tcp_open)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
       #{azureDevopsId,jdbcType=VARCHAR}, #{repeatable,jdbcType=BIT}, #{caseTemplateId,jdbcType=VARCHAR}, 
       #{issueTemplateId,jdbcType=VARCHAR}, #{customNum,jdbcType=BIT}, #{scenarioCustomNum,jdbcType=BIT}, 
-      #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{systemId,jdbcType=VARCHAR}, #{mockTcpPort,jdbcType=INTEGER}, 
+      #{isMockTcpOpen,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -181,6 +185,12 @@
       <if test="systemId != null">
         system_id,
       </if>
+      <if test="mockTcpPort != null">
+        mock_tcp_port,
+      </if>
+      <if test="isMockTcpOpen != null">
+        is_mock_tcp_open,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -233,6 +243,12 @@
       </if>
       <if test="systemId != null">
         #{systemId,jdbcType=VARCHAR},
+      </if>
+      <if test="mockTcpPort != null">
+        #{mockTcpPort,jdbcType=INTEGER},
+      </if>
+      <if test="isMockTcpOpen != null">
+        #{isMockTcpOpen,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -296,6 +312,12 @@
       <if test="record.systemId != null">
         system_id = #{record.systemId,jdbcType=VARCHAR},
       </if>
+      <if test="record.mockTcpPort != null">
+        mock_tcp_port = #{record.mockTcpPort,jdbcType=INTEGER},
+      </if>
+      <if test="record.isMockTcpOpen != null">
+        is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -319,7 +341,9 @@
       custom_num = #{record.customNum,jdbcType=BIT},
       scenario_custom_num = #{record.scenarioCustomNum,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      system_id = #{record.systemId,jdbcType=VARCHAR}
+      system_id = #{record.systemId,jdbcType=VARCHAR},
+      mock_tcp_port = #{record.mockTcpPort,jdbcType=INTEGER},
+      is_mock_tcp_open = #{record.isMockTcpOpen,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -375,6 +399,12 @@
       <if test="systemId != null">
         system_id = #{systemId,jdbcType=VARCHAR},
       </if>
+      <if test="mockTcpPort != null">
+        mock_tcp_port = #{mockTcpPort,jdbcType=INTEGER},
+      </if>
+      <if test="isMockTcpOpen != null">
+        is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -395,7 +425,9 @@
       custom_num = #{customNum,jdbcType=BIT},
       scenario_custom_num = #{scenarioCustomNum,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      system_id = #{systemId,jdbcType=VARCHAR}
+      system_id = #{systemId,jdbcType=VARCHAR},
+      mock_tcp_port = #{mockTcpPort,jdbcType=INTEGER},
+      is_mock_tcp_open = #{isMockTcpOpen,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

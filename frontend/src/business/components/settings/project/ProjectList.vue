@@ -88,7 +88,6 @@
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
 
-
         <el-form-item :label-width="labelWidth" :label="$t('用例模板')" prop="caseTemplateId">
           <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
         </el-form-item>
@@ -96,6 +95,10 @@
           <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
         </el-form-item>
 
+        <el-form-item :label-width="labelWidth" label="TCP Mock Port">
+          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 30%;margin-right: 30px"></el-input-number>
+          <el-switch v-model="form.isMockTcpOpen"></el-switch>
+        </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>

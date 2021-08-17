@@ -174,7 +174,7 @@ CREATE TABLE IF NOT EXISTS `mock_expect_config`
     `tags`         varchar(1000) null,
     request        longtext      null,
     response       longtext      null,
-    STATUS         VARCHAR(10)   null,
+    status         VARCHAR(10)   null,
     create_time    bigint(13)    null,
     update_time    bigint(13)    null,
     create_user_id VARCHAR(64)   null,
