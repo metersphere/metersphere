@@ -168,6 +168,7 @@ export default {
     api_case: "Api Case",
     scenario_case: "Scenario Case",
     task_center: "Task center",
+    notice_center: "Notice center",
     all_module_title: "All module",
     create_user: 'Creator',
     run_message: "The task is being executed, please go to the task center to view the details",

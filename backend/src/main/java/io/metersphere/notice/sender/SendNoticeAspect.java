@@ -35,10 +35,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
-/**
- * 系统日志：切面处理类
- */
 @Aspect
 @Component
 public class SendNoticeAspect {
