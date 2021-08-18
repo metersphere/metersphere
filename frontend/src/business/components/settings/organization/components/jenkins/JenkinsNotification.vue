@@ -163,6 +163,9 @@ export default {
   props: {
     jenkinsReceiverOptions: {
       type: Array
+    },
+    receiveTypeOptions: {
+      type: Array
     }
   },
   data() {
@@ -215,12 +218,6 @@ export default {
       jenkinsEventOptions: [
         {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
         {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
-      ],
-      receiveTypeOptions: [
-        {value: 'EMAIL', label: this.$t('organization.message.mail')},
-        {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
-        {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
     };
   },

@@ -160,6 +160,9 @@ export default {
   props: {
     receiverOptions: {
       type: Array
+    },
+    receiveTypeOptions: {
+      type: Array
     }
   },
   data() {
@@ -195,12 +198,6 @@ export default {
         {value: 'CASE_CREATE', label: 'CASE ' + this.$t('commons.create')},
         {value: 'CASE_UPDATE', label: 'CASE ' + this.$t('commons.update')},
         {value: 'CASE_DELETE', label: 'CASE ' + this.$t('commons.delete')},
-      ],
-      receiveTypeOptions: [
-        {value: 'EMAIL', label: this.$t('organization.message.mail')},
-        {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
-        {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
     };
   },

@@ -159,6 +159,9 @@ export default {
   props: {
     testPlanReceiverOptions: {
       type: Array
+    },
+    receiveTypeOptions: {
+      type: Array
     }
   },
   data() {
@@ -202,12 +205,6 @@ export default {
         {value: 'COMPLETE', label: '执行完成'},
         // {value: 'SUCCESS_ONE_BY_ONE', label: '逐条成功（接口）'},
         // {value: 'FAIL_ONE_BY_ONE', label: '逐条失败（接口）'},
-      ],
-      receiveTypeOptions: [
-        {value: 'EMAIL', label: this.$t('organization.message.mail')},
-        {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
-        {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
     };
   },
