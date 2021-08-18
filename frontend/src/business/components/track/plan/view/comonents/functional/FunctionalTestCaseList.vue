@@ -295,7 +295,7 @@ export default {
       // updata: false,
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       fields: [],
-      fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
+      fieldsWidth: getCustomTableWidth('TEST_PLAN_FUNCTION_TEST_CASE'),
       screenHeight: 'calc(100vh - 275px)',
       tableLabel: [],
       result: {},
