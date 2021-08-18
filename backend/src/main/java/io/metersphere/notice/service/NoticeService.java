@@ -3,11 +3,11 @@ package io.metersphere.notice.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
+import io.metersphere.base.domain.Organization;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.MessageTaskMapper;
-import io.metersphere.base.mapper.UserMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -17,6 +17,7 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.service.ProjectService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -34,7 +35,7 @@ public class NoticeService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
-    private UserMapper userMapper;
+    private ExtProjectMapper extProjectMapper;
 
     public void saveMessageTask(MessageDetail messageDetail) {
         MessageTaskExample example = new MessageTaskExample();
@@ -43,8 +44,7 @@ public class NoticeService {
         if (messageTaskLists.size() > 0) {
             delMessage(messageDetail.getIdentification());
         }
-        SessionUser user = SessionUtils.getUser();
-        String orgId = user.getLastOrganizationId();
+        String orgId = SessionUtils.getCurrentOrganizationId();
         long time = System.currentTimeMillis();
         String identification = messageDetail.getIdentification();
         if (StringUtils.isBlank(identification)) {
@@ -117,8 +117,7 @@ public class NoticeService {
 
     public List<MessageDetail> searchMessageByType(String type) {
         try {
-            SessionUser user = SessionUtils.getUser();
-            String orgId = user.getLastOrganizationId();
+            String orgId = SessionUtils.getCurrentOrganizationId();
             List<MessageDetail> messageDetails = new ArrayList<>();
 
             MessageTaskExample example = new MessageTaskExample();
@@ -150,11 +149,11 @@ public class NoticeService {
         try {
             String orgId = "";
             if (null == SessionUtils.getUser()) {
-                String userId = loadTestReportMapper.selectByPrimaryKey(id).getUserId();
-                orgId = userMapper.selectByPrimaryKey(userId).getLastOrganizationId();
+                String projectId = loadTestReportMapper.selectByPrimaryKey(id).getProjectId();
+                Organization organization = extProjectMapper.getOrganizationByProjectId(projectId);
+                orgId = organization.getId();
             } else {
-                SessionUser user = SessionUtils.getUser();
-                orgId = user.getLastOrganizationId();
+                orgId = SessionUtils.getCurrentOrganizationId();
             }
             List<MessageDetail> messageDetails = new ArrayList<>();
             MessageTaskExample example = new MessageTaskExample();
