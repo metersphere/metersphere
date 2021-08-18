@@ -18,23 +18,25 @@ public class TCPPool {
 
     public static String createTcp(int port){
         String returnString = "";
-        TCPServer tcpServer = null;
-        if(serverSockedMap.containsKey(port)){
-            tcpServer = serverSockedMap.get(port);
-        }else {
-            tcpServer = new TCPServer(port);
-            serverSockedMap.put(port,tcpServer);
-        }
-        try {
-            if(!tcpServer.isSocketOpen()){
-                Thread t = new Thread(tcpServer);
-                t.start();
+        if(port > 0){
+            TCPServer tcpServer = null;
+            if(serverSockedMap.containsKey(port)){
+                tcpServer = serverSockedMap.get(port);
+            }else {
+                tcpServer = new TCPServer(port);
+                serverSockedMap.put(port,tcpServer);
             }
-            returnString = "OK";
-        }catch (Exception e){
-            returnString = e.getMessage();
-            e.printStackTrace();
-            MSException.throwException(e.getMessage());
+            try {
+                if(!tcpServer.isSocketOpen()){
+                    Thread t = new Thread(tcpServer);
+                    t.start();
+                }
+                returnString = "OK";
+            }catch (Exception e){
+                returnString = e.getMessage();
+                e.printStackTrace();
+                MSException.throwException(e.getMessage());
+            }
         }
 
         return returnString;

@@ -14,6 +14,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.CommonConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.ssl.KeyStoreConfig;
 import io.metersphere.api.dto.ssl.KeyStoreFile;
@@ -191,8 +192,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding("UTF-8");
-        sampler.setConnectTimeout(this.getConnectTimeout() == null ? "6000" : this.getConnectTimeout());
-        sampler.setResponseTimeout(this.getResponseTimeout() == null ? "6000" : this.getResponseTimeout());
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
@@ -204,7 +203,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         compatible(config);
 
+        this.initConnectAndResponseTimeout(config);
+        sampler.setConnectTimeout(this.getConnectTimeout() == null ? "60000" : this.getConnectTimeout());
+        sampler.setResponseTimeout(this.getResponseTimeout() == null ? "60000" : this.getResponseTimeout());
+
         HttpConfig httpConfig = getHttpConfig(config);
+
 
         setSamplerPath(config, httpConfig, sampler);
 
@@ -269,6 +273,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
+    }
+
+    private void initConnectAndResponseTimeout(ParameterConfig config) {
+        if (config.isEffective(this.getProjectId())) {
+            String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
+            if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
+                this.setEnvironmentId(useEvnId);
+            }
+            CommonConfig commonConfig  = config.getConfig().get(this.getProjectId()).getCommonConfig();
+            if(commonConfig != null){
+                if(this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(),"60000")){
+                    if(commonConfig.getRequestTimeout() != 0){
+                        this.setConnectTimeout(String.valueOf(commonConfig.getRequestTimeout()));
+                    }
+                }
+                if(this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(),"60000")){
+                    if(commonConfig.getResponseTimeout() != 0){
+                        this.setResponseTimeout(String.valueOf(commonConfig.getResponseTimeout()));
+                    }
+                }
+            }
+        }
     }
 
     private EnvironmentConfig getEnvironmentConfig(ParameterConfig config) {

@@ -35,6 +35,7 @@ import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,6 +89,9 @@ public class ProjectService {
     private ExtUserMapper extUserMapper;
     @Resource
     private ScheduleService scheduleService;
+
+    @Value("${tcp.mock.port}")
+    private String tcpMockPorts;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -273,6 +277,10 @@ public class ProjectService {
             lastTcpNum = oldData.getMockTcpPort().intValue();
         }
 
+        if(project.getMockTcpPort().intValue() > 0){
+            this.checkMockTcpPort(project.getMockTcpPort().intValue());
+        }
+
         this.checkProjectTcpPort(project);
 
         project.setCreateTime(null);
@@ -291,6 +299,39 @@ public class ProjectService {
             this.reloadMockTcp(project, lastTcpNum);
         } else {
             this.closeMockTcp(project);
+        }
+    }
+
+    private void checkMockTcpPort(int port) {
+        if(StringUtils.isNotEmpty(this.tcpMockPorts)){
+            try {
+                if(this.tcpMockPorts.contains("-")){
+                    String [] tcpMockPortArr = this.tcpMockPorts.split("-");
+                    int num1 = Integer.parseInt(tcpMockPortArr[0]);
+                    int num2 = Integer.parseInt(tcpMockPortArr[1]);
+
+                    int startNum = num1 > num2 ? num2 : num1;
+                    int endNum = num1 < num2 ? num2 : num1;
+
+                    if(port < startNum || port > endNum){
+                        MSException.throwException("Tcp port is not in ["+this.tcpMockPorts+"]");
+                    }
+                }else {
+                    int tcpPortConfigNum = Integer.parseInt(this.tcpMockPorts);
+                    if(port != tcpPortConfigNum){
+                        MSException.throwException("Tcp port is not equals ["+this.tcpMockPorts+"]");
+                    }
+                }
+            }catch (Exception e){
+                String errorMsg = e.getMessage();
+                if(!errorMsg.startsWith("Tcp")){
+                    MSException.throwException("Tcp port config is error!");
+                }else {
+                    MSException.throwException(errorMsg);
+                }
+            }
+        }else {
+            MSException.throwException("Tcp port config is error!");
         }
     }
 
