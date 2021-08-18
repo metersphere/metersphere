@@ -215,7 +215,7 @@ export default {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
         this.reviewTask = response.data;
         // 上报通知数
-        this.$emit("noticeSize", {taskType: 'track', size: this.reviewTask.length});
+        this.$emit("noticeSize", {module: 'track', data: this.reviewTask, taskType: TASK_TYPE});
         this.reviewTask.forEach(planTask => {
           this.handleReviewReceivers(planTask);
         });
