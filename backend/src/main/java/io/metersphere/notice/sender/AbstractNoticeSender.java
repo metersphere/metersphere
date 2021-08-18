@@ -24,14 +24,14 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private UserService userService;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
+
+        // 处理 userIds 中包含的特殊值
+        handleRealUserIds(messageDetail, noticeModel);
+
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
             return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
         }
-        // 处理 userIds 中包含的特殊值
-        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent());
-        messageDetail.setUserIds(realUserIds);
-
         // 处理 WeCom Ding context
         String context = "";
         switch (messageDetail.getEvent()) {
@@ -54,13 +54,13 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected String getHtmlContext(MessageDetail messageDetail, NoticeModel noticeModel) {
+        // 处理 userIds 中包含的特殊值
+        handleRealUserIds(messageDetail, noticeModel);
+
         // 如果配置了模版就直接使用模版
         if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
             return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
         }
-        // 处理 userIds 中包含的特殊值
-        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent());
-        messageDetail.setUserIds(realUserIds);
 
         // 处理 mail context
         String context = "";
@@ -96,6 +96,14 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return getContent(context, noticeModel.getParamMap());
     }
 
+    private void handleRealUserIds(MessageDetail messageDetail, NoticeModel noticeModel) {
+        List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel, messageDetail.getEvent());
+        // 排除自己操作的
+        String operator = noticeModel.getOperator();
+        realUserIds.remove(operator);
+        messageDetail.setUserIds(realUserIds);
+    }
+
     protected String getContent(String template, Map<String, Object> context) {
         if (MapUtils.isNotEmpty(context)) {
             for (String k : context.keySet()) {
@@ -110,10 +118,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected List<String> getUserPhones(NoticeModel noticeModel, List<String> userIds) {
-        // 排除自己操作的
-        String operator = noticeModel.getOperator();
-        userIds.remove(operator);
-
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getPhone()));
@@ -122,10 +126,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected List<String> getUserEmails(NoticeModel noticeModel, List<String> userIds) {
-        // 排除自己操作的
-        String operator = noticeModel.getOperator();
-        userIds.remove(operator);
-
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getEmail()));
