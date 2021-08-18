@@ -56,6 +56,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @Data
@@ -233,7 +234,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 setHeader(httpSamplerTree, httpConfig.getHeaders());
             }
         }
-
+        // 场景头
+        if (config != null && CollectionUtils.isNotEmpty(config.getHeaders())) {
+            setHeader(httpSamplerTree, config.getHeaders());
+        }
         // 环境通用请求头
         Arguments arguments = getConfigArguments(config);
         if (arguments != null) {
@@ -254,10 +258,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                if(el.getEnvironmentId() == null){
-                    if(this.getEnvironmentId() == null){
+                if (el.getEnvironmentId() == null) {
+                    if (this.getEnvironmentId() == null) {
                         el.setEnvironmentId(useEnvironment);
-                    }else{
+                    } else {
                         el.setEnvironmentId(this.getEnvironmentId());
                     }
                 }
@@ -604,16 +608,25 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     public void setHeader(HashTree tree, List<KeyValue> headers) {
+        // 合并header
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
         headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+        boolean isAdd = true;
+        for (Object key : tree.keySet()) {
+            if (key instanceof HeaderManager) {
+                headerManager = (HeaderManager) key;
+                isAdd = false;
+            }
+        }
         //  header 也支持 mock 参数
-        headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())))
-        );
-        if (headerManager.getHeaders().size() > 0) {
+        List<KeyValue> keyValues = headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).collect(Collectors.toList());
+        for (KeyValue keyValue : keyValues) {
+            headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
+        }
+        if (headerManager.getHeaders().size() > 0 && isAdd) {
             tree.add(headerManager);
         }
     }
