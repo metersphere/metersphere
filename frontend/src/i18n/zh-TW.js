@@ -1004,6 +1004,8 @@ export default {
       database_config: "數據庫配置",
       tcp_config: "TCP配置",
       import: "導入環境",
+      request_timeout: "連接超時",
+      response_timeout: "響應超市",
     },
     scenario: {
       scenario: "場景",

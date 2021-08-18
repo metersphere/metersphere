@@ -998,6 +998,8 @@ export default {
       database_config: "Database Config",
       tcp_config: "TCP Config",
       import: "Import Environment",
+      request_timeout: "Request Timeout",
+      response_timeout: "Response Timeout",
     },
     scenario: {
       scenario: "Scenario",

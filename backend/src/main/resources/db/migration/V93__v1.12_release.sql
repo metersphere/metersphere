@@ -66,3 +66,11 @@ CREATE TABLE IF NOT EXISTS `notification`
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE utf8mb4_general_ci;
+
+-- 项目表增加tcp相关的字段
+ALTER TABLE `project` ADD `mock_tcp_port`  int(11)  NULL;
+ALTER TABLE `project` ADD `is_mock_tcp_open`  tinyint(1) NOT NULL DEFAULT 0;
+
+-- 场景表增加执行次数字段
+ALTER TABLE `api_scenario` ADD `execute_times`  int(11)  NULL;
+
