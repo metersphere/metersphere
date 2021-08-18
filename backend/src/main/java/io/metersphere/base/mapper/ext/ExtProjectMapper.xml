@@ -151,4 +151,11 @@
         where organization_id = #{orgId})) as a)
     </update>
 
+    <select id="getOrganizationByProjectId">
+        SELECT organization.*
+        FROM organization
+                     JOIN workspace ON organization.id = organization_id
+                     JOIN project ON workspace.id = workspace_id
+        WHERE project.id = #{projectId, jdbcType=VARCHAR}
+    </select>
 </mapper>
