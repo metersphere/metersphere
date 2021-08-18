@@ -160,6 +160,9 @@ export default {
   props: {
     receiverOptions: {
       type: Array
+    },
+    receiveTypeOptions: {
+      type: Array
     }
   },
   data() {
@@ -190,12 +193,6 @@ export default {
       }],
       eventOptions: [
         {value: 'CLOSE_SCHEDULE', label: '关闭定时任务'},
-      ],
-      receiveTypeOptions: [
-        {value: 'EMAIL', label: this.$t('organization.message.mail')},
-        {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
-        {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
     };
   },

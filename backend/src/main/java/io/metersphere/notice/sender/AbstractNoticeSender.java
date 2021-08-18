@@ -110,10 +110,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected List<String> getUserPhones(NoticeModel noticeModel, List<String> userIds) {
-        // 排除自己操作的
-        String operator = noticeModel.getOperator();
-        userIds.remove(operator);
-
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getPhone()));
@@ -122,10 +118,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected List<String> getUserEmails(NoticeModel noticeModel, List<String> userIds) {
-        // 排除自己操作的
-        String operator = noticeModel.getOperator();
-        userIds.remove(operator);
-
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getEmail()));
