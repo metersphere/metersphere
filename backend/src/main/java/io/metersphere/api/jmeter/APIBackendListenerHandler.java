@@ -5,16 +5,16 @@ import io.metersphere.api.dto.RunningParamKeys;
 import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.api.service.MsResultService;
 import io.metersphere.api.service.TestResultService;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import javax.annotation.Resource;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 获取结果和数据库操作分离
@@ -24,43 +24,14 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class APIBackendListenerHandler {
 
-    private final List<SampleResult> queue = new ArrayList<>();
-
+    @Resource
     private TestResultService testResultService;
-
+    @Resource
     private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
-
+    @Resource
     private MsResultService resultService;
 
-    public String runMode = ApiRunMode.RUN.name();
-
-    // 测试ID
-    private String testId;
-
-    private String debugReportId;
-
-    public void handleSetupTest(BackendListenerContext context) throws Exception {
-        setParam(context);
-        testResultService = CommonBeanFactory.getBean(TestResultService.class);
-        if (testResultService == null) {
-            LogUtil.error("testResultService is required");
-        }
-        resultService = CommonBeanFactory.getBean(MsResultService.class);
-        if (resultService == null) {
-            LogUtil.error("MsResultService is required");
-        }
-
-        apiEnvironmentRunningParamService = CommonBeanFactory.getBean(ApiEnvironmentRunningParamService.class);
-        if (apiEnvironmentRunningParamService == null) {
-            LogUtil.error("apiEnvironmentRunningParamService is required");
-        }
-    }
-
-    public void handleSampleResults(List<SampleResult> sampleResults) {
-        queue.addAll(sampleResults);
-    }
-
-    public void handleTeardownTest() throws Exception {
+    public void handleTeardownTest(List<SampleResult> queue, String runMode, String testId, String debugReportId) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
         MessageCache.runningEngine.remove(testId);
@@ -80,19 +51,10 @@ public class APIBackendListenerHandler {
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         testResult.setConsole(resultService.getJmeterLogger(testId, true));
-        testResultService.saveResult(testResult, this.runMode, this.debugReportId, this.testId);
+        testResultService.saveResult(testResult, runMode, debugReportId, testId);
         // 清除已经中断的过程数据
         if (!MessageCache.reportCache.containsKey(testId) && resultService.getProcessCache().containsKey(testId)) {
             resultService.getProcessCache().remove(testId);
-        }
-    }
-
-    private void setParam(BackendListenerContext context) {
-        this.testId = context.getParameter(APIBackendListenerClient.TEST_ID);
-        this.runMode = context.getParameter("runMode");
-        this.debugReportId = context.getParameter("debugReportId");
-        if (StringUtils.isBlank(this.runMode)) {
-            this.runMode = ApiRunMode.RUN.name();
         }
     }
 }
