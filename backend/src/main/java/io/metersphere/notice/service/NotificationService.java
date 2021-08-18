@@ -48,7 +48,10 @@ public class NotificationService {
     }
 
     public int countNotification(Notification notification) {
-        notification.setReceiver(SessionUtils.getUser().getId());
+        if (StringUtils.isBlank(notification.getReceiver())) {
+            notification.setReceiver(SessionUtils.getUser().getId());
+        }
+        notification.setStatus(NotificationConstants.Status.UNREAD.name());
         return extNotificationMapper.countNotification(notification);
     }
 
@@ -65,7 +68,13 @@ public class NotificationService {
         if (StringUtils.isNotBlank(notification.getTitle())) {
             search = "%" + notification.getTitle() + "%";
         }
-        return extNotificationMapper.listNotification(search, SessionUtils.getUser().getId());
+        String receiver;
+        if (StringUtils.isBlank(notification.getReceiver())) {
+            receiver = SessionUtils.getUser().getId();
+        } else {
+            receiver = notification.getReceiver();
+        }
+        return extNotificationMapper.listNotification(search, receiver);
     }
 
     public List<Notification> listReadNotification(Notification notification) {
