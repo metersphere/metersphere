@@ -82,6 +82,13 @@ import PerformanceReportNotification
   from "@/business/components/settings/organization/components/performance/PerformanceReportNotification";
 import ApiHomeNotification from "@/business/components/settings/organization/components/api/ApiHomeNotification";
 
+let taskData = {
+  jenkins: [],
+  api: [],
+  performance: [],
+  track: [],
+};
+
 export default {
   name: "TaskNotification",
   components: {
@@ -143,18 +150,26 @@ export default {
       });
     },
     getNoticeSize(config) {
-      switch (config.taskType) {
+      switch (config.module) {
         case 'jenkins':
-          this.jenkinsNoticeSize += config.size;
+          taskData.jenkins = taskData.jenkins.filter(t => t.taskType !== config.taskType);
+          taskData.jenkins = taskData.jenkins.concat(config.data);
+          this.jenkinsNoticeSize = taskData.jenkins.length;
           break;
         case 'performance':
-          this.performanceNoticeSize += config.size;
+          taskData.performance = taskData.performance.filter(t => t.taskType !== config.taskType);
+          taskData.performance = taskData.performance.concat(config.data);
+          this.performanceNoticeSize = taskData.performance.length;
           break;
         case 'api':
-          this.apiNoticeSize += config.size;
+          taskData.api = taskData.api.filter(t => t.taskType !== config.taskType);
+          taskData.api = taskData.api.concat(config.data);
+          this.apiNoticeSize = taskData.api.length;
           break;
         case 'track':
-          this.trackNoticeSize += config.size;
+          taskData.track = taskData.track.filter(t => t.taskType !== config.taskType);
+          taskData.track = taskData.track.concat(config.data);
+          this.trackNoticeSize = taskData.track.length;
           break;
         default:
           break;

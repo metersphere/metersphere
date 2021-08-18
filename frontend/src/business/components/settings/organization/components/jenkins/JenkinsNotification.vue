@@ -232,7 +232,7 @@ export default {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
         this.jenkinsTask = response.data;
         // 上报通知数
-        this.$emit("noticeSize", {taskType: 'jenkins', size: this.jenkinsTask.length});
+        this.$emit("noticeSize", {module: 'jenkins', data: this.jenkinsTask, taskType:TASK_TYPE});
       });
     },
     handleEdit(index, data) {
