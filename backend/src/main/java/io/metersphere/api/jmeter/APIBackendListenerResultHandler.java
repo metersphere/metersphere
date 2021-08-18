@@ -24,13 +24,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.samplers.SampleResult;
-import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -38,122 +36,39 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class APIBackendListenerResultHandler {
 
-
-    public final static String TEST_ID = "ms.test.id";
-
-    public final static String TEST_REPORT_ID = "ms.test.report.name";
+    @Resource
+    private APITestService apiTestService;
+    @Resource
+    private APIReportService apiReportService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiDefinitionExecResultService apiDefinitionExecResultService;
+    @Resource
+    private TestPlanReportService testPlanReportService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
 
     private final static String THREAD_SPLIT = " ";
 
     private final static String ID_SPLIT = "-";
 
-    private final List<SampleResult> queue = new ArrayList<>();
-
-    private APITestService apiTestService;
-
-    private APIReportService apiReportService;
-
-    private ApiDefinitionService apiDefinitionService;
-
-    private ApiDefinitionExecResultService apiDefinitionExecResultService;
-
-    private TestPlanReportService testPlanReportService;
-
-    private ApiScenarioReportService apiScenarioReportService;
-
-    private ApiTestCaseService apiTestCaseService;
-
-    private ApiAutomationService apiAutomationService;
-
-    private TestPlanApiCaseService testPlanApiCaseService;
-
-    private ApiEnvironmentRunningParamService apiEnvironmentRunningParamService;
-
-    private TestPlanTestCaseService testPlanTestCaseService;
-
-    public String runMode = ApiRunMode.RUN.name();
-
-    // 测试ID
-    private String testId;
-
-    private String debugReportId;
-    // 只有合并报告是这个有值
-    private String setReportId;
-
-    //获得控制台内容
-    private PrintStream oldPrintStream = System.out;
-    private ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-    private void setConsole() {
-        System.setOut(new PrintStream(bos)); //设置新的out
-    }
-
-    private String getConsole() {
-        System.setOut(oldPrintStream);
-        return bos.toString();
-    }
-
-    public void handleSetupTest(BackendListenerContext context) throws Exception {
-        setConsole();
-        setParam(context);
-        apiTestService = CommonBeanFactory.getBean(APITestService.class);
-        if (apiTestService == null) {
-            LogUtil.error("apiTestService is required");
-        }
-
-        apiReportService = CommonBeanFactory.getBean(APIReportService.class);
-        if (apiReportService == null) {
-            LogUtil.error("apiReportService is required");
-        }
-        apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-        if (apiDefinitionService == null) {
-            LogUtil.error("apiDefinitionService is required");
-        }
-        apiDefinitionExecResultService = CommonBeanFactory.getBean(ApiDefinitionExecResultService.class);
-        if (apiDefinitionExecResultService == null) {
-            LogUtil.error("apiDefinitionExecResultService is required");
-        }
-        testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        if (testPlanReportService == null) {
-            LogUtil.error("testPlanReportService is required");
-        }
-
-        apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-        if (apiScenarioReportService == null) {
-            LogUtil.error("apiScenarioReportService is required");
-        }
-        apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-        if (apiTestCaseService == null) {
-            LogUtil.error("apiTestCaseService is required");
-        }
-        apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
-        if (apiAutomationService == null) {
-            LogUtil.error("apiAutomationService is required");
-        }
-        testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
-        if (testPlanApiCaseService == null) {
-            LogUtil.error("testPlanApiCaseService is required");
-        }
-        apiEnvironmentRunningParamService = CommonBeanFactory.getBean(ApiEnvironmentRunningParamService.class);
-        if(apiEnvironmentRunningParamService == null){
-            LogUtil.error("apiEnvironmentRunningParamService is required");
-        }
-        testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
-        if(testPlanTestCaseService == null){
-            LogUtil.error("testPlanTestCaseService is required");
-        }
-    }
-
-
-    public void handleSampleResults(List<SampleResult> sampleResults, BackendListenerContext context) {
-        queue.addAll(sampleResults);
-    }
-
-    public void handleTeardownTest(BackendListenerContext context) throws Exception {
+    public void handleTeardownTest(List<SampleResult> queue, String runMode,
+                                   String testId, String debugReportId, String setReportId, String console) throws Exception {
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
-        testResult.setSetReportId(this.setReportId);
-        testResult.setConsole(getConsole());
+        testResult.setSetReportId(setReportId);
+        testResult.setConsole(console);
         testResult.setTotal(0);
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
@@ -207,16 +122,16 @@ public class APIBackendListenerResultHandler {
         String reportUrl = null;
         String planScenarioId = null;
         // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
-        if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
+        if (StringUtils.equals(runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
             apiReportService.complete(testResult, report);
-        } else if (StringUtils.equals(this.runMode, ApiRunMode.DEFINITION.name())) {
+        } else if (StringUtils.equals(runMode, ApiRunMode.DEFINITION.name())) {
             // 调试操作，不需要存储结果
             apiDefinitionService.addResult(testResult);
             if (StringUtils.isBlank(debugReportId)) {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
             }
-        } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
+        } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
@@ -245,11 +160,11 @@ public class APIBackendListenerResultHandler {
             reportTask.setExecutionTime(executionTime);
             reportTask.setExecutionEnvironment(name);
             //用例，定时，jenkins
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+        } else if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-            if (StringUtils.equals(this.runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+            if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
                 apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
@@ -257,7 +172,7 @@ public class APIBackendListenerResultHandler {
                     testPlanReportService.checkTestPlanStatus(testPlanReportId);
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
-            } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
+            } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
                 apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.JENKINS_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
@@ -268,10 +183,10 @@ public class APIBackendListenerResultHandler {
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+        } else if (StringUtils.equalsAny(runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(), ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
-            ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
+            ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, runMode);
             //环境
             ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
             String name = "";
@@ -319,7 +234,7 @@ public class APIBackendListenerResultHandler {
         }
         queue.clear();
 
-        updateTestCaseStates(testResult, planScenarioId);
+        updateTestCaseStates(testResult, planScenarioId, runMode);
 
         List<String> ids = testPlanTestCaseService.getTestPlanTestCaseIds(testResult.getTestId());
         if (ids.size() > 0) {
@@ -345,14 +260,14 @@ public class APIBackendListenerResultHandler {
      * 更新测试计划关联接口测试的功能用例的状态
      * @param testResult
      */
-    private void updateTestCaseStates(TestResult testResult, String testPlanScenarioId) {
+    private void updateTestCaseStates(TestResult testResult, String testPlanScenarioId, String runMode) {
         try {
-            if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
+            if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
                     ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                 testResult.getScenarios().forEach(scenarioResult -> {
                     if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
                         scenarioResult.getRequestResults().forEach(item -> {
-                            if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
+                            if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(),
                                     ApiRunMode.JENKINS_API_PLAN.name())) {
                                 TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(item.getName());
                                 ApiTestCaseWithBLOBs apiTestCase = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
@@ -510,16 +425,6 @@ public class APIBackendListenerResultHandler {
                 }
             }
             return "Request";
-        }
-    }
-
-    private void setParam(BackendListenerContext context) {
-        this.testId = context.getParameter(TEST_ID);
-        this.setReportId = context.getParameter(TEST_REPORT_ID);
-        this.runMode = context.getParameter("runMode");
-        this.debugReportId = context.getParameter("debugReportId");
-        if (StringUtils.isBlank(this.runMode)) {
-            this.runMode = ApiRunMode.RUN.name();
         }
     }
 
