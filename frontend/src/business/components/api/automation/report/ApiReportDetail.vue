@@ -107,9 +107,11 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              resMap.set(req.id + req.name, req);
-              req.name = item.name + "^@~@^" + req.name + "UUID=" + getUUID();
-              array.push(req);
+              if("RunningDebugSampler" !== req.name){
+                resMap.set(req.id + req.name, req);
+                req.name = item.name + "^@~@^" + req.name + "UUID=" + getUUID();
+                array.push(req);
+              }
             })
           }
         })
