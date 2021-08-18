@@ -17,7 +17,7 @@
         <ms-language-switch :color="color"/>
         <ms-header-org-ws :color="color"/>
         <ms-task-center :color="color"/>
-        <ms-notice-center :color="color"/>
+        <ms-notification :color="color"/>
       </el-col>
     </el-row>
 
@@ -37,7 +37,7 @@ import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
 import MsTaskCenter from "@/business/components/task/TaskCenter";
-import MsNoticeCenter from "@/business/components/notice/NoticeCenter";
+import MsNotification from "@/business/components/notice/Notification";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
@@ -183,7 +183,7 @@ export default {
     }
   },
   components: {
-    MsNoticeCenter,
+    MsNotification,
     MsTaskCenter,
     MsLanguageSwitch,
     MsUser,

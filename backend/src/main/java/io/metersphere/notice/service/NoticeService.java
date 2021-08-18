@@ -17,7 +17,6 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.StatusReference;
 import io.metersphere.log.vo.system.SystemReference;
 import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.service.ProjectService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
