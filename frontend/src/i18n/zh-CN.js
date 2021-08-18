@@ -1002,6 +1002,8 @@ export default {
       database_config: "数据库配置",
       tcp_config: "TCP配置",
       import: "导入环境",
+      request_timeout: "链接超时",
+      response_timeout: "响应超时",
     },
     scenario: {
       scenario: "场景",
