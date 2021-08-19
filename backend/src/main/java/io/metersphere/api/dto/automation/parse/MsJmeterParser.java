@@ -333,6 +333,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         msTCPSampler.setRequest(tcpSampler.getRequestData());
         msTCPSampler.setUsername(tcpSampler.getProperty(ConfigTestElement.USERNAME).getStringValue());
         msTCPSampler.setPassword(tcpSampler.getProperty(ConfigTestElement.PASSWORD).getStringValue());
+        msTCPSampler.setClassname(tcpSampler.getClassname());
     }
 
     private void convertDubboSample(MsDubboSampler elementNode, DubboSample sampler) {
