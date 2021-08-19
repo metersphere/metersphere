@@ -185,7 +185,6 @@
         this.currentModule = module;
         this.visible = true;
         listenGoBack(this.close);
-
       },
       upload(file) {
         this.formData.file = file.file;
@@ -255,7 +254,8 @@
       close() {
         this.formData = {
           file: undefined,
-          swaggerUrl: ''
+          swaggerUrl: '',
+          modeId: this.formData.modeId,
         };
         this.fileList = [];
         removeGoBackListener(this.close);
