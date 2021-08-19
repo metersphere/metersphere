@@ -179,7 +179,7 @@ export default {
     selectNodeIds() {
       this.activeName = "default";
     },
-    activeName(){
+    activeName() {
     }
   },
   methods: {
@@ -195,10 +195,9 @@ export default {
         let selectParamArr = redirectParam.split("edit:");
         if (selectParamArr.length == 2) {
           let scenarioId = selectParamArr[1];
-          let projectId = this.projectId;
           //查找单条数据，跳转修改页面
           let url = "/api/automation/list/" + 1 + "/" + 1;
-          this.$post(url, {id: scenarioId, projectId: projectId}, response => {
+          this.$post(url, {id: scenarioId}, response => {
             let data = response.data;
             if (data != null) {
               //如果树未加载
@@ -209,7 +208,6 @@ export default {
               if (row.tags && row.tags.length > 0) {
                 row.tags = JSON.parse(row.tags);
               }
-
               this.editScenario(row);
             }
           });
@@ -246,7 +244,7 @@ export default {
     addTab(tab) {
       if (tab.name === 'default') {
         this.$refs.apiScenarioList.search();
-      } else if(tab.name === 'trash'){
+      } else if (tab.name === 'trash') {
         this.$refs.apiTrashScenarioList.search();
       }
       if (!this.projectId) {
@@ -348,14 +346,14 @@ export default {
     saveScenario(data) {
       this.setTabLabel(data);
       this.$refs.apiScenarioList.search(data);
-      if(this.$refs.apiTrashScenarioList){
+      if (this.$refs.apiTrashScenarioList) {
         this.$refs.apiTrashScenarioList.search(data);
       }
     },
     refresh(data) {
       this.setTabTitle(data);
       this.$refs.apiScenarioList.search(data);
-      if(this.$refs.apiTrashScenarioList){
+      if (this.$refs.apiTrashScenarioList) {
         this.$refs.apiTrashScenarioList.search(data);
       }
       this.$refs.nodeTree.list();
@@ -366,7 +364,7 @@ export default {
     refreshAll() {
       this.$refs.nodeTree.list();
       this.$refs.apiScenarioList.search();
-      if(this.$refs.apiTrashScenarioList){
+      if (this.$refs.apiTrashScenarioList) {
         this.$refs.apiTrashScenarioList.search();
       }
     },
@@ -383,7 +381,7 @@ export default {
       const index = this.tabs.find(p => p.currentScenario.id === row.id);
       if (!index) {
         this.addTab({name: 'edit', currentScenario: row});
-      }else{
+      } else {
         this.activeName = index.name;
       }
     },
@@ -405,9 +403,9 @@ export default {
       this.activeName = "default";
       this.initApiTableOpretion = "enableTrash";
       this.trashEnable = data;
-      if(data){
+      if (data) {
         this.activeName = "trash";
-      }else {
+      } else {
         this.activeName = "default";
       }
 
