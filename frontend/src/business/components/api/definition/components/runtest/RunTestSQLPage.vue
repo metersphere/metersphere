@@ -163,9 +163,7 @@ export default {
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.createCase = getUUID();
-        this.$refs.caseList.open();
-        this.loaded = false;
+        this.$store.state.currentApiCase = {case: getUUID(), api: this.api};
       },
       saveAsApi() {
         let data = {};
