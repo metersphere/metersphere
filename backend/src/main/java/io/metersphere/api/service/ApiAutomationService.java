@@ -33,6 +33,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
@@ -2471,5 +2472,31 @@ public class ApiAutomationService {
             return apiScenarioMapper.selectByExample(example);
         }
         return new ArrayList<>();
+    }
+
+    public void initExecuteTimes() {
+        List<String> apiScenarioIds = extApiScenarioMapper.selectIdsByExecuteTimeIsNull();
+        Map<String,Long> scenarioIdMap = new HashMap<>();
+        List<ApiReportCountDTO> reportCount = apiScenarioReportService.countByApiScenarioId();
+        for (ApiReportCountDTO dto : reportCount) {
+            scenarioIdMap.put(dto.getId(),dto.getCountNum());
+        }
+        for (String id:apiScenarioIds) {
+            int count = 0;
+            if(scenarioIdMap.containsKey(id)){
+                Long countNum = scenarioIdMap.get(id);
+                if(countNum != null){
+                    count = countNum.intValue();
+                }
+            }
+            ApiScenarioWithBLOBs apiScenario = new ApiScenarioWithBLOBs();
+            apiScenario.setId(id);
+            apiScenario.setExecuteTimes(count);
+            apiScenarioMapper.updateByPrimaryKeySelective(apiScenario);
+        }
+    }
+
+    public long countExecuteTimesByProjectID(String projectId) {
+        return extApiScenarioMapper.countExeciteTimesByProjectID(projectId);
     }
 }

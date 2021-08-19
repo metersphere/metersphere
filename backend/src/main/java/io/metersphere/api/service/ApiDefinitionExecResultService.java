@@ -168,7 +168,7 @@ public class ApiDefinitionExecResultService {
      * @param result
      * @param type
      */
-    public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type, String trigeMode) {
+    public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type) {
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER.");
         String saveResultType = type;
         if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {

@@ -56,10 +56,17 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initPythonEnv();
 
-        projectService.initMockTcpService();
+        try {
+            //检查状态为开启的TCP-Mock服务端口
+            projectService.initMockTcpService();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
 
         initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
         initOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
+        initOperate(apiAutomationService::initExecuteTimes, "init.scenario.executeTimes");
         initOperate(issuesService::syncThirdPartyIssues, "init.issue");
         initOperate(issuesService::issuesCount, "init.issueCount");
         initOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");

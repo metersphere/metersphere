@@ -279,4 +279,10 @@
             WHERE execute_type in ("Completed","Debug")  and scenario_id=#{scenarioId} and id != #{nowId} ORDER BY create_time desc LIMIT 5,1
     </select>
 
+    <select id="countByApiScenarioId" resultType="io.metersphere.dto.ApiReportCountDTO">
+        SELECT scenario_id AS id,count(id) AS countNum
+        FROM api_scenario_report
+        WHERE scenario_id is not null  GROUP BY scenario_id;
+    </select>
+
 </mapper>
