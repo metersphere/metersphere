@@ -342,7 +342,7 @@ public class ApiTestEnvironmentService {
         tcpConfigObj.put("closeConnection", false);
         if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
             tcpConfigObj.put("server", tcpSocket);
-            tcpConfigObj.put("port", 12138);
+            tcpConfigObj.put("port", project.getMockTcpPort().intValue());
         }
 
         JSONObject object = new JSONObject();

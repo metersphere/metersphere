@@ -302,6 +302,34 @@ public class ProjectService {
         }
     }
 
+    private boolean isMockTcpPortIsInRange(int port){
+        boolean inRange = false;
+        if(StringUtils.isNotEmpty(this.tcpMockPorts)){
+            try {
+                if(this.tcpMockPorts.contains("-")){
+                    String [] tcpMockPortArr = this.tcpMockPorts.split("-");
+                    int num1 = Integer.parseInt(tcpMockPortArr[0]);
+                    int num2 = Integer.parseInt(tcpMockPortArr[1]);
+
+                    int startNum = num1 > num2 ? num2 : num1;
+                    int endNum = num1 < num2 ? num2 : num1;
+
+                    if(port < startNum || port > endNum){
+                        inRange = false;
+                    }else {
+                        inRange = true;
+                    }
+                }else {
+                    int tcpPortConfigNum = Integer.parseInt(this.tcpMockPorts);
+                    if(port == tcpPortConfigNum){
+                        inRange = true;
+                    }
+                }
+            }catch (Exception e){
+            }
+        }
+        return inRange;
+    }
     private void checkMockTcpPort(int port) {
         if(StringUtils.isNotEmpty(this.tcpMockPorts)){
             try {
@@ -338,8 +366,9 @@ public class ProjectService {
     private void checkProjectTcpPort(Project project) {
         //判断端口是否重复
         if (project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0) {
+            String projectId = StringUtils.isEmpty(project.getId())?"":project.getId();
             ProjectExample example = new ProjectExample();
-            example.createCriteria().andMockTcpPortEqualTo(project.getMockTcpPort());
+            example.createCriteria().andMockTcpPortEqualTo(project.getMockTcpPort()).andIdNotEqualTo(projectId);
             long countResult = projectMapper.countByExample(example);
             if (countResult > 0) {
                 MSException.throwException("TCP Port is not unique！");
@@ -609,12 +638,71 @@ public class ProjectService {
         example.createCriteria().andIsMockTcpOpenEqualTo(statusBoolean).andMockTcpPortNotEqualTo(portInteger);
         List<Project> projectList = projectMapper.selectByExample(example);
 
+        List<Integer> opendPortList = new ArrayList<>();
         for (Project p : projectList) {
-            this.openMockTcp(p);
+            boolean isPortInRange = this.isMockTcpPortIsInRange(p.getMockTcpPort());
+            if(isPortInRange && !opendPortList.contains(p.getMockTcpPort())){
+                opendPortList.add(p.getMockTcpPort());
+                this.openMockTcp(p);
+            }else {
+                if(opendPortList.contains(p.getMockTcpPort())){
+                    p.setMockTcpPort(0);
+                }
+                p.setIsMockTcpOpen(false);
+                projectMapper.updateByPrimaryKeySelective(p);
+            }
         }
     }
 
     public Organization getOrganizationByProjectId(String projectId) {
         return extProjectMapper.getOrganizationByProjectId(projectId);
+    }
+
+    public String genTcpMockPort(String id) {
+        int returnPort = 0;
+        Project project = projectMapper.selectByPrimaryKey(id);
+        if(project != null && project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0 ){
+            if(this.isMockTcpPortIsInRange(project.getMockTcpPort().intValue())){
+                returnPort = project.getMockTcpPort();
+            }
+        }else {
+            if(StringUtils.isNotEmpty(this.tcpMockPorts)){
+                List<Integer> portInRange = new ArrayList<>();
+                List<Integer> tcpPortInDataBase = extProjectMapper.selectTcpPorts();
+                for (Integer port :tcpPortInDataBase) {
+                    if(this.isMockTcpPortIsInRange(port)){
+                        portInRange.add(port);
+                    }
+                }
+
+                try {
+                    if(this.tcpMockPorts.contains("-")){
+                        String [] tcpMockPortArr = this.tcpMockPorts.split("-");
+                        int num1 = Integer.parseInt(tcpMockPortArr[0]);
+                        int num2 = Integer.parseInt(tcpMockPortArr[1]);
+
+                        int startNum = num1 > num2 ? num2 : num1;
+                        int endNum = num1 < num2 ? num2 : num1;
+
+                        for (int i = startNum; i <= endNum ; i++) {
+                            if(!portInRange.contains(i)){
+                                returnPort = i;
+                                break;
+                            }
+                        }
+                    }else {
+                        int tcpPortConfigNum = Integer.parseInt(this.tcpMockPorts);
+                        if(!portInRange.contains(tcpPortConfigNum)){
+                            returnPort = tcpPortConfigNum;
+                        }
+                    }
+                }catch (Exception e){
+                }
+            }
+        }
+        if(returnPort == 0  ){
+            MSException.throwException("无可用TCP端口");
+        }
+        return String.valueOf(returnPort);
     }
 }
