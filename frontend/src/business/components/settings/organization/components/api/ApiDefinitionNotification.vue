@@ -206,7 +206,7 @@ export default {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
         this.defectTask = response.data;
         // 上报通知数
-        this.$emit("noticeSize", {module: 'api', data: this.defectTask, taskType:TASK_TYPE});
+        this.$emit("noticeSize", {module: 'api', data: this.defectTask, taskType: TASK_TYPE});
         this.defectTask.forEach(planTask => {
           this.handleReceivers(planTask);
         });
@@ -291,15 +291,17 @@ export default {
     handleReceivers(row) {
       let receiverOptions = JSON.parse(JSON.stringify(this.receiverOptions));
       let i = row.userIds.indexOf('FOLLOW_PEOPLE');
+      let i2 = row.userIds.indexOf('CREATOR');
+
       switch (row.event) {
         case "UPDATE":
         case "CASE_UPDATE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (row.userIds.indexOf('CREATOR') < 0) {
+          if (i2 < 0) {
             row.userIds.unshift('CREATOR');
           }
-          if (row.userIds.indexOf('FOLLOW_PEOPLE') < 0) {
+          if (i < 0) {
             row.userIds.unshift('FOLLOW_PEOPLE');
           }
           break;
@@ -307,7 +309,7 @@ export default {
         case "CASE_DELETE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (row.userIds.indexOf('CREATOR') < 0) {
+          if (i2 < 0) {
             row.userIds.unshift('CREATOR');
           }
           if (i > -1) {

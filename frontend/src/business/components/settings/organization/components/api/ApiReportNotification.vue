@@ -285,11 +285,15 @@ export default {
     },
     handleReceivers(row) {
       let receiverOptions = JSON.parse(JSON.stringify(this.receiverOptions));
+      let i2 = row.userIds.indexOf('CREATOR');
+
       switch (row.event) {
         case "DELETE":
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (row.userIds.indexOf('CREATOR') < 0) {
-            row.userIds.unshift('CREATOR');
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
           }
           break;
         default:
