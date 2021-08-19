@@ -136,4 +136,9 @@ public class ProjectController {
     public Collection<String> getOwnerProjectIds() {
         return checkPermissionService.getUserRelatedProjectIds();
     }
+
+    @GetMapping("/genTcpMockPort/{id}")
+    public String genTcpMockPort(@PathVariable String id){
+        return projectService.genTcpMockPort(id);
+    }
 }

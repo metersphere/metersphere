@@ -97,7 +97,7 @@
 
         <el-form-item :label-width="labelWidth" label="TCP Mock Port">
           <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 30%;margin-right: 30px"></el-input-number>
-          <el-switch v-model="form.isMockTcpOpen"></el-switch>
+          <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
         </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
@@ -185,6 +185,7 @@ import MsResourceFiles from "@/business/components/performance/test/components/R
 import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 import {PROJECT_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
+import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
 
 export default {
   name: "MsProject",
@@ -394,13 +395,21 @@ export default {
     openEnvironmentConfig(project) {
       this.$refs.environmentConfig.open(project.id);
     },
+    chengeMockTcpSwitch(value){
+      if(value && this.form.mockTcpPort === 0){
+        this.result = this.$get('/project/genTcpMockPort/' + this.form.id, res => {
+          let port = res.data;
+          this.form.mockTcpPort = port;
+        })
+      }
+    }
   },
   created() {
     document.addEventListener('keydown', this.handleEvent);
   },
   beforeDestroy() {
     document.removeEventListener('keydown', this.handleEvent);
-  }
+  },
 };
 </script>
 

@@ -63,7 +63,7 @@ public class TCPPool {
                     stringBuffer.append("Server is null;");
                 }else {
                     stringBuffer.append("Port is "+port + ";");
-                    stringBuffer.append("Server is open: "+ tcpServer.isSocketOpen());
+                    stringBuffer.append("Server is open: "+ tcpServer.isSocketOpen()+";");
                 }
             }
             return stringBuffer.toString();

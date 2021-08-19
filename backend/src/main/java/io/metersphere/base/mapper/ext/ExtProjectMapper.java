@@ -30,4 +30,6 @@ public interface ExtProjectMapper {
     Map<String, Project> queryNameByIds(@Param("ids") List<String> ids);
 
     Organization getOrganizationByProjectId(@Param("projectId")String projectId);
+
+    List<Integer> selectTcpPorts();
 }

@@ -158,4 +158,11 @@
                      JOIN project ON workspace.id = workspace_id
         WHERE project.id = #{projectId, jdbcType=VARCHAR}
     </select>
+
+    <select id="selectTcpPorts" resultType="java.lang.Integer">
+        SELECT mock_tcp_port
+        FROM project
+        WHERE mock_tcp_port is not null and mock_tcp_port != 0
+    </select>
+
 </mapper>

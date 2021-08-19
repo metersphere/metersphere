@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.MockConfigService;
+import io.metersphere.api.tcp.TCPPool;
 import io.metersphere.base.domain.Project;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
 import io.metersphere.service.ProjectService;
@@ -78,5 +79,10 @@ public class MockApiController {
     public void headRequest(@PathVariable String projectSystemId, HttpServletRequest request, HttpServletResponse response) {
         Project project = projectService.findBySystemId(projectSystemId);
         mockConfigService.checkReturnWithMockExpectByUrlParam("HEAD", project, request, response);
+    }
+
+    @GetMapping("/getTcpMockPortStatus/")
+    public String genTcpMockPort(){
+        return TCPPool.getTcpStatus();
     }
 }
