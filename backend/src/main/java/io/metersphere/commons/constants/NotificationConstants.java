@@ -3,7 +3,7 @@ package io.metersphere.commons.constants;
 public class NotificationConstants {
 
     public enum Type {
-        MESSAGE, ANNOUNCEMENT
+        MENTIONED_ME, SYSTEM_NOTICE
     }
 
     public enum Status {

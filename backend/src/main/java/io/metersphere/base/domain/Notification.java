@@ -17,6 +17,16 @@ public class Notification implements Serializable {
 
     private Long createTime;
 
+    private String operator;
+
+    private String operation;
+
+    private String resourceId;
+
+    private String resourceType;
+
+    private String resourceName;
+
     private String content;
 
     private static final long serialVersionUID = 1L;

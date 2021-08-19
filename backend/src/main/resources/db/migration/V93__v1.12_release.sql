@@ -52,25 +52,38 @@ ALTER TABLE api_test_case
 ALTER TABLE test_plan
     ADD report_summary TEXT NULL COMMENT '测试计划报告总结';
 
+UPDATE message_task
+SET user_id = 'CREATOR'
+WHERE user_id = 'FOUNDER';
+
 CREATE TABLE IF NOT EXISTS `notification`
 (
-    `id`          BIGINT NOT NULL AUTO_INCREMENT COMMENT 'ID',
-    `type`        VARCHAR(30)  DEFAULT NULL COMMENT '通知类型',
-    `receiver`    VARCHAR(100) DEFAULT NULL COMMENT '接收人',
-    `title`       VARCHAR(100) DEFAULT NULL COMMENT '标题',
-    `content`     LONGTEXT COMMENT '内容',
-    `status`      VARCHAR(30)  DEFAULT NULL COMMENT '状态',
-    `create_time` BIGINT(13)   DEFAULT NULL COMMENT '更新时间',
+    `id`            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID',
+    `type`          varchar(30)  DEFAULT NULL COMMENT '通知类型',
+    `receiver`      varchar(50)  DEFAULT NULL COMMENT '接收人',
+    `title`         varchar(100) DEFAULT NULL COMMENT '标题',
+    `content`       longtext COMMENT '内容',
+    `status`        varchar(30)  DEFAULT NULL COMMENT '状态',
+    `create_time`   bigint(13)   DEFAULT NULL COMMENT '更新时间',
+    `operator`      varchar(50)  DEFAULT NULL COMMENT '操作人',
+    `operation`     varchar(50)  DEFAULT NULL,
+    `resource_id`   varchar(50)  DEFAULT NULL COMMENT '资源ID',
+    `resource_type` varchar(50)  DEFAULT NULL,
+    `resource_name` varchar(100) DEFAULT NULL,
     PRIMARY KEY (`id`),
-    KEY `IDX_RECEIVER` (`receiver`) USING BTREE
+    KEY `IDX_RECEIVER` (`receiver`) USING BTREE,
+    KEY `IDX_RECEIVER_TYPE` (`receiver`, `type`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE utf8mb4_general_ci;
 
 -- 项目表增加tcp相关的字段
-ALTER TABLE `project` ADD `mock_tcp_port`  int(11)  NULL;
-ALTER TABLE `project` ADD `is_mock_tcp_open`  tinyint(1) NOT NULL DEFAULT 0;
+ALTER TABLE `project`
+    ADD `mock_tcp_port` int(11) NULL;
+ALTER TABLE `project`
+    ADD `is_mock_tcp_open` tinyint(1) NOT NULL DEFAULT 0;
 
 -- 场景表增加执行次数字段
-ALTER TABLE `api_scenario` ADD `execute_times`  int(11)  NULL;
+ALTER TABLE `api_scenario`
+    ADD `execute_times` int(11) NULL;
 

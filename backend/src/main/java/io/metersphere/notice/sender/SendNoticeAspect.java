@@ -179,6 +179,9 @@ public class SendNoticeAspect {
             case NoticeConstants.Event.CASE_UPDATE:
                 operation = "更新了接口用例";
                 break;
+            case NoticeConstants.Event.CASE_DELETE:
+                operation = "删除了接口用例";
+                break;
             default:
                 break;
         }
