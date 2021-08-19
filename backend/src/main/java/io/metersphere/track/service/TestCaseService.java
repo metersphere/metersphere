@@ -1189,19 +1189,7 @@ public class TestCaseService {
 
 
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
-        //插入测试与用例关系表
-        if (!CollectionUtils.isEmpty(request.getSelected())) {
-            List<List<String>> selecteds = request.getSelected();
-            TestCaseTest test = new TestCaseTest();
-            selecteds.forEach(id -> {
-                test.setTestType(id.get(0));
-                test.setTestId(id.get(id.size() - 1));
-                test.setTestCaseId(request.getId());
-                test.setCreateTime(System.currentTimeMillis());
-                test.setUpdateTime(System.currentTimeMillis());
-                testCaseTestMapper.insert(test);
-            });
-        }
+
         // 复制用例时传入文件ID进行复制
         if (!CollectionUtils.isEmpty(request.getFileIds())) {
             List<String> fileIds = request.getFileIds();
@@ -1233,26 +1221,6 @@ public class TestCaseService {
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
         }
-        //插入测试与用例关系表
-        TestCaseTestExample example = new TestCaseTestExample();
-        example.createCriteria().andTestCaseIdEqualTo(request.getId());
-        List<TestCaseTest> list = testCaseTestMapper.selectByExample(example);
-        if (list.size() > 0) {
-            testCaseTestMapper.deleteByExample(example);
-        }
-        List<List<String>> selecteds = request.getSelected();
-        TestCaseTest test = new TestCaseTest();
-        LogUtil.info("关联的测试用例:" + selecteds);
-        if (selecteds != null) {
-            selecteds.forEach(id -> {
-                test.setTestType(id.get(0));
-                test.setTestId(id.get(id.size() - 1));
-                test.setCreateTime(System.currentTimeMillis());
-                test.setUpdateTime(System.currentTimeMillis());
-                test.setTestCaseId(request.getId());
-                testCaseTestMapper.insert(test);
-            });
-        }
 
         // 新选择了一个文件，删除原来的文件
         List<FileMetadata> updatedFiles = request.getUpdatedFileList();
@@ -1268,7 +1236,6 @@ public class TestCaseService {
             testCaseFileExample.createCriteria().andFileIdIn(deleteFileIds);
             testCaseFileMapper.deleteByExample(testCaseFileExample);
         }
-
 
         if (files != null) {
             files.forEach(file -> {
