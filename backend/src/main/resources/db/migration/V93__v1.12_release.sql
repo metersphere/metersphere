@@ -87,3 +87,4 @@ ALTER TABLE `project`
 ALTER TABLE `api_scenario`
     ADD `execute_times` int(11) NULL;
 
+ALTER TABLE `api_scenario_report`  ADD `end_time` bigint(13) ;

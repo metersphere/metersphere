@@ -99,7 +99,7 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        SELECT r.name AS test_name,
+        SELECT r.name AS test_name,r.end_time,
         r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,IfNULL(s.name,r.scenario_name) as scenario_name,
         project.name AS project_name, user.name AS user_name
         FROM api_scenario_report r

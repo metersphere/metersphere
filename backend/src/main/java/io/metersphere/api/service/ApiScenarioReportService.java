@@ -143,7 +143,7 @@ public class ApiScenarioReportService {
         if (report != null) {
             report.setId(report.getId());
             report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-            report.setCreateTime(startTime);
+            report.setEndTime(System.currentTimeMillis());
             report.setUpdateTime(startTime);
             String status = test.getError() == 0 ? "Success" : "Error";
             report.setStatus(status);
@@ -165,7 +165,7 @@ public class ApiScenarioReportService {
         report.setScenarioId(test.getScenarioId());
         report.setTriggerMode(test.getTriggerMode());
         report.setDescription(test.getDescription());
-        report.setCreateTime(System.currentTimeMillis());
+        report.setEndTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
@@ -235,6 +235,7 @@ public class ApiScenarioReportService {
                 if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
                     report.setTriggerMode(TriggerMode.MANUAL.name());
                 }
+                report.setEndTime(System.currentTimeMillis());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 if (scenarioResult.getError() > 0) {
                     testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
@@ -244,8 +245,9 @@ public class ApiScenarioReportService {
                 String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
                 testPlanApiScenario.setPassRate(passRate);
                 testPlanApiScenario.setReportId(report.getId());
-                testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 report.setTestPlanScenarioId(testPlanApiScenario.getId());
+                report.setEndTime(System.currentTimeMillis());
+                testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
 
                 // 更新场景状态
@@ -259,10 +261,10 @@ public class ApiScenarioReportService {
                     scenario.setPassRate(passRate);
                     scenario.setReportId(report.getId());
                     int executeTimes = 0;
-                    if(scenario.getExecuteTimes() != null){
+                    if (scenario.getExecuteTimes() != null) {
                         executeTimes = scenario.getExecuteTimes().intValue();
                     }
-                    scenario.setExecuteTimes(executeTimes+1);
+                    scenario.setExecuteTimes(executeTimes + 1);
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
@@ -319,6 +321,7 @@ public class ApiScenarioReportService {
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
             report.setScenarioId(testPlanApiScenario.getApiScenarioId());
             report.setTestPlanScenarioId(planScenarioId);
+            report.setEndTime(System.currentTimeMillis());
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
 
 
@@ -343,6 +346,7 @@ public class ApiScenarioReportService {
             apiScenarioReportDetailMapper.insert(detail);
 
             testPlanApiScenario.setReportId(report.getId());
+            report.setEndTime(System.currentTimeMillis());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
             scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
@@ -359,10 +363,10 @@ public class ApiScenarioReportService {
                 scenario.setPassRate(passRate);
                 scenario.setReportId(report.getId());
                 int executeTimes = 0;
-                if(scenario.getExecuteTimes() != null){
+                if (scenario.getExecuteTimes() != null) {
                     executeTimes = scenario.getExecuteTimes().intValue();
                 }
-                scenario.setExecuteTimes(executeTimes+1);
+                scenario.setExecuteTimes(executeTimes + 1);
 
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
@@ -403,6 +407,7 @@ public class ApiScenarioReportService {
                 if (CollectionUtils.isNotEmpty(reportList)) {
                     reportList.forEach(report -> {
                         report.setUpdateTime(System.currentTimeMillis());
+                        report.setEndTime(System.currentTimeMillis());
                         String status = "Error";
                         report.setStatus(status);
                         scenarioReportMapper.updateByPrimaryKeySelective(report);
@@ -464,6 +469,7 @@ public class ApiScenarioReportService {
                 if (StringUtils.isNotEmpty(report.getTriggerMode()) && report.getTriggerMode().equals("CASE")) {
                     report.setTriggerMode(TriggerMode.MANUAL.name());
                 }
+                report.setEndTime(System.currentTimeMillis());
                 apiScenarioReportMapper.updateByPrimaryKey(report);
 
                 ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
@@ -557,10 +563,10 @@ public class ApiScenarioReportService {
                     scenario.setPassRate(passRate);
                     scenario.setReportId(report.getId());
                     int executeTimes = 0;
-                    if(scenario.getExecuteTimes() != null){
+                    if (scenario.getExecuteTimes() != null) {
                         executeTimes = scenario.getExecuteTimes().intValue();
                     }
-                    scenario.setExecuteTimes(executeTimes+1);
+                    scenario.setExecuteTimes(executeTimes + 1);
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
