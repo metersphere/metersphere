@@ -9,7 +9,6 @@ import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NotificationService;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -21,7 +20,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
     @Resource
     private NotificationService notificationService;
 
-    public void sendAnnouncement(NoticeModel noticeModel, String context) {
+    public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<Receiver> receivers = noticeModel.getReceivers();
         if (CollectionUtils.isEmpty(receivers)) {
             return;
@@ -35,10 +34,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());
             notification.setResourceId((String) noticeModel.getParamMap().get("id"));
-            //
-            String subject = noticeModel.getSubject();
-            String resource = StringUtils.removeEnd(subject, "通知");
-            notification.setResourceType(resource);
+            notification.setResourceType(messageDetail.getTaskType());
             //
             if (noticeModel.getParamMap().get("name") != null) {
                 notification.setResourceName((String) noticeModel.getParamMap().get("name"));
@@ -59,6 +55,6 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
     @Override
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getContext(messageDetail, noticeModel);
-        sendAnnouncement(noticeModel, context);
+        sendAnnouncement(messageDetail, noticeModel, context);
     }
 }

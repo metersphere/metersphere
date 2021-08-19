@@ -26,10 +26,10 @@
       <div style="margin: 0px 20px 0px">
         <el-tabs :active-name="activeName">
           <el-tab-pane label="@提到我的" name="mentionedMe">
-            <mentioned-me-data ref="mentionedMe"/>
+            <mentioned-me-data ref="mentionedMe" :user-list="userList"/>
           </el-tab-pane>
           <el-tab-pane label="系统通知" name="systemNotice">
-            <system-notice-data ref="systemNotice"/>
+            <system-notice-data ref="systemNotice" :user-list="userList"/>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -40,7 +40,7 @@
 
 <script>
 import MsDrawer from "../common/components/MsDrawer";
-import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
+import {getCurrentUserId} from "@/common/js/utils";
 import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import SystemNoticeData from "@/business/components/notice/components/SystemNoticeData";
@@ -68,7 +68,7 @@ export default {
       initEnd: false,
       visible: false,
       showType: "",
-      maintainerOptions: [],
+      userList: [],
       websocket: Object,
       activeName: 'mentionedMe',
       pageSize: 20,
@@ -82,7 +82,7 @@ export default {
   },
   created() {
     this.getNotifications();
-    this.getMaintainerOptions();
+    this.getUserList();
   },
   watch: {
     taskVisible(v) {
@@ -92,9 +92,9 @@ export default {
     }
   },
   methods: {
-    getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-        this.maintainerOptions = response.data;
+    getUserList() {
+      this.$get('/user/list', response => {
+        this.userList = response.data;
       });
     },
     initWebSocket() {
