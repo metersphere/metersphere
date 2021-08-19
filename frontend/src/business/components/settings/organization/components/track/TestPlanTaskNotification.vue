@@ -291,6 +291,7 @@ export default {
     },
     handleTestPlanReceivers(row) {
       let testPlanReceivers = JSON.parse(JSON.stringify(this.testPlanReceiverOptions));
+      let i2 = row.userIds.indexOf('CREATOR');
       switch (row.event) {
         case  "CREATE":
           testPlanReceivers.unshift({id: 'EXECUTOR', name: this.$t('test_track.plan_view.executor')});
@@ -300,8 +301,10 @@ export default {
         case "COMMENT":
         case "COMPLETE":
           testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (row.userIds.indexOf('CREATOR') < 0) {
-            row.userIds.unshift('CREATOR');
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
           }
           break;
         default:
