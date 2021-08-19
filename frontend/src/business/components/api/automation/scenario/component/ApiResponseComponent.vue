@@ -44,7 +44,7 @@ export default {
   },
   watch: {
     result() {
-      if (this.result.responseResult) {
+      if (this.result && this.result.responseResult) {
         this.response = this.result;
       } else {
         this.getExecResult();
