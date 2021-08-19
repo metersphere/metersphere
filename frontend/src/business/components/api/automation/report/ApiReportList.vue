@@ -42,6 +42,11 @@
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
+          <el-table-column prop="endTime" width="250" :label="$t('report.test_end_time')" sortable>
+            <template v-slot:default="scope">
+              <span>{{ scope.row.endTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="triggerMode" width="150" :label="$t('commons.trigger_mode.name')"
                            column-key="triggerMode" :filters="triggerFilters">
             <template v-slot:default="scope">
