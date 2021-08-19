@@ -18,17 +18,20 @@
         <el-card class="ms-card-task">
           <el-row type="flex" justify="space-between">
             <el-col :span="12">
-              {{ item.title }}
+
             </el-col>
             <el-col :span="6">
               {{ item.createTime | timestampFormatDate }}
             </el-col>
           </el-row>
-          <span>
-                 {{ item.content }}
-                </span>
-          <br/>
-          <el-row>
+          <el-row type="flex" align="start" class="current-user">
+            <div class="icon-title">
+              {{ item.user.name.substring(0, 1) }}
+            </div>
+            <span class="username">{{ item.user.name }}</span>
+            <span class="operation">
+             {{ getOperation(item.operation) }}{{ item.resourceType }}: {{ item.resourceName }}
+            </span>
           </el-row>
         </el-card>
       </div>
@@ -51,8 +54,16 @@ export default {
       totalCount: 0,
     };
   },
+  props: {
+    userList: Array,
+    color: String
+  },
   created() {
     this.init();
+    this.userMap = this.userList.reduce((r, c) => {
+      r[c.id] = c;
+      return r;
+    }, {});
   },
   methods: {
     handleCommand(i) {
@@ -65,8 +76,41 @@ export default {
         this.systemNoticeData = response.data.listObject;
         this.totalPage = response.data.pageCount;
         this.totalCount = response.data.itemCount;
-        this.initEnd = true;
+        this.systemNoticeData.forEach(n => {
+          n.user = this.userMap[n.operator];
+        });
       });
+    },
+    getOperation(operation) {
+      switch (operation) {
+        case "CREATE":
+          operation = "创建了";
+          break;
+        case "UPDATE":
+          operation = "更新了";
+          break;
+        case "DELETE":
+          operation = "删除了";
+          break;
+        case "COMMENT":
+          operation = "评论了";
+          break;
+        case "CLOSE_SCHEDULE":
+          operation = "关闭了定时任务";
+          break;
+        case "CASE_CREATE":
+          operation = "创建了接口用例";
+          break;
+        case "CASE_UPDATE":
+          operation = "更新了接口用例";
+          break;
+        case "CASE_DELETE":
+          operation = "删除了接口用例";
+          break;
+        default:
+          break;
+      }
+      return operation;
     },
     prevPage() {
       if (this.goPage < 1) {
@@ -93,5 +137,52 @@ export default {
   height: calc(100vh - 180px);
   min-height: 600px;
   overflow-y: auto;
+}
+
+.ms-card-task {
+  padding-bottom: 10px;
+}
+
+.current-user .username {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+.current-user .operation {
+  display: inline-block;
+  font-size: 14px;
+  margin: 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.current-user .edit {
+  opacity: 0;
+}
+
+.current-user:hover .edit {
+  opacity: 1;
+}
+
+.icon-title {
+  color: #fff;
+  width: 30px;
+  background-color: #783887;
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  border-radius: 30px;
+  font-size: 14px;
 }
 </style>
