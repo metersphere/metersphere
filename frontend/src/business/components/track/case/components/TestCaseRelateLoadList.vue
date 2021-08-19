@@ -62,7 +62,7 @@ export default {
     return {
       condition: {},
       result: {},
-      screenHeight: 'calc(100vh - 600px)',//屏幕高度
+      screenHeight: '600px',//屏幕高度
       tableData: [],
       currentPage: 1,
       pageSize: 10,
