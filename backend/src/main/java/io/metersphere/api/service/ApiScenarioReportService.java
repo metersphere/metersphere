@@ -29,6 +29,7 @@ import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -246,6 +247,25 @@ public class ApiScenarioReportService {
                 testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 report.setTestPlanScenarioId(testPlanApiScenario.getId());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
+
+                // 更新场景状态
+                ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+                if (scenario != null) {
+                    if (scenarioResult.getError() > 0) {
+                        scenario.setLastResult("Fail");
+                    } else {
+                        scenario.setLastResult("Success");
+                    }
+                    scenario.setPassRate(passRate);
+                    scenario.setReportId(report.getId());
+                    int executeTimes = 0;
+                    if(scenario.getExecuteTimes() != null){
+                        executeTimes = scenario.getExecuteTimes().intValue();
+                    }
+                    scenario.setExecuteTimes(executeTimes+1);
+
+                    apiScenarioMapper.updateByPrimaryKey(scenario);
+                }
             }
             returnReport = report;
             reportIds.add(report.getId());
@@ -301,6 +321,7 @@ public class ApiScenarioReportService {
             report.setTestPlanScenarioId(planScenarioId);
             apiScenarioReportMapper.updateByPrimaryKeySelective(report);
 
+
             if (scenarioResult.getError() > 0) {
                 scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.FAILD.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
@@ -326,6 +347,25 @@ public class ApiScenarioReportService {
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
             scenarioIdList.add(testPlanApiScenario.getApiScenarioId());
             scenarioNames.append(report.getName()).append(",");
+
+            // 更新场景状态
+            ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(testPlanApiScenario.getApiScenarioId());
+            if (scenario != null) {
+                if (scenarioResult.getError() > 0) {
+                    scenario.setLastResult("Fail");
+                } else {
+                    scenario.setLastResult("Success");
+                }
+                scenario.setPassRate(passRate);
+                scenario.setReportId(report.getId());
+                int executeTimes = 0;
+                if(scenario.getExecuteTimes() != null){
+                    executeTimes = scenario.getExecuteTimes().intValue();
+                }
+                scenario.setExecuteTimes(executeTimes+1);
+
+                apiScenarioMapper.updateByPrimaryKey(scenario);
+            }
 
             lastReport = report;
             reportIds.add(report.getId());
@@ -516,6 +556,12 @@ public class ApiScenarioReportService {
                     String passRate = new DecimalFormat("0%").format((float) item.getSuccess() / (item.getSuccess() + item.getError()));
                     scenario.setPassRate(passRate);
                     scenario.setReportId(report.getId());
+                    int executeTimes = 0;
+                    if(scenario.getExecuteTimes() != null){
+                        executeTimes = scenario.getExecuteTimes().intValue();
+                    }
+                    scenario.setExecuteTimes(executeTimes+1);
+
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                 }
                 lastReport = report;
@@ -708,5 +754,9 @@ public class ApiScenarioReportService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<ApiReportCountDTO> countByApiScenarioId() {
+        return extApiScenarioReportMapper.countByApiScenarioId();
     }
 }

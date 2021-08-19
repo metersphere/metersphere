@@ -68,4 +68,8 @@ public interface ExtApiScenarioMapper {
     List<ApiScenarioWithBLOBs> selectByNoReferenceId();
 
     void checkOriginalStatusByIds(@Param("ids")List<String> ids);
+
+    List<String> selectIdsByExecuteTimeIsNull();
+
+    long countExeciteTimesByProjectID(String projectId);
 }

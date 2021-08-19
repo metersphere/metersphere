@@ -252,7 +252,7 @@ public class APITestController {
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
         long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
-        long executedCountNumber = apiScenarioReportService.countByProjectID(projectId);
+        long executedCountNumber = apiAutomationService.countExecuteTimesByProjectID(projectId);
         apiCountResult.setExecutedCount(executedCountNumber);
 
         //未执行、未通过、已通过

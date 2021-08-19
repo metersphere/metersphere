@@ -90,10 +90,8 @@ public class TestResultService {
                 //测试计划用例，定时，jenkins
             } else if (StringUtils.equalsAny(runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                 //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-                if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
-                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
-                } else if (StringUtils.equals(runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
-                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, ApiRunMode.JENKINS_API_PLAN.name(), ReportTriggerMode.API.name());
+                if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+                    apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, debugReportId, runMode);
                 } else {
                     apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name(), TriggerMode.MANUAL.name());
                 }
