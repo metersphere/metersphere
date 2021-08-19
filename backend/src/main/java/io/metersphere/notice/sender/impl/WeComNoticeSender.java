@@ -2,6 +2,7 @@ package io.metersphere.notice.sender.impl;
 
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.message.TextMessage;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
@@ -11,18 +12,19 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class WeComNoticeSender extends AbstractNoticeSender {
 
 
     public void sendWechatRobot(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
-        List<String> userIds = messageDetail.getUserIds();
-        if (CollectionUtils.isEmpty(userIds)) {
+        List<Receiver> receivers = noticeModel.getReceivers();
+        if (CollectionUtils.isEmpty(receivers)) {
             return;
         }
         TextMessage message = new TextMessage(context);
-        List<String> phoneLists = super.getUserPhones(noticeModel, userIds);
+        List<String> phoneLists = super.getUserPhones(noticeModel, receivers.stream().map(Receiver::getUserId).collect(Collectors.toList()));
         message.setMentionedMobileList(phoneLists);
         try {
             WxChatbotClient.send(messageDetail.getWebhook(), message);

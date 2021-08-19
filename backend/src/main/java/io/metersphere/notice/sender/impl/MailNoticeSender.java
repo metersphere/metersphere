@@ -2,6 +2,7 @@ package io.metersphere.notice.sender.impl;
 
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.MailService;
@@ -13,13 +14,14 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MailNoticeSender extends AbstractNoticeSender {
     @Resource
     private MailService mailService;
 
-    private void sendMail(MessageDetail messageDetail, String context, NoticeModel noticeModel) throws MessagingException {
+    private void sendMail(String context, NoticeModel noticeModel) throws MessagingException {
         LogUtil.info("发送邮件开始 ");
         JavaMailSenderImpl javaMailSender = mailService.getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -35,7 +37,8 @@ public class MailNoticeSender extends AbstractNoticeSender {
         LogUtil.info("发件人地址" + javaMailSender.getUsername());
         LogUtil.info("helper" + helper);
         helper.setSubject("MeterSphere " + noticeModel.getSubject());
-        List<String> emails = super.getUserEmails(noticeModel, messageDetail.getUserIds());
+        List<String> userIds = noticeModel.getReceivers().stream().map(Receiver::getUserId).collect(Collectors.toList());
+        List<String> emails = super.getUserEmails(noticeModel, userIds);
         String[] users = emails.toArray(new String[0]);
         LogUtil.info("收件人地址: " + emails);
         helper.setText(context, true);
@@ -47,7 +50,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getHtmlContext(messageDetail, noticeModel);
         try {
-            sendMail(messageDetail, context, noticeModel);
+            sendMail(context, noticeModel);
             LogUtil.info("发送邮件结束");
         } catch (Exception e) {
             LogUtil.error(e);

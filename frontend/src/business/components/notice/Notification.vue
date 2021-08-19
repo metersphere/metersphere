@@ -10,7 +10,7 @@
           <template v-slot:content>
             <span>{{ $t('commons.notice_center') }}</span>
           </template>
-          <div @click="showNoticeCenter" v-if="runningTotal > 0">
+          <div @click="showNoticeCenter" v-if="noticeCount > 0">
             <el-badge is-dot class="item" type="danger">
               <font-awesome-icon class="icon global focusing" :icon="['fas', 'bell']"/>
             </el-badge>
@@ -25,46 +25,11 @@
                custom-class="ms-drawer-task">
       <div style="margin: 0px 20px 0px">
         <el-tabs :active-name="activeName">
-          <!--          <el-tab-pane label="@提到我的" name="mentionedMe">-->
-
-          <!--          </el-tab-pane>-->
+          <el-tab-pane label="@提到我的" name="mentionedMe">
+            <mentioned-me-data ref="mentionedMe"/>
+          </el-tab-pane>
           <el-tab-pane label="系统通知" name="systemNotice">
-            <div style="padding-left: 320px; padding-bottom: 5px; width: 100%">
-              <span style="color: gray; padding-right: 10px">({{ totalCount }} 条消息)</span>
-              <el-dropdown @command="handleCommand" style="padding-right: 10px">
-                <span class="el-dropdown-link">
-                  {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item v-for="i in totalPage" :key="i" :command="i">{{ i }}</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-button icon="el-icon-arrow-left" size="mini" :disabled="goPage === 1" @click="prevPage"/>
-              <el-button icon="el-icon-arrow-right" size="mini" :disabled="goPage === totalPage" @click="nextPage"/>
-            </div>
-            <div class="report-container">
-              <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
-                <el-card class="ms-card-task">
-                  <el-row type="flex" justify="space-between">
-                    <el-col :span="12">
-                      {{ item.title }}
-                    </el-col>
-                    <el-col :span="6">
-                      {{ item.createTime | timestampFormatDate }}
-                    </el-col>
-                  </el-row>
-                  <span>
-                 {{ item.content }}
-                </span>
-                  <br/>
-                  <el-row>
-                  </el-row>
-                </el-card>
-              </div>
-            </div>
-            <div style="color: black; padding-top: 50px; text-align: center">
-              - 仅显示最近3个月的站内消息 -
-            </div>
+            <system-notice-data ref="systemNotice"/>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -75,13 +40,17 @@
 
 <script>
 import MsDrawer from "../common/components/MsDrawer";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId} from "@/common/js/utils";
 import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
+import SystemNoticeData from "@/business/components/notice/components/SystemNoticeData";
+import MentionedMeData from "@/business/components/notice/components/MentionedMeData";
 
 export default {
   name: "MsNotification",
   components: {
+    MentionedMeData,
+    SystemNoticeData,
     MsTipButton,
     MsDrawer,
     MsRequestResultTail
@@ -91,17 +60,17 @@ export default {
   ],
   data() {
     return {
-      runningTotal: 0,
+      noticeCount: 0,
       taskVisible: false,
       result: {},
-      taskData: [],
+      systemNoticeData: [],
       response: {},
       initEnd: false,
       visible: false,
       showType: "",
       maintainerOptions: [],
       websocket: Object,
-      activeName: 'systemNotice',
+      activeName: 'mentionedMe',
       pageSize: 20,
       goPage: 1,
       totalPage: 0,
@@ -112,7 +81,8 @@ export default {
     color: String
   },
   created() {
-    this.init();
+    this.getNotifications();
+    this.getMaintainerOptions();
   },
   watch: {
     taskVisible(v) {
@@ -122,12 +92,17 @@ export default {
     }
   },
   methods: {
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
+    },
     initWebSocket() {
       let protocol = "ws://";
       if (window.location.protocol === 'https:') {
         protocol = "wss://";
       }
-      const uri = protocol + window.location.host + "/notification/count/" + getCurrentProjectID();
+      const uri = protocol + window.location.host + "/notification/count/" + getCurrentUserId();
       this.websocket = new WebSocket(uri);
       this.websocket.onmessage = this.onMessage;
       this.websocket.onopen = this.onOpen;
@@ -139,21 +114,18 @@ export default {
     onError(e) {
     },
     onMessage(e) {
-      let taskTotal = e.data;
-      this.runningTotal = taskTotal;
+      let count = e.data;
+      this.noticeCount = count;
       this.initIndex++;
-      if (this.taskVisible && taskTotal > 0 && this.initEnd) {
-        setTimeout(() => {
-          this.initEnd = false;
-          this.init();
-        }, 3000);
+      if (this.taskVisible && count > 0 && this.initEnd) {
+        this.$refs.systemNotice.init();
+        this.$refs.mentionedMe.init();
       }
     },
     onClose(e) {
     },
     showNoticeCenter() {
-      this.getTaskRunning();
-      this.init();
+      this.noticeCount = 0;
       this.readAll();
       this.taskVisible = true;
     },
@@ -161,55 +133,17 @@ export default {
       this.visible = false;
       this.taskVisible = false;
       this.showType = "";
-      if (this.websocket && this.websocket.close instanceof Function) {
-        this.websocket.close();
-      }
     },
     open() {
       this.showNoticeCenter();
       this.initIndex = 0;
     },
-    init() {
-      this.result.loading = true;
-      this.result = this.$post('/notification/list/all/' + this.goPage + '/' + this.pageSize, {}, response => {
-        this.taskData = response.data.listObject;
-        this.totalPage = response.data.pageCount;
-        this.totalCount = response.data.itemCount;
-        this.calculationRunningTotal();
-        this.initEnd = true;
-      });
-    },
-    handleCommand(i) {
-      this.goPage = i;
-      this.init();
-    },
     readAll() {
       this.$get('/notification/read/all');
     },
-    getTaskRunning() {
+    getNotifications() {
       this.initWebSocket();
     },
-    calculationRunningTotal() {
-      if (this.taskData) {
-        this.runningTotal = this.taskData.filter(t => t.status === 'UNREAD').length;
-      }
-    },
-    prevPage() {
-      if (this.goPage < 1) {
-        this.goPage = 1;
-      } else {
-        this.goPage--;
-      }
-      this.init();
-    },
-    nextPage() {
-      if (this.goPage > this.totalPage) {
-        this.goPage = this.totalPage;
-      } else {
-        this.goPage++;
-      }
-      this.init();
-    }
   }
 };
 </script>

@@ -28,10 +28,14 @@ public class NotificationService {
         Notification notification = new Notification();
         notification.setTitle(subject);
         notification.setContent(content);
-        notification.setType(NotificationConstants.Type.ANNOUNCEMENT.name());
+        notification.setType(NotificationConstants.Type.SYSTEM_NOTICE.name());
         notification.setStatus(NotificationConstants.Status.UNREAD.name());
         notification.setCreateTime(System.currentTimeMillis());
         notification.setReceiver(receiver);
+        notificationMapper.insert(notification);
+    }
+
+    public void sendAnnouncement(Notification notification) {
         notificationMapper.insert(notification);
     }
 
@@ -51,7 +55,6 @@ public class NotificationService {
         if (StringUtils.isBlank(notification.getReceiver())) {
             notification.setReceiver(SessionUtils.getUser().getId());
         }
-        notification.setStatus(NotificationConstants.Status.UNREAD.name());
         return extNotificationMapper.countNotification(notification);
     }
 
@@ -64,17 +67,13 @@ public class NotificationService {
     }
 
     public List<Notification> listNotification(Notification notification) {
-        String search = null;
         if (StringUtils.isNotBlank(notification.getTitle())) {
-            search = "%" + notification.getTitle() + "%";
+            notification.setTitle("%" + notification.getTitle() + "%");
         }
-        String receiver;
         if (StringUtils.isBlank(notification.getReceiver())) {
-            receiver = SessionUtils.getUser().getId();
-        } else {
-            receiver = notification.getReceiver();
+            notification.setReceiver(SessionUtils.getUser().getId());
         }
-        return extNotificationMapper.listNotification(search, receiver);
+        return extNotificationMapper.listNotification(notification);
     }
 
     public List<Notification> listReadNotification(Notification notification) {
