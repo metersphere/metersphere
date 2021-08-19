@@ -1,5 +1,5 @@
 <template>
-  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
+  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)" v-loading="loading">
     <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
         <el-col :span="3">
@@ -68,10 +68,10 @@
                        :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                        @change="saveTestCase(apiCase)">
               <el-option
-                  v-for="item in maintainerOptions"
-                  :key="item.id"
-                  :label="item.id + ' (' + item.name + ')'"
-                  :value="item.id">
+                v-for="item in maintainerOptions"
+                :key="item.id"
+                :label="item.id + ' (' + item.name + ')'"
+                :value="item.id">
               </el-option>
             </el-select>
           </div>
@@ -220,7 +220,6 @@ export default {
         {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
       ],
       methodColorMap: new Map(API_METHOD_COLOUR),
-      maintainerOptions: [],
     }
   },
   props: {
@@ -252,13 +251,13 @@ export default {
       default() {
         return false;
       }
-    }
+    },
+    maintainerOptions: Array,
   },
   created() {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
       this.showXpackCompnent = true;
     }
-    this.getMaintainerOptions();
   },
   watch: {
     'apiCase.selected'() {
@@ -266,11 +265,6 @@ export default {
     }
   },
   methods: {
-    getMaintainerOptions() {
-      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
-        this.maintainerOptions = response.data;
-      });
-    },
     openHis(row) {
       this.$refs.changeHistory.open(row.id);
     },
@@ -372,6 +366,12 @@ export default {
         }
       });
     },
+    reload() {
+      this.loading = true
+      this.$nextTick(() => {
+        this.loading = false
+      });
+    },
     saveCase(row, hideAlert) {
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
@@ -411,6 +411,7 @@ export default {
         row.updateTime = data.updateTime;
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
+          this.reload();
           if (!hideAlert) {
             this.$emit('refresh');
           }

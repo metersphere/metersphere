@@ -99,11 +99,14 @@
         <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
         <div class="base-info mock-info">
           <el-row>
-            <el-col :span="24">
+            <el-col :span="20">
               Mock地址：
               <el-link :href="getUrlPrefix" target="_blank" style="color: black"
                        type="primary">{{ this.getUrlPrefix }}
               </el-link>
+            </el-col>
+            <el-col :span="4">
+              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
             </el-col>
           </el-row>
 
@@ -139,7 +142,7 @@
   import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
   import MsChangeHistory from "../../../../history/ChangeHistory";
-  import {getCurrentProjectID} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsAddCompleteHttpApi",
@@ -245,6 +248,9 @@
     methods: {
       openHis(){
         this.$refs.changeHistory.open(this.httpForm.id);
+      },
+      mockSetting() {
+        this.$store.state.currentApiCase={mock : getUUID()};
       },
       runTest() {
         this.$refs['httpForm'].validate((valid) => {

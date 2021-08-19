@@ -165,9 +165,7 @@ export default {
     },
     saveAsCase() {
       //用于触发创建操作
-      this.createCase = getUUID();
-      this.$refs.caseList.open();
-      this.loaded = false;
+      this.$store.state.currentApiCase = {case: getUUID(), api: this.api};
     },
     saveAsApi() {
       let data = {};

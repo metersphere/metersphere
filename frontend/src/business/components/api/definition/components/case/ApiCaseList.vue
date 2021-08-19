@@ -3,19 +3,19 @@
     <ms-drawer :size="60" @close="apiCaseClose" direction="bottom">
       <template v-slot:header>
         <api-case-header
-          :api="api"
-          @getApiTest="getApiTest"
-          @setEnvironment="setEnvironment"
-          @addCase="addCase"
-          @selectAll="selectAll"
-          :condition="condition"
-          :priorities="priorities"
-          :apiCaseList="apiCaseList"
-          :is-read-only="isReadOnly"
-          :project-id="projectId"
-          :useEnvironment="environment"
-          :is-case-edit="isCaseEdit"
-          ref="header"
+            :api="api"
+            @getApiTest="getApiTest"
+            @setEnvironment="setEnvironment"
+            @addCase="addCase"
+            @selectAll="selectAll"
+            :condition="condition"
+            :priorities="priorities"
+            :apiCaseList="apiCaseList"
+            :is-read-only="isReadOnly"
+            :project-id="projectId"
+            :useEnvironment="environment"
+            :is-case-edit="isCaseEdit"
+            ref="header"
         />
       </template>
 
@@ -38,6 +38,7 @@
                            :is-case-edit="isCaseEdit"
                            :api="api"
                            :runResult="runResult"
+                           :maintainerOptions="maintainerOptions"
                            :api-case="item" :index="index" ref="apiCaseItem"/>
           </div>
         </el-main>
@@ -122,6 +123,7 @@ export default {
         method: REQ_METHOD,
       },
       envMap: new Map,
+      maintainerOptions: [],
     };
   },
   watch: {
@@ -145,6 +147,7 @@ export default {
     if (!this.environment && this.$store.state.useEnvironment) {
       this.environment = this.$store.state.useEnvironment;
     }
+    this.getMaintainerOptions();
   },
   computed: {
     isCaseEdit() {
@@ -155,6 +158,11 @@ export default {
     },
   },
   methods: {
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
+    },
     apiCaseSelected() {
       this.selectSize = 0;
       if (this.apiCaseList.length > 0) {
@@ -172,6 +180,7 @@ export default {
       this.condition = {components: API_CASE_CONFIGS};
       this.getApiTest(true);
       this.visible = true;
+      this.$store.state.currentApiCase = undefined;
     },
     add(api) {
       this.api = api;

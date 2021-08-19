@@ -89,6 +89,11 @@
         @showExecResult="showExecResult"
         ref="trashCaseList"/>
     </div>
+    <!-- 加载用例 -->
+    <ms-api-case-list
+      :createCase="createCase"
+      :currentApi="api"
+      ref="caseList"/>
   </el-card>
 </template>
 
@@ -101,6 +106,8 @@ import MsRunTestDubboPage from "./runtest/RunTestDubboPage";
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
 import TcpMockConfig from "@/business/components/api/definition/components/mock/TcpMockConfig";
 import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
+import MsApiCaseList from "./case/ApiCaseList";
+import {getUUID} from "@/common/js/utils";
 
 export default {
   name: "EditCompleteContainer",
@@ -112,7 +119,8 @@ export default {
     MsRunTestDubboPage,
     MockConfig,
     TcpMockConfig,
-    ApiCaseSimpleList
+    ApiCaseSimpleList,
+    MsApiCaseList
   },
   data() {
     return {
@@ -122,7 +130,9 @@ export default {
       showMock: false,
       showTestCaseList: false,
       baseMockConfigData: {},
-      loading: false
+      loading: false,
+      createCase: "",
+      api: {},
     }
   },
   props: {
@@ -151,6 +161,15 @@ export default {
   watch: {
     showMock() {
       this.mockSetting();
+    },
+    '$store.state.currentApiCase.case'() {
+      if (this.$store.state.currentApiCase && this.$store.state.currentApiCase.api) {
+        this.refreshButtonActiveClass("testCase");
+      }
+    },
+    '$store.state.currentApiCase.mock'() {
+      this.mockSetting();
+      this.refreshButtonActiveClass("mock");
     }
   },
   methods: {
@@ -221,21 +240,29 @@ export default {
         this.showTestCaseList = true;
         this.showTest = false;
         this.showMock = false;
+        if (this.$store.state.currentApiCase && this.$store.state.currentApiCase.api) {
+          this.createCase = getUUID();
+          this.api = this.$store.state.currentApiCase.api;
+          this.$refs.caseList.open();
+        }
       } else if (tabType === "test") {
         this.showApiList = false;
         this.showTestCaseList = false;
         this.showTest = true;
         this.showMock = false;
+        this.$store.state.currentApiCase = undefined;
       } else if (tabType === "mock") {
         this.showApiList = false;
         this.showTestCaseList = false;
         this.showTest = false;
         this.showMock = true;
+        this.$store.state.currentApiCase = undefined;
       } else {
         this.showApiList = true;
         this.showTestCaseList = false;
         this.showTest = false;
         this.showMock = false;
+        this.$store.state.currentApiCase = undefined;
       }
     }
   },

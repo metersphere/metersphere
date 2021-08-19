@@ -24,6 +24,7 @@ const state = {
   useEnvironment: "",
   testPlanViewSelectNode: {},
   selectStep: {},
+  currentApiCase: {},
 }
 
 const store = new Vuex.Store({
