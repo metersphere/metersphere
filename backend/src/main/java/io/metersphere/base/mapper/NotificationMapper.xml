@@ -8,6 +8,11 @@
     <result column="title" jdbcType="VARCHAR" property="title" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="operator" jdbcType="VARCHAR" property="operator" />
+    <result column="operation" jdbcType="VARCHAR" property="operation" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
+    <result column="resource_name" jdbcType="VARCHAR" property="resourceName" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.Notification">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -71,7 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `type`, receiver, title, `status`, create_time
+    id, `type`, receiver, title, `status`, create_time, `operator`, `operation`, resource_id, 
+    resource_type, resource_name
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -127,10 +133,14 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.Notification">
     insert into notification (id, `type`, receiver, 
       title, `status`, create_time, 
-      content)
+      `operator`, `operation`, resource_id, 
+      resource_type, resource_name, content
+      )
     values (#{id,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
       #{title,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{content,jdbcType=LONGVARCHAR})
+      #{operator,jdbcType=VARCHAR}, #{operation,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
+      #{resourceType,jdbcType=VARCHAR}, #{resourceName,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Notification">
     insert into notification
@@ -152,6 +162,21 @@
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="operator != null">
+        `operator`,
+      </if>
+      <if test="operation != null">
+        `operation`,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="resourceType != null">
+        resource_type,
+      </if>
+      <if test="resourceName != null">
+        resource_name,
       </if>
       <if test="content != null">
         content,
@@ -175,6 +200,21 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="operator != null">
+        #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="operation != null">
+        #{operation,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        #{resourceName,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -208,6 +248,21 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.operator != null">
+        `operator` = #{record.operator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.operation != null">
+        `operation` = #{record.operation,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceType != null">
+        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.resourceName != null">
+        resource_name = #{record.resourceName,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -224,6 +279,11 @@
       title = #{record.title,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      `operator` = #{record.operator,jdbcType=VARCHAR},
+      `operation` = #{record.operation,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      resource_name = #{record.resourceName,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -236,7 +296,12 @@
       receiver = #{record.receiver,jdbcType=VARCHAR},
       title = #{record.title,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      `operator` = #{record.operator,jdbcType=VARCHAR},
+      `operation` = #{record.operation,jdbcType=VARCHAR},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      resource_name = #{record.resourceName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -259,6 +324,21 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="operator != null">
+        `operator` = #{operator,jdbcType=VARCHAR},
+      </if>
+      <if test="operation != null">
+        `operation` = #{operation,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        resource_type = #{resourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceName != null">
+        resource_name = #{resourceName,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -272,6 +352,11 @@
       title = #{title,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
+      `operator` = #{operator,jdbcType=VARCHAR},
+      `operation` = #{operation,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      resource_name = #{resourceName,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -281,7 +366,12 @@
       receiver = #{receiver,jdbcType=VARCHAR},
       title = #{title,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      `operator` = #{operator,jdbcType=VARCHAR},
+      `operation` = #{operation,jdbcType=VARCHAR},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
+      resource_name = #{resourceName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=BIGINT}
   </update>
 </mapper>
