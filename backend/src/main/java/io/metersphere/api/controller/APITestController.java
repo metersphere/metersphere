@@ -28,6 +28,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -45,6 +46,7 @@ import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 @RequestMapping(value = "/api")
 public class APITestController {
     @Resource
+    @Lazy
     private APITestService apiTestService;
     @Resource
     private ApiDefinitionService apiDefinitionService;

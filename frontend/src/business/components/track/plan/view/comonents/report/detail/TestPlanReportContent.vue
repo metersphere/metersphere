@@ -1,30 +1,44 @@
 <template>
-  <el-card v-loading="result ? result.loading : false">
+  <div class="container">
+    <el-main>
+      <el-card v-loading="result ? result.loading : false">
 
-      <div v-if="!isTemplate && !isShare" class="head-bar head-right">
-        <el-row>
-          <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
-            {{'导出HTML'}}
-          </el-button>
-        </el-row>
-        <el-row>
-          <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
-            {{'编辑模板'}}
-          </el-button>
-        </el-row>
-        <el-row>
-          <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleShare()">
-            {{'分享连接'}}
-          </el-button>
-        </el-row>
-      </div>
+          <div v-if="!isTemplate && !isShare" class="head-bar head-right">
 
-    <test-plan-report-header :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
-    <test-plan-functional-report :is-share="isShare" :is-template="isTemplate" v-if="functionalEnable" :plan-id="planId" :report="report"/>
-    <test-plan-api-report :is-share="isShare" :is-template="isTemplate" v-if="apiEnable" :report="report" :plan-id="planId"/>
-    <test-plan-load-report :is-share="isShare" :is-template="isTemplate" v-if="loadEnable" :report="report" :plan-id="planId"/>
+<!--            <div style="font-size: 17px">-->
+<!--              <el-popover-->
+<!--                placement="right"-->
+<!--                width="260">-->
+<!--                <p>{{shareUrl}}</p>-->
+<!--                <div style="text-align: right; margin: 0">-->
+<!--                  <el-button type="primary" size="mini"-->
+<!--                             v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>-->
+<!--                </div>-->
+<!--                <i class="el-icon-share" @click="shareApiDocument" slot="reference" style="margin-right: 10px;cursor: pointer"></i>-->
+<!--              </el-popover>-->
+<!--            </div>-->
+            <ms-share-button :share-url="shareUrl" @click="shareApiDocument"/>
 
-  </el-card>
+            <el-row>
+              <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
+                {{'导出HTML'}}
+              </el-button>
+            </el-row>
+            <el-row>
+              <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
+                {{'编辑模板'}}
+              </el-button>
+            </el-row>
+          </div>
+
+        <test-plan-report-header :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
+        <test-plan-functional-report :is-share="isShare" :is-template="isTemplate" v-if="functionalEnable" :plan-id="planId" :report="report"/>
+        <test-plan-api-report :is-share="isShare" :is-template="isTemplate" v-if="apiEnable" :report="report" :plan-id="planId"/>
+        <test-plan-load-report :is-share="isShare" :is-template="isTemplate" v-if="loadEnable" :report="report" :plan-id="planId"/>
+
+      </el-card>
+    </el-main>
+  </div>
 </template>
 
 <script>
@@ -34,10 +48,12 @@ import TestPlanFunctionalReport
 import {getShareTestPlanReport, getTestPlanReport} from "@/network/test-plan";
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanLoadReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanLoadReport";
-import {generateApiDocumentShareInfo, generateShareInfo} from "@/network/share";
+import {generateShareInfo} from "@/network/share";
+import MsShareButton from "@/business/components/common/components/MsShareButton";
 export default {
   name: "TestPlanReportContent",
   components: {
+    MsShareButton,
     TestPlanLoadReport,
     TestPlanApiReport,
     TestPlanFunctionalReport,
@@ -46,13 +62,20 @@ export default {
     planId:String,
     isTemplate: Boolean,
     isShare: Boolean,
+    shareId: String
   },
   data() {
     return {
       report: {},
       result: {},
-      isTestManagerOrTestUser: false
+      isTestManagerOrTestUser: false,
+      shareUrl: ''
     };
+  },
+  watch: {
+    planId() {
+      this.getReport();
+    }
   },
   created() {
     this.isTestManagerOrTestUser = true;
@@ -85,6 +108,15 @@ export default {
     },
     handleEditTemplate() {
 
+    },
+    shareApiDocument(){
+      let pram = {};
+      pram.customData = this.planId;
+      pram.shareType = 'PLAN_REPORT';
+      generateShareInfo(pram, (data) => {
+        let thisHost = window.location.host;
+          this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
+      });
     },
     handleExportHtml() {
       let config = {
