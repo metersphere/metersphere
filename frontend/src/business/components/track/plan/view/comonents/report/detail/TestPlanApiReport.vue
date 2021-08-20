@@ -5,7 +5,7 @@
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
       <el-tab-pane label="失败用例" name="second">
-        <api-failure-result :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
 
 <!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
@@ -28,7 +28,7 @@ export default {
     };
   },
   props: [
-    'report', 'planId', 'isTemplate', 'isShare'
+    'report', 'planId', 'isTemplate', 'isShare', 'shareId'
   ],
   methods: {
     handleClick(tab, event) {

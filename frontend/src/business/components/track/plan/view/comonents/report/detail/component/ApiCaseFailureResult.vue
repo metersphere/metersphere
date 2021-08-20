@@ -72,7 +72,8 @@ export default {
     planId: String,
     isTemplate: Boolean,
     report: Object,
-    isShare: Boolean
+    isShare: Boolean,
+    shareId: String
   },
   data() {
     return {
@@ -92,7 +93,7 @@ export default {
           this.rowClick(this.apiCases[0]);
         }
       } else if (this.isShare) {
-        this.result = getSharePlanApiFailureCase(this.planId, (data) => {
+        this.result = getSharePlanApiFailureCase(this.shareId, this.planId, (data) => {
           this.apiCases = data;
           if (data && data.length > 0) {
             this.rowClick(data[0]);
@@ -111,7 +112,7 @@ export default {
       if (this.isTemplate) {
         this.response = JSON.parse(row.response);
       } else if (this.isShare) {
-        getShareApiReport(row.id, (data) => {
+        getShareApiReport(this.shareId, row.id, (data) => {
           this.response = JSON.parse(data.content);
         });
       } else {

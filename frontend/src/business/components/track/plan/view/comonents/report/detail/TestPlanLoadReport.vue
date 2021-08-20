@@ -5,7 +5,7 @@
         <load-result :load-result="report.loadResult"/>
       </el-tab-pane>
       <el-tab-pane label="失败用例" name="second">
-        <load-failure-result :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <load-failure-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
 <!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
     </el-tabs>
@@ -35,7 +35,8 @@ export default {
     'report',
     'planId',
     'isTemplate',
-    'isShare'
+    'isShare',
+    'shareId'
   ],
   methods: {
     handleClick(tab, event) {

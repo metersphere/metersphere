@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-content :is-share="true" :plan-id="planId"/>
+  <test-plan-report-content :share-id="shareId" :is-share="true" :plan-id="planId"/>
 </template>
 
 <script>

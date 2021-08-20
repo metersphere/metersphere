@@ -92,5 +92,5 @@ ALTER TABLE `api_scenario_report`  ADD `end_time` bigint(13) ;
 -- 修改文档分享表
 ALTER TABLE api_document_share RENAME TO share_info;
 ALTER TABLE share_info change
-    column share_api_id custom_data longtextCHARACTER
+    column share_api_id custom_data longtext CHARACTER
     SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Share Custom Data';

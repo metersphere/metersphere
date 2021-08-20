@@ -79,7 +79,8 @@ export default {
     debug: Boolean,
     isTemplate: Boolean,
     templateReport: Object,
-    isShare: Boolean
+    isShare: Boolean,
+    shareId: String
   },
   watch: {
     reportId() {
@@ -241,7 +242,7 @@ export default {
         this.report = this.templateReport;
         this.buildReport();
       } else if (this.isShare) {
-        getShareScenarioReport(this.reportId, (data) => {
+        getShareScenarioReport(this.shareId, this.reportId, (data) => {
           this.report = data || {};
           this.buildReport();
         });

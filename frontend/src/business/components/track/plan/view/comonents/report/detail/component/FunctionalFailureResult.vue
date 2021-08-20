@@ -77,7 +77,8 @@ export default {
     planId: String,
     isTemplate: Boolean,
     isShare: Boolean,
-    report: {}
+    report: {},
+    shareId: String
   },
   data() {
     return {
@@ -92,7 +93,7 @@ export default {
       if (this.isTemplate) {
         this.failureTestCases = this.report.failureTestCases;
       } else if (this.isShare) {
-        getSharePlanFunctionFailureCase(this.planId, (data) => {
+        getSharePlanFunctionFailureCase(this.shareId, this.planId, (data) => {
           this.failureTestCases = data;
         });
       } else {

@@ -13,9 +13,9 @@ export function getTestPlanReport(planId, callback) {
   }
 }
 
-export function getShareTestPlanReport(planId, callback) {
+export function getShareTestPlanReport(shareId, planId, callback) {
   if (planId) {
-    return get('/share/test/plan/report/' + planId, (response) => {
+    return get('/share/test/plan/report/' + shareId + '/' + planId, (response) => {
       if (callback) {
         callback(response.data);
       }
@@ -33,30 +33,30 @@ export function getPlanFunctionFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/case/list/failure/' + planId, callback) : {};
 }
 
-export function getSharePlanFunctionFailureCase(planId, callback) {
-  return planId ? baseGet('/share/test/plan/case/list/failure/' + planId, callback) : {};
+export function getSharePlanFunctionFailureCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/case/list/failure/' + shareId + '/' + planId, callback) : {};
 }
 
 export function getPlanScenarioFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/scenario/case/list/failure/' + planId, callback) : {};
 }
 
-export function getSharePlanScenarioFailureCase(planId, callback) {
-  return planId ? baseGet('/share/test/plan/scenario/case/list/failure/' + planId, callback) : {};
+export function getSharePlanScenarioFailureCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/scenario/case/list/failure/' + shareId + '/' + planId, callback) : {};
 }
 
 export function getPlanApiFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/api/case/list/failure/' + planId, callback) : {};
 }
 
-export function getSharePlanApiFailureCase(planId, callback) {
-  return planId ? baseGet('/share/test/plan/api/case/list/failure/' + planId, callback) : {};
+export function getSharePlanApiFailureCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/api/case/list/failure/' + shareId + '/' + planId, callback) : {};
 }
 
 export function getPlanLoadFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/load/case/list/failure/' + planId, callback) : {};
 }
 
-export function getSharePlanLoadFailureCase(planId, callback) {
-  return planId ? baseGet('/share/test/plan/load/case/list/failure/' + planId, callback) : {};
+export function getSharePlanLoadFailureCase(shareId, planId, callback) {
+  return planId ? baseGet('/share/test/plan/load/case/list/failure/' + shareId + '/' + planId, callback) : {};
 }

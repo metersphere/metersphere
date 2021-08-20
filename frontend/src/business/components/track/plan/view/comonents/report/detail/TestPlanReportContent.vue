@@ -5,18 +5,6 @@
 
           <div v-if="!isTemplate && !isShare" class="head-bar head-right">
 
-<!--            <div style="font-size: 17px">-->
-<!--              <el-popover-->
-<!--                placement="right"-->
-<!--                width="260">-->
-<!--                <p>{{shareUrl}}</p>-->
-<!--                <div style="text-align: right; margin: 0">-->
-<!--                  <el-button type="primary" size="mini"-->
-<!--                             v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>-->
-<!--                </div>-->
-<!--                <i class="el-icon-share" @click="shareApiDocument" slot="reference" style="margin-right: 10px;cursor: pointer"></i>-->
-<!--              </el-popover>-->
-<!--            </div>-->
             <ms-share-button :share-url="shareUrl" @click="shareApiDocument"/>
 
             <el-row>
@@ -32,9 +20,9 @@
           </div>
 
         <test-plan-report-header :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
-        <test-plan-functional-report :is-share="isShare" :is-template="isTemplate" v-if="functionalEnable" :plan-id="planId" :report="report"/>
-        <test-plan-api-report :is-share="isShare" :is-template="isTemplate" v-if="apiEnable" :report="report" :plan-id="planId"/>
-        <test-plan-load-report :is-share="isShare" :is-template="isTemplate" v-if="loadEnable" :report="report" :plan-id="planId"/>
+        <test-plan-functional-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="functionalEnable" :plan-id="planId" :report="report"/>
+        <test-plan-api-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="apiEnable" :report="report" :plan-id="planId"/>
+        <test-plan-load-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="loadEnable" :report="report" :plan-id="planId"/>
 
       </el-card>
     </el-main>
@@ -97,7 +85,7 @@ export default {
       if (this.isTemplate) {
         this.report = "#report";
       } else if (this.isShare) {
-        this.result = getShareTestPlanReport(this.planId, (data) => {
+        this.result = getShareTestPlanReport(this.shareId, this.planId, (data) => {
           this.report = data;
         });
       } else {

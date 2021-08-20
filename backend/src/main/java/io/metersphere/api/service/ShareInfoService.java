@@ -5,11 +5,15 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.share.*;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ShareInfo;
+import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.mapper.ShareInfoMapper;
 import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +35,9 @@ public class ShareInfoService {
     @Resource
     ShareInfoMapper shareInfoMapper;
     @Resource
-    SystemParameterService systemParameterService;
+    TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    TestPlanScenarioCaseService testPlanScenarioCaseService;
 
     public List<ApiDocumentInfoDTO> findApiDocumentSimpleInfoByRequest(ApiDocumentRequest request) {
         if (this.isParamLegitimacy(request)) {
@@ -439,5 +445,34 @@ public class ShareInfoService {
 
     public ShareInfo get(String id) {
         return shareInfoMapper.selectByPrimaryKey(id);
+    }
+
+    public void validate(String shareId, String customData) {
+        ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
+        if (shareInfo == null) {
+            MSException.throwException("shareInfo not exist!");
+        } else {
+            if (!StringUtils.equals(customData, shareInfo.getCustomData())) {
+                MSException.throwException("validate failure!");
+            }
+        }
+    }
+
+    public void apiReportValidate(String shareId, String testId) {
+        ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
+        String planId = shareInfo.getCustomData();
+        TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(testId);
+        if (!StringUtils.equals(planId, testPlanApiCase.getTestPlanId())) {
+            MSException.throwException("validate failure!");
+        }
+    }
+
+    public void scenarioReportValidate(String shareId, String reportId) {
+        ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
+        String planId = shareInfo.getCustomData();
+        TestPlanApiScenario testPlanApiScenario = testPlanScenarioCaseService.selectByReportId(reportId);
+        if (!StringUtils.equals(planId, testPlanApiScenario.getTestPlanId())) {
+            MSException.throwException("validate failure!");
+        }
     }
 }

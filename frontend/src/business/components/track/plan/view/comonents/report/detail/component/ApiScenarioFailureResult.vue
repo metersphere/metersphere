@@ -45,7 +45,7 @@
         </ms-table>
       </el-col>
       <el-col :span="16" v-if="scenarioCases.length > 0">
-        <ms-api-report :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+        <ms-api-report :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
       </el-col>
     </el-row>
   </div>
@@ -69,7 +69,8 @@ export default {
     planId: String,
     isTemplate: Boolean,
     report: Object,
-    isShare: Boolean
+    isShare: Boolean,
+    shareId: String
   },
   data() {
     return {
@@ -90,7 +91,7 @@ export default {
           this.rowClick(this.scenarioCases[0]);
         }
       } else if (this.isShare) {
-        this.result = getSharePlanScenarioFailureCase(this.planId, (data) => {
+        this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
           this.scenarioCases = data;
           if (data && data.length > 0) {
             this.reportId = data[0].reportId;
