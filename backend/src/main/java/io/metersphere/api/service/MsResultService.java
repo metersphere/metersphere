@@ -219,7 +219,9 @@ public class MsResultService {
             }
             //xpath 提取错误会添加断言错误
             if (StringUtils.isBlank(responseAssertionResult.getMessage()) ||
-                    (StringUtils.isNotBlank(responseAssertionResult.getName()) && !responseAssertionResult.getName().endsWith("XPath2Extractor"))) {
+                    (StringUtils.isNotBlank(responseAssertionResult.getName()) && !responseAssertionResult.getName().endsWith("XPath2Extractor"))
+                    || (StringUtils.isNotBlank(responseAssertionResult.getContent()) && !responseAssertionResult.getContent().endsWith("XPath2Extractor"))
+            ) {
                 responseResult.getAssertions().add(responseAssertionResult);
             }
         }
@@ -252,6 +254,15 @@ public class MsResultService {
     private ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
         responseAssertionResult.setName(assertionResult.getName());
+        if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("==") != -1) {
+            String array[] = assertionResult.getName().split("==");
+            responseAssertionResult.setName(array[0]);
+            StringBuffer content = new StringBuffer();
+            for (int i = 1; i < array.length; i++) {
+                content.append(array[i]);
+            }
+            responseAssertionResult.setContent(content.toString());
+        }
         responseAssertionResult.setPass(!assertionResult.isFailure() && !assertionResult.isError());
         if (!responseAssertionResult.isPass()) {
             responseAssertionResult.setMessage(assertionResult.getFailureMessage());
