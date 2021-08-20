@@ -36,7 +36,7 @@
         </el-card>
       </div>
     </div>
-    <div style="color: black; padding-top: 50px; text-align: center">
+    <div style="color: gray; padding-top:20px; text-align: center">
       - 仅显示最近3个月的站内消息 -
     </div>
   </div>
@@ -108,8 +108,7 @@ export default {
 
 <style scoped>
 .report-container {
-  height: calc(100vh - 180px);
-  min-height: 600px;
+  height: calc(100vh - 250px);
   overflow-y: auto;
 }
 
