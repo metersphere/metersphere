@@ -123,7 +123,6 @@ public class TestCaseReviewController {
 
     @PostMapping("/edit/status/{reviewId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_REVIEW_READ_EDIT)
-    @SendNotice(taskType = NoticeConstants.TaskType.REVIEW_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "track/ReviewEnd", subject = "测试评审通知")
     public void editTestPlanStatus(@PathVariable String reviewId) {
         checkPermissionService.checkTestReviewOwner(reviewId);
         testCaseReviewService.editTestReviewStatus(reviewId);

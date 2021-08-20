@@ -38,6 +38,7 @@ public interface NoticeConstants {
         String CREATE = "CREATE";
         String UPDATE = "UPDATE";
         String DELETE = "DELETE";
+        String COMPLETE = "COMPLETE";
 
         String CASE_CREATE = "CASE_CREATE";
         String CASE_UPDATE = "CASE_UPDATE";

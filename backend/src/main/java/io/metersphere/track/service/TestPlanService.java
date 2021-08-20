@@ -14,14 +14,20 @@ import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.service.*;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.MathUtils;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
@@ -190,7 +196,7 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlanWithBLOBs());
     }
 
-    public TestPlan editTestPlan(TestPlanDTO testPlan) {
+    public TestPlan editTestPlan(TestPlanWithBLOBs testPlan) {
         checkTestPlanExist(testPlan);
         TestPlan res = testPlanMapper.selectByPrimaryKey(testPlan.getId()); //  先查一次库
         testPlan.setUpdateTime(System.currentTimeMillis());
@@ -226,7 +232,7 @@ public class TestPlanService {
             i = testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
         }
 
-        return testPlan;
+        return testPlanMapper.selectByPrimaryKey(testPlan.getId());
     }
 
     //计划内容
@@ -248,7 +254,7 @@ public class TestPlanService {
         Map<String, Object> context = new HashMap<>();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         context.put("url", baseSystemConfigDTO.getUrl());
-        context.put("testPlanName", testPlan.getName());
+        context.put("name", testPlan.getName());
         context.put("start", start);
         context.put("end", end);
         context.put("id", testPlan.getId());
@@ -374,11 +380,11 @@ public class TestPlanService {
         statusList.addAll(testPlanApiCaseService.getExecResultByPlanId(testPlanId));
         statusList.addAll(testPlanScenarioCaseService.getExecResultByPlanId(testPlanId));
         statusList.addAll(testPlanLoadCaseService.getStatus(testPlanId));
-        TestPlanDTO testPlanDTO = new TestPlanDTO();
-        testPlanDTO.setId(testPlanId);
+        TestPlanWithBLOBs testPlanWithBLOBs = testPlanMapper.selectByPrimaryKey(testPlanId);
+        testPlanWithBLOBs.setId(testPlanId);
         if (statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
-            testPlanDTO.setStatus(TestPlanStatus.Prepare.name());
-            editTestPlan(testPlanDTO);
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Prepare.name());
+            editTestPlan(testPlanWithBLOBs);
             return;
         }
         int passNum = 0, prepareNum = 0, failNum = 0;
@@ -394,14 +400,16 @@ public class TestPlanService {
             }
         }
         if (passNum == statusList.size()) {   //  全部通过
-            testPlanDTO.setStatus(TestPlanStatus.Completed.name());
-            this.editTestPlan(testPlanDTO);
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Completed.name());
+            this.editTestPlan(testPlanWithBLOBs);
+            // 发送成功通知
+            sendCompletedNotice(testPlanWithBLOBs);
         } else if (prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
-            testPlanDTO.setStatus(TestPlanStatus.Finished.name());
-            editTestPlan(testPlanDTO);
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(testPlanWithBLOBs);
         } else if (prepareNum != 0) {    //  进行中
-            testPlanDTO.setStatus(TestPlanStatus.Underway.name());
-            editTestPlan(testPlanDTO);
+            testPlanWithBLOBs.setStatus(TestPlanStatus.Underway.name());
+            editTestPlan(testPlanWithBLOBs);
         }
     }
 
@@ -606,30 +614,28 @@ public class TestPlanService {
         testPlan.setStatus(status);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
         TestPlan testPlans = getTestPlan(planId);
-        List<String> userIds = new ArrayList<>();
-        userIds.add(testPlans.getCreator());
-        AddTestPlanRequest _testPlans = new AddTestPlanRequest();
-        if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlans.getStatus())) {
+
+        sendCompletedNotice(testPlans);
+    }
+
+    private void sendCompletedNotice(TestPlan testPlan) {
+        if (StringUtils.equals(TestPlanStatus.Completed.name(), testPlan.getStatus())) {
             try {
-                BeanUtils.copyBean(_testPlans, testPlans);
-                String context = getTestPlanContext(_testPlans, NoticeConstants.Event.UPDATE);
-                User user = userMapper.selectByPrimaryKey(_testPlans.getCreator());
-                Map<String, Object> paramMap = getTestPlanParamMap(_testPlans);
-                paramMap.put("operator", user.getName());
+                String context = getTestPlanContext(testPlan, NoticeConstants.Event.UPDATE);
+                Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
                 NoticeModel noticeModel = NoticeModel.builder()
+                        .operator(SessionUtils.getUserId())
                         .context(context)
-                        .relatedUsers(userIds)
                         .subject(Translator.get("test_plan_notification"))
                         .mailTemplate("track/TestPlanEnd")
                         .paramMap(paramMap)
-                        .event(NoticeConstants.Event.UPDATE)
+                        .event(NoticeConstants.Event.COMPLETE)
                         .build();
                 noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
         }
-
     }
 
 
@@ -691,7 +697,7 @@ public class TestPlanService {
         return projectName;
     }
 
-    private String getTestPlanContext(AddTestPlanRequest testPlan, String type) {
+    private String getTestPlanContext(TestPlan testPlan, String type) {
         User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
         Long startTime = testPlan.getPlannedStartTime();
         Long endTime = testPlan.getPlannedEndTime();
@@ -984,7 +990,7 @@ public class TestPlanService {
 
         String planReportId = testPlanReport.getId();
 
-        testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. "+"API Run Config:【"+apiRunConfig+"】");
+        testPlanLog.info("ReportId[" + planReportId + "] created. TestPlanID:[" + testPlanID + "]. " + "API Run Config:【" + apiRunConfig + "】");
 
         //不同任务的执行ID
         Map<String, String> executePerformanceIdMap = new HashMap<>();
@@ -992,7 +998,7 @@ public class TestPlanService {
         Map<String, String> executeScenarioCaseIdMap = new HashMap<>();
 
         //执行性能测试任务
-        Map<String,String> performaneReportIDMap = new LinkedHashMap<>();
+        Map<String, String> performaneReportIDMap = new LinkedHashMap<>();
 
         for (Map.Entry<String, String> entry : performanceIdMap.entrySet()) {
             String id = entry.getKey();
@@ -1011,7 +1017,7 @@ public class TestPlanService {
             try {
                 reportId = performanceTestService.run(performanceRequest);
                 if (reportId != null) {
-                    performaneReportIDMap.put(reportId,caseID);
+                    performaneReportIDMap.put(reportId, caseID);
                     TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
                     testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
                     testPlanLoadCase.setLoadReportId(reportId);

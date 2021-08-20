@@ -6,6 +6,7 @@ import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
@@ -57,6 +58,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         paramMap.put("status", loadTestReport.getStatus());
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
                 .successContext(successContext)
                 .successMailTemplate("PerformanceApiSuccessNotification")
                 .failedContext(failedContext)
