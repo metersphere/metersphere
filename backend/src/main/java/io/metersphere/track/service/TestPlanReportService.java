@@ -1237,4 +1237,15 @@ public class TestPlanReportService {
 
         return report;
     }
+
+    public void deleteByPlanId(String planId) {
+        TestPlanReportExample example = new TestPlanReportExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        List<TestPlanReport> reportList = this.testPlanReportMapper.selectByExample(example);
+        List<String> testPlanReportIdList = new ArrayList<>();
+        for (TestPlanReport report:reportList) {
+            testPlanReportIdList.add(report.getId());
+        }
+        this.delete(testPlanReportIdList);
+    }
 }

@@ -285,6 +285,7 @@ public class TestPlanService {
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
         testPlanLoadCaseService.deleteByPlanId(planId);
+        testPlanReportService.deleteByPlanId(planId);
 
         //删除定时任务
         scheduleService.deleteByResourceId(planId, ScheduleGroup.TEST_PLAN_TEST.name());
