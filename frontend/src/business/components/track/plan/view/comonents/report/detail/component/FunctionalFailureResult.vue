@@ -69,13 +69,14 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanFunctionFailureCase} from "@/network/test-plan";
+import {getPlanFunctionFailureCase, getSharePlanFunctionFailureCase} from "@/network/test-plan";
 export default {
   name: "FunctionalFailureResult",
   components: {StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
     planId: String,
     isTemplate: Boolean,
+    isShare: Boolean,
     report: {}
   },
   data() {
@@ -90,6 +91,10 @@ export default {
     getFailureTestCase() {
       if (this.isTemplate) {
         this.failureTestCases = this.report.failureTestCases;
+      } else if (this.isShare) {
+        getSharePlanFunctionFailureCase(this.planId, (data) => {
+          this.failureTestCases = data;
+        });
       } else {
         getPlanFunctionFailureCase(this.planId, (data) => {
           this.failureTestCases = data;

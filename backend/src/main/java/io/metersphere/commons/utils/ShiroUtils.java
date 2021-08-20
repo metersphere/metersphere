@@ -48,9 +48,15 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/anonymous/**", "anon");
 
-        //api-对外文档页面提供的查询接口
-        filterChainDefinitionMap.put("/api/document/**", "anon");
+        //分享相关接口
+        filterChainDefinitionMap.put("/share/info/generateShareInfo", "anon");
+        filterChainDefinitionMap.put("/share/info/selectApiInfoByParam", "anon");
+        filterChainDefinitionMap.put("/share/get/**", "anon");
+        filterChainDefinitionMap.put("/share/info", "apikey, csrf, authc"); // 需要认证
         filterChainDefinitionMap.put("/document/**", "anon");
+        filterChainDefinitionMap.put("/share/**", "anon");
+        filterChainDefinitionMap.put("/sharePlanReport", "anon");
+
         filterChainDefinitionMap.put("/system/theme", "anon");
         filterChainDefinitionMap.put("/system/save/baseurl/**", "anon");
         filterChainDefinitionMap.put("/system/timeout", "anon");
@@ -67,7 +73,6 @@ public class ShiroUtils {
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
         filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
-        filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
         filterChainDefinitionMap.put("/test/case/file/preview/**", "apikey, authc"); // 预览测试用例附件 不用校验 csrf
         filterChainDefinitionMap.put("/mock", "apikey, authc"); // 跳转到 /mock接口 不用校验 csrf
         filterChainDefinitionMap.put("/resource/md/get/**", "apikey, authc");

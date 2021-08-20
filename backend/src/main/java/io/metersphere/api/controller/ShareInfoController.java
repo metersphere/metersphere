@@ -1,14 +1,13 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.dto.document.ApiDocumentInfoDTO;
-import io.metersphere.api.dto.document.ApiDocumentRequest;
-import io.metersphere.api.dto.document.ApiDocumentShareDTO;
-import io.metersphere.api.dto.document.ApiDocumentShareRequest;
-import io.metersphere.api.service.APITestService;
+import io.metersphere.api.dto.share.ApiDocumentInfoDTO;
+import io.metersphere.api.dto.share.ApiDocumentRequest;
+import io.metersphere.api.dto.share.ApiDocumentShareRequest;
+import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.service.ApiDefinitionService;
-import io.metersphere.api.service.ApiDocumentService;
+import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiDocumentShare;
+import io.metersphere.base.domain.ShareInfo;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -23,19 +22,22 @@ import java.util.stream.Collectors;
  * @Description
  */
 @RestController
-@RequestMapping(value = "/api/document")
-public class ApiDocumentController {
+@RequestMapping(value = "/share/info")
+public class ShareInfoController {
     @Resource
-    ApiDocumentService apiDocumentService;
+    ShareInfoService shareInfoService;
     @Resource
     ApiDefinitionService apiDefinitionService;
-    @Resource
-    APITestService apiTestService;
 
     @PostMapping("/selectApiSimpleInfo")
     public List<ApiDocumentInfoDTO> list(@RequestBody ApiDocumentRequest request) {
-        List<ApiDocumentInfoDTO> returnList = apiDocumentService.findApiDocumentSimpleInfoByRequest(request);
+        List<ApiDocumentInfoDTO> returnList = shareInfoService.findApiDocumentSimpleInfoByRequest(request);
         return returnList;
+    }
+
+    @GetMapping("/get/{id}")
+    public ShareInfo get(@PathVariable String id) {
+        return shareInfoService.get(id);
     }
 
     @PostMapping("/selectApiInfoByParam")
@@ -52,7 +54,7 @@ public class ApiDocumentController {
                     model.setId(id);
                     model.setName(id);
                 }
-                ApiDocumentInfoDTO returnDTO = apiDocumentService.conversionModelToDTO(model);
+                ApiDocumentInfoDTO returnDTO = shareInfoService.conversionModelToDTO(model);
                 returnList.add(returnDTO);
             }
         }
@@ -64,7 +66,7 @@ public class ApiDocumentController {
         ApiDefinitionWithBLOBs apiModel = apiDefinitionService.getBLOBs(id);
         ApiDocumentInfoDTO returnDTO = new ApiDocumentInfoDTO();
         try{
-            returnDTO = apiDocumentService.conversionModelToDTO(apiModel);
+            returnDTO = shareInfoService.conversionModelToDTO(apiModel);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -73,9 +75,16 @@ public class ApiDocumentController {
     }
 
     @PostMapping("/generateApiDocumentShareInfo")
-    public ApiDocumentShareDTO generateApiDocumentShareInfo(@RequestBody ApiDocumentShareRequest request) {
-        ApiDocumentShare apiShare = apiDocumentService.generateApiDocumentShare(request);
-        ApiDocumentShareDTO returnDTO = apiDocumentService.conversionApiDocumentShareToDTO(apiShare);
+    public ShareInfoDTO generateApiDocumentShareInfo(@RequestBody ApiDocumentShareRequest request) {
+        ShareInfo apiShare = shareInfoService.generateApiDocumentShareInfo(request);
+        ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
+        return returnDTO;
+    }
+
+    @PostMapping("/generateShareInfo")
+    public ShareInfoDTO generateShareInfo(@RequestBody ShareInfo request) {
+        ShareInfo apiShare = shareInfoService.generateShareInfo(request);
+        ShareInfoDTO returnDTO = shareInfoService.conversionShareInfoToDTO(apiShare);
         return returnDTO;
     }
 }

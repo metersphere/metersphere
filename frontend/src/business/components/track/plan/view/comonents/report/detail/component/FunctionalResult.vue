@@ -13,11 +13,10 @@
 
 <script>
 
-import MsPieChart from "@/business/components/common/components/MsPieChart";
 import MsDoughnutPieChart from "@/business/components/common/components/MsDoughnutPieChart";
 export default {
   name: "FunctionalResult",
-  components: {MsDoughnutPieChart, MsPieChart},
+  components: {MsDoughnutPieChart},
   data() {
     return {
       caseDataMap: new Map([

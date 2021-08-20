@@ -1352,8 +1352,8 @@ public class TestPlanService {
                 }
             }
         } catch (Exception e) {
-            MSException.throwException(e.getMessage());
             LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
         }
     }
 

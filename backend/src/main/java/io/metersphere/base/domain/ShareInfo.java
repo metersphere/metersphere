@@ -4,7 +4,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class ApiDocumentShare implements Serializable {
+public class ShareInfo implements Serializable {
     private String id;
 
     private Long createTime;
@@ -15,7 +15,7 @@ public class ApiDocumentShare implements Serializable {
 
     private String shareType;
 
-    private String shareApiId;
+    private String customData;
 
     private static final long serialVersionUID = 1L;
 }

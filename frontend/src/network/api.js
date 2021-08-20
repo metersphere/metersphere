@@ -16,4 +16,12 @@ export function getApiReport(testId, callback) {
   return testId ? baseGet('/api/definition/report/getReport/' + testId, callback) : {};
 }
 
+export function getShareApiReport(testId, callback) {
+  return testId ? baseGet('/share/api/definition/report/getReport/' + testId, callback) : {};
+}
+
+export function getShareScenarioReport(reportId, callback) {
+  return reportId ? baseGet('/share/api/scenario/report/get/' + reportId, callback) : {};
+}
+
 

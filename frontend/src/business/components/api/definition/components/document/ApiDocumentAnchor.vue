@@ -325,7 +325,7 @@ import ApiStatus from "@/business/components/api/definition/components/list/ApiS
 import {calculate} from "@/business/components/api/definition/model/ApiTestModel";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import Api from "@/business/components/api/router";
-import {uuid} from "@/common/js/utils";
+import {generateApiDocumentShareInfo} from "@/network/share";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const apiDocumentBatchShare = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
@@ -486,7 +486,7 @@ export default {
       }
       simpleRequest.trashEnable = this.trashEnable;
 
-      let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
+      let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
 
 
       this.$post(simpleInfoUrl, simpleRequest, response => {
@@ -503,7 +503,6 @@ export default {
       });
     },
     shareApiDocument(isBatchShare){
-      let thisHost = window.location.host;
       this.shareUrl = "";
       this.batchShareUrl = "";
       let shareIdArr = [];
@@ -523,17 +522,17 @@ export default {
       genShareInfoParam.shareApiIdList = shareIdArr;
       genShareInfoParam.shareType = shareType;
 
-      this.$post("/api/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
+      generateApiDocumentShareInfo(genShareInfoParam, (data) => {
+        let thisHost = window.location.host;
         if(shareType == "Batch"){
-          this.batchShareUrl = thisHost+"/document"+res.data.shareUrl;
+          this.batchShareUrl = thisHost + "/document" + data.shareUrl;
         }else{
-          this.shareUrl = thisHost+"/document"+res.data.shareUrl;
+          this.shareUrl = thisHost + "/document" + data.shareUrl;
         }
-      }, (error) => {
       });
     },
     selectApiInfo(index,apiId,needUpdateShowArray) {
-      let simpleInfoUrl = "/api/document/selectApiInfoById/" + apiId;
+      let simpleInfoUrl = "/share/info/selectApiInfoById/" + apiId;
       this.$get(simpleInfoUrl, response => {
         let returnData = response.data;
         this.$set(this.apiInfoArray,index,returnData);
@@ -559,7 +558,7 @@ export default {
       }else {
         let params = {};
         params.apiIdList = apiIdArr;
-        this.$post("/api/document/selectApiInfoByParam", params, response => {
+        this.$post("/share/info/selectApiInfoByParam", params, response => {
           let returnDatas = response.data;
           for(let dataIndex = 0; dataIndex < returnDatas.length;dataIndex ++){
             let index = indexArr[dataIndex];

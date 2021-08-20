@@ -22,7 +22,7 @@
         </el-col>
       </el-row>
       <el-form-item :label="'报告总结'">
-        <el-link v-if="!isTemplate" @click="isEdit = true">
+        <el-link v-if="!isTemplate && !isShare" @click="isEdit = true">
           编辑
         </el-link>
       </el-form-item>
@@ -53,7 +53,8 @@ export default {
   props: {
     planId: String,
     report: Object,
-    isTemplate: Boolean
+    isTemplate: Boolean,
+    isShare: Boolean
   },
   data() {
     return {

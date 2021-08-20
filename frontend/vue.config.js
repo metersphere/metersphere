@@ -34,11 +34,16 @@ module.exports = {
       template: "src/document/document.html",
       filename: "document.html",
     },
+    sharePlanReport: {
+      entry: "src/template/report/plan/share/share-plan-report.js",
+      template: "src/template/report/plan/share/share-plan-report.html",
+      filename: "share-plan-report.html",
+    },
     planReport: {
       entry: "src/template/report/plan/plan-report.js",
       template: "src/template/report/plan/plan-report.html",
       filename: "plan-report.html",
-    }
+    },
   },
   configureWebpack: {
     devtool: 'source-map',

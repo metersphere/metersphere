@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.document;
+package io.metersphere.api.dto.share;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ApiDocumentShareDTO {
+public class ShareInfoDTO {
     private String id;
     private String shareUrl;
 }

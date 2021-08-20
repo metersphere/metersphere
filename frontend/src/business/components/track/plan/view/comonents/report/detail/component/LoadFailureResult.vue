@@ -40,14 +40,15 @@
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanLoadFailureCase} from "@/network/test-plan";
+import {getPlanLoadFailureCase, getSharePlanLoadFailureCase} from "@/network/test-plan";
 export default {
   name: "LoadFailureResult",
   components: {StatusTableItem, MethodTableItem, TypeTableItem},
   props: {
     planId: String,
     report: Object,
-    isTemplate: Boolean
+    isTemplate: Boolean,
+    isShare: Boolean
   },
   data() {
     return {
@@ -61,6 +62,10 @@ export default {
     getFailureTestCase() {
       if (this.isTemplate) {
         this.failureTestCases = this.report.loadFailureTestCases;
+      } else if (this.isShare) {
+        getSharePlanLoadFailureCase(this.planId, (data) => {
+          this.failureTestCases = data;
+        });
       } else {
         getPlanLoadFailureCase(this.planId, (data) => {
           this.failureTestCases = data;
