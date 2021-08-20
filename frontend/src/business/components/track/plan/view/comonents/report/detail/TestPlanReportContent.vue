@@ -2,50 +2,43 @@
   <div class="container">
     <el-main>
       <el-card v-loading="result ? result.loading : false">
-
-          <div v-if="!isTemplate && !isShare" class="head-bar head-right">
-
-            <ms-share-button :share-url="shareUrl" @click="shareApiDocument"/>
-
-            <el-row>
-              <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
-                {{'导出HTML'}}
-              </el-button>
-            </el-row>
-            <el-row>
-              <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
-                {{'编辑模板'}}
-              </el-button>
-            </el-row>
-          </div>
-
-        <test-plan-report-header :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
+        <test-plan-report-buttons :plan-id="planId" :is-share="isShare" :report="report"
+                                  v-if="!isTemplate && !isShare"/>
+        <test-plan-overview-report :report="report"/>
+        <test-plan-summary-report :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
         <test-plan-functional-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="functionalEnable" :plan-id="planId" :report="report"/>
         <test-plan-api-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="apiEnable" :report="report" :plan-id="planId"/>
         <test-plan-load-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="loadEnable" :report="report" :plan-id="planId"/>
 
+        <test-plan-report-edit ref="reportEdit"/>
       </el-card>
     </el-main>
   </div>
 </template>
 
 <script>
-import TestPlanReportHeader from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportHeader";
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
 import {getShareTestPlanReport, getTestPlanReport} from "@/network/test-plan";
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanLoadReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanLoadReport";
-import {generateShareInfo} from "@/network/share";
-import MsShareButton from "@/business/components/common/components/MsShareButton";
+import TestPlanReportContainer
+  from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
+import TestPlanOverviewReport
+  from "@/business/components/track/plan/view/comonents/report/detail/TestPlanOverviewReport";
+import TestPlanSummaryReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanSummaryReport";
+import TestPlanReportButtons from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportButtons";
 export default {
   name: "TestPlanReportContent",
   components: {
-    MsShareButton,
+    TestPlanReportButtons,
+    TestPlanSummaryReport,
+    TestPlanOverviewReport,
+    TestPlanReportContainer,
     TestPlanLoadReport,
     TestPlanApiReport,
     TestPlanFunctionalReport,
-    TestPlanReportHeader},
+    },
   props: {
     planId:String,
     isTemplate: Boolean,
@@ -56,7 +49,6 @@ export default {
     return {
       report: {},
       result: {},
-      isTestManagerOrTestUser: false,
       shareUrl: ''
     };
   },
@@ -66,7 +58,6 @@ export default {
     }
   },
   created() {
-    this.isTestManagerOrTestUser = true;
     this.getReport();
   },
   computed: {
@@ -94,39 +85,6 @@ export default {
         });
       }
     },
-    handleEditTemplate() {
-
-    },
-    shareApiDocument(){
-      let pram = {};
-      pram.customData = this.planId;
-      pram.shareType = 'PLAN_REPORT';
-      generateShareInfo(pram, (data) => {
-        let thisHost = window.location.host;
-          this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
-      });
-    },
-    handleExportHtml() {
-      let config = {
-        url: '/test/plan/report/export/' + this.planId,
-        method: 'get',
-        responseType: 'blob'
-      };
-      if (this.isShare) {
-        config.url = '/share' + config.url;
-      }
-      this.result = this.$download(config, this.report.name + '.html');
-    },
-    handleShare()  {
-      let param = {
-        customData: this.planId,
-        shareType: 'PLAN_REPORT'
-      };
-      generateShareInfo(param, (data) => {
-        let thisHost = window.location.host;
-        let shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
-      });
-    }
   }
 }
 </script>
@@ -137,34 +95,10 @@ export default {
   padding: 15px;
 }
 
-
 /deep/ .el-tabs .el-tabs__header {
   padding-left: 15px;
   padding-right: 15px;
   padding-top: 15px;
 }
-
-
-.head-right {
-  text-align: right;
-  float: right;
-}
-
-.head-bar .el-button {
-  margin-bottom: 10px;
-  width: 80px;
-  margin-right: 10px;
-  display: block;
-}
-
-.el-button+.el-button {
-  margin-left: 0px;
-}
-
-/*.head-bar {*/
-/*  position: fixed;*/
-/*  right: 10px;*/
-/*  padding: 20px;*/
-/*}*/
 
 </style>

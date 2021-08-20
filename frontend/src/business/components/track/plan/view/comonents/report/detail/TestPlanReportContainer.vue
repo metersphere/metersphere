@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <ms-form-divider :title="title"/>
+  <div class="report-container">
+    <ms-form-divider :title="title">
+      <slot name="title"></slot>
+    </ms-form-divider>
 <!--    <el-main>-->
       <slot/>
 <!--    </el-main>-->
