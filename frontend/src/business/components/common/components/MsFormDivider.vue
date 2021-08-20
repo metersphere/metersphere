@@ -1,5 +1,12 @@
 <template>
-  <p> {{title}} </p>
+  <p>
+    <span>
+      {{title}}
+    </span>
+    <span>
+      <slot></slot>
+    </span>
+  </p>
 </template>
 
 <script>

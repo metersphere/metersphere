@@ -22,7 +22,7 @@
           return '';
         },
         set: function (val) {
-          this.$emit('updateRichText', val);
+          this.$emit('update:content', val);
         }
       }
     },
