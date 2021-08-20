@@ -176,12 +176,14 @@ export default {
     mockSetting() {
       let mockParam = {};
       mockParam.projectId = this.projectId;
-      mockParam.apiId = this.currentApi.id;
-      this.$post('/mockConfig/genMockConfig', mockParam, response => {
-        let mockConfig = response.data;
-        mockConfig.apiName = this.currentApi.name;
-        this.baseMockConfigData = mockConfig;
-      });
+      if(this.currentApi.id){
+        mockParam.apiId = this.currentApi.id;
+        this.$post('/mockConfig/genMockConfig', mockParam, response => {
+          let mockConfig = response.data;
+          mockConfig.apiName = this.currentApi.name;
+          this.baseMockConfigData = mockConfig;
+        });
+      }
     },
     runTest(data) {
       this.$emit("runTest", data);

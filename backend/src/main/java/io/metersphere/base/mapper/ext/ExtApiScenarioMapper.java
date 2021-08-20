@@ -71,5 +71,5 @@ public interface ExtApiScenarioMapper {
 
     List<String> selectIdsByExecuteTimeIsNull();
 
-    long countExeciteTimesByProjectID(String projectId);
+    Long countExecuteTimesByProjectID(String projectId);
 }
