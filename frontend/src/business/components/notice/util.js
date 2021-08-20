@@ -12,6 +12,9 @@ export function getOperation(operation) {
     case "COMMENT":
       operation = "评论了";
       break;
+    case "COMPLETE":
+      operation = "完成了";
+      break;
     case "CLOSE_SCHEDULE":
       operation = "关闭了定时任务";
       break;

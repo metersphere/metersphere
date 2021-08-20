@@ -790,6 +790,7 @@ public class ApiDefinitionService {
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
                 NoticeModel noticeModel = NoticeModel.builder()
+                        .operator(SessionUtils.getUserId())
                         .context(context)
                         .testId(scheduleId)
                         .subject(Translator.get("swagger_url_scheduled_import_notification"))
@@ -814,6 +815,7 @@ public class ApiDefinitionService {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("url", request.getSwaggerUrl());
             NoticeModel noticeModel = NoticeModel.builder()
+                    .operator(SessionUtils.getUserId())
                     .context(context)
                     .testId(scheduleId)
                     .subject(Translator.get("swagger_url_scheduled_import_notification"))

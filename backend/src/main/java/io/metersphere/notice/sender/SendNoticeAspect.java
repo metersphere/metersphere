@@ -141,6 +141,7 @@ public class SendNoticeAspect {
                     .mailTemplate(sendNotice.mailTemplate())
                     .paramMap(paramMap)
                     .event(sendNotice.event())
+                    .status((String) paramMap.get("status"))
                     .build();
             noticeSendService.send(sendNotice.taskType(), noticeModel);
         }
@@ -169,6 +170,9 @@ public class SendNoticeAspect {
                 break;
             case NoticeConstants.Event.COMMENT:
                 operation = "评论了";
+                break;
+            case NoticeConstants.Event.COMPLETE:
+                operation = "完成了";
                 break;
             case NoticeConstants.Event.CLOSE_SCHEDULE:
                 operation = "关闭了定时任务";

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class InSiteNoticeSender extends AbstractNoticeSender {
@@ -28,20 +29,22 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
 
         receivers.forEach(receiver -> {
             LogUtil.debug("发送站内通知: {}, 内容: {}", receiver, context);
+
+            Map<String, Object> paramMap = noticeModel.getParamMap();
             Notification notification = new Notification();
             notification.setTitle(noticeModel.getSubject());
             notification.setContent(context);
             notification.setOperator(noticeModel.getOperator());
             notification.setOperation(noticeModel.getEvent());
-            notification.setResourceId((String) noticeModel.getParamMap().get("id"));
+            notification.setResourceId((String) paramMap.get("id"));
             notification.setResourceType(messageDetail.getTaskType());
             //
-            if (noticeModel.getParamMap().get("name") != null) {
-                notification.setResourceName((String) noticeModel.getParamMap().get("name"));
+            if (paramMap.get("name") != null) {
+                notification.setResourceName((String) paramMap.get("name"));
             }
 
-            if (noticeModel.getParamMap().get("title") != null) {
-                notification.setResourceName((String) noticeModel.getParamMap().get("title"));
+            if (paramMap.get("title") != null) {
+                notification.setResourceName((String) paramMap.get("title"));
             }
 
             notification.setType(receiver.getType());

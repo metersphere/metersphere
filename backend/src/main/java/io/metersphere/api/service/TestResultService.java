@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
@@ -242,6 +243,7 @@ public class TestResultService {
         paramMap.put("executionEnvironment", report.getExecutionEnvironment());
         paramMap.put("principal", report.getPrincipal());
         NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
                 .failedContext(failedContext)

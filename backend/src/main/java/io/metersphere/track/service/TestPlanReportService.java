@@ -982,6 +982,7 @@ public class TestPlanReportService {
         }
 
         NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
