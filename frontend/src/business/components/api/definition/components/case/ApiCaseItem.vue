@@ -1,5 +1,5 @@
 <template>
-  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)" v-loading="loading">
+  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)" v-loading="saveLoading">
     <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
         <el-col :span="3">
@@ -220,6 +220,7 @@ export default {
         {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
       ],
       methodColorMap: new Map(API_METHOD_COLOUR),
+      saveLoading: false,
     }
   },
   props: {
@@ -367,9 +368,9 @@ export default {
       });
     },
     reload() {
-      this.loading = true
+      this.saveLoading = true
       this.$nextTick(() => {
-        this.loading = false
+        this.saveLoading = false
       });
     },
     saveCase(row, hideAlert) {
@@ -414,6 +415,10 @@ export default {
           this.reload();
           if (!hideAlert) {
             this.$emit('refresh');
+          }
+          // 刷新编辑后用例列表
+          if (this.api.source === "editCase") {
+            this.$store.state.currentApiCase = {refresh: "true"};
           }
         }
       });

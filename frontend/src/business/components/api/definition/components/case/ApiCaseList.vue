@@ -184,6 +184,7 @@ export default {
     },
     add(api) {
       this.api = api;
+      this.api.source = "editCase";
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition();
       this.visible = true;
@@ -262,14 +263,14 @@ export default {
       this.runResult = {testId: getUUID()};
       this.$refs.apiCaseItem.runLoading = false;
       this.$success(this.$t('organization.integration.successful_operation'));
-      this.$emit("refresh");
+      //this.$emit("refresh");
     },
     errorRefresh() {
       this.batchLoadingIds = [];
       this.singleLoading = false;
       this.singleRunId = "";
       this.$refs.apiCaseItem.runLoading = false;
-      this.$emit("refresh");
+      //this.$emit("refresh");
     },
     refresh() {
       this.getApiTest();
@@ -414,7 +415,7 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
-      this.$emit("refresh", row.id);
+      this.$emit("refreshCase", row.id);
     },
 
     stop(callback) {
