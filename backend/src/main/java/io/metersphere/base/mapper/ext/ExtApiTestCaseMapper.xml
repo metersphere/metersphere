@@ -187,7 +187,15 @@
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
-
+        <if test="${condition}.isReference != null">
+            and t1.id
+            <if test='${condition}.isReference.value == "true"'>
+                in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
+            </if>
+            <if test='${condition}.isReference.value == "false"'>
+                not in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
+            </if>
+        </if>
         <if test="${condition}.status != null">
             and t2.status
             <include refid="condition">
