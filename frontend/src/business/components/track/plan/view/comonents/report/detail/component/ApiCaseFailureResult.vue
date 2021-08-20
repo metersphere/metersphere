@@ -58,10 +58,10 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanApiFailureCase} from "@/network/test-plan";
+import {getPlanApiFailureCase, getSharePlanApiFailureCase} from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import {getApiReport} from "@/network/api";
+import {getApiReport, getShareApiReport} from "@/network/api";
 import MsRequestResultTail from "@/business/components/api/definition/components/response/RequestResultTail";
 export default {
   name: "ApiCaseFailureResult",
@@ -71,7 +71,8 @@ export default {
   props: {
     planId: String,
     isTemplate: Boolean,
-    report: Object
+    report: Object,
+    isShare: Boolean
   },
   data() {
     return {
@@ -90,6 +91,13 @@ export default {
         if (this.apiCases && this.apiCases.length > 0) {
           this.rowClick(this.apiCases[0]);
         }
+      } else if (this.isShare) {
+        this.result = getSharePlanApiFailureCase(this.planId, (data) => {
+          this.apiCases = data;
+          if (data && data.length > 0) {
+            this.rowClick(data[0]);
+          }
+        });
       } else {
         this.result = getPlanApiFailureCase(this.planId, (data) => {
           this.apiCases = data;
@@ -102,6 +110,10 @@ export default {
     rowClick(row) {
       if (this.isTemplate) {
         this.response = JSON.parse(row.response);
+      } else if (this.isShare) {
+        getShareApiReport(row.id, (data) => {
+          this.response = JSON.parse(data.content);
+        });
       } else {
         getApiReport(row.id, (data) => {
           this.response = JSON.parse(data.content);

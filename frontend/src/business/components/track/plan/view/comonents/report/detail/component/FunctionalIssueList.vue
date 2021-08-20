@@ -56,8 +56,7 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 import {ISSUE_STATUS_MAP} from "@/common/js/table-constants";
-import {getIssuesByPlanId} from "@/network/Issue";
-import {getIssueTemplate} from "@/network/custom-field-template";
+import {getIssuesByPlanId, getShareIssuesByPlanId} from "@/network/Issue";
 export default {
   name: "FunctionalIssueList",
   components: {IssueDescriptionTableItem, MsTableColumn, MsTable},
@@ -65,34 +64,27 @@ export default {
     return {
       data: [],
       result: {},
-      isThirdPart: false,
+      isThirdPart: false
     }
   },
-  props: ['planId', 'isTemplate', 'report'],
+  props: ['planId', 'isTemplate', 'report', 'isShare'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
     },
   },
   mounted() {
-    if (this.isTemplate) {
-      this.isThirdPart = this.report.isThirdPartIssue;
-    } else {
-      getIssueTemplate()
-        .then((template) => {
-          if (template.platform === 'metersphere') {
-            this.isThirdPart = false;
-          } else {
-            this.isThirdPart = true;
-          }
-        });
-    }
+    this.isThirdPart = this.report.isThirdPartIssue;
     this.getIssues();
   },
   methods: {
     getIssues() {
       if (this.isTemplate) {
         this.data = this.report.issueList;
+      } else if (this.isShare) {
+        this.result = getShareIssuesByPlanId(this.planId, (data) => {
+          this.data = data;
+        });
       } else {
         this.result = getIssuesByPlanId(this.planId, (data) => {
           this.data = data;

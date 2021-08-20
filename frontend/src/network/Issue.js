@@ -1,6 +1,7 @@
 import {post, get} from "@/common/js/ajax";
 import {getPageDate} from "@/common/js/tableUtils";
 import {getCurrentProjectID} from "@/common/js/utils";
+import {baseGet} from "@/network/base-network";
 
 export function buildIssues(page) {
   let data = page.data;
@@ -33,14 +34,11 @@ export function getIssuesByCaseId(caseId, page) {
 }
 
 export function getIssuesByPlanId(planId, callback) {
-  if (planId) {
-    return get('/issues/plan/get/' + planId, (response) => {
-      if (callback) {
-        callback(response.data);
-      }
-    });
-  }
-  return {};
+  return planId ? baseGet('/issues/plan/get/' + planId, callback) : {};
+}
+
+export function getShareIssuesByPlanId(planId, callback) {
+  return planId ? baseGet('/share/issues/plan/get/' + planId, callback) : {};
 }
 
 export function buildPlatformIssue(data) {

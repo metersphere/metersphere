@@ -2,7 +2,7 @@
   <div>
     <div class="container">
       <el-main>
-        <test-plan-report-content :is-template="isTemplate" :plan-id="planId" ref="reportContent"/>
+        <test-plan-report-content :is-template="isTemplate" :is-share="isShare" :plan-id="planId" ref="reportContent"/>
       </el-main>
     </div>
   </div>
@@ -21,7 +21,7 @@ export default {
       return this.testPlan.id;
     },
   },
-  props: ['testPlan', 'isTemplate'],
+  props: ['testPlan', 'isTemplate', 'isShare'],
 }
 </script>
 

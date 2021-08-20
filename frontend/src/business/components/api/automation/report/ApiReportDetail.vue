@@ -41,6 +41,7 @@ import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getUUID, getCurrentProjectID} from "@/common/js/utils";
+import {getScenarioReport, getShareScenarioReport} from "@/network/api";
 
 export default {
   name: "MsApiReport",
@@ -78,6 +79,7 @@ export default {
     debug: Boolean,
     isTemplate: Boolean,
     templateReport: Object,
+    isShare: Boolean
   },
   watch: {
     reportId() {
@@ -238,14 +240,16 @@ export default {
         // 测试计划报告导出
         this.report = this.templateReport;
         this.buildReport();
+      } else if (this.isShare) {
+        getShareScenarioReport(this.reportId, (data) => {
+          this.report = data || {};
+          this.buildReport();
+        });
       } else {
-        if (this.reportId) {
-            let url = "/api/scenario/report/get/" + this.reportId;
-            this.$get(url, response => {
-              this.report = response.data || {};
-              this.buildReport();
-            });
-        }
+        getScenarioReport(this.reportId, (data) => {
+          this.report = data || {};
+          this.buildReport();
+        });
       }
     },
     buildReport() {

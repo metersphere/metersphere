@@ -2,14 +2,13 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.document.*;
+import io.metersphere.api.dto.share.*;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiDocumentShare;
-import io.metersphere.base.mapper.ApiDocumentShareMapper;
-import io.metersphere.base.mapper.ext.ExtApiDocumentMapper;
-import io.metersphere.base.mapper.ext.ExtApiDocumentShareMapper;
+import io.metersphere.base.domain.ShareInfo;
+import io.metersphere.base.mapper.ShareInfoMapper;
+import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -25,37 +24,35 @@ import java.util.*;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiDocumentService {
+public class ShareInfoService {
 
     @Resource
-    ExtApiDocumentMapper extApiDocumentMapper;
+    ExtShareInfoMapper extShareInfoMapper;
     @Resource
-    ApiDocumentShareMapper apiDocumentShareMapper;
-    @Resource
-    ExtApiDocumentShareMapper extApiDocumentShareMapper;
+    ShareInfoMapper shareInfoMapper;
     @Resource
     SystemParameterService systemParameterService;
 
     public List<ApiDocumentInfoDTO> findApiDocumentSimpleInfoByRequest(ApiDocumentRequest request) {
         if (this.isParamLegitimacy(request)) {
             if (request.getProjectId() == null) {
-                List<String> shareIdList = this.selectShareIdByApiDocumentShareId(request.getShareId());
+                List<String> shareIdList = this.selectShareIdByShareInfoId(request.getShareId());
                 request.setApiIdList(shareIdList);
-                return extApiDocumentMapper.findApiDocumentSimpleInfoByRequest(request);
+                return extShareInfoMapper.findApiDocumentSimpleInfoByRequest(request);
             } else {
-                return extApiDocumentMapper.findApiDocumentSimpleInfoByRequest(request);
+                return extShareInfoMapper.findApiDocumentSimpleInfoByRequest(request);
             }
         } else {
             return new ArrayList<>();
         }
     }
 
-    private List<String> selectShareIdByApiDocumentShareId(String shareId) {
+    private List<String> selectShareIdByShareInfoId(String shareId) {
         List<String> shareApiIdList = new ArrayList<>();
-        ApiDocumentShare share = apiDocumentShareMapper.selectByPrimaryKey(shareId);
+        ShareInfo share = shareInfoMapper.selectByPrimaryKey(shareId);
         if (share != null) {
             try {
-                JSONArray jsonArray = JSONArray.parseArray(share.getShareApiId());
+                JSONArray jsonArray = JSONArray.parseArray(share.getCustomData());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String apiId = jsonArray.getString(i);
                     shareApiIdList.add(apiId);
@@ -381,40 +378,42 @@ public class ApiDocumentService {
      * 搜索的到就返回那条数据，搜索不到就新增一条信息
      *
      * @param request 入参
-     * @return ApiDocumentShare数据对象
+     * @return ShareInfo数据对象
      */
-    public ApiDocumentShare generateApiDocumentShare(ApiDocumentShareRequest request) {
-        ApiDocumentShare apiDocumentShare = null;
+    public ShareInfo generateApiDocumentShareInfo(ApiDocumentShareRequest request) {
         if (request.getShareApiIdList() != null && !request.getShareApiIdList().isEmpty()
-                && StringUtils.equalsAny(request.getShareType(), ApiDocumentShareType.Single.name(), ApiDocumentShareType.Batch.name())) {
+                && StringUtils.equalsAny(request.getShareType(), ShareInfoType.Single.name(), ShareInfoType.Batch.name())) {
             //将ID进行排序
-            List<ApiDocumentShare> apiDocumentShareList = this.findByShareTypeAndShareApiIdWithBLOBs(request.getShareType(), request.getShareApiIdList());
-            if (apiDocumentShareList.isEmpty()) {
-                String shareApiIdJsonArrayString = this.genShareIdJsonString(request.getShareApiIdList());
-                long createTime = System.currentTimeMillis();
-
-                apiDocumentShare = new ApiDocumentShare();
-                apiDocumentShare.setId(UUID.randomUUID().toString());
-                apiDocumentShare.setShareApiId(shareApiIdJsonArrayString);
-                apiDocumentShare.setCreateUserId(SessionUtils.getUserId());
-                apiDocumentShare.setCreateTime(createTime);
-                apiDocumentShare.setUpdateTime(createTime);
-                apiDocumentShare.setShareType(request.getShareType());
-                apiDocumentShareMapper.insert(apiDocumentShare);
-            } else {
-                return apiDocumentShareList.get(0);
-            }
+            ShareInfo shareInfoRequest = new ShareInfo();
+            BeanUtils.copyBean(shareInfoRequest, request);
+            shareInfoRequest.setCustomData(genShareIdJsonString(request.getShareApiIdList()));
+            return generateShareInfo(shareInfoRequest);
         }
-
-        if (apiDocumentShare == null) {
-            apiDocumentShare = new ApiDocumentShare();
-        }
-        return apiDocumentShare;
+        return new ShareInfo();
     }
 
-    private List<ApiDocumentShare> findByShareTypeAndShareApiIdWithBLOBs(String shareType, List<String> shareApiIdList) {
+    public ShareInfo generateShareInfo(ShareInfo request) {
+        ShareInfo shareInfo = null;
+        List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(request.getShareType(), request.getCustomData());
+        if (shareInfos.isEmpty()) {
+            long createTime = System.currentTimeMillis();
+            shareInfo = new ShareInfo();
+            shareInfo.setId(UUID.randomUUID().toString());
+            shareInfo.setCustomData(request.getCustomData());
+            shareInfo.setCreateUserId(SessionUtils.getUserId());
+            shareInfo.setCreateTime(createTime);
+            shareInfo.setUpdateTime(createTime);
+            shareInfo.setShareType(request.getShareType());
+            shareInfoMapper.insert(shareInfo);
+            return shareInfo;
+        } else {
+            return shareInfos.get(0);
+        }
+    }
+
+    private List<ShareInfo> findByShareTypeAndShareApiIdWithBLOBs(String shareType, List<String> shareApiIdList) {
         String shareApiIdString = this.genShareIdJsonString(shareApiIdList);
-        return extApiDocumentShareMapper.selectByShareTypeAndShareApiIdWithBLOBs(shareType, shareApiIdString);
+        return extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(shareType, shareApiIdString);
     }
 
     /**
@@ -428,14 +427,17 @@ public class ApiDocumentService {
         return JSONArray.toJSONString(treeSet);
     }
 
-    public ApiDocumentShareDTO conversionApiDocumentShareToDTO(ApiDocumentShare apiShare) {
-        ApiDocumentShareDTO returnDTO = new ApiDocumentShareDTO();
-        if (!StringUtils.isEmpty(apiShare.getShareApiId())) {
-            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+    public ShareInfoDTO conversionShareInfoToDTO(ShareInfo apiShare) {
+        ShareInfoDTO returnDTO = new ShareInfoDTO();
+        if (!StringUtils.isEmpty(apiShare.getCustomData())) {
             String url = "?" + apiShare.getId();
             returnDTO.setId(apiShare.getId());
             returnDTO.setShareUrl(url);
         }
         return returnDTO;
+    }
+
+    public ShareInfo get(String id) {
+        return shareInfoMapper.selectByPrimaryKey(id);
     }
 }

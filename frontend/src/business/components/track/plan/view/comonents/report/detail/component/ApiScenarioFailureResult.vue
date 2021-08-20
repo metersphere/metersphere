@@ -45,7 +45,7 @@
         </ms-table>
       </el-col>
       <el-col :span="16" v-if="scenarioCases.length > 0">
-        <ms-api-report :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+        <ms-api-report :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
       </el-col>
     </el-row>
   </div>
@@ -56,7 +56,7 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanScenarioFailureCase} from "@/network/test-plan";
+import {getPlanScenarioFailureCase, getSharePlanScenarioFailureCase} from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsApiReport from "@/business/components/api/automation/report/ApiReportDetail";
@@ -68,7 +68,8 @@ export default {
   props: {
     planId: String,
     isTemplate: Boolean,
-    report: Object
+    report: Object,
+    isShare: Boolean
   },
   data() {
     return {
@@ -88,6 +89,13 @@ export default {
         if (this.scenarioCases && this.scenarioCases.length > 0) {
           this.rowClick(this.scenarioCases[0]);
         }
+      } else if (this.isShare) {
+        this.result = getSharePlanScenarioFailureCase(this.planId, (data) => {
+          this.scenarioCases = data;
+          if (data && data.length > 0) {
+            this.reportId = data[0].reportId;
+          }
+        });
       } else {
         this.result = getPlanScenarioFailureCase(this.planId, (data) => {
           this.scenarioCases = data;

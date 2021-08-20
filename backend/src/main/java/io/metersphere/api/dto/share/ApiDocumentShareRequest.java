@@ -1,5 +1,6 @@
-package io.metersphere.api.dto.document;
+package io.metersphere.api.dto.share;
 
+import io.metersphere.base.domain.ShareInfo;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,6 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class ApiDocumentShareRequest {
-    private String shareType;
+public class ApiDocumentShareRequest extends ShareInfo {
     private List<String> shareApiIdList;
 }

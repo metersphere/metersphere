@@ -3,14 +3,14 @@ package io.metersphere.base.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiDocumentShareExample {
+public class ShareInfoExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public ApiDocumentShareExample() {
+    public ShareInfoExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
