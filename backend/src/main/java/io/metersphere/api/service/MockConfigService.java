@@ -109,12 +109,14 @@ public class MockConfigService {
 
             MockConfig config = new MockConfig();
             config.setProjectId(request.getProjectId());
-            config.setApiId(request.getApiId());
             config.setId(UUID.randomUUID().toString());
             config.setCreateUserId(SessionUtils.getUserId());
             config.setCreateTime(createTimeStmp);
             config.setUpdateTime(createTimeStmp);
-            mockConfigMapper.insert(config);
+            if(request.getApiId() != null){
+                config.setApiId(request.getApiId());
+                mockConfigMapper.insert(config);
+            }
             returnRsp = new MockConfigResponse(config, new ArrayList<>());
         } else {
             MockConfig config = configList.get(0);

@@ -2497,6 +2497,11 @@ public class ApiAutomationService {
     }
 
     public long countExecuteTimesByProjectID(String projectId) {
-        return extApiScenarioMapper.countExeciteTimesByProjectID(projectId);
+        Long result = extApiScenarioMapper.countExecuteTimesByProjectID(projectId);
+        if(result == null){
+            return 0;
+        }else {
+            return result.longValue();
+        }
     }
 }

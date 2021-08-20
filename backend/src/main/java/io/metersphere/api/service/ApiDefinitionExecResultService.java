@@ -227,7 +227,7 @@ public class ApiDefinitionExecResultService {
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
-                        } else if (StringUtils.equals(type, ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
+                        } else if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
                             TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
                             userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                             apiCase.setStatus(status);

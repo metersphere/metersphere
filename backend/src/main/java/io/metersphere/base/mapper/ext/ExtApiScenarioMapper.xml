@@ -457,7 +457,7 @@
         </foreach>
     </select>
 
-    <select id="countExeciteTimesByProjectID" resultType="java.lang.Long">
+    <select id="countExecuteTimesByProjectID" resultType="java.lang.Long">
         SELECT SUM(execute_times) FROM api_scenario
         WHERE project_id = #{0}
     </select>
