@@ -25,7 +25,7 @@
                    :plan-id="planId"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
                     :plan-id="planId"/>
-    <test-plan-detail-report :test-plan="currentPlan" v-if="activeIndex === 'report'"/>
+    <test-plan-report-content v-if="activeIndex === 'report'" :plan-id="planId"/>
 
   </div>
 
@@ -45,12 +45,12 @@ import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
 import TestPlanApi from "./comonents/api/TestPlanApi";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
 import {getCurrentProjectID} from "@/common/js/utils";
-import TestPlanDetailReport from "./comonents/report/TestPlanDetailReport";
+import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
 
 export default {
   name: "TestPlanView",
   components: {
-    TestPlanDetailReport,
+    TestPlanReportContent,
     TestPlanApi,
     TestPlanFunctional,
     MsTestPlanHeaderBar,

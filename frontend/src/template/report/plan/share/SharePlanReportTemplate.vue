@@ -1,28 +1,25 @@
 <template>
-  <div>
-    <el-main>
-      <test-plan-detail-report v-if="visible" :is-share="true" :test-plan="testPlan"/>
-    </el-main>
-  </div>
+  <test-plan-report-content :is-share="true" :plan-id="planId"/>
 </template>
 
 <script>
-import TestPlanDetailReport from "@/business/components/track/plan/view/comonents/report/TestPlanDetailReport";
 import {getShareId} from "@/common/js/utils";
 import {getShareInfo} from "@/network/share";
+import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
 export default {
   name: "SharePlanReportTemplate",
-  components: {TestPlanDetailReport},
+  components: {TestPlanReportContent},
   data() {
     return {
-      testPlan: {"id": "96791ef8-8a75-4335-a48c-832e0ddece5f"},
-      visible: false
+      planId: '',
+      visible: false,
+      shareId: ''
     }
   },
   created() {
-    let shareId = getShareId();
-    getShareInfo(shareId, (data) => {
-      this.testPlan.id = data.customData;
+    this.shareId = getShareId();
+    getShareInfo(this.shareId, (data) => {
+      this.planId = data.customData;
       this.visible = true;
     });
   },
