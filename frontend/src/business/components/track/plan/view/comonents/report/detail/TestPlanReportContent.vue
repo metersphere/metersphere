@@ -105,7 +105,6 @@ export default {
       generateShareInfo(param, (data) => {
         let thisHost = window.location.host;
         let shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
-        console.log(shareUrl);
       });
     }
   }
