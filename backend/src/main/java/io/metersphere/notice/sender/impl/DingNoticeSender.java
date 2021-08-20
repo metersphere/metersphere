@@ -30,7 +30,10 @@ public class DingNoticeSender extends AbstractNoticeSender {
         text.setContent(context);
         request.setText(text);
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        List<String> phoneList = super.getUserPhones(noticeModel, receivers.stream().map(Receiver::getUserId).collect(Collectors.toList()));
+        List<String> phoneList = super.getUserPhones(noticeModel, receivers.stream()
+                .map(Receiver::getUserId)
+                .distinct()
+                .collect(Collectors.toList()));
         LogUtil.info("收件人地址: " + phoneList);
         at.setAtMobiles(phoneList);
         request.setAt(at);
