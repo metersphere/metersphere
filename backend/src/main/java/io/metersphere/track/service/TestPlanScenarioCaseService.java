@@ -441,4 +441,14 @@ public class TestPlanScenarioCaseService {
         buildUserInfo(apiTestCases);
         return apiTestCases;
     }
+
+    public TestPlanApiScenario selectByReportId(String reportId) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andReportIdEqualTo(reportId);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(testPlanApiScenarios)) {
+            return testPlanApiScenarios.get(0);
+        }
+        return null;
+    }
 }

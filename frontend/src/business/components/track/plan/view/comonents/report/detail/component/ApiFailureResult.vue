@@ -2,10 +2,10 @@
   <div>
     <el-tabs type="card">
       <el-tab-pane label="接口用例">
-        <api-case-failure-result :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-case-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
       <el-tab-pane label="场景用例">
-        <api-scenario-failure-result :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-scenario-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -29,7 +29,8 @@ export default {
     planId: String,
     isTemplate: Boolean,
     isShare: Boolean,
-    report: {}
+    report: {},
+    shareId: String
   },
   data() {
     return {

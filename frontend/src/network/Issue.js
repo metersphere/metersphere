@@ -37,8 +37,8 @@ export function getIssuesByPlanId(planId, callback) {
   return planId ? baseGet('/issues/plan/get/' + planId, callback) : {};
 }
 
-export function getShareIssuesByPlanId(planId, callback) {
-  return planId ? baseGet('/share/issues/plan/get/' + planId, callback) : {};
+export function getShareIssuesByPlanId(shareId, planId, callback) {
+  return planId ? baseGet('/share/issues/plan/get/' + shareId + '/' + planId, callback) : {};
 }
 
 export function buildPlatformIssue(data) {
