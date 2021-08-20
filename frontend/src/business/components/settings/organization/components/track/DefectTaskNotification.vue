@@ -195,7 +195,7 @@ export default {
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
-        {value: 'STATUS_CHANGE', label: '状态变更'},
+        // {value: 'STATUS_CHANGE', label: '状态变更'},
       ],
     };
   },
