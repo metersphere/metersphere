@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -127,16 +128,15 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     break;
                 case NoticeConstants.RelatedUser.CREATOR:
                     Object creator = paramMap.get("creator");
+                    Object createUser = paramMap.get("createUser");
+                    Object userId1 = paramMap.get("userId");
+
                     if (creator != null) {
                         toUsers.add(new Receiver(creator.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    }
-                    Object createUser = paramMap.get("createUser");
-                    if (createUser != null) {
+                    } else if (createUser != null) {
                         toUsers.add(new Receiver(createUser.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    }
-                    createUser = paramMap.get("userId");
-                    if (createUser != null) {
-                        toUsers.add(new Receiver(createUser.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else if (userId1 != null) {
+                        toUsers.add(new Receiver(userId1.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                     break;
                 case NoticeConstants.RelatedUser.MAINTAINER:
@@ -161,6 +161,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         }
         // 排除自己
         toUsers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
-        return toUsers;
+        // 去重复
+        HashSet<Receiver> receivers = new HashSet<>(toUsers);
+        return new ArrayList<>(receivers);
     }
 }

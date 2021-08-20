@@ -24,7 +24,10 @@ public class WeComNoticeSender extends AbstractNoticeSender {
             return;
         }
         TextMessage message = new TextMessage(context);
-        List<String> phoneLists = super.getUserPhones(noticeModel, receivers.stream().map(Receiver::getUserId).collect(Collectors.toList()));
+        List<String> phoneLists = super.getUserPhones(noticeModel, receivers.stream()
+                .map(Receiver::getUserId)
+                .distinct()
+                .collect(Collectors.toList()));
         message.setMentionedMobileList(phoneLists);
         try {
             WxChatbotClient.send(messageDetail.getWebhook(), message);

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,10 @@ public class MailNoticeSender extends AbstractNoticeSender {
         LogUtil.info("发件人地址" + javaMailSender.getUsername());
         LogUtil.info("helper" + helper);
         helper.setSubject("MeterSphere " + noticeModel.getSubject());
-        List<String> userIds = noticeModel.getReceivers().stream().map(Receiver::getUserId).collect(Collectors.toList());
+        List<String> userIds = noticeModel.getReceivers().stream()
+                .map(Receiver::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
         List<String> emails = super.getUserEmails(noticeModel, userIds);
         String[] users = emails.toArray(new String[0]);
         LogUtil.info("收件人地址: " + emails);
