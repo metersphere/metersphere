@@ -25,7 +25,7 @@
     <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
     <div class="mock-info">
       <el-row>
-        <el-col :span="24">
+        <el-col :span="20">
           Mock地址：
           <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
                    type="primary">{{ this.mockInfo }}
@@ -33,6 +33,9 @@
           <el-link v-else  target="_blank" style="color: darkred"
                    type="primary">当前项目未开启Mock服务
           </el-link>
+        </el-col>
+        <el-col :span="4">
+          <el-link @click="mockSetting" type="primary">Mock设置</el-link>
         </el-col>
       </el-row>
     </div>
@@ -60,7 +63,7 @@
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsTcpFormatParameters from  "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
-import {hasLicense,getCurrentProjectID} from "@/common/js/utils";
+import {hasLicense, getCurrentProjectID, getUUID} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
@@ -213,6 +216,9 @@ export default {
       this.$get("/api/environment/getTcpMockInfo/" + projectId, response => {
         this.mockInfo = response.data;
       });
+    },
+    mockSetting() {
+      this.$store.state.currentApiCase={mock : getUUID()};
     },
   },
 }

@@ -96,3 +96,6 @@ ALTER TABLE share_info change
     SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Share Custom Data';
 
 ALTER TABLE test_plan ADD report_config text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '测试计划报告配置';
+
+-- 删除不用的记录表
+DROP TABLE test_plan_report_resource;
