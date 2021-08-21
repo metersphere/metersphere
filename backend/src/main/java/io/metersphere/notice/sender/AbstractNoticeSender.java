@@ -112,6 +112,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return phoneList.stream().distinct().collect(Collectors.toList());
     }
 
+    protected List<UserDetail> getUserDetails(NoticeModel noticeModel, List<String> userIds) {
+        return userService.queryTypeByIds(userIds);
+    }
+
     private List<Receiver> getRealUserIds(List<String> userIds, NoticeModel noticeModel, String event) {
         List<Receiver> toUsers = new ArrayList<>();
         Map<String, Object> paramMap = noticeModel.getParamMap();
