@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -11,14 +12,12 @@ import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestCaseReviewApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanApiCaseService;
-import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -251,8 +250,9 @@ public class ApiDefinitionExecResultService {
             });
         }
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
-        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
+        TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId,apiIdResultMap,null,null);
+//        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+//        testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
     }
 
     public void deleteByResourceId(String resourceId) {

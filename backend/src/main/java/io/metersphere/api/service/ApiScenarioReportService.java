@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
@@ -378,8 +379,9 @@ public class ApiScenarioReportService {
 
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
 
-        for (String planId : testPlanReportIdList) {
-            testPlanReportService.updateExecuteApis(planId, null, scenarioAndErrorMap, null);
+        for (String reportId : testPlanReportIdList) {
+//            testPlanReportService.updateExecuteApis(planId, null, scenarioAndErrorMap, null);
+            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId,null,scenarioAndErrorMap,null);
         }
 
         return lastReport;
