@@ -13,5 +13,7 @@ public class TestPlanWithBLOBs extends TestPlan implements Serializable {
 
     private String reportSummary;
 
+    private String reportConfig;
+
     private static final long serialVersionUID = 1L;
 }

@@ -1,52 +1,65 @@
 <template>
   <ms-edit-dialog
-    width="60%"
+    width="600px"
     :visible.sync="visible"
     @confirm="confirm"
     :title="'模板配置'"
     append-to-body
     ref="msEditDialog">
-
+    <el-scrollbar>
+      <div class="config">
+        <test-plan-report-config :config="editConfig"/>
+      </div>
+    </el-scrollbar>
   </ms-edit-dialog>
 </template>
 <script>
 
 
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
-import {getCurrentProjectID} from "@/common/js/utils";
+import TestPlanReportConfig
+  from "@/business/components/track/plan/view/comonents/report/detail/component/TestPlanReportConfig";
+import {editPlanReportConfig} from "@/network/test-plan";
 export default {
   name: "TestPlanReportEdit",
-  components: {MsEditDialog},
+  components: {TestPlanReportConfig, MsEditDialog},
   data() {
     return {
       visible: false,
-      config: {
-        api: {
-
-        }
-      }
+      editConfig: {}
     }
   },
-  computed: {
-    projectId() {
-      return getCurrentProjectID();
+  props: {
+    planId: String,
+    config: {
+      type: [Object, String],
     }
   },
-  props: ['caseId', 'planId'],
   methods: {
-    open(data) {
+    open() {
       this.visible = true;
+      this.editConfig = JSON.parse(JSON.stringify(this.config));
     },
     handleClose() {
       this.visible = false;
     },
     confirm() {
-      this.$refs.issueEditDetail.save();
+      let param = {
+        id: this.planId,
+        reportConfig: JSON.stringify(this.config)
+      };
+      editPlanReportConfig(param, () => {
+        this.$emit('update:config', JSON.parse(JSON.stringify(this.editConfig)));
+      });
+      this.$emit('refresh');
+      this.visible = false;
     }
   }
 };
 </script>
 
 <style scoped>
-
+.config {
+  margin-left: 200px;
+}
 </style>

@@ -4,13 +4,11 @@
       <el-card v-loading="result ? result.loading : false">
         <test-plan-report-buttons :plan-id="planId" :is-share="isShare" :report="report"
                                   v-if="!isTemplate && !isShare"/>
-        <test-plan-overview-report :report="report"/>
-        <test-plan-summary-report :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
-        <test-plan-functional-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="functionalEnable" :plan-id="planId" :report="report"/>
-        <test-plan-api-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="apiEnable" :report="report" :plan-id="planId"/>
-        <test-plan-load-report :share-id="shareId" :is-share="isShare" :is-template="isTemplate" v-if="loadEnable" :report="report" :plan-id="planId"/>
-
-        <test-plan-report-edit ref="reportEdit"/>
+        <test-plan-overview-report v-if="overviewEnable" :report="report"/>
+        <test-plan-summary-report v-if="summaryEnable" :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
+        <test-plan-functional-report v-if="functionalEnable" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :plan-id="planId" :report="report"/>
+        <test-plan-api-report v-if="apiEnable" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-load-report v-if="loadEnable" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
     </el-main>
   </div>
@@ -38,7 +36,7 @@ export default {
     TestPlanLoadReport,
     TestPlanApiReport,
     TestPlanFunctionalReport,
-    },
+  },
   props: {
     planId:String,
     isTemplate: Boolean,
@@ -61,30 +59,105 @@ export default {
     this.getReport();
   },
   computed: {
+    overviewEnable() {
+      let disable = this.report.config && this.report.config.overview.enable === false;
+      return !disable;
+    },
+    summaryEnable() {
+      let disable = this.report.config && this.report.config.summary.enable === false;
+      return !disable;
+    },
     functionalEnable() {
-      return this.report.functionResult && this.report.functionResult.caseData.length > 0;
+      let disable = this.report.config && this.report.config.functional.enable === false;
+      return !disable && this.report.functionResult && this.report.functionResult.caseData.length > 0 ;
     },
     apiEnable() {
-      return this.report.apiResult && (this.report.apiResult.apiCaseData.length > 0 || this.report.apiResult.apiScenarioData.length) > 0;
+      let disable = this.report.config && this.report.config.api.enable === false;
+      return !disable && this.report.apiResult && (this.report.apiResult.apiCaseData.length > 0 || this.report.apiResult.apiScenarioData.length) > 0;
     },
     loadEnable() {
-      return this.report.loadResult && this.report.loadResult.caseData.length > 0;
+      let disable = this.report.config && this.report.config.load.enable === false;
+      return !disable && this.report.loadResult && this.report.loadResult.caseData.length > 0;
     }
   },
   methods: {
     getReport() {
       if (this.isTemplate) {
         this.report = "#report";
+        this.report.config = this.getDefaultConfig(this.report.config);
       } else if (this.isShare) {
         this.result = getShareTestPlanReport(this.shareId, this.planId, (data) => {
           this.report = data;
+          this.report.config = this.getDefaultConfig(this.report.config);
         });
       } else {
         this.result = getTestPlanReport(this.planId, (data) => {
           this.report = data;
+          this.report.config = this.getDefaultConfig(this.report.config);
         });
       }
     },
+    getDefaultConfig(configStr) {
+      if (configStr) {
+        return JSON.parse(configStr);
+      }
+      return {
+        overview: {
+          enable: true,
+          name: '概览'
+        },
+        summary: {
+          enable: true,
+          name: '报告总结'
+        },
+        functional: {
+          enable: true,
+          name: '功能用例统计分析',
+          children: {
+            result: {
+              enable: true,
+              name: '测试结果',
+            },
+            failure: {
+              enable: true,
+              name: '失败用例',
+            },
+            issue: {
+              enable: true,
+              name: '缺陷列表',
+            }
+          }
+        },
+        api: {
+          enable: true,
+          name: '接口用例统计分析',
+          children: {
+            result: {
+              enable: true,
+              name: '测试结果',
+            },
+            failure: {
+              enable: true,
+              name: '失败用例',
+            },
+          }
+        },
+        load: {
+          enable: true,
+          name: '性能用例统计分析',
+          children: {
+            result: {
+              enable: true,
+              name: '测试结果',
+            },
+            failure: {
+              enable: true,
+              name: '失败用例',
+            },
+          }
+        }
+      };
+    }
   }
 }
 </script>

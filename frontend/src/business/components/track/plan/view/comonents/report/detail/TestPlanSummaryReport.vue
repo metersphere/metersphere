@@ -33,7 +33,7 @@ export default {
     planId: String,
     report: Object,
     isTemplate: Boolean,
-    isShare: Boolean
+    isShare: Boolean,
   },
   data() {
     return {

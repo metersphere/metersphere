@@ -119,6 +119,13 @@ public class TestPlanController {
         testPlanService.editTestPlanStatus(planId);
     }
 
+    @PostMapping("/edit/report/config")
+    @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT)
+//    @MsAuditLog(module = "track_test_plan", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#planId)", content = "#msClass.getLogDetails(#planId)", msClass = TestPlanService.class)
+    public void editReportConfig(@RequestBody TestPlanDTO testPlanDTO) {
+        testPlanService.editReportConfig(testPlanDTO);
+    }
+
     @PostMapping("/delete/{testPlanId}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ_DELETE)
     @MsAuditLog(module = "track_test_plan", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#testPlanId)", msClass = TestPlanService.class)
