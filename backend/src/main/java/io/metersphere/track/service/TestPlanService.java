@@ -1374,6 +1374,7 @@ public class TestPlanService {
         report.setStartTime(testPlan.getActualStartTime());
         report.setStartTime(testPlan.getActualEndTime());
         report.setSummary(testPlan.getReportSummary());
+        report.setConfig(testPlan.getReportConfig());
         IssueTemplateDao template = issueTemplateService.getTemplate(testPlan.getProjectId());
         testPlanTestCaseService.calculatePlanReport(planId, report);
         issuesService.calculatePlanReport(planId, report);
@@ -1466,5 +1467,12 @@ public class TestPlanService {
         List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(scenarioExample);
         List<String> planScenarioIds = testPlanApiScenarios.stream().map(TestPlanApiScenario::getId).collect(Collectors.toList());
         testPlanScenarioCaseService.setScenarioEnv(planScenarioIds, envMap);
+    }
+
+    public void editReportConfig(TestPlanDTO testPlanDTO) {
+        TestPlanWithBLOBs testPlan = new TestPlanWithBLOBs();
+        testPlan.setId(testPlanDTO.getId());
+        testPlan.setReportConfig(testPlanDTO.getReportConfig());
+        testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
 }

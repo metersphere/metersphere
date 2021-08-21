@@ -1,7 +1,7 @@
 import {post, get} from "@/common/js/ajax";
 import {success} from "@/common/js/message";
 import i18n from "@/i18n/i18n";
-import {baseGet} from "@/network/base-network";
+import {baseGet, basePost} from "@/network/base-network";
 
 export function getTestPlanReport(planId, callback) {
   if (planId) {
@@ -26,6 +26,15 @@ export function getShareTestPlanReport(shareId, planId, callback) {
 export function editPlanReport(param) {
   return post('/test/plan/edit/report', param, () => {
     success(i18n.t('commons.save_success'));
+  });
+}
+
+export function editPlanReportConfig(param, callback) {
+  return basePost('/test/plan/edit/report/config', param, (data) => {
+    success(i18n.t('commons.save_success'));
+    if (callback) {
+      callback(data);
+    }
   });
 }
 

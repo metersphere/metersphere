@@ -26,6 +26,7 @@
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanWithBLOBs">
     <result column="tags" jdbcType="LONGVARCHAR" property="tags" />
     <result column="report_summary" jdbcType="LONGVARCHAR" property="reportSummary" />
+    <result column="report_config" jdbcType="LONGVARCHAR" property="reportConfig" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -91,7 +92,7 @@
     actual_start_time, actual_end_time, creator, project_id, execution_times, automatic_status_update
   </sql>
   <sql id="Blob_Column_List">
-    tags, report_summary
+    tags, report_summary, report_config
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanExample" resultMap="ResultMapWithBLOBs">
     select
@@ -149,7 +150,7 @@
       planned_start_time, planned_end_time, actual_start_time, 
       actual_end_time, creator, project_id, 
       execution_times, automatic_status_update, tags, 
-      report_summary)
+      report_summary, report_config)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{stage,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{testCaseMatchRule,jdbcType=VARCHAR}, 
@@ -157,7 +158,7 @@
       #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, 
       #{actualEndTime,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{executionTimes,jdbcType=INTEGER}, #{automaticStatusUpdate,jdbcType=BIT}, #{tags,jdbcType=LONGVARCHAR}, 
-      #{reportSummary,jdbcType=LONGVARCHAR})
+      #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan
@@ -228,6 +229,9 @@
       <if test="reportSummary != null">
         report_summary,
       </if>
+      <if test="reportConfig != null">
+        report_config,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -295,6 +299,9 @@
       </if>
       <if test="reportSummary != null">
         #{reportSummary,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="reportConfig != null">
+        #{reportConfig,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -373,6 +380,9 @@
       <if test="record.reportSummary != null">
         report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.reportConfig != null">
+        report_config = #{record.reportConfig,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -401,7 +411,8 @@
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
       tags = #{record.tags,jdbcType=LONGVARCHAR},
-      report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR}
+      report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR},
+      report_config = #{record.reportConfig,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -498,6 +509,9 @@
       <if test="reportSummary != null">
         report_summary = #{reportSummary,jdbcType=LONGVARCHAR},
       </if>
+      <if test="reportConfig != null">
+        report_config = #{reportConfig,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -523,7 +537,8 @@
       execution_times = #{executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
       tags = #{tags,jdbcType=LONGVARCHAR},
-      report_summary = #{reportSummary,jdbcType=LONGVARCHAR}
+      report_summary = #{reportSummary,jdbcType=LONGVARCHAR},
+      report_config = #{reportConfig,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlan">

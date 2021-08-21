@@ -25,7 +25,7 @@
         {{'配置'}}
       </el-button>
     </el-row>
-    <test-plan-report-edit ref="reportEdit"/>
+    <test-plan-report-edit :plan-id="planId" :config.sync="report.config" ref="reportEdit"/>
   </div>
 </template>
 
@@ -50,7 +50,7 @@ export default {
     return {
       result: {},
       isTestManagerOrTestUser: true,
-      shareUrl: ''
+      shareUrl: '',
     };
   },
   methods: {

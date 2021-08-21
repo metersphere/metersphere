@@ -1,10 +1,10 @@
 <template>
   <test-plan-report-container :title="'接口用例统计'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="测试结果" name="first">
+      <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
-      <el-tab-pane label="失败用例" name="second">
+      <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
         <api-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
 
@@ -30,7 +30,35 @@ export default {
   props: [
     'report', 'planId', 'isTemplate', 'isShare', 'shareId'
   ],
+  computed: {
+    resultEnable() {
+      let disable = this.report.config && this.report.config.api.children.result.enable === false;
+      return !disable;
+    },
+    failureEnable() {
+      let disable = this.report.config && this.report.config.api.children.failure.enable === false;
+      return !disable;
+    },
+  },
+  watch: {
+    resultEnable() {
+      this.initActiveName();
+    },
+    failureEnable() {
+      this.initActiveName();
+    },
+  },
+  mounted() {
+    this.initActiveName();
+  },
   methods: {
+    initActiveName() {
+      if (this.resultEnable) {
+        this.activeName = 'first';
+      } else if (this.failureEnable) {
+        this.activeName = 'second';
+      }
+    },
     handleClick(tab, event) {
     }
   }

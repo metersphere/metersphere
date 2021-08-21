@@ -21,6 +21,7 @@ public class TestPlanSimpleReportDTO {
     private double executeRate;
     private double passRate;
     private String summary;
+    private String config;
     private Boolean isThirdPartIssue;
     private TestPlanFunctionResultReportDTO functionResult;
     private TestPlanApiResultReportDTO apiResult;

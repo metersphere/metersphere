@@ -1,10 +1,10 @@
 <template>
   <test-plan-report-container :title="'性能用例数'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane label="测试结果" name="first">
+      <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <load-result :load-result="report.loadResult"/>
       </el-tab-pane>
-      <el-tab-pane label="失败用例" name="second">
+      <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
         <load-failure-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
 <!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
@@ -38,7 +38,35 @@ export default {
     'isShare',
     'shareId'
   ],
+  computed: {
+    resultEnable() {
+      let disable = this.report.config && this.report.config.load.children.result.enable === false;
+      return !disable;
+    },
+    failureEnable() {
+      let disable = this.report.config && this.report.config.load.children.failure.enable === false;
+      return !disable;
+    },
+  },
+  watch: {
+    resultEnable() {
+      this.initActiveName();
+    },
+    failureEnable() {
+      this.initActiveName();
+    },
+  },
+  mounted() {
+    this.initActiveName();
+  },
   methods: {
+    initActiveName() {
+      if (this.resultEnable) {
+        this.activeName = 'first';
+      } else if (this.failureEnable) {
+        this.activeName = 'second';
+      }
+    },
     handleClick(tab, event) {
     }
   }
