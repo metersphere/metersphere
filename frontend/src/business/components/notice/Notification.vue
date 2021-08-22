@@ -150,8 +150,11 @@ export default {
     showNotification() {
       this.result = this.$post('/notification/list/all/' + 1 + '/' + 10, {}, response => {
         let data = response.data.listObject;
-
+        let now = new Date().getTime();
         data.filter(d => d.status === 'UNREAD').forEach(d => {
+          if (now - d.createTime > 10 * 1000) {
+            return;
+          }
           let title = d.type === 'MENTIONED_ME' ? '@提到我的' : '系统通知';
           setTimeout(() => {
             this.$notify({
