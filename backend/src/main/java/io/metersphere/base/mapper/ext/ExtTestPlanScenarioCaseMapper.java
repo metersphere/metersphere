@@ -28,7 +28,7 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
-    List<TestPlanFailureScenarioDTO> getFailureList(String planId);
+    List<TestPlanFailureScenarioDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
 
     List<Integer> getUnderwaySteps(@Param("ids") List<String> underwayIds);
 }

@@ -432,8 +432,19 @@ public class TestPlanScenarioCaseService {
         }
     }
 
-    public List<TestPlanFailureScenarioDTO> getFailureList(String planId) {
-        List<TestPlanFailureScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.getFailureList(planId);
+    public List<TestPlanFailureScenarioDTO> getAllCases(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureList(planId, null);
+        return buildCases(apiTestCases);
+    }
+
+    public List<TestPlanFailureScenarioDTO> getFailureCases(String planId) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureList(planId, "Fail");
+        return buildCases(apiTestCases);
+    }
+
+    public List<TestPlanFailureScenarioDTO> buildCases(List<TestPlanFailureScenarioDTO> apiTestCases ) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }

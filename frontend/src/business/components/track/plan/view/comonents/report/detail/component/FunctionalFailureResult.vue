@@ -91,7 +91,7 @@ export default {
   methods: {
     getFailureTestCase() {
       if (this.isTemplate) {
-        this.failureTestCases = this.report.failureTestCases;
+        this.failureTestCases = this.report.functionFailureCases;
       } else if (this.isShare) {
         getSharePlanFunctionFailureCase(this.shareId, this.planId, (data) => {
           this.failureTestCases = data;

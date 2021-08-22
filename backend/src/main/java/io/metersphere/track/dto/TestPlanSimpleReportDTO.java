@@ -27,9 +27,13 @@ public class TestPlanSimpleReportDTO {
     private TestPlanApiResultReportDTO apiResult;
     private TestPlanLoadResultReportDTO loadResult;
 
-    List<TestPlanCaseDTO> failureTestCases;
+    List<TestPlanCaseDTO> functionFailureCases;
+    List<TestPlanCaseDTO> functionAllCases;
     List<IssuesDao> issueList;
     List<TestPlanFailureApiDTO> apiFailureResult;
+    List<TestPlanFailureApiDTO> apiAllCases;
     List<TestPlanFailureScenarioDTO> scenarioFailureResult;
+    List<TestPlanFailureScenarioDTO> scenarioAllCases;
+    List<TestPlanLoadCaseDTO> loadAllTestCases;
     List<TestPlanLoadCaseDTO> loadFailureTestCases;
 }

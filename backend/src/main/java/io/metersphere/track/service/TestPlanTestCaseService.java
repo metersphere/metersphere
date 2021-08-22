@@ -382,16 +382,25 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> getFailureCases(String planId) {
-        List<TestPlanCaseDTO> failureCases = extTestPlanTestCaseMapper.getFailureCases(planId);
+        List<TestPlanCaseDTO> allCases = extTestPlanTestCaseMapper.getCases(planId, "Failure");
+        return buildCaseInfo(allCases);
+    }
+
+    public List<TestPlanCaseDTO> getAllCases(String planId) {
+        List<TestPlanCaseDTO> allCases = extTestPlanTestCaseMapper.getCases(planId, null);
+        return buildCaseInfo(allCases);
+    }
+
+    public List<TestPlanCaseDTO> buildCaseInfo(List<TestPlanCaseDTO> cases) {
         Map<String, Project> projectMap = ServiceUtils.getProjectMap(
-                failureCases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
+                cases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
         Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
-                failureCases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
-        failureCases.forEach(item -> {
+                cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
+        cases.forEach(item -> {
             item.setProjectName(projectMap.get(item.getProjectId()).getName());
             item.setIsCustomNum(projectMap.get(item.getProjectId()).getCustomNum());
             item.setExecutorName(userNameMap.get(item.getExecutor()));
         });
-        return failureCases;
+        return cases;
     }
 }
