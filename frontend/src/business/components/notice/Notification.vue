@@ -117,6 +117,9 @@ export default {
       let count = e.data;
       this.noticeCount = count;
       this.initIndex++;
+      if (count > 0) {
+        this.showNotification();
+      }
       if (this.taskVisible && count > 0 && this.initEnd) {
         this.$refs.systemNotice.init();
         this.$refs.mentionedMe.init();
@@ -144,6 +147,22 @@ export default {
     getNotifications() {
       this.initWebSocket();
     },
+    showNotification() {
+      this.result = this.$post('/notification/list/all/' + 1 + '/' + 10, {}, response => {
+        let data = response.data.listObject;
+
+        data.filter(d => d.status === 'UNREAD').forEach(d => {
+          let title = d.type === 'MENTIONED_ME' ? '@提到我的' : '系统通知';
+          setTimeout(() => {
+            this.$notify({
+              title: title,
+              type: 'info',
+              message: d.content,
+            });
+          });
+        });
+      });
+    }
   }
 };
 </script>
