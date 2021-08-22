@@ -35,7 +35,7 @@ public class TestPlanApiCaseController {
 
     @GetMapping("/list/failure/{planId}")
     public List<TestPlanFailureApiDTO> getFailureList(@PathVariable String planId) {
-        return testPlanApiCaseService.getFailureList(planId);
+        return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @PostMapping("/selectAllTableRows")

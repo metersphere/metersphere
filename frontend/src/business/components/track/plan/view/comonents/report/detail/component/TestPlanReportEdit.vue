@@ -46,7 +46,7 @@ export default {
     confirm() {
       let param = {
         id: this.planId,
-        reportConfig: JSON.stringify(this.config)
+        reportConfig: JSON.stringify(this.editConfig)
       };
       editPlanReportConfig(param, () => {
         this.$emit('update:config', JSON.parse(JSON.stringify(this.editConfig)));

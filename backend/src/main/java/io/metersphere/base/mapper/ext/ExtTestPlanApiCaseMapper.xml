@@ -259,7 +259,10 @@
       inner join
         api_test_case c
         on t.api_case_id = c.id
-      and t.test_plan_id = #{request.planId} and t.status = 'error'
+      and t.test_plan_id = #{planId}
+         <if test="status != null">
+           and t.status = 'error'
+         </if>
       where t.test_plan_id = #{planId};
     </select>
 

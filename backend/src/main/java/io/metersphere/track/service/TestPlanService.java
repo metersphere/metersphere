@@ -1356,33 +1356,139 @@ public class TestPlanService {
 
     public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
 
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
+
+        String reportConfig = testPlan.getReportConfig();
+        JSONObject config = null;
+        if (StringUtils.isNotBlank(reportConfig)) {
+            config = JSONObject.parseObject(reportConfig);
+        }
         TestPlanSimpleReportDTO report = getReport(planId);
 
-        List<TestPlanCaseDTO> failureTestCases = testPlanTestCaseService.getFailureCases(planId);
-        report.setFailureTestCases(failureTestCases);
-
-        List<IssuesDao> issueList = issuesService.getIssuesByPlanoId(planId);
-        report.setIssueList(issueList);
-
-        List<TestPlanFailureApiDTO> apiFailureResult = testPlanApiCaseService.getFailureList(planId);
-        apiFailureResult.forEach(item -> {
-            APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
-            if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                item.setResponse(dbResult.getContent());
+        if (checkReportConfig(config, "functional")) {
+            List<TestPlanCaseDTO> allCases = null;
+            if (checkReportConfig(config, "functional", "all")) {
+                allCases = testPlanTestCaseService.getAllCases(planId);
+                report.setFunctionAllCases(allCases);
             }
-        });
-        report.setApiFailureResult(apiFailureResult);
+            if (checkReportConfig(config, "functional", "failure")) {
+                List<TestPlanCaseDTO> failureCases = null;
+                if (!CollectionUtils.isEmpty(allCases)) {
+                    failureCases = allCases.stream()
+                            .filter(i -> StringUtils.isNotBlank(i.getStatus())
+                                    && i.getStatus().equals("Failure"))
+                            .collect(Collectors.toList());
+                } else {
+                    failureCases = testPlanTestCaseService.getFailureCases(planId);
+                }
+                report.setFunctionFailureCases(failureCases);
+            }
+            if (checkReportConfig(config, "functional", "issue")) {
+                List<IssuesDao> issueList = issuesService.getIssuesByPlanoId(planId);
+                report.setIssueList(issueList);
+            }
+        }
 
-        List<TestPlanFailureScenarioDTO> scenarioFailureResult = testPlanScenarioCaseService.getFailureList(planId);
-        scenarioFailureResult.forEach((item) -> {
-            item.setResponse(apiScenarioReportService.get(item.getReportId()));
-        });
-        report.setScenarioFailureResult(scenarioFailureResult);
+        if (checkReportConfig(config, "api")) {
+            List<TestPlanFailureApiDTO> apiAllCases = null;
+            List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
+            if (checkReportConfig(config, "api", "all")) {
+                // 接口
+                apiAllCases = testPlanApiCaseService.getAllCases(planId);
+                report.setApiAllCases(apiAllCases);
+                apiAllCases.forEach(item -> {
+                    APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
+                    if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
+                        item.setResponse(dbResult.getContent());
+                    }
+                });
+                //场景
+                scenarioAllCases = testPlanScenarioCaseService.getAllCases(planId);
+                scenarioAllCases.forEach((item) -> {
+                    item.setResponse(apiScenarioReportService.get(item.getReportId()));
+                });
+                report.setScenarioAllCases(scenarioAllCases);
+            }
+            if (checkReportConfig(config, "api", "failure")) {
+                // 接口
+                List<TestPlanFailureApiDTO> apiFailureCases = null;
+                if (!CollectionUtils.isEmpty(apiAllCases)) {
+                    apiFailureCases = apiAllCases.stream()
+                            .filter(i -> StringUtils.isNotBlank(i.getExecResult())
+                                    && i.getExecResult().equals("error"))
+                            .collect(Collectors.toList());
+                } else {
+                    apiFailureCases = testPlanApiCaseService.getFailureCases(planId);
+                }
+                apiFailureCases.forEach(item -> {
+                    APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
+                    if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
+                        item.setResponse(dbResult.getContent());
+                    }
+                });
+                report.setApiFailureResult(apiFailureCases);
 
-        List<TestPlanLoadCaseDTO> loadFailureTestCases = testPlanLoadCaseService.getFailureCases(planId);
-        report.setLoadFailureTestCases(loadFailureTestCases);
+                // 场景
+                List<TestPlanFailureScenarioDTO> scenarioFailureCases = null;
+                if (!CollectionUtils.isEmpty(scenarioAllCases)) {
+                     scenarioFailureCases = scenarioAllCases.stream()
+                            .filter(i -> StringUtils.isNotBlank(i.getLastResult())
+                                    && i.getLastResult().equals("Fail"))
+                            .collect(Collectors.toList());
+                } else {
+                    scenarioFailureCases = testPlanScenarioCaseService.getFailureCases(planId);
+                }
+                scenarioFailureCases.forEach((item) -> {
+                    item.setResponse(apiScenarioReportService.get(item.getReportId()));
+                });
+                report.setScenarioFailureResult(scenarioFailureCases);
+            }
+        }
 
+        if (checkReportConfig(config, "load")) {
+            List<TestPlanLoadCaseDTO> allCases = null;
+            if (checkReportConfig(config, "load", "all")) {
+                allCases = testPlanLoadCaseService.getAllCases(planId);
+                report.setLoadAllTestCases(allCases);
+            }
+            if (checkReportConfig(config, "load", "failure")) {
+                List<TestPlanLoadCaseDTO> failureCases = null;
+                if (!CollectionUtils.isEmpty(allCases)) {
+                    failureCases = allCases.stream()
+                            .filter(i -> StringUtils.isNotBlank(i.getStatus())
+                                    && i.getStatus().equals("error"))
+                            .collect(Collectors.toList());
+                } else {
+                    failureCases = testPlanLoadCaseService.getFailureCases(planId);
+                }
+                report.setLoadFailureTestCases(failureCases);
+            }
+        }
         render(report, response);
+    }
+
+    public Boolean checkReportConfig(JSONObject config, String key) {
+        if (config ==  null) {
+            return true;
+        } else {
+            JSONObject configItem = config.getJSONObject(key);
+            return configItem.getBoolean("enable");
+        }
+    }
+
+    public Boolean checkReportConfig(JSONObject config, String key, String subKey) {
+        if (config ==  null) {
+            return true;
+        } else {
+            JSONObject configItem = config.getJSONObject(key);
+            Boolean enable = configItem.getBoolean("enable");
+            if (!enable) {
+                return false;
+            } else {
+                JSONObject subConfig = configItem.getJSONObject("children").getJSONObject(subKey);
+                return subConfig == null ? true : subConfig.getBoolean("enable");
+            }
+        }
     }
 
     public void render(TestPlanSimpleReportDTO report, HttpServletResponse response) throws UnsupportedEncodingException {

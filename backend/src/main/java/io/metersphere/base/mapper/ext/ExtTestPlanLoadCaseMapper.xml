@@ -178,11 +178,14 @@
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
         select id,status from test_plan_load_case where test_plan_id = #{planId};
     </select>
-    <select id="getFailureCases" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
+    <select id="getCases" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id, lt.id as caseId, lt.name, lt.num, lt.project_id,
-               tplc.status ,tplc.create_user
+               tplc.status ,tplc.create_user, tplc.load_report_id
         from test_plan_load_case tplc
-        inner join load_test lt on tplc.load_case_id = lt.id and tplc.status = 'error'
+        inner join load_test lt on tplc.load_case_id = lt.id
+           <if test="status != null">
+               and tplc.status = 'error'
+           </if>
         where tplc.test_plan_id = #{planId}
     </select>
 </mapper>

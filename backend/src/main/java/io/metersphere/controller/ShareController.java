@@ -75,13 +75,13 @@ public class ShareController {
     @GetMapping("/test/plan/api/case/list/failure/{shareId}/{planId}")
     public List<TestPlanFailureApiDTO> getApiFailureList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
-        return testPlanApiCaseService.getFailureList(planId);
+        return testPlanApiCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/test/plan/scenario/case/list/failure/{shareId}/{planId}")
     public List<TestPlanFailureScenarioDTO> getScenarioFailureList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
-        return testPlanScenarioCaseService.getFailureList(planId);
+        return testPlanScenarioCaseService.getFailureCases(planId);
     }
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")

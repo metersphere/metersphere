@@ -364,16 +364,25 @@ public class TestPlanLoadCaseService {
         loadResult.setCaseData(statusResult);
     }
 
+    public List<TestPlanLoadCaseDTO> getAllCases(String planId) {
+        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCases(planId, null);
+        return buildCases(cases);
+    }
+
     public List<TestPlanLoadCaseDTO> getFailureCases(String planId) {
-        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getFailureCases(planId);
+        List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getCases(planId, "error");
+        return buildCases(failureCases);
+    }
+
+    public List<TestPlanLoadCaseDTO> buildCases(List<TestPlanLoadCaseDTO> cases) {
 //        Map<String, Project> projectMap = ServiceUtils.getProjectMap(
 //                failureCases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
         Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
-                failureCases.stream().map(TestPlanLoadCaseDTO::getCreateUser).collect(Collectors.toList()));
-        failureCases.forEach(item -> {
+                cases.stream().map(TestPlanLoadCaseDTO::getCreateUser).collect(Collectors.toList()));
+        cases.forEach(item -> {
 //            item.setProjectName(projectMap.get(item.getProjectId()).getName());
             item.setUserName(userNameMap.get(item.getCreateUser()));
         });
-        return failureCases;
+        return cases;
     }
 }
