@@ -30,7 +30,7 @@
             </div>
             <span class="username">{{ item.user.name }}</span>
             <span class="operation">
-             {{ getOperation(item.operation) }}{{ getResource(item.resourceType) }}: {{ item.resourceName }}
+             {{ getOperation(item.operation) }}{{ getResource(item) }}: {{ item.resourceName }}
             </span>
           </el-row>
         </el-card>

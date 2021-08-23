@@ -162,7 +162,7 @@ export default {
             return;
           }
           d.user = this.userMap[d.operator];
-          let message = d.user.name + getOperation(d.operation) + getResource(d.resourceType) + ": " + d.resourceName;
+          let message = d.user.name + getOperation(d.operation) + getResource(d) + ": " + d.resourceName;
           let title = d.type === 'MENTIONED_ME' ? '@提到我的' : '系统通知';
           setTimeout(() => {
             this.$notify({
