@@ -27,7 +27,7 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
             return;
         }
 
-        LogUtil.info("发送站内通知: {}", messageDetail.getUserIds());
+        LogUtil.info("发送站内通知: {}", receivers);
         receivers.forEach(receiver -> {
 
             Map<String, Object> paramMap = noticeModel.getParamMap();
