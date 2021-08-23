@@ -21,6 +21,8 @@ public class AutomationReference {
         automationColumns.put("tags", "标签");
         automationColumns.put("scenarioDefinition", "场景步骤");
         automationColumns.put("description", "描述");
+        automationColumns.put("followPeople", "关注人");
+
         // 需要深度对比的字段，可以支持多个req1,req2
         automationColumns.put("ms-dff-col", "scenarioDefinition,tags");
     }
