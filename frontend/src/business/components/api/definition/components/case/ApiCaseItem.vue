@@ -285,7 +285,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.$get('/api/testcase/delete/' + row.id, () => {
+            this.$get('/api/testcase/deleteToGc/' + row.id, () => {
               this.$success(this.$t('commons.delete_success'));
               this.$emit('refresh');
             });

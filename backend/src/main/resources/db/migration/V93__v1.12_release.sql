@@ -99,3 +99,6 @@ ALTER TABLE test_plan ADD report_config text CHARACTER SET utf8mb4 COLLATE utf8m
 
 -- 删除不用的记录表
 DROP TABLE test_plan_report_resource;
+-- 统一接口案例未执行的状态字段
+update api_test_case SET `status` = '' WHERE `status` = 'Underway';
+update api_test_case SET `original_status` = '' WHERE `original_status` = 'Underway';

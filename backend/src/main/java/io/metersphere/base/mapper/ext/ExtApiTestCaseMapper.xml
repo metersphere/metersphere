@@ -532,6 +532,32 @@
             <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
                 AND t1.api_definition_id = #{request.apiDefinitionId}
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'priority'">
+                                and t1.priority in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='status'">
+                                and t1.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                    <if test="key=='status' and values.size == 0">
+                        and (t1.status is null or t1.status != 'Trash')
+                    </if>
+                </foreach>
+            </if>
+            <if test="request.filters == null || request.filters.size() == 0 ">
+                and (t1.status is null or t1.status != 'Trash')
+            </if>
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
                 and a.module_id in
                 <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
@@ -570,15 +596,6 @@
         update api_test_case
         set status = original_status
         where id IN
-        <foreach collection="ids" item="v" separator="," open="(" close=")">
-            #{v}
-        </foreach>
-    </update>
-    <update id="checkOriginalStatusByIds">
-        update api_test_case
-        set
-        original_status = 'Underway'
-        where (original_status IS NULL OR original_status = 'Trash') AND id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
