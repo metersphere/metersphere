@@ -2364,11 +2364,12 @@ public class ApiAutomationService {
         }
     }
 
-    public void batchCopy(ApiScenarioBatchRequest batchRequest) {
+    public BatchOperaResponse batchCopy(ApiScenarioBatchRequest batchRequest) {
 
         ServiceUtils.getSelectAllIds(batchRequest, batchRequest.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
+        StringBuffer stringBuffer = new StringBuffer();
         for (ApiScenarioWithBLOBs apiModel : apiScenarioList) {
             long time = System.currentTimeMillis();
             ApiScenarioWithBLOBs newModel = apiModel;
@@ -2382,6 +2383,7 @@ public class ApiAutomationService {
             example.createCriteria().andNameEqualTo(newModel.getName()).
                     andProjectIdEqualTo(newModel.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(newModel.getId());
             if (apiScenarioMapper.countByExample(example) > 0) {
+                stringBuffer.append(newModel.getName()+";");
                 continue;
             } else {
                 boolean insertFlag = true;
@@ -2412,6 +2414,15 @@ public class ApiAutomationService {
                 }
             }
         }
+
+        BatchOperaResponse result = new BatchOperaResponse();
+        if(stringBuffer.length() == 0){
+            result.result = true;
+        }else {
+            result.result = false;
+            result.errorMsg = stringBuffer.substring(0,stringBuffer.length()-1);
+        }
+        return result;
     }
 
     public DeleteCheckResult checkBeforeDelete(ApiScenarioBatchRequest request) {

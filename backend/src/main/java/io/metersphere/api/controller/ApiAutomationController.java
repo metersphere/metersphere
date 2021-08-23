@@ -271,8 +271,9 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/batchCopy")
-    public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
-        apiAutomationService.batchCopy(request);
+    public BatchOperaResponse batchCopy(@RequestBody ApiScenarioBatchRequest request) {
+        BatchOperaResponse response = apiAutomationService.batchCopy(request);
+        return response;
     }
 
 

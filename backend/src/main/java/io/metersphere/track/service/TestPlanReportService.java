@@ -269,9 +269,6 @@ public class TestPlanReportService {
         TestPlanReportDTO returnDTO = new TestPlanReportDTO();
         TestPlanReport report = testPlanReportMapper.selectByPrimaryKey(reportId);
         if (report != null) {
-//            if (StringUtils.equalsIgnoreCase(report.getStatus(), TestPlanApiExecuteStatus.RUNNING.name())) {
-//                report = this.updateExecuteApis(reportId);
-//            }
             TestPlanReportDataExample example = new TestPlanReportDataExample();
             example.createCriteria().andTestPlanReportIdEqualTo(reportId);
             List<TestPlanReportDataWithBLOBs> reportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);

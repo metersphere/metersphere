@@ -218,7 +218,11 @@ export default {
       });
     },
     mockSetting() {
-      this.$store.state.currentApiCase={mock : getUUID()};
+      if(this.basisData.id){
+        this.$store.state.currentApiCase={mock : getUUID()};
+      }else {
+        this.$alert(this.$t('api_test.mock.create_error'));
+      }
     },
   },
 }
