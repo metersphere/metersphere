@@ -3,6 +3,7 @@ package io.metersphere.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtNotificationMapper;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
@@ -39,12 +40,6 @@ public class OrganizationService {
     @Resource
     private OrganizationMapper organizationMapper;
     @Resource
-    private UserRoleMapper userRoleMapper;
-    @Resource
-    private ExtUserRoleMapper extUserRoleMapper;
-    @Resource
-    private UserMapper userMapper;
-    @Resource
     private ExtOrganizationMapper extOrganizationMapper;
     @Resource
     private WorkspaceMapper workspaceMapper;
@@ -79,6 +74,9 @@ public class OrganizationService {
         userGroup.setGroupId(UserGroupConstants.ORG_ADMIN);
         userGroup.setSourceId(organization.getId());
         userGroupMapper.insert(userGroup);
+
+        // 设置默认的通知
+        extOrganizationMapper.setDefaultMessageTask(organization.getId());
         return organization;
     }
 
