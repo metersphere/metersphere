@@ -1090,6 +1090,8 @@ public class TestPlanService {
                 try {
                     if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
                         apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanId, ApiRunMode.JENKINS_API_PLAN.name());
+                    } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
+                        apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanId, ApiRunMode.MANUAL_PLAN.name());
                     } else {
                         apiTestCaseService.run(blobs, UUID.randomUUID().toString(), planReportId, testPlanId, ApiRunMode.SCHEDULE_API_PLAN.name());
                     }
@@ -1115,7 +1117,9 @@ public class TestPlanService {
                 if (StringUtils.equals(triggerMode, ReportTriggerMode.API.name())) {
                     scenarioRequest.setTriggerMode(ReportTriggerMode.API.name());
                     scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
-
+                } else if (StringUtils.equals(triggerMode, ReportTriggerMode.MANUAL.name())) {
+                    scenarioRequest.setTriggerMode(ReportTriggerMode.MANUAL.name());
+                    scenarioRequest.setRunMode(ApiRunMode.JENKINS_SCENARIO_PLAN.name());
                 } else {
                     scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
                     scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
