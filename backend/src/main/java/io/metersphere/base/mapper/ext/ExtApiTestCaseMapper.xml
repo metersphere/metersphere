@@ -247,9 +247,10 @@
         t1.delete_time, deleteUser.name AS deleteUser,CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t2.id)*100,2),'%') passRate
         from
         api_test_case t1
-        LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
+        LEFT JOIN api_definition_exec_result t2 ON t1.id = t2.resource_id
         LEFT JOIN user deleteUser ON t1.delete_user_id = deleteUser.id
-        inner join api_definition a on t1.api_definition_id = a.id
+        LEFT JOIN api_definition a on t1.api_definition_id = a.id
+        WHERE 1=1
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
         </if>
