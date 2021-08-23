@@ -323,6 +323,7 @@ public class ApiTestCaseService {
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
+        test.setStatus("");
         test.setApiDefinitionId(request.getApiDefinitionId());
         test.setCreateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         test.setUpdateUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
@@ -883,7 +884,6 @@ public class ApiTestCaseService {
             cannotReductionApiCaseList.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
             List<String> deleteIds = ids.stream().filter(id -> !cannotReductionCaseId.contains(id)).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(deleteIds)) {
-                extApiTestCaseMapper.checkOriginalStatusByIds(deleteIds);
                 extApiTestCaseMapper.reduction(deleteIds);
             }
         }
