@@ -318,9 +318,6 @@ export default {
               row.userIds.unshift('CREATOR');
             }
           }
-          if (i > -1) {
-            row.userIds.splice(i, 1);
-          }
           break;
         default:
           break;
