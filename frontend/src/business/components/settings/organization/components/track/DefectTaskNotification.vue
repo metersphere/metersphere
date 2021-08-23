@@ -287,27 +287,19 @@ export default {
     },
     handleReceivers(row) {
       let testPlanReceivers = JSON.parse(JSON.stringify(this.defectReceiverOptions));
-      let i = row.userIds.indexOf('PROCESSOR');
       let i2 = row.userIds.indexOf('CREATOR');
       switch (row.event) {
         case "CREATE":
           if (i2 > -1) {
             row.userIds.splice(i2, 1);
           }
-          if (i > -1) {
-            row.userIds.splice(i, 1);
-          }
           break;
         case "UPDATE":
         case "STATUS_CHANGE":
-          testPlanReceivers.unshift({id: 'PROCESSOR', name: '处理人'});
           testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
-            }
-            if (i < 0) {
-              row.userIds.unshift('PROCESSOR');
             }
           }
           break;
@@ -317,9 +309,6 @@ export default {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
             }
-          }
-          if (i > -1) {
-            row.userIds.splice(i, 1);
           }
           break;
         default:
