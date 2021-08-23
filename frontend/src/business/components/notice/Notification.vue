@@ -45,6 +45,7 @@ import MsRequestResultTail from "../../components/api/definition/components/resp
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import SystemNoticeData from "@/business/components/notice/components/SystemNoticeData";
 import MentionedMeData from "@/business/components/notice/components/MentionedMeData";
+import {getOperation, getResource} from "@/business/components/notice/util";
 
 export default {
   name: "MsNotification",
@@ -69,6 +70,7 @@ export default {
       visible: false,
       showType: "",
       userList: [],
+      userMap: {},
       websocket: Object,
       activeName: 'mentionedMe',
       pageSize: 20,
@@ -95,6 +97,10 @@ export default {
     getUserList() {
       this.$get('/user/list', response => {
         this.userList = response.data;
+        this.userMap = this.userList.reduce((r, c) => {
+          r[c.id] = c;
+          return r;
+        }, {});
       });
     },
     initWebSocket() {
@@ -155,12 +161,14 @@ export default {
           if (now - d.createTime > 10 * 1000) {
             return;
           }
+          d.user = this.userMap[d.operator];
+          let message = d.user.name + getOperation(d.operation) + getResource(d.resourceType) + ": " + d.resourceName;
           let title = d.type === 'MENTIONED_ME' ? '@提到我的' : '系统通知';
           setTimeout(() => {
             this.$notify({
               title: title,
               type: 'info',
-              message: d.content,
+              message: message,
             });
           });
         });
