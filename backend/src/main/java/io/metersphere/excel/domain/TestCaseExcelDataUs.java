@@ -81,7 +81,7 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
 
-    @ExcelProperty("Maintainer")
+    @ExcelProperty("Maintainer(ID)")
     private String maintainer;
 
     @Override
