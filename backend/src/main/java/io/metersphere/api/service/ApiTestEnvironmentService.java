@@ -340,9 +340,11 @@ public class ApiTestEnvironmentService {
         tcpConfigObj.put("reUseConnection", false);
         tcpConfigObj.put("nodelay", false);
         tcpConfigObj.put("closeConnection", false);
-        if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
-            tcpConfigObj.put("server", tcpSocket);
-            tcpConfigObj.put("port", project.getMockTcpPort().intValue());
+        if(project != null){
+            if(project.getMockTcpPort() != null && project.getMockTcpPort().intValue() != 0){
+                tcpConfigObj.put("server", tcpSocket);
+                tcpConfigObj.put("port", project.getMockTcpPort().intValue());
+            }
         }
 
         JSONObject object = new JSONObject();
