@@ -309,7 +309,7 @@ public class ApiTestCaseService {
             test.setTags(request.getTags());
         }
         apiTestCaseMapper.updateByPrimaryKeySelective(test);
-        return test;
+        return apiTestCaseMapper.selectByPrimaryKey(request.getId());
     }
 
     private ApiTestCase createTest(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {

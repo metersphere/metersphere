@@ -33,8 +33,16 @@ export function getOperation(operation) {
   return operation;
 }
 
-export function getResource(resourceType) {
-  switch (resourceType) {
+export function getResource(d) {
+  switch (d.operation) {
+    case "CASE_CREATE":
+    case "CASE_UPDATE":
+    case "CASE_DELETE":
+      return "";
+  }
+
+  let resourceType = "";
+  switch (d.resourceType) {
     case "JENKINS_TASK" :
       resourceType = "Jenkins";
       break;

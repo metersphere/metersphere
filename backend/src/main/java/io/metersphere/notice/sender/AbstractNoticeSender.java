@@ -133,6 +133,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 case NoticeConstants.RelatedUser.CREATOR:
                     Object creator = paramMap.get("creator");
                     Object createUser = paramMap.get("createUser");
+                    Object createUserId = paramMap.get("createUserId");
                     Object userId1 = paramMap.get("userId");
 
                     if (userId1 != null) {
@@ -141,6 +142,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         toUsers.add(new Receiver(creator.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     } else if (createUser != null) {
                         toUsers.add(new Receiver(createUser.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else if (createUserId != null) {
+                        toUsers.add(new Receiver(createUserId.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                     break;
                 case NoticeConstants.RelatedUser.MAINTAINER:
