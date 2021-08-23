@@ -38,6 +38,11 @@ public class TestPlanApiCaseController {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
+    @GetMapping("/list/all/{planId}")
+    public List<TestPlanFailureApiDTO> getAllList(@PathVariable String planId) {
+        return testPlanApiCaseService.getAllCases(planId);
+    }
+
     @PostMapping("/selectAllTableRows")
     public List<TestPlanApiCaseDTO> selectAllTableRows(@RequestBody TestPlanApiCaseBatchRequest request) {
         return testPlanApiCaseService.selectAllTableRows(request);

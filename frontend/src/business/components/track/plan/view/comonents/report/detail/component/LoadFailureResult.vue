@@ -2,7 +2,9 @@
     <div class="container">
       <el-table
         row-key="id"
-        :data="failureTestCases">
+        @row-click="rowClick"
+        :highlight-current-row="true"
+        :data="loadTestCases">
         <el-table-column
           prop="num"
           :label="$t('commons.id')"
@@ -26,9 +28,18 @@
           prop="status"
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
-          <template v-slot:default="scope">
-            <status-table-item :value="'Failure'"/>
-          </template>
+            <template v-slot:default="{row}">
+              <el-tag size="mini" type="danger" v-if="row.status === 'error'">
+                {{ row.status }}
+              </el-tag>
+              <el-tag size="mini" type="success" v-else-if="row.status === 'success'">
+                {{ row.status }}
+              </el-tag>
+              <el-tag size="mini" v-else-if="row.status === 'run'">
+                {{ row.status }}
+              </el-tag>
+              <span v-else>-</span>
+            </template>
         </el-table-column>
 
       </el-table>
@@ -40,7 +51,12 @@
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanLoadFailureCase, getSharePlanLoadFailureCase} from "@/network/test-plan";
+import {
+  getPlanLoadAllCase,
+  getPlanLoadFailureCase,
+  getSharePlanLoadAllCase,
+  getSharePlanLoadFailureCase
+} from "@/network/test-plan";
 export default {
   name: "LoadFailureResult",
   components: {StatusTableItem, MethodTableItem, TypeTableItem},
@@ -49,11 +65,12 @@ export default {
     report: Object,
     isTemplate: Boolean,
     isShare: Boolean,
-    shareId: String
+    shareId: String,
+    isAll: Boolean
   },
   data() {
     return {
-      failureTestCases:  []
+      loadTestCases:  []
     }
   },
   mounted() {
@@ -62,15 +79,42 @@ export default {
   methods: {
     getFailureTestCase() {
       if (this.isTemplate) {
-        this.failureTestCases = this.report.loadFailureTestCases;
+        if (this.isAll) {
+          this.loadTestCases = this.report.loadAllTestCases;
+        } else {
+          this.loadTestCases = this.report.loadFailureTestCases;
+        }
       } else if (this.isShare) {
-        getSharePlanLoadFailureCase(this.shareId, this.planId, (data) => {
-          this.failureTestCases = data;
-        });
+        if (this.isAll) {
+          getSharePlanLoadAllCase(this.shareId, this.planId, (data) => {
+            this.loadTestCases = data;
+          });
+        } else {
+          getSharePlanLoadFailureCase(this.shareId, this.planId, (data) => {
+            this.loadTestCases = data;
+          });
+        }
       } else {
-        getPlanLoadFailureCase(this.planId, (data) => {
-          this.failureTestCases = data;
-        });
+        if (this.isAll) {
+          getPlanLoadAllCase(this.planId, (data) => {
+            this.loadTestCases = data;
+          });
+        } else {
+          getPlanLoadFailureCase(this.planId, (data) => {
+            this.loadTestCases = data;
+          });
+        }
+      }
+    },
+    handleDefaultClick() {
+      let data = this.scenarioCases;
+      if (data && data.length > 0) {
+        this.rowClick(data[0]);
+      }
+    },
+    rowClick(row) {
+      if (this.isAll) {
+        this.$emit('rowClick', row);
       }
     }
   }

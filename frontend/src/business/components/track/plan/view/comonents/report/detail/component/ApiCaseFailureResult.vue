@@ -40,13 +40,16 @@
             :width="80"
             :label="'执行结果'"
             prop="lastResult">
-            <status-table-item :value="'Failure'"/>
+            <template v-slot:default="scope">
+              <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
+              <status-table-item v-if="scope.row.execResult === 'error'" :value="'Failure'"/>
+            </template>
           </ms-table-column>
         </ms-table>
       </el-col>
       <el-col :span="17" v-if="apiCases.length > 0">
         <el-card>
-          <ms-request-result-tail :response="response" ref="debugResult"/>
+          <ms-request-result-tail v-if="showResponse" :response="response" ref="debugResult"/>
         </el-card>
       </el-col>
     </el-row>
@@ -58,7 +61,12 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanApiFailureCase, getSharePlanApiFailureCase} from "@/network/test-plan";
+import {
+  getPlanApiAllCase,
+  getPlanApiFailureCase,
+  getSharePlanApiAllCase,
+  getSharePlanApiFailureCase
+} from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getApiReport, getShareApiReport} from "@/network/api";
@@ -73,13 +81,15 @@ export default {
     isTemplate: Boolean,
     report: Object,
     isShare: Boolean,
-    shareId: String
+    shareId: String,
+    isAll: Boolean
   },
   data() {
     return {
       apiCases:  [],
       result: {},
-      response: {}
+      response: {},
+      showResponse: true
     }
   },
   mounted() {
@@ -88,36 +98,67 @@ export default {
   methods: {
     getScenarioApiCase() {
       if (this.isTemplate) {
-        this.apiCases = this.report.apiFailureResult;
-        if (this.apiCases && this.apiCases.length > 0) {
-          this.rowClick(this.apiCases[0]);
+        if (this.isAll) {
+          this.apiCases = this.report.apiAllCases;
+        } else {
+          this.apiCases = this.report.apiFailureResult;
         }
+        this.handleDefaultClick();
       } else if (this.isShare) {
-        this.result = getSharePlanApiFailureCase(this.shareId, this.planId, (data) => {
-          this.apiCases = data;
-          if (data && data.length > 0) {
-            this.rowClick(data[0]);
-          }
-        });
+        if (this.isAll) {
+          this.result = getSharePlanApiAllCase(this.shareId, this.planId, (data) => {
+            this.apiCases = data;
+            this.handleDefaultClick();
+          });
+        } else {
+          this.result = getSharePlanApiFailureCase(this.shareId, this.planId, (data) => {
+            this.apiCases = data;
+            this.handleDefaultClick();
+          });
+        }
       } else {
-        this.result = getPlanApiFailureCase(this.planId, (data) => {
-          this.apiCases = data;
-          if (data && data.length > 0) {
-            this.rowClick(data[0]);
-          }
-        });
+        if (this.isAll) {
+          this.result = getPlanApiAllCase(this.planId, (data) => {
+            this.apiCases = data;
+            this.handleDefaultClick();
+          });
+        } else {
+          this.result = getPlanApiFailureCase(this.planId, (data) => {
+            this.apiCases = data;
+            this.handleDefaultClick();
+          });
+        }
+      }
+    },
+    handleDefaultClick() {
+      let data = this.apiCases;
+      if (data && data.length > 0) {
+        this.rowClick(data[0]);
       }
     },
     rowClick(row) {
+      this.showResponse = true;
       if (this.isTemplate) {
-        this.response = JSON.parse(row.response);
+        if (!row.response) {
+          this.showResponse = false;
+        } else {
+          this.response = JSON.parse(row.response);
+        }
       } else if (this.isShare) {
         getShareApiReport(this.shareId, row.id, (data) => {
-          this.response = JSON.parse(data.content);
+          if (!data || !data.content) {
+            this.showResponse = false;
+          } else {
+            this.response = JSON.parse(data.content);
+          }
         });
       } else {
         getApiReport(row.id, (data) => {
-          this.response = JSON.parse(data.content);
+          if (!data || !data.content) {
+            this.showResponse = false;
+          } else {
+            this.response = JSON.parse(data.content);
+          }
         });
       }
     }

@@ -134,4 +134,9 @@ public class TestPlanTestCaseController {
     public List<TestPlanCaseDTO> getFailureCases(@PathVariable String planId) {
         return testPlanTestCaseService.getFailureCases(planId);
     }
+
+    @GetMapping("/list/all/{planId}")
+    public List<TestPlanCaseDTO> getAllCases(@PathVariable String planId) {
+        return testPlanTestCaseService.getAllCases(planId);
+    }
 }

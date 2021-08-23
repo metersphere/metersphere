@@ -7,7 +7,9 @@
       <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
         <load-failure-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
-<!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
+      <el-tab-pane label="所有用例" name="third">
+        <load-all-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
 </template>
@@ -19,10 +21,12 @@ import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import LoadFailureResult
   from "@/business/components/track/plan/view/comonents/report/detail/component/LoadFailureResult";
+import LoadAllResult from "@/business/components/track/plan/view/comonents/report/detail/component/LoadAllResult";
 
 export default {
   name: "TestPlanLoadReport",
   components: {
+    LoadAllResult,
     LoadFailureResult,
     TestPlanReportContainer,
     LoadResult, MsFormDivider},
@@ -47,6 +51,10 @@ export default {
       let disable = this.report.config && this.report.config.load.children.failure.enable === false;
       return !disable;
     },
+    allEnable() {
+      let disable = this.report.config && this.report.config.load.children.all.enable === false;
+      return !disable;
+    },
   },
   watch: {
     resultEnable() {
@@ -65,6 +73,8 @@ export default {
         this.activeName = 'first';
       } else if (this.failureEnable) {
         this.activeName = 'second';
+      } else if (this.allEnable) {
+        this.activeName = 'third';
       }
     },
     handleClick(tab, event) {

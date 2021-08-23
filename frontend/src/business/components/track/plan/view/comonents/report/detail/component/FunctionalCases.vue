@@ -2,7 +2,7 @@
     <div class="container">
       <el-table
         row-key="id"
-        :data="failureTestCases">
+        :data="testCases">
         <el-table-column
           prop="num"
           :label="$t('commons.id')"
@@ -47,7 +47,7 @@
           column-key="status"
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
-            <status-table-item :value="'Failure'"/>
+            <status-table-item :value="scope.row.status"/>
           </template>
         </el-table-column>
 
@@ -69,37 +69,59 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanFunctionFailureCase, getSharePlanFunctionFailureCase} from "@/network/test-plan";
+import {
+  getPlanFunctionAllCase,
+  getPlanFunctionFailureCase,
+  getSharePlanFunctionAllCase,
+  getSharePlanFunctionFailureCase
+} from "@/network/test-plan";
 export default {
-  name: "FunctionalFailureResult",
+  name: "FunctionalCases",
   components: {StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
     planId: String,
     isTemplate: Boolean,
     isShare: Boolean,
     report: {},
-    shareId: String
+    shareId: String,
+    isAll: Boolean
   },
   data() {
     return {
-      failureTestCases:  []
+      testCases:  []
     }
   },
   mounted() {
-    this.getFailureTestCase();
+    this.getFunctionalTestCase();
   },
   methods: {
-    getFailureTestCase() {
+    getFunctionalTestCase() {
       if (this.isTemplate) {
-        this.failureTestCases = this.report.functionFailureCases;
+        if (this.isAll) {
+          this.testCases = this.report.functionAllCases;
+        } else {
+          this.testCases = this.report.functionFailureCases;
+        }
       } else if (this.isShare) {
-        getSharePlanFunctionFailureCase(this.shareId, this.planId, (data) => {
-          this.failureTestCases = data;
-        });
+        if (this.isAll) {
+          getSharePlanFunctionAllCase(this.shareId, this.planId, (data) => {
+            this.testCases = data;
+          });
+        } else {
+          getSharePlanFunctionFailureCase(this.shareId, this.planId, (data) => {
+            this.testCases = data;
+          });
+        }
       } else {
-        getPlanFunctionFailureCase(this.planId, (data) => {
-          this.failureTestCases = data;
-        });
+        if (this.isAll) {
+          getPlanFunctionAllCase(this.planId, (data) => {
+            this.testCases = data;
+          });
+        } else {
+          getPlanFunctionFailureCase(this.planId, (data) => {
+            this.testCases = data;
+          });
+        }
       }
     }
   }

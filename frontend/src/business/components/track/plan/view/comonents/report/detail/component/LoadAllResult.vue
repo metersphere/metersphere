@@ -1,0 +1,89 @@
+<template>
+    <div class="container">
+      <el-row class="scenario-info">
+        <el-col :span="7">
+          <load-failure-result @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        </el-col>
+        <el-col :span="17" >
+          <el-card>
+            <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare"
+                                   :plan-report-template="response" v-if="showResponse" :report-id="reportId" ref="loadCaseReportView"/>
+          </el-card>
+        </el-col>
+      </el-row>
+    </div>
+</template>
+
+<script>
+import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
+import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
+import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
+import {checkoutLoadReport, shareCheckoutLoadReport} from "@/network/test-plan";
+import LoadFailureResult
+  from "@/business/components/track/plan/view/comonents/report/detail/component/LoadFailureResult";
+import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
+import LoadCaseReportView from "@/business/components/track/plan/view/comonents/load/LoadCaseReportView";
+export default {
+  name: "LoadAllResult",
+  components: {LoadCaseReportView, LoadCaseReport, LoadFailureResult, StatusTableItem, MethodTableItem, TypeTableItem},
+  props: {
+    planId: String,
+    report: Object,
+    isTemplate: Boolean,
+    isShare: Boolean,
+    shareId: String
+  },
+  data() {
+    return {
+      failureTestCases:  [],
+      showResponse: true,
+      reportId: "",
+      response: null
+    }
+  },
+  mounted() {
+  },
+  methods: {
+    getReport(row) {
+      this.showResponse = true;
+      if (this.isTemplate) {
+        if (!row.response) {
+          this.showResponse = false;
+        } else {
+          this.response = row.response;
+        }
+      } else {
+        let param = {
+          testPlanLoadCaseId: row.id,
+          reportId: row.loadReportId
+        }
+        if (!row.loadReportId) {
+          this.showResponse = false;
+          return;
+        }
+        if (this.isShare) {
+          shareCheckoutLoadReport(this.shareId, param, data => {
+            this.openReport(data, row.loadReportId);
+          });
+        } else {
+          checkoutLoadReport(param, data => {
+            this.openReport(data, row.loadReportId);
+          });
+        }
+      }
+    },
+    openReport(exist, loadReportId) {
+      if (exist) {
+        this.reportId = loadReportId;
+      } else {
+        this.showResponse = false;
+        this.$warning(this.$t('test_track.plan.load_case.report_not_found'));
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
