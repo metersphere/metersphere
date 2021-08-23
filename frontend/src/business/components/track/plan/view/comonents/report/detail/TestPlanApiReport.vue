@@ -5,10 +5,11 @@
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
-        <api-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-cases :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
-
-<!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
+      <el-tab-pane label="所有用例" name="third">
+        <api-cases :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+      </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
 </template>
@@ -18,10 +19,10 @@ import MsFormDivider from "@/business/components/common/components/MsFormDivider
 import ApiResult from "@/business/components/track/plan/view/comonents/report/detail/component/ApiResult";
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
-import ApiFailureResult from "@/business/components/track/plan/view/comonents/report/detail/component/ApiFailureResult";
+import ApiCases from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCases";
 export default {
   name: "TestPlanApiReport",
-  components: {ApiFailureResult, TestPlanReportContainer, ApiResult, MsFormDivider},
+  components: {ApiCases, TestPlanReportContainer, ApiResult, MsFormDivider},
   data() {
     return {
       activeName: 'first'
@@ -39,12 +40,19 @@ export default {
       let disable = this.report.config && this.report.config.api.children.failure.enable === false;
       return !disable;
     },
+    allEnable() {
+      let disable = this.report.config && this.report.config.api.children.all.enable === false;
+      return !disable;
+    },
   },
   watch: {
     resultEnable() {
       this.initActiveName();
     },
     failureEnable() {
+      this.initActiveName();
+    },
+    allEnable() {
       this.initActiveName();
     },
   },
@@ -57,6 +65,8 @@ export default {
         this.activeName = 'first';
       } else if (this.failureEnable) {
         this.activeName = 'second';
+      } else if (this.allEnable) {
+        this.activeName = 'third';
       }
     },
     handleClick(tab, event) {

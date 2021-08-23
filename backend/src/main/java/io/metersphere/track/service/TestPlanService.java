@@ -25,10 +25,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.MathUtils;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
@@ -38,7 +35,9 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.performance.base.ReportTimeInfo;
 import io.metersphere.performance.request.RunTestPlanRequest;
+import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ScheduleService;
@@ -49,6 +48,7 @@ import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
+import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.TestplanRunRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
@@ -171,6 +171,8 @@ public class TestPlanService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private IssueTemplateService issueTemplateService;
+    @Resource
+    private PerformanceReportService performanceReportService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -1449,6 +1451,25 @@ public class TestPlanService {
             List<TestPlanLoadCaseDTO> allCases = null;
             if (checkReportConfig(config, "load", "all")) {
                 allCases = testPlanLoadCaseService.getAllCases(planId);
+                allCases.forEach(item -> {
+                    LoadCaseReportRequest request = new LoadCaseReportRequest();
+                    String reportId = item.getLoadReportId();
+                    request.setTestPlanLoadCaseId(item.getId());
+                    request.setReportId(reportId);
+                    Boolean existReport = testPlanLoadCaseService.isExistReport(request);
+                    if  (existReport) {
+                        LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
+                        ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
+                        TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
+                        if (loadTestReport != null) {
+                            BeanUtils.copyBean(reportDTO, loadTestReport);
+                        }
+                        if (reportTimeInfo != null) {
+                            BeanUtils.copyBean(reportDTO, reportTimeInfo);
+                        }
+                        item.setResponse(reportDTO);
+                    }
+                });
                 report.setLoadAllTestCases(allCases);
             }
             if (checkReportConfig(config, "load", "failure")) {

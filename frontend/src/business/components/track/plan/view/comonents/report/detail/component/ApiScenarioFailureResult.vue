@@ -40,12 +40,15 @@
             :width="80"
             :label="'执行结果'"
             prop="lastResult">
-            <status-table-item :value="'Failure'"/>
+            <template v-slot:default="{row}">
+              <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
+              <status-table-item v-if="row.lastResult === 'Fail'" :value="'Failure'"/>
+            </template>
           </ms-table-column>
         </ms-table>
       </el-col>
       <el-col :span="16" v-if="scenarioCases.length > 0">
-        <ms-api-report :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+        <ms-api-report v-if="showResponse" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
       </el-col>
     </el-row>
   </div>
@@ -56,7 +59,12 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {getPlanScenarioFailureCase, getSharePlanScenarioFailureCase} from "@/network/test-plan";
+import {
+  getPlanScenarioAllCase,
+  getPlanScenarioFailureCase,
+  getSharePlanScenarioAllCase,
+  getSharePlanScenarioFailureCase
+} from "@/network/test-plan";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsApiReport from "@/business/components/api/automation/report/ApiReportDetail";
@@ -70,14 +78,16 @@ export default {
     isTemplate: Boolean,
     report: Object,
     isShare: Boolean,
-    shareId: String
+    shareId: String,
+    isAll: Boolean
   },
   data() {
     return {
       scenarioCases:  [],
       result: {},
       reportId: null,
-      response: {}
+      response: {},
+      showResponse: true
     }
   },
   mounted() {
@@ -86,31 +96,58 @@ export default {
   methods: {
     getScenarioApiCase() {
       if (this.isTemplate) {
-        this.scenarioCases = this.report.scenarioFailureResult;
-        if (this.scenarioCases && this.scenarioCases.length > 0) {
-          this.rowClick(this.scenarioCases[0]);
+        if (this.isAll) {
+          this.scenarioCases = this.report.scenarioAllCases;
+        } else {
+          this.scenarioCases = this.report.scenarioFailureResult;
         }
+        this.handleDefaultClick();
       } else if (this.isShare) {
-        this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
-          this.scenarioCases = data;
-          if (data && data.length > 0) {
-            this.reportId = data[0].reportId;
-          }
-        });
+        if (this.isAll) {
+          this.result = getSharePlanScenarioAllCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+            this.handleDefaultClick();
+          });
+        } else {
+          this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
+            this.scenarioCases = data;
+            this.handleDefaultClick();
+          });
+        }
       } else {
-        this.result = getPlanScenarioFailureCase(this.planId, (data) => {
-          this.scenarioCases = data;
-          if (data && data.length > 0) {
-            this.reportId = data[0].reportId;
-          }
-        });
+        if (this.isAll) {
+          this.result = getPlanScenarioAllCase(this.planId, (data) => {
+            this.scenarioCases = data;
+            this.handleDefaultClick();
+          });
+        } else {
+          this.result = getPlanScenarioFailureCase(this.planId, (data) => {
+            this.scenarioCases = data;
+            this.handleDefaultClick();
+          });
+        }
+      }
+    },
+    handleDefaultClick() {
+      let data = this.scenarioCases;
+      if (data && data.length > 0) {
+        this.rowClick(data[0]);
       }
     },
     rowClick(row) {
+      this.showResponse = true;
       if (this.isTemplate) {
-        this.response = row.response;
+        if (!row.response) {
+          this.showResponse = false;
+        } else {
+          this.response = row.response;
+        }
       } else {
-        this.reportId = row.reportId;
+        if (!row.reportId) {
+          this.showResponse = false;
+        } else {
+          this.reportId = row.reportId;
+        }
       }
     }
   }

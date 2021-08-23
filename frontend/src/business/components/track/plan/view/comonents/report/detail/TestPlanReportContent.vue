@@ -125,6 +125,10 @@ export default {
             issue: {
               enable: true,
               name: '缺陷列表',
+            },
+            all: {
+              enable: true,
+              name: '所有用例',
             }
           }
         },
@@ -140,6 +144,10 @@ export default {
               enable: true,
               name: '失败用例',
             },
+            all: {
+              enable: true,
+              name: '所有用例',
+            }
           }
         },
         load: {
@@ -154,6 +162,10 @@ export default {
               enable: true,
               name: '失败用例',
             },
+            all: {
+              enable: true,
+              name: '所有用例',
+            }
           }
         }
       };

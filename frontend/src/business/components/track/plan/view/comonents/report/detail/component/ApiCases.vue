@@ -2,10 +2,10 @@
   <div>
     <el-tabs type="card">
       <el-tab-pane label="接口用例">
-        <api-case-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-case-failure-result :is-all="isAll" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
       <el-tab-pane label="场景用例">
-        <api-scenario-failure-result :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-scenario-failure-result :is-all="isAll" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -21,7 +21,7 @@ import ApiScenarioFailureResult
 import ApiCaseFailureResult
   from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCaseFailureResult";
 export default {
-  name: "ApiFailureResult",
+  name: "ApiCases",
   components: {
     ApiCaseFailureResult,
     ApiScenarioFailureResult, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
@@ -30,7 +30,8 @@ export default {
     isTemplate: Boolean,
     isShare: Boolean,
     report: {},
-    shareId: String
+    shareId: String,
+    isAll: Boolean
   },
   data() {
     return {

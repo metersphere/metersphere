@@ -5,12 +5,14 @@
         <functional-result :function-result="report.functionResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
-        <functional-failure-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <functional-cases :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
       <el-tab-pane v-if="issueEnable" label="缺陷列表" name="third">
         <functional-issue-list :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
-<!--      <el-tab-pane label="所有用例" name="fourth">所有用例</el-tab-pane>-->
+      <el-tab-pane label="所有用例" name="fourth">
+        <functional-cases v-if="allEnable" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
 </template>
@@ -18,15 +20,15 @@
 <script>
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import FunctionalResult from "@/business/components/track/plan/view/comonents/report/detail/component/FunctionalResult";
-import FunctionalFailureResult
-  from "@/business/components/track/plan/view/comonents/report/detail/component/FunctionalFailureResult";
+import FunctionalCases
+  from "@/business/components/track/plan/view/comonents/report/detail/component/FunctionalCases";
 import FunctionalIssueList
   from "@/business/components/track/plan/view/comonents/report/detail/component/FunctionalIssueList";
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 export default {
   name: "TestPlanFunctionalReport",
-  components: {TestPlanReportContainer, FunctionalIssueList, FunctionalFailureResult, FunctionalResult, MsFormDivider},
+  components: {TestPlanReportContainer, FunctionalIssueList, FunctionalCases, FunctionalResult, MsFormDivider},
   data() {
     return {
       activeName: 'first'
@@ -48,6 +50,10 @@ export default {
       let disable = this.report.config && this.report.config.functional.children.issue.enable === false;
       return !disable;
     },
+    allEnable() {
+      let disable = this.report.config && this.report.config.functional.children.all.enable === false;
+      return !disable;
+    },
   },
   mounted() {
     this.initActiveName();
@@ -62,6 +68,9 @@ export default {
     issueEnable() {
       this.initActiveName();
     },
+    allEnable() {
+      this.initActiveName();
+    },
   },
   methods: {
     initActiveName() {
@@ -71,6 +80,8 @@ export default {
         this.activeName = 'second';
       } else if (this.issueEnable) {
         this.activeName = 'third';
+      } else if (this.allEnable) {
+        this.activeName = 'fourth';
       }
     },
     handleClick(tab, event) {

@@ -40,6 +40,7 @@ public class TestPlanUtils {
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Pass.name());
         addToReportStatusResultList(resultMap, statusResult, TestPlanTestCaseStatus.Failure.name());
         addToReportStatusResultList(resultMap, statusResult, "error");
+        addToReportStatusResultList(resultMap, statusResult, "run");
         addToReportStatusResultList(resultMap, statusResult, "Fail");
         addToReportStatusResultList(resultMap, statusResult, "success");
         addToReportStatusResultList(resultMap, statusResult, "Success");

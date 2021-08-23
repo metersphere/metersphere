@@ -8,9 +8,13 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.IssuesDao;
+import io.metersphere.base.domain.LoadTestReportWithBLOBs;
+import io.metersphere.performance.base.ReportTimeInfo;
+import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
+import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.service.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -41,6 +45,8 @@ public class ShareController {
     IssuesService issuesService;
     @Resource
     ShareInfoService shareInfoService;
+    @Resource
+    PerformanceReportService performanceReportService;
 
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
@@ -66,10 +72,22 @@ public class ShareController {
         return testPlanTestCaseService.getFailureCases(planId);
     }
 
+    @GetMapping("/test/plan/case/list/all/{shareId}/{planId}")
+    public List<TestPlanCaseDTO> getAllCases(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanTestCaseService.getAllCases(planId);
+    }
+
     @GetMapping("/test/plan/load/case/list/failure/{shareId}/{planId}")
     public List<TestPlanLoadCaseDTO> getLoadFailureCases(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
         return testPlanLoadCaseService.getFailureCases(planId);
+    }
+
+    @GetMapping("/test/plan/load/case/list/all/{shareId}/{planId}")
+    public List<TestPlanLoadCaseDTO> getLoadAllCases(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanLoadCaseService.getAllCases(planId);
     }
 
     @GetMapping("/test/plan/api/case/list/failure/{shareId}/{planId}")
@@ -78,10 +96,22 @@ public class ShareController {
         return testPlanApiCaseService.getFailureCases(planId);
     }
 
+    @GetMapping("/test/plan/api/case/list/all/{shareId}/{planId}")
+    public List<TestPlanFailureApiDTO> getApiAllList(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanApiCaseService.getAllCases(planId);
+    }
+
     @GetMapping("/test/plan/scenario/case/list/failure/{shareId}/{planId}")
     public List<TestPlanFailureScenarioDTO> getScenarioFailureList(@PathVariable String shareId, @PathVariable String planId) {
         shareInfoService.validate(shareId, planId);
         return testPlanScenarioCaseService.getFailureCases(planId);
+    }
+
+    @GetMapping("/test/plan/scenario/case/list/all/{shareId}/{planId}")
+    public List<TestPlanFailureScenarioDTO> getScenarioAllList(@PathVariable String shareId, @PathVariable String planId) {
+        shareInfoService.validate(shareId, planId);
+        return testPlanScenarioCaseService.getAllCases(planId);
     }
 
     @GetMapping("/api/definition/report/getReport/{shareId}/{testId}")
@@ -95,4 +125,24 @@ public class ShareController {
         shareInfoService.scenarioReportValidate(shareId, reportId);
         return apiScenarioReportService.get(reportId);
     }
+
+    @GetMapping("/performance/report/{shareId}/{reportId}")
+    public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String shareId, @PathVariable String reportId) {
+        //todo
+        return performanceReportService.getLoadTestReport(reportId);
+    }
+
+    @GetMapping("/performance/report/content/report_time/{shareId}/{reportId}")
+    public ReportTimeInfo getReportTimeInfo(@PathVariable String shareId, @PathVariable String reportId) {
+        // todo
+        return performanceReportService.getReportTimeInfo(reportId);
+    }
+
+    @PostMapping("/test/plan/load/case/report/exist/{shareId}")
+    public Boolean isExistReport(@PathVariable String shareId, @RequestBody LoadCaseReportRequest request) {
+        // testPlanLoadCaseService  todo checkout
+        return testPlanLoadCaseService.isExistReport(request);
+    }
+
+
 }
