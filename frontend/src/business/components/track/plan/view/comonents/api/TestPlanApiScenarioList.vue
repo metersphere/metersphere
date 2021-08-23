@@ -52,7 +52,7 @@
             :fields-width="fieldsWidth"
             prop="envs"
             :label="$t('commons.environment')"
-            min-width="120">
+            min-width="150">
             <template v-slot:default="{row}">
               <div v-if="row.envs">
                 <span v-for="(k, v, index) in row.envs" :key="index">
@@ -555,7 +555,7 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 100px;
+  width: 80px;
   vertical-align: middle;
 }
 
