@@ -21,8 +21,13 @@ public class ApiDefinitionEnvService {
         env.setId(UUID.randomUUID().toString());
         env.setCreateTime(System.currentTimeMillis());
         env.setUpdateTime(System.currentTimeMillis());
-        if (this.get(env.getUserId()) == null) {
+        ApiDefinitionEnv apiDefinitionEnv = this.get(env.getUserId());
+        if (apiDefinitionEnv == null) {
             apiDefinitionEnvMapper.insert(env);
+        } else {
+            apiDefinitionEnv.setEnvId(env.getEnvId());
+            apiDefinitionEnv.setUpdateTime(System.currentTimeMillis());
+            apiDefinitionEnvMapper.updateByPrimaryKey(apiDefinitionEnv);
         }
     }
 
