@@ -920,7 +920,7 @@ export default {
 }
 
 #fab {
-  left: 100px;
+  right: 80px;
   z-index: 5;
 }
 
