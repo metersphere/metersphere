@@ -6,6 +6,7 @@ import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.util.LarkClient;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,11 @@ public class LarkNoticeSender extends AbstractNoticeSender {
         List<String> collect = userDetails.stream()
                 .map(ud -> "<at email=\"" + ud.getEmail() + "\">" + ud.getName() + "</at>")
                 .collect(Collectors.toList());
+
+        // 没有接收人不发通知
+        if (CollectionUtils.isEmpty(collect)) {
+            return;
+        }
 
         context += StringUtils.join(collect, " ");
         LarkClient.send(messageDetail.getWebhook(), context);
