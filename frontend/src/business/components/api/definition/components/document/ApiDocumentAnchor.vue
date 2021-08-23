@@ -443,12 +443,6 @@ export default {
     formatRowData(dataType, data) {
       var returnData = data;
       if (data) {
-
-        // if(dataType === 'XML'){
-        //   returnData = "<xmp>"+returnData+"</xmp>";
-        // }else {
-        //
-        // }
         returnData = "<xmp>"+returnData+"</xmp>";
       }
       return returnData;
