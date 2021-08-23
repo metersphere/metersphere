@@ -1004,7 +1004,13 @@ export default {
             let param = {};
             this.buildBatchParam(param);
             this.$post('/api/automation/batchCopy', param, response => {
-              this.$success(this.$t('api_test.definition.request.batch_copy_end'));
+              let copyResult = response.data;
+              if(copyResult.result){
+                this.$success(this.$t('api_test.definition.request.batch_copy_end'));
+              }else {
+                this.$error(this.$t('commons.already_exists')+":"+copyResult.errorMsg);
+              }
+
               this.search();
             });
           }
