@@ -9,9 +9,9 @@ CREATE TABLE IF NOT EXISTS `test_plan_report` (
     `creator` VARCHAR ( 50 ) DEFAULT NULL COMMENT 'report creator',
     `start_time` BIGINT ( 13 ) DEFAULT NULL COMMENT 'report startTime',
     `end_time` BIGINT ( 13 ) DEFAULT NULL COMMENT 'report timestamp',
-    `is_api_case_executing` TINYINT NOT NULL COMMENT 'is Api Case executing',
-    `is_scenario_executing` TINYINT NOT NULL COMMENT 'is scenario Case executing',
-    `is_performance_executing` TINYINT NOT NULL COMMENT 'is performance executing',
+    `is_api_case_executing` TINYINT(1) NOT NULL COMMENT 'is Api Case executing',
+    `is_scenario_executing` TINYINT(1) NOT NULL COMMENT 'is scenario Case executing',
+    `is_performance_executing` TINYINT(1) NOT NULL COMMENT 'is performance executing',
     `principal` VARCHAR ( 50 ) DEFAULT NULL COMMENT 'principal',
     PRIMARY KEY ( `id` ),
     UNIQUE KEY `executeInfoID` ( `test_plan_id`, `create_time` )

@@ -44,7 +44,11 @@ public class ShareInfoService {
             if (request.getProjectId() == null) {
                 List<String> shareIdList = this.selectShareIdByShareInfoId(request.getShareId());
                 request.setApiIdList(shareIdList);
-                return extShareInfoMapper.findApiDocumentSimpleInfoByRequest(request);
+                if(shareIdList.isEmpty()){
+                    return new ArrayList<>();
+                }else {
+                    return extShareInfoMapper.findApiDocumentSimpleInfoByRequest(request);
+                }
             } else {
                 return extShareInfoMapper.findApiDocumentSimpleInfoByRequest(request);
             }
