@@ -131,19 +131,19 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     }
                     break;
                 case NoticeConstants.RelatedUser.CREATOR:
-                    Object creator = paramMap.get("creator");
-                    Object createUser = paramMap.get("createUser");
-                    Object createUserId = paramMap.get("createUserId");
-                    Object userId1 = paramMap.get("userId");
+                    String creator = (String) paramMap.get("creator");
+                    String createUser = (String) paramMap.get("createUser");
+                    String createUserId = (String) paramMap.get("createUserId");
+                    String userId1 = (String) paramMap.get("userId");
 
-                    if (userId1 != null) {
-                        toUsers.add(new Receiver(userId1.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    } else if (creator != null) {
-                        toUsers.add(new Receiver(creator.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    } else if (createUser != null) {
-                        toUsers.add(new Receiver(createUser.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
-                    } else if (createUserId != null) {
-                        toUsers.add(new Receiver(createUserId.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    if (StringUtils.isNotBlank(userId1)) {
+                        toUsers.add(new Receiver(userId1, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else if (StringUtils.isNotBlank(creator)) {
+                        toUsers.add(new Receiver(creator, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else if (StringUtils.isNotBlank(createUser)) {
+                        toUsers.add(new Receiver(createUser, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else if (StringUtils.isNotBlank(createUserId)) {
+                        toUsers.add(new Receiver(createUserId, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                     break;
                 case NoticeConstants.RelatedUser.MAINTAINER:
@@ -156,9 +156,9 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     }
                     break;
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
-                    Object followPeople = paramMap.get("followPeople");
-                    if (followPeople != null) {
-                        toUsers.add(new Receiver(followPeople.toString(), NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    String followPeople = (String) paramMap.get("followPeople");
+                    if (StringUtils.isNotBlank(followPeople)) {
+                        toUsers.add(new Receiver(followPeople, NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                     break;
                 default:
