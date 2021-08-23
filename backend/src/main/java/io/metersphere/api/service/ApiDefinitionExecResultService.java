@@ -91,7 +91,7 @@ public class ApiDefinitionExecResultService {
                             saved = false;
                         }
                         String status = item.isSuccess() ? "success" : "error";
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime()));
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(),saveResult.getId()));
                         saveResult.setStatus(status);
                         saveResult.setCreateTime(item.getStartTime());
                         saveResult.setResourceId(item.getName());
@@ -105,13 +105,7 @@ public class ApiDefinitionExecResultService {
                             prevResult.setContent(null);
                             definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
-                        // 更新用例最后执行结果
-                        ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(saveResult.getResourceId());
-                        if (apiTestCase != null) {
-                            apiTestCase.setLastResultId(saveResult.getId());
-                            apiTestCase.setStatus(status);
-                            apiTestCaseMapper.updateByPrimaryKey(apiTestCase);
-                        }
+
                         if (StringUtils.isNotEmpty(saveResult.getTriggerMode()) && saveResult.getTriggerMode().equals("CASE")) {
                             saveResult.setTriggerMode(TriggerMode.MANUAL.name());
                         }
@@ -127,7 +121,7 @@ public class ApiDefinitionExecResultService {
         }
     }
 
-    private String getName(String type, String id, String status, Long time) {
+    private String getName(String type, String id, String status, Long time, String resourceId) {
         if (id.indexOf(DelimiterConstants.SEPARATOR.toString()) != -1) {
             return id.substring(0, id.indexOf(DelimiterConstants.SEPARATOR.toString()));
         }
@@ -137,11 +131,17 @@ public class ApiDefinitionExecResultService {
             if (testPlanApiCase != null) {
                 testPlanApiCaseService.setExecResult(id, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testPlanApiCase.getApiCaseId());
+                testPlanApiCase.setStatus(status);
+                testPlanApiCase.setUpdateTime(System.currentTimeMillis());
+                testPlanApiCaseService.updateByPrimaryKeySelective(testPlanApiCase);
             }
             TestCaseReviewApiCase testCaseReviewApiCase = testCaseReviewApiCaseMapper.selectByPrimaryKey(id);
             if (testCaseReviewApiCase != null) {
                 testCaseReviewApiCaseService.setExecResult(id, status, time);
                 caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testCaseReviewApiCase.getApiCaseId());
+                testCaseReviewApiCase.setStatus(status);
+                testCaseReviewApiCase.setUpdateTime(System.currentTimeMillis());
+                testCaseReviewApiCaseService.updateByPrimaryKeySelective(testCaseReviewApiCase);
             }
             if (caseWithBLOBs != null) {
                 return caseWithBLOBs.getName();
@@ -153,6 +153,10 @@ public class ApiDefinitionExecResultService {
             } else {
                 ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
                 if (caseWithBLOBs != null) {
+                    // 更新用例最后执行结果
+                    caseWithBLOBs.setLastResultId(resourceId);
+                    caseWithBLOBs.setStatus(status);
+                    apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
                     return caseWithBLOBs.getName();
                 }
             }
@@ -186,7 +190,7 @@ public class ApiDefinitionExecResultService {
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
 //                        saveResult.setName(item.getName());
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime()));
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(),saveResult.getId()));
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
                         if (apiDefinitionWithBLOBs != null) {
                             saveResult.setName(apiDefinitionWithBLOBs.getName());
@@ -250,7 +254,7 @@ public class ApiDefinitionExecResultService {
             });
         }
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
-        TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId,apiIdResultMap,null,null);
+        TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId, apiIdResultMap, null, null);
 //        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
 //        testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
     }
