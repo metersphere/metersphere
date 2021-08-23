@@ -26,7 +26,7 @@
            <i class="el-icon-loading" style="font-size: 16px"/>
            {{ $t('commons.testing') }}
          </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
