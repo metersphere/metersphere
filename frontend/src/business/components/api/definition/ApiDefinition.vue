@@ -110,6 +110,7 @@
                 :selectDataRange="selectDataRange"
                 :is-read-only="isReadOnly"
                 @runTest="runTest"
+                @handleTestCase="handleTestCase"
                 @refreshTree="refreshTree"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @editApi="editApi"
@@ -141,7 +142,7 @@
                 :module-ids="selectNodeIds"/>
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
-            <div v-if="item.type=== 'ADD'" class="ms-api-div">
+            <div v-if="item.type=== 'ADD' ||item.type === 'TEST'" class="ms-api-div">
               <ms-edit-complete-container
                 :syncTabs="syncTabs"
                 @runTest="runTest"
@@ -153,7 +154,7 @@
                 :project-id="projectId"
                 :currentProtocol="currentProtocol"
                 :moduleOptions="moduleOptions"
-
+                :activeDom="activeTab"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
                 @showExecResult="showExecResult"
@@ -186,41 +187,6 @@
                 :testCase="item.api"
                 @saveAs="editApi"
                 @refreshModule="refreshModule"
-                v-if="currentProtocol==='DUBBO'"/>
-            </div>
-            <!-- 测试-->
-            <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-              <ms-run-test-http-page
-                :syncTabs="syncTabs"
-                :currentProtocol="currentProtocol"
-                :api-data="item.api"
-                :project-id="projectId"
-                @saveAsApi="editApi"
-                @refresh="refresh"
-                v-if="currentProtocol==='HTTP'"/>
-              <ms-run-test-tcp-page
-                :syncTabs="syncTabs"
-                :currentProtocol="currentProtocol"
-                :api-data="item.api"
-                :project-id="projectId"
-                @saveAsApi="editApi"
-                @refresh="refresh"
-                v-if="currentProtocol==='TCP'"/>
-              <ms-run-test-sql-page
-                :syncTabs="syncTabs"
-                :currentProtocol="currentProtocol"
-                :api-data="item.api"
-                :project-id="projectId"
-                @saveAsApi="editApi"
-                @refresh="refresh"
-                v-if="currentProtocol==='SQL'"/>
-              <ms-run-test-dubbo-page
-                :syncTabs="syncTabs"
-                :currentProtocol="currentProtocol"
-                :api-data="item.api"
-                :project-id="projectId"
-                @saveAsApi="editApi"
-                @refresh="refresh"
                 v-if="currentProtocol==='DUBBO'"/>
             </div>
 
@@ -367,6 +333,7 @@ export default {
       initApiTableOpretion: 'init',
       param: {},
       useEnvironment: String,
+      activeTab: "api"
     };
   },
   activated() {
@@ -609,6 +576,7 @@ export default {
           name = this.$t('api_test.definition.request.title');
         }
       }
+      this.activeTab = "api";
       if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
         if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
           && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
@@ -663,8 +631,25 @@ export default {
       }
     },
     runTest(data) {
+      this.activeTab = "test";
       this.handleTabsEdit(this.$t("commons.api"), "TEST", data);
       this.setTabTitle(data);
+    },
+    handleTestCase(row) {
+      this.activeTab = "testCase";
+      let name = "";
+      if (row.name) {
+        name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+      } else {
+        name = this.$t('api_test.definition.request.title');
+      }
+      if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
+        if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+          && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+          row.tags = JSON.parse(row.tags);
+        }
+      }
+      this.handleTabsEdit(name, "ADD", row);
     },
     mockConfig(data) {
       let targetName = this.$t("commons.mock") + "-" + data.apiName;

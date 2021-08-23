@@ -3,19 +3,19 @@
     <ms-drawer :size="60" @close="apiCaseClose" direction="bottom">
       <template v-slot:header>
         <api-case-header
-            :api="api"
-            @getApiTest="getApiTest"
-            @setEnvironment="setEnvironment"
-            @addCase="addCase"
-            @selectAll="selectAll"
-            :condition="condition"
-            :priorities="priorities"
-            :apiCaseList="apiCaseList"
-            :is-read-only="isReadOnly"
-            :project-id="projectId"
-            :useEnvironment="environment"
-            :is-case-edit="isCaseEdit"
-            ref="header"
+          :api="api"
+          @getApiTest="getApiTest"
+          @setEnvironment="setEnvironment"
+          @addCase="addCase"
+          @selectAll="selectAll"
+          :condition="condition"
+          :priorities="priorities"
+          :apiCaseList="apiCaseList"
+          :is-read-only="isReadOnly"
+          :project-id="projectId"
+          :useEnvironment="environment"
+          :is-case-edit="isCaseEdit"
+          ref="header"
         />
       </template>
 
@@ -215,27 +215,33 @@ export default {
     sysAddition(apiCase) {
       this.condition.projectId = this.projectId;
       this.condition.apiDefinitionId = this.api.id;
-      this.$post("/api/testcase/list", this.condition, response => {
-        let data = response.data;
-        data.forEach(apiCase => {
-          if (apiCase.tags && apiCase.tags.length > 0) {
-            apiCase.tags = JSON.parse(apiCase.tags);
-            this.$set(apiCase, 'selected', false);
-          }
-          if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
-            apiCase.request = JSON.parse(apiCase.request);
-          }
-          if (!apiCase.request.hashTree) {
-            apiCase.request.hashTree = [];
-          }
-        });
-        this.apiCaseList = data;
-        if (apiCase) {
-          this.copyCase(apiCase);
-        } else {
-          this.addCase();
-        }
-      });
+      this.apiCaseList = [];
+      if (apiCase) {
+        this.copyCase(apiCase);
+      } else {
+        this.addCase();
+      }
+      // this.$post("/api/testcase/list", this.condition, response => {
+      //   let data = response.data;
+      //   data.forEach(apiCase => {
+      //     if (apiCase.tags && apiCase.tags.length > 0) {
+      //       apiCase.tags = JSON.parse(apiCase.tags);
+      //       this.$set(apiCase, 'selected', false);
+      //     }
+      //     if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+      //       apiCase.request = JSON.parse(apiCase.request);
+      //     }
+      //     if (!apiCase.request.hashTree) {
+      //       apiCase.request.hashTree = [];
+      //     }
+      //   });
+      //   this.apiCaseList = data;
+      //   if (apiCase) {
+      //     this.copyCase(apiCase);
+      //   } else {
+      //     this.addCase();
+      //   }
+      // });
     },
 
     apiCaseClose() {
@@ -503,7 +509,15 @@ export default {
           this.$success(this.$t('commons.save_success'));
         }
         this.selectdCases = [];
-        this.getApiTest();
+        this.getResult();
+      });
+    },
+    getResult() {
+      this.apiCaseList.forEach(apiCase => {
+        const index = this.runData.findIndex(d => d.name === apiCase.id);
+        if (index !== -1) {
+          apiCase.active = true;
+        }
       });
     },
     showHistory(id) {
