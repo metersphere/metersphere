@@ -51,9 +51,10 @@ public class TestPlanUtils {
                                                    Map<String, TestCaseReportStatusResultDTO> statusResultMap,
                                                    TestPlanSimpleReportDTO report, String successStatus) {
         planReportCaseDTOS.forEach(item -> {
-            report.setCaseCount(report.getCaseCount() == null ? 0 : report.getCaseCount() + 1);
+            report.setCaseCount((report.getCaseCount() == null ? 0 : report.getCaseCount()) + 1);
             String status = item.getStatus();
-            if (StringUtils.isNotBlank(status) && !StringUtils.equals(TestPlanTestCaseStatus.Underway.name(), status)) {
+            if (StringUtils.isNotBlank(status)
+                    && !StringUtils.equalsAny(status, TestPlanTestCaseStatus.Underway.name(), TestPlanTestCaseStatus.Prepare.name())) {
                 report.setExecuteCount(report.getExecuteCount() + 1);
                 if (StringUtils.equals(successStatus, status)) {
                     report.setPassCount(report.getPassCount() + 1);
