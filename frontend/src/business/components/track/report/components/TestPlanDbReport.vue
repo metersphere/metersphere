@@ -50,23 +50,23 @@ export default {
     this.isTestManagerOrTestUser = true;
   },
   methods: {
-    listenGoBack() {
-      //监听浏览器返回操作，关闭该对话框
-      if (window.history && window.history.pushState) {
-        history.pushState(null, null, document.URL);
-        window.addEventListener('popstate', this.goBack, false);
-      }
-    },
-    goBack() {
-      this.handleClose();
-    },
+    // listenGoBack() {
+    //   //监听浏览器返回操作，关闭该对话框
+    //   if (window.history && window.history.pushState) {
+    //     history.pushState(null, null, document.URL);
+    //     window.addEventListener('popstate', this.goBack, false);
+    //   }
+    // },
+    // goBack() {
+    //   this.handleClose();
+    // },
     open(report) {
       this.report = report;
       this.showDialog = true;
-      this.listenGoBack();
+      // this.listenGoBack();
     },
     handleClose() {
-      window.removeEventListener('popstate', this.goBack, false);
+      // window.removeEventListener('popstate', this.goBack, false);
       this.$emit('refresh');
       this.showDialog = false;
     },
