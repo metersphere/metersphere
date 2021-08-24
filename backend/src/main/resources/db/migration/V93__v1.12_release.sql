@@ -264,3 +264,10 @@ CREATE TABLE IF NOT EXISTS `test_plan_report_content` (
     PRIMARY KEY ( `id` ),
     UNIQUE KEY `test_plan_report_id` ( `test_plan_report_id` )
 ) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+
+# 复制测试计划权限
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_admin', 'PROJECT_TRACK_PLAN:READ+COPY', 'PROJECT_TRACK_PLAN');
+insert into user_group_permission (id, group_id, permission_id, module_id)
+values (UUID(), 'project_member', 'PROJECT_TRACK_PLAN:READ+COPY', 'PROJECT_TRACK_PLAN');
