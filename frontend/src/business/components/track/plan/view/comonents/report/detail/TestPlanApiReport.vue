@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-container :title="'接口用例统计分析'">
+  <test-plan-report-container id="api" :title="'接口用例统计分析'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <api-result :api-result="report.apiResult"/>

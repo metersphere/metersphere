@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-container :title="'功能用例统计分析'">
+  <test-plan-report-container id="functional" :title="'功能用例统计分析'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <functional-result :function-result="report.functionResult"/>

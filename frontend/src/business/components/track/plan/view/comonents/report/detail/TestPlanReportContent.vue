@@ -11,6 +11,7 @@
         <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
     </el-main>
+    <test-plan-report-navigation-bar/>
   </div>
 </template>
 
@@ -26,9 +27,12 @@ import TestPlanOverviewReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanOverviewReport";
 import TestPlanSummaryReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanSummaryReport";
 import TestPlanReportButtons from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportButtons";
+import TestPlanReportNavigationBar
+  from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportNavigationBar";
 export default {
   name: "TestPlanReportContent",
   components: {
+    TestPlanReportNavigationBar,
     TestPlanReportButtons,
     TestPlanSummaryReport,
     TestPlanOverviewReport,
