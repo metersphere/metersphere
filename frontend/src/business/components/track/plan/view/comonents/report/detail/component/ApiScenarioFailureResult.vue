@@ -47,7 +47,7 @@
           </ms-table-column>
         </ms-table>
       </el-col>
-      <el-col :span="16" v-if="scenarioCases.length > 0">
+      <el-col :span="16" v-if="scenarioCases && scenarioCases.length > 0">
         <ms-api-report v-if="showResponse" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
       </el-col>
     </el-row>
@@ -79,7 +79,8 @@ export default {
     report: Object,
     isShare: Boolean,
     shareId: String,
-    isAll: Boolean
+    isAll: Boolean,
+    isDb: Boolean
   },
   data() {
     return {
@@ -95,11 +96,11 @@ export default {
   },
   methods: {
     getScenarioApiCase() {
-      if (this.isTemplate) {
+      if (this.isTemplate || this.isDb) {
         if (this.isAll) {
           this.scenarioCases = this.report.scenarioAllCases;
         } else {
-          this.scenarioCases = this.report.scenarioFailureResult;
+          this.scenarioCases = this.report.scenarioFailureCases;
         }
         this.handleDefaultClick();
       } else if (this.isShare) {

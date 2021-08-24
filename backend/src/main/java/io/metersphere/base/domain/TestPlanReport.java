@@ -35,5 +35,7 @@ public class TestPlanReport implements Serializable {
 
     private String components;
 
+    private Boolean isNew;
+
     private static final long serialVersionUID = 1L;
 }

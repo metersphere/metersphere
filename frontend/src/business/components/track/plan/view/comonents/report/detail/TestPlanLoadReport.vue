@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-container :title="'性能用例数'">
+  <test-plan-report-container :title="'性能用例统计分析'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <load-result :load-result="report.loadResult"/>
@@ -7,8 +7,8 @@
       <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
         <load-failure-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
-      <el-tab-pane label="所有用例" name="third">
-        <load-all-result :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      <el-tab-pane label="所有用例" name="third" v-if="allEnable">
+        <load-all-result :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -40,7 +40,8 @@ export default {
     'planId',
     'isTemplate',
     'isShare',
-    'shareId'
+    'shareId',
+    'isDb'
   ],
   computed: {
     resultEnable() {

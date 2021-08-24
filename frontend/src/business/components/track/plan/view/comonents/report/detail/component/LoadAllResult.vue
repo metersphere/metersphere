@@ -2,7 +2,7 @@
     <div class="container">
       <el-row class="scenario-info">
         <el-col :span="7">
-          <load-failure-result @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+          <load-failure-result :is-db="isDb" @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
         </el-col>
         <el-col :span="17" >
           <el-card>
@@ -31,7 +31,8 @@ export default {
     report: Object,
     isTemplate: Boolean,
     isShare: Boolean,
-    shareId: String
+    shareId: String,
+    isDb: Boolean
   },
   data() {
     return {

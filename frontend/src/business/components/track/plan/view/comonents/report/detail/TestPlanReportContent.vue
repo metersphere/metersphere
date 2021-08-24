@@ -3,12 +3,12 @@
     <el-main>
       <el-card v-loading="result ? result.loading : false">
         <test-plan-report-buttons :plan-id="planId" :is-share="isShare" :report="report"
-                                  v-if="!isTemplate && !isShare"/>
+                                  v-if="!isTemplate && !isShare && !isDb"/>
         <test-plan-overview-report v-if="overviewEnable" :report="report"/>
-        <test-plan-summary-report v-if="summaryEnable" :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
-        <test-plan-functional-report v-if="functionalEnable" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :plan-id="planId" :report="report"/>
-        <test-plan-api-report v-if="apiEnable" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
-        <test-plan-load-report v-if="loadEnable" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
+        <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :plan-id="planId" :report="report"/>
+        <test-plan-api-report v-if="apiEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
     </el-main>
   </div>
@@ -17,7 +17,7 @@
 <script>
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
-import {getShareTestPlanReport, getTestPlanReport} from "@/network/test-plan";
+import {getShareTestPlanReport, getTestPlanReport, getTestPlanReportContent} from "@/network/test-plan";
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanLoadReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanLoadReport";
 import TestPlanReportContainer
@@ -41,7 +41,9 @@ export default {
     planId:String,
     isTemplate: Boolean,
     isShare: Boolean,
-    shareId: String
+    isDb: Boolean,
+    shareId: String,
+    reportId: String
   },
   data() {
     return {
@@ -87,6 +89,11 @@ export default {
         this.report.config = this.getDefaultConfig(this.report.config);
       } else if (this.isShare) {
         this.result = getShareTestPlanReport(this.shareId, this.planId, (data) => {
+          this.report = data;
+          this.report.config = this.getDefaultConfig(this.report.config);
+        });
+      } if (this.isDb) {
+        this.result = getTestPlanReportContent(this.reportId, (data) => {
           this.report = data;
           this.report.config = this.getDefaultConfig(this.report.config);
         });

@@ -16,6 +16,11 @@
       </el-popover>
     </el-row>
     <el-row>
+      <el-button icon="el-icon-download" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
+        {{'保存'}}
+      </el-button>
+    </el-row>
+    <el-row>
       <el-button icon="el-icon-download" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExportHtml()">
         {{'导出'}}
       </el-button>
@@ -65,6 +70,20 @@ export default {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
       });
+    },
+    handleSave() {
+      let param = {};
+      this.buildParam(param);
+      this.$get('/test/plan/report/saveTestPlanReport/'+this.planId+'/MANUAL', () => {
+        this.result = this.$post('/case/report/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+        });
+      });
+    },
+    buildParam(param) {
+      param.name = this.report.name;
+      param.id = this.report.id;
+      param.isNew = true;
     },
     handleExportHtml() {
       let config = {

@@ -67,7 +67,7 @@ export default {
       isThirdPart: false
     }
   },
-  props: ['planId', 'isTemplate', 'report', 'isShare', 'shareId'],
+  props: ['planId', 'isTemplate', 'report', 'isShare', 'shareId', 'isDb'],
   computed: {
     issueStatusMap() {
       return ISSUE_STATUS_MAP;
@@ -79,7 +79,7 @@ export default {
   },
   methods: {
     getIssues() {
-      if (this.isTemplate) {
+      if (this.isTemplate || this.isDb) {
         this.data = this.report.issueList;
       } else if (this.isShare) {
         this.result = getShareIssuesByPlanId(this.shareId, this.planId, (data) => {

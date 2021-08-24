@@ -4,7 +4,7 @@
       <el-link class="edit-link" v-if="!isTemplate && !isShare && !isEdit" @click="isEdit = true">
         编辑
       </el-link>
-      <el-link class="edit-link" v-if="!isTemplate && !isShare && isEdit" @click="saveSummary">
+      <el-link class="edit-link" v-if="!isTemplate && !isShare && !isDb && isEdit" @click="saveSummary">
         保存
       </el-link>
     </template>
@@ -34,6 +34,7 @@ export default {
     report: Object,
     isTemplate: Boolean,
     isShare: Boolean,
+    isDb: Boolean,
   },
   data() {
     return {

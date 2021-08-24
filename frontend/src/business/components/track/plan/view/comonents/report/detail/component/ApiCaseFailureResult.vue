@@ -82,7 +82,8 @@ export default {
     report: Object,
     isShare: Boolean,
     shareId: String,
-    isAll: Boolean
+    isAll: Boolean,
+    isDb: Boolean
   },
   data() {
     return {
@@ -97,11 +98,11 @@ export default {
   },
   methods: {
     getScenarioApiCase() {
-      if (this.isTemplate) {
+      if (this.isTemplate || this.isDb) {
         if (this.isAll) {
           this.apiCases = this.report.apiAllCases;
         } else {
-          this.apiCases = this.report.apiFailureResult;
+          this.apiCases = this.report.apiFailureCases;
         }
         this.handleDefaultClick();
       } else if (this.isShare) {
@@ -153,6 +154,7 @@ export default {
           }
         });
       } else {
+        // todo
         getApiReport(row.id, (data) => {
           if (!data || !data.content) {
             this.showResponse = false;

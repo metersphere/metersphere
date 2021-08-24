@@ -1359,17 +1359,7 @@ public class TestPlanService {
         return envMap;
     }
 
-    public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
-
-        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
-
-        String reportConfig = testPlan.getReportConfig();
-        JSONObject config = null;
-        if (StringUtils.isNotBlank(reportConfig)) {
-            config = JSONObject.parseObject(reportConfig);
-        }
-        TestPlanSimpleReportDTO report = getReport(planId);
-
+    public void buildFunctionalReport(TestPlanSimpleReportDTO report, JSONObject config, String planId) {
         if (checkReportConfig(config, "functional")) {
             List<TestPlanCaseDTO> allCases = null;
             if (checkReportConfig(config, "functional", "all")) {
@@ -1393,7 +1383,9 @@ public class TestPlanService {
                 report.setIssueList(issueList);
             }
         }
+    }
 
+    public void buildApiReport(TestPlanSimpleReportDTO report, JSONObject config, String planId, boolean saveResponse) {
         if (checkReportConfig(config, "api")) {
             List<TestPlanFailureApiDTO> apiAllCases = null;
             List<TestPlanFailureScenarioDTO> scenarioAllCases = null;
@@ -1401,17 +1393,21 @@ public class TestPlanService {
                 // 接口
                 apiAllCases = testPlanApiCaseService.getAllCases(planId);
                 report.setApiAllCases(apiAllCases);
-                apiAllCases.forEach(item -> {
-                    APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
-                    if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                        item.setResponse(dbResult.getContent());
-                    }
-                });
+                if (saveResponse) {
+                    apiAllCases.forEach(item -> {
+                        APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
+                        if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
+                            item.setResponse(dbResult.getContent());
+                        }
+                    });
+                }
                 //场景
                 scenarioAllCases = testPlanScenarioCaseService.getAllCases(planId);
-                scenarioAllCases.forEach((item) -> {
-                    item.setResponse(apiScenarioReportService.get(item.getReportId()));
-                });
+                if (saveResponse) {
+                    scenarioAllCases.forEach((item) -> {
+                        item.setResponse(apiScenarioReportService.get(item.getReportId()));
+                    });
+                }
                 report.setScenarioAllCases(scenarioAllCases);
             }
             if (checkReportConfig(config, "api", "failure")) {
@@ -1425,13 +1421,15 @@ public class TestPlanService {
                 } else {
                     apiFailureCases = testPlanApiCaseService.getFailureCases(planId);
                 }
-                apiFailureCases.forEach(item -> {
-                    APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
-                    if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
-                        item.setResponse(dbResult.getContent());
-                    }
-                });
-                report.setApiFailureResult(apiFailureCases);
+                if (saveResponse) {
+                    apiFailureCases.forEach(item -> {
+                        APIReportResult dbResult = apiDefinitionService.getDbResult(item.getId());
+                        if (dbResult != null && StringUtils.isNotBlank(dbResult.getContent())) {
+                            item.setResponse(dbResult.getContent());
+                        }
+                    });
+                }
+                report.setApiFailureCases(apiFailureCases);
 
                 // 场景
                 List<TestPlanFailureScenarioDTO> scenarioFailureCases = null;
@@ -1443,37 +1441,44 @@ public class TestPlanService {
                 } else {
                     scenarioFailureCases = testPlanScenarioCaseService.getFailureCases(planId);
                 }
-                scenarioFailureCases.forEach((item) -> {
-                    item.setResponse(apiScenarioReportService.get(item.getReportId()));
-                });
-                report.setScenarioFailureResult(scenarioFailureCases);
+                if (saveResponse) {
+                    scenarioFailureCases.forEach((item) -> {
+                        item.setResponse(apiScenarioReportService.get(item.getReportId()));
+                    });
+                }
+                report.setScenarioFailureCases(scenarioFailureCases);
             }
         }
+    }
 
+    public void buildLoadReport(TestPlanSimpleReportDTO report, JSONObject config, String planId, boolean saveResponse) {
         if (checkReportConfig(config, "load")) {
             List<TestPlanLoadCaseDTO> allCases = null;
             if (checkReportConfig(config, "load", "all")) {
                 allCases = testPlanLoadCaseService.getAllCases(planId);
-                allCases.forEach(item -> {
-                    LoadCaseReportRequest request = new LoadCaseReportRequest();
-                    String reportId = item.getLoadReportId();
-                    request.setTestPlanLoadCaseId(item.getId());
-                    request.setReportId(reportId);
-                    Boolean existReport = testPlanLoadCaseService.isExistReport(request);
-                    if  (existReport) {
-                        LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
-                        ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
-                        TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
-                        if (loadTestReport != null) {
-                            BeanUtils.copyBean(reportDTO, loadTestReport);
+                if (saveResponse) {
+                    allCases.forEach(item -> {
+                        LoadCaseReportRequest request = new LoadCaseReportRequest();
+                        String reportId = item.getLoadReportId();
+                        request.setTestPlanLoadCaseId(item.getId());
+                        request.setReportId(reportId);
+                        Boolean existReport = testPlanLoadCaseService.isExistReport(request);
+                        if  (existReport) {
+                            LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
+                            ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
+                            TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
+                            if (loadTestReport != null) {
+                                BeanUtils.copyBean(reportDTO, loadTestReport);
+                            }
+                            if (reportTimeInfo != null) {
+                                BeanUtils.copyBean(reportDTO, reportTimeInfo);
+                            }
+                            item.setResponse(reportDTO);
+                            // todo 报告详情
                         }
-                        if (reportTimeInfo != null) {
-                            BeanUtils.copyBean(reportDTO, reportTimeInfo);
-                        }
-                        item.setResponse(reportDTO);
-                    }
-                });
-                report.setLoadAllTestCases(allCases);
+                    });
+                }
+                report.setLoadAllCases(allCases);
             }
             if (checkReportConfig(config, "load", "failure")) {
                 List<TestPlanLoadCaseDTO> failureCases = null;
@@ -1485,10 +1490,28 @@ public class TestPlanService {
                 } else {
                     failureCases = testPlanLoadCaseService.getFailureCases(planId);
                 }
-                report.setLoadFailureTestCases(failureCases);
+                report.setLoadFailureCases(failureCases);
             }
         }
-        render(report, response);
+    }
+
+    public TestPlanSimpleReportDTO buildPlanReport(String planId, boolean saveResponse) {
+        TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(planId);
+
+        String reportConfig = testPlan.getReportConfig();
+        JSONObject config = null;
+        if (StringUtils.isNotBlank(reportConfig)) {
+            config = JSONObject.parseObject(reportConfig);
+        }
+        TestPlanSimpleReportDTO report = getReport(planId);
+        buildFunctionalReport(report, config, planId);
+        buildApiReport(report, config, planId, saveResponse);
+        buildLoadReport(report, config, planId, saveResponse);
+        return report;
+    }
+
+    public void exportPlanReport(String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+        render(buildPlanReport(planId, true), response);
     }
 
     public Boolean checkReportConfig(JSONObject config, String key) {
@@ -1554,7 +1577,7 @@ public class TestPlanService {
         report.setFunctionResult(functionResult);
         report.setApiResult(apiResult);
         report.setStartTime(testPlan.getActualStartTime());
-        report.setStartTime(testPlan.getActualEndTime());
+        report.setEndTime(testPlan.getActualEndTime());
         report.setSummary(testPlan.getReportSummary());
         report.setConfig(testPlan.getReportConfig());
         IssueTemplateDao template = issueTemplateService.getTemplate(testPlan.getProjectId());

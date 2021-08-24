@@ -1,14 +1,14 @@
 <template>
-  <test-plan-report-container :title="'接口用例统计'">
+  <test-plan-report-container :title="'接口用例统计分析'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
-        <api-cases :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+        <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
-      <el-tab-pane label="所有用例" name="third">
-        <api-cases :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+      <el-tab-pane label="所有用例" name="third" v-if="allEnable">
+        <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -29,7 +29,7 @@ export default {
     };
   },
   props: [
-    'report', 'planId', 'isTemplate', 'isShare', 'shareId'
+    'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'isDb'
   ],
   computed: {
     resultEnable() {

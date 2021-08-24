@@ -16,6 +16,7 @@ import java.util.List;
 public class TestPlanReportDTO {
     private String id;
     private String testPlanId;
+    private Boolean isNew;
     private String name;
     private String testPlanName;
     private String creator;

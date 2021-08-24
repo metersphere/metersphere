@@ -5,7 +5,7 @@
     <select id="list" resultType="io.metersphere.track.dto.TestPlanReportDTO"
             parameterType="io.metersphere.track.request.report.QueryTestPlanReportRequest">
         SELECT tpr.id AS id, tpr.`name` AS `name`, tp.`name` AS testPlanName,
-        IF(u.name is null,tpr.creator,u.name)AS creator,
+        IF(u.name is null,tpr.creator,u.name)AS creator, tpr.is_new, tpr.test_plan_id,
         tpr.create_time AS createTime,tpr.trigger_Mode AS triggerMode,tpr.status AS status
         FROM test_plan tp
         INNER JOIN test_plan_report tpr on tp.id = tpr.test_plan_id
