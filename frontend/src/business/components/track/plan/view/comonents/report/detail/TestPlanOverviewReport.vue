@@ -50,10 +50,10 @@ export default {
       let startTime = 'NaN';
       let endTime = 'NaN';
       if (this.report.startTime) {
-        startTime = timestampFormatDate(this.report.startTime, false).substring(0, 10);
+        startTime = timestampFormatDate(this.report.startTime, false);
       }
       if (this.report.endTime) {
-        endTime = timestampFormatDate(this.report.endTime, false).substring(0, 10);
+        endTime = timestampFormatDate(this.report.endTime, false);
       }
       return startTime + ' ~ ' + endTime;
     }
