@@ -12,7 +12,5 @@ public class TestPlanFailureApiDTO extends TestPlanApiCaseDTO {
 
     private String projectName;
 
-    private String caseId;
-
     private String response;
 }

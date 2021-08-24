@@ -7,6 +7,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.metersphere.api.cache.TestPlanExecuteInfo;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.APIReportResult;
@@ -1693,7 +1694,7 @@ public class TestPlanService {
             String line = null;
             while (null != (line = bufferedReader.readLine())) {
                 if (line.contains("\"#report\"")) {
-                    line = line.replace("\"#report\"", JSONObject.toJSONString(report));
+                    line = line.replace("\"#report\"", new Gson().toJson(report));
                 }
                 line += "\n";
                 byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
