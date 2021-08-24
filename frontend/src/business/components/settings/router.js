@@ -42,16 +42,16 @@ export default {
       component: () => import('@/business/components/settings/workspace/template/IssuesTemplateList'),
       meta: {workspaceTemplate: true, title: 'workspace.issue_template_manage', permissions: ['WORKSPACE_TEMPLATE:READ+ISSUE_TEMPLATE']},
     },
-    {
-      path: 'workspace/template/report',
-      name: 'testCaseReportTemplate',
-      component: () => import('@/business/components/settings/workspace/template/TestCaseReportTemplate'),
-      meta: {
-        workspaceTemplate: true,
-        title: 'test_track.plan_view.report_template',
-        permissions: ['WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE']
-      }
-    },
+    // {
+    //   path: 'workspace/template/report',
+    //   name: 'testCaseReportTemplate',
+    //   component: () => import('@/business/components/settings/workspace/template/TestCaseReportTemplate'),
+    //   meta: {
+    //     workspaceTemplate: true,
+    //     title: 'test_track.plan_view.report_template',
+    //     permissions: ['WORKSPACE_TEMPLATE:READ+REPORT_TEMPLATE']
+    //   }
+    // },
     {
       path: 'testresourcepool',
       component: () => import('@/business/components/settings/system/TestResourcePool'),
