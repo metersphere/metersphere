@@ -179,6 +179,7 @@ export default {
     testing: "测试中",
     environment: "运行环境",
     run_success: "执行成功",
+    run_completed: "执行完成",
     run_fail: "执行失败",
     table: {
       select_tip: "已选中 {0} 条数据"

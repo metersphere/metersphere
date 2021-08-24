@@ -1,17 +1,19 @@
 package io.metersphere.performance.notice;
 
 import io.metersphere.base.domain.LoadTestReport;
+import io.metersphere.base.domain.Organization;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +27,8 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
     private SystemParameterService systemParameterService;
     @Resource
     private NoticeSendService noticeSendService;
+    @Resource
+    private ProjectService projectService;
 
     public void sendNotice(LoadTestReport loadTestReport) {
 
@@ -51,14 +55,13 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         if (PerformanceTestStatus.Error.name().equals(loadTestReport.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("testName", loadTestReport.getName());
-        paramMap.put("id", loadTestReport.getId());
+        Map paramMap = new HashMap<>();
+        paramMap.put("operator", loadTestReport.getUserId());
         paramMap.put("type", "performance");
-        paramMap.put("status", loadTestReport.getStatus());
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.putAll(new BeanMap(loadTestReport));
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
+                .operator(loadTestReport.getUserId())
                 .successContext(successContext)
                 .successMailTemplate("PerformanceApiSuccessNotification")
                 .failedContext(failedContext)
@@ -69,18 +72,34 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
                 .event(event)
                 .paramMap(paramMap)
                 .build();
-        noticeSendService.send(loadTestReport.getTriggerMode(), noticeModel);
+
+        Organization organization = projectService.getOrganizationByProjectId(loadTestReport.getProjectId());
+
+        if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())
+                || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
+            noticeSendService.send(loadTestReport.getTriggerMode(), noticeModel);
+        } else {
+            String context = "${operator}执行了性能测试: ${name}, 执行结果: ${status}";
+            NoticeModel noticeModel2 = NoticeModel.builder()
+                    .operator(loadTestReport.getUserId())
+                    .context(context)
+                    .mailTemplate("performance/TestResult")
+                    .testId(loadTestReport.getTestId())
+                    .status(loadTestReport.getStatus())
+                    .subject(subject)
+                    .event(event)
+                    .paramMap(paramMap)
+                    .build();
+            noticeSendService.send(organization, NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, noticeModel2);
+        }
     }
 
     @Override
     public void execute(LoadTestReport loadTestReport) {
         LogUtil.info("PerformanceNoticeEvent OVER:" + loadTestReport.getTriggerMode() + ";" + loadTestReport.getStatus() + ";" + loadTestReport.getName());
-        if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())
-                || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
-            if (StringUtils.equalsAny(loadTestReport.getStatus(),
-                    PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
-                sendNotice(loadTestReport);
-            }
+        if (StringUtils.equalsAny(loadTestReport.getStatus(),
+                PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
+            sendNotice(loadTestReport);
         }
     }
 }

@@ -178,6 +178,7 @@ export default {
     testing: "Testing",
     environment: "Environment",
     run_success: "Run Success",
+    run_completed: "Run Completed",
     run_fail: "Run Fail",
     table: {
       select_tip: "Item {0} data is selected"

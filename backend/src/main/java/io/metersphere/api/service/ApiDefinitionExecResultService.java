@@ -14,11 +14,14 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -55,6 +58,8 @@ public class ApiDefinitionExecResultService {
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private NoticeSendService noticeSendService;
 
     public ApiDefinitionExecResult getInfo(String id) {
         return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
@@ -91,7 +96,7 @@ public class ApiDefinitionExecResultService {
                             saved = false;
                         }
                         String status = item.isSuccess() ? "success" : "error";
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(),saveResult.getId()));
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
                         saveResult.setStatus(status);
                         saveResult.setCreateTime(item.getStartTime());
                         saveResult.setResourceId(item.getName());
@@ -114,11 +119,47 @@ public class ApiDefinitionExecResultService {
                         } else {
                             definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(saveResult);
                         }
+                        // 发送通知
+                        sendNotice(saveResult);
                     });
                 }
             });
             sqlSession.flushStatements();
         }
+    }
+
+    private void sendNotice(ApiDefinitionExecResult result) {
+        String resourceId = result.getResourceId();
+        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(resourceId);
+        // 接口定义直接执行不发通知
+        if (apiTestCaseWithBLOBs == null) {
+            return;
+        }
+
+        BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
+
+        String event;
+        if (StringUtils.equals(result.getStatus(), "success")) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        } else {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+
+        Map paramMap = new HashMap<>(beanMap);
+        paramMap.put("operator", SessionUtils.getUserId());
+        paramMap.put("status", result.getStatus());
+        String context = "${operator}执行了接口用例: ${name}, 执行结果: ${status}";
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .subject("接口用例通知")
+                .mailTemplate("api/CaseResult")
+                .paramMap(paramMap)
+                .event(event)
+                .build();
+
+        String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
+        noticeSendService.send(taskType, noticeModel);
     }
 
     private String getName(String type, String id, String status, Long time, String resourceId) {
@@ -190,7 +231,7 @@ public class ApiDefinitionExecResultService {
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
 //                        saveResult.setName(item.getName());
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(),saveResult.getId()));
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
                         if (apiDefinitionWithBLOBs != null) {
                             saveResult.setName(apiDefinitionWithBLOBs.getName());

@@ -195,6 +195,7 @@ export default {
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
+        {value: 'EXECUTE_COMPLETED', label: this.$t('commons.run_completed')},
       ],
     };
   },
@@ -311,6 +312,7 @@ export default {
           }
           break;
         case "DELETE":
+        case "EXECUTE_COMPLETED":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (row.isSet) {

@@ -68,25 +68,34 @@ public class SessionUtils {
     }
 
     public static String getCurrentWorkspaceId() {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-        if (request.getHeader("WORKSPACE_ID") != null) {
-            return request.getHeader("WORKSPACE_ID");
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            if (request.getHeader("WORKSPACE_ID") != null) {
+                return request.getHeader("WORKSPACE_ID");
+            }
+        } catch (Exception e) {
         }
         return getUser().getLastWorkspaceId();
     }
 
     public static String getCurrentOrganizationId() {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-        if (request.getHeader("ORGANIZATION_ID") != null) {
-            return request.getHeader("ORGANIZATION_ID");
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            if (request.getHeader("ORGANIZATION_ID") != null) {
+                return request.getHeader("ORGANIZATION_ID");
+            }
+        } catch (Exception e) {
         }
         return getUser().getLastOrganizationId();
     }
 
     public static String getCurrentProjectId() {
-        HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
-        if (request.getHeader("PROJECT_ID") != null) {
-            return request.getHeader("PROJECT_ID");
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            if (request.getHeader("PROJECT_ID") != null) {
+                return request.getHeader("PROJECT_ID");
+            }
+        } catch (Exception e) {
         }
         return getUser().getLastProjectId();
     }

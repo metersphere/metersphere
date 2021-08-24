@@ -1,6 +1,7 @@
 package io.metersphere.notice.service;
 
 import com.alibaba.nacos.client.utils.StringUtils;
+import io.metersphere.base.domain.Organization;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
@@ -68,6 +69,22 @@ public class NoticeSendService {
                     messageDetails = noticeService.searchMessageByType(taskType);
                     break;
             }
+
+            // 异步发送通知
+            messageDetails.stream()
+                    .filter(messageDetail -> StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent()))
+                    .forEach(messageDetail -> {
+                        this.getNoticeSender(messageDetail).send(messageDetail, noticeModel);
+                    });
+
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
+    }
+
+    public void send(Organization organization, String taskType, NoticeModel noticeModel) {
+        try {
+            List<MessageDetail> messageDetails = noticeService.searchMessageByTypeAndOrganizationId(taskType, organization.getId());
 
             // 异步发送通知
             messageDetails.stream()

@@ -198,6 +198,8 @@ export default {
         {value: 'CASE_CREATE', label: 'CASE ' + this.$t('commons.create')},
         {value: 'CASE_UPDATE', label: 'CASE ' + this.$t('commons.update')},
         {value: 'CASE_DELETE', label: 'CASE ' + this.$t('commons.delete')},
+        {value: 'EXECUTE_SUCCESSFUL', label: 'CASE ' + this.$t('commons.run_success')},
+        {value: 'EXECUTE_FAILED', label: 'CASE ' + this.$t('commons.run_fail')},
       ],
     };
   },
@@ -307,6 +309,8 @@ export default {
           break;
         case "DELETE":
         case "CASE_DELETE":
+        case "EXECUTE_SUCCESSFUL":
+        case "EXECUTE_FAILED":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
           if (i2 < 0) {

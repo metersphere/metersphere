@@ -117,27 +117,17 @@ public class NoticeService {
     public List<MessageDetail> searchMessageByType(String type) {
         try {
             String orgId = SessionUtils.getCurrentOrganizationId();
-            List<MessageDetail> messageDetails = new ArrayList<>();
+            return getMessageDetails(type, orgId);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
 
-            MessageTaskExample example = new MessageTaskExample();
-            example.createCriteria()
-                    .andTaskTypeEqualTo(type)
-                    .andOrganizationIdEqualTo(orgId);
-            List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
 
-            Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()
-                    .collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
-            messageTaskMap.forEach((k, v) -> {
-                MessageDetail messageDetail = getMessageDetail(v);
-                messageDetails.add(messageDetail);
-            });
-
-            return messageDetails.stream()
-                    .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
-                    .collect(Collectors.toList())
-                    .stream()
-                    .distinct()
-                    .collect(Collectors.toList());
+    public List<MessageDetail> searchMessageByTypeAndOrganizationId(String type, String organizationId) {
+        try {
+            return getMessageDetails(type, organizationId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             return new ArrayList<>();
@@ -154,30 +144,35 @@ public class NoticeService {
             } else {
                 orgId = SessionUtils.getCurrentOrganizationId();
             }
-            List<MessageDetail> messageDetails = new ArrayList<>();
-            MessageTaskExample example = new MessageTaskExample();
-            example.createCriteria()
-                    .andTaskTypeEqualTo(type)
-                    .andOrganizationIdEqualTo(orgId);
-            List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
-
-            Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()
-                    .collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
-            messageTaskMap.forEach((k, v) -> {
-                MessageDetail messageDetail = getMessageDetail(v);
-                messageDetails.add(messageDetail);
-            });
-
-            return messageDetails.stream()
-                    .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
-                    .collect(Collectors.toList())
-                    .stream()
-                    .distinct()
-                    .collect(Collectors.toList());
+            return getMessageDetails(type, orgId);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             return new ArrayList<>();
         }
+    }
+
+    private List<MessageDetail> getMessageDetails(String type, String orgId) {
+        List<MessageDetail> messageDetails = new ArrayList<>();
+
+        MessageTaskExample example = new MessageTaskExample();
+        example.createCriteria()
+                .andTaskTypeEqualTo(type)
+                .andOrganizationIdEqualTo(orgId);
+        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
+
+        Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()
+                .collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
+        messageTaskMap.forEach((k, v) -> {
+            MessageDetail messageDetail = getMessageDetail(v);
+            messageDetails.add(messageDetail);
+        });
+
+        return messageDetails.stream()
+                .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
+                .collect(Collectors.toList())
+                .stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     private MessageDetail getMessageDetail(List<MessageTask> messageTasks) {
