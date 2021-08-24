@@ -1460,21 +1460,23 @@ public class TestPlanService {
                     allCases.forEach(item -> {
                         LoadCaseReportRequest request = new LoadCaseReportRequest();
                         String reportId = item.getLoadReportId();
-                        request.setTestPlanLoadCaseId(item.getId());
-                        request.setReportId(reportId);
-                        Boolean existReport = testPlanLoadCaseService.isExistReport(request);
-                        if  (existReport) {
-                            LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
-                            ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
-                            TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
-                            if (loadTestReport != null) {
-                                BeanUtils.copyBean(reportDTO, loadTestReport);
+                        if (StringUtils.isNotBlank(reportId)) {
+                            request.setTestPlanLoadCaseId(item.getId());
+                            request.setReportId(reportId);
+                            Boolean existReport = testPlanLoadCaseService.isExistReport(request);
+                            if  (existReport) {
+                                LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
+                                ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
+                                TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
+                                if (loadTestReport != null) {
+                                    BeanUtils.copyBean(reportDTO, loadTestReport);
+                                }
+                                if (reportTimeInfo != null) {
+                                    BeanUtils.copyBean(reportDTO, reportTimeInfo);
+                                }
+                                item.setResponse(reportDTO);
+                                // todo 报告详情
                             }
-                            if (reportTimeInfo != null) {
-                                BeanUtils.copyBean(reportDTO, reportTimeInfo);
-                            }
-                            item.setResponse(reportDTO);
-                            // todo 报告详情
                         }
                     });
                 }
