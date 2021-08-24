@@ -1732,12 +1732,12 @@ public class TestPlanService {
         testPlanScenarioCaseService.calculatePlanReport(planId, report);
         testPlanLoadCaseService.calculatePlanReport(planId, report);
         if(report.getExecuteCount() != 0 && report.getCaseCount() != null){
-            report.setExecuteRate(report.getExecuteCount() * 0.1 / report.getCaseCount());
+            report.setExecuteRate(report.getExecuteCount() * 0.1 * 10 / report.getCaseCount());
         }else {
             report.setExecuteRate(0.0);
         }
         if(report.getPassCount() != 0 && report.getCaseCount() != null){
-            report.setPassRate(report.getPassCount() * 0.1 / report.getCaseCount());
+            report.setPassRate(report.getPassCount() * 0.1 * 10/ report.getExecuteCount());
         }else {
             report.setPassRate(0.0);
         }

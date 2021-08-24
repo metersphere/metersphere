@@ -12,12 +12,12 @@
         </el-col>
         <el-col :span="8">
           <el-form-item :label="'执行率' + ':'">
-            {{ (report.executeRate * 100).toFixed(0) + '%'}}
+            {{ (report.executeRate ? (report.executeRate.toFixed(3) * 100) : 0) + '%'}}
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="'通过率' + ':'">
-            {{ (report.passRate * 100).toFixed(0) + '%'}}
+            {{ (report.passRate ? (report.passRate.toFixed(3)  * 100) : 0) + '%'}}
           </el-form-item>
         </el-col>
       </el-row>
@@ -61,5 +61,10 @@ export default {
 <style scoped>
 .form-info {
   padding: 20px;
+}
+
+.el-form-item:first-child {
+  margin-bottom: 0;
+  height: 60px;
 }
 </style>
