@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-container :title="'报告总结'">
+  <test-plan-report-container id='summary' :title="'报告总结'">
     <template v-slot:title>
       <el-link class="edit-link" v-if="!isTemplate && !isShare && !isEdit" @click="isEdit = true">
         编辑

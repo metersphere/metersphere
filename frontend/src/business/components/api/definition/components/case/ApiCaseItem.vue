@@ -66,7 +66,7 @@
             <el-select v-model="apiCase.followPeople"
                        clearable
                        :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                       @change="saveTestCase(apiCase)">
+                       @change="saveTestCase(apiCase,true)">
               <el-option
                 v-for="item in maintainerOptions"
                 :key="item.id"

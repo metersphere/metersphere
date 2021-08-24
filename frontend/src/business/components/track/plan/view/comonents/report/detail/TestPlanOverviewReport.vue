@@ -1,5 +1,5 @@
 <template>
-  <test-plan-report-container :title="'概览'">
+  <test-plan-report-container id="overview" :title="'概览'">
     <el-form class="form-info" v-loading="result.loading">
       <el-form-item :label="$t('测试时间') + ':'">
         {{showTime}}
@@ -13,11 +13,13 @@
         <el-col :span="8">
           <el-form-item :label="'执行率' + ':'">
             {{ (report.executeRate ? (report.executeRate.toFixed(3) * 100) : 0) + '%'}}
+            <ms-instructions-icon content="执行过的用例/所有用例 * 100%"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="'通过率' + ':'">
             {{ (report.passRate ? (report.passRate.toFixed(3)  * 100) : 0) + '%'}}
+            <ms-instructions-icon content="执行通过用例/所有用例 * 100%"/>
           </el-form-item>
         </el-col>
       </el-row>
@@ -30,9 +32,10 @@ import MsFormDivider from "@/business/components/common/components/MsFormDivider
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import {timestampFormatDate} from "@/common/js/filter";
+import MsInstructionsIcon from "@/business/components/common/components/MsInstructionsIcon";
 export default {
   name: "TestPlanOverviewReport",
-  components: {TestPlanReportContainer, MsFormDivider},
+  components: {MsInstructionsIcon, TestPlanReportContainer, MsFormDivider},
   props: {
     report: Object,
   },

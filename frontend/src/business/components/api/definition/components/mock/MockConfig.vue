@@ -340,6 +340,7 @@ export default {
       });
     },
     clickRow(row, column, event) {
+      this.cleanMockExpectConfig();
       let selectUrl = "/mockConfig/mockExpectConfig/" + row.id;
       this.$get(selectUrl, response => {
         let data = response.data;
