@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.Group;
 import io.metersphere.base.domain.Organization;
 import io.metersphere.base.domain.User;
+import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -13,6 +14,7 @@ import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.group.EditGroupUserRequest;
 import io.metersphere.dto.GroupDTO;
 import io.metersphere.dto.GroupPermissionDTO;
+import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.service.GroupService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 @RequestMapping("/user/group")
@@ -50,18 +53,22 @@ public class GroupController {
 
     @PostMapping("/add")
     @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_CREATE, PermissionConstants.ORGANIZATION_GROUP_READ_CREATE}, logical = Logical.OR)
+    @MsAuditLog(module = "group_permission", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public Group addGroup(@RequestBody EditGroupRequest request) {
+        request.setId(UUID.randomUUID().toString());
         return groupService.addGroup(request);
     }
 
     @PostMapping("/edit")
     @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_EDIT, PermissionConstants.ORGANIZATION_GROUP_READ_EDIT}, logical = Logical.OR)
+    @MsAuditLog(module = "group_permission", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = GroupService.class)
     public void editGroup(@RequestBody EditGroupRequest request) {
         groupService.editGroup(request);
     }
 
     @GetMapping("/delete/{id}")
     @RequiresPermissions(value={PermissionConstants.SYSTEM_GROUP_READ_DELETE, PermissionConstants.ORGANIZATION_GROUP_READ_DELETE}, logical = Logical.OR)
+    @MsAuditLog(module = "group_permission", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = GroupService.class)
     public void deleteGroup(@PathVariable String id) {
         groupService.deleteGroup(id);
     }
