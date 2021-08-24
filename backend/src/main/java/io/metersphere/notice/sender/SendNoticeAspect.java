@@ -160,12 +160,15 @@ public class SendNoticeAspect {
         String operation = "";
         switch (sendNotice.event()) {
             case NoticeConstants.Event.CREATE:
+            case NoticeConstants.Event.CASE_CREATE:
                 operation = "创建了";
                 break;
             case NoticeConstants.Event.UPDATE:
+            case NoticeConstants.Event.CASE_UPDATE:
                 operation = "更新了";
                 break;
             case NoticeConstants.Event.DELETE:
+            case NoticeConstants.Event.CASE_DELETE:
                 operation = "删除了";
                 break;
             case NoticeConstants.Event.COMMENT:
@@ -176,15 +179,6 @@ public class SendNoticeAspect {
                 break;
             case NoticeConstants.Event.CLOSE_SCHEDULE:
                 operation = "关闭了定时任务";
-                break;
-            case NoticeConstants.Event.CASE_CREATE:
-                operation = "创建了接口用例";
-                break;
-            case NoticeConstants.Event.CASE_UPDATE:
-                operation = "更新了接口用例";
-                break;
-            case NoticeConstants.Event.CASE_DELETE:
-                operation = "删除了接口用例";
                 break;
             default:
                 break;
