@@ -10,6 +10,7 @@ import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.UserService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RegExUtils;
@@ -137,10 +138,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 case NoticeConstants.RelatedUser.EXECUTOR:
                     if (StringUtils.equals(NoticeConstants.Event.CREATE, event)) {
                         List<String> relatedUsers = (List<String>) paramMap.get("userIds");
-                        List<Receiver> receivers = relatedUsers.stream()
-                                .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-                                .collect(Collectors.toList());
-                        toUsers.addAll(receivers);
+                        if (CollectionUtils.isNotEmpty(relatedUsers)) {
+                            List<Receiver> receivers = relatedUsers.stream()
+                                    .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                                    .collect(Collectors.toList());
+                            toUsers.addAll(receivers);
+                        }
                     }
                     break;
                 case NoticeConstants.RelatedUser.CREATOR:
@@ -162,10 +165,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 case NoticeConstants.RelatedUser.MAINTAINER:
                     if (StringUtils.equals(NoticeConstants.Event.COMMENT, event)) {
                         List<String> relatedUsers = (List<String>) paramMap.get("userIds");
-                        List<Receiver> receivers = relatedUsers.stream()
-                                .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
-                                .collect(Collectors.toList());
-                        toUsers.addAll(receivers);
+                        if (CollectionUtils.isNotEmpty(relatedUsers)) {
+                            List<Receiver> receivers = relatedUsers.stream()
+                                    .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
+                                    .collect(Collectors.toList());
+                            toUsers.addAll(receivers);
+                        }
                     }
                     break;
                 case NoticeConstants.RelatedUser.FOLLOW_PEOPLE:
