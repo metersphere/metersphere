@@ -82,11 +82,11 @@
               <el-col>{{ $t('api_test.mock.rsp_param') }}</el-col>
             </el-row>
             <el-row>
-                <el-form-item label="延时 (ms)" prop="response.delayed">
-                  <el-input-number v-model="mockExpectConfig.response.delayed" :min="0">
-                    <template slot="append">ms</template>
-                  </el-input-number>
-                </el-form-item>
+              <el-form-item label="延时 (ms)" prop="response.delayed">
+                <el-input-number v-model="mockExpectConfig.response.delayed" :min="0">
+                  <template slot="append">ms</template>
+                </el-input-number>
+              </el-form-item>
             </el-row>
             <el-row style="margin-top: 10px;">
               <el-form-item label="Body:" label-width="50px">
@@ -153,8 +153,10 @@ export default {
         name: "",
         mockConfigId: "",
         request: {
-          reportType:'raw',
-          xmlDataStruct:[],
+          reportType: 'raw',
+          xmlDataStruct: [],
+          jsonDataStruct: "",
+          rawDataStruct: "",
         },
         response: {
           httpCode: "",
@@ -177,7 +179,7 @@ export default {
   },
   props: {
     baseMockConfigData: {},
-    type:String
+    type: String
   },
   created() {
     this.mockConfigData = this.baseMockConfigData;
@@ -252,8 +254,10 @@ export default {
         name: "",
         mockConfigId: "",
         request: {
-          reportType:'raw',
-          xmlDataStruct:[],
+          reportType: 'raw',
+          xmlDataStruct: [],
+          jsonDataStruct: "",
+          rawDataStruct: "",
         },
         response: {
           httpCode: "",
@@ -263,6 +267,7 @@ export default {
         },
       };
       this.$nextTick(function () {
+        this.$refs.tcpParam.reload();
         this.showHeadTable = true;
       });
     },
@@ -310,6 +315,7 @@ export default {
       });
     },
     clickRow(row, column, event) {
+      this.cleanMockExpectConfig();
       let selectUrl = "/mockConfig/mockExpectConfig/" + row.id;
       this.$get(selectUrl, response => {
         let data = response.data;
@@ -317,8 +323,8 @@ export default {
         this.mockExpectConfig = data;
         if (this.mockExpectConfig.request == null) {
           this.mockExpectConfig.request = {
-            reportType:'raw',
-            xmlDataStruct:[],
+            reportType: 'raw',
+            xmlDataStruct: [],
           };
         }
         if (this.mockExpectConfig.response == null) {
