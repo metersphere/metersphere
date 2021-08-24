@@ -1550,8 +1550,9 @@ public class TestPlanService {
             BufferedReader bufferedReader = new BufferedReader(isr);
             String line = null;
             while (null != (line = bufferedReader.readLine())) {
-                line = line.replace("\"#report\"", JSONObject.toJSONString(report));
-//                line = line.replace("\"#preview\"", JSONObject.toJSONString(previews));
+                if (line.contains("\"#report\"")) {
+                    line = line.replace("\"#report\"", JSONObject.toJSONString(report));
+                }
                 line += "\n";
                 byte[] lineBytes = line.getBytes(StandardCharsets.UTF_8);
                 int start = 0;
