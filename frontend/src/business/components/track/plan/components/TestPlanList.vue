@@ -193,7 +193,7 @@
               </template>
               <template v-slot:middle>
                 <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
-                                          @exec="handleCopy(scope.row)"/>
+                                          @exec="handleCopy(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+COPY']"/>
                 <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                           v-if="!scope.row.reportId"
                                           :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
