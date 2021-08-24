@@ -126,7 +126,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             switch (userId) {
                 case NoticeConstants.RelatedUser.EXECUTOR:
                     if (StringUtils.equals(NoticeConstants.Event.CREATE, event)) {
-                        List<String> relatedUsers = noticeModel.getRelatedUsers();
+                        List<String> relatedUsers  = (List<String>) paramMap.get("userIds");
                         List<Receiver> receivers = relatedUsers.stream()
                                 .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
                                 .collect(Collectors.toList());
@@ -151,7 +151,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     break;
                 case NoticeConstants.RelatedUser.MAINTAINER:
                     if (StringUtils.equals(NoticeConstants.Event.COMMENT, event)) {
-                        List<String> relatedUsers = noticeModel.getRelatedUsers();
+                        List<String> relatedUsers  = (List<String>) paramMap.get("userIds");
                         List<Receiver> receivers = relatedUsers.stream()
                                 .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
                                 .collect(Collectors.toList());
