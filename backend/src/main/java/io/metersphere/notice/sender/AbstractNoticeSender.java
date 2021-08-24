@@ -1,5 +1,8 @@
 package io.metersphere.notice.sender;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.NotificationConstants;
 import io.metersphere.commons.utils.LogUtil;
@@ -159,6 +162,18 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     String followPeople = (String) paramMap.get("followPeople");
                     if (StringUtils.isNotBlank(followPeople)) {
                         toUsers.add(new Receiver(followPeople, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    }
+                    break;
+                case NoticeConstants.RelatedUser.PROCESSOR:
+                    String customFields = (String) paramMap.get("customFields");
+                    JSONArray array = JSON.parseArray(customFields);
+                    for (Object o : array) {
+                        JSONObject jsonObject = JSON.parseObject(o.toString());
+                        if (StringUtils.equals(jsonObject.getString("name"), "处理人")) {
+                            String processor = jsonObject.getString("value");
+                            toUsers.add(new Receiver(processor, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                            break;
+                        }
                     }
                     break;
                 default:

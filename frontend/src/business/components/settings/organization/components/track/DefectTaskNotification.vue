@@ -195,7 +195,6 @@ export default {
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
         {value: 'DELETE', label: this.$t('commons.delete')},
-        // {value: 'STATUS_CHANGE', label: '状态变更'},
       ],
     };
   },
@@ -287,19 +286,29 @@ export default {
     },
     handleReceivers(row) {
       let testPlanReceivers = JSON.parse(JSON.stringify(this.defectReceiverOptions));
+      let i = row.userIds.indexOf('PROCESSOR');
       let i2 = row.userIds.indexOf('CREATOR');
       switch (row.event) {
         case "CREATE":
+          testPlanReceivers.unshift({id: 'PROCESSOR', name: '处理人'});
+          if (row.isSet) {
+            if (i < 0) {
+              row.userIds.unshift('PROCESSOR');
+            }
+          }
           if (i2 > -1) {
             row.userIds.splice(i2, 1);
           }
           break;
         case "UPDATE":
-        case "STATUS_CHANGE":
           testPlanReceivers.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
+          testPlanReceivers.unshift({id: 'PROCESSOR', name: '处理人'});
           if (row.isSet) {
             if (i2 < 0) {
               row.userIds.unshift('CREATOR');
+            }
+            if (i < 0) {
+              row.userIds.unshift('PROCESSOR');
             }
           }
           break;
