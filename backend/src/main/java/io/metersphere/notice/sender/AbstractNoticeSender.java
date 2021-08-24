@@ -51,6 +51,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                 context = noticeModel.getContext();
                 break;
         }
+        // 兼容
+        if (StringUtils.isBlank(context)) {
+            context = noticeModel.getContext();
+        }
         return getContent(context, noticeModel.getParamMap());
     }
 
@@ -82,6 +86,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             }
         } catch (IOException e) {
             LogUtil.error(e);
+            // 兼容
+            try {
+                URL resource3 = this.getClass().getResource("/mail/" + noticeModel.getMailTemplate() + ".html");
+                context = IOUtils.toString(resource3, StandardCharsets.UTF_8);
+            } catch (IOException ex) {
+            }
         }
         return getContent(context, noticeModel.getParamMap());
     }
@@ -126,7 +136,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             switch (userId) {
                 case NoticeConstants.RelatedUser.EXECUTOR:
                     if (StringUtils.equals(NoticeConstants.Event.CREATE, event)) {
-                        List<String> relatedUsers  = (List<String>) paramMap.get("userIds");
+                        List<String> relatedUsers = (List<String>) paramMap.get("userIds");
                         List<Receiver> receivers = relatedUsers.stream()
                                 .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
                                 .collect(Collectors.toList());
@@ -151,7 +161,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     break;
                 case NoticeConstants.RelatedUser.MAINTAINER:
                     if (StringUtils.equals(NoticeConstants.Event.COMMENT, event)) {
-                        List<String> relatedUsers  = (List<String>) paramMap.get("userIds");
+                        List<String> relatedUsers = (List<String>) paramMap.get("userIds");
                         List<Receiver> receivers = relatedUsers.stream()
                                 .map(u -> new Receiver(u, NotificationConstants.Type.SYSTEM_NOTICE.name()))
                                 .collect(Collectors.toList());

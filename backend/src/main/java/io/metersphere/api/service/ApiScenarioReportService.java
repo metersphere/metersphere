@@ -601,16 +601,19 @@ public class ApiScenarioReportService {
         BeanMap beanMap = new BeanMap(result);
 
         String event;
+        String status;
         if (StringUtils.equals(result.getLastResult(), "Success")) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+            status = "成功";
         } else {
             event = NoticeConstants.Event.EXECUTE_FAILED;
+            status = "失败";
         }
 
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put("operator", SessionUtils.getUserId());
         paramMap.put("status", result.getLastResult());
-        String context = "${operator}执行了接口用例: ${name}, 执行结果: ${status}";
+        String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
