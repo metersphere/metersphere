@@ -76,6 +76,19 @@ export default {
       },
     };
   },
+  watch:{
+    'runConfig.runWithinResourcePool'(){
+      if(!this.runConfig.runWithinResourcePool){
+        this.runConfig = {
+          mode: this.runConfig.mode,
+          reportType: "iddReport",
+          reportName: "",
+          runWithinResourcePool: false,
+          resourcePoolId: null,
+        };
+      }
+    }
+  },
   methods: {
     open() {
       this.runModeVisible = true;
