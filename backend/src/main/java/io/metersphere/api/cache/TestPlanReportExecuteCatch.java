@@ -1,5 +1,8 @@
 package io.metersphere.api.cache;
 
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,6 +45,14 @@ public class TestPlanReportExecuteCatch {
             testPlanReportMap.get(reportId).updateExecuteInfo(apiCaseExecInfo,apiScenarioCaseExecInfo,loadCaseExecInfo);
         }
     }
+
+    public synchronized static void updateTestPlanExecuteResultInfo(String reportId,
+                                                                 Map<String, ApiDefinitionExecResult> apiCaseExecResultInfo, Map<String, APIScenarioReportResult> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+        if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){
+            testPlanReportMap.get(reportId).updateExecuteResult(apiCaseExecResultInfo,apiScenarioCaseExecResultInfo,loadCaseExecResultInfo);
+        }
+    }
+
 
     public static TestPlanExecuteInfo getTestPlanExecuteInfo(String reportId){
         return testPlanReportMap.get(reportId);

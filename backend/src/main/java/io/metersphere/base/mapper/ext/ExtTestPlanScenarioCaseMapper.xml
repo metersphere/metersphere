@@ -196,7 +196,10 @@
       where t.test_plan_id = #{planId}
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
-      select id,last_result as status, report_id, api_scenario_id as caseId from test_plan_api_scenario where test_plan_id = #{planId};
+      select id,last_result as status, report_id, api_scenario_id as caseId from test_plan_api_scenario where test_plan_id = #{planId}
+        and api_scenario_id IN (
+          SELECT id FROM api_scenario where status is null or status != 'Trash'
+        )
     </select>
     <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO">
       select
@@ -214,6 +217,28 @@
       </if>
       where t.test_plan_id = #{planId}
     </select>
+
+    <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO">
+      select
+      t.id, t.last_result, t.report_id, c.user_id, c.module_path, c.name, c.level,
+      c.status,c.step_total, c.step_total, c.project_id,
+      c.num, c.custom_num
+      from
+      test_plan_api_scenario t
+      inner join
+      api_scenario c
+      on t.api_scenario_id = c.id and c.status != 'Trash'
+      and t.test_plan_id = #{planId}
+      <if test="status != null">
+        and t.last_result = 'Fail'
+      </if>
+      where t.test_plan_id = #{planId}
+        and c.id IN
+      <foreach collection="ids" item="id" separator="," open="(" close=")">
+        #{id}
+      </foreach>
+    </select>
+
   <select id="getUnderwaySteps" resultType="java.lang.Integer">
     select step_total from api_scenario c
     where c.id in

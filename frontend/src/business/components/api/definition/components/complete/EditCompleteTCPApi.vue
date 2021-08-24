@@ -219,7 +219,7 @@ export default {
     },
     mockSetting() {
       if(this.basisData.id){
-        this.$store.state.currentApiCase={mock : getUUID()};
+        this.$emit('changeTab','mock');
       }else {
         this.$alert(this.$t('api_test.mock.create_error'));
       }

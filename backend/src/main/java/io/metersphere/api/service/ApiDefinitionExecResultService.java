@@ -221,6 +221,7 @@ public class ApiDefinitionExecResultService {
         String finalSaveResultType = saveResultType;
 
         Map<String, String> apiIdResultMap = new HashMap<>();
+        Map<String,ApiDefinitionExecResult> caseReportMap = new HashMap<>();
 
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             result.getScenarios().forEach(scenarioResult -> {
@@ -230,25 +231,29 @@ public class ApiDefinitionExecResultService {
                         ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
-//                        saveResult.setName(item.getName());
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(),saveResult.getId()));
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
+                        String caseId = null;
                         if (apiDefinitionWithBLOBs != null) {
                             saveResult.setName(apiDefinitionWithBLOBs.getName());
-                            apiIdResultMap.put(apiDefinitionWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                            caseId = apiDefinitionWithBLOBs.getId();
                         } else {
                             ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(item.getName());
                             if (caseWithBLOBs != null) {
+                                caseId = caseWithBLOBs.getId();
                                 saveResult.setName(caseWithBLOBs.getName());
-                                apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                             } else {
                                 caseWithBLOBs = testPlanApiCaseService.getApiTestCaseById(item.getName());
                                 if (caseWithBLOBs != null) {
                                     saveResult.setName(caseWithBLOBs.getName());
-                                    apiIdResultMap.put(caseWithBLOBs.getId(), item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                                    caseId = caseWithBLOBs.getId();
                                 }
                             }
                         }
+                        if(StringUtils.isNotEmpty(caseId)){
+                            apiIdResultMap.put(caseId, item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
+                        }
+
                         if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
                             saveResult.setTriggerMode(TriggerMode.API.name());
                         } else if (StringUtils.equals(type, ApiRunMode.MANUAL_PLAN.name())) {
@@ -292,14 +297,14 @@ public class ApiDefinitionExecResultService {
                             apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
                         apiDefinitionExecResultMapper.insert(saveResult);
+                        caseReportMap.put(caseId,saveResult);
                     });
                 }
             });
         }
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId, apiIdResultMap, null, null);
-//        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-//        testPlanReportService.updateExecuteApis(testPlanReportId, apiIdResultMap, null, null);
+        TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(testPlanReportId,caseReportMap,null,null);
     }
 
     public void deleteByResourceId(String resourceId) {

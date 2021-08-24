@@ -735,12 +735,17 @@ public class ApiDefinitionService {
         return buildAPIReportResult(result);
     }
 
+    public APIReportResult getByResultId(String reportId) {
+        ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+        return buildAPIReportResult(result);
+    }
+
     public APIReportResult getReportById(String testId) {
         ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
     }
 
-    private APIReportResult buildAPIReportResult(ApiDefinitionExecResult result) {
+    public APIReportResult buildAPIReportResult(ApiDefinitionExecResult result) {
         if (result == null) {
             return null;
         }

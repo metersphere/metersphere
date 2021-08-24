@@ -30,6 +30,7 @@
         :moduleOptions="moduleOptions"
         @runTest="runTest"
         @saveApi="saveApi"
+        @changeTab="changeTab"
         @createRootModel="createRootModel"
       />
     </div>

@@ -438,6 +438,12 @@ public class TestPlanScenarioCaseService {
         return buildCases(apiTestCases);
     }
 
+    public List<TestPlanFailureScenarioDTO> getAllCases(Collection<String> ids,String planId,String status) {
+        List<TestPlanFailureScenarioDTO> apiTestCases =
+                extTestPlanScenarioCaseMapper.getFailureListByIds(ids,planId, status);
+        return buildCases(apiTestCases);
+    }
+
     public List<TestPlanFailureScenarioDTO> getFailureCases(String planId) {
         List<TestPlanFailureScenarioDTO> apiTestCases =
                 extTestPlanScenarioCaseMapper.getFailureList(planId, "Fail");

@@ -369,6 +369,11 @@ public class TestPlanLoadCaseService {
         return buildCases(cases);
     }
 
+    public List<TestPlanLoadCaseDTO> getAllCases(Collection<String> ids,String planId,String status) {
+        List<TestPlanLoadCaseDTO> cases = extTestPlanLoadCaseMapper.getCasesByIds(ids,planId, status);
+        return buildCases(cases);
+    }
+
     public List<TestPlanLoadCaseDTO> getFailureCases(String planId) {
         List<TestPlanLoadCaseDTO> failureCases = extTestPlanLoadCaseMapper.getCases(planId, "error");
         return buildCases(failureCases);
