@@ -87,7 +87,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
                     .testId(loadTestReport.getTestId())
                     .status(loadTestReport.getStatus())
                     .subject(subject)
-                    .event(event)
+                    .event(NoticeConstants.Event.EXECUTE_COMPLETED)
                     .paramMap(paramMap)
                     .build();
             noticeSendService.send(organization, NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, noticeModel2);
