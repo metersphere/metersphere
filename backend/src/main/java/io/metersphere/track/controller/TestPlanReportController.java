@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.dto.TestPlanReportDTO;
+import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.service.TestPlanReportService;
@@ -42,6 +43,11 @@ public class TestPlanReportController {
     @GetMapping("/getMetric/{planId}")
     public TestPlanReportDTO getMetric(@PathVariable String planId) {
         return testPlanReportService.getMetric(planId);
+    }
+
+    @GetMapping("/db/{reportId}")
+    public TestPlanSimpleReportDTO getReport(@PathVariable String reportId) {
+        return testPlanReportService.getReport(reportId);
     }
 
     @GetMapping("/sendTask/{planId}")

@@ -224,3 +224,43 @@ DELIMITER ;
 
 CALL set_notice();
 DROP PROCEDURE IF EXISTS set_notice;
+
+
+-- 保存测试报告
+ALTER TABLE test_plan_report ADD is_new TINYINT(1) NULL COMMENT 'v1.12报告改版标记';
+ALTER table test_plan_report modify `is_api_case_executing` TINYINT(1) NULL COMMENT 'is Api Case executing';
+ALTER table test_plan_report modify `is_scenario_executing` TINYINT(1) NULL COMMENT 'is scenario Case executing';
+ALTER table test_plan_report modify `is_performance_executing` TINYINT(1) NULL COMMENT 'is performance executing';
+CREATE TABLE IF NOT EXISTS `test_plan_report_content` (
+    `id` VARCHAR (50) NOT NULL COMMENT 'ID',
+    `test_plan_report_id` VARCHAR ( 50 ) NOT NULL COMMENT 'Test plan ID',
+    `start_time` bigint(13)  NULL,
+    `case_count` bigint(10)  NULL,
+    `end_time` bigint(13)  NULL,
+    `execute_rate` DOUBLE  NULL,
+    `pass_rate` DOUBLE  NULL,
+    `is_third_part_issue` TINYINT(1) NULL COMMENT 'is third part issue',
+
+    `config` text  COMMENT 'plan config (JSON format)',
+    `summary` text COMMENT 'summary',
+
+    `function_result` text  COMMENT 'function result (JSON format)',
+    `api_result` text  COMMENT 'api result (JSON format)',
+    `load_result` text  COMMENT 'api result (JSON format)',
+
+    `function_all_cases` longtext  COMMENT 'function all cases (JSON format)',
+    `function_failure_cases` longtext  COMMENT 'function failure cases (JSON format)',
+    `issue_list` longtext  COMMENT 'issue list (JSON format)',
+
+    `api_all_cases` longtext  COMMENT 'api all cases (JSON format)',
+    `api_failure_cases` longtext  COMMENT 'api failure cases (JSON format)',
+
+    `scenario_all_cases` longtext  COMMENT 'scenario all cases (JSON format)',
+    `scenario_failure_cases` longtext  COMMENT 'scenario failure cases (JSON format)',
+
+    `load_all_Cases` longtext  COMMENT 'load all cases (JSON format)',
+    `load_failure_cases` longtext  COMMENT 'load failure cases (JSON format)',
+
+    PRIMARY KEY ( `id` ),
+    UNIQUE KEY `test_plan_report_id` ( `test_plan_report_id` )
+) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;

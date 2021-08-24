@@ -56,7 +56,7 @@
         <template v-slot:default="scope">
           <div>
             <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
-                                      @exec="openReport(scope.row.id)"/>
+                                      @exec="openReport(scope.row)"/>
             <ms-table-operator-button v-permission="['PROJECT_TRACK_REPORT:READ+DELETE']" type="danger"
                                       :tip="$t('commons.delete')" icon="el-icon-delete"
                                       @exec="handleDelete(scope.row)"/>
@@ -67,6 +67,7 @@
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
     <test-plan-report-view @refresh="initTableData" ref="testPlanReportView"/>
+    <test-plan-db-report ref="dbReport"/>
   </el-card>
 </template>
 
@@ -92,10 +93,12 @@ import {
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {getCurrentProjectID} from "@/common/js/utils";
+import TestPlanDbReport from "@/business/components/track/report/components/TestPlanDbReport";
 
 export default {
   name: "TestPlanReportList",
   components: {
+    TestPlanDbReport,
     MsTableHeaderSelectPopover,
     TestPlanReportView,
     MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
@@ -246,9 +249,13 @@ export default {
       this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
-    openReport(planId) {
-      if (planId) {
-        this.$refs.testPlanReportView.open(planId);
+    openReport(report) {
+      if (report.id) {
+        if (report.isNew) {
+          this.$refs.dbReport.open(report);
+        } else {
+          this.$refs.testPlanReportView.open(report.id);
+        }
       }
     },
     isSelectDataAll(data) {

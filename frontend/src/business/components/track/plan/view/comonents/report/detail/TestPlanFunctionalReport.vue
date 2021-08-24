@@ -1,17 +1,17 @@
 <template>
-  <test-plan-report-container :title="'功能用例统计'">
+  <test-plan-report-container :title="'功能用例统计分析'">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <functional-result :function-result="report.functionResult"/>
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
-        <functional-cases :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <functional-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
       <el-tab-pane v-if="issueEnable" label="缺陷列表" name="third">
-        <functional-issue-list :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+        <functional-issue-list :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
-      <el-tab-pane label="所有用例" name="fourth">
-        <functional-cases v-if="allEnable" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      <el-tab-pane label="所有用例" name="fourth" v-if="allEnable">
+        <functional-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -35,7 +35,7 @@ export default {
     };
   },
   props: [
-    'report','planId', 'isTemplate', 'isShare', 'shareId', 'config'
+    'report','planId', 'isTemplate', 'isShare', 'shareId', 'config', 'isDb'
   ],
   computed: {
     resultEnable() {

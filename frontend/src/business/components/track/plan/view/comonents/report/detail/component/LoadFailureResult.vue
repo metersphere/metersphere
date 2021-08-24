@@ -66,7 +66,8 @@ export default {
     isTemplate: Boolean,
     isShare: Boolean,
     shareId: String,
-    isAll: Boolean
+    isAll: Boolean,
+    isDb: Boolean
   },
   data() {
     return {
@@ -78,11 +79,11 @@ export default {
   },
   methods: {
     getFailureTestCase() {
-      if (this.isTemplate) {
+      if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.loadTestCases = this.report.loadAllTestCases;
+          this.loadTestCases = this.report.loadAllCases;
         } else {
-          this.loadTestCases = this.report.loadFailureTestCases;
+          this.loadTestCases = this.report.loadFailureCases;
         }
       } else if (this.isShare) {
         if (this.isAll) {

@@ -84,7 +84,8 @@ export default {
     isShare: Boolean,
     report: {},
     shareId: String,
-    isAll: Boolean
+    isAll: Boolean,
+    isDb: Boolean
   },
   data() {
     return {
@@ -96,7 +97,7 @@ export default {
   },
   methods: {
     getFunctionalTestCase() {
-      if (this.isTemplate) {
+      if (this.isTemplate || this.isDb) {
         if (this.isAll) {
           this.testCases = this.report.functionAllCases;
         } else {
