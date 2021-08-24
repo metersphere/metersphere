@@ -103,7 +103,8 @@ public class ApiTestCaseController {
 
     @GetMapping("/deleteToGc/{id}")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, mailTemplate = "api/CaseDelete", subject = "接口用例通知")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE,target = "#targetClass.get(#id)", targetClass = ApiTestCaseService.class,
+            mailTemplate = "api/CaseDelete", subject = "接口用例通知")
     public void deleteToGc(@PathVariable String id) {
         apiTestCaseService.deleteToGc(id);
     }
