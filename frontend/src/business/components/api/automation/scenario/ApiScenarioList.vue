@@ -492,10 +492,16 @@ export default {
       }
     }
 
-    let orderArr = this.getSortField();
-    if (orderArr) {
-      this.condition.orders = orderArr;
+
+    if(this.trashEnable){
+      this.condition.orders = [{"name":"delete_time","type":"desc"}];
+    }else {
+      let orderArr = this.getSortField();
+      if (orderArr) {
+        this.condition.orders = orderArr;
+      }
     }
+
     this.search();
     this.getPrincipalOptions([]);
 
