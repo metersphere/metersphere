@@ -16,7 +16,7 @@
       </el-popover>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-download" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
+      <el-button icon="el-icon-receiving" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
         {{'保存'}}
       </el-button>
     </el-row>
