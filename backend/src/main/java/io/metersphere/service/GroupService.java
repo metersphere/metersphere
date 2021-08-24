@@ -17,6 +17,10 @@ import io.metersphere.controller.request.group.EditGroupRequest;
 import io.metersphere.controller.request.group.EditGroupUserRequest;
 import io.metersphere.dto.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.log.utils.ReflexObjectUtil;
+import io.metersphere.log.vo.DetailColumn;
+import io.metersphere.log.vo.OperatingLogDetails;
+import io.metersphere.log.vo.system.SystemReference;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -68,6 +72,13 @@ public class GroupService {
         put(UserGroupType.PROJECT, Collections.singletonList(UserGroupType.PROJECT));
     }};
 
+    private static final Map<String, String> typeMap = new HashMap<String, String>(4){{
+        put(UserGroupType.SYSTEM, "系统");
+        put(UserGroupType.ORGANIZATION, "组织");
+        put(UserGroupType.WORKSPACE, "工作空间");
+        put(UserGroupType.PROJECT, "项目");
+    }};
+
     public Pager<List<GroupDTO>> getGroupList(EditGroupRequest request) {
         SessionUser user = SessionUtils.getUser();
         List<UserGroupDTO> userGroup = extUserGroupMapper.getUserGroup(Objects.requireNonNull(user).getId());
@@ -78,7 +89,7 @@ public class GroupService {
     public Group addGroup(EditGroupRequest request) {
         Group group = new Group();
         checkGroupExist(request);
-        group.setId(UUID.randomUUID().toString());
+        group.setId(request.getId());
         group.setName(request.getName());
         group.setCreator(SessionUtils.getUserId());
         group.setDescription(request.getDescription());
@@ -517,5 +528,33 @@ public class GroupService {
                 sqlSession.flushStatements();
             }
         }
+    }
+
+    public String getLogDetails(String id) {
+        Group group = groupMapper.selectByPrimaryKey(id);
+        if (group != null) {
+            List<DetailColumn> columns = ReflexObjectUtil.getColumns(group, SystemReference.groupColumns);
+            for (DetailColumn column : columns) {
+                if ("scopeId".equals(column.getColumnName()) && column.getOriginalValue() != null && StringUtils.isNotEmpty(column.getOriginalValue().toString())) {
+                    if ("global".equals(column.getOriginalValue())) {
+                        column.setOriginalValue("是");
+                    } else {
+                        String scopeId = group.getScopeId();
+                        Organization organization = organizationMapper.selectByPrimaryKey(scopeId);
+                        if (organization != null) {
+                            column.setOriginalValue("否; 所属组织：" + organization.getName());
+                        } else {
+                            column.setOriginalValue("否");
+                        }
+                    }
+                }
+                if ("type".equals(column.getColumnName()) && column.getOriginalValue() != null && StringUtils.isNotEmpty(column.getOriginalValue().toString())) {
+                    column.setOriginalValue(typeMap.get((String) column.getOriginalValue()));
+                }
+            }
+            OperatingLogDetails details = new OperatingLogDetails(JSON.toJSONString(group.getId()), null, group.getName(), group.getCreator(), columns);
+            return JSON.toJSONString(details);
+        }
+        return null;
     }
 }
