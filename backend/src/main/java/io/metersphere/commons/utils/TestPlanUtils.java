@@ -58,6 +58,8 @@ public class TestPlanUtils {
                 if (StringUtils.equals(successStatus, status)) {
                     report.setPassCount(report.getPassCount() + 1);
                 }
+            }else {
+                System.out.println(status);
             }
             TestPlanUtils.getStatusResultMap(statusResultMap, status);
         });

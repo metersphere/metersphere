@@ -5,6 +5,7 @@ import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtTestPlanLoadCaseMapper {
@@ -25,4 +26,5 @@ public interface ExtTestPlanLoadCaseMapper {
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
     List<TestPlanLoadCaseDTO> getCases(@Param("planId") String planId, @Param("status") String status);
+    List<TestPlanLoadCaseDTO> getCasesByIds(@Param("ids") Collection<String> ids, @Param("planId") String planId, @Param("status") String status);
 }

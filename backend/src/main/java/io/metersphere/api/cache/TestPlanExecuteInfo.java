@@ -1,6 +1,9 @@
 package io.metersphere.api.cache;
 
 
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
+import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
 import io.metersphere.commons.constants.TestPlanResourceType;
 import lombok.Getter;
@@ -22,6 +25,11 @@ public class TestPlanExecuteInfo {
     private Map<String, String> apiCaseExecInfo = new HashMap<>();
     private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
     private Map<String, String> loadCaseExecInfo = new HashMap<>();
+
+    private Map<String, ApiDefinitionExecResult> apiCaseExecuteReportMap = new HashMap<>();
+    private Map<String, APIScenarioReportResult> apiScenarioReportReportMap = new HashMap<>();
+    private Map<String,String> loadCaseReportIdMap = new HashMap<>();
+
     private boolean reportDataInDataBase;
 
     int lastUnFinishedNumCount = 0;
@@ -42,6 +50,20 @@ public class TestPlanExecuteInfo {
 
         if (MapUtils.isNotEmpty(loadCaseExecInfo)) {
             this.loadCaseExecInfo.putAll(loadCaseExecInfo);
+        }
+    }
+
+    public synchronized void updateExecuteResult(Map<String, ApiDefinitionExecResult> apiCaseExecResultInfo, Map<String, APIScenarioReportResult> apiScenarioCaseExecResultInfo, Map<String, String> loadCaseExecResultInfo) {
+        if (MapUtils.isNotEmpty(apiCaseExecResultInfo)) {
+            this.apiCaseExecuteReportMap.putAll(apiCaseExecResultInfo);
+        }
+
+        if (MapUtils.isNotEmpty(apiScenarioCaseExecResultInfo)) {
+            this.apiScenarioReportReportMap.putAll(apiScenarioCaseExecResultInfo);
+        }
+
+        if (MapUtils.isNotEmpty(loadCaseExecResultInfo)) {
+            this.loadCaseReportIdMap.putAll(loadCaseExecResultInfo);
         }
     }
 
