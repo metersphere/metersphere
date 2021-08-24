@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtOrganizationMapper">
-
     <select id="checkSourceRole" resultType="Integer">
-        select count(id)
-          from user_group ug
-         where ug.user_id = #{userId}
-           and ug.source_id = #{sourceId}
-           and ug.group_id = #{groupId}
+        SELECT COUNT(id)
+        FROM user_group ug
+        WHERE ug.user_id = #{userId}
+          AND ug.source_id = #{sourceId}
+          AND ug.group_id = #{groupId}
     </select>
 
 
     <select id="findIdAndNameByOrganizationId" resultType="io.metersphere.dto.OrganizationMemberDTO">
-        select id,name from Organization
+        SELECT id, name
+        FROM Organization
         <where>
             <if test="organizationId != 'All'">
                 AND id = #{organizationId}
@@ -108,6 +108,27 @@
                 #{orgId}, NULL, 1629446251939, NULL),
                (UUID(), 'IN_SITE', 'DELETE', 'FOLLOW_PEOPLE', 'TRACK_TEST_CASE_TASK', '',
                 '7c26254e-85e9-4269-be13-a2ffcfe0b9f5', 0, #{orgId}, NULL, 1629446251939,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_SUCCESSFUL', 'CREATOR', 'API_DEFINITION_TASK', '',
+                '7efddbdb-2b6c-4425-96a4-0bc2aa9e2cd2', 0, #{orgId}, NULL, 1629775183917,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_FAILED', 'CREATOR', 'API_DEFINITION_TASK', '',
+                'e508035c-1318-40ea-9457-0bbe9865f4ce', 0, #{orgId}, NULL, 1629775194857,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_COMPLETED', 'CREATOR', 'PERFORMANCE_TEST_TASK', '',
+                'e3db90c6-fb49-4e89-bc25-1d14b5ce94d0', 0, #{orgId}, NULL, 1629790602744,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_FAILED', 'CREATOR', 'API_AUTOMATION_TASK', '',
+                'c25930e8-b617-45f7-af5e-cc94adc14192', 0, #{orgId}, NULL, 1629780485724,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_SUCCESSFUL', 'CREATOR', 'API_AUTOMATION_TASK', '',
+                '9f91e5e5-1744-4160-bfc6-3851bfd59e05', 0, #{orgId}, NULL, 1629780475764,
+                NULL),
+               (UUID(), 'IN_SITE', 'UPDATE', 'PROCESSOR', 'DEFECT_TASK', '',
+                '6cad944e-db8d-4786-9ef3-7d6370940325', 0, #{orgId}, NULL, 1629791388405,
+                NULL),
+               (UUID(), 'IN_SITE', 'CREATE', 'PROCESSOR', 'DEFECT_TASK', '',
+                '4a890e41-e755-44fc-b734-d6a0ca25a65c', 0, #{orgId}, NULL, 1629790487682,
                 NULL)
     </insert>
 </mapper>

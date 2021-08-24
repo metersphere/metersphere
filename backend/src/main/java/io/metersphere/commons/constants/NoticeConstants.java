@@ -56,5 +56,6 @@ public interface NoticeConstants {
         String EXECUTOR = "EXECUTOR";//负责人(评审人）
         String MAINTAINER = "MAINTAINER";//维护人
         String FOLLOW_PEOPLE = "FOLLOW_PEOPLE";//关注人
+        String PROCESSOR = "PROCESSOR";//关注人
     }
 }

@@ -87,21 +87,28 @@ ALTER TABLE `project`
 ALTER TABLE `api_scenario`
     ADD `execute_times` int(11) NULL;
 
-ALTER TABLE `api_scenario_report`  ADD `end_time` bigint(13) ;
+ALTER TABLE `api_scenario_report`
+    ADD `end_time` bigint(13);
 
 -- 修改文档分享表
 ALTER TABLE api_document_share RENAME TO share_info;
-ALTER TABLE share_info change
-    column share_api_id custom_data longtext CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Share Custom Data';
+ALTER TABLE share_info
+    CHANGE
+        COLUMN share_api_id custom_data longtext CHARACTER
+        SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'Share Custom Data';
 
-ALTER TABLE test_plan ADD report_config text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '测试计划报告配置';
+ALTER TABLE test_plan
+    ADD report_config text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '测试计划报告配置';
 
 -- 删除不用的记录表
 DROP TABLE test_plan_report_resource;
 -- 统一接口案例未执行的状态字段
-update api_test_case SET `status` = '' WHERE `status` = 'Underway';
-update api_test_case SET `original_status` = '' WHERE `original_status` = 'Underway';
+UPDATE api_test_case
+SET `status` = ''
+WHERE `status` = 'Underway';
+UPDATE api_test_case
+SET `original_status` = ''
+WHERE `original_status` = 'Underway';
 
 -- 设置默认的通知
 
@@ -213,6 +220,27 @@ BEGIN
                 orgId, NULL, 1629446251939, NULL),
                (UUID(), 'IN_SITE', 'DELETE', 'FOLLOW_PEOPLE', 'TRACK_TEST_CASE_TASK', '',
                 '7c26254e-85e9-4269-be13-a2ffcfe0b9f5', 0, orgId, NULL, 1629446251939,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_SUCCESSFUL', 'CREATOR', 'API_DEFINITION_TASK', '',
+                '7efddbdb-2b6c-4425-96a4-0bc2aa9e2cd2', 0, orgId, NULL, 1629775183917,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_FAILED', 'CREATOR', 'API_DEFINITION_TASK', '',
+                'e508035c-1318-40ea-9457-0bbe9865f4ce', 0, orgId, NULL, 1629775194857,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_COMPLETED', 'CREATOR', 'PERFORMANCE_TEST_TASK', '',
+                'e3db90c6-fb49-4e89-bc25-1d14b5ce94d0', 0, orgId, NULL, 1629790602744,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_FAILED', 'CREATOR', 'API_AUTOMATION_TASK', '',
+                'c25930e8-b617-45f7-af5e-cc94adc14192', 0, orgId, NULL, 1629780485724,
+                NULL),
+               (UUID(), 'IN_SITE', 'EXECUTE_SUCCESSFUL', 'CREATOR', 'API_AUTOMATION_TASK', '',
+                '9f91e5e5-1744-4160-bfc6-3851bfd59e05', 0, orgId, NULL, 1629780475764,
+                NULL),
+               (uuid(), 'IN_SITE', 'UPDATE', 'PROCESSOR', 'DEFECT_TASK', '',
+                '6cad944e-db8d-4786-9ef3-7d6370940325', 0, orgId, NULL, 1629791388405,
+                NULL),
+               (uuid(), 'IN_SITE', 'CREATE', 'PROCESSOR', 'DEFECT_TASK', '',
+                '4a890e41-e755-44fc-b734-d6a0ca25a65c', 0, orgId, NULL, 1629790487682,
                 NULL);
 
         --
@@ -227,43 +255,50 @@ DROP PROCEDURE IF EXISTS set_notice;
 
 
 -- 保存测试报告
-ALTER TABLE test_plan_report ADD is_new TINYINT(1) NULL COMMENT 'v1.12报告改版标记';
-ALTER table test_plan_report modify `is_api_case_executing` TINYINT(1) NULL COMMENT 'is Api Case executing';
-ALTER table test_plan_report modify `is_scenario_executing` TINYINT(1) NULL COMMENT 'is scenario Case executing';
-ALTER table test_plan_report modify `is_performance_executing` TINYINT(1) NULL COMMENT 'is performance executing';
-CREATE TABLE IF NOT EXISTS `test_plan_report_content` (
-    `id` VARCHAR (50) NOT NULL COMMENT 'ID',
-    `test_plan_report_id` VARCHAR ( 50 ) NOT NULL COMMENT 'Test plan ID',
-    `start_time` bigint(13)  NULL,
-    `case_count` bigint(10)  NULL,
-    `end_time` bigint(13)  NULL,
-    `execute_rate` DOUBLE  NULL,
-    `pass_rate` DOUBLE  NULL,
-    `is_third_part_issue` TINYINT(1) NULL COMMENT 'is third part issue',
+ALTER TABLE test_plan_report
+    ADD is_new TINYINT(1) NULL COMMENT 'v1.12报告改版标记';
+ALTER TABLE test_plan_report
+    MODIFY `is_api_case_executing` TINYINT(1) NULL COMMENT 'is Api Case executing';
+ALTER TABLE test_plan_report
+    MODIFY `is_scenario_executing` TINYINT(1) NULL COMMENT 'is scenario Case executing';
+ALTER TABLE test_plan_report
+    MODIFY `is_performance_executing` TINYINT(1) NULL COMMENT 'is performance executing';
+CREATE TABLE IF NOT EXISTS `test_plan_report_content`
+(
+    `id`                     VARCHAR(50) NOT NULL COMMENT 'ID',
+    `test_plan_report_id`    VARCHAR(50) NOT NULL COMMENT 'Test plan ID',
+    `start_time`             bigint(13)  NULL,
+    `case_count`             bigint(10)  NULL,
+    `end_time`               bigint(13)  NULL,
+    `execute_rate`           DOUBLE      NULL,
+    `pass_rate`              DOUBLE      NULL,
+    `is_third_part_issue`    TINYINT(1)  NULL COMMENT 'is third part issue',
 
-    `config` text  COMMENT 'plan config (JSON format)',
-    `summary` text COMMENT 'summary',
+    `config`                 text COMMENT 'plan config (JSON format)',
+    `summary`                text COMMENT 'summary',
 
-    `function_result` text  COMMENT 'function result (JSON format)',
-    `api_result` text  COMMENT 'api result (JSON format)',
-    `load_result` text  COMMENT 'api result (JSON format)',
+    `function_result`        text COMMENT 'function result (JSON format)',
+    `api_result`             text COMMENT 'api result (JSON format)',
+    `load_result`            text COMMENT 'api result (JSON format)',
 
-    `function_all_cases` longtext  COMMENT 'function all cases (JSON format)',
-    `function_failure_cases` longtext  COMMENT 'function failure cases (JSON format)',
-    `issue_list` longtext  COMMENT 'issue list (JSON format)',
+    `function_all_cases`     longtext COMMENT 'function all cases (JSON format)',
+    `function_failure_cases` longtext COMMENT 'function failure cases (JSON format)',
+    `issue_list`             longtext COMMENT 'issue list (JSON format)',
 
-    `api_all_cases` longtext  COMMENT 'api all cases (JSON format)',
-    `api_failure_cases` longtext  COMMENT 'api failure cases (JSON format)',
+    `api_all_cases`          longtext COMMENT 'api all cases (JSON format)',
+    `api_failure_cases`      longtext COMMENT 'api failure cases (JSON format)',
 
-    `scenario_all_cases` longtext  COMMENT 'scenario all cases (JSON format)',
-    `scenario_failure_cases` longtext  COMMENT 'scenario failure cases (JSON format)',
+    `scenario_all_cases`     longtext COMMENT 'scenario all cases (JSON format)',
+    `scenario_failure_cases` longtext COMMENT 'scenario failure cases (JSON format)',
 
-    `load_all_Cases` longtext  COMMENT 'load all cases (JSON format)',
-    `load_failure_cases` longtext  COMMENT 'load failure cases (JSON format)',
+    `load_all_Cases`         longtext COMMENT 'load all cases (JSON format)',
+    `load_failure_cases`     longtext COMMENT 'load failure cases (JSON format)',
 
-    PRIMARY KEY ( `id` ),
-    UNIQUE KEY `test_plan_report_id` ( `test_plan_report_id` )
-) ENGINE = INNODB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `test_plan_report_id` (`test_plan_report_id`)
+) ENGINE = INNODB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE utf8mb4_general_ci;
 
 
 # 复制测试计划权限
