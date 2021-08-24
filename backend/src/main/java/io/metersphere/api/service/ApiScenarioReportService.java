@@ -24,10 +24,7 @@ import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.ReportTriggerMode;
-import io.metersphere.commons.constants.TestPlanApiExecuteStatus;
-import io.metersphere.commons.constants.TriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.ApiReportCountDTO;
@@ -36,7 +33,10 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.track.service.TestPlanReportService;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -69,6 +69,8 @@ public class ApiScenarioReportService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private NoticeSendService noticeSendService;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -268,6 +270,8 @@ public class ApiScenarioReportService {
                     scenario.setExecuteTimes(executeTimes + 1);
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
+                    // 发送通知
+                    sendNotice(scenario);
                 }
             }
             returnReport = report;
@@ -370,6 +374,8 @@ public class ApiScenarioReportService {
                 scenario.setExecuteTimes(executeTimes + 1);
 
                 apiScenarioMapper.updateByPrimaryKey(scenario);
+                // 发送通知
+                sendNotice(scenario);
             }
 
             lastReport = report;
@@ -381,7 +387,7 @@ public class ApiScenarioReportService {
 
         for (String reportId : testPlanReportIdList) {
 //            testPlanReportService.updateExecuteApis(planId, null, scenarioAndErrorMap, null);
-            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId,null,scenarioAndErrorMap,null);
+            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
         }
 
         return lastReport;
@@ -571,6 +577,8 @@ public class ApiScenarioReportService {
                     scenario.setExecuteTimes(executeTimes + 1);
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
+                    // 发送通知
+                    sendNotice(scenario);
                 }
                 lastReport = report;
             }
@@ -585,6 +593,35 @@ public class ApiScenarioReportService {
         }
 
         return lastReport;
+    }
+
+
+    private void sendNotice(ApiScenario result) {
+
+        BeanMap beanMap = new BeanMap(result);
+
+        String event;
+        if (StringUtils.equals(result.getLastResult(), "Success")) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        } else {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+
+        Map paramMap = new HashMap<>(beanMap);
+        paramMap.put("operator", SessionUtils.getUserId());
+        paramMap.put("status", result.getLastResult());
+        String context = "${operator}执行了接口用例: ${name}, 执行结果: ${status}";
+        NoticeModel noticeModel = NoticeModel.builder()
+                .operator(SessionUtils.getUserId())
+                .context(context)
+                .subject("接口自动化通知")
+                .mailTemplate("api/ScenarioResult")
+                .paramMap(paramMap)
+                .event(event)
+                .build();
+
+        String taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK;
+        noticeSendService.send(taskType, noticeModel);
     }
 
     public String update(APIScenarioReportResult test) {

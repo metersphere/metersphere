@@ -35,6 +35,7 @@ public interface NoticeConstants {
     interface Event {
         String EXECUTE_SUCCESSFUL = "EXECUTE_SUCCESSFUL";
         String EXECUTE_FAILED = "EXECUTE_FAILED";
+        String EXECUTE_COMPLETED = "EXECUTE_COMPLETED";
         String CREATE = "CREATE";
         String UPDATE = "UPDATE";
         String DELETE = "DELETE";

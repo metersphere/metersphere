@@ -27,6 +27,11 @@ export function getOperation(operation) {
     case "CASE_DELETE":
       operation = "删除了接口用例";
       break;
+    case "EXECUTE_SUCCESSFUL":
+    case "EXECUTE_FAILED":
+    case "EXECUTE_COMPLETED":
+      operation = "执行";
+      break;
     default:
       break;
   }
@@ -60,9 +65,21 @@ export function getResource(d) {
       break;
     case "API_AUTOMATION_TASK" :
       resourceType = "接口自动化";
+      if (d.operation === 'EXECUTE_SUCCESSFUL') {
+        resourceType = "接口自动化成功";
+      }
+      if (d.operation === 'EXECUTE_FAILED') {
+        resourceType = "接口自动化失败";
+      }
       break;
     case "API_DEFINITION_TASK" :
       resourceType = "接口定义";
+      if (d.operation === 'EXECUTE_SUCCESSFUL') {
+        resourceType = "接口用例成功";
+      }
+      if (d.operation === 'EXECUTE_FAILED') {
+        resourceType = "接口用例失败";
+      }
       break;
     case "API_HOME_TASK" :
       resourceType = "接口测试首页";
@@ -75,6 +92,9 @@ export function getResource(d) {
       break;
     case "PERFORMANCE_TEST_TASK" :
       resourceType = "性能测试";
+      if (d.operation === 'EXECUTE_COMPLETED') {
+        resourceType = "性能测试完成";
+      }
       break;
     case "TRACK_TEST_CASE_TASK" :
       resourceType = "测试用例";

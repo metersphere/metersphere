@@ -179,6 +179,7 @@ export default {
     testing: "測試中",
     environment: "運行環境",
     run_success: "執行成功",
+    run_completed: "執行完成",
     run_fail: "執行失敗",
     selector: {
       required: "必填",
