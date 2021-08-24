@@ -8,6 +8,7 @@ import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.track.dto.PlanReportCaseDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface ExtTestPlanApiCaseMapper {
@@ -33,5 +34,7 @@ public interface ExtTestPlanApiCaseMapper {
     List<PlanReportCaseDTO> selectForPlanReport(String planId);
 
     List<TestPlanFailureApiDTO> getFailureList(@Param("planId") String planId, @Param("status") String status);
+
+    List<TestPlanFailureApiDTO> getFailureListByIds(@Param("caseIdList") Collection<String> caseIdList, @Param("planId") String planId, @Param("status") String status);
 }
 

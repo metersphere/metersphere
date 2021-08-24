@@ -5,11 +5,13 @@
     <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree"
                                :request="request" :response="response" :project-id="projectId"
                                @mockConfig="mockConfig"
+                               @changeTab="changeTab"
                                :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs"
                                v-if="currentProtocol === 'HTTP'" ref="httpApi"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
                               @saveApi="saveApi" :basisData="currentApi"
+                              @changeTab="changeTab"
                               :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"
                               ref="tcpApi"/>
     <!--DUBBO-->
@@ -77,6 +79,9 @@
       this.addListener();
     },
     methods: {
+      changeTab(type){
+        this.$emit("changeTab",type);
+      },
       addListener() {
         document.addEventListener("keydown", this.createCtrlSHandle);
         // document.addEventListener("keydown", (even => handleCtrlSEvent(even, this.$refs.httpApi.saveApi)));

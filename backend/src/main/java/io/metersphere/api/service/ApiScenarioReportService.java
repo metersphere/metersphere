@@ -292,6 +292,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
+        Map<String,APIScenarioReportResult> caseReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -337,6 +338,7 @@ public class ApiScenarioReportService {
                 scenarioAndErrorMap.put(testPlanApiScenario.getApiScenarioId(), TestPlanApiExecuteStatus.SUCCESS.name());
                 testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
             }
+
             String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
             testPlanApiScenario.setPassRate(passRate);
             // 报告详情内容
@@ -379,6 +381,9 @@ public class ApiScenarioReportService {
             }
 
             lastReport = report;
+
+            APIScenarioReportResult reportResult = this.get(report.getId());
+            caseReportMap.put(testPlanApiScenario.getApiScenarioId(),reportResult);
             reportIds.add(report.getId());
         }
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
@@ -386,8 +391,8 @@ public class ApiScenarioReportService {
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
 
         for (String reportId : testPlanReportIdList) {
-//            testPlanReportService.updateExecuteApis(planId, null, scenarioAndErrorMap, null);
-            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
+            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId,null,scenarioAndErrorMap,null);
+            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId,null,caseReportMap,null);
         }
 
         return lastReport;

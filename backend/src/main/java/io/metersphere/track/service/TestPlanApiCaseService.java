@@ -559,6 +559,14 @@ public class TestPlanApiCaseService {
         return buildCases(apiTestCases);
     }
 
+    public List<TestPlanFailureApiDTO> getAllCases(Collection<String> caseIdList,String planId,String status) {
+        if(caseIdList.isEmpty()){
+            return  new ArrayList<>();
+        }
+        List<TestPlanFailureApiDTO> apiTestCases = extTestPlanApiCaseMapper.getFailureListByIds(caseIdList,planId, status);
+        return buildCases(apiTestCases);
+    }
+
     public List<TestPlanFailureApiDTO> buildCases(List<TestPlanFailureApiDTO> apiTestCases) {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
