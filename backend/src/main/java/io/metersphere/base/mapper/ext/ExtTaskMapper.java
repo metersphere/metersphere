@@ -13,4 +13,6 @@ public interface ExtTaskMapper {
 
     int getRunningTasks (@Param("request") TaskCenterRequest request);
 
+    int checkActuator (@Param("actuator") String actuator);
+
 }

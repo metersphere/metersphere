@@ -6,6 +6,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.base.mapper.ext.ExtTaskMapper;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
@@ -50,6 +51,8 @@ public class TestResourcePoolService {
     private NodeResourcePoolService nodeResourcePoolService;
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    private ExtTaskMapper extTaskMapper;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         checkTestResourcePool(testResourcePool);
@@ -102,6 +105,9 @@ public class TestResourcePoolService {
         testResourcePool.setStatus(status);
         // 禁用/删除 资源池
         if (INVALID.name().equals(status) || DELETE.name().equals(status)) {
+            if(extTaskMapper.checkActuator(testResourcePool.getId())>0){
+                MSException.throwException("当前资源池正在使用中不能删除");
+            }
             testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
             return;
         }
