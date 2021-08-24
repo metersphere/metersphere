@@ -129,9 +129,16 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
         list9.add("Priority");
         returnList.add(list9);
 
+        List<String> list10 = new ArrayList<>();
+        list10.add("Case status");
+        returnList.add(list10);
+
         if(CollectionUtils.isNotEmpty(customFields)){
             for (CustomFieldDao dto:customFields) {
-                if(StringUtils.equals(dto.getName(),"Priority")){
+                if(StringUtils.equals(dto.getName(),"用例等级")){
+                    continue;
+                }
+                if(StringUtils.equals(dto.getName(),"用例状态")){
                     continue;
                 }
                 List<String> list = new ArrayList<>();
