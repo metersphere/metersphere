@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-row>
+    <el-row v-if="!isReloadData">
       <el-radio-group v-model="request.reportType" size="mini" style="margin: 10px 0px;">
         <el-radio :disabled="isReadOnly" label="json" @change="changeReportType">
           json
@@ -89,12 +89,20 @@ export default {
       isReloadData: false,
       refreshedXmlTable:true,
       currentProjectId: "",
+      rawDataStruct: "",
+      jsonDataStruct: "",
     }
   },
   watch:{
     reportType(){
       this.request.reportType = this.reportType;
-    }
+    },
+    'request.rawDataStruct'(){
+      this.reload();
+    },
+    'request.jsonDataStruct'(){
+      this.reload();
+    },
   },
   created() {
     this.currentProjectId = getCurrentProjectID();
