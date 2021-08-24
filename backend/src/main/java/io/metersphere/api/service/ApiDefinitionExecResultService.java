@@ -139,16 +139,19 @@ public class ApiDefinitionExecResultService {
         BeanMap beanMap = new BeanMap(apiTestCaseWithBLOBs);
 
         String event;
+        String status;
         if (StringUtils.equals(result.getStatus(), "success")) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+            status = "成功";
         } else {
             event = NoticeConstants.Event.EXECUTE_FAILED;
+            status = "失败";
         }
 
         Map paramMap = new HashMap<>(beanMap);
         paramMap.put("operator", SessionUtils.getUserId());
         paramMap.put("status", result.getStatus());
-        String context = "${operator}执行了接口用例: ${name}, 执行结果: ${status}";
+        String context = "${operator}执行接口用例" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(SessionUtils.getUserId())
                 .context(context)
