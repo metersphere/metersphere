@@ -980,9 +980,15 @@ public class TestCaseService {
                     list.add(model.getStepModel());
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"Priority","用例等級","用例等级")){
                     list.add(model.getPriority());
-                }else {
+                }else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
+                    list.add(model.getStatus());
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
+                    String value = customDataMaps.get("责任人");
+                    value = value == null ? "" : value;
+                    list.add(value);
+                } else {
                     String value = customDataMaps.get(head);
-                    if(value == null){
+                    if (value == null) {
                         value = "";
                     }
                     list.add(value);

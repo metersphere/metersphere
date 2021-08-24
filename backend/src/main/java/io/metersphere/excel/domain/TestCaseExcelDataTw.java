@@ -129,9 +129,16 @@ public class TestCaseExcelDataTw extends TestCaseExcelData {
         list9.add("用例等級");
         returnList.add(list9);
 
+        List<String> list10 = new ArrayList<>();
+        list10.add("用例狀態");
+        returnList.add(list10);
+
         if(CollectionUtils.isNotEmpty(customFields)){
             for (CustomFieldDao dto:customFields) {
                 if(StringUtils.equals(dto.getName(),"用例等級")){
+                    continue;
+                }
+                if(StringUtils.equals(dto.getName(),"用例状态")){
                     continue;
                 }
                 List<String> list = new ArrayList<>();
