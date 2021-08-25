@@ -266,7 +266,7 @@ public class MetricQueryService {
                     .findFirst();
             if (dataOptional.isPresent()) {
                 GranularityData.Data data = dataOptional.get();
-                granularity = data.getGranularity();
+                granularity = data.getGranularity() / 1000;
             }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
