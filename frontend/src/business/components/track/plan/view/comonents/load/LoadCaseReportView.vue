@@ -53,22 +53,28 @@
                                               :share-id="shareId" :is-read-only="true" :report="report"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_overview')">
-              <ms-report-test-overview :report="report" ref="testOverview"/>
+              <ms-report-test-overview :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+                                       :share-id="shareId" ref="testOverview"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_details')">
-              <ms-report-test-details :report="report" ref="testDetails"/>
+              <ms-report-test-details :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+                                      :share-id="shareId" ref="testDetails"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_request_statistics')">
-              <ms-report-request-statistics :report="report" ref="requestStatistics"/>
+              <ms-report-request-statistics :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+                                            :share-id="shareId" ref="requestStatistics"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_error_log')">
-              <ms-report-error-log :report="report" ref="errorLog"/>
+              <ms-report-error-log :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+                                   :share-id="shareId" ref="errorLog"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_log_details')">
-              <ms-report-log-details :report="report"/>
+              <ms-report-log-details  :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+                                     :share-id="shareId"/>
             </el-tab-pane>
             <el-tab-pane :label="$t('report.test_monitor_details')">
-              <monitor-card :report="report"/>
+              <monitor-card :report="report" :is-share="isShare" :plan-report-template="planReportTemplate"
+                            :share-id="shareId"/>
             </el-tab-pane>
           </el-tabs>
         </div>
@@ -106,7 +112,12 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsPerformancePressureConfig from "@/business/components/performance/report/components/PerformancePressureConfig";
 import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 import MsReportTestDetails from '@/business/components/performance/report/components/TestDetails';
-import {getPerformanceReport, getPerformanceReportTime, getSharePerformanceReport} from "@/network/load-test";
+import {
+  getPerformanceReport,
+  getPerformanceReportTime,
+  getSharePerformanceReport,
+  getSharePerformanceReportTime
+} from "@/network/load-test";
 
 
 export default {
@@ -192,7 +203,7 @@ export default {
         this.handleInitReportTimeInfo(this.planReportTemplate);
       } else if (this.isShare) {
         if (this.reportId) {
-          this.result = getPerformanceReportTime(this.shareId, this.reportId)
+          this.result = getSharePerformanceReportTime(this.shareId, this.reportId)
             .then((res) => {
               this.handleInitReportTimeInfo(res.data.data);
             }).catch(() => {
