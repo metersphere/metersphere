@@ -620,16 +620,12 @@ public class ApiTestCaseService {
         return ids;
     }
 
-    private ApiDefinitionExecResult addResult(String id, String status, ApiDefinitionExecResultMapper batchMapper) {
+    private ApiDefinitionExecResult addResult(String id, String status) {
         ApiDefinitionExecResult apiResult = new ApiDefinitionExecResult();
         apiResult.setId(UUID.randomUUID().toString());
         apiResult.setCreateTime(System.currentTimeMillis());
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setEndTime(System.currentTimeMillis());
-        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
-        if (caseWithBLOBs != null) {
-            apiResult.setName(caseWithBLOBs.getName());
-        }
         apiResult.setTriggerMode(TriggerMode.BATCH.name());
         apiResult.setActuator("LOCAL");
         apiResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
@@ -637,11 +633,6 @@ public class ApiTestCaseService {
         apiResult.setStartTime(System.currentTimeMillis());
         apiResult.setType(ApiRunMode.DEFINITION.name());
         apiResult.setStatus(status);
-        batchMapper.insert(apiResult);
-        caseWithBLOBs.setLastResultId(apiResult.getId());
-        caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
-        caseWithBLOBs.setStatus(APITestStatus.Running.name());
-        apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
         return apiResult;
     }
 
@@ -651,10 +642,20 @@ public class ApiTestCaseService {
         Map<String, ApiDefinitionExecResult> executeQueue = new HashMap<>();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
-        request.getIds().forEach(testCaseId -> {
-            ApiDefinitionExecResult report = addResult(testCaseId, APITestStatus.Running.name(), batchMapper);
+
+        for (String testCaseId : request.getIds()) {
+            ApiDefinitionExecResult report = addResult(testCaseId, APITestStatus.Running.name());
+            ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(testCaseId);
+            if (caseWithBLOBs != null) {
+                report.setName(caseWithBLOBs.getName());
+                caseWithBLOBs.setLastResultId(report.getId());
+                caseWithBLOBs.setUpdateTime(System.currentTimeMillis());
+                caseWithBLOBs.setStatus(APITestStatus.Running.name());
+                apiTestCaseMapper.updateByPrimaryKey(caseWithBLOBs);
+            }
+            batchMapper.insert(report);
             executeQueue.put(testCaseId, report);
-        });
+        }
         sqlSession.flushStatements();
         for (String caseId : executeQueue.keySet()) {
             RunCaseRequest runCaseRequest = new RunCaseRequest();
