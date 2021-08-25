@@ -134,7 +134,7 @@ public class PerformanceTestService {
             record.setJmxContent(new String(bytes, StandardCharsets.UTF_8));
             extLoadTestReportMapper.updateJmxContentIfAbsent(record);
         });
-        //delete schedule
+        //delete scheduleFunctionalCases
         scheduleService.deleteByResourceId(testId, ScheduleGroup.PERFORMANCE_TEST.name());
 
         // delete load_test
