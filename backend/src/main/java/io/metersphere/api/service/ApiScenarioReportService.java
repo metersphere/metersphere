@@ -23,6 +23,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
@@ -63,6 +64,9 @@ public class ApiScenarioReportService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
+    @Resource
+    private ExtApiScenarioReportDetailMapper extApiScenarioReportDetailMapper;
+
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
@@ -443,9 +447,12 @@ public class ApiScenarioReportService {
         if (CollectionUtils.isNotEmpty(reportIds)) {
             TestResult testResult = new TestResult();
             testResult.setTestId(UUID.randomUUID().toString());
-            ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
-            example.createCriteria().andReportIdIn(reportIds);
-            List<ApiScenarioReportDetail> details = apiScenarioReportDetailMapper.selectByExampleWithBLOBs(example);
+
+            StringBuilder idStr = new StringBuilder();
+            reportIds.forEach(item -> {
+                idStr.append("\"").append(item).append("\"").append(",");
+            });
+            List<ApiScenarioReportDetail> details = extApiScenarioReportDetailMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + StringUtils.join(reportIds, ",") + "\"");
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             // 记录单场景通过率
