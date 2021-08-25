@@ -1037,6 +1037,7 @@ public class TestPlanService {
                     TestPlanLoadCase loadCase = new TestPlanLoadCaseDTO();
                     loadCase.setId(id);
                     loadCase.setLoadReportId(reportId);
+                    loadCase.setStatus("run");
                     testPlanLoadCaseService.update(loadCase);
                 }
             } catch (Exception e) {
