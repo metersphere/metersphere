@@ -197,4 +197,9 @@ export default {
   padding-top: 15px;
 }
 
+/deep/ .empty {
+  text-align: center;
+  width: 100%;
+  padding: 40px;
+}
 </style>

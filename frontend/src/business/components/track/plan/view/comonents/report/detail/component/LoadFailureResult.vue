@@ -77,6 +77,13 @@ export default {
   mounted() {
     this.getFailureTestCase();
   },
+  watch: {
+    loadTestCases() {
+      if (this.loadTestCases) {
+        this.$emit('setSize', this.loadTestCases.length);
+      }
+    }
+  },
   methods: {
     getFailureTestCase() {
       if (this.isTemplate || this.isDb) {
