@@ -79,7 +79,7 @@
           </el-tabs>
         </div>
 
-        <ms-performance-report-export :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
+        <ms-performance-report-export v-if="!isShare && !planReportTemplate" :title="reportName" id="performanceReportExport" v-show="reportExportVisible"
                                       :report="report"/>
 
       </el-card>
