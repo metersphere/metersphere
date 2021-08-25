@@ -185,31 +185,33 @@
         <template v-slot:default="scope">
           <div>
             <ms-table-operator :edit-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                               :delete-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"
-                               @editClick="handleEdit(scope.row)"
-                               @deleteClick="handleDelete(scope.row)">
+                               :show-delete="false"
+                               @editClick="handleEdit(scope.row)">
+              <template v-slot:front>
+                <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play" class="run-button"
+                                          @exec="handleRun(scope.row)"/>
+              </template>
               <template v-slot:middle>
+                <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
+                                          @exec="handleCopy(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+COPY']"/>
                 <ms-table-operator-button v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
-                                          v-if="!scope.row.reportId"
-                                          :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
-                                          @exec="openTestReportTemplate(scope.row)"/>
-                <ms-table-operator-button v-if="scope.row.reportId"
-                                          v-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
                                           :tip="$t('test_track.plan_view.view_report')" icon="el-icon-s-data"
-                                          @exec="openReport(scope.row.id, scope.row.reportId)"/>
+                                          @exec="openReport(scope.row)"/>
               </template>
             </ms-table-operator>
-            <ms-table-operator-button class="schedule-btn"
-                                      v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-                                      v-if="!scope.row.scheduleOpen" type="text"
-                                      :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
-                                      @exec="scheduleTask(scope.row)"/>
-            <ms-table-operator-button
-              class="schedule-btn"
-              v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']"
-              v-if="scope.row.scheduleOpen" type="text"
-              :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
-              @exec="scheduleTask(scope.row)"/>
+            <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn">
+              <el-link type="primary" :underline="false">
+                <el-icon class="el-icon-more"></el-icon>
+              </el-link>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="delete" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE']">
+                  {{ $t('commons.delete') }}
+                </el-dropdown-item>
+                <el-dropdown-item command="schedule_task" v-permission="['PROJECT_TRACK_PLAN:READ+SCHEDULE']">
+                  {{ $t('commons.trigger_mode.schedule') }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </div>
         </template>
       </el-table-column>
@@ -220,13 +222,13 @@
 
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
-    <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
-    <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
     <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"
                        :with-tip="enableDeleteTip">
       {{ $t('test_track.plan.plan_delete_tip') }}
     </ms-delete-confirm>
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData"/>
+    <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'" :plan-id="currentPlanId"/>
+    <test-plan-report-review ref="testCaseReportView"/>
   </el-card>
 </template>
 
@@ -239,8 +241,6 @@ import MsTableOperatorButton from "../../../common/components/MsTableOperatorBut
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
-import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
-import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
 import {
@@ -257,21 +257,22 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
 import MsTestPlanScheduleMaintain from "@/business/components/track/plan/components/ScheduleMaintain";
-import {getCurrentProjectID, hasPermission} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, hasPermission} from "@/common/js/utils";
+import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
+import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
 
 export default {
   name: "TestPlanList",
   components: {
+    TestPlanReportReview,
     MsTag,
     HeaderLabelOperate,
     HeaderCustom,
     MsDeleteConfirm,
-    TestCaseReportView,
-    TestReportTemplateList,
     PlanStageTableItem,
     PlanStatusTableItem,
     MsTestPlanScheduleMaintain,
-    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination
+    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination, PlanRunModeWithEnv
   },
   data() {
     return {
@@ -305,6 +306,7 @@ export default {
         {text: this.$t('test_track.plan.system_test'), value: 'system'},
         {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
       ],
+      currentPlanId: ""
     };
   },
   watch: {
@@ -436,13 +438,8 @@ export default {
       this.saveSortField(this.tableHeaderKey,this.condition.orders);
       this.initTableData();
     },
-    openTestReportTemplate(data) {
-      this.$refs.testReportTemplateList.open(data.id);
-    },
-    openReport(planId, reportId) {
-      if (reportId) {
-        this.$refs.testCaseReportView.open(planId, reportId);
-      }
+    openReport(plan) {
+      this.$refs.testCaseReportView.open(plan);
     },
     scheduleTask(row) {
       row.redirectFrom = "testPlan";
@@ -462,6 +459,39 @@ export default {
         }
       }
       return returnObj;
+    },
+    handleCommand(cmd, row) {
+      switch (cmd) {
+        case  "delete":
+          this.handleDelete(row);
+          break;
+        case "schedule_task":
+          this.scheduleTask(row);
+          break;
+      }
+    },
+    handleCopy(row) {
+      this.cardResult.loading = true;
+      this.$post('test/plan/copy/' + row.id, {},() => {
+        this.initTableData();
+      });
+    },
+    handleRun(row) {
+      this.currentPlanId = row.id;
+      this.$refs.runMode.open('API');
+    },
+    _handleRun(config) {
+      let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap} = config;
+      let param = {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap};
+      param.testPlanId = this.currentPlanId;
+      param.projectId = getCurrentProjectID();
+      param.userId = getCurrentUserId();
+      param.triggerMode = 'MANUAL';
+      this.result = this.$post('test/plan/run/', param,() => {
+        this.$success(this.$t('commons.run_success'));
+      }, () => {
+        this.$error(this.$t('commons.run_fail'));
+      });
     }
   }
 };
@@ -484,5 +514,9 @@ export default {
   color:#85888E;
   border-color: #85888E;
   border-width: thin;
+}
+
+.scenario-ext-btn {
+  margin-left: 10px;
 }
 </style>

@@ -18,6 +18,7 @@ import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
@@ -25,6 +26,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -89,6 +91,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_CREATE_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, mailTemplate = "api/DefinitionCreate", subject = "接口定义通知")
     public ApiDefinitionWithBLOBs create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.create(request, bodyFiles);
@@ -97,6 +100,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
     public ApiDefinitionWithBLOBs update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         checkPermissionService.checkProjectOwner(request.getProjectId());
         return apiDefinitionService.update(request, bodyFiles);
@@ -134,6 +138,8 @@ public class ApiDefinitionController {
     @PostMapping("/removeToGc")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, target = "#targetClass.getBLOBs(#ids)", targetClass = ApiDefinitionService.class,
+            event = NoticeConstants.Event.DELETE, mailTemplate = "api/DefinitionDelete", subject = "接口定义通知")
     public void removeToGc(@RequestBody List<String> ids) {
         apiDefinitionService.removeToGc(ids);
     }
@@ -187,6 +193,11 @@ public class ApiDefinitionController {
     @GetMapping("/report/getReport/{testId}/{type}")
     public APIReportResult getReport(@PathVariable String testId, @PathVariable String type) {
         return apiDefinitionService.getDbResult(testId, type);
+    }
+
+    @GetMapping("/report/plan/getReport/{testId}/{type}")
+    public APIReportResult getTestPlanApiCaseReport(@PathVariable String testId, @PathVariable String type) {
+        return apiDefinitionService.getTestPlanApiCaseReport(testId, type);
     }
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
@@ -281,12 +292,7 @@ public class ApiDefinitionController {
 
     @GetMapping("/getMockEnvironment/{projectId}/{protocal}")
     public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, @PathVariable String protocal, HttpServletRequest request) {
-        String requestUrl = request.getRequestURL().toString();
-        String baseUrl = "";
-        if (requestUrl.contains("/api/definition")) {
-            baseUrl = requestUrl.split("/api/definition")[0];
-        }
-        return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId, protocal, baseUrl);
+        return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId);
     }
 
 }

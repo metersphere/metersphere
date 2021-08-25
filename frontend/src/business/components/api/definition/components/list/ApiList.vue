@@ -38,12 +38,12 @@
           min-width="120"/>
         <span v-for="(item) in fields" :key="item.key">
           <ms-table-column
-               prop="num"
-               label="ID"
-               :field="item"
-               min-width="100px"
-               :fields-width="fieldsWidth"
-               sortable>
+            prop="num"
+            label="ID"
+            :field="item"
+            min-width="100px"
+            :fields-width="fieldsWidth"
+            sortable>
 
             <template slot-scope="scope">
               <el-tooltip content="编辑">
@@ -141,7 +141,7 @@
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
-        </ms-table-column >
+        </ms-table-column>
 
         <ms-table-column
           prop="caseTotal"
@@ -206,7 +206,7 @@ import CaseBatchMove from "@/business/components/api/definition/components/basis
 import {
   initCondition,
   getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected,
-  saveLastTableSortField,getLastTableSortField
+  saveLastTableSortField, getLastTableSortField
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
@@ -238,7 +238,7 @@ export default {
   data() {
     return {
       type: API_LIST,
-      tableHeaderKey:"API_DEFINITION",
+      tableHeaderKey: "API_DEFINITION",
       fields: getCustomTableHeader('API_DEFINITION'),
       fieldsWidth: getCustomTableWidth('API_DEFINITION'),
       condition: {
@@ -409,16 +409,16 @@ export default {
     projectId() {
       return getCurrentProjectID();
     },
-    getApiRequestTypeName(){
-      if(this.currentProtocol === 'TCP'){
+    getApiRequestTypeName() {
+      if (this.currentProtocol === 'TCP') {
         return this.$t('api_test.definition.api_agreement');
-      }else{
+      } else {
         return this.$t('api_test.definition.api_type');
       }
     }
   },
   created: function () {
-    if(!this.projectName || this.projectName === ""){
+    if (!this.projectName || this.projectName === "") {
       this.getProjectName();
     }
     if (this.trashEnable) {
@@ -429,7 +429,7 @@ export default {
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     }
     let orderArr = this.getSortField();
-    if(orderArr){
+    if (orderArr) {
       this.condition.orders = orderArr;
     }
     this.initTable();
@@ -437,7 +437,7 @@ export default {
   },
   watch: {
     selectNodeIds() {
-      if(!this.trashEnable){
+      if (!this.trashEnable) {
         initCondition(this.condition, false);
         this.currentPage = 1;
         this.condition.moduleIds = [];
@@ -450,7 +450,7 @@ export default {
       this.currentPage = 1;
       initCondition(this.condition, false);
       this.closeCaseModel();
-      this.initTable();
+      this.initTable(true);
     },
     trashEnable() {
       if (this.trashEnable) {
@@ -467,10 +467,10 @@ export default {
     }
   },
   methods: {
-    getProjectName (){
+    getProjectName() {
       this.$get('project/get/' + this.projectId, response => {
         let project = response.data;
-        if(project){
+        if (project) {
           this.projectName = project.name;
         }
       });
@@ -478,20 +478,20 @@ export default {
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
-    closeCaseModel(){
+    closeCaseModel() {
       //关闭案例弹窗
-      if(this.$refs.caseList){
+      if (this.$refs.caseList) {
         this.$refs.caseList.handleClose();
       }
     },
-    initTable() {
+    initTable(currentProtocol) {
       if (this.$refs.table) {
         this.$refs.table.clear();
       }
 
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
-      if(!this.trashEnable){
+      if (!this.trashEnable) {
         this.condition.moduleIds = this.selectNodeIds;
       }
       this.condition.projectId = this.projectId;
@@ -523,6 +523,9 @@ export default {
           this.condition.filters.status = [this.selectDataRange];
           break;
       }
+      if (currentProtocol) {
+        this.condition.moduleIds = [];
+      }
       if (this.condition.projectId) {
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.genProtocalFilter(this.condition.protocol);
@@ -537,7 +540,7 @@ export default {
           checkTableRowIsSelected(this, this.$refs.table);
         });
       }
-      if(this.needRefreshModule()){
+      if (this.needRefreshModule()) {
         this.$emit("refreshTree");
       }
     },
@@ -591,7 +594,7 @@ export default {
         });
       });
     },
-    enterSearch(){
+    enterSearch() {
       this.$refs.inputVal.blur();
       this.search();
     },
@@ -729,18 +732,8 @@ export default {
       });
     },
     handleTestCase(api) {
-      this.selectApi = api;
-      let request = {};
-      if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-        request = api.request;
-      } else {
-        request = JSON.parse(api.request);
-      }
-      if (!request.hashTree) {
-        request.hashTree = [];
-      }
-      this.selectApi.url = request.path;
-      this.$refs.caseList.open(this.selectApi);
+      this.$emit("handleTestCase",api)
+      // this.$refs.caseList.open(this.selectApi);
     },
     handleDelete(api) {
       if (this.trashEnable) {
@@ -807,7 +800,7 @@ export default {
           obj.nodeTree = nodeTree;
           downloadFile("Metersphere_Api_" + this.projectName + ".json", JSON.stringify(obj));
         } else {
-          downloadFile("Swagger_Api_" + this.projectName+ ".json", JSON.stringify(obj));
+          downloadFile("Swagger_Api_" + this.projectName + ".json", JSON.stringify(obj));
         }
       });
     },
@@ -822,24 +815,24 @@ export default {
     open() {
       this.$refs.searchBar.open();
     },
-    needRefreshModule(){
-      if(this.initApiTableOpretion === '0'){
+    needRefreshModule() {
+      if (this.initApiTableOpretion === '0') {
         return true;
-      }else {
-        this.$emit('updateInitApiTableOpretion','0');
+      } else {
+        this.$emit('updateInitApiTableOpretion', '0');
         return false;
       }
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
+    saveSortField(key, orders) {
+      saveLastTableSortField(key, JSON.stringify(orders));
     },
-    getSortField(){
+    getSortField() {
       let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
       let returnObj = null;
-      if(orderJsonStr){
+      if (orderJsonStr) {
         try {
           returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
+        } catch (e) {
           return null;
         }
       }

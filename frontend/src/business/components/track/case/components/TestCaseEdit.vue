@@ -25,7 +25,7 @@
         <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading" class="case-form">
           <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
           <el-row>
-            <el-col :span="7">
+            <el-col :span="6">
               <el-form-item
                 :placeholder="$t('test_track.case.input_name')"
                 :label="$t('test_track.case.name')"
@@ -35,16 +35,32 @@
               </el-form-item>
             </el-col>
 
-            <el-col :span="7">
+            <el-col :span="6">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
                 <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
                                 @getValue="setModule" clearable checkStrictly size="small"/>
               </el-form-item>
             </el-col>
 
-            <el-col :span="7">
+            <el-col :span="6">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :read-only="readOnly" :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="6">
+              <el-form-item :label="$t('api_test.automation.follow_people')" :label-width="formLabelWidth"
+                            prop="followPeople">
+                <el-select v-model="form.followPeople"
+                           clearable
+                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small">
+                  <el-option
+                      v-for="item in maintainerOptions"
+                      :key="item.id"
+                      :label="item.id + ' (' + item.name + ')'"
+                      :value="item.id">
+                  </el-option>
+                </el-select>
               </el-form-item>
             </el-col>
           </el-row>
@@ -81,7 +97,7 @@
 
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP' || !form.stepModel" :form="form" :read-only="readOnly"/>
 
-          <test-case-edit-other-info :sys-list="sysList" :read-only="readOnly" :project-id="projectIds" :form="form"
+          <test-case-edit-other-info :read-only="readOnly" :project-id="projectIds" :form="form"
                                      :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!='add'">
@@ -176,7 +192,7 @@
     },
     data() {
       return {
-        sysList: [],//一级选择框的数据
+        // sysList: [],//一级选择框的数据
         path: "/test/case/add",
         testCaseTemplate: {},
         options: REVIEW_STATUS,
@@ -212,10 +228,11 @@
           stepDescription: '',
           expectedResult: '',
           stepModel: 'STEP',
-          customNum: ''
+          customNum: '',
+          followPeople: '',
         },
         maintainerOptions: [],
-        testOptions: [],
+        // testOptions: [],
         workspaceId: '',
         rules: {
           name: [
@@ -337,146 +354,8 @@
         this.form.module = this.treeNodes[0].id;
         this.form.nodePath = this.treeNodes[0].path;
       }
-      this.loadOptions();
     },
     methods: {
-      async loadOptions(sysLib) {
-        if (this.form.list) {
-          return;
-        }
-        sysLib = TEST
-          .filter(item => {
-            return enableModules([item.module]);
-          })// 模块启用禁用过滤
-          .map(item => ({
-            value: item.id,
-            label: item.name,
-          }));
-        let array = [];
-        for (let i = 0; i < sysLib.length; i++) {
-          if (sysLib.length > 0) {
-            let res = await this.getTestOptions(sysLib[i].value);
-            sysLib[i].children = res;
-          }
-          array.push(sysLib[i]);
-        }
-        this.sysList = array;
-      },
-      getTestOptions(val) {
-        this.result.loading = true;
-        this.form.type = val;
-        this.testOptions = [];
-        let url = '';
-        if (this.form.type === 'performance') {
-          url = '/' + this.form.type + '/list/' + this.projectId;
-          if (!url) {
-            return;
-          }
-          this.result.loading = true;
-          return new Promise((resolve, reject) => {
-            this.$get(url).then(res => {
-              const data = res.data.data.map(item => ({
-                value: item.id,
-                label: item.name,
-                leaf: true
-              }));
-              this.result.loading = false;
-              resolve(data);
-            }).catch((err) => {
-              reject(err);
-            });
-          });
-        } else if (this.form.type === 'automation') {
-          url = '/api/automation/module/list/' + this.projectId;
-          if (!url) {
-            return;
-          }
-          this.result.loading = true;
-          return new Promise((resolve, reject) => {
-            this.$get("/api/automation/module/list/" + this.projectId, response => {
-              if (response.data != undefined && response.data != null) {
-                this.buildTreeValue(response.data);
-              }
-              this.result.loading = false;
-              resolve(response.data);
-            });
-          });
-        } else if (this.form.type === 'testcase') {
-
-          this.result.loading = true;
-          return new Promise((resolve, reject) => {
-            TEST_CASE.forEach(test => {
-              let url = "/api/module/list/" + this.projectId + "/" + test.value;
-              this.$get(url, response => {
-                if (response.data != undefined && response.data != null) {
-                  this.buildTreeValueApiCase(response.data);
-                  test.children = response.data;
-                }
-              });
-            });
-            this.result.loading = false;
-            resolve(TEST_CASE);
-          });
-        }
-      },
-      buildTreeValueApiCase(list) {
-        list.forEach(item => {
-          item.value = item.id,
-            item.label = item.name,
-            item.leaf = true;
-          if (item.children) {
-            this.buildTreeValueApiCase(item.children);
-          } else {
-            let url = "/api/testcase/list/";
-            let param = {};
-            param.moduleId = item.id;
-            param.projectId = this.projectId;
-            this.$post(url, param, response => {
-              if (response.data != undefined && response.data != null) {
-                item.children = response.data;
-                this.buildTreeValueApiCase(item.children);
-              }
-            });
-          }
-        });
-      },
-      buildTreeValue(list) {
-        let url = '/api/automation/list';
-        list.forEach(item => {
-          item.value = item.id,
-            item.label = item.name,
-            item.leaf = true;
-          if (item.children) {
-            this.buildTreeValue(item.children);
-          } else {
-            let param = {};
-            param.moduleId = item.id;
-            param.projectId = this.projectId;
-            this.$post(url, param, response => {
-              if (response.data != undefined && response.data != null) {
-                item.children = response.data;
-                this.buildTreeValue(item.children);
-              }
-
-            });
-          }
-        });
-      },
-      buildValue(url) {
-        return new Promise((resolve, reject) => {
-          this.$get(url).then(res => {
-            const data = res.data.data.map(item => ({
-              value: item.id,
-              label: item.name,
-              leaf: true
-            }));
-            this.result.loading = false;
-            resolve(data);
-          }).catch((err) => {
-            reject(err);
-          });
-        });
-      },
       openHis() {
         this.$refs.changeHistory.open(this.form.id);
       },
@@ -743,14 +622,13 @@
             this.$success(this.$t('commons.save_success'));
             this.path = "/test/case/edit";
             // this.operationType = "edit"
-            this.form.id = response.id;
             this.$emit("refreshTestCase",);
             //this.tableType = 'edit';
             this.$emit("refresh", this.form);
-            this.form.id = response.data;
+            this.form.id = response.data.id;
 
             if (this.type === 'add' || this.type === 'copy') {
-              param.id = response.data;
+              param.id = response.data.id;
               this.$emit("caseCreate", param);
               this.close();
             } else {

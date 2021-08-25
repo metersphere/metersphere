@@ -31,5 +31,7 @@ public class LoadTest implements Serializable {
 
     private String scenarioId;
 
+    private String followPeople;
+
     private static final long serialVersionUID = 1L;
 }

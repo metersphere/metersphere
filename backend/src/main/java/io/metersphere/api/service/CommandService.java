@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.exec.SystemCommand;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class CommandService {
 
     public List<KeyStoreEntry> get(String password, MultipartFile file) {
@@ -56,7 +58,7 @@ public class CommandService {
             FileUtils.deleteFile(path);
             return dtoList;
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
         return null;
@@ -146,14 +148,14 @@ public class CommandService {
                                     MSException.throwException("合并条目：【" + entry.getOriginalAsName() + " 】失败");
                                 }
                             } catch (Exception e) {
-                                LogUtil.error(e.getMessage());
+                                LogUtil.error(e);
                             }
                         });
                     }
                 });
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
     }
@@ -175,7 +177,7 @@ public class CommandService {
             }
             return true;
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
             return false;
         }

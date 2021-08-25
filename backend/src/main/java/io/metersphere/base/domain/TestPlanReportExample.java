@@ -774,52 +774,52 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingEqualTo(Byte value) {
+        public Criteria andIsApiCaseExecutingEqualTo(Boolean value) {
             addCriterion("is_api_case_executing =", value, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingNotEqualTo(Byte value) {
+        public Criteria andIsApiCaseExecutingNotEqualTo(Boolean value) {
             addCriterion("is_api_case_executing <>", value, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingGreaterThan(Byte value) {
+        public Criteria andIsApiCaseExecutingGreaterThan(Boolean value) {
             addCriterion("is_api_case_executing >", value, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingGreaterThanOrEqualTo(Byte value) {
+        public Criteria andIsApiCaseExecutingGreaterThanOrEqualTo(Boolean value) {
             addCriterion("is_api_case_executing >=", value, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingLessThan(Byte value) {
+        public Criteria andIsApiCaseExecutingLessThan(Boolean value) {
             addCriterion("is_api_case_executing <", value, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingLessThanOrEqualTo(Byte value) {
+        public Criteria andIsApiCaseExecutingLessThanOrEqualTo(Boolean value) {
             addCriterion("is_api_case_executing <=", value, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingIn(List<Byte> values) {
+        public Criteria andIsApiCaseExecutingIn(List<Boolean> values) {
             addCriterion("is_api_case_executing in", values, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingNotIn(List<Byte> values) {
+        public Criteria andIsApiCaseExecutingNotIn(List<Boolean> values) {
             addCriterion("is_api_case_executing not in", values, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingBetween(Byte value1, Byte value2) {
+        public Criteria andIsApiCaseExecutingBetween(Boolean value1, Boolean value2) {
             addCriterion("is_api_case_executing between", value1, value2, "isApiCaseExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsApiCaseExecutingNotBetween(Byte value1, Byte value2) {
+        public Criteria andIsApiCaseExecutingNotBetween(Boolean value1, Boolean value2) {
             addCriterion("is_api_case_executing not between", value1, value2, "isApiCaseExecuting");
             return (Criteria) this;
         }
@@ -834,52 +834,52 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingEqualTo(Byte value) {
+        public Criteria andIsScenarioExecutingEqualTo(Boolean value) {
             addCriterion("is_scenario_executing =", value, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingNotEqualTo(Byte value) {
+        public Criteria andIsScenarioExecutingNotEqualTo(Boolean value) {
             addCriterion("is_scenario_executing <>", value, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingGreaterThan(Byte value) {
+        public Criteria andIsScenarioExecutingGreaterThan(Boolean value) {
             addCriterion("is_scenario_executing >", value, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingGreaterThanOrEqualTo(Byte value) {
+        public Criteria andIsScenarioExecutingGreaterThanOrEqualTo(Boolean value) {
             addCriterion("is_scenario_executing >=", value, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingLessThan(Byte value) {
+        public Criteria andIsScenarioExecutingLessThan(Boolean value) {
             addCriterion("is_scenario_executing <", value, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingLessThanOrEqualTo(Byte value) {
+        public Criteria andIsScenarioExecutingLessThanOrEqualTo(Boolean value) {
             addCriterion("is_scenario_executing <=", value, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingIn(List<Byte> values) {
+        public Criteria andIsScenarioExecutingIn(List<Boolean> values) {
             addCriterion("is_scenario_executing in", values, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingNotIn(List<Byte> values) {
+        public Criteria andIsScenarioExecutingNotIn(List<Boolean> values) {
             addCriterion("is_scenario_executing not in", values, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingBetween(Byte value1, Byte value2) {
+        public Criteria andIsScenarioExecutingBetween(Boolean value1, Boolean value2) {
             addCriterion("is_scenario_executing between", value1, value2, "isScenarioExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsScenarioExecutingNotBetween(Byte value1, Byte value2) {
+        public Criteria andIsScenarioExecutingNotBetween(Boolean value1, Boolean value2) {
             addCriterion("is_scenario_executing not between", value1, value2, "isScenarioExecuting");
             return (Criteria) this;
         }
@@ -894,52 +894,52 @@ public class TestPlanReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingEqualTo(Byte value) {
+        public Criteria andIsPerformanceExecutingEqualTo(Boolean value) {
             addCriterion("is_performance_executing =", value, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingNotEqualTo(Byte value) {
+        public Criteria andIsPerformanceExecutingNotEqualTo(Boolean value) {
             addCriterion("is_performance_executing <>", value, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingGreaterThan(Byte value) {
+        public Criteria andIsPerformanceExecutingGreaterThan(Boolean value) {
             addCriterion("is_performance_executing >", value, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingGreaterThanOrEqualTo(Byte value) {
+        public Criteria andIsPerformanceExecutingGreaterThanOrEqualTo(Boolean value) {
             addCriterion("is_performance_executing >=", value, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingLessThan(Byte value) {
+        public Criteria andIsPerformanceExecutingLessThan(Boolean value) {
             addCriterion("is_performance_executing <", value, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingLessThanOrEqualTo(Byte value) {
+        public Criteria andIsPerformanceExecutingLessThanOrEqualTo(Boolean value) {
             addCriterion("is_performance_executing <=", value, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingIn(List<Byte> values) {
+        public Criteria andIsPerformanceExecutingIn(List<Boolean> values) {
             addCriterion("is_performance_executing in", values, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingNotIn(List<Byte> values) {
+        public Criteria andIsPerformanceExecutingNotIn(List<Boolean> values) {
             addCriterion("is_performance_executing not in", values, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingBetween(Byte value1, Byte value2) {
+        public Criteria andIsPerformanceExecutingBetween(Boolean value1, Boolean value2) {
             addCriterion("is_performance_executing between", value1, value2, "isPerformanceExecuting");
             return (Criteria) this;
         }
 
-        public Criteria andIsPerformanceExecutingNotBetween(Byte value1, Byte value2) {
+        public Criteria andIsPerformanceExecutingNotBetween(Boolean value1, Boolean value2) {
             addCriterion("is_performance_executing not between", value1, value2, "isPerformanceExecuting");
             return (Criteria) this;
         }
@@ -1081,6 +1081,66 @@ public class TestPlanReportExample {
 
         public Criteria andComponentsNotBetween(String value1, String value2) {
             addCriterion("components not between", value1, value2, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewIsNull() {
+            addCriterion("is_new is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewIsNotNull() {
+            addCriterion("is_new is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewEqualTo(Boolean value) {
+            addCriterion("is_new =", value, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewNotEqualTo(Boolean value) {
+            addCriterion("is_new <>", value, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewGreaterThan(Boolean value) {
+            addCriterion("is_new >", value, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("is_new >=", value, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewLessThan(Boolean value) {
+            addCriterion("is_new <", value, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewLessThanOrEqualTo(Boolean value) {
+            addCriterion("is_new <=", value, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewIn(List<Boolean> values) {
+            addCriterion("is_new in", values, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewNotIn(List<Boolean> values) {
+            addCriterion("is_new not in", values, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_new between", value1, value2, "isNew");
+            return (Criteria) this;
+        }
+
+        public Criteria andIsNewNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("is_new not between", value1, value2, "isNew");
             return (Criteria) this;
         }
     }

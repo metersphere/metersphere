@@ -16,7 +16,6 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
     private String principalName;
     private List<String> tagNames;
     private String deleteUser;
-    private Long deleteTime;
 
     /**
      * 场景跨项目ID
@@ -24,4 +23,5 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
     private List<String> projectIds;
 
     private String caseId;
+    private String environment;
 }

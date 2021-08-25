@@ -13,4 +13,5 @@ public class TestPlanApiCaseDTO extends ApiTestCaseDTO {
     private String creatorName;
     private String principalName;
     private String updateName;
+    private String environmentName;
 }

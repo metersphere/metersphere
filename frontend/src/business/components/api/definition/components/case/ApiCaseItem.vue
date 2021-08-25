@@ -1,5 +1,5 @@
 <template>
-  <el-card v-loading="result.loading" style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
+  <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)" v-loading="saveLoading">
     <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
         <el-col :span="3">
@@ -20,7 +20,7 @@
             </el-col>
           </el-row>
         </el-col>
-        <el-col :span="api.protocol==='HTTP'?6:10">
+        <el-col :span="api.protocol==='HTTP'?4:8" v-loading="loading && !(apiCase.active||type==='detail')">
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
@@ -62,9 +62,32 @@
         </el-col>
 
         <el-col :span="3">
+          <div class="tag-item" @click.stop>
+            <el-select v-model="apiCase.followPeople"
+                       clearable
+                       :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
+                       @change="saveTestCase(apiCase,true)">
+              <el-option
+                v-for="item in maintainerOptions"
+                :key="item.id"
+                :label="item.id + ' (' + item.name + ')'"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </div>
+        </el-col>
+
+        <el-col :span="3">
           <span @click.stop>
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                           class="run-button" size="mini" :disabled="!apiCase.id" circle/>
+                           class="run-button" size="mini" :disabled="!apiCase.id" circle v-if="!loading"/>
+            <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+              <el-button :disabled="!apiCase.id" @click.once="stop" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
+                <div style="transform: scale(0.72)">
+                  <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
+                </div>
+              </el-button>
+            </el-tooltip>
             <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
@@ -73,7 +96,7 @@
           </span>
         </el-col>
 
-        <el-col :span="3">
+        <el-col :span="2">
           <el-link @click.stop type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
@@ -96,7 +119,7 @@
 
     <!-- 请求参数-->
     <el-collapse-transition>
-      <div v-if="apiCase.active||type==='detail'">
+      <div v-if="apiCase.active||type==='detail'" v-loading="loading">
         <el-divider></el-divider>
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
@@ -197,6 +220,7 @@ export default {
         {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
       ],
       methodColorMap: new Map(API_METHOD_COLOUR),
+      saveLoading: false,
     }
   },
   props: {
@@ -223,6 +247,13 @@ export default {
     },
     type: String,
     isCaseEdit: Boolean,
+    loading: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    maintainerOptions: Array,
   },
   created() {
     if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
@@ -254,7 +285,7 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            this.$get('/api/testcase/delete/' + row.id, () => {
+            this.$get('/api/testcase/deleteToGc/' + row.id, () => {
               this.$success(this.$t('commons.delete_success'));
               this.$emit('refresh');
             });
@@ -271,6 +302,9 @@ export default {
       data.request.useEnvironment = this.environment;
       this.saveTestCase(data);
       this.$emit('singleRun', data);
+    },
+    stop() {
+      this.$emit('stop');
     },
     copyCase(data) {
       if (data && data.request) {
@@ -333,6 +367,12 @@ export default {
         }
       });
     },
+    reload() {
+      this.saveLoading = true
+      this.$nextTick(() => {
+        this.saveLoading = false
+      });
+    },
     saveCase(row, hideAlert) {
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
@@ -372,8 +412,13 @@ export default {
         row.updateTime = data.updateTime;
         if (!row.message) {
           this.$success(this.$t('commons.save_success'));
+          this.reload();
           if (!hideAlert) {
             this.$emit('refresh');
+          }
+          // 刷新编辑后用例列表
+          if (this.api.source === "editCase") {
+            this.$store.state.currentApiCase = {refresh: "true"};
           }
         }
       });
@@ -484,5 +529,11 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
   width: 150px;
+}
+
+.stop-btn {
+  background-color: #E62424;
+  border-color: #dd3636;
+  color: white;
 }
 </style>

@@ -442,6 +442,12 @@
         WHERE id = #{0}
     </select>
 
+    <select id="selectIdsByExecuteTimeIsNull" resultType="java.lang.String">
+        select id
+        from api_scenario
+        WHERE execute_times is null OR execute_times = 0
+    </select>
+
     <select id="selectNameByIdIn" resultType="java.lang.String">
         select name
         from api_scenario
@@ -450,6 +456,12 @@
             #{v}
         </foreach>
     </select>
+
+    <select id="countExecuteTimesByProjectID" resultType="java.lang.Long">
+        SELECT SUM(execute_times) FROM api_scenario
+        WHERE project_id = #{0}
+    </select>
+
     <sql id="queryWhereConditionReview">
         <where>
             <if test="request.combine != null">

@@ -18,7 +18,6 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -79,21 +78,8 @@ public class TestCaseReviewService {
     private NoticeSendService noticeSendService;
     @Resource
     private SystemParameterService systemParameterService;
-    @Resource
-    private TestCaseReviewLoadMapper testCaseReviewLoadMapper;
-    @Resource
-    private TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
-    @Resource
-    private TestCaseReviewScenarioMapper testCaseReviewScenarioMapper;
-    @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
-    @Resource
-    private ApiScenarioMapper apiScenarioMapper;
-    @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
 
-
-    public String saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
+    public TestCaseReview saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
         String reviewId = reviewRequest.getId();
         List<String> userIds = reviewRequest.getUserIds();//执行人
@@ -115,19 +101,7 @@ public class TestCaseReviewService {
             reviewRequest.setProjectId(SessionUtils.getCurrentProjectId());
         }
         testCaseReviewMapper.insert(reviewRequest);
-        // 发送通知
-        String context = getReviewContext(reviewRequest, NoticeConstants.Event.CREATE);
-        Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(reviewRequest));
-        NoticeModel noticeModel = NoticeModel.builder()
-                .context(context)
-                .relatedUsers(userIds)
-                .subject(Translator.get("test_review_task_notice"))
-                .mailTemplate("ReviewInitiate")
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.CREATE)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
-        return reviewRequest.getId();
+        return reviewRequest;
     }
 
     //评审内容
@@ -149,9 +123,8 @@ public class TestCaseReviewService {
         Map<String, String> paramMap = new HashMap<>();
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         paramMap.put("url", baseSystemConfigDTO.getUrl());
-        User user = userMapper.selectByPrimaryKey(reviewRequest.getCreator());
-        paramMap.put("creator", user.getName());
-        paramMap.put("reviewName", reviewRequest.getName());
+        paramMap.put("creator", reviewRequest.getCreator());
+        paramMap.put("name", reviewRequest.getName());
         paramMap.put("start", start);
         paramMap.put("end", end);
         paramMap.put("id", reviewRequest.getId());
@@ -221,25 +194,12 @@ public class TestCaseReviewService {
         return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
-    public String editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
+    public TestCaseReview editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
         editCaseReviewer(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        //  发送通知
-        List<String> userIds = new ArrayList<>(testCaseReview.getUserIds());
-        String context = getReviewContext(testCaseReview, NoticeConstants.Event.UPDATE);
-        Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReview));
-        NoticeModel noticeModel = NoticeModel.builder()
-                .context(context)
-                .relatedUsers(userIds)
-                .subject(Translator.get("test_review_task_notice"))
-                .mailTemplate("ReviewEnd")
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.UPDATE)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
-        return testCaseReview.getId();
+        return testCaseReview;
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
@@ -284,31 +244,10 @@ public class TestCaseReviewService {
     }
 
     public void deleteCaseReview(String reviewId) {
-        TestCaseReview testCaseReview = getTestReview(reviewId);
         deleteCaseReviewProject(reviewId);
         deleteCaseReviewUsers(reviewId);
         deleteCaseReviewTestCase(reviewId);
         testCaseReviewMapper.deleteByPrimaryKey(reviewId);
-        // 发送通知
-        try {
-            List<String> userIds = new ArrayList<>();
-            userIds.add(testCaseReview.getCreator());
-            SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
-            BeanUtils.copyProperties(testCaseReviewRequest, testCaseReview);
-            String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.DELETE);
-            Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
-            NoticeModel noticeModel = NoticeModel.builder()
-                    .context(context)
-                    .relatedUsers(userIds)
-                    .subject(Translator.get("test_review_task_notice"))
-                    .mailTemplate("ReviewDelete")
-                    .paramMap(paramMap)
-                    .event(NoticeConstants.Event.DELETE)
-                    .build();
-            noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
-        } catch (Exception e) {
-            LogUtil.error(e);
-        }
     }
 
     private void deleteCaseReviewProject(String reviewId) {
@@ -469,20 +408,20 @@ public class TestCaseReviewService {
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
         SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
         TestCaseReview _testCaseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
-        List<String> userIds = new ArrayList<>();
-        userIds.add(_testCaseReview.getCreator());
+
         if (StringUtils.equals(TestCaseReviewStatus.Completed.name(), _testCaseReview.getStatus())) {
             try {
                 BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
                 String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.UPDATE);
                 Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
                 NoticeModel noticeModel = NoticeModel.builder()
+                        .operator(SessionUtils.getUserId())
                         .context(context)
-                        .relatedUsers(userIds)
-                        .subject(Translator.get("test_review_task_notice"))
-                        .mailTemplate("ReviewEnd")
+                        .subject("测试评审通知")
+                        .mailTemplate("track/ReviewEnd")
                         .paramMap(paramMap)
-                        .event(NoticeConstants.Event.UPDATE)
+                        .event(NoticeConstants.Event.COMPLETE)
+                        .status(TestCaseReviewStatus.Completed.name())
                         .build();
                 noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
             } catch (Exception e) {

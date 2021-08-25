@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtNotificationMapper">
+
+    <select id="getNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        select * from notification
+        where id = #{id} and receiver = #{receiver}
+        limit 1
+    </select>
+
+    <select id="listNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        select * from notification
+        where receiver = #{notification.receiver} and create_time &gt; (unix_timestamp()  - 90 * 24 * 3600) * 1000
+        <if test='notification.title != null and notification.title != ""'>
+            and ( title like #{notification.title} or content like #{notification.title} )
+        </if>
+        <if test='notification.type != null and notification.type != ""'>
+            and type = #{notification.type}
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="listReadNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        select * from notification
+        where receiver = #{receiver} and status = 'READ'
+        <if test='search != null and search != ""'>
+            and ( title like #{search} or content like #{search} )
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="listUnreadNotification" resultMap="io.metersphere.base.mapper.NotificationMapper.ResultMapWithBLOBs">
+        select * from notification
+        where receiver = #{receiver} and status = 'UNREAD'
+        <if test='search != null and search != ""'>
+            and ( title like #{search} or content like #{search} )
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="countNotification" resultType="java.lang.Integer">
+        select count(*) from notification
+        where receiver = #{notification.receiver}
+        <if test="notification.type != null">
+            and type = #{notification.type}
+        </if>
+        <if test="notification.status != null">
+            and status = #{notification.status}
+        </if>
+
+    </select>
+
+
+</mapper>

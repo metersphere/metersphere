@@ -6,23 +6,7 @@
       </el-row>
     </el-tab-pane>
     <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
-      <el-col v-if="form.list" :span="7" :offset="1">
-        <span class="cast_label">{{ $t('test_track.case.relate_test') }}：</span>
-        <span v-for="(item,index) in form.list" :key="index">
-                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{
-                            item.testName
-                          }}</el-button>
-                      </span>
-      </el-col>
-      <el-col v-else :span="7" style="margin-top: 10px;">
-        <el-form-item :label="$t('test_track.case.relate_test')">
-          <el-cascader :options="sysList" filterable :placeholder="$t('test_track.case.please_select_relate_test')"
-                       show-all-levels
-                       v-model="form.selected" :props="props"
-                       :disabled="readOnly"
-                       ref="cascade"></el-cascader>
-        </el-form-item>
-      </el-col>
+      <test-case-test-relate :read-only="readOnly" :case-id="caseId"/>
     </el-tab-pane>
 
     <el-tab-pane :label="$t('test_track.related_requirements')" name="demand">
@@ -90,16 +74,17 @@
 import {Message} from "element-ui";
 import TestCaseRichText from "@/business/components/track/case/components/MsRichText";
 import MsRichText from "@/business/components/track/case/components/MsRichText";
-import {TEST} from "@/business/components/api/definition/model/JsonData";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
-import {enableModules} from "@/common/js/utils";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import TestCaseTestRelate from "@/business/components/track/case/components/TestCaseTestRelate";
 
 export default {
   name: "TestCaseEditOtherInfo",
-  components: {FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
-  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId', 'sysList'],
+  components: {
+    TestCaseTestRelate,
+    FormRichTextItem, TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
+  props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan', 'planId'],
   data() {
     return {
       result: {},
@@ -142,9 +127,6 @@ export default {
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
-    },
-    openTest(data) {
-      this.$emit('openTest', data);
     },
     beforeUpload(file) {
       if (!this.fileValidator(file)) {

@@ -8,6 +8,7 @@
 <script>
 
 import ApiDocumentAnchor from "@/business/components/api/definition/components/document/ApiDocumentAnchor";
+import {getShareId} from "@/common/js/utils";
 
 export default {
   name: "ApiDocumentsPage",
@@ -39,21 +40,8 @@ export default {
 
   },
   methods: {
-    getUrlParam(){
-      let herfUrl = window.location.href;
-      if(herfUrl.indexOf("?") > 0){
-        let paramArr = herfUrl.split("?");
-        if(paramArr.length > 1){
-          let documentId = paramArr[1];
-          if(documentId.indexOf("#") > 0){
-            documentId = documentId.split("#")[0];
-          }
-          this.documentId = documentId;
-        }
-      }
-    },
     selectDocumentInfo(){
-      this.getUrlParam();
+      this.documentId = getShareId();
       if(this.$refs.apiDocumentAnchor){
         this.$refs.apiDocumentAnchor.initApiDocSimpleList();
       }

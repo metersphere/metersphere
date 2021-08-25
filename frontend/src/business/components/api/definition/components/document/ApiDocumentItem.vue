@@ -413,7 +413,7 @@ export default {
         simpleRequest.moduleIds = this.moduleIds;
       }
 
-      let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
+      let simpleInfoUrl = "/share/info/selectApiSimpleInfo";
       this.apiInfoArray = [];
       this.$post(simpleInfoUrl, simpleRequest, response => {
         this.apiInfoArray = response.data;
@@ -444,7 +444,7 @@ export default {
       genShareInfoParam.shareApiIdList = shareIdArr;
       genShareInfoParam.shareType = shareType;
 
-      this.$post("/api/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
+      this.$post("/share/info/generateApiDocumentShareInfo", genShareInfoParam, res => {
         if(shareType == "Batch"){
           this.batchShareUrl = thisHost+"/document"+res.data.shareUrl;
         }else{
@@ -454,7 +454,7 @@ export default {
       });
     },
     selectApiInfo(index,apiId) {
-      let simpleInfoUrl = "/api/document/selectApiInfoById/" + apiId;
+      let simpleInfoUrl = "/share/info/selectApiInfoById/" + apiId;
       this.$get(simpleInfoUrl, response => {
         let returnData = response.data;
         this.$set(this.apiInfoArray,index,returnData);

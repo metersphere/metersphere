@@ -168,6 +168,7 @@ export default {
     api_case: "Api Case",
     scenario_case: "Scenario Case",
     task_center: "Task center",
+    notice_center: "Notice center",
     all_module_title: "All module",
     create_user: 'Creator',
     run_message: "The task is being executed, please go to the task center to view the details",
@@ -175,6 +176,10 @@ export default {
     execute_history: "Execute history",
     debug_history: "Debug history",
     testing: "Testing",
+    environment: "Environment",
+    run_success: "Run Success",
+    run_completed: "Run Completed",
+    run_fail: "Run Fail",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -383,13 +388,10 @@ export default {
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
       lark: "Flying Book Robot",
-      notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
-        '\n' +
-        '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
-        '\n' +
-        '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
-      message: 'Event, receiver and receiving method are required\n' +
-        '\n',
+      notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;<br/>' +
+        '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";<br/>' +
+        '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise',
+      message: 'Event, receiver and receiving method are required\n',
       message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
       template: "Template"
     },
@@ -997,6 +999,8 @@ export default {
       database_config: "Database Config",
       tcp_config: "TCP Config",
       import: "Import Environment",
+      request_timeout: "Request Timeout",
+      response_timeout: "Response Timeout",
     },
     scenario: {
       scenario: "Scenario",
@@ -1536,6 +1540,7 @@ export default {
       plan_delete: "Delete test plan",
       api_case: "Api case",
       scenario_case: "Scenario case",
+      execute_result: "Execute Result",
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",

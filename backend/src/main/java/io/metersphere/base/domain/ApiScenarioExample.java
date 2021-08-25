@@ -1793,6 +1793,66 @@ public class ApiScenarioExample {
             addCriterion("delete_user_id not between", value1, value2, "deleteUserId");
             return (Criteria) this;
         }
+
+        public Criteria andExecuteTimesIsNull() {
+            addCriterion("execute_times is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesIsNotNull() {
+            addCriterion("execute_times is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesEqualTo(Integer value) {
+            addCriterion("execute_times =", value, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesNotEqualTo(Integer value) {
+            addCriterion("execute_times <>", value, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesGreaterThan(Integer value) {
+            addCriterion("execute_times >", value, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesGreaterThanOrEqualTo(Integer value) {
+            addCriterion("execute_times >=", value, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesLessThan(Integer value) {
+            addCriterion("execute_times <", value, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesLessThanOrEqualTo(Integer value) {
+            addCriterion("execute_times <=", value, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesIn(List<Integer> values) {
+            addCriterion("execute_times in", values, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesNotIn(List<Integer> values) {
+            addCriterion("execute_times not in", values, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesBetween(Integer value1, Integer value2) {
+            addCriterion("execute_times between", value1, value2, "executeTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTimesNotBetween(Integer value1, Integer value2) {
+            addCriterion("execute_times not between", value1, value2, "executeTimes");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

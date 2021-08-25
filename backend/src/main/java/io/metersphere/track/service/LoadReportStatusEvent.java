@@ -7,9 +7,12 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 
 @Component
+@Transactional(rollbackFor = Exception.class)
 public class LoadReportStatusEvent implements LoadTestFinishEvent {
 
     @Resource
@@ -32,7 +35,7 @@ public class LoadReportStatusEvent implements LoadTestFinishEvent {
 
     @Override
     public void execute(LoadTestReport loadTestReport) {
-        if (StringUtils.equals(ReportTriggerMode.CASE.name(), loadTestReport.getTriggerMode())
+        if (StringUtils.equals(ReportTriggerMode.MANUAL.name(), loadTestReport.getTriggerMode())
                 || StringUtils.equals(ReportTriggerMode.TEST_PLAN_SCHEDULE.name(), loadTestReport.getTriggerMode())
                 || StringUtils.equals(ReportTriggerMode.TEST_PLAN_API.name(), loadTestReport.getTriggerMode())) {
             if (StringUtils.equalsAny(loadTestReport.getStatus(),

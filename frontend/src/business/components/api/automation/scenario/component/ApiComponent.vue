@@ -1,7 +1,6 @@
 <template>
   <div>
     <api-base-component
-      v-loading="loading"
       @copy="copyRow"
       @remove="remove"
       @active="active"
@@ -27,16 +26,22 @@
            <i class="el-icon-loading" style="font-size: 16px"/>
            {{ $t('commons.testing') }}
          </span>
-        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
+        <span class="ms-step-debug-code" :class="request.requestResult[0].success?'ms-req-success':'ms-req-error'" v-if="!loading &&!request.testing && request.debug && request.requestResult[0] && request.requestResult[0].responseResult">
           {{ request.requestResult[0].success ? 'success' : 'error' }}
         </span>
       </template>
       <template v-slot:button>
-        <el-tooltip :content="$t('api_test.run')" placement="top">
-          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+        <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
+          <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle />
+        </el-tooltip>
+        <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+          <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+            <div style="transform: scale(0.66)">
+              <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+            </div>
+          </el-button>
         </el-tooltip>
       </template>
-
       <!--请求内容-->
       <template v-slot:request>
         <legend style="width: 100%">
@@ -75,43 +80,45 @@
       </template>
       <!-- 执行结果内容 -->
       <template v-slot:result>
-        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-        <div v-if="request.result">
-          <div v-for="(scenario,h) in request.result.scenarios" :key="h">
-            <el-tabs v-model="request.activeName" closable class="ms-tabs">
-              <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+        <div v-loading="loading">
+          <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+          <div v-if="request.result">
+            <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+              <el-tabs v-model="request.activeName" closable class="ms-tabs">
+                <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                  <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+                </el-tab-pane>
+              </el-tabs>
+            </div>
+          </div>
+          <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
+            <esb-definition-response
+              :currentProtocol="request.protocol"
+              :request="request"
+              :is-api-component="false"
+              :show-options-button="false"
+              :show-header="true"
+              :result="request.requestResult"
+              v-xpack
+              v-if="showXpackCompnent"
+            />
+          </div>
+          <div v-else>
+            <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
+              <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <api-response-component
+                  :currentProtocol="request.protocol"
+                  :apiActive="true"
+                  :result="item"
+                />
               </el-tab-pane>
             </el-tabs>
+            <api-response-component
+              :currentProtocol="request.protocol"
+              :apiActive="true"
+              :result="request.requestResult[0]"
+              v-else/>
           </div>
-        </div>
-        <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
-          <esb-definition-response
-            :currentProtocol="request.protocol"
-            :request="request"
-            :is-api-component="false"
-            :show-options-button="false"
-            :show-header="true"
-            :result="request.requestResult"
-            v-xpack
-            v-if="showXpackCompnent"
-          />
-        </div>
-        <div v-else>
-          <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-            <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-              <api-response-component
-                :currentProtocol="request.protocol"
-                :apiActive="true"
-                :result="item"
-              />
-            </el-tab-pane>
-          </el-tabs>
-          <api-response-component
-            :currentProtocol="request.protocol"
-            :apiActive="true"
-            :result="request.requestResult[0]"
-            v-else/>
         </div>
       </template>
     </api-base-component>
@@ -437,6 +444,14 @@ export default {
       /*触发执行操作*/
       this.reportId = getUUID();
     },
+    stop() {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, () => {
+        this.runLoading = false;
+        this.loading = false;
+        this.$success(this.$t('report.test_stop_success'));
+      });
+    },
     errorRefresh() {
       this.loading = false;
     },
@@ -529,5 +544,11 @@ export default {
 
 .ms-req-success {
   color: #67C23A;
+}
+
+.stop-btn {
+  background-color: #E62424;
+  border-color: #EE6161;
+  color: white;
 }
 </style>

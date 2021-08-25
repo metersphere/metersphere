@@ -17,4 +17,7 @@ public interface ExtTaskMapper {
     List<TaskCenterDTO> getCases(@Param("id") String id);
 
     List<TaskCenterDTO> getScenario(@Param("id") String id);
+
+    int checkActuator (@Param("actuator") String actuator);
+
 }

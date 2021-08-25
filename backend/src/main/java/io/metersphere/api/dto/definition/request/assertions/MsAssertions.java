@@ -67,11 +67,11 @@ public class MsAssertions extends MsTestElement {
     private ResponseAssertion responseAssertion(MsAssertionRegex assertionRegex) {
         ResponseAssertion assertion = new ResponseAssertion();
         assertion.setEnabled(this.isEnable());
-        assertion.setName(assertionRegex.getDescription());
-        if(StringUtils.isEmpty(assertionRegex.getDescription())){
-            assertion.setName("AssertionRegex");
+        if (StringUtils.isNotEmpty(assertionRegex.getDescription())) {
+            assertion.setName(this.getName() + "==" + assertionRegex.getDescription());
+        } else {
+            assertion.setName(this.getName() + "==" + "AssertionRegex");
         }
-        assertion.setName(StringUtils.isNotEmpty(assertionRegex.getDescription()) ? assertionRegex.getDescription() : this.getName());
         assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
         assertion.setAssumeSuccess(assertionRegex.isAssumeSuccess());
@@ -96,11 +96,11 @@ public class MsAssertions extends MsTestElement {
     private JSONPathAssertion jsonPathAssertion(MsAssertionJsonPath assertionJsonPath) {
         JSONPathAssertion assertion = new JSONPathAssertion();
         assertion.setEnabled(this.isEnable());
-        assertion.setName(StringUtils.isNotEmpty(assertionJsonPath.getDescription()) ? assertionJsonPath.getDescription() : this.getName());
-        if(StringUtils.isEmpty(assertion.getName())){
-            assertion.setName("JSONPathAssertion");
+        if (StringUtils.isNotEmpty(assertionJsonPath.getDescription())) {
+            assertion.setName(this.getName() + "==" + assertionJsonPath.getDescription());
+        } else {
+            assertion.setName(this.getName() + "==" + "JSONPathAssertion");
         }
-        /* assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "JSONPathAssertion");*/
         assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
         assertion.setJsonPath(assertionJsonPath.getExpression());
@@ -120,11 +120,11 @@ public class MsAssertions extends MsTestElement {
     private XPath2Assertion xPath2Assertion(MsAssertionXPath2 assertionXPath2) {
         XPath2Assertion assertion = new XPath2Assertion();
         assertion.setEnabled(this.isEnable());
-        assertion.setName(StringUtils.isNotEmpty(assertionXPath2.getExpression()) ? assertionXPath2.getExpression() : this.getName());
-        if(StringUtils.isEmpty(assertion.getName())){
-            assertion.setName("XPath2Assertion");
+        if (StringUtils.isNotEmpty(assertionXPath2.getExpression())) {
+            assertion.setName(this.getName() + "==" + assertionXPath2.getExpression());
+        } else {
+            assertion.setName(this.getName() + "==" + "XPath2Assertion");
         }
-        /*assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "XPath2Assertion");*/
         assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2AssertionGui"));
         assertion.setXPathString(assertionXPath2.getExpression());
@@ -135,8 +135,10 @@ public class MsAssertions extends MsTestElement {
     private DurationAssertion durationAssertion(MsAssertionDuration assertionDuration) {
         DurationAssertion assertion = new DurationAssertion();
         assertion.setEnabled(this.isEnable());
-        assertion.setName("Response In Time: " + assertionDuration.getValue());
-        /* assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Response In Time: " + assertionDuration.getValue());*/
+        assertion.setName("" + "==" + "Response In Time: " + assertionDuration.getValue());
+        if (StringUtils.isNotEmpty(this.getName())) {
+            assertion.setName(this.getName() + "==" + "Response In Time: " + assertionDuration.getValue());
+        }
         assertion.setProperty(TestElement.TEST_CLASS, DurationAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DurationAssertionGui"));
         assertion.setAllowedDuration(assertionDuration.getValue());
@@ -146,11 +148,11 @@ public class MsAssertions extends MsTestElement {
     private JSR223Assertion jsr223Assertion(MsAssertionJSR223 assertionJSR223) {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(this.isEnable());
-        assertion.setName(StringUtils.isNotEmpty(assertionJSR223.getDesc()) ? assertionJSR223.getDesc() : this.getName());
-        if(StringUtils.isEmpty(assertion.getName())){
-            assertion.setName("JSR223Assertion");
+        if (StringUtils.isNotEmpty(assertionJSR223.getDesc())) {
+            assertion.setName(this.getName() + "==" + assertionJSR223.getDesc());
+        } else {
+            assertion.setName(this.getName() + "==" + "JSR223Assertion");
         }
-        /*assertion.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "JSR223Assertion");*/
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         assertion.setProperty("cacheKey", "true");

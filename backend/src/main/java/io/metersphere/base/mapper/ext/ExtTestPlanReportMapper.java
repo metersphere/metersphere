@@ -12,5 +12,5 @@ import java.util.List;
  * @Description
  */
 public interface ExtTestPlanReportMapper {
-    public List<TestPlanReportDTO> list(@Param("request")QueryTestPlanReportRequest request);
+    List<TestPlanReportDTO> list(@Param("request")QueryTestPlanReportRequest request);
 }

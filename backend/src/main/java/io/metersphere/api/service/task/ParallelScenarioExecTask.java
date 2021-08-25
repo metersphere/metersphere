@@ -33,7 +33,7 @@ public class ParallelScenarioExecTask<T> implements Callable<T> {
             }
             return null;
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
             return null;
         }

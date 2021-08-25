@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.performance.request.QueryProjectFileRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class FileService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;

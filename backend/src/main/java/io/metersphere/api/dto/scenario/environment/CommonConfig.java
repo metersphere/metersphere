@@ -10,4 +10,6 @@ public class CommonConfig {
     private List<KeyValue> variables;
     private boolean enableHost;
     private List<Host> hosts;
+    private int requestTimeout;
+    private int responseTimeout;
 }

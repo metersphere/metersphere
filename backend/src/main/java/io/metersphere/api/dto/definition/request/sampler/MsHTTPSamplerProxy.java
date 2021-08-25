@@ -14,6 +14,7 @@ import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.CommonConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.ssl.KeyStoreConfig;
 import io.metersphere.api.dto.ssl.KeyStoreFile;
@@ -56,6 +57,7 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 
 @Data
@@ -152,7 +154,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
         }
     }
 
@@ -190,8 +192,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding("UTF-8");
-        sampler.setConnectTimeout(this.getConnectTimeout() == null ? "6000" : this.getConnectTimeout());
-        sampler.setResponseTimeout(this.getResponseTimeout() == null ? "6000" : this.getResponseTimeout());
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
@@ -203,7 +203,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         compatible(config);
 
+        this.initConnectAndResponseTimeout(config);
+        sampler.setConnectTimeout(this.getConnectTimeout() == null ? "60000" : this.getConnectTimeout());
+        sampler.setResponseTimeout(this.getResponseTimeout() == null ? "60000" : this.getResponseTimeout());
+
         HttpConfig httpConfig = getHttpConfig(config);
+
 
         setSamplerPath(config, httpConfig, sampler);
 
@@ -233,7 +238,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 setHeader(httpSamplerTree, httpConfig.getHeaders());
             }
         }
-
+        // 场景头
+        if (config != null && CollectionUtils.isNotEmpty(config.getHeaders())) {
+            setHeader(httpSamplerTree, config.getHeaders());
+        }
         // 环境通用请求头
         Arguments arguments = getConfigArguments(config);
         if (arguments != null) {
@@ -254,10 +262,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
-                if(el.getEnvironmentId() == null){
-                    if(this.getEnvironmentId() == null){
+                if (el.getEnvironmentId() == null) {
+                    if (this.getEnvironmentId() == null) {
                         el.setEnvironmentId(useEnvironment);
-                    }else{
+                    } else {
                         el.setEnvironmentId(this.getEnvironmentId());
                     }
                 }
@@ -265,6 +273,28 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
+    }
+
+    private void initConnectAndResponseTimeout(ParameterConfig config) {
+        if (config.isEffective(this.getProjectId())) {
+            String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
+            if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
+                this.setEnvironmentId(useEvnId);
+            }
+            CommonConfig commonConfig  = config.getConfig().get(this.getProjectId()).getCommonConfig();
+            if(commonConfig != null){
+                if(this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(),"60000")){
+                    if(commonConfig.getRequestTimeout() != 0){
+                        this.setConnectTimeout(String.valueOf(commonConfig.getRequestTimeout()));
+                    }
+                }
+                if(this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(),"60000")){
+                    if(commonConfig.getResponseTimeout() != 0){
+                        this.setResponseTimeout(String.valueOf(commonConfig.getResponseTimeout()));
+                    }
+                }
+            }
+        }
     }
 
     private EnvironmentConfig getEnvironmentConfig(ParameterConfig config) {
@@ -604,16 +634,25 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     public void setHeader(HashTree tree, List<KeyValue> headers) {
+        // 合并header
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
         headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+        boolean isAdd = true;
+        for (Object key : tree.keySet()) {
+            if (key instanceof HeaderManager) {
+                headerManager = (HeaderManager) key;
+                isAdd = false;
+            }
+        }
         //  header 也支持 mock 参数
-        headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())))
-        );
-        if (headerManager.getHeaders().size() > 0) {
+        List<KeyValue> keyValues = headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).collect(Collectors.toList());
+        for (KeyValue keyValue : keyValues) {
+            headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
+        }
+        if (headerManager.getHeaders().size() > 0 && isAdd) {
             tree.add(headerManager);
         }
     }

@@ -290,6 +290,23 @@ export const EXECUTOR = {
   }
 }
 
+export const ISREFERENCE = {
+  key: "isReference",
+      name: 'MsTableSearchSelect',
+      label: 'api_test.scenario.reference',
+      operator: {
+    options: [OPERATORS.IN]
+  },
+  options: [
+    {value: '', label: 'commons.default'},
+    {value: 'true', label: 'commons.yes'},
+    {value: 'false', label: 'commons.no'}
+  ],
+      props: { // 尾部控件的props，一般为element ui控件的props
+    multiple: false
+  }
+}
+
 export const TRIGGER_MODE = {
   key: "triggerMode",
   name: 'MsTableSearchSelect',
@@ -473,9 +490,9 @@ export const TEST_CASE_CONFIGS = [NAME, API_TAGS, MODULE, PRIORITY, CREATE_TIME,
 
 export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TEST_PLAN_STATUS, STAGE];
 
-export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, CREATOR];
+export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, CREATOR,ISREFERENCE];
 
-export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
+export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR,ISREFERENCE];
 
 export const API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
 

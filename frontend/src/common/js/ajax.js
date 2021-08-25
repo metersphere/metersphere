@@ -2,6 +2,7 @@ import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
 import i18n from '../../i18n/i18n';
 import {TokenKey} from "@/common/js/constants";
+import {getCurrentOrganizationId, getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export function registerRequestHeaders() {
   axios.interceptors.request.use(config => {
@@ -9,6 +10,10 @@ export function registerRequestHeaders() {
     if (user && user.csrfToken) {
       config.headers['CSRF-TOKEN'] = user.csrfToken;
     }
+    // 包含 组织 工作空间 项目的标识
+    config.headers['ORGANIZATION_ID'] = getCurrentOrganizationId();
+    config.headers['WORKSPACE_ID'] = getCurrentWorkspaceId();
+    config.headers['PROJECT_ID'] = getCurrentProjectID();
     return config;
   });
 }
@@ -146,6 +151,30 @@ export function fileUpload(url, file, files, param, success, failure) {
   return request(axiosRequestConfig, success, failure);
 }
 
+export function download(config, fileName, success) {
+  let result = {loading: true};
+  this.$request(config).then(response => {
+    const content = response.data;
+    const blob = new Blob([content], {type: "application/octet-stream"});
+    if ("download" in document.createElement("a")) {
+      // 非IE下载
+      //  chrome/firefox
+      let aTag = document.createElement('a');
+      aTag.download = fileName;
+      aTag.href = URL.createObjectURL(blob);
+      aTag.click();
+      URL.revokeObjectURL(aTag.href);
+      then(success, response, result);
+    } else {
+      // IE10+下载
+      navigator.msSaveBlob(blob, this.filename);
+    }
+  }).catch(error => {
+    exception(error, result, "");
+  });
+  return result;
+}
+
 export function all(array, callback) {
   if (array.length < 1) return;
   axios.all(array).then(axios.spread(callback));
@@ -188,5 +217,7 @@ export default {
     Vue.prototype.$fileDownload = fileDownload;
 
     Vue.prototype.$fileUpload = fileUpload;
+
+    Vue.prototype.$download = download;
   }
 };

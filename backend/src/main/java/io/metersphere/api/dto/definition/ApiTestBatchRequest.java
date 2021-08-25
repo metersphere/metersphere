@@ -14,6 +14,7 @@ public class ApiTestBatchRequest extends ApiTestCaseWithBLOBs {
     private List<String> ids;
     private List<OrderRequest> orders;
     private String projectId;
+    private Map<String, Object> combine;
 
     /**
      * isSelectAllDate：选择的数据是否是全部数据（全部数据是不受分页影响的数据）

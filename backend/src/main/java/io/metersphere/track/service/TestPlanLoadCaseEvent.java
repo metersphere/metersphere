@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.track.dto.TestPlanLoadCaseEventDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
@@ -19,6 +20,7 @@ import javax.annotation.Resource;
  * @Description
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class TestPlanLoadCaseEvent implements LoadTestFinishEvent {
     @Resource
     TestPlanReportService testPlanReportService;

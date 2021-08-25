@@ -54,7 +54,7 @@ public class SerialExecTask<T> implements Callable<T> {
             return (T) report;
 
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
             MSException.throwException(ex.getMessage());
             return null;
         }

@@ -65,6 +65,20 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
         return scenarioWithBLOBs;
     }
 
+    private void formatHashTree(JSONArray hashTree) {
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (int i = 0; i < hashTree.size(); i++) {
+                JSONObject object = (JSONObject) hashTree.get(i);
+                object.put("index", i + 1);
+                object.put("resourceId", UUID.randomUUID().toString());
+                hashTree.set(i, object);
+                if (CollectionUtils.isNotEmpty(object.getJSONArray("hashTree"))) {
+                    formatHashTree(object.getJSONArray("hashTree"));
+                }
+            }
+        }
+    }
+
     private ScenarioImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
         ScenarioImport scenarioImport = JSON.parseObject(testStr, ScenarioImport.class);
         List<ApiScenarioWithBLOBs> data = scenarioImport.getData();
@@ -88,6 +102,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                     JSONObject scenarioDefinition = JSONObject.parseObject(scenarioDefinitionStr);
                     if (scenarioDefinition != null) {
                         JSONArray hashTree = scenarioDefinition.getJSONArray("hashTree");
+                        formatHashTree(hashTree);
                         setCopy(hashTree);
                         JSONObject environmentMap = scenarioDefinition.getJSONObject("environmentMap");
                         if (environmentMap != null) {

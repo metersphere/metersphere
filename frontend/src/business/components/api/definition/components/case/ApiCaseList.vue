@@ -22,9 +22,10 @@
       <el-container v-if="!result.loading">
         <el-main>
           <div v-for="(item,index) in apiCaseList" :key="item.id ? item.id : item.uuid">
-            <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
+            <api-case-item :loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
                            @refresh="refresh"
                            @singleRun="singleRun"
+                           @stop="stop"
                            @refreshModule="refreshModule"
                            @copyCase="copyCase"
                            @showExecResult="showExecResult"
@@ -37,6 +38,7 @@
                            :is-case-edit="isCaseEdit"
                            :api="api"
                            :runResult="runResult"
+                           :maintainerOptions="maintainerOptions"
                            :api-case="item" :index="index" ref="apiCaseItem"/>
           </div>
         </el-main>
@@ -121,6 +123,7 @@ export default {
         method: REQ_METHOD,
       },
       envMap: new Map,
+      maintainerOptions: [],
     };
   },
   watch: {
@@ -144,6 +147,7 @@ export default {
     if (!this.environment && this.$store.state.useEnvironment) {
       this.environment = this.$store.state.useEnvironment;
     }
+    this.getMaintainerOptions();
   },
   computed: {
     isCaseEdit() {
@@ -154,6 +158,11 @@ export default {
     },
   },
   methods: {
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
+    },
     apiCaseSelected() {
       this.selectSize = 0;
       if (this.apiCaseList.length > 0) {
@@ -171,9 +180,11 @@ export default {
       this.condition = {components: API_CASE_CONFIGS};
       this.getApiTest(true);
       this.visible = true;
+      this.$store.state.currentApiCase = undefined;
     },
     add(api) {
       this.api = api;
+      this.api.source = "editCase";
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition();
       this.visible = true;
@@ -204,27 +215,33 @@ export default {
     sysAddition(apiCase) {
       this.condition.projectId = this.projectId;
       this.condition.apiDefinitionId = this.api.id;
-      this.$post("/api/testcase/list", this.condition, response => {
-        let data = response.data;
-        data.forEach(apiCase => {
-          if (apiCase.tags && apiCase.tags.length > 0) {
-            apiCase.tags = JSON.parse(apiCase.tags);
-            this.$set(apiCase, 'selected', false);
-          }
-          if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
-            apiCase.request = JSON.parse(apiCase.request);
-          }
-          if (!apiCase.request.hashTree) {
-            apiCase.request.hashTree = [];
-          }
-        });
-        this.apiCaseList = data;
-        if (apiCase) {
-          this.copyCase(apiCase);
-        } else {
-          this.addCase();
-        }
-      });
+      this.apiCaseList = [];
+      if (apiCase) {
+        this.copyCase(apiCase);
+      } else {
+        this.addCase();
+      }
+      // this.$post("/api/testcase/list", this.condition, response => {
+      //   let data = response.data;
+      //   data.forEach(apiCase => {
+      //     if (apiCase.tags && apiCase.tags.length > 0) {
+      //       apiCase.tags = JSON.parse(apiCase.tags);
+      //       this.$set(apiCase, 'selected', false);
+      //     }
+      //     if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+      //       apiCase.request = JSON.parse(apiCase.request);
+      //     }
+      //     if (!apiCase.request.hashTree) {
+      //       apiCase.request.hashTree = [];
+      //     }
+      //   });
+      //   this.apiCaseList = data;
+      //   if (apiCase) {
+      //     this.copyCase(apiCase);
+      //   } else {
+      //     this.addCase();
+      //   }
+      // });
     },
 
     apiCaseClose() {
@@ -250,14 +267,16 @@ export default {
       let obj = {envId: this.environment, show: true};
       this.batchEdit(obj);
       this.runResult = {testId: getUUID()};
+      this.$refs.apiCaseItem.runLoading = false;
       this.$success(this.$t('organization.integration.successful_operation'));
-      this.$emit("refresh");
+      //this.$emit("refresh");
     },
     errorRefresh() {
       this.batchLoadingIds = [];
       this.singleLoading = false;
       this.singleRunId = "";
-      this.$emit("refresh");
+      this.$refs.apiCaseItem.runLoading = false;
+      //this.$emit("refresh");
     },
     refresh() {
       this.getApiTest();
@@ -402,7 +421,18 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
-      this.$emit("refresh", row.id);
+      this.$emit("refreshCase", row.id);
+    },
+
+    stop(callback) {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, () => {
+        if (callback) {
+          callback();
+        }
+        this.singleLoading = false;
+        this.$success(this.$t('report.test_stop_success'));
+      });
     },
 
     batchRun() {
@@ -479,7 +509,15 @@ export default {
           this.$success(this.$t('commons.save_success'));
         }
         this.selectdCases = [];
-        this.getApiTest();
+        this.getResult();
+      });
+    },
+    getResult() {
+      this.apiCaseList.forEach(apiCase => {
+        const index = this.runData.findIndex(d => d.name === apiCase.id);
+        if (index !== -1) {
+          apiCase.active = true;
+        }
       });
     },
     showHistory(id) {

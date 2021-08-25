@@ -25,9 +25,7 @@
                    :plan-id="planId"/>
     <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
                     :plan-id="planId"/>
-    <test-case-statistics-report-view :test-plan="currentPlan" v-if="activeIndex === 'report'"/>
-
-    <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
+    <test-plan-report-content v-if="activeIndex === 'report'" :plan-id="planId"/>
 
   </div>
 
@@ -45,16 +43,14 @@ import MsMainContainer from "../../../common/components/MsMainContainer";
 import MsTestPlanHeaderBar from "./comonents/head/TestPlanHeaderBar";
 import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
 import TestPlanApi from "./comonents/api/TestPlanApi";
-import TestCaseStatisticsReportView from "./comonents/report/statistics/TestCaseStatisticsReportView";
-import TestReportTemplateList from "./comonents/TestReportTemplateList";
 import TestPlanLoad from "@/business/components/track/plan/view/comonents/load/TestPlanLoad";
 import {getCurrentProjectID} from "@/common/js/utils";
+import TestPlanReportContent from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContent";
 
 export default {
   name: "TestPlanView",
   components: {
-    TestReportTemplateList,
-    TestCaseStatisticsReportView,
+    TestPlanReportContent,
     TestPlanApi,
     TestPlanFunctional,
     MsTestPlanHeaderBar,
@@ -130,15 +126,6 @@ export default {
     },
     handleSelect(key) {
       this.activeIndex = key;
-      if (key === 'report' && !this.currentPlan.reportId) {
-        this.$refs.testReportTemplateList.open(this.planId);
-      }
-    },
-    openTemplateReport() {
-      this.$refs.testReportTemplateList.open(this.planId);
-    },
-    openReport(planId, id) {
-      this.currentPlan.reportId = id;
     },
     reloadMenu() {
       this.isMenuShow = false;
