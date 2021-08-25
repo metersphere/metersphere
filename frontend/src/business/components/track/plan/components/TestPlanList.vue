@@ -189,7 +189,7 @@
                                @editClick="handleEdit(scope.row)">
               <template v-slot:front>
                 <ms-table-operator-button :tip="$t('api_test.run')" icon="el-icon-video-play" class="run-button"
-                                          @exec="handleRun(scope.row)"/>
+                                          @exec="handleRun(scope.row)" v-permission="['PROJECT_TRACK_PLAN:READ+RUN']"/>
               </template>
               <template v-slot:middle>
                 <ms-table-operator-button :tip="$t('commons.copy')" icon="el-icon-copy-document"
