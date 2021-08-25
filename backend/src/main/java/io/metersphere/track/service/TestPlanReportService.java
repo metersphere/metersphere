@@ -927,6 +927,9 @@ public class TestPlanReportService {
             TestPlanReportDataExample example = new TestPlanReportDataExample();
             example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
             testPlanReportDataMapper.deleteByExample(example);
+            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+            contentExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
+            testPlanReportContentMapper.deleteByExample(contentExample);
 //            TestPlanReportResourceExample resourceExample = new TestPlanReportResourceExample();
 //            resourceExample.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
 //            testPlanReportResourceService.deleteByExample(resourceExample);
@@ -953,6 +956,10 @@ public class TestPlanReportService {
             TestPlanReportDataExample example = new TestPlanReportDataExample();
             example.createCriteria().andTestPlanReportIdIn(deleteReportIds);
             testPlanReportDataMapper.deleteByExample(example);
+
+            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+            contentExample.createCriteria().andTestPlanReportIdIn(deleteReportIds);
+            testPlanReportContentMapper.deleteByExample(contentExample);
 
 //            TestPlanReportResourceExample resourceExample = new TestPlanReportResourceExample();
 //            resourceExample.createCriteria().andTestPlanReportIdIn(deleteReportIds);
@@ -1096,6 +1103,9 @@ public class TestPlanReportService {
         if (StringUtils.isNotBlank(testPlanReportContent.getLoadFailureCases())) {
             testPlanReportDTO.setLoadFailureCases(JSONObject.parseArray(testPlanReportContent.getLoadFailureCases(), TestPlanLoadCaseDTO.class));
         }
+        testPlanReportDTO.setId(reportId);
+        TestPlanReport testPlanReport = testPlanReportMapper.selectByPrimaryKey(testPlanReportContent.getTestPlanReportId());
+        testPlanReportDTO.setName(testPlanReport.getName());
         return testPlanReportDTO;
     }
 }

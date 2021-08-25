@@ -9,14 +9,14 @@
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
         </div>
-        <el-button icon="el-icon-share" slot="reference" :disabled="!isTestManagerOrTestUser"
+        <el-button icon="el-icon-share" v-if="!isDb" slot="reference" :disabled="!isTestManagerOrTestUser"
                    plain size="mini" @click="handleShare()">
           {{'分享'}}
         </el-button>
       </el-popover>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-receiving" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
+      <el-button icon="el-icon-receiving" v-if="!isDb" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
         {{'保存'}}
       </el-button>
     </el-row>
@@ -26,7 +26,7 @@
       </el-button>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-setting" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
+      <el-button icon="el-icon-setting" v-if="!isDb"  :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
         {{'配置'}}
       </el-button>
     </el-row>
@@ -49,7 +49,8 @@ export default {
   props: {
     planId:String,
     isShare: Boolean,
-    report: Object
+    report: Object,
+    isDb: Boolean
   },
   data() {
     return {
@@ -91,6 +92,9 @@ export default {
         method: 'get',
         responseType: 'blob'
       };
+      if (this.isDb) {
+        config.url = '/test/plan/report/db/export/' + this.report.id;
+      }
       if (this.isShare) {
         config.url = '/share' + config.url;
       }
