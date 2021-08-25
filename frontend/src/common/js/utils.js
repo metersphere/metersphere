@@ -527,8 +527,8 @@ export function stopFullScreenLoading(loading, timeout) {
 }
 
 export function getShareId() {
-  // let herfUrl = 'http://localhost:8080/sharePlanReport?shareId=ba80f96a-184f-4607-b78e-324129153d9e';
-  let herfUrl = window.location.href;
+  //let herfUrl = 'http://localhost:8080/sharePlanReport?shareId=bf9496ac-8577-46b4-adf9-9c7e93dd06a8';
+   let herfUrl = window.location.href;
   if (herfUrl.indexOf('shareId=') > -1) {
     let shareId = '';
     new URL(herfUrl).searchParams.forEach((value, key) => {

@@ -94,7 +94,7 @@ public class ApiScenarioReportService {
     public APIScenarioReportResult get(String reportId) {
         APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(reportId);
-        if (detail != null) {
+        if (detail != null && reportResult != null) {
             reportResult.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
         }
         return reportResult;
