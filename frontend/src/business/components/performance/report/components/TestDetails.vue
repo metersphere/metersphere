@@ -293,6 +293,10 @@
 
 <script>
 import MsChart from "@/business/components/common/chart/MsChart";
+import {
+  getPerformanceReportDetailContent,
+  getSharePerformanceReportDetailContent,
+} from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
 
@@ -317,7 +321,7 @@ const CHART_MAP = [
 export default {
   name: "TestDetails",
   components: {MsChart},
-  props: ['report', 'export'],
+  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   data() {
     return {
       result: {},
@@ -455,17 +459,27 @@ export default {
       this.resetDefault();
     },
     getCheckOptions(reportKey) {
-      this.$get("/performance/report/content/" + reportKey + "/" + this.id)
-        .then(res => {
-          let data = res.data.data;
-          if (!data || data.length === 0) {
-            this.init = false;
-            return;
-          }
-          let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
-          yAxisIndex0List = this._unique(yAxisIndex0List);
-          this.checkOptions[reportKey] = ['ALL'].concat(yAxisIndex0List);
+      if (this.planReportTemplate) {
+        let data = this.planReportTemplate.detailContent;
+        this.handleGetCheckOptions(data, reportKey);
+      } else if (this.isShare){
+        return getSharePerformanceReportDetailContent(this.shareId, reportKey, this.id).then(res => {
+          this.handleGetCheckOptions(res.data.data, reportKey);
         });
+      } else {
+        return getPerformanceReportDetailContent(reportKey, this.id).then(res => {
+          this.handleGetCheckOptions(res.data.data, reportKey);
+        });
+      }
+    },
+    handleGetCheckOptions(data, reportKey) {
+      if (!data || data.length === 0) {
+        this.init = false;
+        return;
+      }
+      let yAxisIndex0List = data.filter(m => m.yAxis2 === -1).map(m => m.groupName);
+      yAxisIndex0List = this._unique(yAxisIndex0List);
+      this.checkOptions[reportKey] = ['ALL'].concat(yAxisIndex0List);
     },
     getTotalChart() {
       this.result.loading = true;
@@ -475,112 +489,125 @@ export default {
       this.baseOption.yAxis = [];
       this.legend = [];
       let promises = [];
-      for (let name in this.checkList) {
-        promises.push(this.getChart(name, this.checkList[name]));
-      }
-      Promise.all(promises).then((res) => {
-        res = res.filter(v => !!v);
-        // console.log(res);
-        for (let i = 0; i < res.length; i++) {
-          if (i === 0) {
-            this.baseOption.yAxis.push({
-              name: this.$t('load_test.report.' + res[i].reportKey),
-              type: 'value',
-              min: 0,
-              position: 'left',
-              boundaryGap: [0, '100%']
-            });
-          } else {
-            this.baseOption.yAxis.push({
-              name: this.$t('load_test.report.' + res[i].reportKey),
-              type: 'value',
-              min: 0,
-              position: 'right',
-              nameRotate: 20,
-              offset: (i - 1) * 50,
-              boundaryGap: [0, '100%']
-            });
-          }
-          this.totalOption = this.generateOption(this.baseOption, res[i].data, i);
+      if (this.planReportTemplate) {
+        let data = this.planReportTemplate.detailContent;
+        this.buildInfo(data);
+      } else {
+        for (let name in this.checkList) {
+          promises.push(this.getChart(name, this.checkList[name]));
         }
-        this.totalOption.grid.right = (res.length - 1) * 5 + '%';
-        this.changeDataZoom({start: 0, end: 100});
-        this.result.loading = false;
-      }).catch(() => {
-        this.result.loading = false;
-      });
+        Promise.all(promises).then((res) => {
+          this.handleGetTotalChart(res);
+        }).catch(() => {
+          this.result.loading = false;
+        });
+      }
+    },
+    handleGetTotalChart(res) {
+      res = res.filter(v => !!v);
+      // console.log(res);
+      for (let i = 0; i < res.length; i++) {
+        if (i === 0) {
+          this.baseOption.yAxis.push({
+            name: this.$t('load_test.report.' + res[i].reportKey),
+            type: 'value',
+            min: 0,
+            position: 'left',
+            boundaryGap: [0, '100%']
+          });
+        } else {
+          this.baseOption.yAxis.push({
+            name: this.$t('load_test.report.' + res[i].reportKey),
+            type: 'value',
+            min: 0,
+            position: 'right',
+            nameRotate: 20,
+            offset: (i - 1) * 50,
+            boundaryGap: [0, '100%']
+          });
+        }
+        this.totalOption = this.generateOption(this.baseOption, res[i].data, i);
+      }
+      this.totalOption.grid.right = (res.length - 1) * 5 + '%';
+      this.changeDataZoom({start: 0, end: 100});
+      this.result.loading = false;
     },
     getChart(reportKey, checkList) {
       if (!checkList || checkList.length === 0) {
         return;
       }
-      return this.$get("/performance/report/content/" + reportKey + "/" + this.id)
-        .then(res => {
-          let data = res.data.data;
-          let allData = [];
-          let checkAllOption = checkList.indexOf('ALL') > -1;
-          if (checkAllOption) {
-            let avgOpt = [
-              'ResponseTimeChart',
-              'ResponseTimePercentilesChart',
-              'LatencyChart',
-            ];
-            let result = groupBy(data, 'xAxis');
-            for (const xAxis in result) {
-              let yAxis = result[xAxis].map(a => a.yAxis).reduce((a, b) => a + b, 0);
-              if (avgOpt.indexOf(reportKey) > -1) {
-                yAxis = yAxis / result[xAxis].length;
-              }
-              allData.push({
-                groupName: 'ALL',
-                xAxis: xAxis,
-                yAxis: yAxis
-              });
-            }
-          }
-
-          //
-          data = data.filter(item => {
-            if (checkList.indexOf(item.groupName) > -1) {
-              return true;
-            }
-          });
-
-          // 选中了all
-          data = data.concat(allData);
-
-
-          // prefix
-          data.forEach(item => {
-            item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
-          });
-          return {data, reportKey};
-          // if (this.baseOption.yAxis.length === 0) {
-          //   this.baseOption.yAxis.push({
-          //     name: this.$t('load_test.report.' + reportKey),
-          //     type: 'value',
-          //     min: 0,
-          //     position: 'left',
-          //     boundaryGap: [0, '100%']
-          //   });
-          // } else {
-          //   this.baseOption.yAxis.push({
-          //     name: this.$t('load_test.report.' + reportKey),
-          //     type: 'value',
-          //     min: 0,
-          //     position: 'right',
-          //     nameRotate: 20,
-          //     offset: (this.baseOption.yAxis.length - 1) * 50,
-          //     boundaryGap: [0, '100%']
-          //   });
-          //   this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
-          // }
-          // let yAxisIndex = this.baseOption.yAxis.length - 1;
-          // this.totalOption = this.generateOption(this.baseOption, data, yAxisIndex);
-        })
-        .catch(() => {
-          this.totalOption = {};
+      this.totalOption = {};
+      if (this.isShare){
+        return getSharePerformanceReportDetailContent(this.shareId, reportKey, this.id).then(res => {
+          return this.handleGetChart(res.data.data, reportKey, checkList);
         });
+      } else {
+        return getPerformanceReportDetailContent(reportKey, this.id).then(res => {
+          return this.handleGetChart(res.data.data, reportKey, checkList);
+        });
+      }
+    },
+    handleGetChart(data, reportKey, checkList) {
+      let allData = [];
+      let checkAllOption = checkList.indexOf('ALL') > -1;
+      if (checkAllOption) {
+        let avgOpt = [
+          'ResponseTimeChart',
+          'ResponseTimePercentilesChart',
+          'LatencyChart',
+        ];
+        let result = groupBy(data, 'xAxis');
+        for (const xAxis in result) {
+          let yAxis = result[xAxis].map(a => a.yAxis).reduce((a, b) => a + b, 0);
+          if (avgOpt.indexOf(reportKey) > -1) {
+            yAxis = yAxis / result[xAxis].length;
+          }
+          allData.push({
+            groupName: 'ALL',
+            xAxis: xAxis,
+            yAxis: yAxis
+          });
+        }
+      }
+
+      //
+      data = data.filter(item => {
+        if (checkList.indexOf(item.groupName) > -1) {
+          return true;
+        }
+      });
+
+      // 选中了all
+      data = data.concat(allData);
+
+
+      // prefix
+      data.forEach(item => {
+        item.groupName = this.$t('load_test.report.' + reportKey) + ': ' + item.groupName;
+      });
+      return {data, reportKey};
+      // if (this.baseOption.yAxis.length === 0) {
+      //   this.baseOption.yAxis.push({
+      //     name: this.$t('load_test.report.' + reportKey),
+      //     type: 'value',
+      //     min: 0,
+      //     position: 'left',
+      //     boundaryGap: [0, '100%']
+      //   });
+      // } else {
+      //   this.baseOption.yAxis.push({
+      //     name: this.$t('load_test.report.' + reportKey),
+      //     type: 'value',
+      //     min: 0,
+      //     position: 'right',
+      //     nameRotate: 20,
+      //     offset: (this.baseOption.yAxis.length - 1) * 50,
+      //     boundaryGap: [0, '100%']
+      //   });
+      //   this.baseOption.grid.right = (this.baseOption.yAxis.length - 1) * 5 + '%';
+      // }
+      // let yAxisIndex = this.baseOption.yAxis.length - 1;
+      // this.totalOption = this.generateOption(this.baseOption, data, yAxisIndex);
     },
     generateOption(option, data, yAxisIndex) {
       let chartData = data;
