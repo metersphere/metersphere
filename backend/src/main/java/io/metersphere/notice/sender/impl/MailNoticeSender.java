@@ -6,6 +6,7 @@ import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.MailService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -41,6 +42,9 @@ public class MailNoticeSender extends AbstractNoticeSender {
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
         List<String> emails = super.getUserEmails(noticeModel, userIds);
         String[] users = emails.toArray(new String[0]);
         LogUtil.info("收件人地址: " + emails);
