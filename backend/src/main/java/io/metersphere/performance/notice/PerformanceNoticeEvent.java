@@ -8,9 +8,11 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.beanutils.BeanMap;
@@ -29,6 +31,8 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
     private NoticeSendService noticeSendService;
     @Resource
     private ProjectService projectService;
+    @Resource
+    private PerformanceTestService performanceTestService;
 
     public void sendNotice(LoadTestReport loadTestReport) {
 
@@ -55,11 +59,14 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         if (PerformanceTestStatus.Error.name().equals(loadTestReport.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
+
+        LoadTestDTO loadTestDTO = performanceTestService.get(loadTestReport.getTestId());
+
         Map paramMap = new HashMap<>();
         paramMap.put("operator", loadTestReport.getUserId());
         paramMap.put("type", "performance");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
-        paramMap.putAll(new BeanMap(loadTestReport));
+        paramMap.putAll(new BeanMap(loadTestDTO));
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(loadTestReport.getUserId())
                 .successContext(successContext)
@@ -73,13 +80,13 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
                 .paramMap(paramMap)
                 .build();
 
-        Organization organization = projectService.getOrganizationByProjectId(loadTestReport.getProjectId());
 
         if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())
                 || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
             noticeSendService.send(loadTestReport.getTriggerMode(), noticeModel);
         } else {
-            String context = "${operator}执行了性能测试: ${name}, 执行结果: ${status}";
+            Organization organization = projectService.getOrganizationByProjectId(loadTestReport.getProjectId());
+            String context = "${operator}执行了性能测试完成: ${name}";
             NoticeModel noticeModel2 = NoticeModel.builder()
                     .operator(loadTestReport.getUserId())
                     .context(context)
