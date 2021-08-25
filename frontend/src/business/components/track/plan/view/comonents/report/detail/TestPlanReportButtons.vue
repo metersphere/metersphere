@@ -9,7 +9,7 @@
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
         </div>
-        <el-button icon="el-icon-share" v-if="!isDb" slot="reference" :disabled="!isTestManagerOrTestUser"
+        <el-button icon="el-icon-share" slot="reference" :disabled="!isTestManagerOrTestUser"
                    plain size="mini" @click="handleShare()">
           {{'分享'}}
         </el-button>
@@ -67,6 +67,10 @@ export default {
       let pram = {};
       pram.customData = this.planId;
       pram.shareType = 'PLAN_REPORT';
+      if (this.isDb) {
+        pram.customData = this.report.id;
+        pram.shareType = 'PLAN_DB_REPORT';
+      }
       generateShareInfo(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
