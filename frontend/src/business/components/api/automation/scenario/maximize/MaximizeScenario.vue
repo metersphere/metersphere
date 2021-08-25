@@ -357,9 +357,9 @@ export default {
     suggestClick(node) {
       this.response = {};
       if (node && node.parent && node.parent.data.requestResult) {
-        this.response = node.parent.data.requestResult;
+        this.response = node.parent.data.requestResult[0];
       } else if (this.selectedNode) {
-        this.response = this.selectedNode.data.requestResult;
+        this.response = this.selectedNode.data.requestResult[0];
       }
     },
     showAll() {
@@ -920,7 +920,7 @@ export default {
 }
 
 #fab {
-  right: 80px;
+  right: 90px;
   z-index: 5;
 }
 
