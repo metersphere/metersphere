@@ -130,6 +130,10 @@
 </template>
 
 <script>
+import {
+  getPerformanceReportContent,getSharePerformanceReportContent,
+} from "@/network/load-test";
+
 export default {
   name: "RequestStatistics",
   data() {
@@ -142,14 +146,27 @@ export default {
       showBtn: true,
     }
   },
+  props: ['report', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     initTableData() {
-      this.$get("/performance/report/content/" + this.id).then(res => {
-        this.tableData = res.data.data;
-        this.originalData = res.data.data;
-      }).catch(() => {
-        this.tableData = [];
-      })
+      if (this.planReportTemplate) {
+        let data = this.planReportTemplate.content;
+        this.buildInfo(data);
+      } else if (this.isShare){
+        getSharePerformanceReportContent(this.shareId, this.id).then(res => {
+          this.tableData = res.data.data;
+          this.originalData = res.data.data;
+        }).catch(() => {
+          this.tableData = [];
+        })
+      } else {
+        getPerformanceReportContent(this.id).then(res => {
+          this.tableData = res.data.data;
+          this.originalData = res.data.data;
+        }).catch(() => {
+          this.tableData = [];
+        })
+      }
     },
     click(column) {
       this.searchLabel = '';
@@ -182,7 +199,6 @@ export default {
       deep: true
     }
   },
-  props: ['report']
 }
 </script>
 
