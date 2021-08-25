@@ -248,7 +248,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE;
-      this.jenkinsTask.push(Task);
+      this.jenkinsTask.unshift(Task);
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {

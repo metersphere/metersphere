@@ -250,7 +250,7 @@ export default {
       Task.identification = '';
       Task.taskType = 'SCHEDULE_TASK';
       Task.testId = this.testId;
-      this.scheduleTask.push(Task);
+      this.scheduleTask.unshift(Task);
     },
     handleEditTask(index, data) {
       data.isSet = true;
