@@ -51,6 +51,8 @@ public class ShareController {
     PerformanceReportService performanceReportService;
     @Resource
     PerformanceTestService performanceTestService;
+    @Resource
+    TestPlanReportService testPlanReportService;
 
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
@@ -157,6 +159,12 @@ public class ShareController {
     public List<LoadTestExportJmx> getOldJmxContent(@PathVariable String testId) {
 //        checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getJmxContent(testId);
+    }
+
+    @GetMapping("/test/plan/report/db/{shareId}/{reportId}")
+    public TestPlanSimpleReportDTO getTestPlanDbReport(@PathVariable String shareId, @PathVariable String reportId) {
+        shareInfoService.validate(shareId, reportId);
+        return testPlanReportService.getReport(reportId);
     }
 
 }

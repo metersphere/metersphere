@@ -42,6 +42,10 @@ export function getTestPlanReportContent(reportId, callback) {
   return reportId ? baseGet('/test/plan/report/db/' + reportId, callback) : {};
 }
 
+export function getShareTestPlanReportContent(shareId, reportId, callback) {
+  return reportId ? baseGet('/share/test/plan/report/db/' + shareId + '/' + reportId, callback) : {};
+}
+
 export function getPlanFunctionFailureCase(planId, callback) {
   return planId ? baseGet('/test/plan/case/list/failure/' + planId, callback) : {};
 }

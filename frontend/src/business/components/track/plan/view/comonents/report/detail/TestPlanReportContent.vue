@@ -18,7 +18,12 @@
 <script>
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
-import {getShareTestPlanReport, getTestPlanReport, getTestPlanReportContent} from "@/network/test-plan";
+import {
+  getShareTestPlanReport,
+  getShareTestPlanReportContent,
+  getTestPlanReport,
+  getTestPlanReportContent
+} from "@/network/test-plan";
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanLoadReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanLoadReport";
 import TestPlanReportContainer
@@ -59,6 +64,9 @@ export default {
   watch: {
     planId() {
       this.getReport();
+    },
+    reportId() {
+      this.getReport();
     }
   },
   created() {
@@ -91,13 +99,21 @@ export default {
       if (this.isTemplate) {
         this.report = "#report";
         this.report.config = this.getDefaultConfig(this.report.config);
+      }  else if (this.isDb) {
+        if (this.isShare) {
+          //持久化的报告分享
+          this.result = getShareTestPlanReportContent(this.shareId, this.reportId, (data) => {
+            this.report = data;
+            this.report.config = this.getDefaultConfig(this.report.config);
+          });
+        } else {
+          this.result = getTestPlanReportContent(this.reportId, (data) => {
+            this.report = data;
+            this.report.config = this.getDefaultConfig(this.report.config);
+          });
+        }
       } else if (this.isShare) {
         this.result = getShareTestPlanReport(this.shareId, this.planId, (data) => {
-          this.report = data;
-          this.report.config = this.getDefaultConfig(this.report.config);
-        });
-      } if (this.isDb) {
-        this.result = getTestPlanReportContent(this.reportId, (data) => {
           this.report = data;
           this.report.config = this.getDefaultConfig(this.report.config);
         });
