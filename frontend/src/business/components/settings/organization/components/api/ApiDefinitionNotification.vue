@@ -300,11 +300,13 @@ export default {
         case "CASE_UPDATE":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (i2 < 0) {
-            row.userIds.unshift('CREATOR');
-          }
-          if (i < 0) {
-            row.userIds.unshift('FOLLOW_PEOPLE');
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
+            if (i < 0) {
+              row.userIds.unshift('FOLLOW_PEOPLE');
+            }
           }
           break;
         case "DELETE":
@@ -313,8 +315,10 @@ export default {
         case "EXECUTE_FAILED":
           receiverOptions.unshift({id: 'FOLLOW_PEOPLE', name: this.$t('api_test.automation.follow_people')});
           receiverOptions.unshift({id: 'CREATOR', name: this.$t('commons.create_user')});
-          if (i2 < 0) {
-            row.userIds.unshift('CREATOR');
+          if (row.isSet) {
+            if (i2 < 0) {
+              row.userIds.unshift('CREATOR');
+            }
           }
           break;
         default:
