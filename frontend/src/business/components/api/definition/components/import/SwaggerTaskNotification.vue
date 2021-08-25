@@ -220,7 +220,7 @@ export default {
       Task.identification = '';
       Task.taskType = 'SWAGGER_URL';
       Task.testId = this.testId;
-      this.scheduleTask.push(Task);
+      this.scheduleTask.unshift(Task);
     },
     handleEditTask(index, data) {
       data.isSet = true;
