@@ -96,13 +96,7 @@ export default {
   watch:{
     reportType(){
       this.request.reportType = this.reportType;
-    },
-    'request.rawDataStruct'(){
-      this.reload();
-    },
-    'request.jsonDataStruct'(){
-      this.reload();
-    },
+    }
   },
   created() {
     this.currentProjectId = getCurrentProjectID();
