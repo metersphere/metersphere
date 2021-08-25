@@ -40,12 +40,14 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
+import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -104,6 +106,9 @@ public class PerformanceTestService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiPerformanceService apiPerformanceService;
+    @Lazy
+    @Resource
+    private TestPlanLoadCaseService testPlanLoadCaseService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -134,6 +139,8 @@ public class PerformanceTestService {
 
         // delete load_test
         loadTestMapper.deleteByPrimaryKey(request.getId());
+
+        testPlanLoadCaseService.deleteByTestId(testId);
 
         detachFileByTestId(request.getId());
     }
