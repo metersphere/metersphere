@@ -1034,7 +1034,7 @@ public class ApiDefinitionService {
     public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids, projectId);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
