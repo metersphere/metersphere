@@ -2,17 +2,26 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCase;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.mapper.TestCaseMapper;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
@@ -21,6 +30,7 @@ import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.HttpHeaders;
@@ -110,6 +120,39 @@ public class TestCaseController {
         return PageUtils.setPageInfo(page, testCaseService.getTestCaseIssueRelateList(request));
     }
 
+    @PostMapping("/relevance/api/list/{goPage}/{pageSize}")
+    public Pager<List<ApiTestCaseDTO>> getTestCaseApiCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestCaseApiCaseRelateList(request));
+    }
+
+    @PostMapping("/relevance/scenario/list/{goPage}/{pageSize}")
+    public Pager<List<ApiScenarioDTO>> getTestCaseScenarioCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestCaseScenarioCaseRelateList(request));
+    }
+
+    @PostMapping("/relevance/load/list/{goPage}/{pageSize}")
+    public Pager<List<LoadTestDTO>> getTestCaseLoadCaseRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseService.getTestCaseLoadCaseRelateList(request));
+    }
+
+    @GetMapping("/relate/test/list/{caseId}")
+    public List<TestCaseTestDao> getRelateTest(@PathVariable String caseId) {
+        return testCaseService.getRelateTest(caseId);
+    }
+
+    @PostMapping("/relate/test/{type}/{caseId}")
+    public void relateTest(@PathVariable String type, @PathVariable String caseId, @RequestBody List<String> apiIds) {
+        testCaseService.relateTest(type, caseId, apiIds);
+    }
+
+    @GetMapping("/relate/delete/{caseId}/{testId}")
+    public void relateDelete(@PathVariable String caseId, @PathVariable String testId) {
+        testCaseService.relateDelete(caseId, testId);
+    }
+
     @PostMapping("/reviews/case/{goPage}/{pageSize}")
     public Pager<List<TestCase>> getReviewCase(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -131,14 +174,18 @@ public class TestCaseController {
     @PostMapping(value = "/add", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_CREATE)
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.CREATE, title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, targetClass = TestCaseMapper.class,
+            event = NoticeConstants.Event.CREATE, mailTemplate = "track/TestCaseCreate", subject = "测试用例通知")
+    public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         request.setId(UUID.randomUUID().toString());
         return testCaseService.save(request, files);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseService.class)
-    public String editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, target = "#targetClass.getTestCase(#request.id)", targetClass = TestCaseService.class,
+            event = NoticeConstants.Event.UPDATE, mailTemplate = "track/TestCaseUpdate", subject = "测试用例通知")
+    public TestCase editTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         return testCaseService.edit(request, files);
     }
 
@@ -157,6 +204,8 @@ public class TestCaseController {
 
     @PostMapping("/deleteToGc/{testCaseId}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#testCaseId)", msClass = TestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.TRACK_TEST_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getTestCase(#testCaseId)", targetClass = TestCaseService.class,
+            mailTemplate = "track/TestCaseDelete", subject = "测试用例通知")
     public int deleteToGC(@PathVariable String testCaseId) {
         checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.deleteTestCaseToGc(testCaseId);
@@ -167,26 +216,26 @@ public class TestCaseController {
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.testCaseImport(file, projectId, userId, importType,request);
+        return testCaseService.testCaseImport(file, projectId, userId, importType, request);
     }
 
     @PostMapping("/importIgnoreError/{projectId}/{userId}/{importType}")
     @MsAuditLog(module = "track_test_case", type = OperLogConstants.IMPORT, project = "#projectId")
     public ExcelResponse testCaseImportIgnoreError(MultipartFile file, @PathVariable String projectId, @PathVariable String userId, @PathVariable String importType, HttpServletRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.testCaseImportIgnoreError(file, projectId, userId,importType, request);
+        return testCaseService.testCaseImportIgnoreError(file, projectId, userId, importType, request);
     }
 
     @GetMapping("/export/template/{projectId}/{importType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
-    public void testCaseTemplateExport(@PathVariable String projectId,@PathVariable String importType,HttpServletResponse response) {
-        testCaseService.testCaseTemplateExport(projectId,importType,response);
+    public void testCaseTemplateExport(@PathVariable String projectId, @PathVariable String importType, HttpServletResponse response) {
+        testCaseService.testCaseTemplateExport(projectId, importType, response);
     }
 
     @GetMapping("/export/xmindTemplate/{projectId}/{importType}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ_EXPORT)
-    public void xmindTemplate(@PathVariable String projectId,@PathVariable String importType,HttpServletResponse response) {
-        testCaseService.testCaseXmindTemplateExport(projectId,importType,response);
+    public void xmindTemplate(@PathVariable String projectId, @PathVariable String importType, HttpServletResponse response) {
+        testCaseService.testCaseXmindTemplateExport(projectId, importType, response);
     }
 
     @PostMapping("/export/testcase")

@@ -29,6 +29,7 @@ public class IssuesRequest extends BaseQueryRequest {
      */
     private String id;
     private String caseId;
+    private String resourceId;
     private String platform;
     private String customFields;
     private List<String> testCaseIds;

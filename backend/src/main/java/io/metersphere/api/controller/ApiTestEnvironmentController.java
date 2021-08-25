@@ -86,4 +86,8 @@ public class ApiTestEnvironmentController {
         apiTestEnvironmentService.delete(id);
     }
 
+    @GetMapping("/getTcpMockInfo/{projectId}")
+    public String getMockInfo(@PathVariable(value = "projectId") String projectId) {
+        return apiTestEnvironmentService.getMockInfo(projectId);
+    }
 }

@@ -76,7 +76,7 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     @ExcelProperty("用例状态")
     private String status;
 
-    @ExcelProperty(value = "责任人")
+    @ExcelProperty(value = "责任人(ID)")
     private String maintainer;
 
     @NotBlank(message = "{cannot_be_null}")

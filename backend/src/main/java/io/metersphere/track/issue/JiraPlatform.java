@@ -73,7 +73,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
-            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+            issues = extIssuesMapper.getIssues(issuesRequest);
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
@@ -141,22 +141,35 @@ public class JiraPlatform extends AbstractIssuePlatform {
             RestTemplate restTemplate = new RestTemplate();
             //post
             ResponseEntity<String> responseEntity = null;
-            responseEntity = restTemplate.exchange(url + "/rest/api/2/search?jql=project="+key+"+AND+issuetype="+type+"&fields=summary,issuetype",
-                    HttpMethod.GET, requestEntity, String.class);
-            String body = responseEntity.getBody();
-            JSONObject jsonObject = JSONObject.parseObject(body);
-            JSONArray jsonArray = jsonObject.getJSONArray("issues");
-            for (int i = 0; i < jsonArray.size(); i++) {
-                JSONObject o = jsonArray.getJSONObject(i);
-                String issueKey = o.getString("key");
-                JSONObject fields = o.getJSONObject("fields");
-                String summary = fields.getString("summary");
-                DemandDTO demandDTO = new DemandDTO();
-                demandDTO.setName(summary);
-                demandDTO.setId(issueKey);
-                demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
-                list.add(demandDTO);
-            }
+            int maxResults = 50, startAt = 0, total = 0, currentStartAt = 0;
+            do {
+                String jql = url + "/rest/api/2/search?jql=project=" + key + "+AND+issuetype=" + type
+                        + "&maxResults=" + maxResults + "&startAt=" + startAt + "&fields=summary,issuetype";
+                responseEntity = restTemplate.exchange(jql,
+                        HttpMethod.GET, requestEntity, String.class);
+                String body = responseEntity.getBody();
+                JSONObject jsonObject = JSONObject.parseObject(body);
+                JSONArray jsonArray = jsonObject.getJSONArray("issues");
+                if (jsonArray.size() == 0) {
+                    break;
+                }
+                total = jsonObject.getInteger("total");
+                startAt = startAt + maxResults;
+                currentStartAt = jsonObject.getInteger("startAt");
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject o = jsonArray.getJSONObject(i);
+                    String issueKey = o.getString("key");
+                    JSONObject fields = o.getJSONObject("fields");
+                    String summary = fields.getString("summary");
+                    DemandDTO demandDTO = new DemandDTO();
+                    demandDTO.setName(summary);
+                    demandDTO.setId(issueKey);
+                    demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
+                    list.add(demandDTO);
+                }
+            } while (currentStartAt + maxResults < total);
+
+
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }

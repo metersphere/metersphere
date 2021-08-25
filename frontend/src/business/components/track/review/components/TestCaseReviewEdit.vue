@@ -189,7 +189,7 @@ export default {
           if (this.projectId) {
             this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
               this.dialogFormVisible = false;
-              this.$router.push('/track/review/view/' + response.data);
+              this.$router.push('/track/review/view/' + response.data.id);
             });
           }
         } else {

@@ -21,6 +21,24 @@
           @changeApiProtocol="changeApiProtocol" @callback="callback"/>
       </el-col>
     </el-row>
+    <!-- MOCK信息 -->
+    <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
+    <div class="mock-info">
+      <el-row>
+        <el-col :span="20">
+          Mock地址：
+          <el-link v-if="this.mockInfo !== '' " target="_blank" style="color: black"
+                   type="primary">{{ this.mockInfo }}
+          </el-link>
+          <el-link v-else  target="_blank" style="color: darkred"
+                   type="primary">当前项目未开启Mock服务
+          </el-link>
+        </el-col>
+        <el-col :span="4">
+          <el-link @click="mockSetting" type="primary">Mock设置</el-link>
+        </el-col>
+      </el-row>
+    </div>
     <!-- 请求参数 -->
     <div v-if="apiProtocol=='TCP'">
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
@@ -45,7 +63,7 @@
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsTcpFormatParameters from  "../request/tcp/TcpFormatParameters";
 import MsChangeHistory from "../../../../history/ChangeHistory";
-import {hasLicense} from "@/common/js/utils";
+import {hasLicense, getCurrentProjectID, getUUID} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
@@ -69,6 +87,7 @@ export default {
     return {
       validated: false,
       apiProtocol: "TCP",
+      mockInfo: "",
       methodTypes:[
         {
           'key':"TCP",
@@ -96,8 +115,8 @@ export default {
           this.methodTypes.push(esbMethodType);
         }
       }
-
     }
+    this.getMockInfo();
   },
   watch: {
     syncTabs() {
@@ -191,11 +210,26 @@ export default {
     },
     changeApiProtocol(protocol){
       this.apiProtocol = protocol;
-    }
+    },
+    getMockInfo(){
+      let projectId = getCurrentProjectID();
+      this.$get("/api/environment/getTcpMockInfo/" + projectId, response => {
+        this.mockInfo = response.data;
+      });
+    },
+    mockSetting() {
+      if(this.basisData.id){
+        this.$emit('changeTab','mock');
+      }else {
+        this.$alert(this.$t('api_test.mock.create_error'));
+      }
+    },
   },
 }
 </script>
 
 <style scoped>
-
+.mock-info {
+  margin: 20px 45px;
+}
 </style>

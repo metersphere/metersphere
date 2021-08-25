@@ -13,6 +13,7 @@ public class PerformanceReference {
         performanceColumns.put("name", "用例名称");
         performanceColumns.put("status", "状态");
         performanceColumns.put("loadConfiguration", "压力配置");
+        performanceColumns.put("followPeople", "关注人");
         performanceColumns.put("advancedConfiguration", "高级配置");
         performanceColumns.put("description", "描述");
         performanceColumns.put("ms-dff-col", "loadConfiguration,advancedConfiguration");

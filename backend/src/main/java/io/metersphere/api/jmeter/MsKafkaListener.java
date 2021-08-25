@@ -10,10 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class MsKafkaListener {
     public static final String TOPICS = "ms-api-exec-topic";
     public static final String CONSUME_ID = "ms-api-exec-consume";
@@ -47,7 +49,7 @@ public class MsKafkaListener {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
         return null;
     }

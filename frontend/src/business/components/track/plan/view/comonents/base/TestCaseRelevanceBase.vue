@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :title="dialogTitle"  ref="relevanceDialog">
+  <relevance-dialog :width="width" :title="dialogTitle"  ref="relevanceDialog">
 
     <template v-slot:aside>
       <select-menu
@@ -66,7 +66,8 @@
       },
       flag:{
         type:Boolean,
-      }
+      },
+      width: String
     },
     watch: {
 

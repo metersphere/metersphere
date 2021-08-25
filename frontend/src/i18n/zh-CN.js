@@ -169,6 +169,7 @@ export default {
     api_case: "接口用例",
     scenario_case: "场景用例",
     task_center: "任务中心",
+    notice_center: "消息中心",
     all_module_title: "全部模块",
     create_user: '创建人',
     run_message: "任务执行中，请到任务中心查看详情",
@@ -176,6 +177,10 @@ export default {
     execute_history: "执行历史",
     debug_history: "调试历史",
     testing: "测试中",
+    environment: "运行环境",
+    run_success: "执行成功",
+    run_completed: "执行完成",
+    run_fail: "执行失败",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -372,7 +377,7 @@ export default {
     defect_manage: '项目管理平台',
     message_settings: '消息设置',
     message: {
-      jenkins_task_notification: 'Jenkins接口调用任务通知',
+      jenkins_task_notification: 'Jenkins 任务通知',
       test_plan_task_notification: '测试计划任务通知',
       test_review_task_notice: '测试评审任务通知',
       create_new_notification: '创建新通知',
@@ -382,12 +387,13 @@ export default {
       defect_task_notification: '缺陷任务通知',
       select_receiving_method: '选择接收方式',
       mail: '邮件',
+      in_site: '站内通知',
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
       lark: '飞书机器人',
-      notes: '1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
-        '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
-        '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
+      notes: '1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;<br/>' +
+        '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";<br/>' +
+        '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号',
       message: '事件，接收人，接收方式为必填项',
       message_webhook: '接收方式为钉钉和企业机器人,飞书时，webhook为必填项',
       template: "模版"
@@ -432,12 +438,12 @@ export default {
       azure_storytype: '需求类型',
       input_azure_issuetype: '请输入问题类型',
       input_azure_storytype: '请输入需求类型',
-      azure_pat:'PersonalAccessTokens',
-      azure_devops_url:'Azure Devops 地址',
-      azure_organization_id:'Azure 组织ID',
-      input_azure_pat:'请输入 Personal Access Token',
-      input_azure_url:'请输入 Azure Devops 地址',
-      input_azure_organization_id:'请输入 Azure 组织ID',
+      azure_pat: 'PersonalAccessTokens',
+      azure_devops_url: 'Azure Devops 地址',
+      azure_organization_id: 'Azure 组织ID',
+      input_azure_pat: '请输入 Personal Access Token',
+      input_azure_url: '请输入 Azure Devops 地址',
+      input_azure_organization_id: '请输入 Azure 组织ID',
       use_tip_azure: 'Azure Devops 地址+令牌(账户设置-个人访问令牌-创建令牌)',
     }
   },
@@ -998,6 +1004,8 @@ export default {
       database_config: "数据库配置",
       tcp_config: "TCP配置",
       import: "导入环境",
+      request_timeout: "链接超时",
+      response_timeout: "响应超时",
     },
     scenario: {
       scenario: "场景",
@@ -1542,6 +1550,7 @@ export default {
       plan_delete: "删除计划",
       api_case: "接口测试用例",
       scenario_case: "场景测试用例",
+      execute_result: "执行结果",
       load_case: {
         case: "性能用例",
         execution_status: "执行状态",

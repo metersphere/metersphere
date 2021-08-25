@@ -47,6 +47,38 @@
             </template>
           </ms-table-column>
 
+          <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="envs"
+            :label="$t('commons.environment')"
+            min-width="150">
+            <template v-slot:default="{row}">
+              <div v-if="row.envs">
+                <span v-for="(k, v, index) in row.envs" :key="index">
+                  <span v-if="index===0 || index===1">
+                    <span class="project-name" :title="v">{{v}}</span>:
+                    <el-tag type="success" size="mini" effect="plain">
+                      {{k}}
+                    </el-tag>
+                    <br/>
+                  </span>
+                  <el-popover
+                    placement="top"
+                    width="350"
+                    trigger="click">
+                    <div v-for="(k, v, index) in row.envs" :key="index">
+                      <span class="plan-case-env">{{v}}:
+                        <el-tag type="success" size="mini" effect="plain">{{k}}</el-tag><br/>
+                      </span>
+                    </div>
+                    <el-link v-if="index === 2" slot="reference" type="info" :underline="false" icon="el-icon-more"/>
+                  </el-popover>
+                </span>
+              </div>
+            </template>
+          </ms-table-column>
+
           <ms-table-column :field="item"
                            :fields-width="fieldsWidth"
                            prop="tagNames" :label="$t('api_test.automation.tag')"
@@ -129,7 +161,7 @@
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="this.$refs.table ? this.$refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
-    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="planCaseIds" :type="'apiScenario'"/>
     <ms-task-center ref="taskCenter"/>
   </div>
 </template>
@@ -152,7 +184,7 @@ import {
 import {TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
-import MsPlanRunMode from "../../../common/PlanRunMode";
+import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import MsTaskCenter from "../../../../../task/TaskCenter";
@@ -247,6 +279,7 @@ export default {
       valueArr: {
         projectEnv: []
       },
+      planCaseIds: []
     }
   },
   computed: {
@@ -292,6 +325,18 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
+          this.tableData.forEach(item => {
+            try {
+              const envs = JSON.parse(item.environment);
+              if (envs) {
+                this.$post("/test/plan/scenario/case/env", envs, res => {
+                  this.$set(item, 'envs', res.data);
+                });
+              }
+            } catch (error) {
+              this.$set(item, 'envs', {});
+            }
+          })
           this.loading = false;
           if (this.$refs.table) {
             this.$refs.table.selectRows.clear();
@@ -333,6 +378,11 @@ export default {
       })
     },
     handleBatchExecute() {
+      let rows = this.orderBySelectRows(this.$refs.table.selectRows);
+      this.planCaseIds = [];
+      rows.forEach(row => {
+        this.planCaseIds.push(row.id);
+      })
       this.$refs.runMode.open('API');
     },
     orderBySelectRows(rows){
@@ -369,9 +419,12 @@ export default {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.$message(this.$t('commons.run_message'));
           this.$refs.taskCenter.open();
+          this.search();
+        }, () => {
+          this.search();
         });
       }
-      this.search();
+
     },
     execute(row) {
       this.infoDb = false;
@@ -485,5 +538,25 @@ export default {
 /*/deep/ .el-drawer__header {*/
 /*  margin-bottom: 0px;*/
 /*}*/
+
+.plan-case-env {
+  display: inline-block;
+  padding: 0 0;
+  max-width: 350px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  margin-left: 5px;
+}
+
+.project-name {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 80px;
+  vertical-align: middle;
+}
 
 </style>

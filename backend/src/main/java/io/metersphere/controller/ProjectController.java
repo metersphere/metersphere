@@ -73,15 +73,8 @@ public class ProjectController {
     @MsAuditLog(module = "project_project_manager", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#project.id)", msClass = ProjectService.class)
     public Project addProject(@RequestBody AddProjectRequest project, HttpServletRequest request) {
         Project returnModel = projectService.addProject(project);
-
         //创建项目的时候默认增加Mock环境
-        String requestUrl = request.getRequestURL().toString();
-        String baseUrl = "";
-        if (requestUrl.contains("/project/add")) {
-            baseUrl = requestUrl.split("/project/add")[0];
-        }
-        apiTestEnvironmentService.getMockEnvironmentByProjectId(returnModel.getId(), project.getProtocal(), baseUrl);
-
+        apiTestEnvironmentService.getMockEnvironmentByProjectId(returnModel.getId());
         return returnModel;
     }
 
@@ -142,5 +135,10 @@ public class ProjectController {
     @GetMapping("/getOwnerProjectIds")
     public Collection<String> getOwnerProjectIds() {
         return checkPermissionService.getUserRelatedProjectIds();
+    }
+
+    @GetMapping("/genTcpMockPort/{id}")
+    public String genTcpMockPort(@PathVariable String id){
+        return projectService.genTcpMockPort(id);
     }
 }

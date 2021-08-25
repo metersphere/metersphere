@@ -33,6 +33,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
@@ -342,7 +343,7 @@ public class ApiAutomationService {
         }
     }
 
-    public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
+    public ApiScenario update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles, List<MultipartFile> scenarioFiles) {
         checkNameExist(request);
         checkScenarioNum(request);
 
@@ -367,6 +368,7 @@ public class ApiAutomationService {
         apiScenarioReferenceIdService.saveByApiScenario(scenario);
         extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
         uploadFiles(request, bodyFiles, scenarioFiles);
+        return scenario;
     }
 
     /**
@@ -806,7 +808,7 @@ public class ApiAutomationService {
             }
             return bos.toByteArray();
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
         }
         return null;
     }
@@ -869,7 +871,7 @@ public class ApiAutomationService {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
     }
 
@@ -1384,7 +1386,7 @@ public class ApiAutomationService {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
             jMeterService.runLocal(reportIds.size() == 1 ? reportIds.get(0) : JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
         return request.getId();
@@ -2362,11 +2364,12 @@ public class ApiAutomationService {
         }
     }
 
-    public void batchCopy(ApiScenarioBatchRequest batchRequest) {
+    public BatchOperaResponse batchCopy(ApiScenarioBatchRequest batchRequest) {
 
         ServiceUtils.getSelectAllIds(batchRequest, batchRequest.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<ApiScenarioWithBLOBs> apiScenarioList = extApiScenarioMapper.selectIds(batchRequest.getIds());
+        StringBuffer stringBuffer = new StringBuffer();
         for (ApiScenarioWithBLOBs apiModel : apiScenarioList) {
             long time = System.currentTimeMillis();
             ApiScenarioWithBLOBs newModel = apiModel;
@@ -2380,6 +2383,7 @@ public class ApiAutomationService {
             example.createCriteria().andNameEqualTo(newModel.getName()).
                     andProjectIdEqualTo(newModel.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(newModel.getId());
             if (apiScenarioMapper.countByExample(example) > 0) {
+                stringBuffer.append(newModel.getName()+";");
                 continue;
             } else {
                 boolean insertFlag = true;
@@ -2410,6 +2414,15 @@ public class ApiAutomationService {
                 }
             }
         }
+
+        BatchOperaResponse result = new BatchOperaResponse();
+        if(stringBuffer.length() == 0){
+            result.result = true;
+        }else {
+            result.result = false;
+            result.errorMsg = stringBuffer.substring(0,stringBuffer.length()-1);
+        }
+        return result;
     }
 
     public DeleteCheckResult checkBeforeDelete(ApiScenarioBatchRequest request) {
@@ -2461,5 +2474,45 @@ public class ApiAutomationService {
         result.setDeleteFlag(checkMsgList.isEmpty());
         result.setCheckMsg(checkMsgList);
         return result;
+    }
+
+    public List<ApiScenario> getScenarioCaseByIds(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(ids);
+            return apiScenarioMapper.selectByExample(example);
+        }
+        return new ArrayList<>();
+    }
+
+    public void initExecuteTimes() {
+        List<String> apiScenarioIds = extApiScenarioMapper.selectIdsByExecuteTimeIsNull();
+        Map<String,Long> scenarioIdMap = new HashMap<>();
+        List<ApiReportCountDTO> reportCount = apiScenarioReportService.countByApiScenarioId();
+        for (ApiReportCountDTO dto : reportCount) {
+            scenarioIdMap.put(dto.getId(),dto.getCountNum());
+        }
+        for (String id:apiScenarioIds) {
+            int count = 0;
+            if(scenarioIdMap.containsKey(id)){
+                Long countNum = scenarioIdMap.get(id);
+                if(countNum != null){
+                    count = countNum.intValue();
+                }
+            }
+            ApiScenarioWithBLOBs apiScenario = new ApiScenarioWithBLOBs();
+            apiScenario.setId(id);
+            apiScenario.setExecuteTimes(count);
+            apiScenarioMapper.updateByPrimaryKeySelective(apiScenario);
+        }
+    }
+
+    public long countExecuteTimesByProjectID(String projectId) {
+        Long result = extApiScenarioMapper.countExecuteTimesByProjectID(projectId);
+        if(result == null){
+            return 0;
+        }else {
+            return result.longValue();
+        }
     }
 }

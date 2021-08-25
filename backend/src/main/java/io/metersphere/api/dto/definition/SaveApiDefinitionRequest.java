@@ -42,6 +42,8 @@ public class SaveApiDefinitionRequest {
 
     private String userId;
 
+    private String followPeople;
+
     private Schedule schedule;
 
     private String triggerMode;

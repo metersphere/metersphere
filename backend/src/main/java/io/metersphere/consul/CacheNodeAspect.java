@@ -26,7 +26,7 @@ public class CacheNodeAspect {
         try {
             consulService.updateCache();
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
     }
 

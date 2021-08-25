@@ -6,6 +6,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -18,7 +24,9 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.TestCaseTemplateDao;
+import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.excel.listener.TestCaseNoModelDataListener;
@@ -29,6 +37,7 @@ import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReference;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.*;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.dto.TestCaseDTO;
@@ -36,6 +45,7 @@ import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
+import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.xmind.XmindCaseParser;
 import io.metersphere.xmind.pojo.TestCaseXmindData;
 import io.metersphere.xmind.utils.XmindExportUtil;
@@ -120,6 +130,15 @@ public class TestCaseService {
     private IssuesMapper issuesMapper;
     @Resource
     private CustomFieldService customFieldService;
+    @Resource
+    @Lazy
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    @Lazy
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    @Lazy
+    private PerformanceTestService performanceTestService;
 
     private void setNode(TestCaseWithBLOBs testCase) {
         if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
@@ -306,6 +325,7 @@ public class TestCaseService {
         TestCaseTestExample examples = new TestCaseTestExample();
         examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
         testCaseTestMapper.deleteByExample(examples);
+        relateDelete(testCaseId);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -756,7 +776,7 @@ public class TestCaseService {
                 i = bis.read(buff);
             }
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            LogUtil.error(ex);
             MSException.throwException("下载思维导图模版失败");
         }
     }
@@ -960,9 +980,15 @@ public class TestCaseService {
                     list.add(model.getStepModel());
                 }else if(StringUtils.equalsAnyIgnoreCase(head,"Priority","用例等級","用例等级")){
                     list.add(model.getPriority());
-                }else {
+                }else if(StringUtils.equalsAnyIgnoreCase(head,"Case status","用例状态","用例狀態")){
+                    list.add(model.getStatus());
+                } else if (StringUtils.equalsAnyIgnoreCase(head, "Maintainer(ID)", "责任人(ID)", "維護人(ID)")) {
+                    String value = customDataMaps.get("责任人");
+                    value = value == null ? "" : value;
+                    list.add(value);
+                } else {
                     String value = customDataMaps.get(head);
-                    if(value == null){
+                    if (value == null) {
                         value = "";
                     }
                     list.add(value);
@@ -1223,23 +1249,11 @@ public class TestCaseService {
         return false;
     }
 
-    public String save(EditTestCaseRequest request, List<MultipartFile> files) {
+    public TestCase save(EditTestCaseRequest request, List<MultipartFile> files) {
 
 
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
-        //插入测试与用例关系表
-        if (!CollectionUtils.isEmpty(request.getSelected())) {
-            List<List<String>> selecteds = request.getSelected();
-            TestCaseTest test = new TestCaseTest();
-            selecteds.forEach(id -> {
-                test.setTestType(id.get(0));
-                test.setTestId(id.get(id.size() - 1));
-                test.setTestCaseId(request.getId());
-                test.setCreateTime(System.currentTimeMillis());
-                test.setUpdateTime(System.currentTimeMillis());
-                testCaseTestMapper.insert(test);
-            });
-        }
+
         // 复制用例时传入文件ID进行复制
         if (!CollectionUtils.isEmpty(request.getFileIds())) {
             List<String> fileIds = request.getFileIds();
@@ -1262,34 +1276,14 @@ public class TestCaseService {
             });
         }
 
-        return testCaseWithBLOBs.getId();
+        return testCaseWithBLOBs;
     }
 
-    public String edit(EditTestCaseRequest request, List<MultipartFile> files) {
+    public TestCase edit(EditTestCaseRequest request, List<MultipartFile> files) {
         TestCaseWithBLOBs testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getId());
         request.setNum(testCaseWithBLOBs.getNum());
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
-        }
-        //插入测试与用例关系表
-        TestCaseTestExample example = new TestCaseTestExample();
-        example.createCriteria().andTestCaseIdEqualTo(request.getId());
-        List<TestCaseTest> list = testCaseTestMapper.selectByExample(example);
-        if (list.size() > 0) {
-            testCaseTestMapper.deleteByExample(example);
-        }
-        List<List<String>> selecteds = request.getSelected();
-        TestCaseTest test = new TestCaseTest();
-        LogUtil.info("关联的测试用例:" + selecteds);
-        if (selecteds != null) {
-            selecteds.forEach(id -> {
-                test.setTestType(id.get(0));
-                test.setTestId(id.get(id.size() - 1));
-                test.setCreateTime(System.currentTimeMillis());
-                test.setUpdateTime(System.currentTimeMillis());
-                test.setTestCaseId(request.getId());
-                testCaseTestMapper.insert(test);
-            });
         }
 
         // 新选择了一个文件，删除原来的文件
@@ -1307,7 +1301,6 @@ public class TestCaseService {
             testCaseFileMapper.deleteByExample(testCaseFileExample);
         }
 
-
         if (files != null) {
             files.forEach(file -> {
                 final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
@@ -1319,7 +1312,7 @@ public class TestCaseService {
         }
         this.setNode(request);
         editTestCase(request);
-        return request.getId();
+        return testCaseWithBLOBs;
     }
 
     public String editTestCase(EditTestCaseRequest request, List<MultipartFile> files) {
@@ -1769,5 +1762,94 @@ public class TestCaseService {
             return JSON.toJSONString(details);
         }
         return null;
+    }
+
+    public List<ApiTestCaseDTO> getTestCaseApiCaseRelateList(ApiTestCaseRequest request) {
+        return testCaseTestMapper.relevanceApiList(request);
+    }
+
+    public void relateTest(String type, String caseId, List<String> apiIds) {
+        apiIds.forEach(testId -> {
+            TestCaseTest testCaseTest = new TestCaseTest();
+            testCaseTest.setTestType(type);
+            testCaseTest.setTestCaseId(caseId);
+            testCaseTest.setTestId(testId);
+            testCaseTest.setCreateTime(System.currentTimeMillis());
+            testCaseTest.setUpdateTime(System.currentTimeMillis());
+            testCaseTestMapper.insert(testCaseTest);
+        });
+    }
+
+    public void relateDelete(String caseId, String testId) {
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria()
+                .andTestCaseIdEqualTo(caseId)
+                .andTestIdEqualTo(testId);
+        testCaseTestMapper.deleteByExample(example);
+    }
+
+    public void relateDelete(String caseId) {
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria()
+                .andTestCaseIdEqualTo(caseId);
+        testCaseTestMapper.deleteByExample(example);
+    }
+
+    public List<TestCaseTestDao> getRelateTest(String caseId) {
+        TestCaseTestExample example = new TestCaseTestExample();
+        example.createCriteria()
+                .andTestCaseIdEqualTo(caseId);
+        List<TestCaseTest> testCaseTests = testCaseTestMapper.selectByExample(example);
+        Map<String, TestCaseTest> testCaseTestsMap = testCaseTests.stream()
+                .collect(Collectors.toMap(TestCaseTest::getTestId, i -> i));
+        List<ApiTestCase> apiCases = apiTestCaseService.getApiCaseByIds(
+                getTestIds(testCaseTests, "testcase")
+        );
+        List<ApiScenario> apiScenarios = apiAutomationService.getScenarioCaseByIds(
+                getTestIds(testCaseTests, "automation")
+        );
+        List<LoadTest> apiLoadTests = performanceTestService.getLoadCaseByIds(
+                getTestIds(testCaseTests, "performance")
+        );
+        List<TestCaseTestDao> testCaseTestList = new ArrayList<>();
+        apiCases.forEach(item -> {
+            getTestCaseTestDaoList("testcase", item.getNum(), item.getName(), item.getId(),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        apiScenarios.forEach(item -> {
+            getTestCaseTestDaoList("automation", item.getNum(), item.getName(), item.getId(),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        apiLoadTests.forEach(item -> {
+            getTestCaseTestDaoList("performance", item.getNum(), item.getName(), item.getId(),
+                    testCaseTestList, testCaseTestsMap);
+        });
+        return testCaseTestList;
+    }
+
+    public void getTestCaseTestDaoList(String type, Object num, String name, String testId,
+                                       List<TestCaseTestDao> testCaseTestList, Map<String, TestCaseTest> testCaseTestsMap) {
+        TestCaseTestDao testCaseTestDao = new TestCaseTestDao();
+        BeanUtils.copyBean(testCaseTestDao, testCaseTestsMap.get(testId));
+        testCaseTestDao.setNum(num.toString());
+        testCaseTestDao.setName(name);
+        testCaseTestDao.setTestType(type);
+        testCaseTestList.add(testCaseTestDao);
+    }
+
+    public List<String> getTestIds(List<TestCaseTest> testCaseTests, String type) {
+        List<String> caseIds = testCaseTests.stream()
+                .filter(item -> item.getTestType().equals(type))
+                .map(TestCaseTest::getTestId)
+                .collect(Collectors.toList());
+        return caseIds;
+    }
+
+    public List<ApiScenarioDTO> getTestCaseScenarioCaseRelateList(ApiScenarioRequest request) {
+        return testCaseTestMapper.relevanceScenarioList(request);
+    }
+
+    public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
+        return testCaseTestMapper.relevanceLoadList(request);
     }
 }

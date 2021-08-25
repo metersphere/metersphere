@@ -12,6 +12,7 @@ import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sun.security.util.Cache;
 
 import java.util.*;
@@ -19,10 +20,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class MsResultService {
     // 零时存放实时结果
     private Cache cache = Cache.newHardMemoryCache(0, 3600 * 2);
-    public ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, List<SampleResult>> processCache = new ConcurrentHashMap<>();
+
+    public ConcurrentHashMap<String, List<SampleResult>> getProcessCache() {
+        return processCache;
+    }
 
     private final static String THREAD_SPLIT = " ";
 
@@ -213,7 +219,9 @@ public class MsResultService {
             }
             //xpath 提取错误会添加断言错误
             if (StringUtils.isBlank(responseAssertionResult.getMessage()) ||
-                    (StringUtils.isNotBlank(responseAssertionResult.getName()) && !responseAssertionResult.getName().endsWith("XPath2Extractor"))) {
+                    (StringUtils.isNotBlank(responseAssertionResult.getName()) && !responseAssertionResult.getName().endsWith("XPath2Extractor"))
+                    || (StringUtils.isNotBlank(responseAssertionResult.getContent()) && !responseAssertionResult.getContent().endsWith("XPath2Extractor"))
+            ) {
                 responseResult.getAssertions().add(responseAssertionResult);
             }
         }
@@ -246,6 +254,15 @@ public class MsResultService {
     private ResponseAssertionResult getResponseAssertionResult(AssertionResult assertionResult) {
         ResponseAssertionResult responseAssertionResult = new ResponseAssertionResult();
         responseAssertionResult.setName(assertionResult.getName());
+        if (StringUtils.isNotEmpty(assertionResult.getName()) && assertionResult.getName().indexOf("==") != -1) {
+            String array[] = assertionResult.getName().split("==");
+            responseAssertionResult.setName(array[0]);
+            StringBuffer content = new StringBuffer();
+            for (int i = 1; i < array.length; i++) {
+                content.append(array[i]);
+            }
+            responseAssertionResult.setContent(content.toString());
+        }
         responseAssertionResult.setPass(!assertionResult.isFailure() && !assertionResult.isError());
         if (!responseAssertionResult.isPass()) {
             responseAssertionResult.setMessage(assertionResult.getFailureMessage());

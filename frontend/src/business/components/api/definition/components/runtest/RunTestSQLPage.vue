@@ -1,10 +1,10 @@
 <template>
 
   <div class="card-container">
-    <el-card class="card-content" v-loading="loading">
+    <el-card class="card-content">
       <!-- 操作按钮 -->
       <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+                   @command="handleCommand" size="small" style="float: right;margin-right: 20px" v-if="!runLoading">
         {{$t('commons.test')}}
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="load_case">{{$t('api_test.definition.request.load_case')}}
@@ -15,15 +15,17 @@
           <el-dropdown-item command="save_as_api">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-
+      <el-button size="small" type="primary" v-else @click.once="stop" style="float: right;margin-right: 20px">{{ $t('report.stop_btn') }}</el-button>
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-      <!-- TCP 请求参数 -->
-      <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+      <div v-loading="loading">
+        <!-- TCP 请求参数 -->
+        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
 
-      <!--返回结果-->
-      <!-- HTTP 请求返回数据 -->
-      <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
+        <!--返回结果-->
+        <!-- HTTP 请求返回数据 -->
+        <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
+        <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
+      </div>
 
       <ms-jmx-step :request="api.request" :response="responseData"/>
 
@@ -87,6 +89,7 @@ export default {
         },
         runData: [],
         reportId: "",
+        runLoading: false
       }
     },
     props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
@@ -110,8 +113,10 @@ export default {
       },
       errorRefresh(){
         this.loading = false;
+        this.runLoading = false;
       },
       runTest() {
+        this.runLoading = true;
         this.loading = true;
         this.api.request.name = this.api.id;
         this.api.protocol = this.currentProtocol;
@@ -123,6 +128,7 @@ export default {
       runRefresh(data) {
         this.responseData = data;
         this.loading = false;
+        this.runLoading = false;
       },
       saveAs() {
         this.$emit('saveAs', this.api);
@@ -157,9 +163,7 @@ export default {
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.createCase = getUUID();
-        this.$refs.caseList.open();
-        this.loaded = false;
+        this.$store.state.currentApiCase = {case: getUUID(), api: this.api};
       },
       saveAsApi() {
         let data = {};
@@ -241,13 +245,22 @@ export default {
             }
           });
         }
-      }
+      },
+      stop() {
+        let url = "/api/automation/stop/" + this.reportId;
+        this.$get(url, () => {
+          this.runLoading = false;
+          this.loading = false;
+          this.$success(this.$t('report.test_stop_success'));
+        });
+      },
     },
     created() {
       // 深度复制
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
+      this.runLoading = false;
       this.getEnvironments();
       this.getResult();
     }

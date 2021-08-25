@@ -511,23 +511,13 @@
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
-      "id": "PROJECT_TRACK_PLAN:READ+SCHEDULE",
-      "name": "定时任务",
-      "resourceId": "PROJECT_TRACK_PLAN"
-    },
-    {
-      "id": "PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL",
-      "name": "关联/取消关联用例",
+      "id": "PROJECT_TRACK_PLAN:READ+COPY",
+      "name": "复制测试计划",
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
       "id": "PROJECT_TRACK_PLAN:READ+RUN",
       "name": "执行测试计划",
-      "resourceId": "PROJECT_TRACK_PLAN"
-    },
-    {
-      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE",
-      "name": "批量取消关联用例",
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {
@@ -538,6 +528,21 @@
     {
       "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_EDIT",
       "name": "批量编辑用例",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+SCHEDULE",
+      "name": "定时任务",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL",
+      "name": "关联/取消关联用例",
+      "resourceId": "PROJECT_TRACK_PLAN"
+    },
+    {
+      "id": "PROJECT_TRACK_PLAN:READ+CASE_BATCH_DELETE",
+      "name": "批量取消关联用例",
       "resourceId": "PROJECT_TRACK_PLAN"
     },
     {

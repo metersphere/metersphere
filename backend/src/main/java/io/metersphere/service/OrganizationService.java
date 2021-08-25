@@ -5,7 +5,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserGroupMapper;
-import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.UserGroupConstants;
 import io.metersphere.commons.constants.UserGroupType;
 import io.metersphere.commons.exception.MSException;
@@ -38,12 +37,6 @@ public class OrganizationService {
 
     @Resource
     private OrganizationMapper organizationMapper;
-    @Resource
-    private UserRoleMapper userRoleMapper;
-    @Resource
-    private ExtUserRoleMapper extUserRoleMapper;
-    @Resource
-    private UserMapper userMapper;
     @Resource
     private ExtOrganizationMapper extOrganizationMapper;
     @Resource
@@ -79,6 +72,9 @@ public class OrganizationService {
         userGroup.setGroupId(UserGroupConstants.ORG_ADMIN);
         userGroup.setSourceId(organization.getId());
         userGroupMapper.insert(userGroup);
+
+        // 设置默认的通知
+        extOrganizationMapper.setDefaultMessageTask(organization.getId());
         return organization;
     }
 

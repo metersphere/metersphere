@@ -525,3 +525,18 @@ export function stopFullScreenLoading(loading, timeout) {
     loading.close();
   }, timeout);
 }
+
+export function getShareId() {
+  let herfUrl = window.location.href;
+  if(herfUrl.indexOf("?") > 0){
+    let paramArr = herfUrl.split("?");
+    if(paramArr.length > 1){
+      let shareId = paramArr[1];
+      if(shareId.indexOf("#") > 0){
+        shareId = shareId.split("#")[0];
+      }
+      return shareId;
+    }
+  }
+  return "";
+}

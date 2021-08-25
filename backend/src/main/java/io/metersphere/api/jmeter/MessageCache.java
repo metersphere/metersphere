@@ -1,6 +1,6 @@
 package io.metersphere.api.jmeter;
 
-import org.apache.jmeter.engine.JMeterEngine;
+import org.apache.jmeter.engine.StandardJMeterEngine;
 
 import javax.websocket.Session;
 import java.util.HashMap;
@@ -12,6 +12,6 @@ public class MessageCache {
 
     public static ConcurrentHashMap<String, Session> reportCache = new ConcurrentHashMap<>();
 
-    public static ConcurrentHashMap<String, JMeterEngine> runningEngine = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<String, StandardJMeterEngine> runningEngine = new ConcurrentHashMap<>();
 
 }

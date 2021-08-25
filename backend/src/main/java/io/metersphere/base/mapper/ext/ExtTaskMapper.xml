@@ -89,4 +89,25 @@
         )tt ORDER BY tt.executionTime DESC;
     </select>
 
+    <select id="checkActuator" resultType="java.lang.Integer" parameterType="java.lang.String">
+        SELECT
+            sum( sum_actuator )
+        FROM
+            (
+            SELECT
+                count( id ) AS sum_actuator
+            FROM
+                api_scenario_report
+            WHERE
+                actuator =#{actuator}
+                AND `status` in ('Running','Waiting') UNION ALL
+            SELECT
+                count( id ) AS sum_actuator
+            FROM
+                api_definition_exec_result
+            WHERE
+                actuator = #{actuator}
+            AND `status` in ('Running','Waiting')
+        ) AS total
+    </select>
 </mapper>

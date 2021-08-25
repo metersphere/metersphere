@@ -136,7 +136,6 @@ public class MsResultCollector extends AbstractListenerElement implements Sample
 
     @Override
     public void sampleStarted(SampleEvent e) {
-        System.out.println("start ====");
         try {
             MsgDto dto = new MsgDto();
             dto.setContent(e.getThreadGroup());

@@ -27,7 +27,7 @@ public class LocalPlatform extends LocalAbstractPlatform {
         String projectId = issuesRequest.getProjectId();
         issuesRequest.setPlatform(IssuesManagePlatform.Local.toString());
         if (StringUtils.isNotBlank(projectId)) {
-            return extIssuesMapper.getIssuesByProjectId(issuesRequest);
+            return extIssuesMapper.getIssues(issuesRequest);
         }
         return extIssuesMapper.getIssuesByCaseId(issuesRequest);
     }

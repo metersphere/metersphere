@@ -56,7 +56,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
-            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+            issues = extIssuesMapper.getIssues(issuesRequest);
         } else {
             issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
         }
@@ -78,7 +78,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
                 demandList.add(demand);
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
 
         return demandList;

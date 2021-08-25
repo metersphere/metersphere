@@ -7,25 +7,25 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.IntegrationRequest;
-import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
-import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.dto.PlanReportIssueDTO;
+import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
+import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.issue.*;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
@@ -42,10 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
@@ -91,7 +88,6 @@ public class IssuesService {
     }
 
 
-
     public void addIssues(IssuesUpdateRequest issuesRequest) {
         List<AbstractIssuePlatform> platformList = getUpdatePlatforms(issuesRequest);
         platformList.forEach(platform -> {
@@ -109,27 +105,6 @@ public class IssuesService {
                 LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
             }
         });
-        noticeIssueEven(issuesRequest, "IssuesCreate");
-    }
-
-    public void noticeIssueEven(IssuesUpdateRequest issuesRequest, String type) {
-        SessionUser user = SessionUtils.getUser();
-        String orgId = user.getLastOrganizationId();
-        List<String> userIds = new ArrayList<>();
-        userIds.add(orgId);
-        String context = getIssuesContext(user, issuesRequest, NoticeConstants.Event.CREATE);
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("issuesName", issuesRequest.getTitle());
-        paramMap.put("creator", user.getName());
-        NoticeModel noticeModel = NoticeModel.builder()
-                .context(context)
-                .relatedUsers(userIds)
-                .subject(Translator.get("task_defect_notification"))
-                .mailTemplate(type)
-                .paramMap(paramMap)
-                .event(NoticeConstants.Event.CREATE)
-                .build();
-        noticeSendService.send(NoticeConstants.TaskType.DEFECT_TASK, noticeModel);
     }
 
 
@@ -181,16 +156,13 @@ public class IssuesService {
     }
 
     public List<IssuesDao> getIssuesByProject(IssuesRequest issueRequest, Project project) {
-        List<IssuesDao> list = new ArrayList<>();
-        List<String> platforms = getPlatforms(project);
-        platforms.add(IssuesManagePlatform.Local.toString());
-        List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, issueRequest);
-        platformList.forEach(platform -> {
-            List<IssuesDao> issue = platform.getIssue(issueRequest);
-            list.addAll(issue);
-        });
-
-        return list;
+        List<IssuesDao> issues;
+        if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
+            issues = extIssuesMapper.getIssues(issueRequest);
+        } else {
+            issues = extIssuesMapper.getIssuesByCaseId(issueRequest);
+        }
+        return issues;
     }
 
     public String getPlatformsByCaseId(String caseId) {
@@ -328,6 +300,10 @@ public class IssuesService {
         testCaseIssuesMapper.deleteByExample(example);
     }
 
+    public IssuesWithBLOBs get(String id) {
+        return issuesMapper.selectByPrimaryKey(id);
+    }
+
     private static String getIssuesContext(SessionUser user, IssuesUpdateRequest issuesRequest, String type) {
         String context = "";
         if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
@@ -343,7 +319,7 @@ public class IssuesService {
 
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
+        List<IssuesDao> issues = extIssuesMapper.getIssues(request);
 
         List<String> ids = issues.stream()
                 .map(IssuesDao::getCreator)
@@ -480,7 +456,7 @@ public class IssuesService {
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
                 try {
                     Class clazz = loader.loadClass("io.metersphere.xpack.issue.azuredevops.AzureDevopsPlatform");
-                    Constructor cons = clazz.getDeclaredConstructor(new Class[] { IssuesRequest.class });
+                    Constructor cons = clazz.getDeclaredConstructor(new Class[]{IssuesRequest.class});
                     AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
                     syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
                 } catch (ClassNotFoundException e) {
@@ -547,5 +523,38 @@ public class IssuesService {
         issuesRequest.setOrganizationId(authUserIssueRequest.getOrgId());
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(authUserIssueRequest.getPlatform(), issuesRequest);
         abstractPlatform.userAuth(authUserIssueRequest);
+    }
+
+    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+        List<PlanReportIssueDTO> planReportIssueDTOS = extIssuesMapper.selectForPlanReport(planId);
+        TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+
+        planReportIssueDTOS.forEach(item -> {
+            String status = null;
+            // 本地缺陷
+            if (StringUtils.equalsIgnoreCase(item.getPlatform(), IssuesManagePlatform.Local.name())
+                    || StringUtils.isBlank(item.getPlatform())) {
+                status = item.getStatus();
+            } else {
+                status = item.getPlatformStatus();
+            }
+            if (StringUtils.isBlank(status)) {
+                status = IssuesStatus.NEW.toString();
+            }
+            TestPlanUtils.getStatusResultMap(statusResultMap, status);
+        });
+        Set<String> status = statusResultMap.keySet();
+        status.forEach(item -> {
+            TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, item);
+        });
+        functionResult.setIssueData(statusResult);
+    }
+
+    public List<IssuesDao> getIssuesByPlanoId(String planId) {
+        IssuesRequest issueRequest = new IssuesRequest();
+        issueRequest.setResourceId(planId);
+        return extIssuesMapper.getIssues(issueRequest);
     }
 }

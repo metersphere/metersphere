@@ -81,7 +81,7 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
 
-    @ExcelProperty("Maintainer")
+    @ExcelProperty("Maintainer(ID)")
     private String maintainer;
 
     @Override
@@ -129,9 +129,16 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
         list9.add("Priority");
         returnList.add(list9);
 
+        List<String> list10 = new ArrayList<>();
+        list10.add("Case status");
+        returnList.add(list10);
+
         if(CollectionUtils.isNotEmpty(customFields)){
             for (CustomFieldDao dto:customFields) {
-                if(StringUtils.equals(dto.getName(),"Priority")){
+                if(StringUtils.equals(dto.getName(),"用例等级")){
+                    continue;
+                }
+                if(StringUtils.equals(dto.getName(),"用例状态")){
                     continue;
                 }
                 List<String> list = new ArrayList<>();

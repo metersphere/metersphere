@@ -7,7 +7,10 @@ import org.apache.shiro.session.Session;
 import org.apache.shiro.session.mgt.DefaultSessionManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.subject.support.DefaultSubjectContext;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
@@ -65,14 +68,35 @@ public class SessionUtils {
     }
 
     public static String getCurrentWorkspaceId() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            if (request.getHeader("WORKSPACE_ID") != null) {
+                return request.getHeader("WORKSPACE_ID");
+            }
+        } catch (Exception e) {
+        }
         return getUser().getLastWorkspaceId();
     }
 
     public static String getCurrentOrganizationId() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            if (request.getHeader("ORGANIZATION_ID") != null) {
+                return request.getHeader("ORGANIZATION_ID");
+            }
+        } catch (Exception e) {
+        }
         return getUser().getLastOrganizationId();
     }
 
     public static String getCurrentProjectId() {
+        try {
+            HttpServletRequest request = ((ServletRequestAttributes) (RequestContextHolder.currentRequestAttributes())).getRequest();
+            if (request.getHeader("PROJECT_ID") != null) {
+                return request.getHeader("PROJECT_ID");
+            }
+        } catch (Exception e) {
+        }
         return getUser().getLastProjectId();
     }
 }

@@ -107,6 +107,7 @@ export default {
       id: ''
     };
   },
+  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     initTableData() {
       this.$get("/performance/report/content/testoverview/" + this.id).then(res => {
@@ -492,7 +493,6 @@ export default {
       deep: true
     }
   },
-  props: ['report', 'export']
 };
 </script>
 
