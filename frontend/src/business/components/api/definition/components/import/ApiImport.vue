@@ -339,7 +339,8 @@
       close() {
         this.formData = {
           file: undefined,
-          swaggerUrl: ''
+          swaggerUrl: '',
+          modeId: this.formData.modeId,
         };
         this.fileList = [];
         removeGoBackListener(this.close);
