@@ -175,7 +175,7 @@ public class ApiTestEnvironmentService {
         boolean needUpdate = false;
         ProjectService projectService = CommonBeanFactory.getBean(ProjectService.class);
         Project project = projectService.getProjectById(projectId);
-        if (returnModel.getConfig() != null) {
+        if (returnModel.getConfig() != null && project != null) {
             try {
                 JSONObject configObj = JSONObject.parseObject(returnModel.getConfig());
                 if (configObj.containsKey("httpConfig")) {
@@ -256,6 +256,9 @@ public class ApiTestEnvironmentService {
     }
 
     private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(Project project,String projectNumber, String protocal, String name, String baseUrl) {
+        if(project == null){
+            return null;
+        }
         String socket = "";
         String url = baseUrl;
         if (url.startsWith("http://")) {

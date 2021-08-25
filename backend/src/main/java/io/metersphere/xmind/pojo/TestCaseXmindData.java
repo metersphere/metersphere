@@ -27,6 +27,7 @@ public class TestCaseXmindData {
     public TestCaseXmindData(String moduleId, String moduleName) {
         this.moduleId = moduleId;
         this.moduleName = moduleName;
+        this.testCaseList = new ArrayList<>();
     }
 
     public void setItem(LinkedList<TestCaseNode> modulePathDataList, List<TestCaseDTO> dataList) {
