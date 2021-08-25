@@ -242,7 +242,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE;
-      this.reviewTask.push(Task);
+      this.reviewTask.unshift(Task);
     },
     handleAddTask(index, data) {
 
@@ -262,8 +262,8 @@ export default {
       }
     },
     addTask(data) {
-      data.isSet = false;
       this.result = this.$post("/notice/save/message/task", data, () => {
+        data.isSet = false;
         this.initForm();
         this.$success(this.$t('commons.save_success'));
       });
