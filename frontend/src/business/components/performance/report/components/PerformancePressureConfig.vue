@@ -154,9 +154,10 @@ import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import {
+  getOldPerformanceJmxContent,
   getPerformanceJmxContent,
   getPerformanceLoadConfig,
-  getPerformanceReport, getSharePerformanceJmxContent,
+  getPerformanceReport, getShareOldPerformanceJmxContent, getSharePerformanceJmxContent,
   getSharePerformanceLoadConfig,
   getSharePerformanceReport
 } from "@/network/load-test";
@@ -360,21 +361,21 @@ export default {
       if (!threadGroups || threadGroups.length === 0) {
         if (this.planReportTemplate) {
           //todo
-          if (this.planReportTemplate.jmxContentFix) {
-            this.calculateLoadConfiguration(this.planReportTemplate.jmxContentFix);
+          if (this.planReportTemplate.oldJmxContent) {
+            this.calculateLoadConfiguration(this.planReportTemplate.oldJmxContent);
           }
         } else if (this.isShare){
-          this.result = getSharePerformanceJmxContent(this.shareId, this.report.id, data => {
-            data.forEach(d => this._handleGetJmxContent(d, threadGroups));
+          this.result = getShareOldPerformanceJmxContent(this.shareId, this.report.testId, data => {
+            data.forEach(d => this.handleGetOldJmxContent(d, threadGroups));
           });
         } else {
-          this.result = getPerformanceJmxContent(this.report.id, data => {
-            data.forEach(d => this._handleGetJmxContent(d, threadGroups));
+          this.result = getOldPerformanceJmxContent(this.report.testId, data => {
+            data.forEach(d => this.handleGetOldJmxContent(d, threadGroups));
           });
         }
       }
     },
-    _handleGetJmxContent(d, threadGroups) {
+    handleGetOldJmxContent(d, threadGroups) {
       threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
       threadGroups.forEach(tg => {
         tg.options = {};

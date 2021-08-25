@@ -27,3 +27,10 @@ export function getPerformanceJmxContent(reportId, callback) {
 export function getSharePerformanceJmxContent(shareId, reportId, callback) {
   return reportId ? baseGet('/share/performance/report/get-jmx-content/' + shareId + '/' + reportId, callback) : {};
 }
+
+export function getOldPerformanceJmxContent(testId, callback) {
+  return testId ? baseGet('/performance/get-jmx-content/' + testId, callback) : {};
+}
+export function getShareOldPerformanceJmxContent(testId, callback) {
+  return testId ? baseGet('/performance/get-jmx-content/' + testId, callback) : {};
+}
