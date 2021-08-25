@@ -623,7 +623,8 @@ public class ApiScenarioReportService {
                 .operator(SessionUtils.getUserId())
                 .context(context)
                 .subject("接口自动化通知")
-                .mailTemplate("api/ScenarioResult")
+                .successMailTemplate("api/ScenarioResult")
+                .failedMailTemplate("api/ScenarioResult")
                 .paramMap(paramMap)
                 .event(event)
                 .build();

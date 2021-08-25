@@ -114,7 +114,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getPhone()));
-        LogUtil.info("收件人地址: " + phoneList);
         return phoneList.stream().distinct().collect(Collectors.toList());
     }
 
@@ -122,7 +121,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         List<UserDetail> list = userService.queryTypeByIds(userIds);
         List<String> phoneList = new ArrayList<>();
         list.forEach(u -> phoneList.add(u.getEmail()));
-        LogUtil.info("收件人地址: " + phoneList);
         return phoneList.stream().distinct().collect(Collectors.toList());
     }
 
