@@ -336,6 +336,7 @@ export default {
           };
         }
         this.$nextTick(function () {
+          this.$refs.tcpParam.reload();
           this.showHeadTable = true;
         });
       });
