@@ -84,15 +84,11 @@ export default {
   color: white;
 }
 
-.hidden {
-  width: 0px !important;
-  padding: 0px !important;
-}
 
 .ms-drawer {
   padding: 15px;
   height: 230px !important;
-  /*min-width: 200px !important;*/
+  width: 200px !important;
   top: calc((100vh - 200px)/3) !important;
   border: 1px solid #E6E6E6;
   padding: 10px;
@@ -100,6 +96,11 @@ export default {
   box-sizing: border-box;
   background-color: #FFF;
   overflow: visible !important;
+}
+
+.hidden {
+  width: 0px !important;
+  padding: 0px !important;
 }
 
 .title-item {
