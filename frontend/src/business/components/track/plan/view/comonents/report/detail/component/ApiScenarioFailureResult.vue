@@ -49,6 +49,7 @@
       </el-col>
       <el-col :span="16" v-if="scenarioCases && scenarioCases.length > 0">
         <ms-api-report v-if="showResponse" :share-id="shareId" :is-share="isShare" :template-report="response" :is-template="isTemplate" :infoDb="true" :report-id="reportId"/>
+        <div class="empty" v-else>内容为空</div>
       </el-col>
     </el-row>
   </div>
@@ -88,11 +89,18 @@ export default {
       result: {},
       reportId: null,
       response: {},
-      showResponse: true
+      showResponse: false
     }
   },
   mounted() {
     this.getScenarioApiCase();
+  },
+  watch: {
+    scenarioCases() {
+      if (this.scenarioCases) {
+        this.$emit('setSize', this.scenarioCases.length);
+      }
+    }
   },
   methods: {
     getScenarioApiCase() {
@@ -102,51 +110,38 @@ export default {
         } else {
           this.scenarioCases = this.report.scenarioFailureCases;
         }
-        this.handleDefaultClick();
       } else if (this.isShare) {
         if (this.isAll) {
           this.result = getSharePlanScenarioAllCase(this.shareId, this.planId, (data) => {
             this.scenarioCases = data;
-            this.handleDefaultClick();
           });
         } else {
           this.result = getSharePlanScenarioFailureCase(this.shareId, this.planId, (data) => {
             this.scenarioCases = data;
-            this.handleDefaultClick();
           });
         }
       } else {
         if (this.isAll) {
           this.result = getPlanScenarioAllCase(this.planId, (data) => {
             this.scenarioCases = data;
-            this.handleDefaultClick();
           });
         } else {
           this.result = getPlanScenarioFailureCase(this.planId, (data) => {
             this.scenarioCases = data;
-            this.handleDefaultClick();
           });
         }
       }
     },
-    handleDefaultClick() {
-      let data = this.scenarioCases;
-      if (data && data.length > 0) {
-        this.rowClick(data[0]);
-      }
-    },
     rowClick(row) {
-      this.showResponse = true;
+      this.showResponse = false;
       if (this.isTemplate) {
-        if (!row.response) {
-          this.showResponse = false;
-        } else {
+        if (row.response) {
+          this.showResponse = true;
           this.response = row.response;
         }
       } else {
-        if (!row.reportId) {
-          this.showResponse = false;
-        } else {
+        if (row.reportId) {
+          this.showResponse = true;
           this.reportId = row.reportId;
         }
       }

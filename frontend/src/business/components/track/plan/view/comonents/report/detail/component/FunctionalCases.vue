@@ -95,6 +95,13 @@ export default {
   mounted() {
     this.getFunctionalTestCase();
   },
+  watch: {
+    testCases() {
+      if (this.testCases) {
+        this.$emit('setSize', this.testCases.length);
+      }
+    }
+  },
   methods: {
     getFunctionalTestCase() {
       if (this.isTemplate || this.isDb) {

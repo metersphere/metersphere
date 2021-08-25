@@ -4,14 +4,23 @@
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <functional-result :function-result="report.functionResult"/>
       </el-tab-pane>
-      <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
-        <functional-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      <el-tab-pane v-if="failureEnable" name="second">
+        <template v-slot:label>
+          <tab-pane-count title="失败用例"  :count="failureSize"/>
+        </template>
+        <functional-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane v-if="issueEnable" label="缺陷列表" name="third">
-        <functional-issue-list :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      <el-tab-pane v-if="issueEnable" name="third">
+        <template v-slot:label>
+          <tab-pane-count title="缺陷列表" :count="issueSize"/>
+        </template>
+        <functional-issue-list :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setIssueSize"/>
       </el-tab-pane>
-      <el-tab-pane label="所有用例" name="fourth" v-if="allEnable">
-        <functional-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
+      <el-tab-pane name="fourth" v-if="allEnable">
+        <template v-slot:label>
+          <tab-pane-count title="所有用例" :count="allSize"/>
+        </template>
+        <functional-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId" @setSize="setAllSize"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -26,12 +35,18 @@ import FunctionalIssueList
   from "@/business/components/track/plan/view/comonents/report/detail/component/FunctionalIssueList";
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
+import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
 export default {
   name: "TestPlanFunctionalReport",
-  components: {TestPlanReportContainer, FunctionalIssueList, FunctionalCases, FunctionalResult, MsFormDivider},
+  components: {
+    TabPaneCount,
+    TestPlanReportContainer, FunctionalIssueList, FunctionalCases, FunctionalResult, MsFormDivider},
   data() {
     return {
-      activeName: 'first'
+      activeName: 'first',
+      failureSize: 0,
+      issueSize: 0,
+      allSize: 0,
     };
   },
   props: [
@@ -83,6 +98,15 @@ export default {
       } else if (this.allEnable) {
         this.activeName = 'fourth';
       }
+    },
+    setFailureSize(size) {
+      this.failureSize = size;
+    },
+    setIssueSize(size) {
+      this.issueSize = size;
+    },
+    setAllSize(size) {
+      this.allSize = size;
     },
     handleClick(tab, event) {
     }

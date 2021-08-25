@@ -77,6 +77,13 @@ export default {
     this.isThirdPart = this.report.isThirdPartIssue;
     this.getIssues();
   },
+  watch: {
+    data() {
+      if (this.data) {
+        this.$emit('setSize', this.data.length);
+      }
+    }
+  },
   methods: {
     getIssues() {
       if (this.isTemplate || this.isDb) {

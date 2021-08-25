@@ -48,9 +48,10 @@
         </ms-table>
       </el-col>
       <el-col :span="17" v-if="apiCases.length > 0">
-        <el-card>
-          <ms-request-result-tail v-if="showResponse" :response="response" ref="debugResult"/>
+        <el-card v-if="showResponse">
+          <ms-request-result-tail :response="response" ref="debugResult"/>
         </el-card>
+        <div class="empty" v-else>内容为空</div>
       </el-col>
     </el-row>
   </div>
@@ -90,7 +91,14 @@ export default {
       apiCases:  [],
       result: {},
       response: {},
-      showResponse: true
+      showResponse: false
+    }
+  },
+  watch: {
+    apiCases() {
+      if (this.apiCases) {
+        this.$emit('setSize', this.apiCases.length);
+      }
     }
   },
   mounted() {
@@ -104,61 +112,47 @@ export default {
         } else {
           this.apiCases = this.report.apiFailureCases;
         }
-        this.handleDefaultClick();
       } else if (this.isShare) {
         if (this.isAll) {
           this.result = getSharePlanApiAllCase(this.shareId, this.planId, (data) => {
             this.apiCases = data;
-            this.handleDefaultClick();
           });
         } else {
           this.result = getSharePlanApiFailureCase(this.shareId, this.planId, (data) => {
             this.apiCases = data;
-            this.handleDefaultClick();
           });
         }
       } else {
         if (this.isAll) {
           this.result = getPlanApiAllCase(this.planId, (data) => {
             this.apiCases = data;
-            this.handleDefaultClick();
           });
         } else {
           this.result = getPlanApiFailureCase(this.planId, (data) => {
             this.apiCases = data;
-            this.handleDefaultClick();
           });
         }
       }
     },
-    handleDefaultClick() {
-      let data = this.apiCases;
-      if (data && data.length > 0) {
-        this.rowClick(data[0]);
-      }
-    },
     rowClick(row) {
-      this.showResponse = true;
+      this.showResponse = false;
       if (this.isTemplate) {
-        if (!row.response) {
-          this.showResponse = false;
-        } else {
+        if (row.response) {
+          this.showResponse = true;
           this.response = JSON.parse(row.response);
         }
       } else if (this.isShare) {
         getShareApiReport(this.shareId, row.id, (data) => {
-          if (!data || !data.content) {
-            this.showResponse = false;
-          } else {
+          if (data && data.content) {
+            this.showResponse = true;
             this.response = JSON.parse(data.content);
           }
         });
       } else {
         // todo
         getApiReport(row.id, (data) => {
-          if (!data || !data.content) {
-            this.showResponse = false;
-          } else {
+          if (data && data.content) {
+            this.showResponse = true;
             this.response = JSON.parse(data.content);
           }
         });

@@ -4,11 +4,17 @@
       <el-tab-pane v-if="resultEnable" label="测试结果" name="first">
         <api-result :api-result="report.apiResult"/>
       </el-tab-pane>
-      <el-tab-pane v-if="failureEnable" label="失败用例" name="second">
-        <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+      <el-tab-pane v-if="failureEnable" name="second">
+        <template v-slot:label>
+          <tab-pane-count title="失败用例"  :count="failureSize"/>
+        </template>
+        <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane label="所有用例" name="third" v-if="allEnable">
-        <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+      <el-tab-pane name="third" v-if="allEnable">
+        <template v-slot:label>
+          <tab-pane-count title="所有用例" :count="allSize"/>
+        </template>
+        <api-cases :is-db="isDb" :is-all="true" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setAllSize"/>
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -20,12 +26,15 @@ import ApiResult from "@/business/components/track/plan/view/comonents/report/de
 import TestPlanReportContainer
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanReportContainer";
 import ApiCases from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCases";
+import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
 export default {
   name: "TestPlanApiReport",
-  components: {ApiCases, TestPlanReportContainer, ApiResult, MsFormDivider},
+  components: {TabPaneCount, ApiCases, TestPlanReportContainer, ApiResult, MsFormDivider},
   data() {
     return {
-      activeName: 'first'
+      activeName: 'first',
+      failureSize: 0,
+      allSize: 0,
     };
   },
   props: [
@@ -68,6 +77,12 @@ export default {
       } else if (this.allEnable) {
         this.activeName = 'third';
       }
+    },
+    setFailureSize(size) {
+      this.failureSize = size;
+    },
+    setAllSize(size) {
+      this.allSize = size;
     },
     handleClick(tab, event) {
     }

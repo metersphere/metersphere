@@ -1,11 +1,19 @@
 <template>
   <div>
     <el-tabs type="card">
-      <el-tab-pane label="接口用例">
-        <api-case-failure-result :is-db="isDb" :is-all="isAll" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+      <el-tab-pane>
+        <template v-slot:label>
+          <tab-pane-count title="接口用例"  :count="apiSize"/>
+        </template>
+        <api-case-failure-result :is-db="isDb" :is-all="isAll" :share-id="shareId" :is-share="isShare"
+                                 :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setApiSize"/>
       </el-tab-pane>
-      <el-tab-pane label="场景用例">
-        <api-scenario-failure-result :is-db="isDb" :is-all="isAll" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId"/>
+      <el-tab-pane>
+        <template v-slot:label>
+          <tab-pane-count title="场景用例" :count="scenarioSize"/>
+        </template>
+        <api-scenario-failure-result :is-db="isDb" :is-all="isAll" :share-id="shareId" :is-share="isShare"
+                                     :report="report" :is-template="isTemplate" :plan-id="planId"  @setSize="setScenarioSize"/>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -20,9 +28,11 @@ import ApiScenarioFailureResult
   from "@/business/components/track/plan/view/comonents/report/detail/component/ApiScenarioFailureResult";
 import ApiCaseFailureResult
   from "@/business/components/track/plan/view/comonents/report/detail/component/ApiCaseFailureResult";
+import TabPaneCount from "@/business/components/track/plan/view/comonents/report/detail/component/TabPaneCount";
 export default {
   name: "ApiCases",
   components: {
+    TabPaneCount,
     ApiCaseFailureResult,
     ApiScenarioFailureResult, StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem},
   props: {
@@ -36,11 +46,27 @@ export default {
   },
   data() {
     return {
+      apiSize: 0,
+      scenarioSize: 0,
     }
   },
   mounted() {
   },
+  watch: {
+    apiSize() {
+      this.$emit('setSize', this.apiSize + this.scenarioSize);
+    },
+    scenarioSize() {
+      this.$emit('setSize', this.apiSize + this.scenarioSize);
+    },
+  },
   methods: {
+    setApiSize(size) {
+      this.apiSize = size;
+    },
+    setScenarioSize(size) {
+      this.scenarioSize = size;
+    },
   }
 }
 </script>
