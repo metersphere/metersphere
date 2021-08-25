@@ -34,6 +34,9 @@ public class DingNoticeSender extends AbstractNoticeSender {
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList()));
+        if (CollectionUtils.isEmpty(phoneList)) {
+            return;
+        }
         LogUtil.info("钉钉收件人地址: " + phoneList);
         at.setAtMobiles(phoneList);
         request.setAt(at);
