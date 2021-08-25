@@ -1,5 +1,6 @@
 package io.metersphere.notice.sender.impl;
 
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.domain.UserDetail;
@@ -31,7 +32,7 @@ public class LarkNoticeSender extends AbstractNoticeSender {
         if (CollectionUtils.isEmpty(collect)) {
             return;
         }
-
+        LogUtil.info("飞书收件人: ", userIds);
         context += StringUtils.join(collect, " ");
         LarkClient.send(messageDetail.getWebhook(), context);
     }
