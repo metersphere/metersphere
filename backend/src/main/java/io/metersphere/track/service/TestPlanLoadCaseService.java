@@ -124,6 +124,12 @@ public class TestPlanLoadCaseService {
         testPlanLoadCaseMapper.deleteByExample(testPlanLoadCaseExample);
     }
 
+    public void deleteByTestId(String testId) {
+        TestPlanLoadCaseExample testPlanLoadCaseExample = new TestPlanLoadCaseExample();
+        testPlanLoadCaseExample.createCriteria().andLoadCaseIdEqualTo(testId);
+        testPlanLoadCaseMapper.deleteByExample(testPlanLoadCaseExample);
+    }
+
     public String run(RunTestPlanRequest request) {
         String reportId = performanceTestService.run(request);
         TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();

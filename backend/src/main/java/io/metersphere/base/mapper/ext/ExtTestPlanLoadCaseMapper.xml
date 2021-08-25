@@ -176,7 +176,9 @@
         select status from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
     </select>
     <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
-        select id,status from test_plan_load_case where test_plan_id = #{planId};
+        select tplc.id,tplc.status from test_plan_load_case tplc
+        inner join load_test lt on tplc.load_case_id = lt.id
+        where tplc.test_plan_id = #{planId};
     </select>
     <select id="getCases" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id, lt.id as caseId, lt.name, lt.num, lt.project_id,
