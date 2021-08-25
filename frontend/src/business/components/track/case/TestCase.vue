@@ -34,7 +34,7 @@
             @setCondition="setCondition"
             @decrease="decrease"
             :custom-num="custom_num"
-            ref="testCaseList">
+            ref="testCaseTrashList">
           </test-case-list>
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
