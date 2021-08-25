@@ -199,7 +199,7 @@
                                           @exec="openReport(scope.row)"/>
               </template>
             </ms-table-operator>
-            <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn">
+            <el-dropdown @command="handleCommand($event, scope.row)" class="scenario-ext-btn" v-permission="['PROJECT_TRACK_PLAN:READ+DELETE','PROJECT_TRACK_PLAN:READ+SCHEDULE']">
               <el-link type="primary" :underline="false">
                 <el-icon class="el-icon-more"></el-icon>
               </el-link>
