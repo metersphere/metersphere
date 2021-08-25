@@ -247,4 +247,10 @@
     </foreach>
   </select>
 
+  <select id="getProjectIdById" resultType="java.lang.String">
+    SELECT project_id FROM test_plan WHERE id in (
+      SELECT test_plan_id FROM test_plan_api_scenario WHERE id = #{0}
+    )
+  </select>
+
 </mapper>
