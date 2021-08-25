@@ -468,4 +468,8 @@ public class TestPlanScenarioCaseService {
         }
         return null;
     }
+
+    public String getProjectIdById(String testPlanScenarioId) {
+        return extTestPlanScenarioCaseMapper.getProjectIdById(testPlanScenarioId);
+    }
 }

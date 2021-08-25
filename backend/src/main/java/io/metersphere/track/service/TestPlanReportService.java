@@ -685,9 +685,9 @@ public class TestPlanReportService {
                     status = TestPlanReportStatus.SUCCESS.name();
                     try {
                         if (CollectionUtils.isNotEmpty(reportDTO.getFunctionFailureCases())
-                                && CollectionUtils.isNotEmpty(reportDTO.getApiFailureCases())
-                                && CollectionUtils.isNotEmpty(reportDTO.getScenarioFailureCases())
-                                && CollectionUtils.isNotEmpty(reportDTO.getLoadFailureCases())) {
+                                || CollectionUtils.isNotEmpty(reportDTO.getApiFailureCases())
+                                || CollectionUtils.isNotEmpty(reportDTO.getScenarioFailureCases())
+                                || CollectionUtils.isNotEmpty(reportDTO.getLoadFailureCases())) {
                             status = TestPlanReportStatus.FAILED.name();
                             return status;
                         }
@@ -751,7 +751,7 @@ public class TestPlanReportService {
                 //更新TestPlan状态为完成
                 TestPlanWithBLOBs testPlan = testPlanMapper.selectByPrimaryKey(report.getTestPlanId());
                 if (testPlan != null) {
-                    testPlan.setStatus(TestPlanStatus.Completed.name());
+//                    testPlan.setStatus(TestPlanStatus.Completed.name());
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
                 if (StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name())) {
@@ -813,7 +813,7 @@ public class TestPlanReportService {
         }
 
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
+                .operator("MeterSphere")
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
