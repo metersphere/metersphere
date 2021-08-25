@@ -10,7 +10,9 @@ import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.IssuesDao;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.performance.base.ReportTimeInfo;
+import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.service.PerformanceReportService;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.dto.TestPlanSimpleReportDTO;
@@ -47,6 +49,8 @@ public class ShareController {
     ShareInfoService shareInfoService;
     @Resource
     PerformanceReportService performanceReportService;
+    @Resource
+    PerformanceTestService performanceTestService;
 
     @GetMapping("/issues/plan/get/{shareId}/{planId}")
     public List<IssuesDao> getIssuesByPlanoId(@PathVariable String shareId, @PathVariable String planId) {
@@ -144,5 +148,15 @@ public class ShareController {
         return testPlanLoadCaseService.isExistReport(request);
     }
 
+    @GetMapping("/performance/report/get-jmx-content/{reportId}")
+    public LoadTestExportJmx getJmxContent(@PathVariable String reportId) {
+        return performanceReportService.getJmxContent(reportId);
+    }
+
+    @GetMapping("/performance/get-jmx-content/{testId}")
+    public List<LoadTestExportJmx> getOldJmxContent(@PathVariable String testId) {
+//        checkPermissionService.checkPerformanceTestOwner(testId);
+        return performanceTestService.getJmxContent(testId);
+    }
 
 }
