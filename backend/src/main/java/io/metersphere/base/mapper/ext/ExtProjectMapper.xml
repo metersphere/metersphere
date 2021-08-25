@@ -151,7 +151,7 @@
         where organization_id = #{orgId})) as a)
     </update>
 
-    <select id="getOrganizationByProjectId">
+    <select id="getOrganizationByProjectId" resultType="io.metersphere.base.domain.Organization">
         SELECT organization.*
         FROM organization
                      JOIN workspace ON organization.id = organization_id
