@@ -86,7 +86,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
             noticeSendService.send(loadTestReport.getTriggerMode(), noticeModel);
         } else {
             Organization organization = projectService.getOrganizationByProjectId(loadTestReport.getProjectId());
-            String context = "${operator}执行了性能测试完成: ${name}";
+            String context = "${operator}执行性能测试完成: ${name}";
             NoticeModel noticeModel2 = NoticeModel.builder()
                     .operator(loadTestReport.getUserId())
                     .context(context)
