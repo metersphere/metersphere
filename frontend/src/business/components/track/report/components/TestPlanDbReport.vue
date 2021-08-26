@@ -23,7 +23,7 @@
         </el-row>
         <el-scrollbar>
           <div class="container">
-            <test-plan-report-content :is-db="true" :report-id="report.id" :plan-id="report.testPlanId"/>
+            <test-plan-report-content v-if="showReport" :is-db="true" :report-id="report.id" :plan-id="report.testPlanId"/>
           </div>
         </el-scrollbar>
       </template>
@@ -43,7 +43,8 @@ export default {
       result: {},
       showDialog: false,
       report: {},
-      isTestManagerOrTestUser: false
+      isTestManagerOrTestUser: false,
+      showReport: false
     }
   },
   mounted() {
@@ -61,7 +62,12 @@ export default {
     //   this.handleClose();
     // },
     open(report) {
-      this.report = report;
+      this.showReport = false;
+      // 每次都重新获取
+      this.$nextTick(() => {
+        this.showReport = true;
+        this.report = report;
+      });
       this.showDialog = true;
       // this.listenGoBack();
     },
