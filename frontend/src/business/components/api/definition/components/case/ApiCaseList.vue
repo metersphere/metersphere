@@ -424,12 +424,13 @@ export default {
       this.$emit("refreshCase", row.id);
     },
 
-    stop(callback) {
+    stop(id) {
       let url = "/api/automation/stop/" + this.reportId;
       this.$get(url, () => {
-        if (callback) {
-          callback();
-        }
+        // if (callback) {
+        //   callback();
+        // }
+        this.$emit("stop", id);
         this.singleLoading = false;
         this.$success(this.$t('report.test_stop_success'));
       });
