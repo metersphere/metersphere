@@ -109,7 +109,9 @@ export default {
     getResource() {
       // this.init = true;
       if (this.planReportTemplate) {
-        this.totalOption = this.getOption(this.planReportTemplate.metricResource);
+        this.instances = this.planReportTemplate.reportResource;
+        this.data = this.planReportTemplate.metricData;
+        this.totalOption = this.getOption(this.instances[0]);
       } else if (this.isShare){
         getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
@@ -202,6 +204,14 @@ export default {
           this.getResource();
         } else {
           this.instances = [];
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getResource();
         }
       },
       deep: true

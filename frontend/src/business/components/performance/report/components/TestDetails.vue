@@ -460,7 +460,7 @@ export default {
     },
     getCheckOptions(reportKey) {
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.detailContent;
+        let data = this.planReportTemplate.checkOptions[reportKey];
         this.handleGetCheckOptions(data, reportKey);
       } else if (this.isShare){
         return getSharePerformanceReportDetailContent(this.shareId, reportKey, this.id).then(res => {
@@ -490,8 +490,12 @@ export default {
       this.legend = [];
       let promises = [];
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.detailContent;
-        this.buildInfo(data);
+        let chars = [];
+        for (let name in this.checkList) {
+          let data = this.planReportTemplate.checkOptions[name];
+          chars.push({data, 'reportKey' : name});
+        }
+        this.handleGetTotalChart(chars);
       } else {
         for (let name in this.checkList) {
           promises.push(this.getChart(name, this.checkList[name]));
@@ -502,6 +506,9 @@ export default {
           this.result.loading = false;
         });
       }
+    },
+    handleTemplateGetTotalChart() {
+
     },
     handleGetTotalChart(res) {
       res = res.filter(v => !!v);
@@ -622,7 +629,10 @@ export default {
           this.legend.push(name);
           series[name] = [];
         }
-        series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
+        if (series[name]) {
+          series[name].splice(xAxis.indexOf(item.xAxis), 0, [item.xAxis, item.yAxis.toFixed(2)]);
+        }
+
       });
       this.$set(option.legend, "data", this.legend);
       this.$set(option.legend, "type", "scroll");
@@ -728,6 +738,16 @@ export default {
           this.getTotalChart();
         } else if (status === "Completed") {
           this.initTableData();
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.initTableData();
+          // todo 勾选无效
+          // this.getTotalChart();
         }
       },
       deep: true

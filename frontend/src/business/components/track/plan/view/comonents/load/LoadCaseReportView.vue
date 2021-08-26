@@ -166,7 +166,7 @@ export default {
     isPlanReport: Boolean,
     isShare: Boolean,
     shareId: String,
-    planReportTemplate: {}
+    planReportTemplate: Object
   },
   watch: {
     reportId() {
