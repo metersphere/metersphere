@@ -98,6 +98,8 @@ export default {
     apiCases() {
       if (this.apiCases) {
         this.$emit('setSize', this.apiCases.length);
+      } else {
+        this.apiCases = [];
       }
     }
   },
