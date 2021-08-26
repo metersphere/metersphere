@@ -38,6 +38,10 @@ export function editPlanReportConfig(param, callback) {
   });
 }
 
+export function getExportReport(planId, callback) {
+  return planId ? baseGet('/test/plan/get/report/export/' + planId, callback) : {};
+}
+
 export function getTestPlanReportContent(reportId, callback) {
   return reportId ? baseGet('/test/plan/report/db/' + reportId, callback) : {};
 }

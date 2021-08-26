@@ -123,7 +123,7 @@ export default {
   methods: {
     initTableData() {
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.loadOverview;
+        let data = this.planReportTemplate.testOverview;
         this.buildInfo(data);
       } else if (this.isShare) {
         getSharePerformanceReportOverview(this.shareId, this.id, (data) => {
@@ -150,7 +150,7 @@ export default {
     },
     getLoadChart() {
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.loadOverviewLoadChart;
+        let data = this.planReportTemplate.loadChartData;
         this.handleGetLoadChart(data);
       } else if (this.isShare) {
         getSharePerformanceReportLoadChart(this.shareId, this.id, data => {
@@ -231,7 +231,7 @@ export default {
     },
     getResChart() {
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.loadOverviewResChart;
+        let data = this.planReportTemplate.responseTimeChartData;
         this.handleGetResChart(data);
       } else if (this.isShare) {
         getSharePerformanceReportResChart(this.shareId, this.id, data => {
@@ -396,7 +396,7 @@ export default {
     },
     getResponseCodeChart() {
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.loadOverviewResponseCodeChart;
+        let data = this.planReportTemplate.responseCodeChartData;
         this.handleGetResponseCodeChart(data);
       } else if (this.isShare) {
         getSharePerformanceReportResponseCodeChart(this.shareId, this.id, data => {
@@ -546,6 +546,14 @@ export default {
           this.resOption = {};
           this.errorOption = {};
           this.resCodeOption = {};
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.initTableData();
         }
       },
       deep: true

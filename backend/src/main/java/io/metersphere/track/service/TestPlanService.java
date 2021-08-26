@@ -30,6 +30,7 @@ import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.IssueTemplateDao;
+import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -37,8 +38,11 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestPlanReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.performance.base.ReportTimeInfo;
+import io.metersphere.performance.base.*;
+import io.metersphere.performance.dto.LoadTestExportJmx;
+import io.metersphere.performance.dto.MetricData;
 import io.metersphere.performance.request.RunTestPlanRequest;
+import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.IssueTemplateService;
@@ -175,6 +179,8 @@ public class TestPlanService {
     private IssueTemplateService issueTemplateService;
     @Resource
     private PerformanceReportService performanceReportService;
+    @Resource
+    private MetricQueryService metricQueryService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -1470,17 +1476,83 @@ public class TestPlanService {
                     request.setReportId(reportId);
                     Boolean existReport = testPlanLoadCaseService.isExistReport(request);
                     if  (existReport) {
-                        LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
-                        ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
-                        TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
-                        if (loadTestReport != null) {
-                            BeanUtils.copyBean(reportDTO, loadTestReport);
+                        try {
+                            LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
+                            ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
+                            TestPlanLoadCaseDTO.ResponseDTO response = new TestPlanLoadCaseDTO.ResponseDTO();
+                            if (loadTestReport != null) {
+                                BeanUtils.copyBean(response, loadTestReport);
+                            }
+                            if (reportTimeInfo != null) {
+                                BeanUtils.copyBean(response, reportTimeInfo);
+                            }
+
+                            // 压力配置
+                            if (StringUtils.isBlank(loadTestReport.getLoadConfiguration())) {
+                                String loadConfiguration = performanceTestService.getLoadConfiguration(item.getId());
+                                response.setFixLoadConfiguration(loadConfiguration);
+                            }
+                            LoadTestExportJmx jmxContent = performanceReportService.getJmxContent(reportId);
+                            if (jmxContent != null) {
+                                response.setJmxContent(JSONObject.toJSONString(jmxContent));
+                            }
+                            List<LoadTestExportJmx> fixJmxContent = performanceTestService.getJmxContent(item.getId());
+                            response.setFixJmxContent(fixJmxContent);
+
+                            // 概览
+                            TestOverview testOverview = performanceReportService.getTestOverview(reportId);
+                            response.setTestOverview(testOverview);
+                            List<ChartsData> loadChartData = performanceReportService.getLoadChartData(reportId);
+                            response.setLoadChartData(loadChartData);
+                            List<ChartsData> responseTimeChartData = performanceReportService.getResponseTimeChartData(reportId);
+                            response.setResponseTimeChartData(responseTimeChartData);
+                            List<ChartsData> errorChartData = performanceReportService.getErrorChartData(reportId);
+                            response.setErrorChartData(errorChartData);
+                            List<ChartsData> responseCodeChartData = performanceReportService.getResponseCodeChartData(reportId);
+                            response.setResponseCodeChartData(responseCodeChartData);
+
+                            // 报告详情
+                            List<String> reportKeys = Arrays.asList(
+                                    "ALL",
+                                    "ActiveThreadsChart",
+                                    "TransactionsChart",
+                                    "ResponseTimeChart",
+                                    "ResponseTimePercentilesChart",
+                                    "ResponseCodeChart",
+                                    "ErrorsChart",
+                                    "LatencyChart",
+                                    "BytesThroughputChart");
+
+                            Map<String, List<ChartsData>> checkOptions = new HashMap<>();
+                            reportKeys.forEach(reportKey -> {
+                                List<ChartsData> reportChart = performanceReportService.getReportChart(reportKey, reportId);
+                                checkOptions.put(reportKey, reportChart);
+                            });
+                            response.setCheckOptions(checkOptions);
+
+                            // 统计分析
+                            List<Statistics> reportStatistics = performanceReportService.getReportStatistics(reportId);
+                            response.setReportStatistics(reportStatistics);
+
+                            // 错误分析
+                            List<Errors> reportErrors = performanceReportService.getReportErrors(reportId);
+                            response.setReportErrors(reportErrors);
+                            List<ErrorsTop5> reportErrorsTop5 = performanceReportService.getReportErrorsTOP5(reportId);
+                            response.setReportErrorsTop5(reportErrorsTop5);
+
+                            // 日志详情
+                            List<LogDetailDTO> reportLogResource = performanceReportService.getReportLogResource(reportId);
+                            response.setReportLogResource(reportLogResource);
+//                        performanceReportService.getReportLogs(reportId, resourceId);
+
+                            List<String> reportResource = metricQueryService.queryReportResource(reportId);
+                            response.setReportResource(reportResource);
+                            List<MetricData> metricData = metricQueryService.queryMetric(reportId);
+                            response.setMetricData(metricData);
+                            item.setResponse(response);
+                        } catch (Exception e) {
+                            LogUtil.error(e);
                         }
-                        if (reportTimeInfo != null) {
-                            BeanUtils.copyBean(reportDTO, reportTimeInfo);
-                        }
-                        item.setResponse(reportDTO);
-                        // todo 报告详情
                     }
                 }
             });
@@ -1596,28 +1668,7 @@ public class TestPlanService {
             if (checkReportConfig(config, "load", "all")) {
                 allCases = testPlanLoadCaseService.getAllCases(executeInfo.getLoadCaseExecInfo().keySet(),planId,null);
                 if (saveResponse) {
-                    allCases.forEach(item -> {
-                        String reportId = executeInfo.getLoadCaseReportIdMap().get(item.getId());
-                        if(StringUtils.isNotEmpty(reportId)){
-                            LoadCaseReportRequest request = new LoadCaseReportRequest();
-                            request.setTestPlanLoadCaseId(item.getId());
-                            request.setReportId(reportId);
-                            Boolean existReport = testPlanLoadCaseService.isExistReport(request);
-                            if  (existReport) {
-                                LoadTestReportWithBLOBs loadTestReport = performanceReportService.getLoadTestReport(reportId);
-                                ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
-                                TestPlanLoadCaseDTO.ReportDTO reportDTO = new TestPlanLoadCaseDTO.ReportDTO();
-                                if (loadTestReport != null) {
-                                    BeanUtils.copyBean(reportDTO, loadTestReport);
-                                }
-                                if (reportTimeInfo != null) {
-                                    BeanUtils.copyBean(reportDTO, reportTimeInfo);
-                                }
-                                item.setResponse(reportDTO);
-                                // todo 报告详情
-                            }
-                        }
-                    });
+                    buildLoadResponse(allCases);
                 }
                 report.setLoadAllCases(allCases);
             }

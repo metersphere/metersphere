@@ -6,11 +6,11 @@
                                :report="report" :plan-id="planId" @setSize="setAllSize"/>
         </el-col>
         <el-col :span="17" >
-          <el-card v-if="showResponse">
+          <el-card v-show="showResponse">
             <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare"
                                    :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
           </el-card>
-          <div class="empty" v-else>内容为空</div>
+          <div class="empty" v-show="!showResponse">内容为空</div>
         </el-col>
       </el-row>
     </div>
@@ -44,8 +44,6 @@ export default {
       response: null
     }
   },
-  mounted() {
-  },
   methods: {
     getReport(row) {
       this.showResponse = false;
@@ -53,6 +51,8 @@ export default {
         if (row.response) {
           this.showResponse = true;
           this.response = row.response;
+        } else {
+          this.response = null;
         }
       } else {
         let param = {

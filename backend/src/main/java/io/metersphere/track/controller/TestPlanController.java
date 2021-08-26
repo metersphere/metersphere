@@ -213,6 +213,11 @@ public class TestPlanController {
         testPlanService.exportPlanReport(planId, response);
     }
 
+    @GetMapping("/get/report/export/{planId}")
+    public TestPlanSimpleReportDTO getExportHtmlReport(@PathVariable String planId, HttpServletResponse response) throws UnsupportedEncodingException {
+        return testPlanService.buildPlanReport(planId, true);
+    }
+
     @GetMapping("/report/db/export/{reportId}")
     public void exportHtmlDbReport(@PathVariable String reportId, HttpServletResponse response) throws UnsupportedEncodingException {
         testPlanService.exportPlanDbReport(reportId, response);

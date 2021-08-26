@@ -150,8 +150,9 @@ export default {
   methods: {
     initTableData() {
       if (this.planReportTemplate) {
-        let data = this.planReportTemplate.content;
-        this.buildInfo(data);
+        let data = this.planReportTemplate.reportStatistics;
+        this.tableData = data;
+        this.originalData = data;
       } else if (this.isShare){
         getSharePerformanceReportContent(this.shareId, this.id).then(res => {
           this.tableData = res.data.data;
@@ -197,8 +198,16 @@ export default {
         }
       },
       deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.initTableData();
+        }
+      },
+      deep: true
     }
-  },
+  }
 }
 </script>
 
