@@ -146,7 +146,7 @@ export default {
 
     updateTask(taskRow){
 
-      this.result = this.$post('/api/schedule/updateEnableByPrimyKey', taskRow, response => {
+      this.result = this.$post('/api/schedule/updateEnableByPrimyKey/disable', taskRow, response => {
         this.search();
       });
     },
