@@ -365,10 +365,18 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/updateEnableByPrimyKey")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
     public Schedule updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
+        apiAutomationService.updateSchedule(schedule);
+        return schedule;
+    }
+
+    @PostMapping(value = "/schedule/updateEnableByPrimyKey/disable")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
+    public Schedule disableSchedule(@RequestBody ScheduleInfoRequest request) {
+        Schedule schedule = scheduleService.getSchedule(request.getTaskID());
+        schedule.setEnable(false);
         apiAutomationService.updateSchedule(schedule);
         return schedule;
     }
