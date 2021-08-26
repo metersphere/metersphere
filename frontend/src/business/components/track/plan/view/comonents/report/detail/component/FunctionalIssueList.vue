@@ -87,7 +87,7 @@ export default {
   methods: {
     getIssues() {
       if (this.isTemplate || this.isDb) {
-        this.data = this.report.issueList;
+        this.data = this.report.issueList ? this.report.issueList : [];
       } else if (this.isShare) {
         this.result = getShareIssuesByPlanId(this.shareId, this.planId, (data) => {
           this.data = data;

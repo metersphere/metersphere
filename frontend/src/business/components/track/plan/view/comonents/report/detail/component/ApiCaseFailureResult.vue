@@ -110,9 +110,9 @@ export default {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.apiCases = this.report.apiAllCases;
+          this.apiCases = this.report.apiAllCases ? this.report.apiAllCases : [];
         } else {
-          this.apiCases = this.report.apiFailureCases;
+          this.apiCases = this.report.apiFailureCases ? this.report.apiFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {
