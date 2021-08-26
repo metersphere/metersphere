@@ -106,9 +106,9 @@ export default {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.scenarioCases = this.report.scenarioAllCases;
+          this.scenarioCases = this.report.scenarioAllCases ? this.report.scenarioAllCases : [];
         } else {
-          this.scenarioCases = this.report.scenarioFailureCases;
+          this.scenarioCases = this.report.scenarioFailureCases ? this.report.scenarioFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {
