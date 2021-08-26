@@ -149,7 +149,7 @@ public class ApiDefinitionExecResultService {
         }
 
         Map paramMap = new HashMap<>(beanMap);
-        paramMap.put("operator", SessionUtils.getUserId());
+        paramMap.put("operator", SessionUtils.getUser().getName());
         paramMap.put("status", result.getStatus());
         String context = "${operator}执行接口用例" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()

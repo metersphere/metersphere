@@ -623,7 +623,7 @@ public class ApiScenarioReportService {
         }
 
         Map paramMap = new HashMap<>(beanMap);
-        paramMap.put("operator", SessionUtils.getUserId());
+        paramMap.put("operator", SessionUtils.getUser().getName());
         paramMap.put("status", result.getLastResult());
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()

@@ -9,12 +9,14 @@ import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.service.UserService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,8 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
     private ProjectService projectService;
     @Resource
     private PerformanceTestService performanceTestService;
+    @Resource
+    private UserService userService;
 
     public void sendNotice(LoadTestReport loadTestReport) {
 
@@ -61,9 +65,10 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         }
 
         LoadTestDTO loadTestDTO = performanceTestService.get(loadTestReport.getTestId());
+        UserDTO userDTO = userService.getUserDTO(loadTestReport.getUserId());
 
         Map paramMap = new HashMap<>();
-        paramMap.put("operator", loadTestReport.getUserId());
+        paramMap.put("operator", userDTO.getName());
         paramMap.put("type", "performance");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.putAll(new BeanMap(loadTestDTO));
