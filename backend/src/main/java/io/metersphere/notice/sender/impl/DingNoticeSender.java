@@ -7,6 +7,7 @@ import com.taobao.api.ApiException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
+import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import org.apache.commons.collections4.CollectionUtils;
@@ -30,14 +31,21 @@ public class DingNoticeSender extends AbstractNoticeSender {
         text.setContent(context);
         request.setText(text);
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        List<String> phoneList = super.getUserPhones(noticeModel, receivers.stream()
+
+        List<String> userIds = receivers.stream()
                 .map(Receiver::getUserId)
                 .distinct()
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        List<String> phoneList = super.getUserDetails(userIds).stream()
+                .map(UserDetail::getPhone)
+                .distinct()
+                .collect(Collectors.toList());
+
         if (CollectionUtils.isEmpty(phoneList)) {
             return;
         }
-        LogUtil.info("钉钉收件人地址: {}", phoneList);
+        LogUtil.info("钉钉收件人地址: {}", userIds);
         at.setAtMobiles(phoneList);
         request.setAt(at);
         try {
