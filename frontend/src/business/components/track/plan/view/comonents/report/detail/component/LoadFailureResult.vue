@@ -88,9 +88,9 @@ export default {
     getFailureTestCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.loadTestCases = this.report.loadAllCases;
+          this.loadTestCases = this.report.loadAllCases ? this.report.loadAllCases : [];
         } else {
-          this.loadTestCases = this.report.loadFailureCases;
+          this.loadTestCases = this.report.loadFailureCases ? this.report.loadFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {

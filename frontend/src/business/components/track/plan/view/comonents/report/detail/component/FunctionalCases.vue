@@ -106,9 +106,9 @@ export default {
     getFunctionalTestCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.testCases = this.report.functionAllCases;
+          this.testCases = this.report.functionAllCases ? this.report.functionAllCases : [];
         } else {
-          this.testCases = this.report.functionFailureCases;
+          this.testCases = this.report.functionFailureCases ? this.report.functionFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {
