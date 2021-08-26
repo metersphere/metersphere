@@ -1487,6 +1487,7 @@ export default {
       import: {
         import: "导入用例",
         case_import: "导入测试用例",
+        case_export: "导出测试用例",
         download_template: "下载模版",
         click_upload: "点击上传",
         upload_limit: "只能上传xls/xlsx文件，且不超过100M",
