@@ -162,7 +162,7 @@
         :total="total"/>
     </div>
 
-    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList"/>
+    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList" @stop="stop"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
@@ -926,6 +926,19 @@ export default {
         }
       }
       return returnObj;
+    },
+    stop(id) {
+      for (let item of this.tableData) {
+        if (id && id === item.id) {
+          // 获取执行前结果
+          this.$get('/api/testcase/get/' + id, res => {
+            if (res) {
+              item.status = res.data.status;
+            }
+          })
+          break;
+        }
+      }
     },
     createPerformance(row, environment) {
       /**

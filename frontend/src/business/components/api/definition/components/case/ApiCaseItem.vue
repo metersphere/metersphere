@@ -82,7 +82,7 @@
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
                            class="run-button" size="mini" :disabled="!apiCase.id" circle v-if="!loading"/>
             <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-              <el-button :disabled="!apiCase.id" @click.once="stop" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
+              <el-button :disabled="!apiCase.id" @click.once="stop(apiCase)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;" class="stop-btn" circle>
                 <div style="transform: scale(0.72)">
                   <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
                 </div>
@@ -303,8 +303,8 @@ export default {
       this.saveTestCase(data);
       this.$emit('singleRun', data);
     },
-    stop() {
-      this.$emit('stop');
+    stop(data) {
+      this.$emit('stop', data.id);
     },
     copyCase(data) {
       if (data && data.request) {
