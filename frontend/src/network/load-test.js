@@ -71,10 +71,10 @@ export function getSharePerformanceReportResponseCodeChart(shareId, reportId, ca
 }
 
 export function getPerformanceReportDetailContent(reportKey, reportId, callback) {
-  return reportId ? baseGet('/performance/report/content/' + reportKey + '/' + reportId, callback) : {};
+  return reportId ? baseGet('/performance/report/content/' + reportKey + '/' + reportId, callback) : new Promise(()=>{});
 }
 export function getSharePerformanceReportDetailContent(shareId, reportKey, reportId, callback) {
-  return reportId ? baseGet('/share/performance/report/content/' + shareId + '/' + reportKey + '/' + reportId, callback) : {};
+  return reportId ? baseGet('/share/performance/report/content/' + shareId + '/' + reportKey + '/' + reportId, callback) : new Promise(()=>{});
 }
 
 export function getPerformanceReportContent(reportId, callback) {
@@ -113,15 +113,15 @@ export function getSharePerformanceReportLogResourceDetail(shareId, reportId, re
 }
 
 export function getPerformanceMetricQueryResource(resourceId, callback) {
-  return resourceId ? baseGet('/metric/query/resource/' + resourceId, callback) : {};
+  return resourceId ? baseGet('/metric/query/resource/' + resourceId, callback) : new Promise(()=>{});
 }
 export function getSharePerformanceMetricQueryResource(shareId, resourceId, callback) {
-  return resourceId ? baseGet('/share/metric/query/resource/' + shareId + '/' + resourceId, callback) : {};
+  return resourceId ? baseGet('/share/metric/query/resource/' + shareId + '/' + resourceId, callback) : new Promise(()=>{});
 }
 
 export function getPerformanceMetricQuery(resourceId, callback) {
   return resourceId ? baseGet('/metric/query/' + resourceId, callback) : {};
 }
 export function getSharePerformanceMetricQuery(shareId, resourceId, callback) {
-  return resourceId ? baseGet('/share/metric/query/' + shareId + '/' + resourceId, callback) : {};
+  return resourceId ? baseGet('/share/metric/query/' + shareId + '/' + resourceId, callback) : new Promise(()=>{});
 }

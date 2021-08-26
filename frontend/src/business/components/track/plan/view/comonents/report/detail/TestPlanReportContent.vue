@@ -3,7 +3,7 @@
     <el-main>
       <el-card v-loading="result ? result.loading : false">
         <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
-                                  v-if="!isTemplate"/>
+                                  v-if="!isTemplate && !isShare"/>
         <test-plan-overview-report v-if="overviewEnable" :report="report"/>
         <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
         <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :plan-id="planId" :report="report"/>
