@@ -37,7 +37,7 @@ public class DingNoticeSender extends AbstractNoticeSender {
         if (CollectionUtils.isEmpty(phoneList)) {
             return;
         }
-        LogUtil.info("钉钉收件人地址: " + phoneList);
+        LogUtil.info("钉钉收件人地址: {}", phoneList);
         at.setAtMobiles(phoneList);
         request.setAt(at);
         try {
