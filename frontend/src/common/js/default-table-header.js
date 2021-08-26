@@ -136,7 +136,6 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'priority', key: '3', label: 'test_track.case.priority'},
     {id: 'path', key: '4', label: 'api_test.definition.api_path'},
     {id: 'createUser', key: '5', label: 'api_test.creator'},
-    {id: 'custom', key: '6', label: 'api_test.definition.api_last_time'},
     {id: 'tags', key: '7', label: 'commons.tag'},
     {id: 'execResult', key: '8', label: 'test_track.plan.execute_result'},
     {id: 'maintainer', key: '9', label: 'api_test.definition.request.responsible'},

@@ -239,6 +239,10 @@ public class TestPlanService {
             }   //  非已结束->已结束，更新结束时间
         }
 
+        if (StringUtils.isNotBlank(testPlan.getStatus()) && testPlan.getStatus().equals(TestPlanStatus.Prepare.name())) {
+            testPlan.setActualStartTime(null);
+            testPlan.setActualEndTime(null);
+        }
 
         int i;
         if (testPlan.getName() == null) {//  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective

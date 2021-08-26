@@ -477,6 +477,7 @@
        <if test="status != null">
            and tptc.status = 'Failure'
        </if>
+        and tc.status != 'Trash'
         where tptc.plan_id = #{planId} order by tptc.update_time desc
     </select>
     <update id="updateTestCaseStates" parameterType="java.lang.String">
