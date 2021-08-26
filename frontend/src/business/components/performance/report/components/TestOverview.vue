@@ -82,11 +82,13 @@ import {
   getPerformanceReportErrorChart,
   getPerformanceReportLoadChart,
   getPerformanceReportOverview,
-  getPerformanceReportResChart, getPerformanceReportResponseCodeChart,
+  getPerformanceReportResChart,
+  getPerformanceReportResponseCodeChart,
   getSharePerformanceReportErrorChart,
   getSharePerformanceReportLoadChart,
   getSharePerformanceReportOverview,
-  getSharePerformanceReportResChart, getSharePerformanceReportResponseCodeChart,
+  getSharePerformanceReportResChart,
+  getSharePerformanceReportResponseCodeChart,
 } from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
@@ -124,7 +126,7 @@ export default {
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.loadOverview;
         this.buildInfo(data);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         getSharePerformanceReportOverview(this.shareId, this.id, (data) => {
           this.buildInfo(data);
         });
@@ -140,10 +142,10 @@ export default {
     },
     initData() {
       this.buildInfo();
-      this.loadOption = {};
-      this.resOption = {};
-      this.errorOption = {};
-      this.resCodeOption = {};
+      // this.loadOption = {};
+      // this.resOption = {};
+      // this.errorOption = {};
+      // this.resCodeOption = {};
     },
     buildInfo(data) {
       this.maxUsers = data ? data.maxUsers : '0';
@@ -158,7 +160,7 @@ export default {
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.loadOverviewLoadChart;
         this.handleGetLoadChart(data);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         getSharePerformanceReportLoadChart(this.shareId, this.id, data => {
           this.handleGetLoadChart(data);
         });
@@ -169,6 +171,9 @@ export default {
       }
     },
     handleGetLoadChart(data) {
+      if (!data) {
+        return;
+      }
       let loadOption = {
         color: color,
         title: {
@@ -229,14 +234,14 @@ export default {
           max: yAxis2ListMax,
           interval: yAxis2ListMax / 5
         }
-      ]
+      ];
       this.loadOption = this.generateOption(loadOption, allData);
     },
     getResChart() {
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.loadOverviewResChart;
         this.handleGetResChart(data);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         getSharePerformanceReportResChart(this.shareId, this.id, data => {
           this.handleGetResChart(data);
         });
@@ -247,6 +252,9 @@ export default {
       }
     },
     handleGetResChart(data) {
+      if (!data) {
+        return;
+      }
       let resOption = {
         color: color,
         title: {
@@ -316,7 +324,7 @@ export default {
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.loadOverviewErrorChart;
         this.handleGetErrorChart(data);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         getSharePerformanceReportErrorChart(this.shareId, this.id, data => {
           this.handleGetErrorChart(data);
         });
@@ -327,6 +335,9 @@ export default {
       }
     },
     handleGetErrorChart(data) {
+      if (!data) {
+        return;
+      }
       let errorOption = {
         color: color,
         title: {
@@ -387,7 +398,7 @@ export default {
           max: yAxisListMax,
           interval: yAxisListMax / 5
         }
-      ]
+      ];
 
       this.errorOption = this.generateOption(errorOption, allData);
     },
@@ -395,17 +406,20 @@ export default {
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.loadOverviewResponseCodeChart;
         this.handleGetResponseCodeChart(data);
-      } else if (this.isShare){
-        getSharePerformanceReportResponseCodeChart(this.shareId, this.id,data => {
+      } else if (this.isShare) {
+        getSharePerformanceReportResponseCodeChart(this.shareId, this.id, data => {
           this.handleGetResponseCodeChart(data);
         });
       } else {
-        getPerformanceReportResponseCodeChart(this.id,data => {
+        getPerformanceReportResponseCodeChart(this.id, data => {
           this.handleGetResponseCodeChart(data);
         });
       }
     },
     handleGetResponseCodeChart(data) {
+      if (!data) {
+        return;
+      }
       let resCodeOption = {
         color: color,
         title: {
