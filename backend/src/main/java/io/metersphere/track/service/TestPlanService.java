@@ -990,7 +990,6 @@ public class TestPlanService {
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public String run(String testPlanID, String projectID, String userId, String triggerMode, String apiRunConfig) {
-        triggerMode = ReportTriggerMode.SCHEDULE.name();
         //创建测试报告，然后返回的ID重新赋值为resourceID，作为后续的参数
         TestPlanScheduleReportInfoDTO reportInfoDTO = testPlanReportService.genTestPlanReportBySchedule(projectID, testPlanID, userId, triggerMode);
 
@@ -1647,6 +1646,7 @@ public class TestPlanService {
 
             buildApiReport(report, config, executeInfo, planId, saveResponse);
             buildLoadReport(report, config, executeInfo, planId, saveResponse);
+            report.setEndTime(System.currentTimeMillis());
             return report;
         }else {
             return null;

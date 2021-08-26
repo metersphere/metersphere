@@ -194,7 +194,11 @@ public class ProjectService {
         deleteProjectUserGroup(projectId);
 
         //关闭TCP
-        this.closeMockTcp(projectId);
+        try {
+            //捕获关闭失败的异常，使其不影响删除
+            this.closeMockTcp(projectId);
+        }catch (Exception e){}
+
 
         // delete project
         projectMapper.deleteByPrimaryKey(projectId);
