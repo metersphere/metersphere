@@ -19,6 +19,7 @@
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
 import {
+  getExportReport,
   getShareTestPlanReport,
   getShareTestPlanReportContent,
   getTestPlanReport,
@@ -67,6 +68,11 @@ export default {
     },
     reportId() {
       this.getReport();
+    },
+    planReportTemplate() {
+      if (this.planReportTemplate) {
+        this.init();
+      }
     }
   },
   created() {
@@ -98,6 +104,13 @@ export default {
     getReport() {
       if (this.isTemplate) {
         this.report = "#report";
+
+        // this.report = {}; 测试代码
+        // this.result = getExportReport(this.planId, (data) => {
+        //   data.config = JSON.parse(data.config);
+        //   this.report = data;
+        // });
+
         this.report.config = this.getDefaultConfig(this.report.config);
       }  else if (this.isDb) {
         if (this.isShare) {

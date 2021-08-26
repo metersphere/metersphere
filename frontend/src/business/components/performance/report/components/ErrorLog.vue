@@ -176,8 +176,8 @@ export default {
   methods: {
     initTableData() {
       if (this.planReportTemplate) {
-        this.dataData = this.planReportTemplate.errorsContent;
-        this.handleGetTop5(this.planReportTemplate.errorTop5);
+        this.tableData = this.planReportTemplate.reportErrors;
+        this.handleGetTop5(this.planReportTemplate.reportErrorsTop5);
       } else if (this.isShare){
         getSharePerformanceReportErrorsContent(this.shareId, this.id).then(res => {
           this.tableData = res.data.data;
@@ -247,6 +247,14 @@ export default {
           this.errorTop4 = [];
           this.errorTop5 = [];
           this.errorSummary = [];
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.initTableData();
         }
       },
       deep: true
