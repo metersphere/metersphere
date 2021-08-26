@@ -199,7 +199,7 @@ export default {
           return;
         }
         if (status === "Completed" || status === "Running") {
-          // this.getResource();
+          this.getResource();
         } else {
           this.instances = [];
         }

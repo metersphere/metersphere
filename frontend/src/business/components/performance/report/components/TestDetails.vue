@@ -726,6 +726,8 @@ export default {
         }
         if (status === "Running") {
           this.getTotalChart();
+        } else if (status === "Completed") {
+          this.initTableData();
         }
       },
       deep: true
