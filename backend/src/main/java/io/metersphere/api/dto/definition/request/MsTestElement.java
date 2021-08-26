@@ -291,16 +291,16 @@ public abstract class MsTestElement {
 
     protected String getParentName(MsTestElement parent) {
         if (parent != null) {
-            if (MsTestElementConstants.TransactionController.name().equals(parent.getType())) {
-                MsTransactionController transactionController = (MsTransactionController) parent;
-                if (StringUtils.isNotEmpty(transactionController.getName())) {
-                    return transactionController.getName();
-                } else if (StringUtils.isNotEmpty(transactionController.getLabelName())) {
-                    return transactionController.getLabelName();
-                } else {
-                    return "TransactionController";
-                }
-            }
+//            if (MsTestElementConstants.TransactionController.name().equals(parent.getType())) {
+//                MsTransactionController transactionController = (MsTransactionController) parent;
+//                if (StringUtils.isNotEmpty(transactionController.getName())) {
+//                    return transactionController.getName();
+//                } else if (StringUtils.isNotEmpty(transactionController.getLabelName())) {
+//                    return transactionController.getLabelName();
+//                } else {
+//                    return "TransactionController";
+//                }
+//            }
             // 获取全路径以备后面使用
             String fullPath = getFullPath(parent, new String());
             return fullPath + DelimiterConstants.SEPARATOR.toString() + parent.getName();

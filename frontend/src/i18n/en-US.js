@@ -1477,6 +1477,7 @@ export default {
       import: {
         import: "Import test case",
         case_import: "Import test case",
+        case_export: "Export test case",
         download_template: "Download template",
         click_upload: "Upload",
         upload_limit: "Only XLS/XLSX/XMIND files can be uploaded, and no more than 100M",
