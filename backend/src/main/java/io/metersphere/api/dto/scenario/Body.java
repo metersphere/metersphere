@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.FileUtils;
@@ -89,7 +90,7 @@ public class Body {
                 try {
                     JSONObject jsonObject = com.alibaba.fastjson.JSON.parseObject(this.getRaw());
                     jsonMockParse(jsonObject);
-                    this.raw = JSONObject.toJSONString(jsonObject);
+                    this.raw = JSONObject.toJSONString(jsonObject, SerializerFeature.WriteMapNullValue);
                 } catch (Exception e) {}
             }
         }
