@@ -32,7 +32,7 @@ public class WeComNoticeSender extends AbstractNoticeSender {
         if (CollectionUtils.isEmpty(phoneLists)) {
             return;
         }
-        LogUtil.info("企业微信收件人: ", phoneLists);
+        LogUtil.info("企业微信收件人: {}", phoneLists);
         try {
             WxChatbotClient.send(messageDetail.getWebhook(), message);
         } catch (IOException e) {
