@@ -61,7 +61,11 @@ export default {
     //   this.handleClose();
     // },
     open(plan) {
-      this.plan = plan;
+      // 每次都重新获取
+      this.plan = {id: null}
+      this.$nextTick(() => {
+        this.plan = plan;
+      });
       this.showDialog = true;
       // this.listenGoBack();
     },

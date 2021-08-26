@@ -470,7 +470,9 @@ export default {
               this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
-          this.$refs.table.clear();
+          if (this.$refs.table) {
+            this.$refs.table.clear();
+          }
           checkTableRowIsSelected(this, this.$refs.table);
         });
       }
