@@ -69,6 +69,8 @@ public class StatusReference {
         statusMap.put("TEST_PLAN_TASK", "测试计划任务");
         statusMap.put("REVIEW_TASK", "评审任务");
         statusMap.put("SWAGGER_TASK", "SWAGGER 任务");
+        statusMap.put("SWAGGER_URL", "SWAGGER 地址");
+        statusMap.put("SCHEDULE_TASK", "定时任务");
         statusMap.put("API_AUTOMATION_TASK", "接口自动化任务");
         statusMap.put("API_DEFINITION_TASK", "接口定义任务");
         statusMap.put("API_HOME_TASK", "接口主页任务");
