@@ -197,6 +197,9 @@ export default {
       }
     },
     handleGetTop5(data) {
+      if (!data) {
+        return;
+      }
       this.errorTop1 = data.map(e => {
         return {error1: e.error1, error1Size: e.error1Size};
       });
