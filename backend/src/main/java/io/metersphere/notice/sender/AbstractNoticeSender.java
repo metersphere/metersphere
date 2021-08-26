@@ -110,21 +110,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         return template;
     }
 
-    protected List<String> getUserPhones(NoticeModel noticeModel, List<String> userIds) {
-        List<UserDetail> list = userService.queryTypeByIds(userIds);
-        List<String> phoneList = new ArrayList<>();
-        list.forEach(u -> phoneList.add(u.getPhone()));
-        return phoneList.stream().distinct().collect(Collectors.toList());
-    }
-
-    protected List<String> getUserEmails(NoticeModel noticeModel, List<String> userIds) {
-        List<UserDetail> list = userService.queryTypeByIds(userIds);
-        List<String> phoneList = new ArrayList<>();
-        list.forEach(u -> phoneList.add(u.getEmail()));
-        return phoneList.stream().distinct().collect(Collectors.toList());
-    }
-
-    protected List<UserDetail> getUserDetails(NoticeModel noticeModel, List<String> userIds) {
+    protected List<UserDetail> getUserDetails(List<String> userIds) {
         return userService.queryTypeByIds(userIds);
     }
 
