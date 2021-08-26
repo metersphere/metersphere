@@ -47,7 +47,7 @@ export default {
       this.init = true;
       this.active = '0';
       if (this.planReportTemplate) {
-        this.handleGetLogResource(this.planReportTemplate.logResource);
+        this.handleGetLogResource(this.planReportTemplate.reportLogResource);
       } else if (this.isShare){
         getSharePerformanceReportLogResource(this.shareId, this.id, (data) => {
           this.handleGetLogResource(data);
@@ -79,7 +79,7 @@ export default {
       this.logStatus[resourceId] = true;
       this.loading = true;
       if (this.planReportTemplate) {
-        this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
+        // this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
       } else if (this.isShare){
         getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId], data => {
           this.handleGetLogResourceDetail(data, resourceId);
@@ -157,6 +157,14 @@ export default {
           this.getResource();
         } else {
           this.resource = [];
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getResource();
         }
       },
       deep: true

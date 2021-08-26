@@ -242,4 +242,10 @@ public class ShareController {
     public List<String> queryReportResource(@PathVariable String shareId, @PathVariable("id") String reportId) {
         return metricService.queryReportResource(reportId);
     }
+
+    @GetMapping("/performance/report/get-load-config/{shareId}/{testId}")
+    public String getLoadConfiguration(@PathVariable String shareId, @PathVariable String testId) {
+        //checkPermissionService.checkPerformanceTestOwner(testId);
+        return performanceTestService.getLoadConfiguration(testId);
+    }
 }
