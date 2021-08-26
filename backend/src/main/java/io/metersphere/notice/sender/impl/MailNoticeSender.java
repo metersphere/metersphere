@@ -47,7 +47,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
         }
         List<String> emails = super.getUserEmails(noticeModel, userIds);
         String[] users = emails.toArray(new String[0]);
-        LogUtil.info("收件人地址: " + emails);
+        LogUtil.info("收件人地址: {}", emails);
         helper.setText(context, true);
         helper.setTo(users);
         javaMailSender.send(mimeMessage);
