@@ -45,7 +45,7 @@
         <ms-jmx-step :request="request" :response="responseData"/>
 
         <!-- 执行组件 -->
-        <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
+        <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
       </div>
     </el-card>
 
