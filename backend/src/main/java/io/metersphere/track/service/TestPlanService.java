@@ -1646,7 +1646,6 @@ public class TestPlanService {
 
             buildApiReport(report, config, executeInfo, planId, saveResponse);
             buildLoadReport(report, config, executeInfo, planId, saveResponse);
-            report.setEndTime(System.currentTimeMillis());
             return report;
         }else {
             return null;

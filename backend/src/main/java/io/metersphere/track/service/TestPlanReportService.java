@@ -558,6 +558,9 @@ public class TestPlanReportService {
         testPlanLog.info("ReportId[" + testPlanReport.getId() + "] COUNT OVER. COUNT RESULT :" + JSONObject.toJSONString(testPlanExecuteResult));
 
         TestPlanSimpleReportDTO reportDTO = testPlanService.buildPlanReport(executeInfo, testPlanReport.getTestPlanId(),false);
+        //更新执行时间
+        reportDTO.setStartTime(testPlanReport.getStartTime());
+        reportDTO.setEndTime(System.currentTimeMillis());
         testPlanReportContentMapper.updateByPrimaryKeySelective(parseReportDaoToReportContent(reportDTO, reportContent));
 
         String testPlanStatus = this.getTestPlanReportStatus(testPlanReport, reportDTO);
