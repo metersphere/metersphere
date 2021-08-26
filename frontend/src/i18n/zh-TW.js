@@ -1487,6 +1487,7 @@ export default {
       import: {
         import: "導入用例",
         case_import: "導入測試用例",
+        case_export: "導出測試用例",
         download_template: "下載模版",
         click_upload: "點擊上傳",
         upload_limit: "只能上傳xls/xlsx文件，且不超過100M",
