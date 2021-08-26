@@ -122,7 +122,6 @@ export default {
   props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     initTableData() {
-      this.initData();
       if (this.planReportTemplate) {
         let data = this.planReportTemplate.loadOverview;
         this.buildInfo(data);
@@ -139,13 +138,6 @@ export default {
       this.getResChart();
       this.getErrorChart();
       this.getResponseCodeChart();
-    },
-    initData() {
-      this.buildInfo();
-      // this.loadOption = {};
-      // this.resOption = {};
-      // this.errorOption = {};
-      // this.resCodeOption = {};
     },
     buildInfo(data) {
       this.maxUsers = data ? data.maxUsers : '0';
