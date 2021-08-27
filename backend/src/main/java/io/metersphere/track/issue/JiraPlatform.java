@@ -309,8 +309,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issues.forEach(item -> {
             setConfig();
             try {
+                IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
                 parseIssue(item, jiraClientV2.getIssues(item.getId()));
-                item.setDescription(htmlDesc2MsDesc(item.getDescription()));
+                String desc = htmlDesc2MsDesc(item.getDescription());
+                // 保留之前上传的图片
+                String images = getImages(issuesWithBLOBs.getDescription());
+                item.setDescription(desc + "\n" + images);
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {
