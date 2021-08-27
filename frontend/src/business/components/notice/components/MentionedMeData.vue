@@ -82,7 +82,7 @@ export default {
         this.totalCount = response.data.itemCount;
 
         this.systemNoticeData.forEach(n => {
-          n.user = this.userMap[n.operator];
+          n.user = this.userMap[n.operator] || {name: "MS"};
         });
       });
     },
