@@ -780,7 +780,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
-
+        //通过platform，获取对应的导入解析类型。
         ApiImportParser apiImportParser = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {

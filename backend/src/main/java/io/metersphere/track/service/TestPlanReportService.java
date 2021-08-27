@@ -21,6 +21,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
@@ -76,6 +77,8 @@ public class TestPlanReportService {
     ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     LoadTestReportMapper loadTestReportMapper;
+    @Resource
+    ProjectService projectService;
     @Lazy
     @Resource
     TestPlanService testPlanService;
@@ -757,9 +760,9 @@ public class TestPlanReportService {
 //                    testPlan.setStatus(TestPlanStatus.Completed.name());
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
-                if (StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name())) {
+                if (testPlan != null && StringUtils.equalsAny(report.getTriggerMode(), ReportTriggerMode.API.name(), ReportTriggerMode.SCHEDULE.name())) {
                     //发送通知
-                    sendMessage(report);
+                    sendMessage(report,testPlan.getProjectId());
                 }
             } catch (Exception e) {
 
@@ -771,7 +774,7 @@ public class TestPlanReportService {
         return report;
     }
 
-    public void sendMessage(TestPlanReport testPlanReport) {
+    public void sendMessage(TestPlanReport testPlanReport,String projectId) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(testPlanReport.getTestPlanId());
         assert testPlan != null;
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
@@ -827,7 +830,9 @@ public class TestPlanReportService {
                 .subject(subject)
                 .paramMap(paramMap)
                 .build();
-        noticeSendService.send(testPlanReport.getTriggerMode(), noticeModel);
+//        noticeSendService.send(testPlanReport.getTriggerMode(), noticeModel);
+        Organization organization = projectService.getOrganizationByProjectId(projectId);
+        noticeSendService.send(organization, testPlanReport.getTriggerMode(), noticeModel);
     }
 
     public TestPlanReport getTestPlanReport(String planId) {
@@ -1051,12 +1056,12 @@ public class TestPlanReportService {
         int unFinishNum = executeInfo.countUnFinishedNum();
         if(unFinishNum > 0){
             //如果间隔超过5分钟没有案例执行完成，则把执行结果变成false
-            long lastCountTime = executeInfo.getLastFinishedNumCountTime();
-            long nowTime = System.currentTimeMillis();
-            if(nowTime - lastCountTime > 300000){
-                TestPlanReportExecuteCatch.finishAllTask(planReportId);
-            }
+        long lastCountTime = executeInfo.getLastFinishedNumCountTime();
+        long nowTime = System.currentTimeMillis();
+        if(nowTime - lastCountTime > 300000){
+            TestPlanReportExecuteCatch.finishAllTask(planReportId);
         }
+    }
         this.updateExecuteApis(planReportId);
     }
 

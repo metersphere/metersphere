@@ -2,6 +2,7 @@
   <el-dialog :title="$t('table.header_display_field')" :visible.sync="visible" :append-to-body="true">
     <tree-transfer :title="[$t('table.fields_to_be_selected'), $t('table.selected_fields')]"
                    :from_data='fromFields'
+                   :placeholder="$t('api_test.request.parameters_mock_filter_tips')"
                    :draggable="true"
                    :to_data='selectedFields'
                    :defaultProps="{label:'label'}"
