@@ -650,7 +650,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         //  header 也支持 mock 参数
         List<KeyValue> keyValues = headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).collect(Collectors.toList());
         for (KeyValue keyValue : keyValues) {
-            headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
+            boolean hasHead = false;
+            //检查是否已经有重名的Head。如果Header重复会导致执行报错
+            if(headerManager.getHeaders() != null){
+                for(int i = 0; i < headerManager.getHeaders().size(); i ++){
+                    Header header = headerManager.getHeader(i);
+                    String headName = header.getName();
+                    if(StringUtils.equals(headName,keyValue.getName())){
+                        hasHead = true;
+                        break;
+                    }
+                }
+            }
+
+            if(!hasHead){
+                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
+            }
         }
         if (headerManager.getHeaders().size() > 0 && isAdd) {
             tree.add(headerManager);
