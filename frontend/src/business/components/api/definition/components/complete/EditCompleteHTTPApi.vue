@@ -57,7 +57,7 @@
             <el-col :span="8">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select class="ms-http-select" size="small" v-model="httpForm.status">
-                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+                  <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>

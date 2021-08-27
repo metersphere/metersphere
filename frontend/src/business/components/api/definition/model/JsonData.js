@@ -87,9 +87,9 @@ export const REVIEW_STATUS = [
   {id: 'UnPass', label: '未通过'}
 ];
 export const API_STATUS = [
-  {id: 'Prepare', label: '未开始'},
-  {id: 'Underway', label: '进行中'},
-  {id: 'Completed', label: '已完成'}
+  {id: 'Prepare', label: 'test_track.plan.plan_status_prepare'},
+  {id: 'Underway', label: 'test_track.plan.plan_status_running'},
+  {id: 'Completed', label: 'test_track.plan.plan_status_finished'}
 ];
 export const TEST = [
   {id: 'performance', name: '性能测试', module: 'performance'},
