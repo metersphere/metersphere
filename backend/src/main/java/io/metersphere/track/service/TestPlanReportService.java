@@ -820,7 +820,7 @@ public class TestPlanReportService {
         }
 
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator("MeterSphere")
+                .operator(testPlanReport.getCreator())
                 .successContext(successContext)
                 .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
@@ -831,9 +831,7 @@ public class TestPlanReportService {
                 .subject(subject)
                 .paramMap(paramMap)
                 .build();
-//        noticeSendService.send(testPlanReport.getTriggerMode(), noticeModel);
-//        Organization organization = projectService.getOrganizationByProjectId(projectId);
-        noticeSendService.send(testPlanReport.getTriggerMode(), noticeModel);
+        noticeSendService.send(testPlanReport.getTriggerMode(), NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
     }
 
     public TestPlanReport getTestPlanReport(String planId) {
