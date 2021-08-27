@@ -296,7 +296,7 @@ public class ApiScenarioReportService {
         List<String> reportIds = new ArrayList<>();
         List<String> scenarioIdList = new ArrayList<>();
         Map<String, String> scenarioAndErrorMap = new HashMap<>();
-        Map<String,APIScenarioReportResult> caseReportMap = new HashMap<>();
+        Map<String, APIScenarioReportResult> caseReportMap = new HashMap<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
 
             // 存储场景报告
@@ -387,7 +387,7 @@ public class ApiScenarioReportService {
             lastReport = report;
 
             APIScenarioReportResult reportResult = this.get(report.getId());
-            caseReportMap.put(testPlanApiScenario.getApiScenarioId(),reportResult);
+            caseReportMap.put(testPlanApiScenario.getApiScenarioId(), reportResult);
             reportIds.add(report.getId());
         }
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
@@ -395,8 +395,8 @@ public class ApiScenarioReportService {
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
 
         for (String reportId : testPlanReportIdList) {
-            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId,null,scenarioAndErrorMap,null);
-            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId,null,caseReportMap,null);
+            TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
+            TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, caseReportMap, null);
         }
 
         return lastReport;
@@ -550,7 +550,6 @@ public class ApiScenarioReportService {
     public ApiScenarioReport updateScenario(TestResult result) {
         // 针对未正常返回结果的报告计数
         counter(result);
-
         ApiScenarioReport lastReport = null;
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
@@ -599,6 +598,7 @@ public class ApiScenarioReportService {
                 if (obj != null) {
                     ReportCounter counter = (ReportCounter) obj;
                     counter.setNumber(counter.getNumber() + 1);
+                    System.out.println("得到统计数量：" + counter.getNumber());
                     MessageCache.cache.put(report.getScenarioId(), counter);
                 }
             }
@@ -623,7 +623,9 @@ public class ApiScenarioReportService {
         }
 
         Map paramMap = new HashMap<>(beanMap);
-        paramMap.put("operator", SessionUtils.getUser().getName());
+        if (SessionUtils.getUser() != null) {
+            paramMap.put("operator", SessionUtils.getUser().getName());
+        }
         paramMap.put("status", result.getLastResult());
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
