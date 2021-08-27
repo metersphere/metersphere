@@ -12,7 +12,9 @@ import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.parse.xml.reader.DocumentParser;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -591,7 +593,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private void processBackendListener(Element backendListener) {
         String resourcePoolId = context.getResourcePoolId();
         TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
-        if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+        if (checkLicense() && !BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
             return;
         }
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
@@ -656,7 +658,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private void processCheckoutBackendListener(Element element) {
         String resourcePoolId = context.getResourcePoolId();
         TestResourcePool resourcePool = CommonBeanFactory.getBean(TestResourcePoolService.class).getResourcePool(resourcePoolId);
-        if (!BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
+        if (checkLicense() && !BooleanUtils.toBoolean(resourcePool.getBackendListener())) {
             return;
         }
 
@@ -675,6 +677,20 @@ public class JmeterDocumentParser implements DocumentParser {
         backendListener.setAttribute("enabled", "true");
         listenerParent.appendChild(backendListener);
         listenerParent.appendChild(document.createElement(HASH_TREE_ELEMENT));
+    }
+
+    private boolean checkLicense() {
+        try {
+            ClassUtils.getClass("io.metersphere.xpack.license.service.LicenseService");
+            Object licenseService = CommonBeanFactory.getBean("licenseService");
+            Object result = MethodUtils.invokeMethod(licenseService, "valid");
+            Object status = MethodUtils.invokeMethod(result, "getStatus");
+            if (StringUtils.equalsIgnoreCase("VALID", status.toString())) {
+                return true;
+            }
+        } catch (Exception ignored) {
+        }
+        return false;
     }
 
     private void processThreadGroup(Element threadGroup) {
