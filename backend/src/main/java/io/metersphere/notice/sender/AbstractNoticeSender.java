@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -181,9 +180,12 @@ public abstract class AbstractNoticeSender implements NoticeSender {
             }
         }
         // 排除自己
-        toUsers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
+        if (noticeModel.isExcludeSelf()) {
+            toUsers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
+        }
         // 去重复
-        HashSet<Receiver> receivers = new HashSet<>(toUsers);
-        return new ArrayList<>(receivers);
+        return toUsers.stream()
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
