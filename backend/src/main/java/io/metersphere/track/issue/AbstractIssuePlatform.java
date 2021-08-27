@@ -264,6 +264,19 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         return input;
     }
 
+    protected String getImages(String input) {
+        String result = "";
+        String regex = "(\\!\\[.*?\\]\\((.*?)\\))";
+        if (StringUtils.isBlank(input)) {
+            return result;
+        }
+        Matcher matcher = Pattern.compile(regex).matcher(input);
+        while (matcher.find()) {
+            result += matcher.group();
+        }
+        return result;
+    }
+
     protected String htmlImg2MsImg(String input) {
         // <img src="xxx/resource/md/get/a0b19136_中心主题.png"/> ->  ![中心主题.png](/resource/md/get/a0b19136_中心主题.png)
         String regex = "(<img\\s*src=\\\"(.*?)\\\".*?>)";
