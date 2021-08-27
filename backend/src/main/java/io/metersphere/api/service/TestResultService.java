@@ -121,7 +121,7 @@ public class TestResultService {
 
                 //报告内容
                 reportTask = new ApiTestReportVariable();
-                if(StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
+                if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
                     reportTask.setStatus(scenarioReport.getStatus());
                     reportTask.setId(scenarioReport.getId());
                     reportTask.setTriggerMode(scenarioReport.getTriggerMode());
@@ -254,6 +254,6 @@ public class TestResultService {
                 .subject(subject)
                 .paramMap(paramMap)
                 .build();
-        noticeSendService.send(report.getTriggerMode(), noticeModel);
+        noticeSendService.send(report.getTriggerMode(), NoticeConstants.TaskType.API_DEFINITION_TASK, noticeModel);
     }
 }
