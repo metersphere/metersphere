@@ -54,7 +54,7 @@
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
+              <el-tooltip v-else :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -719,6 +719,7 @@ export default {
                 this.$refs.caseTable.clearSelectRows();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
+                this.$emit('refreshTable');
               });
             }
           }
@@ -795,7 +796,8 @@ export default {
               this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.initTable();
-
+                this.$emit("refreshTree");
+                this.$emit('refreshTable');
               });
             }
           }

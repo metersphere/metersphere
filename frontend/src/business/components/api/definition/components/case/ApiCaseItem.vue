@@ -27,7 +27,10 @@
                       class="ms-api-header-select" style="width: 180px"
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
-                <span>{{ apiCase.id ? apiCase.name : '' }}</span>
+              <el-tooltip :content="apiCase.id ? apiCase.name : ''" placement="top">
+                <span>{{ apiCase.id ? apiCase.name : '' | ellipsis }}</span>
+              </el-tooltip>
+
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)"/>
             </span>
 
@@ -176,6 +179,15 @@ import MsChangeHistory from "../../../../history/ChangeHistory";
 
 export default {
   name: "ApiCaseItem",
+  filters: {
+    ellipsis (value) {
+      if (!value) return ''
+      if (value.length > 20) {
+        return value.slice(0,20) + '...'
+      }
+      return value
+    }
+  },
   components: {
     ApiResponseComponent,
     MsInputTag,
