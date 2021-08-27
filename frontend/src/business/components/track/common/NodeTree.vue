@@ -198,9 +198,14 @@ export default {
       this.$set(data, 'isEdit', true);
       this.$nextTick(() => {
         this.$refs.nameInput.focus();
+
+        // 不知为何，执行this.$set(data, 'isEdit', true);进入编辑状态之后过滤会失效，重新执行下过滤
         if (!isAppend) {
           this.$nextTick(() => {
             this.filter(this.filterText);
+          });
+          this.$nextTick(() => {
+            this.$emit('filter');
           });
         }
       });

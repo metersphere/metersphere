@@ -14,6 +14,7 @@
       @drag="drag"
       @remove="remove"
       @refresh="list"
+      @filter="filter"
       :delete-permission="['PROJECT_API_DEFINITION:READ+DELETE_API']"
       :add-permission="['PROJECT_API_DEFINITION:READ+CREATE_API']"
       :update-permission="['PROJECT_API_DEFINITION:READ+EDIT_API']"
@@ -112,8 +113,8 @@
     },
 
     watch: {
-      'condition.filterText'(val) {
-        this.$refs.nodeTree.filter(val);
+      'condition.filterText'() {
+        this.filter();
       },
       'condition.protocol'() {
         this.$emit('protocolChange', this.condition.protocol);
@@ -139,6 +140,9 @@
           this.$emit('protocolChange', this.condition.protocol);
           this.list();
         });
+      },
+      filter() {
+        this.$refs.nodeTree.filter(this.condition.filterText);
       },
       list(projectId) {
         let url = undefined;
