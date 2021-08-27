@@ -55,21 +55,12 @@ public class NoticeSendService {
         return noticeSender;
     }
 
+    /**
+     * 在线操作发送通知
+     */
     public void send(String taskType, NoticeModel noticeModel) {
         try {
-            List<MessageDetail> messageDetails;
-            switch (taskType) {
-                case NoticeConstants.Mode.API:
-                    String projectId = (String) noticeModel.getParamMap().get("projectId");
-                    messageDetails = noticeService.searchMessageByTypeBySend(NoticeConstants.TaskType.JENKINS_TASK, projectId);
-                    break;
-                case NoticeConstants.Mode.SCHEDULE:
-                    messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());
-                    break;
-                default:
-                    messageDetails = noticeService.searchMessageByType(taskType);
-                    break;
-            }
+            List<MessageDetail> messageDetails = noticeService.searchMessageByType(taskType);
 
             // 异步发送通知
             messageDetails.stream()
@@ -96,11 +87,10 @@ public class NoticeSendService {
                 switch (taskType) {
                     case NoticeConstants.TaskType.API_AUTOMATION_TASK:
                     case NoticeConstants.TaskType.PERFORMANCE_TEST_TASK:
-                        messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());
-                        break;
                     default:
                         break;
                 }
+                messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());
             }
 
             if (StringUtils.equals(triggerMode, NoticeConstants.Mode.API)) {
