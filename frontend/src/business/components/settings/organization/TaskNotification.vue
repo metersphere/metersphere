@@ -56,6 +56,14 @@
         <performance-report-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
                                          :receive-type-options="receiveTypeOptions"/>
       </el-collapse-item>
+      <el-collapse-item name="1">
+        <template v-slot:title>
+          <span style="width: 200px">{{ $t('organization.message.jenkins_task_notification') }}</span>
+          <span>通知数: <span style="color: #783887;">{{ jenkinsNoticeSize }}</span></span>
+        </template>
+        <jenkins-notification @noticeSize="getNoticeSize" :jenkins-receiver-options="jenkinsReceiverOptions"
+                              :receive-type-options="receiveTypeOptions"/>
+      </el-collapse-item>
     </el-collapse>
   </div>
 </template>
