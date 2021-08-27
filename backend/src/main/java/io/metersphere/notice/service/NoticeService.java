@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
 import io.metersphere.base.domain.Organization;
-import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.MessageTaskMapper;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
@@ -31,8 +30,6 @@ import java.util.stream.Collectors;
 public class NoticeService {
     @Resource
     private MessageTaskMapper messageTaskMapper;
-    @Resource
-    private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private ExtProjectMapper extProjectMapper;
 
@@ -134,11 +131,10 @@ public class NoticeService {
         }
     }
 
-    public List<MessageDetail> searchMessageByTypeBySend(String type, String id) {
+    public List<MessageDetail> searchMessageByTypeBySend(String type, String projectId) {
         try {
             String orgId = "";
             if (null == SessionUtils.getUser()) {
-                String projectId = loadTestReportMapper.selectByPrimaryKey(id).getProjectId();
                 Organization organization = extProjectMapper.getOrganizationByProjectId(projectId);
                 orgId = organization.getId();
             } else {
