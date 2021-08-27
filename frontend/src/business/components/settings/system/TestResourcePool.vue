@@ -73,7 +73,7 @@
           <el-form-item :label="$t('commons.image')" prop="image">
             <el-input v-model="form.image"/>
           </el-form-item>
-          <el-form-item :label="$t('test_resource_pool.backend_listener')" prop="backendListener">
+          <el-form-item :label="$t('test_resource_pool.backend_listener')" prop="backendListener" v-xpack>
             <el-switch v-model="form.backendListener"/>
           </el-form-item>
           <el-form-item :label="$t('test_resource_pool.usage')" prop="usage">
