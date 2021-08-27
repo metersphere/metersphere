@@ -32,7 +32,9 @@
       <el-checkbox v-for="(item, index) in data.options ? data.options : []"
                    :key="index"
                    @change="handleChange"
-                   :label="getTranslateOption(item)"></el-checkbox>
+                   :label="item.value">
+        {{ getTranslateOption(item) }}
+      </el-checkbox>
     </el-checkbox-group>
 
     <el-radio
@@ -42,7 +44,9 @@
       v-for="(item,index) in data.options ? data.options : []"
       :key="index"
       @change="handleChange"
-      :label="getTranslateOption(item)"></el-radio>
+      :label="item.value">
+      {{ getTranslateOption(item) }}
+    </el-radio>
 
     <el-input-number
       v-else-if="data.type === 'int'"
