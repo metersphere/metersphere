@@ -34,7 +34,7 @@ public class ParallelApiExecTask<T> implements Callable<T> {
             if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config);
             } else {
-                jMeterService.runLocal(runModeDataDTO.getApiCaseId(), runModeDataDTO.getHashTree(), null, runMode);
+                jMeterService.runLocal(runModeDataDTO.getApiCaseId(), runModeDataDTO.getHashTree(), runModeDataDTO.getReport() != null ? runModeDataDTO.getReport().getTriggerMode() : null, runMode);
             }
             return null;
         } catch (Exception ex) {

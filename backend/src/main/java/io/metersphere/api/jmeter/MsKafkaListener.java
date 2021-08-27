@@ -10,12 +10,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 
 @Service
-@Transactional(rollbackFor = Exception.class)
 public class MsKafkaListener {
     public static final String TOPICS = "ms-api-exec-topic";
     public static final String CONSUME_ID = "ms-api-exec-consume";
@@ -23,7 +21,11 @@ public class MsKafkaListener {
     @KafkaListener(id = CONSUME_ID, topics = TOPICS, groupId = "${spring.kafka.consumer.group-id}")
     public void consume(ConsumerRecord<?, String> record) {
         LogUtil.info("接收到执行结果开始存储");
-        this.save(record.value());
+        try {
+            this.save(record.value());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage());
+        }
         LogUtil.info("执行内容存储结束");
     }
 
