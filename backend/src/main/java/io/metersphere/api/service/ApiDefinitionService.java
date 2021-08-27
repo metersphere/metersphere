@@ -6,6 +6,7 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
@@ -686,7 +687,9 @@ public class ApiDefinitionService {
 
         // 调用执行方法
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-            jMeterService.runTest(request.getId(), request.getId(), runMode, null, request.getConfig());
+            RunModeConfig configs = request.getConfig();
+            configs.setBaseInfo(CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo());
+            jMeterService.runTest(request.getId(), request.getId(), runMode, null, configs);
         } else {
             jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), runMode);
         }

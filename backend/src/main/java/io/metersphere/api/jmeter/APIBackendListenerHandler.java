@@ -7,8 +7,6 @@ import io.metersphere.api.service.MsResultService;
 import io.metersphere.api.service.TestResultService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
@@ -20,8 +18,6 @@ import java.util.Map;
  * 获取结果和数据库操作分离
  * 减少占用的数据库连接
  */
-@Service
-@Transactional(rollbackFor = Exception.class)
 public class APIBackendListenerHandler {
 
     @Resource

@@ -1,43 +1,69 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunModeConfig;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.base.domain.JarConfig;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.*;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
+import io.metersphere.service.JarConfigService;
 import io.metersphere.service.SystemParameterService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.config.CSVDataSet;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
+import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -128,17 +154,21 @@ public class JMeterService {
         init();
         FixedTask.tasks.put(testId, System.currentTimeMillis());
         addBackendListener(testId, debugReportId, runMode, testPlan);
-        if (ExecuteType.Debug.name().equals(debugReportId) || ApiRunMode.SCENARIO.name().equals(runMode)) {
+        if (ExecuteType.Debug.name().equals(debugReportId) || (ApiRunMode.SCENARIO.name().equals(runMode) && !TriggerMode.BATCH.name().equals(debugReportId))) {
             addResultCollector(testId, testPlan);
         }
         LocalRunner runner = new LocalRunner(testPlan);
         runner.run(testId);
     }
 
-    public void runTest(String testId, String reportId, String runMode, String testPlanScenarioId, RunModeConfig config) {
+    public void runTest(String testId, String reportId, String runMode,
+                        String testPlanScenarioId, RunModeConfig config) {
         // 获取可以执行的资源池
         String resourcePoolId = config.getResourcePoolId();
-        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        BaseSystemConfigDTO baseInfo = config.getBaseInfo();
+        if (baseInfo == null) {
+            baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        }
         RunRequest runRequest = new RunRequest();
         runRequest.setTestId(testId);
         runRequest.setReportId(reportId);
@@ -166,15 +196,24 @@ public class JMeterService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            TestResource testResource = resourcePoolCalculation.getPool(resourcePoolId);
+            TestResource testResource = null;
+            List<JvmInfoDTO> testResources = config.getTestResources();
+            if (CollectionUtils.isEmpty(testResources)) {
+                testResource = resourcePoolCalculation.getPool(resourcePoolId);
+            } else {
+                int index = (int) (Math.random() * testResources.size());
+                JvmInfoDTO jvmInfoDTO = testResources.get(index);
+                testResource = testResources.get(index).getTestResource();
+            }
             String configuration = testResource.getConfiguration();
             NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
             String nodeIp = node.getIp();
             Integer port = node.getPort();
             try {
                 String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
-                ResponseEntity<String> result = restTemplate.postForEntity(uri, runRequest, String.class);
-                if (result == null || !StringUtils.equals("SUCCESS", result.getBody())) {
+                ResponseEntity<String> resultEntity = restTemplate.postForEntity(uri, runRequest, String.class);
+                String result = resultEntity.getBody();  // this.send(uri, runRequest);
+                if (StringUtils.isEmpty(result) || !StringUtils.equals("SUCCESS", result)) {
                     // 清理零时报告
                     ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
                     apiScenarioReportService.delete(reportId);
@@ -182,7 +221,31 @@ public class JMeterService {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                MSException.throwException(e.getMessage());
+                MSException.throwException(runRequest.getReportId() + "：" + e.getMessage());
+            }
+        }
+    }
+
+    public String send(String webhook, RunRequest runRequest) {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        CloseableHttpResponse response = null;
+        try {
+            // 创建Http Post请求
+            HttpPost httpPost = new HttpPost(webhook);
+            // 创建请求内容
+            StringEntity entity = new StringEntity(JSON.toJSONString(runRequest), ContentType.APPLICATION_JSON);
+            httpPost.setEntity(entity);
+            // 执行http请求
+            response = httpClient.execute(httpPost);
+            String result = EntityUtils.toString(response.getEntity());
+            return result;
+        } catch (Exception e) {
+            return e.getMessage();
+        } finally {
+            try {
+                response.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

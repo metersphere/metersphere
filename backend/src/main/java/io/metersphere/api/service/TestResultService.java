@@ -16,7 +16,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.service.TestPlanApiCaseService;
-import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,8 +40,6 @@ public class TestResultService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
-    @Resource
-    private TestPlanReportService testPlanReportService;
     @Resource
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
@@ -158,6 +155,7 @@ public class TestResultService {
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             LogUtil.error(e.getMessage(), e);
         }
     }

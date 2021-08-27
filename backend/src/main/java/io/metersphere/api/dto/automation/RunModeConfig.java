@@ -1,8 +1,12 @@
 package io.metersphere.api.dto.automation;
 
+import io.metersphere.api.dto.JvmInfoDTO;
+import io.metersphere.base.domain.TestResource;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import lombok.Data;
 
 import java.util.Map;
+import java.util.List;
 
 @Data
 public class RunModeConfig {
@@ -12,7 +16,8 @@ public class RunModeConfig {
     private String reportId;
     private boolean onSampleError;
     private String resourcePoolId;
-
+    private BaseSystemConfigDTO baseInfo;
+    private List<JvmInfoDTO> testResources;
     /**
      * 运行环境
      */
