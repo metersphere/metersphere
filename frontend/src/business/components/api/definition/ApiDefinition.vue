@@ -132,6 +132,7 @@
                 :is-read-only="isReadOnly"
                 @changeSelectDataRangeAll="changeSelectDataRangeAll"
                 @handleCase="handleCase"
+                @refreshTable="refresh"
                 @showExecResult="showExecResult"
                 ref="caseList"/>
               <api-documents-page
