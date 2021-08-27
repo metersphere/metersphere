@@ -9,6 +9,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
-                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), request.getReportId(), request.getRunMode());
+                jMeterService.runLocal(runModeDataDTO.getReport().getId(), runModeDataDTO.getHashTree(), TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
             }
             // 轮询查看报告状态，最多200次，防止死循环
             int index = 1;
