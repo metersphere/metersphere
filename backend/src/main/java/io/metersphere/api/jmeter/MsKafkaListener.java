@@ -16,6 +16,8 @@ import javax.annotation.Resource;
 @Service
 public class MsKafkaListener {
     public static final String TOPICS = "ms-api-exec-topic";
+    public final static String EXEC_TOPIC = "ms-automation-exec-topic";
+
     public static final String CONSUME_ID = "ms-api-exec-consume";
 
     @KafkaListener(id = CONSUME_ID, topics = TOPICS, groupId = "${spring.kafka.consumer.group-id}")
