@@ -45,9 +45,6 @@ public class ConsulService {
         resourcePoolRequest.setStatus(ResourceStatusEnum.VALID.name());
         List<TestResourcePoolDTO> testResourcePoolDTOS = testResourcePoolService.listResourcePools(resourcePoolRequest);
         QueryTestPlanRequest request = new QueryTestPlanRequest();
-        request.setFilters(new HashMap<String, List<String>>() {{
-            put("status", Arrays.asList(PerformanceTestStatus.Starting.name(), PerformanceTestStatus.Running.name()));
-        }});
         List<LoadTestDTO> list = performanceTestService.list(request);
         for (LoadTestDTO loadTestDTO : list) {
             String advancedConfiguration = performanceTestService.getAdvancedConfiguration(loadTestDTO.getId());
