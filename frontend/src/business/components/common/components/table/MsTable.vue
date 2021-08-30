@@ -22,6 +22,7 @@
                                       :page-size="pageSize > total ? total : pageSize"
                                       :table-data-count-in-page="data.length"
                                       :total="total"
+                                      :select-type="condition.selectAll"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
