@@ -17,6 +17,7 @@
       @drag="drag"
       @remove="remove"
       @refresh="list"
+      @filter="filter"
       @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
@@ -138,8 +139,8 @@
       this.list();
     },
     watch: {
-      'condition.filterText'(val) {
-        this.$refs.nodeTree.filter(val);
+      'condition.filterText'() {
+        this.filter();
       },
       'condition.trashEnable'() {
         this.$emit('enableTrash', this.condition.trashEnable);
@@ -164,6 +165,9 @@
           });
           this.$refs.apiImport.open(this.currentModule);
         }
+      },
+      filter() {
+        this.$refs.nodeTree.filter(this.condition.filterText);
       },
       list(projectId) {
         let url = undefined;

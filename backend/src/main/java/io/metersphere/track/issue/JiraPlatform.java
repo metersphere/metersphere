@@ -232,10 +232,22 @@ public class JiraPlatform extends AbstractIssuePlatform {
             if (StringUtils.isNotBlank(item.getCustomData())) {
                 if (StringUtils.isNotBlank(item.getValue())) {
                     if (StringUtils.isNotBlank(item.getType()) &&
-                            StringUtils.equalsAny(item.getType(), "select", "multipleSelect", "checkbox", "radio", "member", "multipleMember")) {
+                            StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
                         JSONObject param = new JSONObject();
                         param.put("id", item.getValue());
                         fields.put(item.getCustomData(), param);
+                    } else if (StringUtils.isNotBlank(item.getType()) &&
+                            StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
+                       JSONArray attrs = new JSONArray();
+                        if (StringUtils.isNotBlank(item.getValue())) {
+                            JSONArray values = JSONObject.parseArray(item.getValue());
+                            values.forEach(v -> {
+                                JSONObject param = new JSONObject();
+                                param.put("id", v);
+                                attrs.add(param);
+                            });
+                        }
+                        fields.put(item.getCustomData(), attrs);
                     } else {
                         fields.put(item.getCustomData(), item.getValue());
                     }
@@ -297,8 +309,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         issues.forEach(item -> {
             setConfig();
             try {
+                IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(item.getId());
                 parseIssue(item, jiraClientV2.getIssues(item.getId()));
-                item.setDescription(htmlDesc2MsDesc(item.getDescription()));
+                String desc = htmlDesc2MsDesc(item.getDescription());
+                // 保留之前上传的图片
+                String images = getImages(issuesWithBLOBs.getDescription());
+                item.setDescription(desc + "\n" + images);
                 issuesMapper.updateByPrimaryKeySelective(item);
             } catch (HttpClientErrorException e) {
                 if (e.getRawStatusCode() == 404) {

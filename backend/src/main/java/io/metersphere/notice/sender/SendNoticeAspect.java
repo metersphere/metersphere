@@ -142,6 +142,7 @@ public class SendNoticeAspect {
                     .paramMap(paramMap)
                     .event(sendNotice.event())
                     .status((String) paramMap.get("status"))
+                    .excludeSelf(true)
                     .build();
             noticeSendService.send(sendNotice.taskType(), noticeModel);
         }

@@ -3,7 +3,7 @@
                    :fields-width="fieldsWidth"
                    prop="createTime"
                    min-width="140px"
-                   sortable="custom"
+                   :sortable="sortable"
                    :label="$t('commons.create_time')">
     <template v-slot:default="scope">
       <span>{{ scope.row.createTime | timestampFormatDate }}</span>

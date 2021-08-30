@@ -233,7 +233,7 @@ export default {
       task.isSet = true;
       task.identification = '';
       task.taskType = TASK_TYPE;
-      this.defectTask.push(task);
+      this.defectTask.unshift(task);
     },
     handleAddTask(index, data) {
 
@@ -253,8 +253,8 @@ export default {
       }
     },
     addTask(data) {
-      data.isSet = false;
       this.result = this.$post("/notice/save/message/task", data, () => {
+        data.isSet = false;
         this.initForm();
         this.$success(this.$t('commons.save_success'));
       });

@@ -527,15 +527,26 @@ export function stopFullScreenLoading(loading, timeout) {
 }
 
 export function getShareId() {
-  let herfUrl = window.location.href;
-  if(herfUrl.indexOf("?") > 0){
-    let paramArr = herfUrl.split("?");
-    if(paramArr.length > 1){
-      let shareId = paramArr[1];
-      if(shareId.indexOf("#") > 0){
-        shareId = shareId.split("#")[0];
+  //let herfUrl = 'http://localhost:8080/sharePlanReport?shareId=bf9496ac-8577-46b4-adf9-9c7e93dd06a8';
+   let herfUrl = window.location.href;
+  if (herfUrl.indexOf('shareId=') > -1) {
+    let shareId = '';
+    new URL(herfUrl).searchParams.forEach((value, key) => {
+      if (key === 'shareId') {
+        shareId = value;
       }
-      return shareId;
+    });
+    return shareId;
+  } else {
+    if(herfUrl.indexOf("?") > 0){
+      let paramArr = herfUrl.split("?");
+      if(paramArr.length > 1){
+        let shareId = paramArr[1];
+        if(shareId.indexOf("#") > 0){
+          shareId = shareId.split("#")[0];
+        }
+        return shareId;
+      }
     }
   }
   return "";

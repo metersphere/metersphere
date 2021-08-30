@@ -2,8 +2,8 @@
   <div class="container">
     <el-main>
       <el-card v-loading="result ? result.loading : false">
-        <test-plan-report-buttons :plan-id="planId" :is-share="isShare" :report="report"
-                                  v-if="!isTemplate && !isShare && !isDb"/>
+        <test-plan-report-buttons :is-db="isDb" :plan-id="planId" :is-share="isShare" :report="report"
+                                  v-if="!isTemplate && !isShare"/>
         <test-plan-overview-report v-if="overviewEnable" :report="report"/>
         <test-plan-summary-report v-if="summaryEnable" :is-db="isDb" :is-template="isTemplate" :is-share="isShare" :report="report" :plan-id="planId"/>
         <test-plan-functional-report v-if="functionalEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :plan-id="planId" :report="report"/>
@@ -18,7 +18,13 @@
 <script>
 import TestPlanFunctionalReport
   from "@/business/components/track/plan/view/comonents/report/detail/TestPlanFunctionalReport";
-import {getShareTestPlanReport, getTestPlanReport, getTestPlanReportContent} from "@/network/test-plan";
+import {
+  getExportReport,
+  getShareTestPlanReport,
+  getShareTestPlanReportContent,
+  getTestPlanReport,
+  getTestPlanReportContent
+} from "@/network/test-plan";
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
 import TestPlanLoadReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanLoadReport";
 import TestPlanReportContainer
@@ -59,6 +65,14 @@ export default {
   watch: {
     planId() {
       this.getReport();
+    },
+    reportId() {
+      this.getReport();
+    },
+    planReportTemplate() {
+      if (this.planReportTemplate) {
+        this.init();
+      }
     }
   },
   created() {
@@ -90,14 +104,29 @@ export default {
     getReport() {
       if (this.isTemplate) {
         this.report = "#report";
+
+        // this.report = {}; 测试代码
+        // this.result = getExportReport(this.planId, (data) => {
+        //   data.config = JSON.parse(data.config);
+        //   this.report = data;
+        // });
+
         this.report.config = this.getDefaultConfig(this.report.config);
+      }  else if (this.isDb) {
+        if (this.isShare) {
+          //持久化的报告分享
+          this.result = getShareTestPlanReportContent(this.shareId, this.reportId, (data) => {
+            this.report = data;
+            this.report.config = this.getDefaultConfig(this.report.config);
+          });
+        } else {
+          this.result = getTestPlanReportContent(this.reportId, (data) => {
+            this.report = data;
+            this.report.config = this.getDefaultConfig(this.report.config);
+          });
+        }
       } else if (this.isShare) {
         this.result = getShareTestPlanReport(this.shareId, this.planId, (data) => {
-          this.report = data;
-          this.report.config = this.getDefaultConfig(this.report.config);
-        });
-      } if (this.isDb) {
-        this.result = getTestPlanReportContent(this.reportId, (data) => {
           this.report = data;
           this.report.config = this.getDefaultConfig(this.report.config);
         });

@@ -67,7 +67,8 @@ export default {
       this.caseCharData = caseCharData;
 
       let issueCharData = [];
-      let colors = ['#F56C6C', '#67C23A', '#E6A23C', '#909399', 'lightskyblue', '#DEDE10'];
+      let colors = ['#67C23A', '#E6A23C','#DEDE10',
+        '#F56C6C','#909399'];
       let usedSet = new Set();
 
       this.functionResult.issueData.forEach(item => {
@@ -75,19 +76,28 @@ export default {
         let data = this.issueDataMap.get(status);
         if (!data) {
           data = {name: status, itemStyle: {color: null}};
-          // if (status === 'new' || status === '新' | status === '待办' | status === 'active') {
-          //   data.color = '#F56C6C';
-          // }
+          if (status === 'new' || status === '新' | status === '待办' | status === 'active') {
+            data.itemStyle.color = '#F56C6C';
+            usedSet.add(data.itemStyle.color);
+          }
+          if (status === '已拒绝' || status === 'reject') {
+            data.itemStyle.color = '#909399';
+            usedSet.add(data.itemStyle.color);
+          }
+          if (status === '已关闭' || status === 'close') {
+            data.itemStyle.color = '#67C23A';
+            usedSet.add(data.itemStyle.color);
+          }
           if (!data.itemStyle.color) {
             for (let i = 0; i < colors.length; i++) {
               let color = colors[i];
               if (!usedSet.has(color)) {
                 data.itemStyle.color = color;
+                usedSet.add(data.itemStyle.color);
                 break;
               }
             }
           }
-          usedSet.add(data.itemStyle.color);
         }
         data.value = item.count;
         issueCharData.push(data);

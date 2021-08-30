@@ -20,6 +20,11 @@
 
 <script>
 
+import {
+  getPerformanceReportLogResource, getPerformanceReportLogResourceDetail,
+  getSharePerformanceReportLogResource, getSharePerformanceReportLogResourceDetail,
+} from "@/network/load-test";
+
 export default {
   name: "LogDetails",
   data() {
@@ -36,24 +41,36 @@ export default {
       logStatus: {}
     };
   },
+  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     getResource() {
-      this.init = true;
+      // this.init = true;
       this.active = '0';
-      this.result = this.$get("/performance/report/log/resource/" + this.id, data => {
-        this.resource = data.data;
-        if (!this.resource || this.resource.length === 0) {
-          this.init = false;
-        }
-        this.page = data.data.map(item => item.resourceId).reduce((result, curr) => {
-          result[curr] = 1;
-          return result;
-        }, {});
-        this.logContent = data.data.map(item => item.resourceId).reduce((result, curr) => {
-          result[curr] = [];
-          return result;
-        }, {});
-      });
+      if (this.planReportTemplate) {
+        this.handleGetLogResource(this.planReportTemplate.reportLogResource);
+      } else if (this.isShare){
+        getSharePerformanceReportLogResource(this.shareId, this.id, (data) => {
+          this.handleGetLogResource(data);
+        });
+      } else {
+        getPerformanceReportLogResource(this.id, (data) => {
+          this.handleGetLogResource(data);
+        });
+      }
+    },
+    handleGetLogResource(data) {
+      this.resource = data;
+      if (!this.resource || this.resource.length === 0) {
+        this.init = false;
+      }
+      this.page = data.map(item => item.resourceId).reduce((result, curr) => {
+        result[curr] = 1;
+        return result;
+      }, {});
+      this.logContent = data.map(item => item.resourceId).reduce((result, curr) => {
+        result[curr] = [];
+        return result;
+      }, {});
     },
     load(resourceId) {
       if (this.loading || this.page[resourceId] > this.pageCount) {
@@ -61,15 +78,24 @@ export default {
       }
       this.logStatus[resourceId] = true;
       this.loading = true;
-      let url = "/performance/report/log/" + this.id + "/" + resourceId + "/" + this.page[resourceId];
-      this.$get(url, res => {
-        let data = res.data;
-        data.listObject.forEach(log => {
-          this.logContent[resourceId].push(log);
+      if (this.planReportTemplate) {
+        // this.handleGetLogResourceDetail(this.planReportTemplate.logResourceDetail, resourceId);
+      } else if (this.isShare){
+        getSharePerformanceReportLogResourceDetail(this.shareId, this.id, resourceId, this.page[resourceId], data => {
+          this.handleGetLogResourceDetail(data, resourceId);
         });
-        this.page[resourceId]++;
-        this.loading = false;
+      } else {
+        getPerformanceReportLogResourceDetail(this.id, resourceId, this.page[resourceId], data => {
+          this.handleGetLogResourceDetail(data, resourceId);
+        });
+      }
+    },
+    handleGetLogResourceDetail(data, resourceId) {
+      data.listObject.forEach(log => {
+        this.logContent[resourceId].push(log);
       });
+      this.page[resourceId]++;
+      this.loading = false;
     },
     selectTab(tab) {
       let resourceId = tab.$vnode.key;
@@ -119,13 +145,14 @@ export default {
     },
     report: {
       handler(val) {
-        if (!val.status || !val.id || !this.id) {
+        if (!val.status || !val.id) {
           return;
         }
         if (this.init) {
           return;
         }
         let status = val.status;
+        this.id = val.id;
         if (status === "Completed" || status === "Running") {
           this.getResource();
         } else {
@@ -133,9 +160,16 @@ export default {
         }
       },
       deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getResource();
+        }
+      },
+      deep: true
     }
   },
-  props: ['report']
 };
 </script>
 

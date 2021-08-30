@@ -78,7 +78,7 @@ public class TestPlanScenarioCaseService {
 
         apiTestCases.forEach(item -> {
             Project project = projectMap.get(item.getProjectId());
-            if (project.getScenarioCustomNum() != null && project.getScenarioCustomNum()) {
+            if (project != null && project.getScenarioCustomNum() != null && project.getScenarioCustomNum()) {
                 item.setCustomNum(item.getCustomNum());
             } else {
                 item.setCustomNum(item.getNum().toString());
@@ -467,5 +467,9 @@ public class TestPlanScenarioCaseService {
             return testPlanApiScenarios.get(0);
         }
         return null;
+    }
+
+    public String getProjectIdById(String testPlanScenarioId) {
+        return extTestPlanScenarioCaseMapper.getProjectIdById(testPlanScenarioId);
     }
 }

@@ -428,19 +428,50 @@ export function getCustomFieldValue(row, field, members) {
     for (let i = 0; i < row.customFields.length; i++) {
       let item = row.customFields[i];
       if (item.name === field.name) {
-        if (field.type === 'member' || field.type === 'multipleMember') {
+        if (field.type === 'member') {
           for (let j = 0; j < members.length; j++) {
             let member = members[j];
             if (member.id === item.value) {
               return member.name;
             }
           }
-        } else if (['radio', 'select', 'multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+        } else if (field.type === 'multipleMember') {
+          if (item.value) {
+            let values = '';
+            item.value.forEach(v => {
+              for (let j = 0; j < members.length; j++) {
+                let member = members[j];
+                if (member.id === v) {
+                  values += member.name;
+                  values += " ";
+                  break;
+                }
+              }
+            });
+            return values;
+          }
+        } else if (['radio', 'select'].indexOf(field.type) > -1) {
           for (let j = 0; j < field.options.length; j++) {
             let option = field.options[j];
             if (option.value === item.value) {
               return field.system ? i18n.t(option.text) : option.text;
             }
+          }
+        }
+        else if (['multipleSelect', 'checkbox'].indexOf(field.type) > -1) {
+          if (item.value) {
+            let values = '';
+            item.value.forEach(v => {
+              for (let j = 0; j < field.options.length; j++) {
+                let option = field.options[j];
+                if (option.value === v) {
+                  values += (field.system ? i18n.t(option.text) : option.text);
+                  values += " ";
+                  break;
+                }
+              }
+            });
+            return values;
           }
         }
         return item.value;

@@ -23,7 +23,7 @@ public class LarkNoticeSender extends AbstractNoticeSender {
                 .map(Receiver::getUserId)
                 .distinct()
                 .collect(Collectors.toList());
-        List<UserDetail> userDetails = super.getUserDetails(noticeModel, userIds);
+        List<UserDetail> userDetails = super.getUserDetails(userIds);
         List<String> collect = userDetails.stream()
                 .map(ud -> "<at email=\"" + ud.getEmail() + "\">" + ud.getName() + "</at>")
                 .collect(Collectors.toList());
@@ -32,7 +32,7 @@ public class LarkNoticeSender extends AbstractNoticeSender {
         if (CollectionUtils.isEmpty(collect)) {
             return;
         }
-        LogUtil.info("飞书收件人: ", userIds);
+        LogUtil.info("飞书收件人: {}", userIds);
         context += StringUtils.join(collect, " ");
         LarkClient.send(messageDetail.getWebhook(), context);
     }

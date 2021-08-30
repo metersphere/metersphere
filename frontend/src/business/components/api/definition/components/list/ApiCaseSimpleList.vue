@@ -54,7 +54,7 @@
             <template slot-scope="scope">
               <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip v-else content="编辑">
+              <el-tooltip v-else :content="$t('commons.edit')">
                 <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -162,7 +162,7 @@
         :total="total"/>
     </div>
 
-    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList"/>
+    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList" @stop="stop"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
@@ -719,6 +719,7 @@ export default {
                 this.$refs.caseTable.clearSelectRows();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
+                this.$emit('refreshTable');
               });
             }
           }
@@ -795,7 +796,8 @@ export default {
               this.$get('/api/testcase/deleteToGc/' + apiCase.id, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.initTable();
-
+                this.$emit("refreshTree");
+                this.$emit('refreshTable');
               });
             }
           }
@@ -926,6 +928,19 @@ export default {
         }
       }
       return returnObj;
+    },
+    stop(id) {
+      for (let item of this.tableData) {
+        if (id && id === item.id) {
+          // 获取执行前结果
+          this.$get('/api/testcase/get/' + id, res => {
+            if (res) {
+              item.status = res.data.status;
+            }
+          })
+          break;
+        }
+      }
     },
     createPerformance(row, environment) {
       /**

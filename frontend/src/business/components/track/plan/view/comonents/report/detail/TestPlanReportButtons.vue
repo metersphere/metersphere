@@ -16,7 +16,7 @@
       </el-popover>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-receiving" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
+      <el-button icon="el-icon-receiving" v-if="!isDb" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave()">
         {{'保存'}}
       </el-button>
     </el-row>
@@ -26,7 +26,7 @@
       </el-button>
     </el-row>
     <el-row>
-      <el-button icon="el-icon-setting" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
+      <el-button icon="el-icon-setting" v-if="!isDb"  :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEditTemplate()">
         {{'配置'}}
       </el-button>
     </el-row>
@@ -49,7 +49,8 @@ export default {
   props: {
     planId:String,
     isShare: Boolean,
-    report: Object
+    report: Object,
+    isDb: Boolean
   },
   data() {
     return {
@@ -66,6 +67,10 @@ export default {
       let pram = {};
       pram.customData = this.planId;
       pram.shareType = 'PLAN_REPORT';
+      if (this.isDb) {
+        pram.customData = this.report.id;
+        pram.shareType = 'PLAN_DB_REPORT';
+      }
       generateShareInfo(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
@@ -91,6 +96,9 @@ export default {
         method: 'get',
         responseType: 'blob'
       };
+      if (this.isDb) {
+        config.url = '/test/plan/report/db/export/' + this.report.id;
+      }
       if (this.isShare) {
         config.url = '/share' + config.url;
       }

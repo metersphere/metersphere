@@ -29,12 +29,16 @@
 <script>
 
 import MsChart from "@/business/components/common/chart/MsChart";
+import {
+  getPerformanceMetricQuery, getPerformanceMetricQueryResource,
+  getSharePerformanceMetricQuery, getSharePerformanceMetricQueryResource,
+} from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
 
 export default {
   name: "MonitorCard",
-  props: ['report'],
+  props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   components: {MsChart},
   data() {
     return {
@@ -104,22 +108,31 @@ export default {
   methods: {
     getResource() {
       // this.init = true;
-      this.result = this.$get("/metric/query/resource/" + this.id)
-        .then(response => {
+      if (this.planReportTemplate) {
+        this.instances = this.planReportTemplate.reportResource;
+        this.data = this.planReportTemplate.metricData;
+        this.totalOption = this.getOption(this.instances[0]);
+      } else if (this.isShare){
+        getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
-          this.$get("/metric/query/" + this.id)
-            .then(result => {
-              if (result) {
-                this.data = result.data.data;
-                this.totalOption = this.getOption(this.instances[0]);
-              }
-            })
-            .catch(() => {
-            });
-        })
-        .catch(() => {
+          getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
+            if (result) {
+              this.data = result.data.data;
+              this.totalOption = this.getOption(this.instances[0]);
+            }
+          });
         });
-
+      } else {
+        getPerformanceMetricQueryResource(this.id).then(response => {
+          this.instances = response.data.data;
+          getPerformanceMetricQuery(this.id).then(result => {
+            if (result) {
+              this.data = result.data.data;
+              this.totalOption = this.getOption(this.instances[0]);
+            }
+          });
+        });
+      }
     },
     handleChecked(id) {
       this.totalOption = {};
@@ -188,9 +201,17 @@ export default {
           return;
         }
         if (status === "Completed" || status === "Running") {
-          // this.getResource();
+          this.getResource();
         } else {
           this.instances = [];
+        }
+      },
+      deep: true
+    },
+    planReportTemplate: {
+      handler() {
+        if (this.planReportTemplate) {
+          this.getResource();
         }
       },
       deep: true

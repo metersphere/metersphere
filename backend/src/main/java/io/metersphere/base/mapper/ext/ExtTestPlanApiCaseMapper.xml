@@ -262,9 +262,10 @@
         api_test_case c
         on t.api_case_id = c.id
       and t.test_plan_id = #{planId}
-         <if test="status != null">
-           and t.status = 'error'
-         </if>
+       <if test="status != null">
+         and t.status = 'error'
+       </if>
+      and c.status != 'Trash'
       where t.test_plan_id = #{planId};
     </select>
 

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="testcase-import" :title="$t('test_track.case.import.case_import')" :visible.sync="dialogVisible"
+  <el-dialog class="testcase-import" :title="$t('test_track.case.import.case_export')" :visible.sync="dialogVisible"
              @close="close">
 
     <el-row class="import-row" style="margin-left: 34px">

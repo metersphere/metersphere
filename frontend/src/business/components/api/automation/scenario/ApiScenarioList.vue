@@ -178,6 +178,20 @@
                            min-width="120px"/>
         </span>
 
+        <template v-slot:opt-before="scope">
+          <ms-table-operator-button v-permission=" ['PROJECT_API_SCENARIO:READ+RUN']"
+                                    :tip="$t('api_test.automation.execute')" icon="el-icon-video-play" class="run-button"
+                                    @exec="execute(scope.row)" v-if="!scope.row.isStop && !trashEnable" style="margin-right: 10px;"/>
+          <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+            <el-button v-if="!trashEnable" @click.once="stop(scope.row)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;margin-right: 10px;" class="stop-btn" circle>
+              <div style="transform: scale(0.72)">
+                <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
+              </div>
+            </el-button>
+          </el-tooltip>
+
+        </template>
+
         <template v-slot:opt-behind="scope">
           <ms-scenario-extend-buttons v-if="!trashEnable" style="display: contents" @openScenario="openScenario" :row="scope.row"/>
         </template>
@@ -245,6 +259,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsTable from "@/business/components/common/components/table/MsTable";
+import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
   name: "MsApiScenarioList",
@@ -348,6 +363,7 @@ export default {
       userFilters: [],
       operators: [],
       selectRows: new Set(),
+      isStop: false,
       trashOperators: [
         {
           tip: this.$t('commons.reduction'),
@@ -364,13 +380,6 @@ export default {
         },
       ],
       unTrashOperators: [
-        {
-          tip: this.$t('api_test.automation.execute'),
-          icon: "el-icon-video-play",
-          exec: this.execute,
-          class: "run-button",
-          permissions: ['PROJECT_API_SCENARIO:READ+RUN']
-        },
         {
           tip: this.$t('commons.edit'),
           icon: "el-icon-edit",
@@ -471,6 +480,9 @@ export default {
     };
   },
   created() {
+    scenario.$on('hide', id => {
+      this.hideStopBtn(id);
+    })
     this.projectId = getCurrentProjectID();
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
@@ -505,6 +517,9 @@ export default {
     this.search();
     this.getPrincipalOptions([]);
 
+  },
+  beforeDestroy() {
+    scenario.$off("hide");
   },
   watch: {
     selectNodeIds() {
@@ -845,7 +860,10 @@ export default {
       run.executeType = "Saved";
       this.$post(url, run, response => {
         this.runVisible = true;
+        this.$set(row, "isStop", true);
         this.reportId = run.id;
+      }, () => {
+        this.$set(row, "isStop", false);
       });
     },
     copy(row) {
@@ -1037,6 +1055,19 @@ export default {
         }
       }
       return returnObj;
+    },
+    stop(row) {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, () => {
+        this.$set(row, "isStop", false);
+      });
+    },
+    hideStopBtn(scenarioId) {
+      for (let data of this.tableData) {
+        if (scenarioId && scenarioId === data.id) {
+          this.$set(data, "isStop", false);
+        }
+      }
     }
   }
 };
@@ -1057,5 +1088,11 @@ export default {
 
 /deep/ .el-card__header {
   padding: 10px;
+}
+
+.stop-btn {
+  background-color: #E62424;
+  border-color: #dd3636;
+  color: white;
 }
 </style>

@@ -220,7 +220,7 @@ export default {
       Task.identification = '';
       Task.taskType = 'SWAGGER_URL';
       Task.testId = this.testId;
-      this.scheduleTask.push(Task);
+      this.scheduleTask.unshift(Task);
     },
     handleEditTask(index, data) {
       data.isSet = true;
@@ -250,7 +250,6 @@ export default {
     },
     addTask(data) {
       data.testId = this.apiTestId;
-      this.$success(this.$t('commons.save_success'));
       this.result = this.$post("/notice/save/message/task", data, () => {
         this.initForm();
         this.$success(this.$t('commons.save_success'));

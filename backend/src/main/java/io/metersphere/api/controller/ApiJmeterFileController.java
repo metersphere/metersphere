@@ -1,15 +1,15 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.service.ApiJmeterFileService;
+import org.apache.dubbo.common.utils.CollectionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -19,13 +19,21 @@ public class ApiJmeterFileController {
     @Resource
     private ApiJmeterFileService apiJmeterFileService;
 
-    @GetMapping("download")
-    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId, @RequestParam("runMode") String runMode, @RequestParam("testPlanScenarioId") String testPlanScenarioId) {
-        byte[] bytes = apiJmeterFileService.downloadJmeterFiles(runMode,testId, reportId, testPlanScenarioId);
+    @PostMapping("download/files")
+    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestBody List<BodyFile> bodyFileList) {
+        byte[] bytes = new byte[10];
+        if (CollectionUtils.isNotEmpty(bodyFileList)) {
+            bytes = apiJmeterFileService.downloadJmeterFiles(bodyFileList);
+        }
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testId + ".zip\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + UUID.randomUUID().toString() + ".zip\"")
                 .body(bytes);
+    }
+
+    @GetMapping("download")
+    public byte[] downloadJmx(@RequestParam("testId") String testId, @RequestParam("reportId") String reportId, @RequestParam("runMode") String runMode, @RequestParam("testPlanScenarioId") String testPlanScenarioId) {
+        return apiJmeterFileService.downloadJmx(runMode, testId, reportId, testPlanScenarioId);
     }
 
     @GetMapping("download/jar")

@@ -23,7 +23,7 @@
         </el-row>
         <el-scrollbar>
           <div class="container">
-            <test-plan-report-content :plan-id="plan.id"/>
+            <test-plan-report-content v-if="showReport" :plan-id="plan.id"/>
           </div>
         </el-scrollbar>
       </template>
@@ -43,7 +43,8 @@ export default {
       result: {},
       showDialog: false,
       plan: {},
-      isTestManagerOrTestUser: false
+      isTestManagerOrTestUser: false,
+      showReport: false
     }
   },
   mounted() {
@@ -61,7 +62,12 @@ export default {
     //   this.handleClose();
     // },
     open(plan) {
-      this.plan = plan;
+      this.showReport = false;
+      // 每次都重新获取
+      this.$nextTick(() => {
+        this.showReport = true;
+        this.plan = plan;
+      });
       this.showDialog = true;
       // this.listenGoBack();
     },

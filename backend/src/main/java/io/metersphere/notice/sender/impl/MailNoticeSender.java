@@ -3,6 +3,7 @@ package io.metersphere.notice.sender.impl;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.Receiver;
+import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.MailService;
@@ -45,9 +46,13 @@ public class MailNoticeSender extends AbstractNoticeSender {
         if (CollectionUtils.isEmpty(userIds)) {
             return;
         }
-        List<String> emails = super.getUserEmails(noticeModel, userIds);
-        String[] users = emails.toArray(new String[0]);
-        LogUtil.info("收件人地址: " + emails);
+
+        String[] users = super.getUserDetails(userIds).stream()
+                .map(UserDetail::getEmail)
+                .distinct()
+                .toArray(String[]::new);
+
+        LogUtil.info("收件人地址: {}", userIds);
         helper.setText(context, true);
         helper.setTo(users);
         javaMailSender.send(mimeMessage);

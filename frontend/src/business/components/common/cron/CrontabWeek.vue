@@ -76,31 +76,33 @@ export default {
 		radioChange() {
 			if (this.radioValue === 1) {
 				this.$emit('update', 'week', '*');
-				this.$emit('update', 'year', '*');
+				this.$emit('update', 'day', '?', 'week');
+				// this.$emit('update', 'year', '*');
 			} else {
         if (this.radioValue !== 2) {
           this.$emit('update', 'day', '?', 'week');
         }
-				if (this.cron.mouth === '*') {
-					this.$emit('update', 'mouth', '1', 'week');
-				}
-				if (this.cron.day === '*') {
-					this.$emit('update', 'day', '1', 'week');
-				}
-				if (this.cron.hour === '*') {
-					this.$emit('update', 'hour', '0', 'week');
-				}
-				if (this.cron.min === '*') {
-					this.$emit('update', 'min', '0', 'week');
-				}
-				if (this.cron.second === '*') {
-					this.$emit('update', 'second', '0', 'week');
-				}
+				// if (this.cron.mouth === '*') {
+				// 	this.$emit('update', 'mouth', '1', 'week');
+				// }
+				// if (this.cron.day === '*') {
+				// 	this.$emit('update', 'day', '1', 'week');
+				// }
+				// if (this.cron.hour === '*') {
+				// 	this.$emit('update', 'hour', '0', 'week');
+				// }
+				// if (this.cron.min === '*') {
+				// 	this.$emit('update', 'min', '0', 'week');
+				// }
+				// if (this.cron.second === '*') {
+				// 	this.$emit('update', 'second', '0', 'week');
+				// }
 			}
 			switch (this.radioValue) {
 				case 2:
-					this.$emit('update', 'week', '?');
-					break;
+					// this.$emit('update', 'day', '*');
+          this.$emit('update', 'week', '?');
+          break;
 				case 3:
 					this.$emit('update', 'week', this.cycle01 + '-' + this.cycle02);
 					break;

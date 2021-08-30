@@ -12,14 +12,9 @@
     <el-tag size="mini" type="warning" v-else-if="row.status === 'Reporting'">
       {{ row.status }}
     </el-tag>
-    <el-tooltip placement="top" v-else-if="row.status === 'Error'" effect="light">
-      <template v-slot:content>
-        <div>{{row.description}}</div>
-      </template>
-      <el-tag size="mini" type="danger">
-        {{ row.status }}
-      </el-tag>
-    </el-tooltip>
+    <el-tag size="mini" type="danger" v-else-if="row.status === 'Error'">
+      {{ row.status }}
+    </el-tag>
     <el-tag v-else size="mini" type="info">
       {{ row.status }}
     </el-tag>

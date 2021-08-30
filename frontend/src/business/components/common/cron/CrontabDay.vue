@@ -75,7 +75,7 @@ export default {
 			if (this.radioValue === 1) {
 				this.$emit('update', 'day', '*', 'day');
 				this.$emit('update', 'week', '?', 'day');
-				this.$emit('update', 'mouth', '*', 'day');
+				// this.$emit('update', 'mouth', '*', 'day');
 			} else {
 				if (this.cron.hour === '*') {
 					this.$emit('update', 'hour', '0', 'day');

@@ -6,6 +6,7 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
@@ -245,34 +246,34 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(request.getIds());
             List<ApiDefinition> reductionCaseList = apiDefinitionMapper.selectByExample(example);
-            Map<String,List<ApiDefinition>> nodeMap = new HashMap<>();
-            for (ApiDefinition api:reductionCaseList) {
+            Map<String, List<ApiDefinition>> nodeMap = new HashMap<>();
+            for (ApiDefinition api : reductionCaseList) {
                 String moduleId = api.getModuleId();
-                if(StringUtils.isEmpty(moduleId)){
+                if (StringUtils.isEmpty(moduleId)) {
                     moduleId = "";
                 }
-                if(nodeMap.containsKey(moduleId)){
+                if (nodeMap.containsKey(moduleId)) {
                     nodeMap.get(moduleId).add(api);
-                }else {
+                } else {
                     List<ApiDefinition> list = new ArrayList<>();
                     list.add(api);
-                    nodeMap.put(moduleId,list);
+                    nodeMap.put(moduleId, list);
                 }
             }
 //            Map<String,List<ApiDefinition>> nodeMap = reductionCaseList.stream().collect(Collectors.groupingBy(ApiDefinition :: getModuleId));
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-            for(Map.Entry<String,List<ApiDefinition>> entry : nodeMap.entrySet()){
+            for (Map.Entry<String, List<ApiDefinition>> entry : nodeMap.entrySet()) {
                 String nodeId = entry.getKey();
                 long nodeCount = apiModuleService.countById(nodeId);
-                if(nodeCount <= 0){
+                if (nodeCount <= 0) {
                     String projectId = request.getProjectId();
-                    ApiModule node = apiModuleService.getDefaultNode(projectId,request.getProtocol());
+                    ApiModule node = apiModuleService.getDefaultNode(projectId, request.getProtocol());
                     List<ApiDefinition> testCaseList = entry.getValue();
-                    for (ApiDefinition apiDefinition: testCaseList) {
+                    for (ApiDefinition apiDefinition : testCaseList) {
                         ApiDefinitionWithBLOBs updateCase = new ApiDefinitionWithBLOBs();
                         updateCase.setId(apiDefinition.getId());
                         updateCase.setModuleId(node.getId());
-                        updateCase.setModulePath("/"+node.getName());
+                        updateCase.setModulePath("/" + node.getName());
 
                         apiDefinitionMapper.updateByPrimaryKeySelective(updateCase);
                     }
@@ -672,10 +673,10 @@ public class ApiDefinitionService {
         }
 
 
-        try{
+        try {
             //检查TCP数据结构，等其他进行处理
             tcpApiParamService.checkTestElement(request.getTestElement());
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
         HashTree hashTree = request.getTestElement().generateHashTree(config);
@@ -686,7 +687,9 @@ public class ApiDefinitionService {
 
         // 调用执行方法
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-            jMeterService.runTest(request.getId(), request.getId(), runMode, null, request.getConfig());
+            RunModeConfig configs = request.getConfig();
+            configs.setBaseInfo(CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo());
+            jMeterService.runTest(request.getId(), request.getId(), runMode, null, configs);
         } else {
             jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), runMode);
         }
@@ -780,7 +783,7 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
-
+        //通过platform，获取对应的导入解析类型。
         ApiImportParser apiImportParser = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
@@ -828,7 +831,7 @@ public class ApiDefinitionService {
                     .paramMap(paramMap)
                     .event(NoticeConstants.Event.EXECUTE_SUCCESSFUL)
                     .build();
-            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, noticeModel);
+            noticeSendService.send(NoticeConstants.Mode.SCHEDULE, "", noticeModel);
         }
         return apiImport;
     }
@@ -1034,7 +1037,7 @@ public class ApiDefinitionService {
     public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids, projectId);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIdsAndStatusIsNotTrash(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
@@ -1110,6 +1113,7 @@ public class ApiDefinitionService {
 
     /**
      * 列表开关切换
+     *
      * @param request
      */
     public void switchSchedule(Schedule request) {
@@ -1349,7 +1353,7 @@ public class ApiDefinitionService {
         List<ApiDefinition> apiList = apiDefinitionMapper.selectByExample(apiDefinitionExample);
         List<String> apiIdList = new ArrayList<>();
         apiList.forEach(item -> {
-         apiIdList.add(item.getId());
+            apiIdList.add(item.getId());
         });
         this.removeToGc(apiIdList);
     }

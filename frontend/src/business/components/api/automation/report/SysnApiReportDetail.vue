@@ -68,6 +68,7 @@ import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {ELEMENTS} from "../scenario/Setting";
+import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
   name: "SysnApiReportDetail",
@@ -199,12 +200,25 @@ export default {
         }
       })
     },
+    getType(type) {
+      switch (type) {
+        case "LoopController":
+          return "循环控制器";
+        case "TransactionController":
+          return "事物控制器";
+        case "ConstantTimer":
+          return "等待控制器";
+        case "IfController":
+          return "条件控制器";
+      }
+      return type;
+    },
     formatContent(hashTree, tree, fullPath) {
       if (hashTree) {
         hashTree.forEach(item => {
           if (item.enable) {
             item.parentIndex = fullPath ? fullPath + "_" + item.index : item.index;
-            let name = item.name ? item.name : item.type;
+            let name = item.name ? item.name : this.getType(item.type);
             let obj = {resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
             tree.children.push(obj);
             if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
@@ -281,6 +295,7 @@ export default {
     removeReport() {
       let url = "/api/scenario/report/remove/real/" + this.reportId;
       this.$get(url, response => {
+        scenario.$emit('hide', this.scenarioId);
         this.$success(this.$t('schedule.event_success'));
         this.websocket.close();
         this.messageWebSocket.close();

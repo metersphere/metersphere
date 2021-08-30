@@ -149,7 +149,7 @@ public class ApiDefinitionExecResultService {
         }
 
         Map paramMap = new HashMap<>(beanMap);
-        paramMap.put("operator", SessionUtils.getUserId());
+        paramMap.put("operator", SessionUtils.getUser().getName());
         paramMap.put("status", result.getStatus());
         String context = "${operator}执行接口用例" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
@@ -160,10 +160,15 @@ public class ApiDefinitionExecResultService {
                 .failedMailTemplate("api/CaseResult")
                 .paramMap(paramMap)
                 .event(event)
+                .excludeSelf(true)
                 .build();
 
         String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
-        noticeSendService.send(taskType, noticeModel);
+        if (StringUtils.equals(ReportTriggerMode.API.name(), result.getTriggerMode())) {
+            noticeSendService.send(ReportTriggerMode.API.name(), taskType, noticeModel);
+        } else {
+            noticeSendService.send(taskType, noticeModel);
+        }
     }
 
     private String getName(String type, String id, String status, Long time, String resourceId) {
@@ -225,7 +230,7 @@ public class ApiDefinitionExecResultService {
         String finalSaveResultType = saveResultType;
 
         Map<String, String> apiIdResultMap = new HashMap<>();
-        Map<String,ApiDefinitionExecResult> caseReportMap = new HashMap<>();
+        Map<String, ApiDefinitionExecResult> caseReportMap = new HashMap<>();
 
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             result.getScenarios().forEach(scenarioResult -> {
@@ -235,7 +240,7 @@ public class ApiDefinitionExecResultService {
                         ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(System.currentTimeMillis());
-                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(),saveResult.getId()));
+                        saveResult.setName(getName(type, item.getName(), status, saveResult.getCreateTime(), saveResult.getId()));
                         ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getName());
                         String caseId = null;
                         if (apiDefinitionWithBLOBs != null) {
@@ -254,7 +259,7 @@ public class ApiDefinitionExecResultService {
                                 }
                             }
                         }
-                        if(StringUtils.isNotEmpty(caseId)){
+                        if (StringUtils.isNotEmpty(caseId)) {
                             apiIdResultMap.put(caseId, item.isSuccess() ? TestPlanApiExecuteStatus.SUCCESS.name() : TestPlanApiExecuteStatus.FAILD.name());
                         }
 
@@ -284,12 +289,20 @@ public class ApiDefinitionExecResultService {
                             testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
                         } else if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
                             TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
-                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+//                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                            userID = SessionUtils.getUserId();
+                            if(userID == null){
+                                userID = "";
+                            }
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
                         } else {
-                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                            userID = SessionUtils.getUserId();
+                            if(userID == null){
+                                userID = "";
+                            }
+//                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                             testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                             testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                         }
@@ -301,14 +314,14 @@ public class ApiDefinitionExecResultService {
                             apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                         }
                         apiDefinitionExecResultMapper.insert(saveResult);
-                        caseReportMap.put(caseId,saveResult);
+                        caseReportMap.put(caseId, saveResult);
                     });
                 }
             });
         }
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER. API CASE STATUS:" + JSONObject.toJSONString(apiIdResultMap));
         TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(testPlanReportId, apiIdResultMap, null, null);
-        TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(testPlanReportId,caseReportMap,null,null);
+        TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(testPlanReportId, caseReportMap, null, null);
     }
 
     public void deleteByResourceId(String resourceId) {

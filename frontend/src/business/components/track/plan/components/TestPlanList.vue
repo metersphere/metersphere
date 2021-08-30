@@ -422,8 +422,10 @@ export default {
         this.$success(this.$t('commons.delete_success'));
       });
     },
-    intoPlan(row, event, column) {
-      this.$router.push('/track/plan/view/' + row.id);
+    intoPlan(row, column, event) {
+      if (column.label !== this.$t('commons.operating')) {
+        this.$router.push('/track/plan/view/' + row.id);
+      }
     },
     filter(filters) {
       _filter(filters, this.condition);

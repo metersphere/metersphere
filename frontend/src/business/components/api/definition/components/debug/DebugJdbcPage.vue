@@ -26,7 +26,7 @@
       <ms-jmx-step :request="request" :response="responseData"/>
 
       <!-- 执行组件 -->
-      <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
+      <ms-run :debug="true" :reportId="reportId" :isStop="isStop" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
     </el-card>
     <div v-if="scenario">
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{ $t('commons.save') }}</el-button>

@@ -43,6 +43,7 @@
             <template v-slot:default="scope">
               <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
               <status-table-item v-if="scope.row.execResult === 'error'" :value="'Failure'"/>
+              <status-table-item v-if="scope.row.execResult != 'error' && scope.row.execResult != 'success'" :value="'Prepare'"/>
             </template>
           </ms-table-column>
         </ms-table>
@@ -98,6 +99,8 @@ export default {
     apiCases() {
       if (this.apiCases) {
         this.$emit('setSize', this.apiCases.length);
+      } else {
+        this.apiCases = [];
       }
     }
   },
@@ -108,9 +111,9 @@ export default {
     getScenarioApiCase() {
       if (this.isTemplate || this.isDb) {
         if (this.isAll) {
-          this.apiCases = this.report.apiAllCases;
+          this.apiCases = this.report.apiAllCases ? this.report.apiAllCases : [];
         } else {
-          this.apiCases = this.report.apiFailureCases;
+          this.apiCases = this.report.apiFailureCases ? this.report.apiFailureCases : [];
         }
       } else if (this.isShare) {
         if (this.isAll) {
