@@ -44,7 +44,7 @@ export default {
   props: ['report', 'export', 'isShare', 'shareId', 'planReportTemplate'],
   methods: {
     getResource() {
-      this.init = true;
+      // this.init = true;
       this.active = '0';
       if (this.planReportTemplate) {
         this.handleGetLogResource(this.planReportTemplate.reportLogResource);
@@ -145,7 +145,7 @@ export default {
     },
     report: {
       handler(val) {
-        if (!val.status || !val.id || !this.id) {
+        if (!val.status || !val.id) {
           return;
         }
         if (this.init) {

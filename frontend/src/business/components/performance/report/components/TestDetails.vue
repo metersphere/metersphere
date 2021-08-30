@@ -450,7 +450,7 @@ export default {
       this.getTotalChart();
     },
     initTableData() {
-      this.init = true;
+      // this.init = true;
 
       for (const name of CHART_MAP) {
         this.getCheckOptions(name);
