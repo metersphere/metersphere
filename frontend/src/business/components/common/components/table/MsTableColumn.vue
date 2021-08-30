@@ -1,6 +1,6 @@
 <template>
   <el-table-column class-name="msTableColumn"
-      v-if="!field || field.id === prop"
+      v-if="active && (!field || field.id === prop)"
       :min-width="minWidth"
       :width="fieldsWidth ? fieldsWidth[prop] : width"
       :fixed="fixed"
@@ -22,6 +22,11 @@
 <script>
 export default {
   name: "Ms-table-column",
+  data() {
+    return {
+      active: false
+    }
+  },
   props: {
     prop: String,
     label: String,
@@ -59,6 +64,9 @@ export default {
         return null;
       }
     }
+  },
+  mounted() {
+    this.active = true;
   }
 };
 </script>
