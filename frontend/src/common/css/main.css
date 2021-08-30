@@ -143,6 +143,9 @@ textarea {
   border-right: 0 !important;
 }
 
+.msTableColumn .el-tooltip {
+  width: auto !important;
+}
 /* 表格拖拽表头调整宽度 --> */
 
 /* <-- 表格 input 编辑效果 */
