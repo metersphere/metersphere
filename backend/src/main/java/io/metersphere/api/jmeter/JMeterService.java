@@ -1,27 +1,25 @@
 package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunModeConfig;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.service.SystemParameterService;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -37,16 +35,16 @@ import org.apache.jmeter.util.JMeterUtils;
 import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -55,11 +53,9 @@ public class JMeterService {
     @Resource
     private JmeterProperties jmeterProperties;
     @Resource
-    ResourcePoolCalculation resourcePoolCalculation;
-    @Resource
-    private RestTemplate restTemplate;
-    @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
     @PostConstruct
     public void init() {
@@ -145,7 +141,7 @@ public class JMeterService {
     }
 
     public void runTest(String testId, String reportId, String runMode,
-                        String testPlanScenarioId, RunModeConfig config) {
+                        String testPlanScenarioId, RunModeConfig config, HashTree hashTree) {
         // 获取可以执行的资源池
         String resourcePoolId = config.getResourcePoolId();
         BaseSystemConfigDTO baseInfo = config.getBaseInfo();
@@ -179,33 +175,8 @@ public class JMeterService {
                 MSException.throwException(e.getMessage());
             }
         } else {
-            TestResource testResource = null;
-            List<JvmInfoDTO> testResources = config.getTestResources();
-            if (CollectionUtils.isEmpty(testResources)) {
-                testResource = resourcePoolCalculation.getPool(resourcePoolId);
-            } else {
-                int index = (int) (Math.random() * testResources.size());
-                JvmInfoDTO jvmInfoDTO = testResources.get(index);
-                testResource = testResources.get(index).getTestResource();
-            }
-            String configuration = testResource.getConfiguration();
-            NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
-            String nodeIp = node.getIp();
-            Integer port = node.getPort();
-            try {
-                String uri = String.format(BASE_URL + "/jmeter/api/start", nodeIp, port);
-                ResponseEntity<String> resultEntity = restTemplate.postForEntity(uri, runRequest, String.class);
-                String result = resultEntity.getBody();  // this.send(uri, runRequest);
-                if (StringUtils.isEmpty(result) || !StringUtils.equals("SUCCESS", result)) {
-                    // 清理零时报告
-                    ApiScenarioReportService apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
-                    apiScenarioReportService.delete(reportId);
-                    MSException.throwException("执行失败：" + result);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                MSException.throwException(runRequest.getReportId() + "：" + e.getMessage());
-            }
+            runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
+            kafkaTemplate.send(MsKafkaListener.EXEC_TOPIC, JSON.toJSONString(runRequest));
         }
     }
 

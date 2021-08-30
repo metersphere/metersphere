@@ -98,43 +98,44 @@ public class TestResultService {
                 testResult.setTestId(testId);
                 ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, runMode);
                 //环境
-                ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
-                String name = "";
-                //执行人
-                String userName = "";
-                //负责人
-                String principal = "";
-                if (apiScenario != null) {
-                    String executionEnvironment = apiScenario.getScenarioDefinition();
-                    JSONObject json = JSONObject.parseObject(executionEnvironment);
-                    if (json != null && json.getString("environmentMap") != null && json.getString("environmentMap").length() > 2) {
-                        JSONObject environment = JSONObject.parseObject(json.getString("environmentMap"));
-                        String environmentId = environment.get(apiScenario.getProjectId()).toString();
-                        name = apiAutomationService.get(environmentId).getName();
+                if (scenarioReport != null) {
+                    ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
+                    String name = "";
+                    //执行人
+                    String userName = "";
+                    //负责人
+                    String principal = "";
+                    if (apiScenario != null) {
+                        String executionEnvironment = apiScenario.getScenarioDefinition();
+                        JSONObject json = JSONObject.parseObject(executionEnvironment);
+                        if (json != null && json.getString("environmentMap") != null && json.getString("environmentMap").length() > 2) {
+                            JSONObject environment = JSONObject.parseObject(json.getString("environmentMap"));
+                            String environmentId = environment.get(apiScenario.getProjectId()).toString();
+                            name = apiAutomationService.get(environmentId).getName();
+                        }
+                        userName = apiAutomationService.getUser(apiScenario.getUserId());
+                        principal = apiAutomationService.getUser(apiScenario.getPrincipal());
                     }
-                    userName = apiAutomationService.getUser(apiScenario.getUserId());
-                    principal = apiAutomationService.getUser(apiScenario.getPrincipal());
-                }
+                    //报告内容
+                    reportTask = new ApiTestReportVariable();
+                    if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
+                        reportTask.setStatus(scenarioReport.getStatus());
+                        reportTask.setId(scenarioReport.getId());
+                        reportTask.setTriggerMode(scenarioReport.getTriggerMode());
+                        reportTask.setName(scenarioReport.getName());
+                        reportTask.setExecutor(userName);
+                        reportTask.setPrincipal(principal);
+                        reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
+                        reportTask.setExecutionEnvironment(name);
+                        SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+                        assert systemParameterService != null;
+                        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+                        reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
 
-                //报告内容
-                reportTask = new ApiTestReportVariable();
-                if (StringUtils.equalsAny(runMode, ApiRunMode.SCHEDULE_SCENARIO.name())) {
-                    reportTask.setStatus(scenarioReport.getStatus());
-                    reportTask.setId(scenarioReport.getId());
-                    reportTask.setTriggerMode(scenarioReport.getTriggerMode());
-                    reportTask.setName(scenarioReport.getName());
-                    reportTask.setExecutor(userName);
-                    reportTask.setPrincipal(principal);
-                    reportTask.setExecutionTime(DateUtils.getTimeString(scenarioReport.getUpdateTime()));
-                    reportTask.setExecutionEnvironment(name);
-                    SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-                    assert systemParameterService != null;
-                    BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-                    reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
-
+                    }
+                    testResult.setTestId(scenarioReport.getScenarioId());
+                    planScenarioId = scenarioReport.getTestPlanScenarioId();
                 }
-                testResult.setTestId(scenarioReport.getScenarioId());
-                planScenarioId = scenarioReport.getTestPlanScenarioId();
             } else {
                 apiTestService.changeStatus(testId, APITestStatus.Completed);
                 report = apiReportService.getRunningReport(testResult.getTestId());

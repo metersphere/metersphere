@@ -34,7 +34,7 @@ public class SerialApiExecTask<T> implements Callable<T> {
     public T call() {
         try {
             if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
-                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config);
+                jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config, runModeDataDTO.getHashTree());
             } else {
                 jMeterService.runLocal(runModeDataDTO.getApiCaseId(), runModeDataDTO.getHashTree(), runModeDataDTO.getReport() != null ? runModeDataDTO.getReport().getTriggerMode() : null, runMode);
             }

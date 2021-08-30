@@ -401,11 +401,12 @@ public class TestPlanApiCaseService {
                             mapper.updateByPrimaryKey(execResult);
                             reportIds.add(execResult.getId());
                             RunModeDataDTO modeDataDTO;
+                            // 生成报告和HashTree
+                            HashTree hashTree = generateHashTree(testPlanApiCase.getId());
                             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                                 modeDataDTO = new RunModeDataDTO(testPlanApiCase.getId(), UUID.randomUUID().toString());
+                                modeDataDTO.setHashTree(hashTree);
                             } else {
-                                // 生成报告和HashTree
-                                HashTree hashTree = generateHashTree(testPlanApiCase.getId());
                                 modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
                             }
                             modeDataDTO.setApiCaseId(execResult.getId());
@@ -440,16 +441,21 @@ public class TestPlanApiCaseService {
             // 开始并发执行
             for (TestPlanApiCase key : planApiCases) {
                 RunModeDataDTO modeDataDTO = null;
+                // 生成报告和HashTree
+                HashTree hashTree = generateHashTree(key.getId());
                 if (StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                     modeDataDTO = new RunModeDataDTO(key.getId(), UUID.randomUUID().toString());
                 } else {
-                    // 生成报告和HashTree
-                    HashTree hashTree = generateHashTree(key.getId());
                     modeDataDTO = new RunModeDataDTO(hashTree, UUID.randomUUID().toString());
                 }
                 ApiDefinitionExecResult report = addResult(request, key, APITestStatus.Running.name(), batchMapper);
                 modeDataDTO.setApiCaseId(report.getId());
                 executorService.submit(new ParallelApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
+                if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+                    jMeterService.runTest(modeDataDTO.getTestId(), modeDataDTO.getApiCaseId(), ApiRunMode.API_PLAN.name(), null, request.getConfig(),  hashTree);
+                } else {
+                    jMeterService.runLocal(modeDataDTO.getTestId(), hashTree,  TriggerMode.BATCH.name() , ApiRunMode.API_PLAN.name());
+                }
             }
             sqlSession.flushStatements();
         }
