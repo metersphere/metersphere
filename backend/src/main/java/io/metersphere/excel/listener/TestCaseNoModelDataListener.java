@@ -404,11 +404,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAny(data.getStatus(), "Underway", "进行中", "進行中")) {
+        if (StringUtils.equalsAny(data.getStatus(), "Underway","underway", "进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare", "未开始", "未開始")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare","prepare", "未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "已完成", "已完成")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Completed","completed", "已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);
@@ -454,11 +454,11 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
 
         JSONArray customArr = new JSONArray();
         String caseStatusValue = "";
-        if (StringUtils.equalsAny(data.getStatus(), "Underway", "进行中", "進行中")) {
+        if (StringUtils.equalsAny(data.getStatus(), "Underway","underway", "进行中", "進行中")) {
             caseStatusValue = "Underway";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare", "未开始", "未開始")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Prepare","prepare", "未开始", "未開始")) {
             caseStatusValue = "Prepare";
-        } else if (StringUtils.equalsAny(data.getStatus(), "Completed", "已完成", "已完成")) {
+        } else if (StringUtils.equalsAny(data.getStatus(), "Completed","completed", "已完成", "已完成")) {
             caseStatusValue = "Completed";
         }
         data.setStatus(caseStatusValue);

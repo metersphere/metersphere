@@ -90,7 +90,7 @@ public class FunctionCaseTemplateWriteHandler extends AbstractRowHeightStyleStra
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Maintainer")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
-                        comment.setString(new XSSFRichTextString(Translator.get("please_input_workspace_member")));
+                        comment.setString(new XSSFRichTextString(Translator.get("please_input_project_member")));
                         sheet.getRow(0).getCell(1).setCellComment(comment);
                     }else if(StringUtils.equalsAnyIgnoreCase(coloum,"Priority")){
                         Comment comment = drawingPatriarch.createCellComment(new XSSFClientAnchor(0, 0, 0, 0, index, 0, (short) 3, 1));
