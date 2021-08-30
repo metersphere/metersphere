@@ -275,7 +275,7 @@ public class ApiScenarioReportService {
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                     // 发送通知
-                    sendNotice(scenario);
+//                    sendNotice(scenario);
                 }
             }
             returnReport = report;
@@ -381,7 +381,7 @@ public class ApiScenarioReportService {
 
                 apiScenarioMapper.updateByPrimaryKey(scenario);
                 // 发送通知
-                sendNotice(scenario);
+//                sendNotice(scenario);
             }
 
             lastReport = report;
