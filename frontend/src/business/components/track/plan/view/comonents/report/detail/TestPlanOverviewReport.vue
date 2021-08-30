@@ -12,13 +12,13 @@
         </el-col>
         <el-col :span="8">
           <el-form-item :label="'执行率' + ':'">
-            {{ (report.executeRate ? (report.executeRate.toFixed(3) * 100) : 0) + '%'}}
+            {{ (report.executeRate ? (report.executeRate * 100).toFixed(1) : 0) + '%'}}
             <ms-instructions-icon content="执行过的用例/所有用例 * 100%"/>
           </el-form-item>
         </el-col>
         <el-col :span="8">
           <el-form-item :label="'通过率' + ':'">
-            {{ (report.passRate ? (report.passRate.toFixed(3)  * 100) : 0) + '%'}}
+            {{ (report.passRate ? (report.passRate  * 100 ).toFixed(1) : 0) + '%'}}
             <ms-instructions-icon content="执行通过用例/所有用例 * 100%"/>
           </el-form-item>
         </el-col>
