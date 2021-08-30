@@ -1115,8 +1115,9 @@ export default {
     },
     setParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
-      this.currentScenario.projectId = this.projectId;
-      // 构建一个场景对象 方便引用处理
+      if (!this.currentScenario.projectId) {
+        this.currentScenario.projectId = this.projectId;
+      }      // 构建一个场景对象 方便引用处理
       let scenario = {
         id: this.currentScenario.id,
         enableCookieShare: this.enableCookieShare,
@@ -1128,7 +1129,7 @@ export default {
         environmentMap: strMapToObj(this.projectEnvMap),
         hashTree: this.scenarioDefinition,
         onSampleError: this.onSampleError,
-        projectId: this.projectId,
+        projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
 
       };
       this.currentScenario.scenarioDefinition = scenario;
@@ -1139,7 +1140,6 @@ export default {
         this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
-      this.currentScenario.projectId = this.projectId;
     }
     ,
     runRefresh() {

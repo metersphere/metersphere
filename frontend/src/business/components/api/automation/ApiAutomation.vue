@@ -171,10 +171,9 @@ export default {
         let selectParamArr = redirectParam.split("edit:");
         if (selectParamArr.length == 2) {
           let scenarioId = selectParamArr[1];
-          let projectId = this.projectId;
           //查找单条数据，跳转修改页面
           let url = "/api/automation/list/" + 1 + "/" + 1;
-          this.$post(url, {id: scenarioId, projectId: projectId}, response => {
+          this.$post(url, {id: scenarioId}, response => {
             let data = response.data;
             if (data != null) {
               //如果树未加载
@@ -185,7 +184,6 @@ export default {
               if (row.tags && row.tags.length > 0) {
                 row.tags = JSON.parse(row.tags);
               }
-
               this.editScenario(row);
             }
           });
