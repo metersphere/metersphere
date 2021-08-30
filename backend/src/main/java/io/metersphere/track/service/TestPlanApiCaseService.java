@@ -38,7 +38,6 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
-import io.metersphere.track.service.task.ParallelApiExecTask;
 import io.metersphere.track.service.task.SerialApiExecTask;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -450,7 +449,6 @@ public class TestPlanApiCaseService {
                 }
                 ApiDefinitionExecResult report = addResult(request, key, APITestStatus.Running.name(), batchMapper);
                 modeDataDTO.setApiCaseId(report.getId());
-                executorService.submit(new ParallelApiExecTask(jMeterService, mapper, modeDataDTO, request.getConfig(), ApiRunMode.API_PLAN.name()));
                 if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
                     jMeterService.runTest(modeDataDTO.getTestId(), modeDataDTO.getApiCaseId(), ApiRunMode.API_PLAN.name(), null, request.getConfig(),  hashTree);
                 } else {
