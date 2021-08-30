@@ -689,7 +689,7 @@ public class ApiDefinitionService {
         if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
             RunModeConfig configs = request.getConfig();
             configs.setBaseInfo(CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo());
-            jMeterService.runTest(request.getId(), request.getId(), runMode, null, configs);
+            jMeterService.runTest(request.getId(), request.getId(), runMode, null, configs, hashTree);
         } else {
             jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), runMode);
         }
