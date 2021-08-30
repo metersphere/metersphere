@@ -52,6 +52,29 @@ public class ApiJmeterFileService {
         return listBytesToZip(files);
     }
 
+    public byte[] downloadJmeterFiles(String runMode, String testId, String reportId, String testPlanScenarioId) {
+        Map<String, String> planEnvMap = new HashMap<>();
+        if (StringUtils.isNotEmpty(testPlanScenarioId)) {
+            // 获取场景用例单独的执行环境
+            TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+            String environment = planApiScenario.getEnvironment();
+            if (StringUtils.isNotBlank(environment)) {
+                planEnvMap = JSON.parseObject(environment, Map.class);
+            }
+        }
+        HashTree hashTree = null;
+        if (ApiRunMode.DEFINITION.name().equals(runMode) || ApiRunMode.API_PLAN.name().equals(runMode)) {
+            hashTree = testPlanApiCaseService.generateHashTree(testId);
+        } else {
+            ApiScenarioWithBLOBs item = apiScenarioMapper.selectByPrimaryKey(testId);
+            if (item == null) {
+                MSException.throwException("未找到执行场景。");
+            }
+            hashTree = apiAutomationService.generateHashTree(item, reportId, planEnvMap);
+        }
+        return zipFilesToByteArray(testId, hashTree);
+    }
+
     public byte[] downloadJmx(String runMode, String testId, String reportId, String testPlanScenarioId) {
         Map<String, String> planEnvMap = new HashMap<>();
         if (StringUtils.isNotEmpty(testPlanScenarioId)) {
