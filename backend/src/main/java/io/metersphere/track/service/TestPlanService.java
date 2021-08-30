@@ -244,6 +244,11 @@ public class TestPlanService {
             testPlan.setActualEndTime(null);
         }
 
+        if ((testPlan.getStatus().equals(TestPlanStatus.Finished.name()) || testPlan.getStatus().equals(TestPlanStatus.Completed.name()))
+        && res.getActualEndTime() == null) {
+            testPlan.setActualEndTime(System.currentTimeMillis());
+        }
+
         int i;
         if (testPlan.getName() == null) {//  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
             i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
