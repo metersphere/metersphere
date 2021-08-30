@@ -43,6 +43,7 @@
             <template v-slot:default="{row}">
               <status-table-item v-if="row.lastResult === 'Success'" :value="'Pass'"/>
               <status-table-item v-if="row.lastResult === 'Fail'" :value="'Failure'"/>
+              <status-table-item v-if="row.lastResult != 'Fail' && row.lastResult != 'Success'" :value="'Prepare'"/>
             </template>
           </ms-table-column>
         </ms-table>

@@ -43,6 +43,7 @@
             <template v-slot:default="scope">
               <status-table-item v-if="scope.row.execResult === 'success'" :value="'Pass'"/>
               <status-table-item v-if="scope.row.execResult === 'error'" :value="'Failure'"/>
+              <status-table-item v-if="scope.row.execResult != 'error' && scope.row.execResult != 'success'" :value="'Prepare'"/>
             </template>
           </ms-table-column>
         </ms-table>

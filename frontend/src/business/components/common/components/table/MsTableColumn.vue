@@ -9,6 +9,7 @@
       :column-key="columnKey ? columnKey : prop"
       :label="label"
       :sortable="sortable"
+      :filter-method="filterMethod"
       :show-overflow-tooltip="showOverflowTooltip">
     <template v-slot:default="scope">
       <slot :row="scope.row" :$index="scope.$index">
@@ -26,6 +27,7 @@ export default {
     label: String,
     width: [String, Number],
     minWidth: [String, Number],
+    filterMethod: Function,
     fixed: String,
     // 排序列， 后端mapper处理filters
     filters: Array,
