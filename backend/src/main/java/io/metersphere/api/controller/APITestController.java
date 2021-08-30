@@ -1,6 +1,5 @@
 package io.metersphere.api.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
@@ -11,11 +10,13 @@ import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.request.ParameterConfig;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.*;
+import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.ApiTest;
+import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -24,15 +25,19 @@ import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
-import org.apache.jorphan.collections.HashTree;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
@@ -41,6 +46,7 @@ import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 @RequestMapping(value = "/api")
 public class APITestController {
     @Resource
+    @Lazy
     private APITestService apiTestService;
     @Resource
     private ApiDefinitionService apiDefinitionService;
@@ -250,7 +256,7 @@ public class APITestController {
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
         long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
-        long executedCountNumber = apiScenarioReportService.countByProjectID(projectId);
+        long executedCountNumber = apiAutomationService.countExecuteTimesByProjectID(projectId);
         apiCountResult.setExecutedCount(executedCountNumber);
 
         //未执行、未通过、已通过
@@ -359,10 +365,12 @@ public class APITestController {
     }
 
     @PostMapping(value = "/schedule/updateEnableByPrimyKey")
-    public void updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
+    @SendNotice(taskType = NoticeConstants.TaskType.API_HOME_TASK, event = NoticeConstants.Event.CLOSE_SCHEDULE, mailTemplate = "api/ScheduleClose", subject = "接口测试通知")
+    public Schedule updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
         apiAutomationService.updateSchedule(schedule);
+        return schedule;
     }
 
     @PostMapping(value = "/historicalDataUpgrade")

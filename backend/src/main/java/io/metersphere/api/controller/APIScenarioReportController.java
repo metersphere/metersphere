@@ -10,10 +10,12 @@ import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.api.service.MsResultService;
+import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.log.annotation.MsAuditLog;
+import io.metersphere.notice.annotation.SendNotice;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -47,6 +49,8 @@ public class APIScenarioReportController {
 
     @PostMapping("/delete")
     @MsAuditLog(module = "api_automation_report", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioReportService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.get(#request.id)", targetClass = ApiScenarioReportService.class,
+            mailTemplate = "api/ReportDelete", subject = "接口报告通知")
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
     }

@@ -1,4 +1,5 @@
 const path = require('path');
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')
 
 function resolve(dir) {
   return path.join(__dirname, dir);
@@ -31,8 +32,18 @@ module.exports = {
     document: {
       entry: "src/document/document.js",
       template: "src/document/document.html",
-      filename: "document.html"
-    }
+      filename: "document.html",
+    },
+    sharePlanReport: {
+      entry: "src/template/report/plan/share/share-plan-report.js",
+      template: "src/template/report/plan/share/share-plan-report.html",
+      filename: "share-plan-report.html",
+    },
+    planReport: {
+      entry: "src/template/report/plan/plan-report.js",
+      template: "src/template/report/plan/plan-report.html",
+      filename: "plan-report.html",
+    },
   },
   configureWebpack: {
     devtool: 'source-map',
@@ -40,9 +51,19 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
-    }
+    },
   },
-  chainWebpack(config) {
+  chainWebpack: config => {
+    // 报告模板打包成一个html
+    config.plugin('html-planReport')
+      .tap(args => {
+        args[0].inlineSource = '.(js|css)$';
+        return args;
+      });
+    config.plugin('inline-source-html-planReport')
+        .after('html-planReport')
+        .use(HtmlWebpackInlineSourcePlugin);
+
     config.plugins.delete('prefetch');
   }
 };

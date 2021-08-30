@@ -153,6 +153,14 @@
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {
+  getOldPerformanceJmxContent,
+  getPerformanceJmxContent,
+  getPerformanceLoadConfig,
+  getPerformanceReport, getShareOldPerformanceJmxContent, getSharePerformanceJmxContent,
+  getSharePerformanceLoadConfig,
+  getSharePerformanceReport
+} from "@/network/load-test";
 
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
@@ -181,7 +189,7 @@ const hexToRgb = function (hex) {
 export default {
   name: "MsPerformancePressureConfig",
   components: {MsChart},
-  props: ['report'],
+  props: ['report', 'isShare', 'shareId', 'planReportTemplate'],
   data() {
     return {
       result: {},
@@ -276,59 +284,104 @@ export default {
       if (!this.report.id) {
         return;
       }
-      this.result = this.$get("/performance/report/" + this.report.id, res => {
-        let data = res.data;
-        if (data) {
-          if (data.loadConfiguration) {
-            let d = JSON.parse(data.loadConfiguration);
-            this.calculateLoadConfiguration(d);
+      if (this.planReportTemplate) {
+        this.handleGetLoadConfig(this.planReportTemplate);
+      } else if (this.isShare){
+        this.result = getSharePerformanceReport(this.shareId, this.report.id, data => {
+          this.handleGetLoadConfig(data);
+        });
+      } else {
+        this.result = getPerformanceReport(this.report.id, data => {
+          this.handleGetLoadConfig(data);
+        });
+      }
+    },
+    handleGetLoadConfig(data) {
+      if (data) {
+        if (data.loadConfiguration) {
+          let d = JSON.parse(data.loadConfiguration);
+          this.calculateLoadConfiguration(d);
+        } else {
+          if (this.planReportTemplate) {
+            //todo
+            if (this.planReportTemplate.loadConfig) {
+              let data = JSON.parse(this.planReportTemplate.loadConfig);
+              this.calculateLoadConfiguration(data);
+            }
+          } else if (this.isShare){
+            this.result = getSharePerformanceLoadConfig(this.shareId, this.report.id, data => {
+              if (data) {
+                data = JSON.parse(data);
+                this.calculateLoadConfiguration(data);
+              }
+            });
           } else {
-            this.$get('/performance/get-load-config/' + this.report.id, (response) => {
-              if (response.data) {
-                let data = JSON.parse(response.data);
+            this.result = getPerformanceLoadConfig(this.report.id, data => {
+              if (data) {
+                data = JSON.parse(data);
                 this.calculateLoadConfiguration(data);
               }
             });
           }
-        } else {
-          this.$error(this.$t('report.not_exist'));
         }
-      });
+      } else {
+        this.$error(this.$t('report.not_exist'));
+      }
     },
     getJmxContent() {
       // console.log(this.report.testId);
       if (!this.report.testId) {
         return;
       }
-      let threadGroups = [];
-      this.result = this.$get('/performance/report/get-jmx-content/' + this.report.id)
-        .then((response) => {
-          let d = response.data.data;
-          threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-          threadGroups.forEach(tg => {
-            tg.options = {};
-          });
-          this.threadGroups = threadGroups;
-          this.getLoadConfig();
-
-          // 兼容数据
-          if (!threadGroups || threadGroups.length === 0) {
-            this.result = this.$get('/performance/get-jmx-content/' + this.report.testId)
-              .then((response) => {
-                response.data.data.forEach(d => {
-                  threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
-                  threadGroups.forEach(tg => {
-                    tg.options = {};
-                  });
-                  this.threadGroups = threadGroups;
-                  this.getLoadConfig();
-                });
-              })
-              .catch(() => {
-              });
-          }
-        }).catch(() => {
+      if (this.planReportTemplate) {
+        //todo
+        if (this.planReportTemplate.jmxContent) {
+          this.calculateLoadConfiguration(this.planReportTemplate.jmxContent);
+        }
+      } else if (this.isShare){
+        this.result = getSharePerformanceJmxContent(this.shareId, this.report.id, data => {
+          this.handleGetJmxContent(data);
         });
+      } else {
+        this.result = getPerformanceJmxContent(this.report.id, data => {
+          this.handleGetJmxContent(data);
+        });
+      }
+    },
+    handleGetJmxContent(d) {
+      let threadGroups = [];
+      threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+      threadGroups.forEach(tg => {
+        tg.options = {};
+      });
+      this.threadGroups = threadGroups;
+      this.getLoadConfig();
+
+      // 兼容数据
+      if (!threadGroups || threadGroups.length === 0) {
+        if (this.planReportTemplate) {
+          //todo
+          if (this.planReportTemplate.oldJmxContent) {
+            this.calculateLoadConfiguration(this.planReportTemplate.oldJmxContent);
+          }
+        } else if (this.isShare){
+          this.result = getShareOldPerformanceJmxContent(this.shareId, this.report.testId, data => {
+            data.forEach(d => this.handleGetOldJmxContent(d, threadGroups));
+          });
+        } else {
+          this.result = getOldPerformanceJmxContent(this.report.testId, data => {
+            data.forEach(d => this.handleGetOldJmxContent(d, threadGroups));
+          });
+        }
+      }
+    },
+    handleGetOldJmxContent(d, threadGroups) {
+      threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+      threadGroups.forEach(tg => {
+        tg.options = {};
+      });
+      this.threadGroups = threadGroups;
+      this.getLoadConfig();
     },
     calculateTotalChart() {
       let handler = this;

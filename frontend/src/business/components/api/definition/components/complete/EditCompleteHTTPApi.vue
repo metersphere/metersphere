@@ -48,13 +48,13 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="7">
+            <el-col :span="8">
               <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
                 <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
 
-            <el-col :span="7">
+            <el-col :span="8">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select class="ms-http-select" size="small" v-model="httpForm.status">
                   <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
@@ -68,7 +68,22 @@
                 <ms-input-tag :currentScenario="httpForm" ref="tag"/>
               </el-form-item>
             </el-col>
-            <el-col :span="16">
+            <el-col :span="8">
+              <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
+                <el-select v-model="httpForm.followPeople"
+                           clearable
+                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
+                           class="ms-http-textarea">
+                  <el-option
+                      v-for="item in maintainerOptions"
+                      :key="item.id"
+                      :label="item.id + ' (' + item.name + ')'"
+                      :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
               <el-form-item :label="$t('commons.description')" prop="description">
                 <el-input class="ms-http-textarea"
                           v-model="httpForm.description"
@@ -84,11 +99,14 @@
         <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
         <div class="base-info mock-info">
           <el-row>
-            <el-col :span="24">
+            <el-col :span="20">
               Mock地址：
               <el-link :href="getUrlPrefix" target="_blank" style="color: black"
                        type="primary">{{ this.getUrlPrefix }}
               </el-link>
+            </el-col>
+            <el-col :span="4">
+              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
             </el-col>
           </el-row>
 
@@ -124,7 +142,7 @@
   import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
   import MsChangeHistory from "../../../../history/ChangeHistory";
-  import {getCurrentProjectID} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsAddCompleteHttpApi",
@@ -230,6 +248,14 @@
     methods: {
       openHis(){
         this.$refs.changeHistory.open(this.httpForm.id);
+      },
+      mockSetting() {
+        if(this.basisData.id){
+          this.$store.state.currentApiCase={mock : getUUID()};
+          this.$emit('changeTab','mock');
+        }else {
+          this.$alert(this.$t('api_test.mock.create_error'));
+        }
       },
       runTest() {
         this.$refs['httpForm'].validate((valid) => {
@@ -342,9 +368,9 @@
     margin: 20px 45px;
   }
 
-  .base-info .el-form-item >>> .el-form-item__content {
-    width: 80%;
-  }
+  /*.base-info .el-form-item >>> .el-form-item__content {*/
+  /*  width: 80%;*/
+  /*}*/
 
   .base-info .ms-http-select {
     width: 100%;

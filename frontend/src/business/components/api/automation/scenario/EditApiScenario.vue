@@ -61,6 +61,7 @@
             <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
                 <el-select v-model="currentScenario.followPeople"
+                           clearable
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                            class="ms-scenario-input">
                   <el-option
@@ -479,7 +480,9 @@ export default {
     this.$nextTick(() => {
       this.addListener();
     });
-    this.$refs.refFab.openMenu();
+    if (!this.currentScenario.name) {
+      this.$refs.refFab.openMenu();
+    }
   },
   directives: {OutsideClick},
   computed: {
@@ -676,7 +679,7 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              if (req.method === 'Request') {
+              if (req.method === 'Request' && req.subRequestResults && req.subRequestResults.length > 0) {
                 this.getTransaction(req.subRequestResults, startTime, endTime, resMap);
               } else {
                 this.reqTotal++;
@@ -709,7 +712,6 @@ export default {
       }
       this.debugResult = resMap;
       this.sort();
-      // this.reload();
       this.reloadDebug = getUUID();
     },
     removeReport() {
@@ -1263,7 +1265,9 @@ export default {
     },
     setParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
-      this.currentScenario.projectId = this.projectId;
+      if (!this.currentScenario.projectId) {
+        this.currentScenario.projectId = this.projectId;
+      }
       // 构建一个场景对象 方便引用处理
       let scenario = {
         id: this.currentScenario.id,
@@ -1276,8 +1280,7 @@ export default {
         environmentMap: strMapToObj(this.projectEnvMap),
         hashTree: this.scenarioDefinition,
         onSampleError: this.onSampleError,
-        projectId: this.projectId,
-
+        projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
       };
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
@@ -1287,7 +1290,6 @@ export default {
         this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
         this.currentScenario.apiScenarioModuleId = this.currentModule.id;
       }
-      this.currentScenario.projectId = this.projectId;
     },
     runRefresh() {
       if (!this.debug) {

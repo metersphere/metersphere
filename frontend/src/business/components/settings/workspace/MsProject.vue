@@ -108,6 +108,10 @@
           <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
         </el-form-item>
 
+        <el-form-item :label-width="labelWidth" label="TCP Mock Port">
+          <el-input-number v-model="form.mockTcpPort" :controls="false" style="width: 30%;margin-right: 30px"></el-input-number>
+          <el-switch v-model="form.isMockTcpOpen" @change="chengeMockTcpSwitch"></el-switch>
+        </el-form-item>
 
         <el-form-item :label-width="labelWidth" :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
@@ -661,6 +665,14 @@ export default {
       return (user) => {
         return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
       };
+    },
+    chengeMockTcpSwitch(value){
+      if(value && this.form.mockTcpPort === 0){
+        this.result = this.$get('/project/genTcpMockPort/' + this.form.id, res => {
+          let port = res.data;
+          this.form.mockTcpPort = port;
+        })
+      }
     },
   },
   created() {

@@ -105,6 +105,13 @@
         }
       },
       setProject(projectId) {
+        // 切换项目 清空环境和选中行
+        if (this.$refs.apiList) {
+          this.$refs.apiList.clearEnvAndSelect();
+        }
+        if (this.$refs.apiCaseList) {
+          this.$refs.apiCaseList.clearEnvAndSelect();
+        }
         this.projectId = projectId;
       },
       isApiListEnableChange(data) {

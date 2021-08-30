@@ -2,9 +2,11 @@ package io.metersphere.notice.sender.impl;
 
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
+import io.metersphere.notice.domain.Receiver;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.MailService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -13,14 +15,15 @@ import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class MailNoticeSender extends AbstractNoticeSender {
     @Resource
     private MailService mailService;
 
-    private void sendMail(MessageDetail messageDetail, String context, NoticeModel noticeModel) throws MessagingException {
-        LogUtil.info("发送邮件开始 ");
+    private void sendMail(String context, NoticeModel noticeModel) throws MessagingException {
+        LogUtil.debug("发送邮件开始 ");
         JavaMailSenderImpl javaMailSender = mailService.getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
@@ -32,10 +35,17 @@ public class MailNoticeSender extends AbstractNoticeSender {
             String domainName = mailHost.substring(mailHost.indexOf(".") + 1, mailHost.length());
             helper.setFrom(javaMailSender.getUsername() + "@" + domainName);
         }
-        LogUtil.info("发件人地址" + javaMailSender.getUsername());
-        LogUtil.info("helper" + helper);
+        LogUtil.debug("发件人地址" + javaMailSender.getUsername());
+        LogUtil.debug("helper" + helper);
         helper.setSubject("MeterSphere " + noticeModel.getSubject());
-        List<String> emails = super.getUserEmails(messageDetail.getUserIds());
+        List<String> userIds = noticeModel.getReceivers().stream()
+                .map(Receiver::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(userIds)) {
+            return;
+        }
+        List<String> emails = super.getUserEmails(noticeModel, userIds);
         String[] users = emails.toArray(new String[0]);
         LogUtil.info("收件人地址: " + emails);
         helper.setText(context, true);
@@ -47,8 +57,8 @@ public class MailNoticeSender extends AbstractNoticeSender {
     public void send(MessageDetail messageDetail, NoticeModel noticeModel) {
         String context = super.getHtmlContext(messageDetail, noticeModel);
         try {
-            sendMail(messageDetail, context, noticeModel);
-            LogUtil.info("发送邮件结束");
+            sendMail(context, noticeModel);
+            LogUtil.debug("发送邮件结束");
         } catch (Exception e) {
             LogUtil.error(e);
         }

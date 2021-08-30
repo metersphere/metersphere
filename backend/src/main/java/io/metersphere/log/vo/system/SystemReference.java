@@ -21,6 +21,7 @@ public class SystemReference {
     public static Map<String, String> ldapColumns = new LinkedHashMap<>();
     public static Map<String, String> mailColumns = new LinkedHashMap<>();
     public static Map<String, String> baseColumns = new LinkedHashMap<>();
+    public static Map<String, String> groupColumns = new LinkedHashMap<>();
 
     static {
 
@@ -40,6 +41,7 @@ public class SystemReference {
         licenseColumns.clear();
         ldapColumns.clear();
         mailColumns.clear();
+        groupColumns.clear();
 
         userColumns.put("name", "用户名称");
         userColumns.put("createUser", "创建人");
@@ -142,7 +144,9 @@ public class SystemReference {
         baseColumns.put("concurrency","并发数");
         baseColumns.put("prometheusHost","Prometheus地址");
 
-
-
+        groupColumns.put("name", "名称");
+        groupColumns.put("description", "描述");
+        groupColumns.put("type", "所属类型");
+        groupColumns.put("scopeId", "全局用户组");
     }
 }

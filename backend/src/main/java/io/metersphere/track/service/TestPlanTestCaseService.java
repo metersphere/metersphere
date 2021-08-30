@@ -7,16 +7,12 @@ import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.UserService;
-import io.metersphere.track.dto.TestCaseTestDTO;
-import io.metersphere.track.dto.TestPlanCaseDTO;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testcase.TrackCount;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
@@ -368,5 +364,43 @@ public class TestPlanTestCaseService {
             }
         }
         return null;
+    }
+
+    public void calculatePlanReport(String planId, TestPlanSimpleReportDTO report) {
+        List<PlanReportCaseDTO> planReportCaseDTOS = extTestPlanTestCaseMapper.selectForPlanReport(planId);
+        TestPlanFunctionResultReportDTO functionResult = report.getFunctionResult();
+        List<TestCaseReportStatusResultDTO> statusResult = new ArrayList<>();
+        Map<String, TestCaseReportStatusResultDTO> statusResultMap = new HashMap<>();
+
+        TestPlanUtils.calculatePlanReport(planReportCaseDTOS, statusResultMap, report, TestPlanTestCaseStatus.Pass.name());
+        TestPlanUtils.addToReportCommonStatusResultList(statusResultMap, statusResult);
+
+        TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Blocking.name());
+        TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Skip.name());
+        TestPlanUtils.addToReportStatusResultList(statusResultMap, statusResult, TestPlanTestCaseStatus.Underway.name());
+        functionResult.setCaseData(statusResult);
+    }
+
+    public List<TestPlanCaseDTO> getFailureCases(String planId) {
+        List<TestPlanCaseDTO> allCases = extTestPlanTestCaseMapper.getCases(planId, "Failure");
+        return buildCaseInfo(allCases);
+    }
+
+    public List<TestPlanCaseDTO> getAllCases(String planId) {
+        List<TestPlanCaseDTO> allCases = extTestPlanTestCaseMapper.getCases(planId, null);
+        return buildCaseInfo(allCases);
+    }
+
+    public List<TestPlanCaseDTO> buildCaseInfo(List<TestPlanCaseDTO> cases) {
+        Map<String, Project> projectMap = ServiceUtils.getProjectMap(
+                cases.stream().map(TestPlanCaseDTO::getProjectId).collect(Collectors.toList()));
+        Map<String, String> userNameMap = ServiceUtils.getUserNameMap(
+                cases.stream().map(TestPlanCaseDTO::getExecutor).collect(Collectors.toList()));
+        cases.forEach(item -> {
+            item.setProjectName(projectMap.get(item.getProjectId()).getName());
+            item.setIsCustomNum(projectMap.get(item.getProjectId()).getCustomNum());
+            item.setExecutorName(userNameMap.get(item.getExecutor()));
+        });
+        return cases;
     }
 }

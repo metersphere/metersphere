@@ -30,7 +30,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
         }
         requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
-        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url.getRaw(), requestDesc.getMethod());
+        MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url == null ? "" : url.getRaw(), requestDesc.getMethod());
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
             path = parseVariable(path);
@@ -39,7 +39,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
             request.setPath("/");
         }
         parseBody(request.getBody(), requestDesc);
-        request.setArguments(parseKeyValue(url.getQuery()));
+        request.setArguments(parseKeyValue(url == null ? new ArrayList<>() : url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
         addBodyHeader(request);
         addPreScript(request, requestItem.getEvent());

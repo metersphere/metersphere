@@ -27,7 +27,7 @@
   </select>
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
-    t.id, t.environment_id, t.create_time, t.update_time,
+    t.id, t.environment_id,(select name from api_test_environment where id = t.environment_id) as environment_name, t.create_time, t.update_time,
     c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id,
     c.update_user_id, c.num, c.tags, t.create_user,
     a.module_id, a.path, a.protocol, t.status execResult, a.user_id
@@ -244,6 +244,49 @@
   </select>
   <select id="getStatusByTestPlanId" resultType="java.lang.String">
     SELECT `status` FROM test_plan_api_case WHERE test_plan_id = #{0}
+  </select>
+    <select id="selectForPlanReport" resultType="io.metersphere.track.dto.PlanReportCaseDTO">
+      select id,status from test_plan_api_case where test_plan_id = #{planId} and api_case_id IN (
+          SELECT id FROM api_test_case where status is null or status != 'Trash'
+        )
+    </select>
+    <select id="getFailureList" resultType="io.metersphere.api.dto.automation.TestPlanFailureApiDTO">
+      select
+        t.id,
+        c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.create_user_id,
+        c.num,t.create_user,
+        t.status execResult
+      from
+        test_plan_api_case t
+      inner join
+        api_test_case c
+        on t.api_case_id = c.id
+      and t.test_plan_id = #{planId}
+         <if test="status != null">
+           and t.status = 'error'
+         </if>
+      where t.test_plan_id = #{planId};
+    </select>
+
+  <select id="getFailureListByIds" resultType="io.metersphere.api.dto.automation.TestPlanFailureApiDTO">
+    select
+    t.id,
+    c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.create_user_id,
+    c.num,t.create_user,
+    t.status execResult
+    from
+    test_plan_api_case t
+    inner join
+    api_test_case c
+    on t.api_case_id = c.id
+    and t.test_plan_id = #{planId}
+    <if test="status != null">
+      and t.status = 'error'
+    </if>
+    where c.id IN
+    <foreach collection="caseIdList" item="id" separator="," open="(" close=")">
+      #{id}
+    </foreach>
   </select>
 
 </mapper>

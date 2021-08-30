@@ -8,6 +8,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class UserKeyService {
 
     @Resource

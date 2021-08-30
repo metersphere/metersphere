@@ -11,7 +11,6 @@ import java.util.List;
 public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private String executor;
     private String executorName;
-    private String status;
     private String results;
     private String planId;
     private String planName;
@@ -22,6 +21,7 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private String projectName;
     private String actualResult;
     private String maintainerName;
+    private Boolean isCustomNum;
     private int issuesCount;
 
     private List<TestCaseTestDTO> list;

@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request;
 
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.ssl.MsKeyStore;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
@@ -26,6 +27,12 @@ public class ParameterConfig {
      * 公共场景参数
      */
     private List<ScenarioVariable> variables;
+
+    /**
+     * 公共场景参数
+     */
+    private List<KeyValue> headers;
+
     /**
      * 公共Cookie
      */
@@ -55,7 +62,7 @@ public class ParameterConfig {
     }
 
     static public Arguments valueSupposeMock(Arguments arguments) {
-        for(int i = 0; i < arguments.getArguments().size(); ++i) {
+        for (int i = 0; i < arguments.getArguments().size(); ++i) {
             String argValue = arguments.getArgument(i).getValue();
             arguments.getArgument(i).setValue(ScriptEngineUtils.buildFunctionCallString(argValue));
         }

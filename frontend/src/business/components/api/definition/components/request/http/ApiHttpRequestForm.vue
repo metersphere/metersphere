@@ -1,7 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <div>
     <el-row>
-      <el-col :span="21">
+      <el-col :span="spanCount">
         <!-- HTTP 请求参数 -->
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%" v-loading="isReloadData">
           <el-tabs v-model="activeName" class="request-tabs">
@@ -158,6 +158,7 @@
             {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'},
           ]
         },
+        spanCount: 21,
         headerSuggestions: REQUEST_HEADERS,
         isReloadData: false,
         isBodyShow: true,
@@ -166,6 +167,11 @@
     },
 
     created() {
+      if(!this.referenced && this.showScript){
+        this.spanCount = 21;
+      } else {
+        this.spanCount = 24;
+      }
       this.init();
     },
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 88%">
+  <div class="text-container" style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
     <el-form :model="response" ref="response" label-width="100px">
 
       <el-collapse-transition>
@@ -51,7 +51,6 @@
 
       }
     },
-
     methods: {
       active() {
         this.isActive = !this.isActive;

@@ -99,7 +99,7 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        SELECT r.name AS test_name,
+        SELECT r.name AS test_name,r.end_time,
         r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,IfNULL(s.name,r.scenario_name) as scenario_name,
         project.name AS project_name, user.name AS user_name
         FROM api_scenario_report r
@@ -277,6 +277,12 @@
     <select id="selectPreviousReportByScenarioId" resultType="io.metersphere.base.domain.ApiScenarioReport">
           select * from api_scenario_report
             WHERE execute_type in ("Completed","Debug")  and scenario_id=#{scenarioId} and id != #{nowId} ORDER BY create_time desc LIMIT 5,1
+    </select>
+
+    <select id="countByApiScenarioId" resultType="io.metersphere.dto.ApiReportCountDTO">
+        SELECT scenario_id AS id,count(id) AS countNum
+        FROM api_scenario_report
+        WHERE scenario_id is not null  GROUP BY scenario_id;
     </select>
 
 </mapper>

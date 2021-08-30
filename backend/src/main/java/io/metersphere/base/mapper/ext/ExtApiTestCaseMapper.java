@@ -43,7 +43,6 @@ public interface ExtApiTestCaseMapper {
     int deleteToGc(ApiTestCaseRequest request);
 
     int reduction(@Param("ids") List<String> ids);
-    void checkOriginalStatusByIds(@Param("ids") List<String> ids);
 
     List<ApiTestCaseDTO> getCannotReductionApiCaseList(@Param("ids") List<String> ids);
 

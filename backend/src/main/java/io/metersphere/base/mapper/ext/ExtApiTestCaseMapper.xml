@@ -187,7 +187,15 @@
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
-
+        <if test="${condition}.isReference != null">
+            and t1.id
+            <if test='${condition}.isReference.value == "true"'>
+                in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
+            </if>
+            <if test='${condition}.isReference.value == "false"'>
+                not in (SELECT reference_id FROM api_scenario_reference_id WHERE reference_id is not null )
+            </if>
+        </if>
         <if test="${condition}.status != null">
             and t2.status
             <include refid="condition">
@@ -239,9 +247,10 @@
         t1.delete_time, deleteUser.name AS deleteUser,CONCAT(FORMAT(SUM(IF (t2.`status`='success',1,0))/COUNT(t2.id)*100,2),'%') passRate
         from
         api_test_case t1
-        LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
+        LEFT JOIN api_definition_exec_result t2 ON t1.id = t2.resource_id
         LEFT JOIN user deleteUser ON t1.delete_user_id = deleteUser.id
-        inner join api_definition a on t1.api_definition_id = a.id
+        LEFT JOIN api_definition a on t1.api_definition_id = a.id
+        WHERE 1=1
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
         </if>
@@ -523,6 +532,32 @@
             <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
                 AND t1.api_definition_id = #{request.apiDefinitionId}
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'priority'">
+                                and t1.priority in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='status'">
+                                and t1.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                    <if test="key=='status' and values.size == 0">
+                        and (t1.status is null or t1.status != 'Trash')
+                    </if>
+                </foreach>
+            </if>
+            <if test="request.filters == null || request.filters.size() == 0 ">
+                and (t1.status is null or t1.status != 'Trash')
+            </if>
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
                 and a.module_id in
                 <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
@@ -561,15 +596,6 @@
         update api_test_case
         set status = original_status
         where id IN
-        <foreach collection="ids" item="v" separator="," open="(" close=")">
-            #{v}
-        </foreach>
-    </update>
-    <update id="checkOriginalStatusByIds">
-        update api_test_case
-        set
-        original_status = 'Underway'
-        where (original_status IS NULL OR original_status = 'Trash') AND id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>

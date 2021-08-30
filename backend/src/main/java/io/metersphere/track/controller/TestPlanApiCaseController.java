@@ -2,6 +2,7 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.BatchRunDefinitionRequest;
@@ -30,6 +31,16 @@ public class TestPlanApiCaseController {
     public Pager<List<TestPlanApiCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanApiCaseService.list(request));
+    }
+
+    @GetMapping("/list/failure/{planId}")
+    public List<TestPlanFailureApiDTO> getFailureList(@PathVariable String planId) {
+        return testPlanApiCaseService.getFailureCases(planId);
+    }
+
+    @GetMapping("/list/all/{planId}")
+    public List<TestPlanFailureApiDTO> getAllList(@PathVariable String planId) {
+        return testPlanApiCaseService.getAllCases(planId);
     }
 
     @PostMapping("/selectAllTableRows")

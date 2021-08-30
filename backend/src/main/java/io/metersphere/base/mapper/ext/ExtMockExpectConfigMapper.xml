@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtMockExpectConfigMapper">
+
+    <select id="selectByProjectIdAndStatusIsOpen" resultType="io.metersphere.base.domain.MockExpectConfigWithBLOBs">
+        SELECT * FROM mock_expect_config WHERE status = 'true' AND mock_config_id IN
+            (SELECT id FROM mock_config WHERE api_path IS NULL AND project_id = #{0} )
+    </select>
+
+</mapper>

@@ -165,7 +165,8 @@ public class MsScenario extends MsTestElement {
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
-            setHeader(tree, this.headers);
+            //setHeader(tree, this.headers);
+            config.setHeaders(this.headers);
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {

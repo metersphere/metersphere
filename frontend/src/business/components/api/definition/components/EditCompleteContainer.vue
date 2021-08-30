@@ -11,7 +11,7 @@
         <el-button plain :class="{active: showTestCaseList}" @click="changeTab('testCase')" size="small">CASE</el-button>
       </el-tooltip>
 
-      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol==='HTTP'">
+      <el-tooltip class="item" effect="dark" content="Mock设置" placement="right" v-if="currentProtocol === 'HTTP' || currentProtocol === 'TCP'">
         <el-button plain :class="{active: showMock}" @click="changeTab('mock')" size="small"> Mock</el-button>
       </el-tooltip>
 
@@ -30,6 +30,7 @@
         :moduleOptions="moduleOptions"
         @runTest="runTest"
         @saveApi="saveApi"
+        @changeTab="changeTab"
         @createRootModel="createRootModel"
       />
     </div>
@@ -72,8 +73,11 @@
       />
     </div>
 
-    <div v-if="showMock" class="ms-api-div">
-      <mock-config :base-mock-config-data="baseMockConfigData"/>
+    <div v-if="showMock && (currentProtocol === 'HTTP')" class="ms-api-div">
+      <mock-config :base-mock-config-data="baseMockConfigData" type="http"/>
+    </div>
+    <div v-if="showMock && (currentProtocol === 'TCP')" class="ms-api-div">
+      <tcp-mock-config :base-mock-config-data="baseMockConfigData" type="tcp"/>
     </div>
     <div v-if="showTestCaseList">
       <!--测试用例列表-->
@@ -86,6 +90,11 @@
         @showExecResult="showExecResult"
         ref="trashCaseList"/>
     </div>
+    <!-- 加载用例 -->
+    <ms-api-case-list
+      :createCase="createCase"
+      :currentApi="api"
+      ref="caseList"/>
   </el-card>
 </template>
 
@@ -96,7 +105,10 @@ import MsRunTestTcpPage from "./runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./runtest/RunTestDubboPage";
 import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
+import TcpMockConfig from "@/business/components/api/definition/components/mock/TcpMockConfig";
 import ApiCaseSimpleList from "./list/ApiCaseSimpleList";
+import MsApiCaseList from "./case/ApiCaseList";
+import {getUUID} from "@/common/js/utils";
 
 export default {
   name: "EditCompleteContainer",
@@ -107,7 +119,9 @@ export default {
     MsRunTestSqlPage,
     MsRunTestDubboPage,
     MockConfig,
-    ApiCaseSimpleList
+    TcpMockConfig,
+    ApiCaseSimpleList,
+    MsApiCaseList
   },
   data() {
     return {
@@ -117,7 +131,9 @@ export default {
       showMock: false,
       showTestCaseList: false,
       baseMockConfigData: {},
-      loading: false
+      loading: false,
+      createCase: "",
+      api: {},
     }
   },
   props: {
@@ -139,25 +155,36 @@ export default {
   },
   created() {
     this.refreshButtonActiveClass(this.activeDom);
-    if (this.currentApi.id !== null && this.currentProtocol === "HTTP") {
+    if (this.currentApi.id !== null && (this.currentProtocol === "HTTP" || this.currentProtocol === "TCP")) {
       this.mockSetting();
     }
   },
   watch: {
     showMock() {
       this.mockSetting();
+    },
+    '$store.state.currentApiCase.case'() {
+      if (this.$store.state.currentApiCase && this.$store.state.currentApiCase.api) {
+        this.refreshButtonActiveClass("testCase");
+      }
+    },
+    '$store.state.currentApiCase.mock'() {
+      this.mockSetting();
+      this.refreshButtonActiveClass("mock");
     }
   },
   methods: {
     mockSetting() {
       let mockParam = {};
       mockParam.projectId = this.projectId;
-      mockParam.apiId = this.currentApi.id;
-      this.$post('/mockConfig/genMockConfig', mockParam, response => {
-        let mockConfig = response.data;
-        mockConfig.apiName = this.currentApi.name;
-        this.baseMockConfigData = mockConfig;
-      });
+      if(this.currentApi.id){
+        mockParam.apiId = this.currentApi.id;
+        this.$post('/mockConfig/genMockConfig', mockParam, response => {
+          let mockConfig = response.data;
+          mockConfig.apiName = this.currentApi.name;
+          this.baseMockConfigData = mockConfig;
+        });
+      }
     },
     runTest(data) {
       this.$emit("runTest", data);
@@ -216,21 +243,29 @@ export default {
         this.showTestCaseList = true;
         this.showTest = false;
         this.showMock = false;
+        if (this.$store.state.currentApiCase && this.$store.state.currentApiCase.api) {
+          this.createCase = getUUID();
+          this.api = this.$store.state.currentApiCase.api;
+          this.$refs.caseList.open();
+        }
       } else if (tabType === "test") {
         this.showApiList = false;
         this.showTestCaseList = false;
         this.showTest = true;
         this.showMock = false;
+        this.$store.state.currentApiCase = undefined;
       } else if (tabType === "mock") {
         this.showApiList = false;
         this.showTestCaseList = false;
         this.showTest = false;
         this.showMock = true;
+        this.$store.state.currentApiCase = undefined;
       } else {
         this.showApiList = true;
         this.showTestCaseList = false;
         this.showTest = false;
         this.showMock = false;
+        this.$store.state.currentApiCase = undefined;
       }
     }
   },

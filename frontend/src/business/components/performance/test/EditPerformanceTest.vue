@@ -3,16 +3,34 @@
     <ms-main-container>
       <el-card v-loading="result.loading">
         <el-row>
-          <el-col :span="10">
-            <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="test.name"
-                      class="input-with-select"
-                      size="small"
-                      maxlength="30" show-word-limit
-            >
-              <template slot="prepend">{{ $t('load_test.name') }}</template>
-            </el-input>
+          <el-col :span="6">
+            <el-form :inline="true">
+              <el-form-item :label="$t('load_test.name') ">
+                <el-input :disabled="isReadOnly" :placeholder="$t('load_test.input_name')" v-model="test.name"
+                          class="input-with-select"
+                          size="small"
+                          maxlength="30" show-word-limit/>
+              </el-form-item>
+            </el-form>
           </el-col>
-          <el-col :span="12" :offset="2">
+          <el-col :span="6">
+            <el-form>
+              <el-form-item :label="$t('api_test.automation.follow_people')">
+                <el-select v-model="test.followPeople"
+                           clearable
+                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small">
+                  <el-option
+                    v-for="item in maintainerOptions"
+                    :key="item.id"
+                    :label="item.id + ' (' + item.name + ')'"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+
+          </el-col>
+          <el-col :span="12">
             <el-link type="primary" size="small" style="margin-right: 20px" @click="openHis" v-if="test.id">
               {{ $t('operating_log.change_history') }}
             </el-link>
@@ -43,8 +61,7 @@
           </el-col>
         </el-row>
 
-
-        <el-tabs class="testplan-config" v-model="active" @tab-click="clickTab">
+        <el-tabs v-model="active" @tab-click="clickTab">
           <el-tab-pane :label="$t('load_test.basic_config')" class="advanced-config">
             <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
                                       @tgTypeChange="tgTypeChange"
@@ -118,7 +135,8 @@ export default {
         title: this.$t('load_test.advanced_config'),
         id: '2',
         component: 'PerformanceAdvancedConfig'
-      }]
+      }],
+      maintainerOptions: [],
     };
   },
   watch: {
@@ -144,8 +162,14 @@ export default {
   },
   mounted() {
     this.importAPITest();
+    this.getMaintainerOptions();
   },
   methods: {
+    getMaintainerOptions() {
+      this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
+        this.maintainerOptions = response.data;
+      });
+    },
     openHis() {
       this.$refs.changeHistory.open(this.test.id);
     },
@@ -158,7 +182,7 @@ export default {
           this.$refs.basicConfig.handleUpload();
           let relateApiList = [];
           relateApiList.push({
-            apiId : apiTest.jmx.scenarioId,
+            apiId: apiTest.jmx.scenarioId,
             apiVersion: apiTest.jmx.version,
             type: 'SCENARIO'
           });
@@ -168,7 +192,7 @@ export default {
           this.$refs.basicConfig.importCase(apiTest.jmx);
           let relateApiList = [];
           relateApiList.push({
-            apiId : apiTest.jmx.caseId,
+            apiId: apiTest.jmx.caseId,
             apiVersion: apiTest.jmx.version,
             envId: apiTest.jmx.envId,
             type: 'API_CASE'
@@ -197,7 +221,7 @@ export default {
                 this.$refs.basicConfig.importScenario(item.scenarioId);
                 this.$refs.basicConfig.handleUpload();
                 relateApiList.push({
-                  apiId : item.scenarioId,
+                  apiId: item.scenarioId,
                   apiVersion: item.version,
                   type: 'SCENARIO'
                 });
@@ -256,7 +280,7 @@ export default {
       let options = this.getSaveOption();
 
       this.result = this.$request(options, (response) => {
-        this.test.id = response.data;
+        this.test.id = response.data.id;
         this.$success(this.$t('commons.save_success'));
         this.result = this.$post(this.runPath, {id: this.test.id, triggerMode: 'MANUAL'}, (response) => {
           let reportId = response.data;
@@ -440,9 +464,6 @@ export default {
 
 <style scoped>
 
-.testplan-config {
-  margin-top: 5px;
-}
 
 .el-select {
   min-width: 130px;

@@ -67,7 +67,7 @@ public class ReflexObjectUtil {
                         columnList.add(column);
                     }
                 } catch (Exception e) {
-                    LogUtil.error(e.getMessage());
+                    LogUtil.error(e);
                 }
             }
         }
@@ -125,7 +125,7 @@ public class ReflexObjectUtil {
                 }
             }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage());
+            LogUtil.error(e);
         }
         return comparedColumns;
     }

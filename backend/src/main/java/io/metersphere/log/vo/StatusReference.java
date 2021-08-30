@@ -48,7 +48,18 @@ public class StatusReference {
         statusMap.put("functional", "功能用例");
         statusMap.put("performance", "性能用例");
         statusMap.put("api", "接口用例");
+        statusMap.put("TEST_PLAN_TASK", "测试计划任务");
+        statusMap.put("REVIEW_TASK", "评审任务");
+        statusMap.put("SWAGGER_TASK", "SWAGGER 任务");
+        statusMap.put("API_AUTOMATION_TASK", "接口自动化任务");
+        statusMap.put("API_DEFINITION_TASK", "接口定义任务");
+        statusMap.put("API_HOME_TASK", "接口主页任务");
+        statusMap.put("API_REPORT_TASK", "接口测试报告任务");
+        statusMap.put("PERFORMANCE_REPORT_TASK", "性能测试报告任务");
+        statusMap.put("PERFORMANCE_TEST_TASK", "性能测试任务");
+        statusMap.put("TRACK_TEST_CASE_TASK", "测试跟踪用例任务");
+        statusMap.put("TRACK_HOME_TASK", "测试跟踪主页任务");
+        statusMap.put("TRACK_REPORT_TASK", "测试跟踪报告任务");
 
     }
-
 }

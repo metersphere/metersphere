@@ -1,5 +1,6 @@
 package io.metersphere.notice.sender;
 
+import io.metersphere.notice.domain.Receiver;
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,6 +14,10 @@ public class NoticeModel {
      * 保存 测试id
      */
     private String testId;
+    /**
+     * 操作人
+     */
+    private String operator;
     /**
      * 保存状态
      */
@@ -48,4 +53,8 @@ public class NoticeModel {
      * 模版里的参数信息
      */
     private Map<String, Object> paramMap;
+    /**
+     * 接收人
+     */
+    private List<Receiver> receivers;
 }

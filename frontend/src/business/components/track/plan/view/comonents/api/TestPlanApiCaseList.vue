@@ -69,6 +69,18 @@
           </ms-table-column>
 
           <ms-table-column
+            :field="item"
+            :fields-width="fieldsWidth"
+            prop="environmentName"
+            min-width="120"
+            show-overflow-tooltip
+            :label="$t('commons.environment')">
+            <template v-slot:default="scope">
+              {{scope.row.environmentName || '-'}}
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
             v-if="item.id == 'maintainer'"
             prop="userId"
             :fields-width="fieldsWidth"
@@ -97,7 +109,7 @@
           <ms-table-column :field="item"
                            prop="execResult"
                            :fields-width="fieldsWidth"
-                           :label="'执行状态'" min-width="150" align="center">
+                           :label="$t('test_track.plan.execute_result')" min-width="150" align="center">
             <template v-slot:default="scope">
               <div v-loading="rowLoading === scope.row.id">
                 <el-link type="danger"
@@ -133,7 +145,7 @@
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                   :select-row="$refs.table ? $refs.table.selectRows : new Set()" ref="batchEdit" @batchEdit="batchEdit"/>
 
-      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode" :plan-case-ids="testPlanCaseIds" :type="'apiCase'"/>
     </el-card>
     <ms-task-center ref="taskCenter"/>
   </div>
@@ -167,7 +179,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import MsTaskCenter from "../../../../../task/TaskCenter";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunMode";
+import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 
@@ -567,8 +579,10 @@ export default {
       this.$post("/test/plan/api/case/run", obj, response => {
         this.$message(this.$t('commons.run_message'));
         this.$refs.taskCenter.open();
+        this.search();
+      }, () => {
+        this.search();
       });
-      this.search();
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态
       if (!this.planId) {
@@ -605,7 +619,7 @@ export default {
       //   this.environmentId = data.id;
     },
     getReportResult(apiCase) {
-      let url = "/api/definition/report/getReport/" + apiCase.id + '/' + 'API_PLAN';
+      let url = "/api/definition/report/plan/getReport/" + apiCase.id + '/' + 'API_PLAN';
       this.$get(url, response => {
         if (response.data) {
           this.response = JSON.parse(response.data.content);

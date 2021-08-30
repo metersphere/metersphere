@@ -12,11 +12,12 @@
     <result column="creator" jdbcType="VARCHAR" property="creator" />
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
-    <result column="is_api_case_executing" jdbcType="TINYINT" property="isApiCaseExecuting" />
-    <result column="is_scenario_executing" jdbcType="TINYINT" property="isScenarioExecuting" />
-    <result column="is_performance_executing" jdbcType="TINYINT" property="isPerformanceExecuting" />
+    <result column="is_api_case_executing" jdbcType="BIT" property="isApiCaseExecuting" />
+    <result column="is_scenario_executing" jdbcType="BIT" property="isScenarioExecuting" />
+    <result column="is_performance_executing" jdbcType="BIT" property="isPerformanceExecuting" />
     <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="components" jdbcType="VARCHAR" property="components" />
+    <result column="is_new" jdbcType="BIT" property="isNew" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -79,7 +80,7 @@
   <sql id="Base_Column_List">
     id, test_plan_id, create_time, update_time, `name`, `status`, trigger_mode, creator, 
     start_time, end_time, is_api_case_executing, is_scenario_executing, is_performance_executing, 
-    principal, components
+    principal, components, is_new
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestPlanReportExample" resultMap="BaseResultMap">
     select
@@ -116,14 +117,14 @@
       update_time, `name`, `status`, 
       trigger_mode, creator, start_time, 
       end_time, is_api_case_executing, is_scenario_executing, 
-      is_performance_executing, principal, components
-      )
+      is_performance_executing, principal, components, 
+      is_new)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{triggerMode,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
-      #{endTime,jdbcType=BIGINT}, #{isApiCaseExecuting,jdbcType=TINYINT}, #{isScenarioExecuting,jdbcType=TINYINT}, 
-      #{isPerformanceExecuting,jdbcType=TINYINT}, #{principal,jdbcType=VARCHAR}, #{components,jdbcType=VARCHAR}
-      )
+      #{endTime,jdbcType=BIGINT}, #{isApiCaseExecuting,jdbcType=BIT}, #{isScenarioExecuting,jdbcType=BIT}, 
+      #{isPerformanceExecuting,jdbcType=BIT}, #{principal,jdbcType=VARCHAR}, #{components,jdbcType=VARCHAR}, 
+      #{isNew,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanReport">
     insert into test_plan_report
@@ -173,6 +174,9 @@
       <if test="components != null">
         components,
       </if>
+      <if test="isNew != null">
+        is_new,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -206,19 +210,22 @@
         #{endTime,jdbcType=BIGINT},
       </if>
       <if test="isApiCaseExecuting != null">
-        #{isApiCaseExecuting,jdbcType=TINYINT},
+        #{isApiCaseExecuting,jdbcType=BIT},
       </if>
       <if test="isScenarioExecuting != null">
-        #{isScenarioExecuting,jdbcType=TINYINT},
+        #{isScenarioExecuting,jdbcType=BIT},
       </if>
       <if test="isPerformanceExecuting != null">
-        #{isPerformanceExecuting,jdbcType=TINYINT},
+        #{isPerformanceExecuting,jdbcType=BIT},
       </if>
       <if test="principal != null">
         #{principal,jdbcType=VARCHAR},
       </if>
       <if test="components != null">
         #{components,jdbcType=VARCHAR},
+      </if>
+      <if test="isNew != null">
+        #{isNew,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -262,19 +269,22 @@
         end_time = #{record.endTime,jdbcType=BIGINT},
       </if>
       <if test="record.isApiCaseExecuting != null">
-        is_api_case_executing = #{record.isApiCaseExecuting,jdbcType=TINYINT},
+        is_api_case_executing = #{record.isApiCaseExecuting,jdbcType=BIT},
       </if>
       <if test="record.isScenarioExecuting != null">
-        is_scenario_executing = #{record.isScenarioExecuting,jdbcType=TINYINT},
+        is_scenario_executing = #{record.isScenarioExecuting,jdbcType=BIT},
       </if>
       <if test="record.isPerformanceExecuting != null">
-        is_performance_executing = #{record.isPerformanceExecuting,jdbcType=TINYINT},
+        is_performance_executing = #{record.isPerformanceExecuting,jdbcType=BIT},
       </if>
       <if test="record.principal != null">
         principal = #{record.principal,jdbcType=VARCHAR},
       </if>
       <if test="record.components != null">
         components = #{record.components,jdbcType=VARCHAR},
+      </if>
+      <if test="record.isNew != null">
+        is_new = #{record.isNew,jdbcType=BIT},
       </if>
     </set>
     <if test="_parameter != null">
@@ -293,11 +303,12 @@
       creator = #{record.creator,jdbcType=VARCHAR},
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
-      is_api_case_executing = #{record.isApiCaseExecuting,jdbcType=TINYINT},
-      is_scenario_executing = #{record.isScenarioExecuting,jdbcType=TINYINT},
-      is_performance_executing = #{record.isPerformanceExecuting,jdbcType=TINYINT},
+      is_api_case_executing = #{record.isApiCaseExecuting,jdbcType=BIT},
+      is_scenario_executing = #{record.isScenarioExecuting,jdbcType=BIT},
+      is_performance_executing = #{record.isPerformanceExecuting,jdbcType=BIT},
       principal = #{record.principal,jdbcType=VARCHAR},
-      components = #{record.components,jdbcType=VARCHAR}
+      components = #{record.components,jdbcType=VARCHAR},
+      is_new = #{record.isNew,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -333,19 +344,22 @@
         end_time = #{endTime,jdbcType=BIGINT},
       </if>
       <if test="isApiCaseExecuting != null">
-        is_api_case_executing = #{isApiCaseExecuting,jdbcType=TINYINT},
+        is_api_case_executing = #{isApiCaseExecuting,jdbcType=BIT},
       </if>
       <if test="isScenarioExecuting != null">
-        is_scenario_executing = #{isScenarioExecuting,jdbcType=TINYINT},
+        is_scenario_executing = #{isScenarioExecuting,jdbcType=BIT},
       </if>
       <if test="isPerformanceExecuting != null">
-        is_performance_executing = #{isPerformanceExecuting,jdbcType=TINYINT},
+        is_performance_executing = #{isPerformanceExecuting,jdbcType=BIT},
       </if>
       <if test="principal != null">
         principal = #{principal,jdbcType=VARCHAR},
       </if>
       <if test="components != null">
         components = #{components,jdbcType=VARCHAR},
+      </if>
+      <if test="isNew != null">
+        is_new = #{isNew,jdbcType=BIT},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -361,11 +375,12 @@
       creator = #{creator,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
-      is_api_case_executing = #{isApiCaseExecuting,jdbcType=TINYINT},
-      is_scenario_executing = #{isScenarioExecuting,jdbcType=TINYINT},
-      is_performance_executing = #{isPerformanceExecuting,jdbcType=TINYINT},
+      is_api_case_executing = #{isApiCaseExecuting,jdbcType=BIT},
+      is_scenario_executing = #{isScenarioExecuting,jdbcType=BIT},
+      is_performance_executing = #{isPerformanceExecuting,jdbcType=BIT},
       principal = #{principal,jdbcType=VARCHAR},
-      components = #{components,jdbcType=VARCHAR}
+      components = #{components,jdbcType=VARCHAR},
+      is_new = #{isNew,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

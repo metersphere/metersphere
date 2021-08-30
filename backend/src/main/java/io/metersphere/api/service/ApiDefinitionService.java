@@ -368,6 +368,7 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
+        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
             test.setTags(request.getTags());
         } else {
@@ -404,6 +405,7 @@ public class ApiDefinitionService {
         test.setStatus(APITestStatus.Underway.name());
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
+        test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("默认模块");
@@ -545,31 +547,18 @@ public class ApiDefinitionService {
         return request;
     }
 
-    private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession, ApiTestCaseMapper apiTestCaseMapper) {
+    private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession, ApiTestCaseMapper apiTestCaseMapper,
+                              ApiTestImportRequest request) {
         List<ApiTestCaseWithBLOBs> cases = apiImport.getCases();
-        SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         if (CollectionUtils.isNotEmpty(cases)) {
             int batchCount = 0;
-            int nextNum = 0;
             for (int i = 0; i < cases.size(); i++) {
                 ApiTestCaseWithBLOBs item = cases.get(i);
                 ApiDefinitionWithBLOBs apiDefinitionWithBLOBs = apiDefinitionMapper.selectByPrimaryKey(item.getApiDefinitionId());
                 if (apiDefinitionWithBLOBs == null) {
                     continue;
                 }
-                nextNum = apiTestCaseService.getNextNum(item.getApiDefinitionId());
-                checkRequest.setName(item.getName());
-                checkRequest.setApiDefinitionId(item.getApiDefinitionId());
-                if (!apiTestCaseService.hasSameCase(checkRequest)) {
-                    item.setId(UUID.randomUUID().toString());
-                    item.setCreateTime(System.currentTimeMillis());
-                    item.setUpdateTime(System.currentTimeMillis());
-                    item.setCreateUserId(SessionUtils.getUserId());
-                    item.setUpdateUserId(SessionUtils.getUserId());
-                    item.setProjectId(SessionUtils.getCurrentProjectId());
-                    item.setNum(nextNum);
-                    apiTestCaseMapper.insert(item);
-                }
+                insertOrUpdateImportCase(item, request);
             }
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
@@ -587,27 +576,42 @@ public class ApiDefinitionService {
             if (StringUtils.equalsAnyIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Plugin.name(), ApiImportPlatform.Postman.name())) {
                 ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
                 BeanUtils.copyBean(apiTestCase, apiDefinition);
-                apiTestCase.setId(UUID.randomUUID().toString());
                 apiTestCase.setApiDefinitionId(apiDefinition.getId());
-                apiTestCase.setCreateTime(System.currentTimeMillis());
-                apiTestCase.setUpdateTime(System.currentTimeMillis());
-                apiTestCase.setCreateUserId(SessionUtils.getUserId());
-                apiTestCase.setUpdateUserId(SessionUtils.getUserId());
-                apiTestCase.setNum(getNextNum(apiTestCase.getApiDefinitionId()));
                 apiTestCase.setPriority("P0");
                 if (apiTestCase.getName().length() > 255) {
                     apiTestCase.setName(apiTestCase.getName().substring(0, 255));
                 }
-               /* if (!isInsert) {
-                    apiTestCase.setName(apiTestCase.getName() + "_" + apiTestCase.getId().substring(0, 5));
-                }*/
-                ApiTestCaseExample example = new ApiTestCaseExample();
-                example.createCriteria().andApiDefinitionIdEqualTo(apiDefinition.getId());
-                apiTestCaseMapper.deleteByExample(example);
-                apiTestCaseMapper.insert(apiTestCase);
+                insertOrUpdateImportCase(apiTestCase, apiTestImportRequest);
             }
         } catch (Exception e) {
             LogUtil.error("导入创建用例异常", e);
+        }
+    }
+
+    private void insertOrUpdateImportCase(ApiTestCaseWithBLOBs apiTestCase, ApiTestImportRequest apiTestImportRequest) {
+        SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
+        checkRequest.setName(apiTestCase.getName());
+        checkRequest.setApiDefinitionId(apiTestCase.getApiDefinitionId());
+        ApiTestCase sameCase = apiTestCaseService.getSameCase(checkRequest);
+        apiTestCase.setUpdateUserId(SessionUtils.getUserId());
+        if (sameCase == null) {
+            apiTestCase.setId(UUID.randomUUID().toString());
+            apiTestCase.setNum(getNextNum(apiTestCase.getApiDefinitionId()));
+            apiTestCase.setCreateTime(System.currentTimeMillis());
+            apiTestCase.setUpdateTime(System.currentTimeMillis());
+            apiTestCase.setCreateUserId(SessionUtils.getUserId());
+            apiTestCase.setProjectId(SessionUtils.getCurrentProjectId());
+            apiTestCaseMapper.insert(apiTestCase);
+        } else if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
+            apiTestCase.setId(sameCase.getId());
+            apiTestCase.setUpdateTime(System.currentTimeMillis());
+            apiTestCase.setCreateTime(null);
+            apiTestCase.setPriority(sameCase.getPriority());
+            apiTestCase.setCreateUserId(sameCase.getCreateUserId());
+            apiTestCase.setNum(sameCase.getNum());
+            apiTestCase.setProjectId(sameCase.getProjectId());
+            apiTestCase.setVersion((sameCase.getVersion() == null ? 0 : sameCase.getVersion()) + 1);
+            apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
         }
     }
 
@@ -731,12 +735,17 @@ public class ApiDefinitionService {
         return buildAPIReportResult(result);
     }
 
+    public APIReportResult getByResultId(String reportId) {
+        ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
+        return buildAPIReportResult(result);
+    }
+
     public APIReportResult getReportById(String testId) {
         ApiDefinitionExecResult result = apiDefinitionExecResultMapper.selectByPrimaryKey(testId);
         return buildAPIReportResult(result);
     }
 
-    private APIReportResult buildAPIReportResult(ApiDefinitionExecResult result) {
+    public APIReportResult buildAPIReportResult(ApiDefinitionExecResult result) {
         if (result == null) {
             return null;
         }
@@ -786,6 +795,7 @@ public class ApiDefinitionService {
                 Map<String, Object> paramMap = new HashMap<>();
                 paramMap.put("url", request.getSwaggerUrl());
                 NoticeModel noticeModel = NoticeModel.builder()
+                        .operator(SessionUtils.getUserId())
                         .context(context)
                         .testId(scheduleId)
                         .subject(Translator.get("swagger_url_scheduled_import_notification"))
@@ -810,6 +820,7 @@ public class ApiDefinitionService {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("url", request.getSwaggerUrl());
             NoticeModel noticeModel = NoticeModel.builder()
+                    .operator(SessionUtils.getUserId())
                     .context(context)
                     .testId(scheduleId)
                     .subject(Translator.get("swagger_url_scheduled_import_notification"))
@@ -875,7 +886,7 @@ public class ApiDefinitionService {
         }
 
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
-            importMsCase(apiImport, sqlSession, apiTestCaseMapper);
+            importMsCase(apiImport, sqlSession, apiTestCaseMapper, request);
         }
     }
 
@@ -1341,5 +1352,10 @@ public class ApiDefinitionService {
          apiIdList.add(item.getId());
         });
         this.removeToGc(apiIdList);
+    }
+
+    public APIReportResult getTestPlanApiCaseReport(String testId, String type) {
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
+        return buildAPIReportResult(result);
     }
 }

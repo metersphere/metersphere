@@ -86,4 +86,10 @@
     <select id="selectExecResult" resultType="java.lang.String">
         select ader.status from api_definition_exec_result ader where ader.resource_id=#{resourceId}
      </select>
+    <select id="selectPlanApiMaxResultByTestIdAndType"
+            resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+        select  * from api_definition_exec_result
+        where resource_id = #{resourceId,jdbcType=VARCHAR} and `type` = #{type, jdbcType=VARCHAR}
+        ORDER BY start_time DESC LIMIT 1
+    </select>
 </mapper>

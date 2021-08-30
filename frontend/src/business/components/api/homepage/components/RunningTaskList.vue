@@ -168,7 +168,7 @@ export default {
     this.search();
   },
   handleStatus(scope) {
-    console.log(scope.row.userId)
+    // console.log(scope.row.userId)
   }
   }
 </script>

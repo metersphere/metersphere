@@ -217,7 +217,7 @@ export default {
           this.$post('/test/plan/' + this.operationType, param, response => {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;
-            this.$router.push('/track/plan/view/' + response.data);
+            this.$router.push('/track/plan/view/' + response.data.id);
           });
         } else {
           return false;
