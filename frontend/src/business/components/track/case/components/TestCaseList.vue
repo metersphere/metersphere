@@ -315,7 +315,7 @@ export default {
         },
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDeleteToGc,
+          exec: this.handleDelete,
           permissions: ['PROJECT_TRACK_CASE:READ+DELETE']
         }
       ],
