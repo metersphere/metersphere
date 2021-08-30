@@ -1,5 +1,5 @@
 <template>
-  <el-table-column
+  <el-table-column class-name="msTableColumn"
       v-if="!field || field.id === prop"
       :min-width="minWidth"
       :width="fieldsWidth ? fieldsWidth[prop] : width"
