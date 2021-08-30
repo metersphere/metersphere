@@ -1,9 +1,12 @@
 package io.metersphere.api.dto;
 
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.jorphan.collections.HashTree;
+
+import java.util.Map;
 
 @Getter
 @Setter
@@ -17,6 +20,11 @@ public class RunModeDataDTO {
     //
     private String apiCaseId;
 
+    private ApiScenarioWithBLOBs scenario;
+    private Map<String, String> planEnvMap;
+    public RunModeDataDTO(){
+
+    }
     public RunModeDataDTO(String testId, String apiCaseId) {
         this.testId = testId;
         this.apiCaseId = apiCaseId;
@@ -35,5 +43,11 @@ public class RunModeDataDTO {
     public RunModeDataDTO(HashTree hashTree, APIScenarioReportResult report) {
         this.hashTree = hashTree;
         this.report = report;
+    }
+
+    public RunModeDataDTO(HashTree hashTree, APIScenarioReportResult report, String testId) {
+        this.hashTree = hashTree;
+        this.report = report;
+        this.testId = testId;
     }
 }
