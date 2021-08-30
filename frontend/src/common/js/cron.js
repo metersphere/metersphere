@@ -50,6 +50,10 @@ export function cronValidate(cronExpression ){
       return false;
     }
 
+    if (cronParams[3] === cronParams[5] && cronParams[5] === '?') {
+      return false;
+    }
+
     //Check year param
     if (cronParams.length == 7) {
       if (!checkYearField(cronParams[6])) {

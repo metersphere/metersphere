@@ -53,7 +53,7 @@ export default {
 		radioChange() {
 			if (this.radioValue === 1) {
 				this.$emit('update', 'hour', '*', 'hour');
-				this.$emit('update', 'day', '*', 'hour');
+				// this.$emit('update', 'day', '*', 'hour');
 			} else {
 				if (this.cron.min === '*') {
 					this.$emit('update', 'min', '0', 'hour');

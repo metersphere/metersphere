@@ -58,7 +58,7 @@ export default {
 			switch (this.radioValue) {
 				case 1:
 					this.$emit('update', 'min', '*', 'min');
-					this.$emit('update', 'hour', '*', 'min');
+					// this.$emit('update', 'hour', '*', 'min');
 					break;
 				case 2:
 					this.$emit('update', 'min', this.cycle01 + '-' + this.cycle02, 'min');
