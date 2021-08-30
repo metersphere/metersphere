@@ -177,6 +177,7 @@ public class JMeterService {
         } else {
             runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
             kafkaTemplate.send(MsKafkaListener.EXEC_TOPIC, JSON.toJSONString(runRequest));
+            kafkaTemplate.flush();
         }
     }
 
