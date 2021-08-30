@@ -289,12 +289,20 @@ public class ApiDefinitionExecResultService {
                             testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
                         } else if (StringUtils.equals(type, ApiRunMode.JENKINS_API_PLAN.name())) {
                             TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
-                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+//                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                            userID = SessionUtils.getUserId();
+                            if(userID == null){
+                                System.out.println("------IS NULL ----------");
+                            }
                             apiCase.setStatus(status);
                             apiCase.setUpdateTime(System.currentTimeMillis());
                             testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
                         } else {
-                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                            userID = SessionUtils.getUserId();
+                            if(userID == null){
+                                System.out.println("------IS NULL ----------");
+                            }
+//                            userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                             testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                             testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
                         }
