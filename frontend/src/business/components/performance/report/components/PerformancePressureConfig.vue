@@ -347,6 +347,9 @@ export default {
       }
     },
     handleGetJmxContent(d) {
+      if (!d) {
+        return;
+      }
       let threadGroups = [];
       threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
       threadGroups.forEach(tg => {
