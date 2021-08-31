@@ -16,10 +16,12 @@ export default {
 
 <style scoped>
 .ms-header {
-  background: #783887;
-  color: white;
+  /*background: #783887;*/
+  /*color: white;*/
+  color: #783887;
   height: 20px;
-  border-radius: 42%;
-  margin-left: 4px;
+  border: 0px;
+  /*border-radius: 42%;*/
+  /*margin-left: 4px;*/
 }
 </style>
