@@ -41,7 +41,12 @@
             return 10;
           }
         },
-        selectType: String,
+        selectType: {
+          type: Boolean,
+          default() {
+            return false;
+          }
+        },
         tableDataCountInPage: {
           type: Number,
           default() {
