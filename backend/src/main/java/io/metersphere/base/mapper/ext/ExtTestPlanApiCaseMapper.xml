@@ -68,7 +68,7 @@
       <if test="request.projectId != null and request.projectId!=''">
         and a.projectId = #{request.projectId}
       </if>
-      and t.id in
+      and t.api_case_id in
       <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
         #{caseId}
       </foreach>

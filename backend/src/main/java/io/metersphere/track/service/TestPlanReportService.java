@@ -394,14 +394,14 @@ public class TestPlanReportService {
                         countMap.put("Pass", 1);
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(caseResult, TestPlanApiExecuteStatus.FAILD.name())) {
-                    faliureApiCaseIdList.add(id);
+                    faliureScenarioCaseIdList.add(id);
                     if (countMap.containsKey("Failure")) {
                         countMap.put("Failure", countMap.get("Failure") + 1);
                     } else {
                         countMap.put("Failure", 1);
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(caseResult, TestPlanApiExecuteStatus.PREPARE.name())) {
-                    faliureApiCaseIdList.add(id);
+                    faliureScenarioCaseIdList.add(id);
                     if (countMap.containsKey("Skip")) {
                         countMap.put("Skip", countMap.get("Skip") + 1);
                     } else {
@@ -437,14 +437,14 @@ public class TestPlanReportService {
                         countMap.put("Pass", 1);
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(caseResult, TestPlanApiExecuteStatus.FAILD.name())) {
-                    faliureApiCaseIdList.add(id);
+                    faliureLoadCaseIdList.add(id);
                     if (countMap.containsKey("Failure")) {
                         countMap.put("Failure", countMap.get("Failure") + 1);
                     } else {
                         countMap.put("Failure", 1);
                     }
                 } else if (StringUtils.equalsAnyIgnoreCase(caseResult, TestPlanApiExecuteStatus.PREPARE.name())) {
-                    faliureApiCaseIdList.add(id);
+                    faliureLoadCaseIdList.add(id);
                     if (countMap.containsKey("Skip")) {
                         countMap.put("Skip", countMap.get("Skip") + 1);
                     } else {
