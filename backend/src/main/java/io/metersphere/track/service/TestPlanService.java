@@ -244,7 +244,7 @@ public class TestPlanService {
             testPlan.setActualEndTime(null);
         }
 
-        if ((testPlan.getStatus().equals(TestPlanStatus.Finished.name()) || testPlan.getStatus().equals(TestPlanStatus.Completed.name()))
+        if (StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(),TestPlanStatus.Finished.name(),TestPlanStatus.Completed.name())
         && res.getActualEndTime() == null) {
             testPlan.setActualEndTime(System.currentTimeMillis());
         }
@@ -256,7 +256,6 @@ public class TestPlanService {
             extScheduleMapper.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
             i = testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
         }
-
         return testPlanMapper.selectByPrimaryKey(testPlan.getId());
     }
 
