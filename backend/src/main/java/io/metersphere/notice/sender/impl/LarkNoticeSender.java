@@ -28,10 +28,6 @@ public class LarkNoticeSender extends AbstractNoticeSender {
                 .map(ud -> "<at email=\"" + ud.getEmail() + "\">" + ud.getName() + "</at>")
                 .collect(Collectors.toList());
 
-        // 没有接收人不发通知
-        if (CollectionUtils.isEmpty(collect)) {
-            return;
-        }
         LogUtil.info("飞书收件人: {}", userIds);
         context += StringUtils.join(collect, " ");
         LarkClient.send(messageDetail.getWebhook(), context);
