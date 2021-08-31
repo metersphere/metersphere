@@ -107,25 +107,43 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
             String body = responseEntity.getBody();
             JSONObject obj = JSONObject.parseObject(body);
 
-            LogUtil.info("project story" + key + obj);
+            LogUtil.info("project story: " + key + obj);
 
             if (obj != null) {
-                JSONObject data = obj.getJSONObject("data");
-                String s = JSON.toJSONString(data);
-                Map<String, Object> map = JSONArray.parseObject(s, new TypeReference<Map<String, Object>>(){});
-                Collection<Object> values = map.values();
-                values.forEach(v -> {
-                    JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(v));
-                    DemandDTO demandDTO = new DemandDTO();
-                    demandDTO.setId(jsonObject.getString("id"));
-                    demandDTO.setName(jsonObject.getString("title"));
-                    demandDTO.setPlatform(IssuesManagePlatform.Zentao.name());
-                    list.add(demandDTO);
-                });
-
+                String data = obj.getString("data");
+                if (StringUtils.isBlank(data)) {
+                    return list;
+                }
+                // 兼容处理11.5版本格式 [{obj},{obj}]
+                if (data.charAt(0) == '[') {
+                    JSONArray array = obj.getJSONArray("data");
+                    for (int i = 0; i < array.size(); i++) {
+                        JSONObject o = array.getJSONObject(i);
+                        DemandDTO demandDTO = new DemandDTO();
+                        demandDTO.setId(o.getString("id"));
+                        demandDTO.setName(o.getString("title"));
+                        demandDTO.setPlatform(IssuesManagePlatform.Zentao.name());
+                        list.add(demandDTO);
+                    }
+                }
+                // 处理格式 {{"id": {obj}},{"id",{obj}}}
+                else if (data.charAt(0) == '{') {
+                    JSONObject dataObject = obj.getJSONObject("data");
+                    String s = JSON.toJSONString(dataObject);
+                    Map<String, Object> map = JSONArray.parseObject(s, new TypeReference<Map<String, Object>>(){});
+                    Collection<Object> values = map.values();
+                    values.forEach(v -> {
+                        JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(v));
+                        DemandDTO demandDTO = new DemandDTO();
+                        demandDTO.setId(jsonObject.getString("id"));
+                        demandDTO.setName(jsonObject.getString("title"));
+                        demandDTO.setPlatform(IssuesManagePlatform.Zentao.name());
+                        list.add(demandDTO);
+                    });
+                }
             }
         } catch (Exception e) {
-            LogUtil.error("get zentao bug fail " + e.getMessage());
+            LogUtil.error("get zentao demand fail " + e.getMessage());
         }
         return list;
     }
