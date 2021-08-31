@@ -179,10 +179,6 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     break;
             }
         }
-        // 排除自己
-        if (noticeModel.isExcludeSelf()) {
-            toUsers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
-        }
         // 去重复
         return toUsers.stream()
                 .distinct()

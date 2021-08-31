@@ -9,6 +9,7 @@ import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NotificationService;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -23,6 +24,10 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
 
     public void sendAnnouncement(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<Receiver> receivers = noticeModel.getReceivers();
+        // 排除自己
+        if (noticeModel.isExcludeSelf()) {
+            receivers.removeIf(u -> StringUtils.equals(u.getUserId(), noticeModel.getOperator()));
+        }
         if (CollectionUtils.isEmpty(receivers)) {
             return;
         }
