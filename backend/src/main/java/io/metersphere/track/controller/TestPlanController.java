@@ -254,4 +254,9 @@ public class TestPlanController {
         apiAutomationService.updateSchedule(schedule);
         return schedule;
     }
+
+    @GetMapping("/have/exec/case/{id}")
+    public boolean haveExecCase(@PathVariable String id) {
+        return testPlanService.haveExecCase(id);
+    }
 }
