@@ -5,6 +5,7 @@
     @save="saveCaseRelevance"
     :plan-id="planId"
     :flag="true"
+    :is-saving="isSaving"
     ref="baseRelevance">
 
     <template v-slot:aside>
@@ -122,6 +123,7 @@ export default {
     return {
       openType: 'relevance',
       result: {},
+      isSaving:false,
       treeNodes: [],
       selectNodeIds: [],
       selectNodeNames: [],
@@ -159,6 +161,7 @@ export default {
   },
   methods: {
     open() {
+      this.isSaving = false;
       this.$refs.baseRelevance.open();
       if (this.$refs.table) {
         this.$refs.table.clear();
@@ -176,15 +179,19 @@ export default {
       })
     },
     saveCaseRelevance(item) {
+      this.isSaving = true;
       let param = {};
       param.planId = this.planId;
       param.ids = this.$refs.table.selectIds;
       param.request = this.page.condition;
       param.checked = item
       this.result = this.$post('/test/plan/relevance', param, () => {
+        this.isSaving = false;
         this.$success(this.$t('commons.save_success'));
         this.$refs.baseRelevance.close();
         this.$emit('refresh');
+      },(error) => {
+        this.isSaving = false;
       });
     },
     search() {
