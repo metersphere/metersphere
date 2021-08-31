@@ -21,27 +21,25 @@ public class WeComNoticeSender extends AbstractNoticeSender {
 
     public void sendWechatRobot(MessageDetail messageDetail, NoticeModel noticeModel, String context) {
         List<Receiver> receivers = noticeModel.getReceivers();
-        if (CollectionUtils.isEmpty(receivers)) {
-            return;
-        }
+
         TextMessage message = new TextMessage(context);
-        List<String> userIds = receivers.stream()
-                .map(Receiver::getUserId)
-                .distinct()
-                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(receivers)) {
+            List<String> userIds = receivers.stream()
+                    .map(Receiver::getUserId)
+                    .distinct()
+                    .collect(Collectors.toList());
 
-        List<String> phoneList = super.getUserDetails(userIds).stream()
-                .map(UserDetail::getPhone)
-                .distinct()
-                .collect(Collectors.toList());
+            List<String> phoneList = super.getUserDetails(userIds).stream()
+                    .map(UserDetail::getPhone)
+                    .distinct()
+                    .collect(Collectors.toList());
 
-        message.setMentionedMobileList(phoneList);
-
-        if (CollectionUtils.isEmpty(phoneList)) {
-            return;
+            if (CollectionUtils.isNotEmpty(phoneList)) {
+                message.setMentionedMobileList(phoneList);
+                LogUtil.info("企业微信收件人: {}", userIds);
+            }
         }
 
-        LogUtil.info("企业微信收件人: {}", userIds);
         try {
             WxChatbotClient.send(messageDetail.getWebhook(), message);
         } catch (IOException e) {
