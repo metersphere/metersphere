@@ -203,7 +203,7 @@ export default {
     },
     close() {
       this.visible = false;
-      this.taskVisible = false;
+      // this.taskVisible = false;
       this.showType = "";
       if (this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
@@ -240,14 +240,15 @@ export default {
       if (status) {
         status = row.executionStatus.toLowerCase();
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
-          this.taskVisible = false;
           switch (row.executionModule) {
             case "SCENARIO":
+              this.taskVisible = false;
               this.$router.push({
                 path: '/api/automation/report/view/' + row.id,
               });
               break;
             case "PERFORMANCE":
+              this.taskVisible = false;
               this.$router.push({
                 path: '/performance/report/view/' + row.id,
               });
