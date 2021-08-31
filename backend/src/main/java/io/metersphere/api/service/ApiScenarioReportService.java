@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.cache.TestPlanReportExecuteCatch;
 import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
+import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
@@ -29,6 +30,7 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.ApiReportCountDTO;
+import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -45,8 +47,10 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
@@ -676,6 +680,7 @@ public class ApiScenarioReportService {
         apiScenarioReportDetailMapper.deleteByPrimaryKey(request.getId());
         // 补充逻辑，如果是集成报告则把零时报告全部删除
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(request.getId());
+        MessageCache.cache.remove(request.getId());
         if (report != null && StringUtils.isNotEmpty(report.getScenarioId())) {
             List<String> list = getReportIds(report.getScenarioId());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -703,6 +708,9 @@ public class ApiScenarioReportService {
 
     public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
         List<String> ids = reportRequest.getIds();
+        ids.forEach(item -> {
+            MessageCache.cache.remove(item);
+        });
         if (reportRequest.isSelectAllDate()) {
             ids = this.idList(reportRequest);
             if (reportRequest.getUnSelectIds() != null) {
@@ -756,10 +764,6 @@ public class ApiScenarioReportService {
             apiTestReportExample.createCriteria().andIdIn(ids);
             apiScenarioReportMapper.deleteByExample(apiTestReportExample);
         }
-    }
-
-    public long countByProjectID(String projectId) {
-        return extApiScenarioReportMapper.countByProjectID(projectId);
     }
 
     public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId) {
@@ -824,5 +828,32 @@ public class ApiScenarioReportService {
 
     public List<ApiReportCountDTO> countByApiScenarioId() {
         return extApiScenarioReportMapper.countByApiScenarioId();
+    }
+
+    @Resource
+    private RestTemplate restTemplate;
+    private static final String BASE_URL = "http://%s:%d";
+
+    public Integer get(String reportId, ReportCounter counter) {
+        int count = 0;
+        try {
+            for (JvmInfoDTO item : counter.getPoolUrls()) {
+                TestResource testResource = item.getTestResource();
+                String configuration = testResource.getConfiguration();
+                NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
+                String nodeIp = node.getIp();
+                Integer port = node.getPort();
+
+                String uri = String.format(BASE_URL + "/jmeter/getRunning/" + reportId, nodeIp, port);
+                ResponseEntity<Integer> result = restTemplate.getForEntity(uri, Integer.class);
+                if (result == null) {
+                    count += result.getBody();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            MSException.throwException(e.getMessage());
+        }
+        return count;
     }
 }

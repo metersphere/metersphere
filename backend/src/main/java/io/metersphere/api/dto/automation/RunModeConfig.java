@@ -13,6 +13,7 @@ public class RunModeConfig {
     private String reportType;
     private String reportName;
     private String reportId;
+    private String amassReport;
     private boolean onSampleError;
     private String resourcePoolId;
     private BaseSystemConfigDTO baseInfo;
