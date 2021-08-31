@@ -229,6 +229,7 @@
     <ms-test-plan-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData"/>
     <plan-run-mode-with-env @handleRunBatch="_handleRun" ref="runMode" :plan-case-ids="[]" :type="'plan'" :plan-id="currentPlanId"/>
     <test-plan-report-review ref="testCaseReportView"/>
+    <ms-task-center ref="taskCenter"/>
   </el-card>
 </template>
 
@@ -260,6 +261,7 @@ import MsTestPlanScheduleMaintain from "@/business/components/track/plan/compone
 import {getCurrentProjectID, getCurrentUserId, hasPermission} from "@/common/js/utils";
 import PlanRunModeWithEnv from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import TestPlanReportReview from "@/business/components/track/report/components/TestPlanReportReview";
+import MsTaskCenter from "@/business/components/task/TaskCenter";
 
 export default {
   name: "TestPlanList",
@@ -272,7 +274,9 @@ export default {
     PlanStageTableItem,
     PlanStatusTableItem,
     MsTestPlanScheduleMaintain,
-    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination, PlanRunModeWithEnv
+    MsTableOperator, MsTableOperatorButton,
+    MsDialogFooter, MsTableHeader, MsCreateBox,
+    MsTablePagination, PlanRunModeWithEnv, MsTaskCenter
   },
   data() {
     return {
@@ -496,6 +500,7 @@ export default {
       param.projectId = getCurrentProjectID();
       param.userId = getCurrentUserId();
       param.triggerMode = 'MANUAL';
+      this.$refs.taskCenter.open();
       this.result = this.$post('test/plan/run/', param,() => {
         this.$success(this.$t('commons.run_success'));
       }, () => {
