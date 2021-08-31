@@ -480,7 +480,14 @@ export default {
     },
     handleRun(row) {
       this.currentPlanId = row.id;
-      this.$refs.runMode.open('API');
+      this.$get("/test/plan/have/exec/case/" + row.id, res => {
+        const haveExecCase = res.data;
+        if (haveExecCase) {
+          this.$refs.runMode.open('API');
+        } else {
+          this.$router.push('/track/plan/view/' + row.id);
+        }
+      })
     },
     _handleRun(config) {
       let {mode, reportType, onSampleError, runWithinResourcePool, resourcePoolId, envMap} = config;

@@ -1917,4 +1917,28 @@ public class TestPlanService {
         testPlan.setReportConfig(testPlanDTO.getReportConfig());
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
     }
+
+    public boolean haveExecCase(String id) {
+        if (StringUtils.isBlank(id)) {
+            return false;
+        }
+        TestPlanApiCaseExample apiCaseExample = new TestPlanApiCaseExample();
+        apiCaseExample.createCriteria().andTestPlanIdEqualTo(id);
+        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(apiCaseExample);
+        if (!CollectionUtils.isEmpty(testPlanApiCases)) {
+            return true;
+        }
+
+        TestPlanApiScenarioExample apiScenarioExample = new TestPlanApiScenarioExample();
+        apiScenarioExample.createCriteria().andTestPlanIdEqualTo(id);
+        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(apiScenarioExample);
+        if (!CollectionUtils.isEmpty(testPlanApiScenarios)) {
+            return true;
+        }
+
+        TestPlanLoadCaseExample loadCaseExample = new TestPlanLoadCaseExample();
+        loadCaseExample.createCriteria().andTestPlanIdEqualTo(id);
+        List<TestPlanLoadCase> testPlanLoadCases = testPlanLoadCaseMapper.selectByExample(loadCaseExample);
+        return !CollectionUtils.isEmpty(testPlanLoadCases);
+    }
 }
