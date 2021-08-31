@@ -26,7 +26,7 @@
             {{ $t('test_track.issue.issue_management') }}
           </el-menu-item>
 
-          <el-menu-item :index="'/track/testPlan/reportList'" popper-class="submenu">
+          <el-menu-item :index="'/track/testPlan/reportList'" popper-class="submenu" v-permission="['PROJECT_TRACK_REPORT:READ']">
             {{ $t("commons.report") }}
           </el-menu-item>
         </el-menu>

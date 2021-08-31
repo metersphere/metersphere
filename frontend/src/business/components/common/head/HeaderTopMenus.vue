@@ -10,7 +10,7 @@
            router>
 
     <el-menu-item index="/track" v-if="check('testTrack')" onselectstart="return false"
-                  v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ']">
+                  v-permission="['PROJECT_TRACK_CASE:READ','PROJECT_TRACK_PLAN:READ','PROJECT_TRACK_REVIEW:READ', 'PROJECT_TRACK_ISSUE:READ', 'PROJECT_TRACK_REPORT:READ']">
       {{ $t('test_track.test_track') }}
     </el-menu-item>
     <el-menu-item index="/api" @click="active()" v-if="check('api')" onselectstart="return false"
