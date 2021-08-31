@@ -1086,10 +1086,14 @@ public class ApiAutomationService {
                         .map(reports -> reports.getKey()).collect(Collectors.toList());
                 ReportCounter counter = new ReportCounter();
                 counter.setNumber(0);
+                if (CollectionUtils.isNotEmpty(request.getConfig().getTestResources())) {
+                    counter.setPoolUrls(request.getConfig().getTestResources());
+                }
                 counter.setReportIds(reportIds);
                 MessageCache.cache.put(serialReportId, counter);
             }
         }
+        request.getConfig().setAmassReport(serialReportId);
         // 开始执行
         if (executeQueue != null && executeQueue.size() > 0) {
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -1148,11 +1152,6 @@ public class ApiAutomationService {
                             hashTreeUtil.setEnvParamsMapToHashTree(hashTree, execute_env_param_datas);
                             executeQueue.get(key).setHashTree(hashTree);
                         }
-
-                        if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
-                            HashTree hashTree = generateHashTree(executeQueue.get(key).getScenario(), key, executeQueue.get(key).getPlanEnvMap());
-                            executeQueue.get(key).setHashTree(hashTree);
-                        }
                         Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
                         ApiScenarioReport scenarioReport = future.get();
                         // 如果开启失败结束执行，则判断返回结果状态
@@ -1207,8 +1206,7 @@ public class ApiAutomationService {
         sqlSession.flushStatements();
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                HashTree hashTree = generateHashTree(executeQueue.get(reportId).getScenario(), reportId, executeQueue.get(reportId).getPlanEnvMap());
-                jMeterService.runTest(executeQueue.get(reportId).getScenario().getId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig(), hashTree);
+                jMeterService.runTest(executeQueue.get(reportId).getScenario().getId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
                 jMeterService.runLocal(reportId, executeQueue.get(reportId).getHashTree(),
                         TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
@@ -1400,7 +1398,7 @@ public class ApiAutomationService {
      * @param request
      * @return
      */
-    public String excute(RunScenarioRequest request) {
+    public String execute(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<String> ids = request.getIds();
@@ -1449,23 +1447,12 @@ public class ApiAutomationService {
                 if (request.getIds().size() > count) {
                     MSException.throwException("并发数量过大，请重新选择！");
                 }
-                return this.modeRun(request);
-            } else {
-                return this.modeRun(request);
             }
+            return this.modeRun(request);
         } else {
-            return this.excute(request);
+            return this.execute(request);
         }
     }
-
-//    public void checkScenarioIsRunning(List<String> ids) {
-//        List<ApiScenarioReport> lastReportStatusByIds = apiReportService.selectLastReportByIds(ids);
-//        for (ApiScenarioReport report : lastReportStatusByIds) {
-//            if (StringUtils.equals(report.getStatus(), APITestStatus.Running.name())) {
-//                MSException.throwException(report.getName() + " Is Running!");
-//            }
-//        }
-//    }
 
     /**
      * 获取前台查询条件查询的所有(未经分页筛选)数据ID

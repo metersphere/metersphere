@@ -16,5 +16,7 @@ public class RunRequest {
     private boolean isDebug;
     private String runMode;
     private String jmx;
+    // 集成报告ID
+    private String amassReport;
     private RunModeConfig config;
 }

@@ -904,7 +904,7 @@ public class TestPlanService {
                     returnStr = apiAutomationService.modeRun(request);
                 }
             } else {
-                returnStr = apiAutomationService.excute(request);
+                returnStr = apiAutomationService.execute(request);
             }
         }
         return returnStr;
