@@ -39,7 +39,7 @@ export default {
       // this.isActive = true;
     }
     if(this.apiActive){
-      this.isActive = true
+      this.isActive = false
     }
   },
   watch: {
@@ -49,7 +49,7 @@ export default {
       } else {
         this.getExecResult();
       }
-      this.isActive = true;
+      this.isActive = false;
     },
     apiItem() {
       this.getExecResult();
