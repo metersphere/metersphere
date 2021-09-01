@@ -455,6 +455,7 @@ export default {
         if (this.$refs.table) {
           this.$refs.table.reloadTable();
         }
+        this.typeArr = [];
         getCustomFieldBatchEditOption(template.customFields, this.typeArr, this.valueArr, this.members);
       });
     },
@@ -773,7 +774,7 @@ export default {
     },
     handleBatchEdit() {
       this.getMaintainerOptions();
-      this.$refs.batchEdit.open();
+      this.$refs.batchEdit.open(this.$refs.table.selectRows.size);
     },
     handleBatchMove() {
       this.$refs.testBatchMove.open(this.treeNodes, this.$refs.table.selectIds, this.moduleOptions);
