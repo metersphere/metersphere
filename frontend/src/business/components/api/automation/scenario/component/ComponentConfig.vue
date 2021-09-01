@@ -10,22 +10,23 @@
 </template>
 
 <script>
-  import MsConstantTimer from "./ConstantTimer";
-  import MsIfController from "./IfController";
-  import MsTransactionController from "./TransactionController";
   import {ELEMENT_TYPE} from "../Setting";
-  import MsJsr233Processor from "./Jsr233Processor";
-  import MsApiAssertions from "../../../definition/components/assertion/ApiAssertions";
-  import MsApiExtract from "../../../definition/components/extract/ApiExtract";
-  import MsApiComponent from "./ApiComponent";
-  import MsLoopController from "./LoopController";
-  import MsApiScenarioComponent from "./ApiScenarioComponent";
-  import JmeterElementComponent from "./JmeterElementComponent";
-  import MsJdbcProcessor from "@/business/components/api/automation/scenario/component/JDBCProcessor";
 
   export default {
     name: "ComponentConfig",
-    components: {MsConstantTimer, MsIfController, MsTransactionController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, MsJdbcProcessor,JmeterElementComponent},
+    components: {
+      MsConstantTimer: () => import("./ConstantTimer"),
+      MsIfController: () => import("./IfController"),
+      MsTransactionController: () => import("./TransactionController"),
+      MsJsr233Processor: () => import("./Jsr233Processor"),
+      MsApiAssertions: () => import("../../../definition/components/assertion/ApiAssertions"),
+      MsApiExtract: () => import("../../../definition/components/extract/ApiExtract"),
+      MsApiComponent: () => import("./ApiComponent"),
+      MsLoopController: () => import("./LoopController"),
+      MsApiScenarioComponent: () => import("./ApiScenarioComponent"),
+      MsJdbcProcessor: () => import("@/business/components/api/automation/scenario/component/JDBCProcessor"),
+      JmeterElementComponent: () => import("./JmeterElementComponent")
+    },
     props: {
       type: String,
       message: String,
