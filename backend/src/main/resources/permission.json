@@ -456,6 +456,11 @@
       "resourceId": "PROJECT_TRACK_CASE"
     },
     {
+      "id": "PROJECT_TRACK_CASE:READ+RECOVER",
+      "name": "恢复用例",
+      "resourceId": "PROJECT_TRACK_CASE"
+    },
+    {
       "id": "PROJECT_TRACK_REVIEW:READ",
       "name": "查询评审",
       "resourceId": "PROJECT_TRACK_REVIEW"
@@ -636,6 +641,11 @@
       "resourceId": "PROJECT_API_DEFINITION"
     },
     {
+      "id": "PROJECT_API_DEFINITION:READ+TIMING_SYNC",
+      "name": "定时同步",
+      "resourceId": "PROJECT_API_DEFINITION"
+    },
+    {
       "id": "PROJECT_API_DEFINITION:READ+CREATE_PERFORMANCE",
       "name": "创建性能测试",
       "resourceId": "PROJECT_API_DEFINITION"
@@ -788,6 +798,11 @@
     {
       "id": "PROJECT_PERFORMANCE_REPORT:READ+EXPORT",
       "name": "导出报告",
+      "resourceId": "PROJECT_PERFORMANCE_REPORT"
+    },
+    {
+      "id": "PROJECT_PERFORMANCE_REPORT:READ+COMPARE",
+      "name": "对比报告",
       "resourceId": "PROJECT_PERFORMANCE_REPORT"
     },
     {

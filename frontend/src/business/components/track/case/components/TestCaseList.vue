@@ -323,7 +323,9 @@ export default {
         {
           tip: this.$t('commons.reduction'),
           icon: "el-icon-refresh-left",
-          exec: this.reduction},
+          exec: this.reduction,
+          permissions: ['PROJECT_TRACK_CASE:READ+RECOVER']
+        },
         {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
