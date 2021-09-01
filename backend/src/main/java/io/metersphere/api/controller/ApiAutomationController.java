@@ -111,6 +111,8 @@ public class ApiAutomationController {
 
     @PostMapping("/deleteBatch")
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiAutomationService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiAutomationService.class,
+            mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiAutomationService.deleteBatch(ids);
     }
@@ -217,6 +219,8 @@ public class ApiAutomationController {
     @PostMapping("/batch/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = "api_automation", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiAutomationService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScenarioCaseByIds(#request.ids)", targetClass = ApiAutomationService.class,
+            mailTemplate = "api/AutomationUpdate", subject = "接口自动化通知")
     public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
     }
