@@ -103,7 +103,7 @@ public class ApiTestCaseController {
 
     @GetMapping("/deleteToGc/{id}")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE,target = "#targetClass.get(#id)", targetClass = ApiTestCaseService.class,
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.get(#id)", targetClass = ApiTestCaseService.class,
             mailTemplate = "api/CaseDelete", subject = "接口用例通知")
     public void deleteToGc(@PathVariable String id) {
         apiTestCaseService.deleteToGc(id);
@@ -127,6 +127,8 @@ public class ApiTestCaseController {
 
     @PostMapping("/batch/editByParam")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, target = "#targetClass.getApiCaseByIds(#request.ids)", targetClass = ApiTestCaseService.class,
+            mailTemplate = "api/CaseUpdate", subject = "接口用例通知")
     public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.editApiBathByParam(request);
     }
@@ -152,6 +154,8 @@ public class ApiTestCaseController {
 
     @PostMapping("/deleteToGcByParam")
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getApiCaseByIds(#request.ids)", targetClass = ApiTestCaseService.class,
+            mailTemplate = "api/CaseDelete", subject = "接口用例通知")
     public void deleteToGcByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteToGcByParam(request);
     }
