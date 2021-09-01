@@ -3,7 +3,6 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -131,6 +130,8 @@ public class ApiAutomationService {
     private ApiScenarioReferenceIdService apiScenarioReferenceIdService;
     @Resource
     private ResourcePoolCalculation resourcePoolCalculation;
+    @Resource
+    private NodeKafkaService nodeKafkaService;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -175,39 +176,6 @@ public class ApiAutomationService {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.listReview(request);
         return list;
-    }
-
-    private void setApiScenarioProjectIds(ApiScenarioDTO data) {
-        // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
-        List<String> idList = new ArrayList<>();
-        String definition = data.getScenarioDefinition();
-        if (StringUtils.isNotBlank(definition)) {
-            RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
-
-            if (d != null) {
-                Map<String, String> map = d.getEnvironmentMap();
-                if (map != null) {
-                    if (map.isEmpty()) {
-                        try {
-                            List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
-                            if (CollectionUtils.isNotEmpty(ids)) {
-                                idList.addAll(new HashSet<>(ids));
-                            }
-                        } catch (Exception e) {
-                            LogUtil.error("JSONPath.read projectId fail.");
-                        }
-                    } else {
-                        Set<String> set = d.getEnvironmentMap().keySet();
-                        idList = new ArrayList<>(set);
-                    }
-                } else {
-                    // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
-                    idList.add(data.getProjectId());
-                }
-            }
-
-        }
-        data.setProjectIds(idList);
     }
 
     /**
@@ -995,6 +963,10 @@ public class ApiAutomationService {
         if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
             List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
             request.getConfig().setTestResources(testResources);
+            String status = nodeKafkaService.createKafkaProducer(request.getConfig());
+            if ("ERROR".equals(status)) {
+                MSException.throwException("执行节点的kafka 启动失败，无法执行");
+            }
         }
         // 环境检查
         this.checkEnv(request, apiScenarios);
@@ -1052,9 +1024,9 @@ public class ApiAutomationService {
             try {
                 if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                     RunModeDataDTO runModeDataDTO = new RunModeDataDTO();
+                    runModeDataDTO.setTestId(item.getId());
                     runModeDataDTO.setPlanEnvMap(planEnvMap);
                     runModeDataDTO.setReport(report);
-                    runModeDataDTO.setScenario(item);
                     executeQueue.put(report.getId(), runModeDataDTO);
                 } else {
                     // 生成报告和HashTree
@@ -1093,7 +1065,9 @@ public class ApiAutomationService {
                 MessageCache.cache.put(serialReportId, counter);
             }
         }
-        request.getConfig().setAmassReport(serialReportId);
+
+        // 检查node的kafka
+        nodeKafkaService.createKafkaProducer(request.getConfig());
         // 开始执行
         if (executeQueue != null && executeQueue.size() > 0) {
             if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
@@ -1206,7 +1180,7 @@ public class ApiAutomationService {
         sqlSession.flushStatements();
         for (String reportId : executeQueue.keySet()) {
             if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                jMeterService.runTest(executeQueue.get(reportId).getScenario().getId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
+                jMeterService.runTest(executeQueue.get(reportId).getTestId(), reportId, request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
                 jMeterService.runLocal(reportId, executeQueue.get(reportId).getHashTree(),
                         TriggerMode.BATCH.name().equals(request.getTriggerMode()) ? TriggerMode.BATCH.name() : request.getReportId(), request.getRunMode());
@@ -1452,29 +1426,6 @@ public class ApiAutomationService {
         } else {
             return this.execute(request);
         }
-    }
-
-    /**
-     * 获取前台查询条件查询的所有(未经分页筛选)数据ID
-     *
-     * @param moduleIds   模块ID_前台查询时所选择的
-     * @param name        搜索条件_名称_前台查询时所输入的
-     * @param projectId   所属项目_前台查询时所在项目
-     * @param filters     过滤集合__前台查询时的过滤条件
-     * @param unSelectIds 未勾选ID_前台没有勾选的ID
-     * @return
-     */
-    private List<String> getAllScenarioIdsByFontedSelect(List<String> moduleIds, String name, String projectId, Map<String, List<String>> filters, List<String> unSelectIds) {
-        ApiScenarioRequest selectRequest = new ApiScenarioRequest();
-        selectRequest.setModuleIds(moduleIds);
-        selectRequest.setName(name);
-        selectRequest.setProjectId(projectId);
-        selectRequest.setFilters(filters);
-        selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        List<ApiScenarioDTO> list = extApiScenarioMapper.list(selectRequest);
-        List<String> allIds = list.stream().map(ApiScenarioDTO::getId).collect(Collectors.toList());
-        List<String> ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
-        return ids;
     }
 
     /**
