@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.service.ApiEnvironmentRunningParamService;
 import io.metersphere.api.service.TestResultService;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.config.KafkaConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -15,12 +16,9 @@ import javax.annotation.Resource;
 
 @Service
 public class MsKafkaListener {
-    public static final String TOPICS = "ms-api-exec-topic";
-    public final static String EXEC_TOPIC = "ms-automation-exec-topic";
-
     public static final String CONSUME_ID = "ms-api-exec-consume";
 
-    @KafkaListener(id = CONSUME_ID, topics = TOPICS, groupId = "${spring.kafka.consumer.group-id}")
+    @KafkaListener(id = CONSUME_ID, topics = KafkaConfig.TOPICS, groupId = "${spring.kafka.consumer.group-id}")
     public void consume(ConsumerRecord<?, String> record) {
         LogUtil.info("接收到执行结果开始存储");
         try {
