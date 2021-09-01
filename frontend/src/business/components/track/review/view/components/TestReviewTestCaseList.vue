@@ -66,7 +66,6 @@
           :field="item"
           :fields-width="fieldsWidth"
           :filters="typeFilters"
-          sortable="custom"
           min-width="120px"
           :label="$t('test_track.case.type')">
           <template v-slot:default="scope">
@@ -106,8 +105,7 @@
           prop="reviewStatus"
           :field="item"
           :fields-width="fieldsWidth"
-          :filters="typeFilters"
-          sortable="custom"
+          :filters="statusFilters"
           min-width="120px"
           :label="$t('test_track.review_view.execute_result')">
             <template v-slot:default="scope">
