@@ -20,7 +20,7 @@ export default {
   /*color: white;*/
   color: #783887;
   height: 20px;
-  border: 0px;
+  border: 0px !important;
   /*border-radius: 42%;*/
   /*margin-left: 4px;*/
 }
