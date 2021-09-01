@@ -33,7 +33,7 @@ export default {
             name: this.name,
             type: 'pie',
             left: -150,
-            radius: ['40%', '60%'],
+            radius: ['40%', '50%'],
             avoidLabelOverlap: false,
             label: {
               // padding: [10, 10, 20, 10],
