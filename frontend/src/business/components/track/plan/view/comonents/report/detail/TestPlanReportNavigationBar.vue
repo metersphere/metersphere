@@ -68,7 +68,9 @@ export default {
   top: 40%;
   line-height: 30px;
   border-radius: 0 15px 15px 0;
-  background-color: #acb7c1;
+  /*background-color: #acb7c1;*/
+  background-color: #783887;
+  color: white;
   display: inline-block;
   position: absolute;
   cursor: pointer;
