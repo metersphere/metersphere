@@ -65,7 +65,7 @@ export default {
           callback: () => {
             this.$emit('schedule');
           },
-          permissions: ['PROJECT_API_DEFINITION:READ+IMPORT_API']
+          permissions: ['PROJECT_API_DEFINITION:READ+TIMING_SYNC']
         },
         {
           label: this.$t('api_test.api_import.label'),
