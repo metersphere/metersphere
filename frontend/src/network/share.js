@@ -10,8 +10,8 @@ export function generateApiDocumentShareInfo(param, callback) {
   });
 }
 
-export function generateShareInfo(param, callback) {
-  return post("/share/info/generateShareInfo", param, response => {
+export function generateShareInfoWithExpired(param, callback) {
+  return post("/share/info/generateShareInfoWithExpired", param, response => {
     if (callback) {
       callback(response.data);
     }
