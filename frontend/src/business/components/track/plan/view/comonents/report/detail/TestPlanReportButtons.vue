@@ -5,6 +5,7 @@
         placement="right"
         width="300">
         <p>{{shareUrl}}</p>
+        <span style="color: red;float: left;margin-left: 10px;">24小时有效</span>
         <div style="text-align: right; margin: 0">
           <el-button type="primary" size="mini" :disabled="!shareUrl"
                      v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
@@ -37,7 +38,7 @@
 <script>
 
 import TestPlanApiReport from "@/business/components/track/plan/view/comonents/report/detail/TestPlanApiReport";
-import {generateShareInfo} from "@/network/share";
+import {generateShareInfoWithExpired} from "@/network/share";
 import TestPlanReportEdit
   from "@/business/components/track/plan/view/comonents/report/detail/component/TestPlanReportEdit";
 export default {
@@ -71,7 +72,7 @@ export default {
         pram.customData = this.report.id;
         pram.shareType = 'PLAN_DB_REPORT';
       }
-      generateShareInfo(pram, (data) => {
+      generateShareInfoWithExpired(pram, (data) => {
         let thisHost = window.location.host;
         this.shareUrl = thisHost + "/sharePlanReport" + data.shareUrl;
       });

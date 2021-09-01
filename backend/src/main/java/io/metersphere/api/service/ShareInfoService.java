@@ -10,11 +10,13 @@ import io.metersphere.base.mapper.ext.ExtShareInfoMapper;
 import io.metersphere.commons.constants.ShareType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -403,23 +405,32 @@ public class ShareInfoService {
         return new ShareInfo();
     }
 
+    /**
+     * 生成分享连接
+     * 如果该数据有连接则，返回已有的连接，不做有效期判断
+     * @param request
+     * @return
+     */
     public ShareInfo generateShareInfo(ShareInfo request) {
-        ShareInfo shareInfo = null;
         List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(request.getShareType(), request.getCustomData());
         if (shareInfos.isEmpty()) {
-            long createTime = System.currentTimeMillis();
-            shareInfo = new ShareInfo();
-            shareInfo.setId(UUID.randomUUID().toString());
-            shareInfo.setCustomData(request.getCustomData());
-            shareInfo.setCreateUserId(SessionUtils.getUserId());
-            shareInfo.setCreateTime(createTime);
-            shareInfo.setUpdateTime(createTime);
-            shareInfo.setShareType(request.getShareType());
-            shareInfoMapper.insert(shareInfo);
-            return shareInfo;
+            return createShareInfo(request);
         } else {
             return shareInfos.get(0);
         }
+    }
+
+    public ShareInfo createShareInfo(ShareInfo request) {
+        long createTime = System.currentTimeMillis();
+        ShareInfo shareInfo = new ShareInfo();
+        shareInfo.setId(UUID.randomUUID().toString());
+        shareInfo.setCustomData(request.getCustomData());
+        shareInfo.setCreateUserId(SessionUtils.getUserId());
+        shareInfo.setCreateTime(createTime);
+        shareInfo.setUpdateTime(createTime);
+        shareInfo.setShareType(request.getShareType());
+        shareInfoMapper.insert(shareInfo);
+        return shareInfo;
     }
 
     private List<ShareInfo> findByShareTypeAndShareApiIdWithBLOBs(String shareType, List<String> shareApiIdList) {
@@ -454,12 +465,36 @@ public class ShareInfoService {
 
     public void validate(String shareId, String customData) {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
+        ShareInfoService shareInfoService = CommonBeanFactory.getBean(ShareInfoService.class);
+        shareInfoService.validateExpired(shareInfo);
         if (shareInfo == null) {
             MSException.throwException("shareInfo not exist!");
         } else {
             if (!StringUtils.equals(customData, shareInfo.getCustomData())) {
                 MSException.throwException("validate failure!");
             }
+        }
+    }
+
+    public void validateExpired(String shareId) {
+        ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
+        ShareInfoService shareInfoService = CommonBeanFactory.getBean(ShareInfoService.class);
+        shareInfoService.validateExpired(shareInfo);
+    }
+
+    /**
+     * 不加入事务，抛出异常不回滚
+     * 若在当前类中调用请使用如下方式调用，否则该方法的事务注解不生效
+     * ShareInfoService shareInfoService = CommonBeanFactory.getBean(ShareInfoService.class);
+     * shareInfoService.validateExpired(shareInfo);
+     * @param shareInfo
+     */
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    public void validateExpired(ShareInfo shareInfo) {
+        // 有效期24小时
+        if (shareInfo == null || System.currentTimeMillis() - shareInfo.getUpdateTime() > 1000*60*60*24) {
+            shareInfoMapper.deleteByPrimaryKey(shareInfo.getId());
+            MSException.throwException("连接已失效，请重新获取!");
         }
     }
 

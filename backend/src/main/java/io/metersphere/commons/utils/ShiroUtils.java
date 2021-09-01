@@ -50,7 +50,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/anonymous/**", "anon");
 
         //分享相关接口
-        filterChainDefinitionMap.put("/share/info/generateShareInfo", "anon");
+        filterChainDefinitionMap.put("/share/info/generateShareInfoWithExpired", "anon");
         filterChainDefinitionMap.put("/share/info/selectApiInfoByParam", "anon");
         filterChainDefinitionMap.put("/share/get/**", "anon");
         filterChainDefinitionMap.put("/share/info", "apikey, csrf, authc"); // 需要认证
