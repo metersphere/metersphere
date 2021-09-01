@@ -16,6 +16,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.config.JmeterProperties;
+import io.metersphere.config.KafkaConfig;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
@@ -175,7 +176,7 @@ public class JMeterService {
             }
         } else {
             try {
-                SendResult result = kafkaTemplate.send(MsKafkaListener.EXEC_TOPIC, JSON.toJSONString(runRequest)).get();
+                SendResult result = kafkaTemplate.send(KafkaConfig.EXEC_TOPIC, JSON.toJSONString(runRequest)).get();
                 if (result != null) {
                     LogUtil.debug("获取ack 结果：" + result.getRecordMetadata());
                 }

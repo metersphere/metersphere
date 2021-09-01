@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.JvmInfoDTO;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.TestPlanFailureApiDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
@@ -22,21 +23,29 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.api.service.NodeKafkaService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.RunModeConstants;
+import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.SystemParameterService;
-import io.metersphere.track.dto.*;
+import io.metersphere.track.dto.PlanReportCaseDTO;
+import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.track.dto.TestPlanApiResultReportDTO;
+import io.metersphere.track.dto.TestPlanSimpleReportDTO;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.task.SerialApiExecTask;
 import org.apache.commons.lang3.StringUtils;
@@ -81,6 +90,10 @@ public class TestPlanApiCaseService {
     private ApiDefinitionExecResultMapper mapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ResourcePoolCalculation resourcePoolCalculation;
+    @Resource
+    private NodeKafkaService nodeKafkaService;
 
     public TestPlanApiCase getInfo(String caseId, String testPlanId) {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -378,6 +391,15 @@ public class TestPlanApiCaseService {
         List<TestPlanApiCase> planApiCases = testPlanApiCaseMapper.selectByExample(example);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionExecResultMapper batchMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+        // 资源池
+        if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
+            List<JvmInfoDTO> testResources = resourcePoolCalculation.getPools(request.getConfig().getResourcePoolId());
+            request.getConfig().setTestResources(testResources);
+            String status = nodeKafkaService.createKafkaProducer(request.getConfig());
+            if ("ERROR".equals(status)) {
+                MSException.throwException("执行节点的kafka 启动失败，无法执行");
+            }
+        }
         // 开始选择执行模式
         ExecutorService executorService = Executors.newFixedThreadPool(planApiCases.size());
         if (request.getConfig() != null && request.getConfig().getMode().equals(RunModeConstants.SERIAL.toString())) {
