@@ -11,7 +11,7 @@
         <test-plan-load-report v-if="loadEnable" :is-db="isDb" :share-id="shareId" :is-share="isShare" :is-template="isTemplate" :report="report" :plan-id="planId"/>
       </el-card>
     </el-main>
-    <test-plan-report-navigation-bar/>
+    <test-plan-report-navigation-bar :is-template="isTemplate"/>
   </div>
 </template>
 

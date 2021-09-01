@@ -19,6 +19,9 @@ import MsDrawer from "@/business/components/common/components/MsDrawer";
 export default {
   name: "TestPlanReportNavigationBar",
   components: {MsDrawer},
+  props: {
+    isTemplate: Boolean,
+  },
   data() {
     return {
       asideHidden: true,
@@ -50,7 +53,11 @@ export default {
   watch: {
     activeName() {
       let url = new URL(window.location.href);
-      window.location.href = url.origin + '#' + this.activeName;
+      if (this.isTemplate) {
+        window.location.href = window.location.href.split('#')[0] + '#' + this.activeName;
+      } else {
+        window.location.href = url.origin + '#' + this.activeName;
+      }
     }
   }
 }
