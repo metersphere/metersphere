@@ -409,6 +409,15 @@ public class PerformanceReportService {
         return null;
     }
 
+    public List<LoadTestReport> getReportList(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList<>();
+        }
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andIdIn(ids);
+        return loadTestReportMapper.selectByExample(example);
+    }
+
     public List<ChartsData> getReportChart(String reportKey, String reportId) {
         checkReportStatus(reportId);
         try {

@@ -826,6 +826,15 @@ public class ApiScenarioReportService {
         return null;
     }
 
+    public List<ApiScenarioReport> getByIds(List<String> ids) {
+        if (org.apache.commons.collections.CollectionUtils.isNotEmpty(ids)) {
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(ids);
+            return apiScenarioReportMapper.selectByExample(example);
+        }
+        return null;
+    }
+
     public List<ApiReportCountDTO> countByApiScenarioId() {
         return extApiScenarioReportMapper.countByApiScenarioId();
     }

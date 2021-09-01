@@ -147,6 +147,8 @@ public class ApiDefinitionController {
     @PostMapping("/removeToGcByParams")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class,
+            mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
     public void removeToGcByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.removeToGcByParams(request);
     }
@@ -264,6 +266,8 @@ public class ApiDefinitionController {
     @PostMapping("/batch/editByParams")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = "api_definition", type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class,
+            mailTemplate = "api/DefinitionUpdate", subject = "接口定义通知")
     public void editByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiByParam(request);
     }
