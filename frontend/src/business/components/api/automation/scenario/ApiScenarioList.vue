@@ -229,63 +229,41 @@
 </template>
 
 <script>
-import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
-import SysnApiReportDetail from "../report/SysnApiReportDetail";
-import MsApiReportDetail from "../report/ApiReportDetail";
-import MsTableMoreBtn from "./TableMoreBtn";
-import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-import MsTestPlanList from "./testplan/TestPlanList";
-import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
-import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
-import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
-import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
-import BatchEdit from "../../../track/case/components/BatchEdit";
-import {API_SCENARIO_LIST, PROJECT_NAME, WORKSPACE_ID} from "../../../../../common/js/constants";
-import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
-import BatchMove from "../../../track/case/components/BatchMove";
-import MsRunMode from "./common/RunMode";
-import MsTaskCenter from "../../../task/TaskCenter";
+import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
 import {
   getCustomTableHeader, getCustomTableWidth, getLastTableSortField, saveLastTableSortField
 } from "@/common/js/tableUtils";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
-import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
-import MsTable from "@/business/components/common/components/table/MsTable";
 import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
   name: "MsApiScenarioList",
   components: {
-    MsTable,
-    MsTableColumn,
-    HeaderLabelOperate,
-    HeaderCustom,
-    BatchMove,
-    EnvironmentSelect,
-    BatchEdit,
-    PlanStatusTableItem,
-    PriorityTableItem,
-    MsTableHeaderSelectPopover,
-    MsTablePagination,
-    MsTableMoreBtn,
-    ShowMoreBtn,
-    MsTableHeader,
-    MsTag,
-    MsApiReportDetail,
-    SysnApiReportDetail,
-    MsScenarioExtendButtons,
-    MsTestPlanList,
-    MsTableOperatorButton,
-    MsRunMode,
-    MsTaskCenter
+    MsTable: () => import("@/business/components/common/components/table/MsTable"),
+    MsTableColumn: () => import("@/business/components/common/components/table/MsTableColumn"),
+    HeaderLabelOperate: () => import("@/business/components/common/head/HeaderLabelOperate"),
+    HeaderCustom: () => import("@/business/components/common/head/HeaderCustom"),
+    BatchMove: () => import("../../../track/case/components/BatchMove"),
+    EnvironmentSelect: () => import("../../definition/components/environment/EnvironmentSelect"),
+    BatchEdit: () => import("../../../track/case/components/BatchEdit"),
+    PlanStatusTableItem: () => import("../../../track/common/tableItems/plan/PlanStatusTableItem"),
+    PriorityTableItem: () => import("../../../track/common/tableItems/planview/PriorityTableItem"),
+    MsTableHeaderSelectPopover: () => import("@/business/components/common/components/table/MsTableHeaderSelectPopover"),
+    MsTablePagination: () => import("@/business/components/common/pagination/TablePagination"),
+    MsTableMoreBtn: () => import("./TableMoreBtn"),
+    ShowMoreBtn: () => import("@/business/components/track/case/components/ShowMoreBtn"),
+    MsTableHeader: () => import("@/business/components/common/components/MsTableHeader"),
+    MsTag: () => import("../../../common/components/MsTag"),
+    MsApiReportDetail: () => import("../report/ApiReportDetail"),
+    SysnApiReportDetail: () => import("../report/SysnApiReportDetail"),
+    MsScenarioExtendButtons: () => import("@/business/components/api/automation/scenario/ScenarioExtendBtns"),
+    MsTestPlanList: () => import("./testplan/TestPlanList"),
+    MsTableOperatorButton: () => import("@/business/components/common/components/MsTableOperatorButton"),
+    MsRunMode: () => import("./common/RunMode"),
+    MsTaskCenter: () => import("../../../task/TaskCenter")
   },
   props: {
     referenced: {
