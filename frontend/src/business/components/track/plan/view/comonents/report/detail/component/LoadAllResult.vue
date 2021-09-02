@@ -1,19 +1,19 @@
 <template>
-    <div class="container">
-      <el-row class="scenario-info">
-        <el-col :span="7">
-          <load-failure-result :is-db="isDb" @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
-                               :report="report" :plan-id="planId" @setSize="setAllSize"/>
-        </el-col>
-        <el-col :span="17" >
-          <el-card v-show="showResponse">
-            <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare"
-                                   :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
-          </el-card>
-          <div class="empty" v-show="!showResponse">内容为空</div>
-        </el-col>
-      </el-row>
-    </div>
+  <el-row class="scenario-info">
+    <el-col :span="7" class="padding-col">
+      <el-card>
+        <load-failure-result :is-db="isDb" @rowClick="getReport" :is-all="true" :share-id="shareId" :is-share="isShare" :is-template="isTemplate"
+                           :report="report" :plan-id="planId" @setSize="setAllSize"/>
+      </el-card>
+    </el-col>
+    <el-col :span="17" class="padding-col">
+      <el-card v-show="showResponse">
+        <load-case-report-view :is-plan-report="true" :share-id="shareId" :is-share="isShare"
+                               :plan-report-template="response" :report-id="reportId" ref="loadCaseReportView"/>
+      </el-card>
+      <div class="empty" v-show="!showResponse">内容为空</div>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
