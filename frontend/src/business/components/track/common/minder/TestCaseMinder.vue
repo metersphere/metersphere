@@ -95,6 +95,7 @@ name: "TestCaseMinder",
       return {
         request: {
           projectId: this.projectId,
+          orders: this.condition.orders
         },
         result: this.result,
         isDisable: false
