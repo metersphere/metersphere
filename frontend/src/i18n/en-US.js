@@ -1988,5 +1988,11 @@ export default {
     share: "Share",
     change_history: "Change history",
     change_content: "Change content"
+  },
+  plugin: {
+    title: "Plug-in management",
+    script_entry: "Script execution entry",
+    plugin_id: "Plug-in id",
+    script_view: "View script",
   }
 };

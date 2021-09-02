@@ -7,7 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
@@ -38,6 +38,8 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.jmeter.utils.ScriptEngineUtils;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -68,6 +70,7 @@ import java.util.stream.Collectors;
 @JSONType(typeName = "HTTPSamplerProxy")
 public class MsHTTPSamplerProxy extends MsTestElement {
     private String type = "HTTPSamplerProxy";
+    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy";
 
     @JSONField(ordinal = 20)
     private String protocol;
@@ -122,10 +125,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @JSONField(ordinal = 38)
     private String alias;
-
+  
+    @JSONField(ordinal = 39)
+    private boolean customizeReq;
+  
     private MsJSR223PreProcessor preProcessor;
     private MsJSR223PostProcessor postProcessor;
-
+  
     private void setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
@@ -137,7 +143,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
                     this.setProjectId(bloBs.getProjectId());
-                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    JSONObject element = JSON.parseObject(bloBs.getRequest());
+                    ElementUtil.dataFormatting(element);
+                    proxy = mapper.readValue(element.toJSONString(), new TypeReference<MsHTTPSamplerProxy>() {
                     });
                     this.setName(bloBs.getName());
                 }
@@ -165,7 +173,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         if (StringUtils.isEmpty(this.getEnvironmentId())) {
             this.setEnvironmentId(this.useEnvironment);
         }
@@ -183,7 +192,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (StringUtils.isEmpty(this.getName())) {
             sampler.setName("HTTPSamplerProxy");
         }
-        String name = this.getParentName(this.getParent());
+        String name = ElementUtil.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
@@ -191,9 +200,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
-        this.getScenarioSet(this, id_names);
+        ElementUtil.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         sampler.setMethod(this.getMethod());
@@ -204,7 +213,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
-            config.setConfig(getEnvironmentConfig(useEnvironment));
+            config.setConfig(ElementUtil.getEnvironmentConfig(this.useEnvironment, this.getProjectId(), this.isMockEnvironment()));
         }
 
         compatible(config);
@@ -355,7 +364,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private void setSamplerPath(ParameterConfig config, HttpConfig httpConfig, HTTPSamplerProxy sampler) {
         try {
             if (config.isEffective(this.getProjectId())) {
-                if (httpConfig == null && !isURL(this.getUrl())) {
+                if (httpConfig == null && !ElementUtil.isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
                 if (StringUtils.isEmpty(httpConfig.getProtocol())) {
@@ -367,7 +376,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
 
-                if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
+                if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
                     url = this.getUrl();
                 }
 
@@ -588,7 +597,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             return true;
         }
-        if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
+        if (StringUtils.isNotEmpty(this.getUrl()) && ElementUtil.isURL(this.getUrl())) {
             return true;
         }
         return false;
@@ -817,7 +826,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     public static List<MsHTTPSamplerProxy> findHttpSampleFromHashTree(MsTestElement hashTree) {
-        return findFromHashTreeByType(hashTree, MsHTTPSamplerProxy.class, null);
+        return ElementUtil.findFromHashTreeByType(hashTree, MsHTTPSamplerProxy.class, null);
     }
 }
 

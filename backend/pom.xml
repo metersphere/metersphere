@@ -440,6 +440,13 @@
             <artifactId>xmindjbehaveplugin</artifactId>
             <version>0.8</version>
         </dependency>
+
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-plugin-core</artifactId>
+            <version>1.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

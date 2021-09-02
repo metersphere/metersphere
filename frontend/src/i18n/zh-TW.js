@@ -411,7 +411,7 @@ export default {
       jira_storytype: '需求類型',
       input_api_account: '請輸入賬號',
       input_api_password: '請輸入密碼',
-      input_api_pat:'請输入 Personal Access Token',
+      input_api_pat: '請输入 Personal Access Token',
       input_jira_url: '請輸入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '請輸入問題類型',
       input_jira_storytype: '請輸入需求類型',
@@ -438,12 +438,12 @@ export default {
       azure_storytype: '需求類型',
       input_azure_issuetype: '請輸入問題類型',
       input_azure_storytype: '請輸入需求類型',
-      azure_pat:'PersonalAccessTokens',
-      azure_devops_url:'Azure Devops 地址',
-      azure_organization_id:'Azure 組織ID',
-      input_azure_pat:'請輸入 Personal Access Token',
-      input_azure_url:'請輸入 Azure Devops 地址',
-      input_azure_id:'請輸入 Azure 組織ID',
+      azure_pat: 'PersonalAccessTokens',
+      azure_devops_url: 'Azure Devops 地址',
+      azure_organization_id: 'Azure 組織ID',
+      input_azure_pat: '請輸入 Personal Access Token',
+      input_azure_url: '請輸入 Azure Devops 地址',
+      input_azure_id: '請輸入 Azure 組織ID',
       use_tip_azure: 'Azure Devops 地址+令牌(賬戶設置-個人訪問令牌-創建令牌)',
     }
   },
@@ -518,7 +518,7 @@ export default {
     select_project: '請選擇項目',
     select_group: '請選擇用戶組',
     add_user_group_batch: '批量添加用戶組',
-    add_project_batch : '批量添加到項目',
+    add_project_batch: '批量添加到項目',
     add_project_batch_tip: '默認為成員添加只讀用戶組(系統)',
   },
   group: {
@@ -2000,5 +2000,11 @@ export default {
     share: "分享",
     change_history: "變更歷史",
     change_content: "變更内容"
+  },
+  plugin: {
+    title: "插件管理",
+    script_entry: "脚本执行入口",
+    plugin_id: "插件ID",
+    script_view: "查看腳本",
   }
 };

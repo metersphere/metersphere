@@ -5,7 +5,7 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.parse.har.HarUtils;
 import io.metersphere.api.dto.definition.parse.har.model.*;
 import io.metersphere.api.dto.definition.request.MsScenario;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.plugin.core.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.jmeter.RequestResult;

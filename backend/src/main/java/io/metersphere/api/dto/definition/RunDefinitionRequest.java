@@ -1,8 +1,8 @@
 package io.metersphere.api.dto.definition;
 
 import io.metersphere.api.dto.automation.RunModeConfig;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.response.Response;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
 

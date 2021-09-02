@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -10,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.MethodArgument;
 import io.github.ningyu.jmeter.plugin.util.Constants;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConfigCenter;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndService;
@@ -24,6 +25,8 @@ import io.metersphere.commons.constants.DelimiterConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,6 +44,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DubboSampler")
 public class MsDubboSampler extends MsTestElement {
+    private String clazzName = "io.metersphere.api.dto.definition.request.sampler.MsDubboSampler";
+
     /**
      * type 必须放最前面，以便能够转换正确的类
      */
@@ -69,8 +74,13 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 60)
     private String useEnvironment;
 
+    @JSONField(ordinal = 61)
+    private boolean customizeReq;
+
+
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -101,7 +111,9 @@ public class MsDubboSampler extends MsTestElement {
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
                     this.setProjectId(bloBs.getProjectId());
-                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsDubboSampler>() {
+                    JSONObject element = JSON.parseObject(bloBs.getRequest());
+                    ElementUtil.dataFormatting(element);
+                    proxy = mapper.readValue(element.toJSONString(), new TypeReference<MsDubboSampler>() {
                     });
                     this.setName(bloBs.getName());
                 }
@@ -134,7 +146,7 @@ public class MsDubboSampler extends MsTestElement {
         DubboSample sampler = new DubboSample();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        String name = this.getParentName(this.getParent());
+        String name = ElementUtil.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
@@ -142,9 +154,9 @@ public class MsDubboSampler extends MsTestElement {
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
         sampler.setProperty("MS-ID", this.getId());
         String indexPath = this.getIndex();
-        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + this.getFullIndexPath(this.getParent(), indexPath));
+        sampler.setProperty("MS-RESOURCE-ID", this.getResourceId() + "_" + ElementUtil.getFullIndexPath(this.getParent(), indexPath));
         List<String> id_names = new LinkedList<>();
-        this.getScenarioSet(this, id_names);
+        ElementUtil.getScenarioSet(this, id_names);
         sampler.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         sampler.addTestElement(configCenter(this.getConfigCenter()));

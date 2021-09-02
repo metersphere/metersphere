@@ -55,6 +55,7 @@ public class LogUtil {
         Logger logger = LogUtil.getLogger();
         if (logger != null && logger.isInfoEnabled()) {
             logger.info(LogUtil.getMsg(msg));
+            System.out.println(msg);
         }
     }
 

@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.RunInterface;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.JarConfigService;
 import io.metersphere.service.ProjectService;
+import io.metersphere.service.PluginService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.IssuesService;
@@ -42,6 +43,9 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private ProjectService projectService;
     @Resource
     private PerformanceTestService performanceTestService;
+    @Resource
+    private PluginService pluginService;
+
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -70,7 +74,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOperate(issuesService::syncThirdPartyIssues, "init.issue");
         initOperate(issuesService::issuesCount, "init.issueCount");
         initOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
-
+        pluginService.loadPlugins();
         try {
             Thread.sleep(1 * 60 * 1000);
         } catch (InterruptedException e) {

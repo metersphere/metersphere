@@ -1,14 +1,15 @@
 package io.metersphere.api.dto.definition.request.controller;
 
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.commons.constants.DelimiterConstants;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.control.IfController;
 import org.apache.jmeter.control.TransactionController;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -21,19 +22,22 @@ import java.util.List;
 @JSONType(typeName = "TransactionController")
 public class MsTransactionController extends MsTestElement {
     private String type = "TransactionController";
+    private String clazzName = "io.metersphere.api.dto.definition.request.controller.MsTransactionController";
+
     private String name;
     private boolean generateParentSample;
     private boolean includeTimers;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
 
         TransactionController transactionController = transactionController();
-        String name = this.getParentName(this.getParent());
+        String name = ElementUtil.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             transactionController.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }

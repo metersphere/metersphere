@@ -4,10 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.RunningParamKeys;
-import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.commons.constants.DelimiterConstants;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,6 +28,7 @@ import java.util.List;
 @JSONType(typeName = "JSR223Processor")
 public class MsJSR223Processor extends MsTestElement {
     private String type = "JSR223Processor";
+    private String clazzName = "io.metersphere.api.dto.definition.request.processors.MsJSR223Processor";
 
     @JSONField(ordinal = 20)
     private String script;
@@ -34,7 +37,8 @@ public class MsJSR223Processor extends MsTestElement {
     private String scriptLanguage;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         //替换Metersphere环境变量
         if(StringUtils.isEmpty(this.getEnvironmentId())){
             if(config.getConfig() != null){
@@ -67,14 +71,14 @@ public class MsJSR223Processor extends MsTestElement {
         } else {
             processor.setName("JSR223Processor");
         }
-        String name = this.getParentName(this.getParent());
+        String name = ElementUtil.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             processor.setName(this.getName() + DelimiterConstants.SEPARATOR.toString() + name);
         }
         processor.setProperty("MS-ID", this.getId());
         processor.setProperty("MS-RESOURCE-ID", this.getResourceId()+ "_" + this.getIndex());
         List<String> id_names = new LinkedList<>();
-        this.getScenarioSet(this, id_names);
+        ElementUtil.getScenarioSet(this, id_names);
         processor.setProperty("MS-SCENARIO", JSON.toJSONString(id_names));
 
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());

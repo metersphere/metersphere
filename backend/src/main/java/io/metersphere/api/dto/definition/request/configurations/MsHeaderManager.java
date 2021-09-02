@@ -2,9 +2,10 @@ package io.metersphere.api.dto.definition.request.configurations;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,11 +24,14 @@ import java.util.List;
 public class MsHeaderManager extends MsTestElement {
 
     private String type = "HeaderManager";
+    private String clazzName = "io.metersphere.api.dto.definition.request.configurations.MsHeaderManager";
+
     @JSONField(ordinal = 20)
     private List<KeyValue> headers;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(this.isEnable());
         headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");

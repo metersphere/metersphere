@@ -2000,5 +2000,11 @@ export default {
     share: "分享",
     change_history: "变更历史",
     change_content: "变更内容"
+  },
+  plugin: {
+    title: "插件管理",
+    script_entry: "脚本执行入口",
+    plugin_id: "插件ID",
+    script_view: "查看脚本",
   }
 };

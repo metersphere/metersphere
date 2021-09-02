@@ -3,9 +3,10 @@ package io.metersphere.api.dto.definition.request.processors.post;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.RunningParamKeys;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.plugin.core.MsParameter;
+import io.metersphere.plugin.core.MsTestElement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,6 +24,7 @@ import java.util.List;
 @JSONType(typeName = "JSR223PostProcessor")
 public class MsJSR223PostProcessor extends MsTestElement {
     private String type = "JSR223PostProcessor";
+    private String clazzName = "io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor";
 
     @JSONField(ordinal = 20)
     private String script;
@@ -31,7 +33,8 @@ public class MsJSR223PostProcessor extends MsTestElement {
     private String scriptLanguage;
 
     @Override
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
+        ParameterConfig config = (ParameterConfig) msParameter;
         if(StringUtils.isEmpty(this.getEnvironmentId())){
             if(config.getConfig() != null){
                 if(config.getProjectId() != null){
