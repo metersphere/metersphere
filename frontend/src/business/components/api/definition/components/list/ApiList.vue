@@ -118,6 +118,7 @@
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :show-tooltip="true" :content="itemName"
                     style="margin-left: 0px; margin-right: 2px"/>
+            <span/>
           </template>
         </ms-table-column>
 

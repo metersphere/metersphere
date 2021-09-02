@@ -12,6 +12,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
+import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -124,6 +125,9 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         JSONObject requestObj = JSONObject.parseObject(request);
         requestObj.put("id", id);
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
+        apiDefinition.setCreateUser(SessionUtils.getUserId());
+        apiDefinition.setUserId(SessionUtils.getUserId());
+        apiDefinition.setDeleteUserId(null);
         parseCase(caseMap, apiDefinition, importRequest, originId);
     }
 
