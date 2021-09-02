@@ -269,7 +269,7 @@ export default {
       this.runResult = {testId: getUUID()};
       this.$refs.apiCaseItem.runLoading = false;
       this.$success(this.$t('organization.integration.successful_operation'));
-      //this.$emit("refresh");
+      this.getApiTest();
     },
     errorRefresh() {
       this.batchLoadingIds = [];
