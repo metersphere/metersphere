@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="tableActive">
     <el-table
       border
       :data="data"
@@ -115,6 +115,7 @@ export default {
       selectDataCounts: 0,
       selectRows: new Set(),
       selectIds: [],
+      tableActive: true,
       hasBatchTipShow: false
     };
   },
@@ -349,13 +350,16 @@ export default {
     },
     resetHeader() {
       this.$emit('update:fields', getCustomTableHeader(this.fieldKey, this.customFields));
-      this.doLayout();
+      this.reloadTable();
     },
     toggleRowSelection() {
       this.$refs.table.toggleRowSelection();
     },
     reloadTable() {
-      this.doLayout();
+      this.tableActive = false;
+      this.$nextTick(() => {
+        this.tableActive = true;
+      });
     }
   }
 };
