@@ -337,6 +337,7 @@ import {
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
+import MsComponentConfig from "./component/ComponentConfig";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -351,6 +352,7 @@ export default {
     }
   },
   components: {
+    MsComponentConfig,
     MsVariableList: () => import("./variable/VariableList"),
     ScenarioRelevance: () => import("./api/ScenarioRelevance"),
     ScenarioApiRelevance: () => import("./api/ApiRelevance"),
@@ -360,7 +362,6 @@ export default {
     MsRun: () => import("./DebugRun"),
     MsApiCustomize: () => import("./ApiCustomize"),
     ApiImport: () => import("../../definition/components/import/ApiImport"),
-    MsComponentConfig: () => import("./component/ComponentConfig"),
     EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
     MaximizeScenario: () => import("./maximize/MaximizeScenario"),
     ScenarioHeader: () => import("./maximize/ScenarioHeader"),
