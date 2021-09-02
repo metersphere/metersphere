@@ -234,4 +234,8 @@ export default {
   width: 100%;
   padding: 40px;
 }
+
+/deep/ .padding-col {
+  padding: 5px;
+}
 </style>
