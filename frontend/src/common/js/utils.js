@@ -375,51 +375,10 @@ export function windowPrint(id, zoom) {
   //把获取的 局部div内容赋给body标签, 相当于重置了 body里的内容
   window.document.body.innerHTML = jubuData;
   //调用打印功能
-  if (getUserAgent() == "IE") {
-    clearPageSetup();
-  }
   window.print();
   document.getElementsByTagName('body')[0].style.zoom = 1;
   window.document.body.innerHTML = bdhtml;//重新给页面内容赋值；
   return false;
-}
-
-// 打印时清除页眉页脚及打印链接
-function clearPageSetup(){
-  let hkey_root,hkey_path,hkey_key;
-  hkey_root="HKEY_CURRENT_USER";
-  hkey_path="\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
-  try{
-    let regWsh = new ActiveXObject("WScript.Shell");
-    hkey_key="header";
-    regWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
-    hkey_key="footer";
-    regWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
-  }catch(e){}
-}
-
-function getUserAgent() {
-  let explorer = window.navigator.userAgent ;
-  //ie
-  if (explorer.indexOf("MSIE") >= 0) {
-    return "IE";
-  }
-  //firefox
-  else if (explorer.indexOf("Firefox") >= 0) {
-    return "Firefox";
-  }
-  //Chrome
-  else if(explorer.indexOf("Chrome") >= 0){
-    return "Chrome";
-  }
-  //Opera
-  else if(explorer.indexOf("Opera") >= 0){
-    return "Opera";
-  }
-  //Safari
-  else if(explorer.indexOf("Safari") >= 0){
-    return "Safari";
-  }
 }
 
 export function getBodyUploadFiles(obj, runData) {
