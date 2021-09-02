@@ -10,7 +10,7 @@
         </template>
         <api-cases :is-db="isDb" :share-id="shareId" :is-share="isShare" :report="report" :is-template="isTemplate" :plan-id="planId" @setSize="setFailureSize"/>
       </el-tab-pane>
-      <el-tab-pane style="min-height: 550px" name="third" v-if="allEnable">
+      <el-tab-pane style="min-height: 500px" name="third" v-if="allEnable">
         <template v-slot:label>
           <tab-pane-count title="所有用例" :count="allSize"/>
         </template>

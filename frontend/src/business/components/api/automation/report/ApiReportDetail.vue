@@ -3,7 +3,7 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-          <ms-api-report-view-header :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          <ms-api-report-view-header :is-plan="isPlan" :is-template="isTemplate" :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
           <main v-if="isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
@@ -80,7 +80,8 @@ export default {
     isTemplate: Boolean,
     templateReport: Object,
     isShare: Boolean,
-    shareId: String
+    shareId: String,
+    isPlan: Boolean
   },
   watch: {
     reportId() {
@@ -422,5 +423,4 @@ export default {
 .scenario-result .icon.is-active {
   transform: rotate(90deg);
 }
-
 </style>
