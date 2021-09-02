@@ -840,8 +840,4 @@ export default {
 .el-tag {
   margin-left: 10px;
 }
-
-/*/deep/ .el-table__fixed-body-wrapper {*/
-/*  top: 60px !important;*/
-/*}*/
 </style>
