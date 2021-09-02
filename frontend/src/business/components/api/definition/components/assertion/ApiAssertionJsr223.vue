@@ -249,9 +249,9 @@
               break;
           }
           script +=
-            "\tmsg = \" " + msg + "\";" +
-            "\tAssertionResult.setFailureMessage(msg);" +
-            "\tAssertionResult.setFailure(true);";
+            "\tmsg = \" " + msg + "\"\n" +
+            "\tAssertionResult.setFailureMessage(msg)" +"\n"+
+            "\tAssertionResult.setFailure(True)";
 
           this.assertion.desc = desc;
           this.assertion.script = script;
