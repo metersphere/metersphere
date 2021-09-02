@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
