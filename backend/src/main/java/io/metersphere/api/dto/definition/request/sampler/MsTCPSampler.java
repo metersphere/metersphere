@@ -10,6 +10,7 @@ import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.automation.TcpTreeTableDataStruct;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -98,6 +99,8 @@ public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 44)
     private String rawDataStruct;
 
+    private MsJSR223PreProcessor preProcessor;
+    private MsJSR223PostProcessor postProcessor;
 
     /**
      * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
@@ -135,6 +138,28 @@ public class MsTCPSampler extends MsTestElement {
         setUserParameters(samplerHashTree);
         if (tcpPreProcessor != null && StringUtils.isNotBlank(tcpPreProcessor.getScript())) {
             samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
+        }
+
+        //增加全局前后至脚本
+        if(this.preProcessor != null){
+            if (this.preProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    this.preProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    this.preProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            this.preProcessor.toHashTree(samplerHashTree, this.preProcessor.getHashTree(), config);
+        }
+        if(this.postProcessor != null){
+            if (this.postProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    this.postProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    this.postProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            this.postProcessor.toHashTree(samplerHashTree, this.postProcessor.getHashTree(), config);
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -181,17 +206,22 @@ public class MsTCPSampler extends MsTestElement {
     }
 
     private void parseEnvironment(EnvironmentConfig config) {
-        if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
-            this.server = config.getTcpConfig().getServer();
-            this.port = config.getTcpConfig().getPort();
-            if (StringUtils.equals(this.eolByte, " ")) {
-                this.eolByte = "";
-            } else {
-                if (StringUtils.isEmpty(this.eolByte)) {
-                    this.eolByte = config.getTcpConfig().getEolByte();
+        if(config != null){
+            this.preProcessor = config.getPreProcessor();
+            this.postProcessor = config.getPostProcessor();
+        }
+        if (!isCustomizeReq() && config != null) {
+            if (!isCustomizeReq() && config != null) {
+                this.server = config.getTcpConfig().getServer();
+                this.port = config.getTcpConfig().getPort();
+                if (StringUtils.equals(this.eolByte, " ")) {
+                    this.eolByte = "";
+                } else {
+                    if (StringUtils.isEmpty(this.eolByte)) {
+                        this.eolByte = config.getTcpConfig().getEolByte();
+                    }
                 }
             }
-
         }
     }
 

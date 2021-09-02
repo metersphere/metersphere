@@ -28,37 +28,30 @@ public class TCPServicer {
             os = s.getOutputStream();
             int len = is.read(b);
             message = new String(b,0,len);
-
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
             returnMsg = this.getReturnMsg(message);
-
-//        try {
             os.write(returnMsg.getBytes());
         } catch (Exception e) {
             e.printStackTrace();
         }finally {
             this.close();
         }
-
-        //关闭资源
-//        this.close();
     }
 
     private String getReturnMsg(String message) {
         MockConfigService mockConfigService = CommonBeanFactory.getBean(MockConfigService.class);
         MockExpectConfigWithBLOBs matchdMockExpect = mockConfigService.matchTcpMockExpect(message,this.port);
-        String response = matchdMockExpect.getResponse();
-        JSONObject responseObj = JSONObject.parseObject(response);
-        try {
-            int delayed = responseObj.getInteger("delayed");
-            Thread.sleep(delayed);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        String returnMsg = "";
+        if(matchdMockExpect != null){
+            String response = matchdMockExpect.getResponse();
+            JSONObject responseObj = JSONObject.parseObject(response);
+            try {
+                int delayed = responseObj.getInteger("delayed");
+                Thread.sleep(delayed);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            returnMsg = responseObj.getString("body");
         }
-        String returnMsg = responseObj.getString("body");
-
         return returnMsg;
     }
 
