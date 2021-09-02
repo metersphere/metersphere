@@ -23,11 +23,11 @@ export default {
   name: "ComponentConfig",
   components: {
     PluginComponent,
-    MsIfController ,
-    MsTransactionController ,
-    MsApiComponent ,
-    MsLoopController ,
-    MsApiScenarioComponent ,
+    MsIfController,
+    MsTransactionController,
+    MsApiComponent,
+    MsLoopController,
+    MsApiScenarioComponent,
     JmeterElementComponent,
     MsConstantTimer: () => import("./ConstantTimer"),
     MsJsr233Processor: () => import("./Jsr233Processor"),
@@ -114,20 +114,20 @@ export default {
         case "JmeterElement":
           name = "JmeterElementComponent";
           break;
-          case "DubboSampler":
-            name = "MsApiComponent";
-            break;
-          case "HTTPSamplerProxy":
-            name = "MsApiComponent";
-            break;
-          case "JDBCSampler":
-            name = "MsApiComponent";
-            break;
-          case "TCPSampler":
-            name = "MsApiComponent";
-            break;
-        default:
+        case "DubboSampler":
           name = "MsApiComponent";
+          break;
+        case "HTTPSamplerProxy":
+          name = "MsApiComponent";
+          break;
+        case "JDBCSampler":
+          name = "MsApiComponent";
+          break;
+        case "TCPSampler":
+          name = "MsApiComponent";
+          break;
+        default:
+          name = this.getComponent(ELEMENT_TYPE.Plugin);
           break;
       }
       return name;
@@ -155,13 +155,13 @@ export default {
         this.titleColor = "#1483F6";
         this.backgroundColor = "#F2ECF3";
         return "MsJdbcProcessor";
-        }
-        else if (type === ELEMENT_TYPE.Plugin) {
-          this.titleColor = "#1483F6";
-          this.backgroundColor = "#F2ECF3";
-          return "PluginComponent";
-        }
-        else {
+      }
+      else if (type === ELEMENT_TYPE.Plugin) {
+        this.titleColor = "#1483F6";
+        this.backgroundColor = "#F2ECF3";
+        return "PluginComponent";
+      }
+      else {
         this.title = this.$t('api_test.automation.customize_script');
         this.titleColor = "#7B4D12";
         this.backgroundColor = "#F1EEE9";
