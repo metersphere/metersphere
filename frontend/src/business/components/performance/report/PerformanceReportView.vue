@@ -31,7 +31,7 @@
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="report.status !== 'Completed'" type="default" plain
-                         size="mini"
+                         size="mini" v-permission="['PROJECT_PERFORMANCE_REPORT:READ+COMPARE']"
                          @click="compareReports()">
                 {{ $t('report.compare') }}
               </el-button>
