@@ -48,6 +48,7 @@
             prop="num"
             :field="item"
             sortable
+            min-width="100"
             :fields-width="fieldsWidth">
           </ms-table-column>
 
@@ -56,6 +57,7 @@
             :fields-width="fieldsWidth"
             :label="$t('test_track.issue.title')"
             sortable
+            min-width="110"
             prop="title">
           </ms-table-column>
 
@@ -64,6 +66,7 @@
             :fields-width="fieldsWidth"
             :filters="platformFilters"
             :label="$t('test_track.issue.platform')"
+            min-width="80"
             prop="platform">
           </ms-table-column>
 
@@ -71,6 +74,7 @@
                   :field="item"
                   :fields-width="fieldsWidth"
                   sortable
+                  min-width="110"
                   :label="$t('test_track.issue.platform_status') "
                   prop="platformStatus">
             <template v-slot="scope">
@@ -83,6 +87,7 @@
             :fields-width="fieldsWidth"
             column-key="creator"
             sortable
+            min-width="100"
             :label="$t('custom_field.issue_creator')"
             prop="creatorName">
           </ms-table-column>
@@ -221,7 +226,14 @@ export default {
       isThirdPart: false
     };
   },
+  watch: {
+    '$route'(to, from) {
+      window.removeEventListener("resize", this.tableDoLayout);
+    },
+  },
   activated() {
+    // 解决错位问题
+    window.addEventListener('resize', this.tableDoLayout);
     getProjectMember((data) => {
       this.members = data;
     });
@@ -270,6 +282,9 @@ export default {
     }
   },
   methods: {
+    tableDoLayout() {
+      this.$refs.table.doLayout();
+    },
     getCustomFieldValue(row, field) {
       return getCustomFieldValue(row, field, this.members);
     },

@@ -9,6 +9,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -75,6 +77,8 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 31)
     private boolean customizeReq;
 
+    private MsJSR223PreProcessor preProcessor;
+    private MsJSR223PostProcessor postProcessor;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
@@ -120,8 +124,15 @@ public class MsJDBCSampler extends MsTestElement {
         } else {
             this.dataSource = null;
             // 取当前环境下默认的一个数据源
-            if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
-                this.dataSource = config.getConfig().get(this.getProjectId()).getDatabaseConfigs().get(0);
+            if (config.isEffective(this.getProjectId())) {
+                if(config.getConfig().get(this.getProjectId()) != null){
+                    EnvironmentConfig envConfig = config.getConfig().get(this.getProjectId());
+                    this.preProcessor = envConfig.getPreProcessor();
+                    this.postProcessor = envConfig.getPostProcessor();
+                    if(CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())){
+                        this.dataSource = envConfig.getDatabaseConfigs().get(0);
+                    }
+                }
             }
         }
 
@@ -141,6 +152,29 @@ public class MsJDBCSampler extends MsTestElement {
         if (arguments != null) {
             tree.add(arguments);
         }
+
+        //增加全局前后至脚本
+        if(this.preProcessor != null){
+            if (this.preProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    this.preProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    this.preProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            this.preProcessor.toHashTree(samplerHashTree, this.preProcessor.getHashTree(), config);
+        }
+        if(this.postProcessor != null){
+            if (this.postProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    this.postProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    this.postProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            this.postProcessor.toHashTree(samplerHashTree, this.postProcessor.getHashTree(), config);
+        }
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
@@ -221,6 +255,10 @@ public class MsJDBCSampler extends MsTestElement {
                         return;
                     }
                 });
+            }
+            if(envConfig != null){
+                this.preProcessor = envConfig.getPreProcessor();
+                this.postProcessor = envConfig.getPostProcessor();
             }
         }
     }

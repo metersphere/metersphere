@@ -1,7 +1,7 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -11,6 +11,8 @@ import io.metersphere.api.dto.definition.request.ElementUtil;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
@@ -123,10 +125,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @JSONField(ordinal = 38)
     private String alias;
-
+  
     @JSONField(ordinal = 39)
     private boolean customizeReq;
-
+  
+    private MsJSR223PreProcessor preProcessor;
+    private MsJSR223PostProcessor postProcessor;
+  
     private void setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
@@ -270,6 +275,27 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
         addCertificate(config, httpSamplerTree);
 
+        //增加全局前后至脚本
+        if(this.preProcessor != null){
+            if (this.preProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    this.preProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    this.preProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            this.preProcessor.toHashTree(httpSamplerTree, this.preProcessor.getHashTree(), config);
+        }
+        if(this.postProcessor != null){
+            if (this.postProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    this.postProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    this.postProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            this.postProcessor.toHashTree(httpSamplerTree, this.postProcessor.getHashTree(), config);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 if (el.getEnvironmentId() == null) {
@@ -313,11 +339,24 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     private HttpConfig getHttpConfig(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
-            String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
-            if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
-                this.setEnvironmentId(useEvnId);
+            EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
+            if (environmentConfig != null){
+                String useEvnId = environmentConfig.getApiEnvironmentid();
+                this.preProcessor = environmentConfig.getPreProcessor();
+                this.postProcessor = environmentConfig.getPostProcessor();
+                if(this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().containsKey("hashTree") ){
+                    try {
+                        JSONArray jsonArray = environmentConfig.getAuthManager().getJSONArray("hashTree");
+                        if(jsonArray.size() > 0){
+                            this.authManager = jsonArray.getJSONObject(0).toJavaObject(MsAuthManager.class);
+                        }
+                    }catch (Exception e){}
+                }
+                if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
+                    this.setEnvironmentId(useEvnId);
+                }
+                return getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
             }
-            return getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
         }
         return null;
     }
