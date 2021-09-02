@@ -390,11 +390,11 @@ function clearPageSetup(){
   hkey_root="HKEY_CURRENT_USER";
   hkey_path="\\Software\\Microsoft\\Internet Explorer\\PageSetup\\";
   try{
-    let RegWsh = new ActiveXObject("WScript.Shell");
+    let regWsh = new ActiveXObject("WScript.Shell");
     hkey_key="header";
-    RegWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
+    regWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
     hkey_key="footer";
-    RegWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
+    regWsh.RegWrite(hkey_root+hkey_path+hkey_key,"");
   }catch(e){}
 }
 

@@ -111,7 +111,7 @@ name: "TestReviewMinder",
     save(data) {
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases);
-      this.result = this.$post('/test/review/case/minder/edit', saveCases, () => {
+      this.result = this.$post('/test/review/case/minder/edit/' + this.reviewId, saveCases, () => {
         this.$success(this.$t('commons.save_success'));
       });
     },

@@ -229,7 +229,8 @@ public class TestReviewTestCaseService {
         }
     }
 
-    public void editTestCaseForMinder(List<TestCaseReviewTestCase> testCaseReviewTestCases) {
+    public void editTestCaseForMinder(String reviewId, List<TestCaseReviewTestCase> testCaseReviewTestCases) {
+        checkReviewCase(reviewId);
         if (!CollectionUtils.isEmpty(testCaseReviewTestCases)) {
             List<TestCaseWithBLOBs> testCaseList = new ArrayList<>();
             testCaseReviewTestCases.forEach((item) -> {
