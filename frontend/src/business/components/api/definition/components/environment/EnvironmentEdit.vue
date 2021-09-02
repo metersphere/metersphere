@@ -9,7 +9,6 @@
 
 
       <el-tabs v-model="activeName">
-
         <el-tab-pane :label="$t('api_test.environment.common_config')" name="common">
           <ms-environment-common-config :common-config="environment.config.commonConfig" ref="commonConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>

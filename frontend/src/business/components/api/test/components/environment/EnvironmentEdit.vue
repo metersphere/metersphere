@@ -10,7 +10,14 @@
 
       <el-tabs v-model="activeName">
 
-        <el-tab-pane :label="$t('api_test.environment.common_config')" name="common">
+        <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="prescript">
+          <jsr233-processor-content v-if="isRefresh"
+                                    :jsr223-processor="environment.config.preProcessor"
+            :is-pre-processor="true"
+            :is-read-only="isReadOnly"/>
+        </el-tab-pane>
+
+        <el-tab-pane :label="$t('api_test.environment.common_config')"  name="common">
           <ms-environment-common-config :common-config="environment.config.commonConfig" ref="commonConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
 
@@ -26,8 +33,20 @@
         <el-tab-pane :label="$t('commons.ssl.config')" name="ssl">
           <ms-environment-s-s-l-config :project-id="projectId" :ssl-config="environment.config.sslConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
+        <el-tab-pane :label="$t('api_test.definition.request.post_script')" name="postscript">
+          <jsr233-processor-content  v-if="isRefresh"
+                                     :jsr223-processor="environment.config.postProcessor"
+            :is-pre-processor="false"
+            :is-read-only="false"/>
+        </el-tab-pane>
+        <!-- 认证配置 -->
+        <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig" v-if="isRefresh">
+          <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')" placement="top-start" slot="label">
+            <span>{{$t('api_test.definition.request.auth_config')}}</span>
+          </el-tooltip>
+          <ms-api-auth-config :is-read-only="isReadOnly" :request="environment.config.authManager"/>
+        </el-tab-pane>
       </el-tabs>
-
       <div class="environment-footer">
         <ms-dialog-footer
           @cancel="cancel"
@@ -48,14 +67,19 @@
   import MsEnvironmentHttpConfig from "./EnvironmentHttpConfig";
   import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
   import MsEnvironmentSSLConfig from "./EnvironmentSSLConfig";
+  import MsApiAuthConfig from "@/business/components/api/definition/components/auth/ApiAuthConfig";
 
   import MsTcpConfig from "@/business/components/api/test/components/request/tcp/TcpConfig";
   import {getUUID} from "@/common/js/utils";
+  import Jsr233ProcessorContent from "@/business/components/api/automation/scenario/common/Jsr233ProcessorContent";
+  import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 
   export default {
     name: "EnvironmentEdit",
     components: {
       MsTcpConfig,
+      MsApiAuthConfig,
+      Jsr233ProcessorContent,
       MsEnvironmentCommonConfig,
       MsEnvironmentHttpConfig,
       MsEnvironmentSSLConfig,
@@ -70,10 +94,10 @@
       },
     },
     data() {
-
       return {
         result: {},
         envEnable: false,
+        isRefresh: true,
         rules: {
           name: [
             {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
@@ -84,8 +108,47 @@
         activeName: 'common'
       }
     },
+    created() {
+      if(!this.environment.config.preProcessor){
+        this.environment.config.preProcessor = createComponent("JDBCPreProcessor");
+      }
+      if(!this.environment.config.postProcessor){
+        this.environment.config.postProcessor = createComponent("JSR223PostProcessor");
+      }
+      if(!this.environment.config.authManager){
+        this.environment.config.authManager = {'hashTree':[]};
+      }
+      if(!this.environment.config.authManager.hashTree){
+        this.environment.config.authManager.hashTree = [];
+      }
+    },
+
     watch: {
       environment: function (o) {
+        if(!this.environment.config.preProcessor){
+          this.environment.config.preProcessor = createComponent("JDBCPreProcessor");
+          if(!this.environment.config.preProcessor.script){
+            this.environment.config.preProcessor.script = "";
+          }
+        }
+        if(!this.environment.config.postProcessor){
+          this.environment.config.postProcessor = createComponent("JSR223PostProcessor");
+          if(!this.environment.config.postProcessor.script){
+            this.environment.config.postProcessor.script = "";
+          }
+        }
+
+        if(!this.environment.config.authManager){
+          this.environment.config.authManager = {'hashTree':[]};
+        }
+        if(!this.environment.config.authManager.hashTree){
+          this.environment.config.authManager.hashTree = [];
+        }
+
+        this.isRefresh = false;
+        this.$nextTick(() => {
+          this.isRefresh = true;
+        });
         this.envEnable = o.enable;
       }
     },
