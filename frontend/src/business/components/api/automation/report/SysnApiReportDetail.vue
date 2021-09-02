@@ -341,7 +341,7 @@ export default {
           if (item && item.requestResults) {
             item.requestResults.forEach(req => {
               req.responseResult.console = res.console;
-              if (req.method === 'Request') {
+              if (req.method === 'Request' && req.subRequestResults && req.subRequestResults.length > 0) {
                 this.getTransaction(req.subRequestResults, resMap);
               } else {
                 this.reqTotal++;

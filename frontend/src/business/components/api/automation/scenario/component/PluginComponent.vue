@@ -129,6 +129,7 @@ export default {
       this.request.requestResult = [];
     }
     this.data = this.request;
+    this.request.type = 'Sampler';
   },
   watch: {
     message() {

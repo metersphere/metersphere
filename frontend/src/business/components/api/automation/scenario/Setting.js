@@ -20,7 +20,7 @@ export const ELEMENTS = new Map([
   ['JmeterElement', []],
   ['CustomizeReq', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "JDBCPostProcessor", "JDBCPreProcessor", "Assertions", "Extract"]],
   ['MaxSamplerProxy', ["JSR223PreProcessor", "JSR223PostProcessor", "JDBCPreProcessor", "JDBCPostProcessor", "Assertions", "Extract"]],
-  ['AllSamplerProxy', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"]],
+  ['AllSamplerProxy', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler","Sampler"]],
   ['AllCanExecType', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor"]]
 ])
 
