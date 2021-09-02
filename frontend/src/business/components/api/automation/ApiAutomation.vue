@@ -97,23 +97,17 @@
 
 <script>
 
-import MsContainer from "@/business/components/common/components/MsContainer";
-import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
-import MsMainContainer from "@/business/components/common/components/MsMainContainer";
-import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
 import {getCurrentProjectID, getCurrentUser, getUUID, hasPermission} from "@/common/js/utils";
-import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
-import MsEditApiScenario from "./scenario/EditApiScenario";
 
 export default {
   name: "ApiAutomation",
   components: {
-    MsApiScenarioModule,
-    MsApiScenarioList,
-    MsMainContainer,
-    MsAsideContainer,
-    MsContainer,
-    MsEditApiScenario
+    MsApiScenarioModule: () => import("@/business/components/api/automation/scenario/ApiScenarioModule"),
+    MsApiScenarioList: () => import("@/business/components/api/automation/scenario/ApiScenarioList"),
+    MsMainContainer: () => import("@/business/components/common/components/MsMainContainer"),
+    MsAsideContainer: () => import("@/business/components/common/components/MsAsideContainer"),
+    MsContainer: () => import("@/business/components/common/components/MsContainer"),
+    MsEditApiScenario: () => import("./scenario/EditApiScenario")
   },
   comments: {},
   computed: {

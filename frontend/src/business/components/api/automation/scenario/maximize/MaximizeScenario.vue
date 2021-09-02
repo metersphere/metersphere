@@ -150,26 +150,15 @@
 import {API_STATUS, PRIORITY} from "../../../definition/model/JsonData";
 import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
-import MsApiCustomize from "../ApiCustomize";
 import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
-import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
-import MsInputTag from "../MsInputTag";
-import MsRun from "../DebugRun";
-import MsApiReportDetail from "../../report/ApiReportDetail";
-import MsVariableList from "../variable/VariableList";
-import ApiImport from "../../../definition/components/import/ApiImport";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
-import ScenarioApiRelevance from "../api/ApiRelevance";
-import ScenarioRelevance from "../api/ScenarioRelevance";
-import MsComponentConfig from "../component/ComponentConfig";
 import {handleCtrlSEvent} from "../../../../../../common/js/utils";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import {saveScenario} from "@/business/components/api/automation/api-automation";
+import {buttons, setComponent} from '../menu/Menu';
 import MsContainer from "../../../../common/components/MsContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
 import MsAsideContainer from "./MsLeftContainer";
-import {saveScenario} from "@/business/components/api/automation/api-automation";
-import {buttons, setComponent} from '../menu/Menu';
 
 let jsonPath = require('jsonpath');
 export default {
@@ -190,19 +179,20 @@ export default {
     message: String,
   },
   components: {
-    MsVariableList,
-    ScenarioRelevance,
-    ScenarioApiRelevance,
-    ApiEnvironmentConfig,
-    MsApiReportDetail,
-    MsInputTag, MsRun,
-    MsApiCustomize,
-    ApiImport,
-    MsComponentConfig,
-    EnvPopover,
     MsContainer,
     MsMainContainer,
-    MsAsideContainer
+    MsAsideContainer,
+    MsVariableList: () => import("../variable/VariableList"),
+    ScenarioRelevance: () => import("../api/ScenarioRelevance"),
+    ScenarioApiRelevance: () => import("../api/ApiRelevance"),
+    ApiEnvironmentConfig: () => import("@/business/components/api/test/components/ApiEnvironmentConfig"),
+    MsApiReportDetail: () => import("../../report/ApiReportDetail"),
+    MsInputTag: () => import("../MsInputTag"),
+    MsRun: () => import("../DebugRun"),
+    MsApiCustomize: () => import("../ApiCustomize"),
+    ApiImport: () => import("../../../definition/components/import/ApiImport"),
+    MsComponentConfig: () => import("../component/ComponentConfig"),
+    EnvPopover: () => import("@/business/components/api/automation/scenario/EnvPopover"),
   },
   data() {
     return {
