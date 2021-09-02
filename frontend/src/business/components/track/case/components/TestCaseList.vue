@@ -294,7 +294,7 @@ export default {
         {
           name: this.$t('commons.reduction'),
           handleClick: this.batchReduction,
-          permissions: ['PROJECT_TRACK_CASE:READ+EDIT']
+          permissions: ['PROJECT_TRACK_CASE:READ+RECOVER']
         }, {
           name: this.$t('test_track.case.batch_delete_case'),
           handleClick: this.handleDeleteBatch,
