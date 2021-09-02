@@ -10,24 +10,30 @@
 </template>
 
 <script>
+  import MsIfController from "./IfController";
+  import MsTransactionController from "./TransactionController";
   import {ELEMENT_TYPE} from "../Setting";
+  import MsApiComponent from "./ApiComponent";
+  import MsLoopController from "./LoopController";
+  import MsApiScenarioComponent from "./ApiScenarioComponent";
+  import JmeterElementComponent from "./JmeterElementComponent";
 
   export default {
     name: "ComponentConfig",
     components: {
+      MsIfController ,
+      MsTransactionController ,
+      MsApiComponent ,
+      MsLoopController ,
+      MsApiScenarioComponent ,
+      JmeterElementComponent,
       MsConstantTimer: () => import("./ConstantTimer"),
-      MsIfController: () => import("./IfController"),
-      MsTransactionController: () => import("./TransactionController"),
       MsJsr233Processor: () => import("./Jsr233Processor"),
       MsApiAssertions: () => import("../../../definition/components/assertion/ApiAssertions"),
       MsApiExtract: () => import("../../../definition/components/extract/ApiExtract"),
-      MsApiComponent: () => import("./ApiComponent"),
-      MsLoopController: () => import("./LoopController"),
-      MsApiScenarioComponent: () => import("./ApiScenarioComponent"),
       MsJdbcProcessor: () => import("@/business/components/api/automation/scenario/component/JDBCProcessor"),
-      JmeterElementComponent: () => import("./JmeterElementComponent")
     },
-    props: {
+     props: {
       type: String,
       message: String,
       scenario: {},
