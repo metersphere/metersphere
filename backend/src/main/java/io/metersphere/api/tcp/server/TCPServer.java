@@ -34,7 +34,7 @@ public class TCPServer implements Runnable {
     }
 
     public boolean  isSocketOpen(){
-        if (this.serverSocket != null && !this.serverSocket.isClosed()) {
+        if (this.serverSocket != null && !this.serverSocket.isClosed() &&this.servicer != null) {
             return true;
         }else {
             return false;
@@ -55,6 +55,7 @@ public class TCPServer implements Runnable {
         try {
             this.openSocket();
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

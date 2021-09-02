@@ -1,5 +1,8 @@
 package io.metersphere.api.dto.scenario.environment;
 
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.TCPConfig;
@@ -17,6 +20,9 @@ public class EnvironmentConfig {
     private List<DatabaseConfig> databaseConfigs;
     private TCPConfig tcpConfig;
     private KeyStoreConfig sslConfig;
+    private MsJSR223PostProcessor postProcessor;
+    private MsJSR223PreProcessor preProcessor;
+    private JSONObject authManager;
 
     public EnvironmentConfig() {
         this.commonConfig = new CommonConfig();
