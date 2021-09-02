@@ -48,10 +48,10 @@ public class TestReviewTestCaseController {
         testReviewTestCaseService.editTestCaseBatchStatus(request);
     }
 
-    @PostMapping("/minder/edit")
+    @PostMapping("/minder/edit/{reviewId}")
     @MsAuditLog(module = "track_test_case_review", type = OperLogConstants.ASSOCIATE_CASE, content = "#msClass.getLogDetails(#testCases)", msClass = TestReviewTestCaseService.class)
-    public void editTestCaseForMinder(@RequestBody List<TestCaseReviewTestCase> testCases) {
-        testReviewTestCaseService.editTestCaseForMinder(testCases);
+    public void editTestCaseForMinder(@PathVariable("reviewId") String reviewId, @RequestBody List<TestCaseReviewTestCase> testCases) {
+        testReviewTestCaseService.editTestCaseForMinder(reviewId, testCases);
     }
 
     @PostMapping("/list/minder")
