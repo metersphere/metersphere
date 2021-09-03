@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -343,6 +344,13 @@ public class TestReviewTestCaseService {
     }
 
     public List<TestReviewCaseDTO> listForMinder(QueryCaseReviewRequest request) {
+        List<OrderRequest> orders = ServiceUtils.getDefaultOrder("tcrtc", request.getOrders());
+        orders.forEach(order -> {
+            if (order.getName().equals("update_time")) {
+                order.setPrefix("tcrtc");
+            }
+        });
+        request.setOrders(orders);
         return extTestReviewCaseMapper.listForMinder(request);
     }
 }

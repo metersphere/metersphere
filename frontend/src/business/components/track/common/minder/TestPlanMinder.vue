@@ -45,7 +45,8 @@ name: "TestPlanMinder",
     planId: {
       type: String
     },
-    projectId: String
+    projectId: String,
+    condition: Object
   },
   computed: {
     selectNode() {
@@ -71,7 +72,10 @@ name: "TestPlanMinder",
     handleAfterMount() {
       listenNodeSelected(() => {
         let param = {
-          request: {planId: this.planId},
+          request: {
+            planId: this.planId,
+            orders: this.condition.orders
+          },
           result: this.result,
           isDisable: true
         }

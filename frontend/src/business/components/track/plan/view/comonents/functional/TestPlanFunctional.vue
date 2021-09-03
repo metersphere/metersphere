@@ -21,6 +21,7 @@
           v-if="activeDom === 'left'"
           @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
           @refresh="refresh"
+          @setCondition="setCondition"
           :plan-id="planId"
           :clickType="clickType"
           :select-node-ids="selectNodeIds"
@@ -28,6 +29,7 @@
         <test-plan-minder
           :tree-nodes="treeNodes"
           :project-id="projectId"
+          :condition="condition"
           :plan-id="planId"
           v-if="activeDom === 'right'"
         />
@@ -69,7 +71,8 @@ export default {
       selectNodeIds: [],
       treeNodes: [],
       activeDom: 'left',
-      selectNode: {}
+      selectNode: {},
+      condition: {}
     };
   },
   props: [
@@ -129,6 +132,9 @@ export default {
           this.treeNodes = response.data;
         });
       }
+    },
+    setCondition(data) {
+      this.condition = data;
     },
     openTestCaseEdit(path) {
       if (path.indexOf("/plan/view/edit") >= 0) {
