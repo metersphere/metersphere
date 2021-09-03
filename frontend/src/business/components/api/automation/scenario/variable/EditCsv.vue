@@ -151,7 +151,7 @@
       },
 
       querySearch(queryString, cb) {
-        let restaurants = [{value: "UTF-8"}, {value: "UTF-16"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
+        let restaurants = [{value: "UTF-8"}, {value: "UTF-16"},{value: "GB2312"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
         let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
         // 调用 callback 返回建议列表的数据
         cb(results);
