@@ -80,23 +80,20 @@
 </template>
 
 <script>
-import MsTablePagination from "../../../common/pagination/TablePagination";
-import MsTableHeader from "../../../common/components/MsTableHeader";
-import MsContainer from "../../../common/components/MsContainer";
-import MsMainContainer from "../../../common/components/MsMainContainer";
-import MsApiReportStatus from "./ApiReportStatus";
 import {getCurrentProjectID} from "@/common/js/utils";
-import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
-import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
-import ShowMoreBtn from "../../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
   components: {
-    ReportTriggerModeItem,
-    MsTableOperatorButton,
-    MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, ShowMoreBtn
+    ReportTriggerModeItem: () => import("../../../common/tableItem/ReportTriggerModeItem"),
+    MsTableOperatorButton: () => import("../../../common/components/MsTableOperatorButton"),
+    MsApiReportStatus: () => import("./ApiReportStatus"),
+    MsMainContainer: () => import("../../../common/components/MsMainContainer"),
+    MsContainer: () => import("../../../common/components/MsContainer"),
+    MsTableHeader: () => import("../../../common/components/MsTableHeader"),
+    MsTablePagination: () => import("../../../common/pagination/TablePagination"),
+    ShowMoreBtn: () => import("../../../track/case/components/ShowMoreBtn")
   },
   data() {
     return {
@@ -169,14 +166,14 @@ export default {
     },
     handleView(report) {
       this.reportId = report.id;
-      if(report.status ==='Running'){
+      if (report.status === 'Running') {
         this.$warning("正在运行中，请稍后查看")
         return;
       }
       this.currentProjectId = report.projectId;
-        this.$router.push({
-          path: 'report/view/' + report.id,
-        })
+      this.$router.push({
+        path: 'report/view/' + report.id,
+      })
 
     },
     handleDelete(report) {

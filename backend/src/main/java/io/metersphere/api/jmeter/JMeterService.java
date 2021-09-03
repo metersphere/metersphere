@@ -47,7 +47,7 @@ import java.lang.reflect.Field;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class JMeterService {
-    private static final String BASE_URL = "http://%s:%d";
+    public static final String BASE_URL = "http://%s:%d";
     @Resource
     private JmeterProperties jmeterProperties;
     @Resource

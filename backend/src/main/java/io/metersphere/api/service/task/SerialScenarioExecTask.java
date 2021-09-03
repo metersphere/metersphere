@@ -6,6 +6,7 @@ package io.metersphere.api.service.task;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -33,6 +34,10 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
+            if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
+                return (T) report;
+            }
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());
             } else {
@@ -45,6 +50,10 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
                 index++;
                 report = apiScenarioReportMapper.selectByPrimaryKey(runModeDataDTO.getReport().getId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
+                    break;
+                }
+                if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                    MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }
             }

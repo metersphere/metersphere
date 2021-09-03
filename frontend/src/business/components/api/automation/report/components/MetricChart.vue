@@ -19,14 +19,11 @@
           </div>
           <ms-chart id="chart" ref="chart" :options="options" :autoresize="true" v-else/>
           <el-row type="flex" justify="center" align="middle">
-<!--            <i class="circle success"/>-->
             <span class="ms-point-success"/>
             <div class="metric-box">
               <div class="value">{{ content.success }}</div>
               <div class="name">{{ $t('api_report.success') }}</div>
             </div>
-            <div style="width: 40px"></div>
-<!--            <i class="circle fail"/>-->
             <span class="ms-point-error"/>
             <div class="metric-box">
               <div class="value">{{ content.error }}</div>

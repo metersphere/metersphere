@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.task.service.TaskService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +36,9 @@ import java.util.List;
 public class ApiAutomationController {
 
     @Resource
-    ApiAutomationService apiAutomationService;
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private TaskService taskService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
@@ -315,5 +318,11 @@ public class ApiAutomationController {
     public void stop(@PathVariable String reportId) {
         new LocalRunner().stop(reportId);
     }
+
+    @PostMapping(value = "/stop/batch")
+    public String stopBatch(@RequestBody List<TaskRequest> reportIds) {
+       return taskService.stop(reportIds);
+    }
+
 }
 

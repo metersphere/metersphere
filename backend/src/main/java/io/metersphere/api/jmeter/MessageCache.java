@@ -6,6 +6,7 @@ import javax.websocket.Session;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class MessageCache {
     public static Map<String, ReportCounter> cache = new HashMap<>();
@@ -14,4 +15,5 @@ public class MessageCache {
 
     public static ConcurrentHashMap<String, StandardJMeterEngine> runningEngine = new ConcurrentHashMap<>();
 
+    public static ConcurrentLinkedDeque<String> terminationOrderDeque = new ConcurrentLinkedDeque<>();
 }
