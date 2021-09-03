@@ -265,7 +265,7 @@
        <if test="status != null">
          and t.status = 'error'
        </if>
-      and c.status != 'Trash'
+      and (c.status != 'Trash' or c.status is null)
       where t.test_plan_id = #{planId};
     </select>
 
