@@ -21,6 +21,10 @@ export default {
   created() {
     this.shareId = getShareId();
     getShareInfo(this.shareId, (data) => {
+      if (!data) {
+        this.$error('连接已失效，请重新获取!');
+        return;
+      }
       if (data.shareType === 'PLAN_REPORT') {
         this.planId = data.customData;
       } else if (data.shareType === 'PLAN_DB_REPORT') {
