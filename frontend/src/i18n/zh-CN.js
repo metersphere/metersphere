@@ -600,6 +600,7 @@ export default {
     stop_tips: '<strong>停止</strong>测试会结束当前测试并保留报告数据',
     force_stop_btn: '强制停止',
     stop_btn: '停止',
+    stop_btn_all: '全部停止',
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',

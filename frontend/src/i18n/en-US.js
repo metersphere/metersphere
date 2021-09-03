@@ -596,6 +596,7 @@ export default {
     stop_tips: 'A <strong>Graceful shutdown</strong> will archive the JTL files and then stop the servers.',
     force_stop_btn: 'Terminating',
     stop_btn: 'Graceful shutdown',
+    stop_btn_all: 'All Graceful shutdown ',
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',

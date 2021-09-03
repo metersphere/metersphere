@@ -22,89 +22,110 @@
     </el-menu>
 
     <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
-               :withHeader="true" :modal="false" :title="$t('commons.task_center')" size="600px"
+               :withHeader="true" :modal="false" :title="$t('commons.task_center')" :size="size"
                custom-class="ms-drawer-task">
-      <div style="color: #2B415C;margin: 0px 20px 0px">
-        <el-form label-width="68px">
-          <el-row>
-            <el-col :span="8">
-              <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
-                <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init">
-                  <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.status')" prop="status">
-                <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init">
-                  <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="8">
-              <el-form-item :label="$t('commons.executor')" prop="status">
-                <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
-                           style="margin-right: 10px" @change="init">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-      </div>
+      <el-card style="float: left;width: 800px" v-if="size > 550 ">
 
-      <div class="report-container">
-        <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
-          <el-card class="ms-card-task" @click.native="showReport(item,$event)">
-            <span><el-link type="primary">{{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span><br/>
-            <span>
+        <div class="ms-task-opt-btn" @click="packUp">收起</div>
+        <!-- 接口用例结果 -->
+        <ms-request-result-tail :response="response" ref="debugResult" v-if="reportType === 'API'"/>
+
+        <ms-api-report-detail :reportId="reportId" v-if="reportType === 'SCENARIO'"/>
+
+        <performance-report-view :reportId="reportId" v-if="reportType === 'PERFORMANCE'"/>
+
+      </el-card>
+      <el-card style="width: 550px;float: right">
+        <div style="color: #2B415C;margin: 0px 20px 0px;">
+          <el-form label-width="68px" class="ms-el-form-item">
+            <el-row>
+              <el-col :span="12">
+                <el-form-item :label="$t('test_track.report.list.trigger_mode')" prop="runMode">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.triggerMode" @change="init">
+                    <el-option v-for="item in runMode" :key="item.id" :value="item.id" :label="item.label"/>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item :label="$t('commons.status')" prop="status">
+                  <el-select size="small" style="margin-right: 10px" v-model="condition.executionStatus" @change="init">
+                    <el-option v-for="item in runStatus" :key="item.id" :value="item.id" :label="item.label"/>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="12">
+                <el-form-item :label="$t('commons.executor')" prop="status">
+                  <el-select v-model="condition.executor" :placeholder="$t('commons.executor')" filterable size="small"
+                             style="margin-right: 10px" @change="init">
+                    <el-option
+                      v-for="item in maintainerOptions"
+                      :key="item.id"
+                      :label="item.id + ' (' + item.name + ')'"
+                      :value="item.id">
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-button size="small" class="ms-task-stop" @click="stop(null)">
+                  {{ $t('report.stop_btn_all') }}
+                </el-button>
+              </el-col>
+            </el-row>
+          </el-form>
+        </div>
+
+        <div class="report-container">
+          <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
+            <el-card class="ms-card-task" @click.native="showReport(item,$event)">
+            <span class="ms-task-name-width"><el-link type="primary">
+              {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span>
+              <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)" v-if="showStop(item.executionStatus)">
+                {{ $t('report.stop_btn') }}
+              </el-button>
+              <br/>
+              <span>
               执行器：{{ item.actuator }} 由 {{ item.executor }}
               {{ item.executionTime | timestampFormatDate }}
               {{ getMode(item.triggerMode) }}
             </span>
-            <br/>
-            <el-row>
-              <el-col :span="20">
-                <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
-              </el-col>
-              <el-col :span="4">
+              <br/>
+              <el-row>
+                <el-col :span="20">
+                  <el-progress :percentage="getPercentage(item.executionStatus)" :format="format"/>
+                </el-col>
+                <el-col :span="4">
                   <span v-if="item.executionStatus && item.executionStatus.toLowerCase() === 'error'" class="ms-task-error">
                      error
                   </span>
-                <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
                      success
                 </span>
-                <span v-else>{{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}</span>
-              </el-col>
-            </el-row>
-          </el-card>
+                  <i class="el-icon-video-pause" v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'"/>
+                  <span v-else>{{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}</span>
+                </el-col>
+              </el-row>
+            </el-card>
+          </div>
         </div>
-      </div>
+      </el-card>
     </el-drawer>
-
-
-    <el-dialog :close-on-click-modal="false" :title="$t('test_track.plan_view.test_result')" width="60%"
-               :visible.sync="visible" class="api-import" destroy-on-close @close="close">
-      <ms-request-result-tail :response="response" ref="debugResult"/>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import MsDrawer from "../common/components/MsDrawer";
 import {getCurrentProjectID, getCurrentUser, hasPermissions} from "@/common/js/utils";
-import MsRequestResultTail from "../../components/api/definition/components/response/RequestResultTail";
 
 export default {
   name: "MsTaskCenter",
   components: {
     MsDrawer,
-    MsRequestResultTail
+    MsRequestResultTail: () => import("../../components/api/definition/components/response/RequestResultTail"),
+    MsApiReportDetail: () => import("../../components/api/automation/report/ApiReportDetail"),
+    PerformanceReportView: () => import("../../components/performance/report/PerformanceReportView")
   },
   inject: [
     'reload'
@@ -139,6 +160,9 @@ export default {
       condition: {triggerMode: "", executionStatus: ""},
       maintainerOptions: [],
       websocket: Object,
+      size: 550,
+      reportId: "",
+      reportType: "",
     };
   },
   props: {
@@ -159,6 +183,31 @@ export default {
   methods: {
     format(item) {
       return '';
+    },
+    packUp(){
+      this.size = 550;
+    },
+    stop(row) {
+      let array = [];
+      if (row) {
+        let request = {type: row.executionModule, reportId: row.id};
+        array = [request];
+      } else {
+        this.taskData.forEach(item => {
+          if (this.showStop(item.executionStatus)) {
+            let request = {type: item.executionModule, reportId: item.id};
+            array.push(request);
+          }
+        })
+      }
+      if (array.length === 0) {
+        this.$warning("没有需要停止的任务");
+        return;
+      }
+      this.$post('/api/automation/stop/batch', array, response => {
+        this.$success(this.$t('report.test_stop_success'));
+        this.init();
+      });
     },
     getMaintainerOptions() {
       this.$post('/user/project/member/tester/list', {projectId: getCurrentProjectID()}, response => {
@@ -203,7 +252,7 @@ export default {
     },
     close() {
       this.visible = false;
-      // this.taskVisible = false;
+      this.size = 550;
       this.showType = "";
       if (this.websocket && this.websocket.close instanceof Function) {
         this.websocket.close();
@@ -225,6 +274,15 @@ export default {
       }
       return 60;
     },
+    showStop(status) {
+      if (status) {
+        status = status.toLowerCase();
+        if (status === "stop" || status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
+          return false;
+        }
+      }
+      return true;
+    },
     getModeName(executionModule) {
       switch (executionModule) {
         case "SCENARIO":
@@ -240,18 +298,19 @@ export default {
       if (status) {
         status = row.executionStatus.toLowerCase();
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
+          this.size = 1350;
+          this.reportId = row.id;
+          this.reportType = row.executionModule;
           switch (row.executionModule) {
             case "SCENARIO":
-              this.taskVisible = false;
-              this.$router.push({
-                path: '/api/automation/report/view/' + row.id,
-              });
+              // this.$router.push({
+              //   path: '/api/automation/report/view/' + row.id,
+              // });
               break;
             case "PERFORMANCE":
-              this.taskVisible = false;
-              this.$router.push({
-                path: '/performance/report/view/' + row.id,
-              });
+              // this.$router.push({
+              //   path: '/performance/report/view/' + row.id,
+              // });
               break;
             case "API":
               this.getExecResult(row.id);
@@ -354,7 +413,7 @@ export default {
 
 .report-container {
   height: calc(100vh - 180px);
-  min-height: 600px;
+  min-height: 550px;
   overflow-y: auto;
 }
 
@@ -437,7 +496,60 @@ export default {
   color: #F56C6C;
 }
 
+.ms-task-stop {
+  color: #F56C6C;
+  float: right;
+  margin-right: 20px;
+}
+
 .ms-task-success {
   color: #67C23A;
+}
+
+.ms-task-name-width {
+  display: inline-block;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 360px;
+}
+
+.ms-el-form-item >>> .el-form-item {
+  margin-bottom: 6px;
+}
+
+.ms-task-opt-btn {
+  position: fixed;
+  right: 1322px;
+  top: 50%;
+  z-index: 1;
+  width: 20px;
+  height: 60px;
+  padding: 3px;
+  line-height: 30px;
+  border-radius: 0 15px 15px 0;
+  background-color: #783887;
+  color: white;
+  display: inline-block;
+  cursor: pointer;
+  opacity: 0.5;
+  font-size: 10px;
+  font-weight: bold;
+  margin-left: 1px;
+}
+
+.ms-task-opt-btn i {
+  margin-left: -2px;
+}
+
+.ms-task-opt-btn:hover {
+  opacity: 0.8;
+}
+
+.ms-task-opt-btn:hover i {
+  margin-left: 0;
+  color: white;
 }
 </style>

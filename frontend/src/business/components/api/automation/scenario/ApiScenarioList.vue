@@ -238,13 +238,16 @@ import {
 } from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
+import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "MsApiScenarioList",
   components: {
-    MsTable: () => import("@/business/components/common/components/table/MsTable"),
-    MsTableColumn: () => import("@/business/components/common/components/table/MsTableColumn"),
-    HeaderLabelOperate: () => import("@/business/components/common/head/HeaderLabelOperate"),
+    MsTable,
+    MsTableColumn,
+    HeaderLabelOperate,
     HeaderCustom: () => import("@/business/components/common/head/HeaderCustom"),
     BatchMove: () => import("../../../track/case/components/BatchMove"),
     EnvironmentSelect: () => import("../../definition/components/environment/EnvironmentSelect"),
