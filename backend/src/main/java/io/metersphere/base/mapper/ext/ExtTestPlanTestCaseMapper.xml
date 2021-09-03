@@ -451,7 +451,7 @@
             pc.plan_id = #{request.planId}
             and t.node_id = #{request.nodeId}
         </where>
-        order by pc.update_time desc;
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
         select * from test_case_test where test_case_id = #{caseId};
