@@ -18,7 +18,7 @@
         <el-col :span="12">
           <el-form-item :label="$t('commons.status')" prop="status">
             <el-select class="ms-http-input" size="small" v-model="basicForm.status" style="width: 100%">
-              <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+              <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id"/>
             </el-select>
           </el-form-item>
         </el-col>
