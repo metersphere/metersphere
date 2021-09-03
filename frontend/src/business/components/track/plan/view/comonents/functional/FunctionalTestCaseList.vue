@@ -400,9 +400,13 @@ export default {
         this.updata = !this.updata;
       },
       deep: true
-    }
+    },
+    condition() {
+      this.$emit('setCondition', this.condition);
+    },
   },
   mounted() {
+    this.$emit('setCondition', this.condition);
     hub.$on("openFailureTestCase", row => {
       this.isReadOnly = true;
       this.condition.status = 'Failure';

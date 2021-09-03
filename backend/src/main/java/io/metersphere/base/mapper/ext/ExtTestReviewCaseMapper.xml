@@ -422,6 +422,6 @@
             tcrtc.review_id = #{request.reviewId}
             and test_case.node_id = #{request.nodeId}
         </where>
-        order by tcrtc.update_time desc;
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 </mapper>
