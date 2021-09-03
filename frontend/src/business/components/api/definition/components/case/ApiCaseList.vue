@@ -65,7 +65,6 @@ import MsDrawer from "../../../../common/components/MsDrawer";
 import {CASE_ORDER, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsBatchEdit from "../basis/BatchEdit";
-import MsTaskCenter from "../../../../task/TaskCenter";
 
 export default {
   name: 'ApiCaseList',
@@ -75,7 +74,7 @@ export default {
     ApiCaseHeader,
     ApiCaseItem,
     MsBatchEdit,
-    MsTaskCenter,
+    MsTaskCenter: () => import("../../../../task/TaskCenter"),
   },
   props: {
     createCase: String,
