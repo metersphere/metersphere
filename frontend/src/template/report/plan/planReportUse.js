@@ -7,6 +7,7 @@ import i18n from "@/i18n/i18n";
 import chart from "@/common/js/chart";
 import filters from "@/common/js/filter";
 import icon from "@/common/js/icon";
+import message from "@/common/js/message";
 
 // import CKEditor from '@ckeditor/ckeditor5-vue';
 
@@ -28,6 +29,7 @@ function planReportUse(id, template) {
   Vue.use(Table);
   Vue.use(filters);
   Vue.use(icon);
+  Vue.use(message);
 // Vue.use(CKEditor);
 
   new Vue({
