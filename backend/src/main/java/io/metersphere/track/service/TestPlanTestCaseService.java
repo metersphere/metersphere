@@ -8,6 +8,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -298,6 +299,13 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> listForMinder(QueryTestPlanCaseRequest request) {
+        List<OrderRequest> orders = ServiceUtils.getDefaultOrder(request.getOrders());
+        orders.forEach(order -> {
+            if (order.getName().equals("create_time")) {
+                order.setPrefix("pc");
+            }
+        });
+        request.setOrders(orders);
         return extTestPlanTestCaseMapper.listForMinder(request);
     }
 

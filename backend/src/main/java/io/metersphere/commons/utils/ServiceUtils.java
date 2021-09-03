@@ -8,6 +8,7 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.service.ProjectService;
 import io.metersphere.service.UserService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -20,10 +21,17 @@ import java.util.stream.Collectors;
 public class ServiceUtils {
 
     public static List<OrderRequest> getDefaultOrder(List<OrderRequest> orders) {
+        return getDefaultOrder(null, orders);
+    }
+
+    public static List<OrderRequest> getDefaultOrder(String prefix, List<OrderRequest> orders) {
         if (orders == null || orders.size() < 1) {
             OrderRequest orderRequest = new OrderRequest();
             orderRequest.setName("update_time");
             orderRequest.setType("desc");
+            if (StringUtils.isNotBlank(prefix)) {
+                orderRequest.setPrefix(prefix);
+            }
             orders = new ArrayList<>();
             orders.add(orderRequest);
             return orders;

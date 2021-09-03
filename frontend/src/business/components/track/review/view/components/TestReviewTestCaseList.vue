@@ -275,7 +275,10 @@ export default {
     },
     selectNodeIds() {
       this.search();
-    }
+    },
+    condition() {
+      this.$emit('setCondition', this.condition);
+    },
   },
   computed: {
     selectNodeIds() {
@@ -283,6 +286,7 @@ export default {
     }
   },
   mounted() {
+    this.$emit('setCondition', this.condition);
     this.refreshTableAndReview();
     this.isTestManagerOrTestUser = true;
     this.initTableHeader();

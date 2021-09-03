@@ -22,12 +22,14 @@
           v-if="activeDom === 'left'"
           @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
           @refresh="refresh"
+          @setCondition="setCondition"
           :review-id="reviewId"
           :clickType="clickType"
           ref="testPlanTestCaseList"/>
         <test-review-minder
           :tree-nodes="treeNodes"
           :project-id="projectId"
+          :condition="condition"
           :review-id="reviewId"
           v-if="activeDom === 'right'"
         />
@@ -67,6 +69,7 @@ export default {
       treeNodes: [],
       isMenuShow: true,
       activeDom: 'left',
+      condition: {}
     }
   },
   props: [
@@ -86,6 +89,9 @@ export default {
     },
   },
   methods: {
+    setCondition(data) {
+      this.condition = data;
+    },
     refresh() {
       this.$store.commit('setTestReviewSelectNode', {});
       this.$store.commit('setTestReviewSelectNodeIds', []);
