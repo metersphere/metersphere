@@ -240,14 +240,28 @@ public class TestPlanService {
             }   //  非已结束->已结束，更新结束时间
         }
 
+        // 如果状态是未开始，设置时间为null
         if (StringUtils.isNotBlank(testPlan.getStatus()) && testPlan.getStatus().equals(TestPlanStatus.Prepare.name())) {
             testPlan.setActualStartTime(null);
             testPlan.setActualEndTime(null);
         }
 
+        // 如果当前状态已完成，没有结束时间，设置结束时间
         if (StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(),TestPlanStatus.Finished.name(),TestPlanStatus.Completed.name())
         && res.getActualEndTime() == null) {
             testPlan.setActualEndTime(System.currentTimeMillis());
+        }
+
+        // 如果当前状态不是已完成，设置结束时间为null
+        if (!StringUtils.equalsAnyIgnoreCase(testPlan.getStatus(),TestPlanStatus.Finished.name(),TestPlanStatus.Completed.name())
+                && res.getActualEndTime() != null) {
+            testPlan.setActualEndTime(null);
+        }
+
+        // 如果当前状态不是未开始，并且没有开始时间，设置开始时间
+        if (!StringUtils.equals(testPlan.getStatus(),TestPlanStatus.Prepare.name())
+                && res.getActualStartTime() == null) {
+            testPlan.setActualStartTime(System.currentTimeMillis());
         }
 
         int i;
@@ -1211,7 +1225,7 @@ public class TestPlanService {
 
         TestPlanWithBLOBs targetPlan = new TestPlanWithBLOBs();
         targetPlan.setId(targetPlanId);
-        targetPlan.setName(testPlan.getName() + "_COPY");
+        targetPlan.setName(testPlan.getName() + "_" + UUID.randomUUID().toString().substring(0, 5) + "_COPY");
         targetPlan.setWorkspaceId(testPlan.getWorkspaceId());
         targetPlan.setDescription(testPlan.getDescription());
         targetPlan.setStage(testPlan.getStage());
@@ -1705,7 +1719,7 @@ public class TestPlanService {
                 config = JSONObject.parseObject(reportConfig);
             }
             TestPlanSimpleReportDTO report = getReport(planId);
-
+            buildFunctionalReport(report, config, planId);
             buildApiReport(report, config, executeInfo, planId, saveResponse);
             buildLoadReport(report, config, executeInfo, planId, saveResponse);
             return report;

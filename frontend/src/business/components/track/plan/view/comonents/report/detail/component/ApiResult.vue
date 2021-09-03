@@ -1,10 +1,10 @@
 <template>
   <div>
     <el-row >
-      <el-col :span="12">
+      <el-col :span="12" v-if="caseCharData && caseCharData.length > 0">
         <ms-doughnut-pie-chart :name="$t('单接口用例')" :data="caseCharData" ref="functionChar"/>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="12" v-if="scenarioCharData && scenarioCharData.length > 0">
         <api-scenario-char-result :name="'场景用例数'" :data="scenarioCharData"/>
         <api-scenario-char-result style="margin-top: -50px;" :name="'步骤用例数'" :data="stepCharData"/>
       </el-col>
