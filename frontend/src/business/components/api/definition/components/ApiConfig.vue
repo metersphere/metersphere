@@ -39,6 +39,7 @@
   import Sampler from "./jmeter/components/sampler/sampler";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
+  import {ELEMENT_TYPE, TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
   export default {
     name: "ApiConfig",
@@ -167,6 +168,18 @@
           this.currentApi.request = this.request;
         }
       },
+      sort(stepArray) {
+        if (stepArray) {
+          for (let i in stepArray) {
+            if (!stepArray[i].clazzName) {
+              stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+            }
+            if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+              this.sort(stepArray[i].hashTree);
+            }
+          }
+        }
+      },
       formatApi() {
         if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
           if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
@@ -203,6 +216,8 @@
           }
           this.response.body = body;
         }
+        this.request.clazzName = TYPE_TO_C.get(this.request.type);
+        this.sort(this.request.hashTree);
       },
       saveApi(data) {
         this.setParameters(data);

@@ -176,6 +176,7 @@ const esbDefinition = (requireComponent != null && requireComponent.keys().lengt
 const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 import {API_METHOD_COLOUR} from "../../model/JsonData";
 import MsChangeHistory from "../../../../history/ChangeHistory";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiCaseItem",
@@ -387,6 +388,18 @@ export default {
         this.saveLoading = false
       });
     },
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     saveCase(row, hideAlert) {
       let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
@@ -419,6 +432,8 @@ export default {
       if (tmp.tags instanceof Array) {
         tmp.tags = JSON.stringify(tmp.tags);
       }
+      tmp.clazzName = TYPE_TO_C.get(tmp.type);
+      this.sort(tmp.hashTree);
       this.result = this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
         let data = response.data;
         row.id = data.id;
