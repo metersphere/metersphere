@@ -430,14 +430,6 @@
 					this.dayRule = 'weekDay';
 					this.dayRuleSup = this.getAssignArr(rule)
 				}
-				//如果weekDay时将7调整为0【week值0即是星期日】
-				if (this.dayRule == 'weekDay') {
-					for (let i = 0; i < this.dayRuleSup.length; i++) {
-						if (this.dayRuleSup[i] == 7) {
-							this.dayRuleSup[i] = 0;
-						}
-					}
-				}
 			}
 		},
 		// 获取"日"数组-少量为日期规则
