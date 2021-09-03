@@ -208,6 +208,12 @@ public class TestPlanReportService {
         TestPlanReportContentWithBLOBs testPlanReportContent = new TestPlanReportContentWithBLOBs();
         testPlanReportContent.setId(UUID.randomUUID().toString());
         testPlanReportContent.setTestPlanReportId(testPlanReportID);
+        if (testPlanReportContent.getStartTime() == null) {
+            testPlanReportContent.setStartTime(System.currentTimeMillis());
+        }
+        if (testPlanReportContent.getEndTime() == null) {
+            testPlanReportContent.setEndTime(System.currentTimeMillis());
+        }
 
         Map<String, String> apiCaseInfoMap = new HashMap<>();
         Map<String, String> scenarioInfoMap = new HashMap<>();
@@ -627,6 +633,14 @@ public class TestPlanReportService {
         if (!testPlanReportContentList.isEmpty()) {
             testPlanReportContent = testPlanReportContentList.get(0);
             testPlanReportContentMapper.updateByPrimaryKeySelective(parseReportDaoToReportContent(reportDTO, testPlanReportContent));
+        }
+
+        if (reportDTO.getStartTime() == null) {
+            reportDTO.setStartTime(System.currentTimeMillis());
+        }
+
+        if (reportDTO.getEndTime() == null) {
+            reportDTO.setEndTime(System.currentTimeMillis());
         }
 
         String testPlanStatus = this.getTestPlanReportStatus(testPlanReport, reportDTO);
