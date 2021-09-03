@@ -81,19 +81,20 @@ export default {
     },
     platformFilters() {
       let platforms = this.data.map(i => i.platform);
-      let option =  ISSUE_PLATFORM_OPTION;
+      let option = [...ISSUE_PLATFORM_OPTION];
+      option.push(  {value: 'Local',text: 'Local'});
       return option.filter(i => platforms.indexOf(i.value) > -1);
     },
     statusFilters() {
       let statusFilter = [];
       this.data.forEach(item => {
-        if (item.status) {
+        let status = item.platform === 'Local' ? item.status : item.platformStatus;
+        if (status) {
           let values = statusFilter.map(i => i.value);
-          let status = this.isThirdPart ? item.platformStatus : item.status;
           if (values.indexOf(status) == -1) {
             statusFilter.push({
               value: status,
-              text:  status
+              text:  ISSUE_STATUS_MAP[status] ?  ISSUE_STATUS_MAP[status] :status
             });
           }
         }
