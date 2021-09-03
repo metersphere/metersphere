@@ -224,7 +224,7 @@ public class ApiDefinitionExecResultService {
     public void saveApiResultByScheduleTask(TestResult result, String testPlanReportId, String type) {
         testPlanLog.info("TestPlanReportId[" + testPlanReportId + "] APICASE OVER.");
         String saveResultType = type;
-        if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
+        if (StringUtils.equalsAny(saveResultType, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name(), ApiRunMode.MANUAL_PLAN.name())) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
         String finalSaveResultType = saveResultType;
