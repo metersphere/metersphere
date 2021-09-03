@@ -58,13 +58,14 @@ export default {
 			average01: 1,
 			average02: 1,
 			checkboxList: [],
-			weekList: [this.$t('commons.weeks_1'),
+			weekList: [
+        this.$t('commons.weeks_0'),
+        this.$t('commons.weeks_1'),
         this.$t('commons.weeks_2'),
         this.$t('commons.weeks_3'),
         this.$t('commons.weeks_4'),
         this.$t('commons.weeks_5'),
         this.$t('commons.weeks_6'),
-        this.$t('commons.weeks_0'),
       ],
 			checkNum: this.$options.propsData.check
 		}
