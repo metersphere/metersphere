@@ -1,5 +1,5 @@
 <template>
-  <el-form-item :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
+  <el-form-item v-loading="result.loading" :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
     <mavon-editor v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
                   :subfield="disabled ? false : true" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
@@ -13,6 +13,7 @@ export default {
   props: ['data', 'title', 'prop', 'disabled', 'labelWidth'],
   data() {
     return {
+      result: {loading: false},
       toolbars: {
         bold: true, // 粗体
         italic: true, // 斜体
@@ -78,9 +79,11 @@ export default {
         id: getUUID().substring(0, 8)
       };
       file.prefix = param.id;
-      this.result = this.$fileUpload('/resource/md/upload', file, null, param, () => {
+      this.result.loading = true;
+      this.$fileUpload('/resource/md/upload', file, null, param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.md.$img2Url(pos, '/resource/md/get/'  + param.id + '_' + file.name);
+        this.result.loading = false;
       });
       this.$emit('imgAdd', file);
     },
