@@ -196,7 +196,11 @@ public class XmindExportUtil {
                 if (style != null) {
                     itemTopic.setStyleId(style.getId());
                 }
-                itemTopic.setTitleText("tc:" + dto.getName());
+                String caseNameType = "tc:";
+                if(StringUtils.isNotEmpty(dto.getPriority())){
+                    caseNameType = "tc-"+dto.getPriority()+":";
+                }
+                itemTopic.setTitleText(caseNameType + dto.getName());
 
                 String id = dto.getNum().toString();
                 if (this.isUseCustomId) {
