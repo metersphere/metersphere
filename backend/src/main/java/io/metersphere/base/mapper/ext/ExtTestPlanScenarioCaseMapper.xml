@@ -210,7 +210,7 @@
       test_plan_api_scenario t
       inner join
       api_scenario c
-      on t.api_scenario_id = c.id and c.status != 'Trash'
+      on t.api_scenario_id = c.id and (c.status != 'Trash' or c.status is null)
       and t.test_plan_id = #{planId}
       <if test="status != null">
         and t.last_result = 'Fail'
