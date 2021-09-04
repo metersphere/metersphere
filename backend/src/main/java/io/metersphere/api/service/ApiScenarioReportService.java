@@ -643,6 +643,7 @@ public class ApiScenarioReportService {
                 .failedMailTemplate("api/ScenarioResult")
                 .paramMap(paramMap)
                 .event(event)
+                .excludeSelf(true)
                 .build();
 
         String taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK;
