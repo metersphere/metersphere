@@ -9,6 +9,7 @@
       @select="handleSelect"
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
+      :default-sort="defaultSort"
       class="test-content adjust-table ms-table"
       :class="{'ms-select-all-fixed': showSelectAll}"
       :height="screenHeight"
@@ -75,14 +76,13 @@
 import {
   _filter,
   _handleSelect,
-  _handleSelectAll, _sort, getLabel,
+  _handleSelectAll, _sort,
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection,
-  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth,
+  checkTableRowIsSelect, getCustomTableHeader, saveCustomTableWidth, saveLastTableSortField,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
-import {TEST_CASE_LIST} from "@/common/js/constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
@@ -116,7 +116,8 @@ export default {
       selectRows: new Set(),
       selectIds: [],
       tableActive: true,
-      hasBatchTipShow: false
+      hasBatchTipShow: false,
+      defaultSort: {}
     };
   },
   props: {
@@ -198,14 +199,19 @@ export default {
     fieldKey: String,
     customFields: Array,
     highlightCurrentRow: Boolean,
+    // 是否记住排序
+    rememberOrder: Boolean
   },
   mounted() {
-    getLabel(this, TEST_CASE_LIST);
+    this.setDefaultOrders();
   },
   watch: {
     selectNodeIds() {
       this.selectDataCounts = 0;
     },
+    'condition.orders'() {
+
+    }
   },
   methods: {
     // 批量操作提示, 第一次勾选提示, 之后不提示
@@ -237,6 +243,20 @@ export default {
     isScrollShow(column, tableTop){  //判断元素是否因为超过表头
       let columnTop = column.getBoundingClientRect().top;
       return columnTop - tableTop > 30;
+    },
+    setDefaultOrders() {
+      let orders = this.condition.orders;
+      if (orders) {
+        orders.forEach(item => {
+          this.defaultSort = {};
+          this.defaultSort.prop = item.name;
+          if (item.type === 'asc') {
+            this.defaultSort.order = 'ascending';
+          } else {
+            this.defaultSort.order = 'descending';
+          }
+        });
+      }
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.data, this.selectRows, this.condition);
@@ -303,7 +323,9 @@ export default {
         this.condition.orders = [];
       }
       _sort(column, this.condition);
-      this.$emit("saveSortField", this.fieldKey,this.condition.orders);
+      if (this.rememberOrder) {
+        saveLastTableSortField(this.fieldKey, JSON.stringify(this.condition.orders));
+      }
       this.handleRefresh();
     },
     handleBatchEdit() {

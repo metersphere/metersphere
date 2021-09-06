@@ -249,10 +249,8 @@ export default {
       } else {
         this.condition.testId = null;
       }
-      let orderArr = this.getSortField();
-      if(orderArr){
-        this.condition.orders = orderArr;
-      }
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
       if (!getCurrentProjectID()) {
         return;
       }
@@ -350,18 +348,6 @@ export default {
     },
     saveSortField(key,orders){
       saveLastTableSortField(key,JSON.stringify(orders));
-    },
-    getSortField(){
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if(orderJsonStr){
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
-          return null;
-        }
-      }
-      return returnObj;
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {
