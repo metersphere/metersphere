@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="10">
+      <el-col :span="24">
         <h5>{{ $t('test_track.review.test_review') }}</h5>
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
                    v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
