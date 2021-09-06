@@ -21,6 +21,7 @@ import java.util.Map;
 @Setter
 public class TestPlanExecuteInfo {
     private String reportId;
+    private String creator;
     private Map<String, String> apiCaseExecInfo = new HashMap<>();
     private Map<String, String> apiScenarioCaseExecInfo = new HashMap<>();
     private Map<String, String> loadCaseExecInfo = new HashMap<>();
@@ -37,6 +38,11 @@ public class TestPlanExecuteInfo {
     private boolean isApiCaseAllExecuted;
     private boolean isScenarioAllExecuted;
     private boolean isLoadCaseAllExecuted;
+
+    public TestPlanExecuteInfo(String reportId,String creator){
+        this.reportId = reportId;
+        this.creator = creator;
+    }
 
     public synchronized void updateExecuteInfo(Map<String, String> apiCaseExecInfo, Map<String, String> apiScenarioCaseExecInfo, Map<String, String> loadCaseExecInfo) {
         if (MapUtils.isNotEmpty(apiCaseExecInfo)) {
