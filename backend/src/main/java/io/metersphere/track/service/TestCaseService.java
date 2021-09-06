@@ -536,7 +536,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
                     if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
-                        Collections.reverse(xmindParser.getTestCase());
+//                        Collections.reverse(xmindParser.getTestCase());
                         this.saveImportData(xmindParser.getTestCase(), projectId);
                         names = xmindParser.getTestCase().stream().map(TestCase::getName).collect(Collectors.toList());
                         ids = xmindParser.getTestCase().stream().map(TestCase::getId).collect(Collectors.toList());
@@ -1572,7 +1572,7 @@ public class TestCaseService {
                         testCaseNodeService.createNodes(nodePathList, projectId);
                     }
                     if (CollectionUtils.isNotEmpty(continueCaseList)) {
-                        Collections.reverse(continueCaseList);
+//                        Collections.reverse(continueCaseList);
                         this.saveImportData(continueCaseList, projectId);
                         names.addAll(continueCaseList.stream().map(TestCase::getName).collect(Collectors.toList()));
                         ids.addAll(continueCaseList.stream().map(TestCase::getId).collect(Collectors.toList()));
