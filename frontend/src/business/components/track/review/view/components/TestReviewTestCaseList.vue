@@ -45,6 +45,7 @@
         <ms-table-column
           prop="name"
           :field="item"
+          sortable="custom"
           :fields-width="fieldsWidth"
           :label="$t('commons.name')"
           min-width="120px"/>

@@ -120,6 +120,9 @@
                     <when test="order.name == 'priority'">
                         test_case.priority ${order.type}
                     </when>
+                    <when test="order.name == 'name'">
+                        test_case.name ${order.type}
+                    </when>
                     <otherwise>
                         test_case_review_test_case.${order.name} ${order.type}
                     </otherwise>

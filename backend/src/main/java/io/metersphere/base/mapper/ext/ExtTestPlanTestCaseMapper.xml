@@ -244,6 +244,9 @@
                     <when test="order.name == 'custom_num'">
                      customNum ${order.type}
                     </when>
+                     <when test="order.name == 'name'">
+                         test_case.name ${order.type}
+                     </when>
                     <otherwise>
                      ${order.name} ${order.type}
                     </otherwise>
