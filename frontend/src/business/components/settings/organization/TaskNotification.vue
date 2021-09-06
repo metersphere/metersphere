@@ -11,9 +11,11 @@
       <el-collapse-item name="2">
         <template v-slot:title>
           <span style="width: 200px">
-            测试跟踪任务通知
+            {{ $t('organization.message.track') }}
           </span>
-          <span>通知数: <span style="color: #783887;">{{ trackNoticeSize }}</span></span>
+          <span>
+            {{ $t('organization.message.notice_count') }}: <span class="primary-text">{{ trackNoticeSize }}</span>
+          </span>
         </template>
         <track-home-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
                                  :receive-type-options="receiveTypeOptions"/>
@@ -31,9 +33,11 @@
       <el-collapse-item name="3">
         <template v-slot:title>
           <span style="width: 200px">
-            接口测试任务通知
+            {{ $t('organization.message.api') }}
           </span>
-          <span>通知数: <span style="color: #783887;">{{ apiNoticeSize }}</span></span>
+          <span>
+            {{ $t('organization.message.notice_count') }}: <span class="primary-text">{{ apiNoticeSize }}</span>
+          </span>
         </template>
         <api-home-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
                                :receive-type-options="receiveTypeOptions"/>
@@ -47,9 +51,11 @@
       <el-collapse-item name="4">
         <template v-slot:title>
           <span style="width: 200px">
-            性能测试任务通知
+            {{ $t('organization.message.performance') }}
           </span>
-          <span>通知数: <span style="color: #783887;">{{ performanceNoticeSize }}</span></span>
+          <span>
+            {{ $t('organization.message.notice_count') }}: <span class="primary-text">{{ performanceNoticeSize }}</span>
+          </span>
         </template>
         <performance-test-notification @noticeSize="getNoticeSize" :receiver-options="reviewReceiverOptions"
                                        :receive-type-options="receiveTypeOptions"/>
@@ -59,7 +65,9 @@
       <el-collapse-item name="1">
         <template v-slot:title>
           <span style="width: 200px">{{ $t('organization.message.jenkins_task_notification') }}</span>
-          <span>通知数: <span style="color: #783887;">{{ jenkinsNoticeSize }}</span></span>
+          <span>
+            {{ $t('organization.message.notice_count') }}: <span class="primary-text">{{ jenkinsNoticeSize }}</span>
+          </span>
         </template>
         <jenkins-notification @noticeSize="getNoticeSize" :jenkins-receiver-options="jenkinsReceiverOptions"
                               :receive-type-options="receiveTypeOptions"/>
@@ -204,5 +212,9 @@ export default {
 .task-notification {
   height: calc(100vh - 200px);
   overflow: auto;
+}
+
+.primary-text {
+  color: #783887;
 }
 </style>
