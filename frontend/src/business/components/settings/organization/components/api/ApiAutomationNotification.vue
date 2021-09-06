@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-row>
-      <el-col :span="10">
-        <h5>接口自动化</h5>
+      <el-col :span="24">
+        <h5>{{ $t('i18n.automation') }}</h5>
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel"
                    v-permission="['ORGANIZATION_MESSAGE:READ+EDIT']">
           {{ $t('organization.message.create_new_notification') }}

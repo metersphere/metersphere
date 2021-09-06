@@ -396,7 +396,11 @@ export default {
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号',
       message: '事件，接收人，接收方式为必填项',
       message_webhook: '接收方式为钉钉和企业机器人,飞书时，webhook为必填项',
-      template: "模版"
+      template: "模版",
+      track: '测试跟踪任务通知',
+      api: '接口测试任务通知',
+      performance: '性能测试任务通知',
+      notice_count: '通知数',
     },
     integration: {
       select_defect_platform: '请选择要集成的缺陷管理平台：',
