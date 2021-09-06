@@ -21,7 +21,7 @@
 
     <ms-table
       v-loading="result.loading"
-      field-key="TEST_PLAN_FUNCTION_TEST_CASE"
+      :field-key="tableHeaderKey"
       :data="tableData"
       :condition="condition"
       :total="total"
@@ -32,6 +32,7 @@
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
+      :remember-order="true"
       @refresh="initTableData"
       ref="table">
 
@@ -266,7 +267,7 @@ import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam, checkTableRowIsSelected,
-  getCustomFieldValue, getCustomTableWidth,
+  getCustomFieldValue, getCustomTableWidth, getLastTableSortField,
   getTableHeaderWithCustomFields,
   initCondition,
 } from "@/common/js/tableUtils";
@@ -312,6 +313,7 @@ export default {
       testPlan: {},
       isReadOnly: false,
       hasEditPermission: false,
+      tableHeaderKey: 'TEST_PLAN_FUNCTION_TEST_CASE',
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -405,6 +407,9 @@ export default {
       this.$emit('setCondition', this.condition);
     },
   },
+  created() {
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+  },
   mounted() {
     this.$emit('setCondition', this.condition);
     hub.$on("openFailureTestCase", row => {
@@ -431,7 +436,7 @@ export default {
         let template = data[1];
         this.result.loading = true;
         this.testCaseTemplate = template;
-        this.fields = getTableHeaderWithCustomFields('TEST_PLAN_FUNCTION_TEST_CASE', this.testCaseTemplate.customFields);
+        this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, this.testCaseTemplate.customFields);
         this.result.loading = false;
         this.$refs.table.reloadTable();
       });
