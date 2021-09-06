@@ -16,7 +16,7 @@ public class TestPlanReportExecuteCatch {
     private TestPlanReportExecuteCatch() {
     }
 
-    public synchronized static void addApiTestPlanExecuteInfo(String reportId,
+    public synchronized static void addApiTestPlanExecuteInfo(String reportId,String creator,
               Map<String, String> apiCaseExecInfo, Map<String, String> apiScenarioCaseExecInfo, Map<String, String> loadCaseExecInfo) {
         if(testPlanReportMap == null){
             testPlanReportMap = new HashMap<>();
@@ -31,12 +31,19 @@ public class TestPlanReportExecuteCatch {
             loadCaseExecInfo = new HashMap<>();
         }
 
-        TestPlanExecuteInfo executeInfo = new TestPlanExecuteInfo();
-        executeInfo.setReportId(reportId);
+        TestPlanExecuteInfo executeInfo = new TestPlanExecuteInfo(reportId,creator);
         executeInfo.setApiCaseExecInfo(apiCaseExecInfo);
         executeInfo.setApiScenarioCaseExecInfo(apiScenarioCaseExecInfo);
         executeInfo.setLoadCaseExecInfo(loadCaseExecInfo);
         testPlanReportMap.put(reportId,executeInfo);
+    }
+
+    public synchronized static String getCreator(String reportId){
+        if(testPlanReportMap != null && testPlanReportMap.containsKey(reportId)){
+            return testPlanReportMap.get(reportId).getCreator();
+        }else {
+            return null;
+        }
     }
 
     public synchronized static void updateApiTestPlanExecuteInfo(String reportId,
