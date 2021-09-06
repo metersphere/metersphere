@@ -118,4 +118,9 @@ public class IssuesController {
     public void getPlatformIssue(@PathVariable String projectId) {
         issuesService.syncThirdPartyIssues(projectId);
     }
+
+    @PostMapping("/change/status")
+    public void changeStatus(@RequestBody IssuesRequest request) {
+        issuesService.changeStatus(request);
+    }
 }
