@@ -260,6 +260,15 @@ export function lineToHump(name) {
   });
 }
 
+// 查找字符出现的次数
+export function getCharCountInStr(str, char){
+  if (!str) return 0;
+  let regex = new RegExp(char, 'g'); // 使用g表示整个字符串都要匹配
+  let result = str.match(regex);
+  let count = !result ? 0 : result.length;
+  return count;
+}
+
 export function downloadFile(name, content) {
   const blob = new Blob([content]);
   if ("download" in document.createElement("a")) {
