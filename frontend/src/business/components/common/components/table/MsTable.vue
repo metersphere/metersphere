@@ -90,6 +90,7 @@ import MsTableOperators from "@/business/components/common/components/MsTableOpe
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import MsCustomTableHeader from "@/business/components/common/components/table/MsCustomTableHeader";
+import {lineToHump} from "@/common/js/utils";
 
 /**
  * 参考 ApiList
@@ -248,13 +249,14 @@ export default {
       let orders = this.condition.orders;
       if (orders) {
         orders.forEach(item => {
-          this.defaultSort = {};
-          this.defaultSort.prop = item.name;
+          this.defaultSort = {
+            prop: lineToHump(item.name),
+            order: 'descending'
+          };
           if (item.type === 'asc') {
             this.defaultSort.order = 'ascending';
-          } else {
-            this.defaultSort.order = 'descending';
           }
+          return;
         });
       }
     },

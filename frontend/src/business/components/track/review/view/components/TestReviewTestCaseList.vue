@@ -18,7 +18,7 @@
 
     <ms-table
       v-loading="result.loading"
-      field-key="TEST_CASE_REVIEW_FUNCTION_TEST_CASE"
+      :field-key="tableHeaderKey"
       :data="tableData"
       :condition="condition"
       :total="total"
@@ -29,6 +29,7 @@
       @handlePageChange="initTableData"
       @handleRowClick="showDetail"
       :fields.sync="fields"
+      :remember-order="true"
       @refresh="initTableData"
       ref="table"
     >
@@ -168,7 +169,7 @@ import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {
   _handleSelectAll,
-  buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth,
+  buildBatchParam, checkTableRowIsSelected, deepClone, getCustomTableWidth, getLastTableSortField,
   getSelectDataCounts, getTableHeaderWithCustomFields,
   initCondition,
   toggleAllSelection
@@ -211,6 +212,7 @@ export default {
       isReadOnly: false,
       isTestManagerOrTestUser: false,
       selectDataCounts: 0,
+      tableHeaderKey: 'TEST_CASE_REVIEW_FUNCTION_TEST_CASE',
       priorityFilters: [
         {text: 'P0', value: 'P0'},
         {text: 'P1', value: 'P1'},
@@ -285,6 +287,9 @@ export default {
       return this.$store.state.testReviewSelectNodeIds;
     }
   },
+  created() {
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+  },
   mounted() {
     this.$emit('setCondition', this.condition);
     this.refreshTableAndReview();
@@ -294,7 +299,7 @@ export default {
   methods: {
     initTableHeader() {
       this.result.loading = true;
-      this.fields = getTableHeaderWithCustomFields('TEST_CASE_REVIEW_FUNCTION_TEST_CASE', []);
+      this.fields = getTableHeaderWithCustomFields(this.tableHeaderKey, []);
       this.result.loading = false;
       this.$refs.table.reloadTable();
     },
