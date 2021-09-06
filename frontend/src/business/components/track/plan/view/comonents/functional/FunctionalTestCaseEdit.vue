@@ -545,18 +545,6 @@ p {
 .head-bar {
   z-index: 999;
 }
-
-/*/deep/ .el-textarea.is-disabled .el-textarea__inner {
-  background-color: #FBFBFB !important;
-  color: #606266 !important;
-  height: 48px !important;
-}*/
-
-/*/deep/ .table-edit-input .el-textarea__inner, .table-edit-input .el-input__inner {
-  border-style: solid;
-  height: 30px !important;
-  min-height: 30px !important;
-}*/
 </style>
 
 <style>
