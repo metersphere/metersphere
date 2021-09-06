@@ -119,6 +119,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     apiDefinition.setRequest(JSON.toJSONString(request));
                     apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
                     buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
+                    if (operation.getDeprecated() != null && operation.getDeprecated()) {
+                        apiDefinition.setTags("[\"Deleted\"]");
+                    }
                     results.add(apiDefinition);
                 }
             }

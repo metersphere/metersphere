@@ -84,6 +84,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
                 buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
+                if (operation.isDeprecated() != null && operation.isDeprecated()) {
+                    apiDefinition.setTags("[\"Deleted\"]");
+                }
                 results.add(apiDefinition);
             }
         }
