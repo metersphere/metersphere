@@ -77,9 +77,6 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 31)
     private boolean customizeReq;
 
-    private MsJSR223PreProcessor preProcessor;
-    private MsJSR223PostProcessor postProcessor;
-
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, MsParameter msParameter) {
         ParameterConfig config = (ParameterConfig) msParameter;
@@ -116,19 +113,18 @@ public class MsJDBCSampler extends MsTestElement {
                 }
             }
         }
+        EnvironmentConfig envConfig = null;
         // 自选了数据源
         if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())
                 && isDataSource(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
             this.dataSource = null;
-            this.initDataSource();
+            envConfig = this.initDataSource();
         } else {
             this.dataSource = null;
             // 取当前环境下默认的一个数据源
             if (config.isEffective(this.getProjectId())) {
                 if(config.getConfig().get(this.getProjectId()) != null){
-                    EnvironmentConfig envConfig = config.getConfig().get(this.getProjectId());
-                    this.preProcessor = envConfig.getPreProcessor();
-                    this.postProcessor = envConfig.getPostProcessor();
+                    envConfig = config.getConfig().get(this.getProjectId());
                     if(CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())){
                         this.dataSource = envConfig.getDatabaseConfigs().get(0);
                     }
@@ -140,7 +136,7 @@ public class MsJDBCSampler extends MsTestElement {
             // 用自身的数据
             if (StringUtils.isNotEmpty(dataSourceId)) {
                 this.dataSource = null;
-                this.initDataSource();
+                envConfig = this.initDataSource();
             }
             if (this.dataSource == null) {
                 MSException.throwException("数据源为空无法执行");
@@ -153,26 +149,33 @@ public class MsJDBCSampler extends MsTestElement {
             tree.add(arguments);
         }
 
-        //增加全局前后至脚本
-        if(this.preProcessor != null){
-            if (this.preProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    this.preProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    this.preProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            this.preProcessor.toHashTree(samplerHashTree, this.preProcessor.getHashTree(), config);
+        MsJSR223PreProcessor preProcessor = null;
+        MsJSR223PostProcessor postProcessor = null;
+        if(envConfig != null){
+            preProcessor = envConfig.getPreProcessor();
+            postProcessor = envConfig.getPostProcessor();
         }
-        if(this.postProcessor != null){
-            if (this.postProcessor.getEnvironmentId() == null) {
+
+        //增加全局前后至脚本
+        if(preProcessor != null){
+            if (preProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
-                    this.postProcessor.setEnvironmentId(useEnvironment);
+                    preProcessor.setEnvironmentId(useEnvironment);
                 } else {
-                    this.postProcessor.setEnvironmentId(this.getEnvironmentId());
+                    preProcessor.setEnvironmentId(this.getEnvironmentId());
                 }
             }
-            this.postProcessor.toHashTree(samplerHashTree, this.postProcessor.getHashTree(), config);
+            preProcessor.toHashTree(samplerHashTree, preProcessor.getHashTree(), config);
+        }
+        if(postProcessor != null){
+            if (postProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    postProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    postProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            postProcessor.toHashTree(samplerHashTree, postProcessor.getHashTree(), config);
         }
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -243,11 +246,12 @@ public class MsJDBCSampler extends MsTestElement {
         }
     }
 
-    private void initDataSource() {
+    private EnvironmentConfig initDataSource() {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
+        EnvironmentConfig envConfig = null;
         if (environment != null && environment.getConfig() != null) {
-            EnvironmentConfig envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
             if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
                 envConfig.getDatabaseConfigs().forEach(item -> {
                     if (item.getId().equals(this.dataSourceId)) {
@@ -256,11 +260,8 @@ public class MsJDBCSampler extends MsTestElement {
                     }
                 });
             }
-            if(envConfig != null){
-                this.preProcessor = envConfig.getPreProcessor();
-                this.postProcessor = envConfig.getPostProcessor();
-            }
         }
+        return envConfig;
     }
 
     private Arguments arguments(String name, List<KeyValue> variables) {

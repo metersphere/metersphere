@@ -107,9 +107,6 @@ public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 45)
     private boolean customizeReq;
 
-    private MsJSR223PreProcessor preProcessor;
-    private MsJSR223PostProcessor postProcessor;
-
     /**
      * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
      */
@@ -131,8 +128,10 @@ public class MsTCPSampler extends MsTestElement {
             this.setProjectId(config.getProjectId());
             config.setConfig(ElementUtil.getEnvironmentConfig(useEnvironment, this.getProjectId(), this.isMockEnvironment()));
         }
+        EnvironmentConfig envConfig = null;
         if (config.getConfig() != null) {
-            parseEnvironment(config.getConfig().get(this.projectId));
+            envConfig = config.getConfig().get(this.projectId);
+            parseEnvironment(envConfig);
         }
 
         // 添加环境中的公共变量
@@ -149,26 +148,32 @@ public class MsTCPSampler extends MsTestElement {
             samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
         }
 
-        //增加全局前后至脚本
-        if(this.preProcessor != null){
-            if (this.preProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    this.preProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    this.preProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            this.preProcessor.toHashTree(samplerHashTree, this.preProcessor.getHashTree(), config);
+        MsJSR223PreProcessor preProcessor = null;
+        MsJSR223PostProcessor postProcessor = null;
+        if(envConfig != null){
+            preProcessor = envConfig.getPreProcessor();
+            postProcessor = envConfig.getPostProcessor();
         }
-        if(this.postProcessor != null){
-            if (this.postProcessor.getEnvironmentId() == null) {
+        //增加全局前后至脚本
+        if(preProcessor != null){
+            if (preProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
-                    this.postProcessor.setEnvironmentId(useEnvironment);
+                    preProcessor.setEnvironmentId(useEnvironment);
                 } else {
-                    this.postProcessor.setEnvironmentId(this.getEnvironmentId());
+                    preProcessor.setEnvironmentId(this.getEnvironmentId());
                 }
             }
-            this.postProcessor.toHashTree(samplerHashTree, this.postProcessor.getHashTree(), config);
+            preProcessor.toHashTree(samplerHashTree, preProcessor.getHashTree(), config);
+        }
+        if(postProcessor != null){
+            if (postProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    postProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    postProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            postProcessor.toHashTree(samplerHashTree, postProcessor.getHashTree(), config);
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -217,10 +222,6 @@ public class MsTCPSampler extends MsTestElement {
     }
 
     private void parseEnvironment(EnvironmentConfig config) {
-        if(config != null){
-            this.preProcessor = config.getPreProcessor();
-            this.postProcessor = config.getPostProcessor();
-        }
         if (!isCustomizeReq() && config != null) {
             if (!isCustomizeReq() && config != null) {
                 this.server = config.getTcpConfig().getServer();
