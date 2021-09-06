@@ -82,6 +82,14 @@
       <div>
         <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
       </div>
+      <div>
+        <span>
+          {{ $t('api_test.api_import.import_cover_tip') }}<br/>
+          {{ $t('api_test.api_import.cover_tip_1') }}<br/>
+          {{ $t('api_test.api_import.cover_tip_2') }}<br/>
+          {{ $t('api_test.api_import.cover_tip_3') }}
+        </span>
+      </div>
     </div>
   </el-dialog>
 </template>

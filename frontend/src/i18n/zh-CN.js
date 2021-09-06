@@ -1217,8 +1217,10 @@ export default {
       next_synchronization_time: "下次同步时间",
       ms_env_import_file_limit: "仅支持通过MeterSphere导出的json格式文件",
       file_exceed_limit: "文件数量超出限制",
-
-
+      import_cover_tip: "导入模式: 覆盖模式说明",
+      cover_tip_1: "1. 接口路径不存在则新增",
+      cover_tip_2: "2. 接口路径与原接口一致，内容不一致则覆盖原接口",
+      cover_tip_3: "3. 接口路径、内容与原接口一致则不做变更",
     },
     home_page: {
       unit_of_measurement: "个",
