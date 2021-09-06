@@ -395,7 +395,11 @@ export default {
         '       3.選擇接收人時必須是你所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號',
       message: '事件，接收人，接收方式為必填項',
       message_webhook: '接收方式為釘釘和企業機器人,飛書時，webhook為必填項',
-      template: "模版"
+      template: "模版",
+      track: '測試跟踪任務通知',
+      api: '接口測試任務通知',
+      performance: '性能測試任務通知',
+      notice_count: '通知數',
     },
     integration: {
       select_defect_platform: '請選擇要集成的缺陷管理平臺：',
