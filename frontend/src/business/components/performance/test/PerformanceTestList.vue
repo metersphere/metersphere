@@ -179,10 +179,8 @@ export default {
       });
     },
     initTableData() {
-      let orderArr = this.getSortField();
-      if(orderArr){
-        this.condition.orders = orderArr;
-      }
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
       this.condition.projectId = getCurrentProjectID();
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.result = this.$post(this.buildPagePath('/performance/list'), this.condition, response => {
@@ -243,7 +241,7 @@ export default {
         this.condition.orders = [];
       }
       _sort(column, this.condition);
-      this.saveSortField(this.tableHeaderKey,this.condition.orders);
+      saveLastTableSortField(this.tableHeaderKey, JSON.stringify(this.condition.orders));
       this.initTableData();
     },
     filter(filters) {
@@ -266,21 +264,6 @@ export default {
         return;
       }
       this.$router.push('/performance/test/create');
-    },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
-    },
-    getSortField(){
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if(orderJsonStr){
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
-          return null;
-        }
-      }
-      return returnObj;
     }
   }
 };

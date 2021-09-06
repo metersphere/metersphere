@@ -19,7 +19,7 @@
         :screenHeight="screenHeight"
         :fields.sync="fields"
         :field-key="tableHeaderKey"
-        @saveSortField="saveSortField"
+        :remember-order="true"
         operator-width="190px"
         @refresh="initTable"
         ref="caseTable"
@@ -213,7 +213,7 @@ import {
   _filter,
   _sort,
   getCustomTableHeader,
-  getCustomTableWidth, saveLastTableSortField, getLastTableSortField
+  getCustomTableWidth, getLastTableSortField
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -374,10 +374,7 @@ export default {
     planId: String
   },
   created: function () {
-    let orderArr = this.getSortField();
-    if (orderArr) {
-      this.condition.orders = orderArr;
-    }
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
 
     if (this.trashEnable) {
       this.operators = this.trashOperators;
@@ -913,21 +910,6 @@ export default {
       }
       column.width = finalWidth;
       column.realWidth = finalWidth;
-    },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
-    },
-    getSortField() {
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if (orderJsonStr) {
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        } catch (e) {
-          return null;
-        }
-      }
-      return returnObj;
     },
     stop(id) {
       for (let item of this.tableData) {

@@ -385,8 +385,15 @@ export function saveLastTableSortField(key, field) {
 }
 
 export function getLastTableSortField(key) {
-  let fieldStr = localStorage.getItem(key+"_SORT");
-  return fieldStr;
+  let orderJsonStr = localStorage.getItem(key+"_SORT");
+  if(orderJsonStr){
+    try {
+      return JSON.parse(orderJsonStr);
+    }catch (e){
+      return [];
+    }
+  }
+  return [];
 }
 
 
