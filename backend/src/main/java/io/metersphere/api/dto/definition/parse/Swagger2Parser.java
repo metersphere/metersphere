@@ -169,7 +169,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
         PathParameter pathParameter = (PathParameter) parameter;
-        rests.add(new KeyValue(pathParameter.getName(), "", getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
+        rests.add(new KeyValue(pathParameter.getName(), getDefaultValue(pathParameter), getDefaultStringValue(parameter.getDescription()), pathParameter.getRequired()));
+    }
+
+    private String getDefaultValue(AbstractSerializableParameter parameter) {
+        if (parameter.getDefault() != null) {
+            return getDefaultStringValue(parameter.getDefault().toString());
+        }
+        return "";
     }
 
     private String getDefaultStringValue(String val) {
@@ -178,12 +185,12 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
+        addCookie(headers, cookieParameter.getName(), getDefaultValue(cookieParameter), getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()),
+        addHeader(headers, headerParameter.getName(), getDefaultValue(headerParameter), getDefaultStringValue(headerParameter.getDescription()),
                 "", parameter.getRequired());
     }
 
@@ -342,7 +349,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseFormDataParameters(FormParameter parameter, Body body) {
         List<KeyValue> keyValues = Optional.ofNullable(body.getKvs()).orElse(new ArrayList<>());
-        KeyValue kv = new KeyValue(parameter.getName(), "", getDefaultStringValue(parameter.getDescription()), parameter.getRequired());
+        KeyValue kv = new KeyValue(parameter.getName(), getDefaultValue(parameter), getDefaultStringValue(parameter.getDescription()), parameter.getRequired());
         if (StringUtils.equals(parameter.getType(), "file")) {
             kv.setType("file");
         }
@@ -352,6 +359,6 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
-        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()), queryParameter.getRequired()));
+        arguments.add(new KeyValue(queryParameter.getName(), getDefaultValue(queryParameter), getDefaultStringValue(queryParameter.getDescription()), queryParameter.getRequired()));
     }
 }
