@@ -1,7 +1,7 @@
 <template>
   <div>
     <div style="padding-left: 320px; padding-bottom: 5px; width: 100%">
-      <span style="color: gray; padding-right: 10px">({{ totalCount }} 条消息)</span>
+      <span style="color: gray; padding-right: 10px">({{ totalCount }} {{ $t('commons.notice_count') }})</span>
       <el-dropdown @command="handleCommand" style="padding-right: 10px">
                 <span class="el-dropdown-link">
                   {{ goPage }}/{{ totalPage }}<i class="el-icon-arrow-down el-icon--right"></i>
@@ -37,7 +37,7 @@
       </div>
     </div>
     <div style="color: gray; padding-top:20px; text-align: center">
-      - 仅显示最近3个月的站内消息 -
+      - {{ $t('commons.notice_tips') }} -
     </div>
   </div>
 </template>
