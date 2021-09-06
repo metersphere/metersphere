@@ -21,7 +21,7 @@
         </el-select>
       </el-col>
       <el-col :span="4">
-        <ms-mock :disabled="pickValue.type==='object'" :schema="pickValue"/>
+        <ms-mock :disabled="pickValue.type==='object' || pickValue.type==='array'" :schema="pickValue"/>
       </el-col>
       <el-col :span="4">
         <el-input v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
@@ -30,7 +30,7 @@
         <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
-        <el-tooltip v-if="isObject" :content="$t('schema.add_child_node')" placement="top">
+        <el-tooltip v-if="isObject || isArray" :content="$t('schema.add_child_node')" placement="top">
           <i class="el-icon-plus" @click="addChild" style="margin-left: 10px"/>
         </el-tooltip>
         <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
@@ -40,10 +40,11 @@
     </el-row>
 
     <template v-if="!hidden&&pickValue.properties && !isArray">
-      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom"/>
+      <json-schema-editor v-for="(item,key,index) in pickValue.properties" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <template v-if="isArray">
-      <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>
+<!--      <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>-->
+      <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <!-- 高级设置-->
     <el-dialog append-to-body :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
@@ -216,12 +217,30 @@
         this.$set(this.parent, 'properties', p)
       },
       onChangeType() {
-        this.$delete(this.pickValue, 'properties')
-        this.$delete(this.pickValue, 'items')
-        this.$delete(this.pickValue, 'required')
-        this.$delete(this.pickValue, 'mock')
-        if (this.isArray) {
-          this.$set(this.pickValue, 'items', {type: 'string', mock: {mock: ""}})
+        if(this.parent && this.parent.type === 'array'){
+          this.$emit('changeAllItemsType',this.pickValue.type);
+        }else{
+          this.$delete(this.pickValue, 'properties')
+          this.$delete(this.pickValue, 'items')
+          this.$delete(this.pickValue, 'required')
+          this.$delete(this.pickValue, 'mock')
+          if (this.isArray) {
+            this.$set(this.pickValue, 'items', [{type: 'string', mock: {mock: ""}}]);
+          }
+        }
+      },
+      changeAllItemsType(changeType){
+        if(this.isArray && this.pickValue.items && this.pickValue.items.length > 0){
+          this.pickValue.items.forEach(item => {
+            item.type = changeType;
+            this.$delete(item, 'properties')
+            this.$delete(item, 'items')
+            this.$delete(item, 'required')
+            this.$delete(item, 'mock')
+            if (changeType === 'array') {
+              this.$set(item, 'items', [{type: 'string', mock: {mock: ""}}]);
+            }
+          });
         }
       },
       onCheck(e) {
@@ -254,12 +273,23 @@
         required.length === 0 && this.$delete(parent, 'required')
       },
       addChild() {
-        const name = this._joinName()
-        const type = 'string'
-        const node = this.pickValue
-        node.properties || this.$set(node, 'properties', {})
-        const props = node.properties
-        this.$set(props, name, {type: type, mock: {mock: ""}})
+        const node = this.pickValue;
+        if (this.isArray) {
+          let childObj = {type: 'string', mock: {mock: ""}}
+          if(node.items && node.items.length > 0){
+            childObj.type = node.items[0].type;
+            node.items.push(childObj);
+          }else {
+            this.$set(this.pickValue, 'items', [childObj]);
+          }
+
+        }else {
+          const name = this._joinName()
+          const type = 'string'
+          node.properties || this.$set(node, 'properties', {})
+          const props = node.properties
+          this.$set(props, name, {type: type, mock: {mock: ""}})
+        }
       },
       addCustomNode() {
         this.$set(this.addProp, 'key', this._joinName())
@@ -272,12 +302,22 @@
         this.customing = false
       },
       removeNode() {
-        const {properties, required} = this.parent
-        this.$delete(properties, this.pickKey)
-        if (required) {
-          const pos = required.indexOf(this.pickKey)
-          pos >= 0 && required.splice(pos, 1)
-          required.length === 0 && this.$delete(this.parent, 'required')
+        if(this.parent.type && this.parent.type === 'object'){
+          const {properties, required} = this.parent
+          this.$delete(properties, this.pickKey)
+          if (required) {
+            const pos = required.indexOf(this.pickKey)
+            pos >= 0 && required.splice(pos, 1)
+            required.length === 0 && this.$delete(this.parent, 'required')
+          }
+        }else if(this.parent.type && this.parent.type === 'array'){
+          const {items, required} = this.parent
+          this.$delete(items, this.pickKey)
+          if (required) {
+            const pos = required.indexOf(this.pickKey)
+            pos >= 0 && required.splice(pos, 1)
+            required.length === 0 && this.$delete(this.parent, 'required')
+          }
         }
       },
       _joinName() {

@@ -129,10 +129,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
   
     @JSONField(ordinal = 39)
     private boolean customizeReq;
-  
-    private MsJSR223PreProcessor preProcessor;
-    private MsJSR223PostProcessor postProcessor;
-  
+
     private void setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
@@ -277,25 +274,27 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         addCertificate(config, httpSamplerTree);
 
         //增加全局前后至脚本
-        if(this.preProcessor != null){
-            if (this.preProcessor.getEnvironmentId() == null) {
+        MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
+        MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
+        if(preProcessor != null){
+            if (preProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
-                    this.preProcessor.setEnvironmentId(useEnvironment);
+                    preProcessor.setEnvironmentId(useEnvironment);
                 } else {
-                    this.preProcessor.setEnvironmentId(this.getEnvironmentId());
+                    preProcessor.setEnvironmentId(this.getEnvironmentId());
                 }
             }
-            this.preProcessor.toHashTree(httpSamplerTree, this.preProcessor.getHashTree(), config);
+            preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
         }
-        if(this.postProcessor != null){
-            if (this.postProcessor.getEnvironmentId() == null) {
+        if(postProcessor != null){
+            if (postProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
-                    this.postProcessor.setEnvironmentId(useEnvironment);
+                    postProcessor.setEnvironmentId(useEnvironment);
                 } else {
-                    this.postProcessor.setEnvironmentId(this.getEnvironmentId());
+                    postProcessor.setEnvironmentId(this.getEnvironmentId());
                 }
             }
-            this.postProcessor.toHashTree(httpSamplerTree, this.postProcessor.getHashTree(), config);
+            postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
@@ -343,8 +342,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
             if (environmentConfig != null){
                 String useEvnId = environmentConfig.getApiEnvironmentid();
-                this.preProcessor = environmentConfig.getPreProcessor();
-                this.postProcessor = environmentConfig.getPostProcessor();
                 if(this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().containsKey("hashTree") ){
                     try {
                         JSONArray jsonArray = environmentConfig.getAuthManager().getJSONArray("hashTree");
@@ -356,7 +353,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                     this.setEnvironmentId(useEvnId);
                 }
-                return getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
+                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
+                httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
+                httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
+                return httpConfig;
             }
         }
         return null;
