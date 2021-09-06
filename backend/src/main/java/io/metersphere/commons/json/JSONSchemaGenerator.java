@@ -109,7 +109,7 @@ public class JSONSchemaGenerator {
                 concept.put(propertyName, analyzeEnumProperty(object));
             } else if (propertyObjType.equals("string")) {
                 // 先设置空值
-                concept.put(propertyName, null);
+                concept.put(propertyName, "");
                 if (object.has("format")) {
                     String propertyFormat = object.get("format").getAsString();
                     if (propertyFormat.equals("date-time")) {

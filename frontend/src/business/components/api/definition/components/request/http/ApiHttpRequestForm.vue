@@ -67,6 +67,11 @@
             <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
               <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
             </el-tab-pane>
+<!--            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">-->
+<!--              <template v-slot:label>-->
+<!--                <el-button size="mini" type="primary" @click.stop @click="createTestData">生成测试数据</el-button>-->
+<!--              </template>-->
+<!--            </el-tab-pane>-->
 
           </el-tabs>
         </div>
@@ -93,6 +98,7 @@
   import MsApiAdvancedConfig from "./ApiAdvancedConfig";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
   import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
+  import {hasPermission} from '@/common/js/utils';
 
   export default {
     name: "MsApiHttpRequestForm",
@@ -176,6 +182,10 @@
     },
 
     methods: {
+      hasPermission,
+      createTestData(){
+
+      },
       remove(row) {
         let index = this.request.hashTree.indexOf(row);
         this.request.hashTree.splice(index, 1);

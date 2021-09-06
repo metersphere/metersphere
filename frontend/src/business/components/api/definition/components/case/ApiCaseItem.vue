@@ -181,12 +181,12 @@ import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 export default {
   name: "ApiCaseItem",
   filters: {
-    ellipsis (value) {
+    ellipsis(value) {
       if (!value) {
         return '';
       }
       if (value.length > 20) {
-        return value.slice(0,20) + '...'
+        return value.slice(0, 20) + '...'
       }
       return value
     }
@@ -432,8 +432,10 @@ export default {
       if (tmp.tags instanceof Array) {
         tmp.tags = JSON.stringify(tmp.tags);
       }
-      tmp.clazzName = TYPE_TO_C.get(tmp.type);
-      this.sort(tmp.hashTree);
+      if (tmp.request) {
+        tmp.request.clazzName = TYPE_TO_C.get(tmp.request.type);
+        this.sort(tmp.request.hashTree);
+      }
       this.result = this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
         let data = response.data;
         row.id = data.id;
