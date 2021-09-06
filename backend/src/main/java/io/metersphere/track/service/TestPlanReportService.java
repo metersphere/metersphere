@@ -254,7 +254,7 @@ public class TestPlanReportService {
             performanceInfoMap = saveRequest.getPerformanceIdMap();
         }
 
-        TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID, apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
+        TestPlanReportExecuteCatch.addApiTestPlanExecuteInfo(testPlanReportID,saveRequest.getUserId(), apiCaseInfoMap, scenarioInfoMap, performanceInfoMap);
 
         testPlanReport.setPrincipal(testPlan.getPrincipal());
         if (testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()) {
