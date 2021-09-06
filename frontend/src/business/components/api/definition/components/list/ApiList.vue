@@ -9,15 +9,15 @@
 
       <ms-table
         :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
-                :total="total" enableSelection
-                :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
-                :operators="tableOperatorButtons" operator-width="200px"
-                @refresh="initTable"
-                :fields.sync="fields"
-                :table-is-loading="this.result.loading"
-                :field-key="tableHeaderKey"
-                @saveSortField="saveSortField"
-                ref="table">
+        :total="total" enableSelection
+        :batch-operators="trashEnable ? trashButtons : buttons" :screen-height="screenHeight"
+        :operators="tableOperatorButtons" operator-width="200px"
+        :remember-order="true"
+        @refresh="initTable"
+        :fields.sync="fields"
+        :table-is-loading="this.result.loading"
+        :field-key="tableHeaderKey"
+        ref="table">
         <ms-table-column
           prop="deleteTime"
           sortable
@@ -429,10 +429,8 @@ export default {
       this.tableOperatorButtons = this.tableUsualOperatorButtons;
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     }
-    let orderArr = this.getSortField();
-    if (orderArr) {
-      this.condition.orders = orderArr;
-    }
+    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
     this.initTable();
     this.getMaintainerOptions();
   },
@@ -824,21 +822,6 @@ export default {
         return false;
       }
     },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
-    },
-    getSortField() {
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if (orderJsonStr) {
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        } catch (e) {
-          return null;
-        }
-      }
-      return returnObj;
-    }
   },
 };
 </script>

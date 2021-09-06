@@ -25,10 +25,10 @@
           :operators="operators"
           :show-select-all="false"
           :screen-height="screenHeight"
+          :remember-order="true"
           @handlePageChange="getIssues"
           :fields.sync="fields"
           :field-key="tableHeaderKey"
-          @saveSortField="saveSortField"
           @refresh="getIssues"
           :custom-fields="issueTemplate.customFields"
           ref="table"
@@ -290,10 +290,8 @@ export default {
     },
     getIssues() {
       this.page.condition.projectId = this.projectId;
-      let orderArr = this.getSortField();
-      if(orderArr){
-        this.page.condition.orders = orderArr;
-      }
+      this.page.condition.orders = getLastTableSortField(this.tableHeaderKey);
+
       this.page.result = getIssues(this.page);
     },
     handleEdit(data) {
@@ -321,25 +319,10 @@ export default {
       }
       return true;
     },
-    saveSortField(key,orders){
-      saveLastTableSortField(key,JSON.stringify(orders));
-    },
     syncIssues() {
       this.page.result = syncIssues(() => {
         this.getIssues();
       });
-    },
-    getSortField(){
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if(orderJsonStr){
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        }catch (e){
-          return null;
-        }
-      }
-      return returnObj;
     }
   }
 };

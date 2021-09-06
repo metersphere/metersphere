@@ -14,11 +14,11 @@
         :total="total"
         :fields.sync="fields"
         :field-key=tableHeaderKey
+        :remember-order="true"
         operator-width="200"
         @refresh="search(projectId)"
         @callBackSelectAll="callBackSelectAll"
         @callBackSelect="callBackSelect"
-        @saveSortField="saveSortField"
         ref="scenarioTable">
         <ms-table-column
           prop="deleteTime"
@@ -486,10 +486,7 @@ export default {
     if(this.trashEnable){
       this.condition.orders = [{"name":"delete_time","type":"desc"}];
     }else {
-      let orderArr = this.getSortField();
-      if (orderArr) {
-        this.condition.orders = orderArr;
-      }
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     }
 
     this.search();
@@ -1018,21 +1015,6 @@ export default {
           }
         }
       });
-    },
-    saveSortField(key, orders) {
-      saveLastTableSortField(key, JSON.stringify(orders));
-    },
-    getSortField() {
-      let orderJsonStr = getLastTableSortField(this.tableHeaderKey);
-      let returnObj = null;
-      if (orderJsonStr) {
-        try {
-          returnObj = JSON.parse(orderJsonStr);
-        } catch (e) {
-          return null;
-        }
-      }
-      return returnObj;
     },
     stop(row) {
       let url = "/api/automation/stop/" + this.reportId;
