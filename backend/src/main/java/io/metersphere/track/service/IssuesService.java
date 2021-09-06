@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.*;
@@ -32,6 +33,7 @@ import io.metersphere.track.issue.domain.zentao.ZentaoBuild;
 import io.metersphere.track.request.testcase.AuthUserIssueRequest;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -556,5 +558,30 @@ public class IssuesService {
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setResourceId(planId);
         return extIssuesMapper.getIssues(issueRequest);
+    }
+
+    public void changeStatus(IssuesRequest request) {
+        String issuesId = request.getId();
+        String status = request.getStatus();
+        if (StringUtils.isBlank(issuesId) || StringUtils.isBlank(status)) {
+            return;
+        }
+
+        IssuesWithBLOBs issues = issuesMapper.selectByPrimaryKey(issuesId);
+        String customFields = issues.getCustomFields();
+        if (StringUtils.isBlank(customFields)) {
+            return;
+        }
+
+        List<TestCaseBatchRequest.CustomFiledRequest> fields = JSONObject.parseArray(customFields, TestCaseBatchRequest.CustomFiledRequest.class);
+        for (TestCaseBatchRequest.CustomFiledRequest field : fields) {
+            if (StringUtils.equals("状态", field.getName())) {
+                field.setValue(status);
+                break;
+            }
+        }
+
+        issues.setCustomFields(JSONObject.toJSONString(fields));
+        issuesMapper.updateByPrimaryKeySelective(issues);
     }
 }
