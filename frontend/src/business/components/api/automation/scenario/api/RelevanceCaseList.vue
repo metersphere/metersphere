@@ -9,7 +9,9 @@
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
                 @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="initTable"/>
       <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total" enableSelection
                 :screenHeight="screenHeight"
@@ -92,7 +94,8 @@ import PriorityTableItem from "../../../../track/common/tableItems/planview/Prio
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import TableSelectCountBar from "./TableSelectCountBar";
 import {_filter, _sort, buildBatchParam} from "@/common/js/tableUtils";
-import {API_CASE_LIST} from "@/common/js/constants";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import {TEST_PLAN_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "RelevanceCaseList",
@@ -109,11 +112,14 @@ export default {
     ShowMoreBtn,
     MsBatchEdit,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    MsTableAdvSearchBar
   },
   data() {
     return {
-      condition: {},
+      condition: {
+        components: TEST_PLAN_RELEVANCE_API_CASE_CONFIGS
+      },
       selectCase: {},
       result: {},
       moduleId: "",
@@ -317,6 +323,12 @@ export default {
   width: 300px;
   /*margin-bottom: 20px;*/
   margin-right: 20px;
+}
+
+.adv-search-bar {
+  float: right;
+  margin-top: 5px;
+  margin-right: 10px;
 }
 
 </style>
