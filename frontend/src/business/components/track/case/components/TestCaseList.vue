@@ -69,6 +69,12 @@
           min-width="120"
         />
 
+        <ms-table-column :label="$t('test_track.case.case_desc')" prop="desc" :field="item">
+          <template v-slot:default="scope">
+            <el-link @click.stop="getCase(scope.row.id)" style="color:#783887;">{{$t('commons.preview')}}</el-link>
+          </template>
+        </ms-table-column>
+
         <ms-table-column
           prop="createUser"
           :field="item"
@@ -164,6 +170,8 @@
                 :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
 
     <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
+
+    <test-case-preview ref="testCasePreview" :loading="rowCaseResult.loading"/>
   </div>
 
 </template>
@@ -210,10 +218,12 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import BatchMove from "@/business/components/track/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
 
 export default {
   name: "TestCaseList",
   components: {
+    TestCasePreview,
     BatchMove,
     MsTableColumn,
     MsTable,
@@ -340,7 +350,9 @@ export default {
       page: getPageInfo(),
       fields: [],
       fieldsWidth: getCustomTableWidth('TRACK_TEST_CASE'),
-      memberMap: new Map()
+      memberMap: new Map(),
+      rowCase: {},
+      rowCaseResult: {}
     };
   },
   props: {
@@ -579,10 +591,41 @@ export default {
     testCaseCreate() {
       this.$emit('testCaseEdit');
     },
-    handleEdit(testCase) {
-      this.$get('test/case/get/' + testCase.id, response => {
-        let testCase = response.data;
-        this.$emit('testCaseEdit', testCase);
+    handleEdit(testCase, column) {
+      if (column.label !== this.$t('test_track.case.case_desc')) {
+        this.$get('test/case/get/' + testCase.id, response => {
+          let testCase = response.data;
+          this.$emit('testCaseEdit', testCase);
+        });
+      }
+
+    },
+    getCase(id) {
+      this.$refs.testCasePreview.open();
+      this.rowCaseResult.loading = true;
+      if (this.rowCase && this.rowCase.id === id) {
+        this.$refs.testCasePreview.setData(this.rowCase);
+        this.rowCaseResult.loading = false;
+        return;
+      } else {
+        this.rowCase = {};
+        this.$refs.testCasePreview.setData({});
+      }
+
+      this.rowCaseResult = this.$get('test/case/get/step/' + id, response => {
+        this.rowCase = response.data;
+        this.rowCase.steps = JSON.parse(this.rowCase.steps);
+        if (!this.rowCase.steps || this.rowCase.length < 1) {
+          this.rowCase.steps = [{
+            num: 1,
+            desc: '',
+            result: ''
+          }];
+        }
+        if (!this.rowCase.stepModel) {
+          this.rowCase.stepModel = "STEP";
+        }
+        this.$refs.testCasePreview.setData(this.rowCase);
       });
     },
     handleCopy(testCase) {

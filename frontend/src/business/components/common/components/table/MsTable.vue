@@ -337,8 +337,8 @@ export default {
     handleBatchMove() {
       this.$refs.testBatchMove.open(this.treeNodes, Array.from(this.selectRows).map(row => row.id), this.moduleOptions);
     },
-    handleRowClick(row) {
-      this.$emit("handleRowClick", row);
+    handleRowClick(row, column) {
+      this.$emit("handleRowClick", row, column);
     },
     handleRefresh() {
       this.clear();

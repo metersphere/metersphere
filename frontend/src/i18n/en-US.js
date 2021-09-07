@@ -1516,7 +1516,8 @@ export default {
       export: {
         export: "Export cases",
         export_tip: "Switch to Interface List and check Use Case Export"
-      }
+      },
+      case_desc: "Case Desc"
     },
     plan: {
       test_plan: "Plan",
