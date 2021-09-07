@@ -3,7 +3,9 @@
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
                 @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="initTable"/>
       <ms-table v-loading="result.loading" :data="tableData" :condition="condition" :page-size="pageSize"
                 :total="total"
                 :showSelectAll="false"
@@ -30,6 +32,21 @@
             <ms-performance-test-status :row="row"/>
           </template>
         </ms-table-column>
+        <ms-table-column
+          prop="updateTime"
+          :label="$t('commons.update_time')"
+          min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column>
+        <ms-table-column prop="createTime"
+                         :label="$t('commons.create_time')"
+                         min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </ms-table-column >
 
       </ms-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
@@ -48,6 +65,8 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import {TEST_CASE_RELEVANCE_LOAD_CASE} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "TestCaseRelateLoadList",
@@ -56,11 +75,14 @@ export default {
     TableSelectCountBar,
     MsTablePagination,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    MsTableAdvSearchBar,
   },
   data() {
     return {
-      condition: {},
+      condition: {
+        components: TEST_CASE_RELEVANCE_LOAD_CASE
+      },
       result: {},
       screenHeight: '600px',//屏幕高度
       tableData: [],
@@ -128,5 +150,10 @@ export default {
   float: right;
   width: 300px;
   margin-right: 20px;
+}
+.adv-search-bar {
+  float: right;
+  margin-top: 5px;
+  margin-right: 10px;
 }
 </style>

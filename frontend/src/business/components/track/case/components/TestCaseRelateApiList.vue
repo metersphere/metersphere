@@ -3,7 +3,9 @@
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
                 @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="initTable"/>
       <ms-table v-loading="result.loading" :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total"
                 :showSelectAll="false"
@@ -31,7 +33,12 @@
             <priority-table-item :value="scope.row.priority"/>
           </template>
         </ms-table-column>
-
+        <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
+          </template>
+        </ms-table-column>
 <!--        <ms-table-column-->
 <!--          prop="path"-->
 <!--          width="180px"-->
@@ -62,6 +69,9 @@ import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/Json
 import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
+import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "TestCaseRelateApiList",
@@ -70,11 +80,15 @@ export default {
     MsTablePagination,
     PriorityTableItem,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    MsTableAdvSearchBar,
+    MsTag
   },
   data() {
     return {
-      condition: {},
+      condition: {
+        components: TEST_CASE_RELEVANCE_API_CASE_CONFIGS
+      },
       selectCase: {},
       result: {},
       priorityFilters: [
@@ -135,6 +149,11 @@ export default {
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
+        });
       });
     },
     clear() {
@@ -163,5 +182,10 @@ export default {
   width: 300px;
   /*margin-bottom: 20px;*/
   margin-right: 20px;
+}
+.adv-search-bar {
+  float: right;
+  margin-top: 5px;
+  margin-right: 10px;
 }
 </style>
