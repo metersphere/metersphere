@@ -126,6 +126,18 @@ export default {
       codeEditActive: true
     };
   },
+  watch:{
+    'body.raw'(){
+      if(this.body.format !== 'JSON-SCHEMA' && this.body.raw){
+        try {
+          const MsConvert = new Convert();
+          this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
+        }catch (ex){
+          this.body.jsonSchema = "";
+        }
+      }
+    }
+  },
   methods: {
     reloadCodeEdit() {
       this.codeEditActive = false;
@@ -136,7 +148,7 @@ export default {
     formatChange() {
       const MsConvert = new Convert();
       if (this.body.format === 'JSON-SCHEMA') {
-        if (this.body.raw) {
+        if (this.body.raw && !this.body.jsonSchema) {
           this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
         }
       } else {

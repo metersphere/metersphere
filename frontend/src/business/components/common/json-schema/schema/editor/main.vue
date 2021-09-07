@@ -50,11 +50,10 @@
     <el-dialog append-to-body :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
-      <el-form :inline="true" v-model="advancedValue" class="ms-advanced-search-form">
-        <el-row :gutter="6">
-          <el-col :span="8" v-for="(item,key) in advancedValue" :key="key" style="float: right">
-            <el-form-item>
-              <div>{{ $t('schema.'+key)}}</div>
+
+      <el-form label-position="left" label-width="100px" v-model="advancedValue" class="ms-advanced-search-form">
+           <div :span="8" v-for="(item,key) in advancedValue" :key="key">
+            <el-form-item :label="$t('schema.'+key)">
               <el-input-number v-model="advancedValue[key]" v-if="advancedAttr[key].type === 'integer'" style="width:100%" :placeholder="key" size="small"/>
               <el-input-number v-model="advancedValue[key]" v-else-if="advancedAttr[key].type === 'number'" style="width:100%" :placeholder="key" size="small"/>
               <span v-else-if="advancedAttr[key].type === 'boolean'" style="display:inline-block;width:100%">
@@ -64,10 +63,14 @@
                 <el-option value="" :label="$t('schema.nothing')"></el-option>
                 <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr[key].enums"/>
               </el-select>
+              <el-input  v-else-if="advancedAttr[key].type === 'textarea'" :placeholder="advancedAttr[key].description" v-model="advancedValue[key]"
+                         type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 10}"
+                        :rows="2"></el-input>
               <el-input v-model="advancedValue[key]" v-else style="width:100%;" :placeholder="key" size="small"/>
+
             </el-form-item>
-          </el-col>
-        </el-row>
+          </div>
       </el-form>
       <!--<h3 v-text="$t('schema.add_custom')" v-show="custom">添加自定义属性</h3>
       <el-form class="ms-advanced-search-form" v-show="custom">
