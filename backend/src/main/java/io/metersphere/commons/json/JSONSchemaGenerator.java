@@ -16,17 +16,15 @@ public class JSONSchemaGenerator {
     }
 
     private static void analyzeSchema(String json, JSONObject rootObj) {
-        // Let's start with the root element of the file
-        JsonObject rootElement = null;
         try {
-            JsonParser jsonParser = new JsonParser();
-            JsonElement inputElement = jsonParser.parse(json);
-            rootElement = inputElement.getAsJsonObject();
+            Gson gson = new Gson();
+            JsonElement element = gson.fromJson(json, JsonElement.class);
+            JsonObject rootElement = element.getAsJsonObject();
+            analyzeRootSchemaElement(rootElement, rootObj);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        analyzeRootSchemaElement(rootElement, rootObj);
     }
 
     private static void analyzeRootSchemaElement(JsonObject rootElement, JSONObject rootObj) {
@@ -232,7 +230,7 @@ public class JSONSchemaGenerator {
                                 String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
                                 array.add(value);
                             } else {
-                                array.add(null);
+                                array.add("");
                             }
                         } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("number")) {
                             if (itemsObject.has("default")) {
