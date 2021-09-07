@@ -91,7 +91,7 @@ export default {
       this.initPlugins();
     },
     handleView(row){
-      this.$refs.scriptView.open(row.pluginId);
+      this.$refs.scriptView.open(row.scriptId);
     },
     handleDelete(id) {
       this.$confirm(this.$t('api_test.jar_config.delete_tip'), '', {

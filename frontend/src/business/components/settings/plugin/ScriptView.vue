@@ -45,8 +45,12 @@ export default {
     getPlugin(id) {
       if (id) {
         this.$get('/plugin/get/' + id, response => {
-          this.plugin = response.data;
-          this.reload();
+          if (response.data) {
+            this.plugin = response.data;
+            this.reload();
+          } else {
+            this.$warning("未找到脚本内容");
+          }
         });
       }
     },
