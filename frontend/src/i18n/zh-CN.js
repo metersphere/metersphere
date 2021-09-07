@@ -185,6 +185,7 @@ export default {
     run_success: "执行成功",
     run_completed: "执行完成",
     run_fail: "执行失败",
+    generate_test_data: "生成测试数据",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
