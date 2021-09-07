@@ -4,6 +4,7 @@
       <el-date-picker v-model="scope.component.value" v-bind="scope.component.props"
                       :placeholder="$t('commons.date.select_date_time')" size="small"
                       :type="type" :key="type" value-format="timestamp"
+                      class="ms-el-date-picker"
                       :range-separator="$t('commons.date.range_separator')"
                       :start-placeholder="$t('commons.date.start_date_time')"
                       :end-placeholder="$t('commons.date.end_date_time')">
@@ -47,5 +48,8 @@
 </script>
 
 <style scoped>
-
+.ms-el-date-picker >>> .el-date-editor--datetimerange.el-input,
+.el-date-editor--datetimerange.el-input__inner {
+  width: 100%;
+}
 </style>
