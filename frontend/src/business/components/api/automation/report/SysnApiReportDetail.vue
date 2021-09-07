@@ -221,13 +221,13 @@ export default {
             let name = item.name ? item.name : this.getType(item.type);
             let obj = {resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
             tree.children.push(obj);
-            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
+            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1 || ELEMENTS.get("AllSamplerProxy").indexOf(item.id) != -1) {
               obj.unsolicited = false;
               obj.type = item.type;
             } else if (item.type === 'scenario') {
               this.content.scenarioTotal += 1;
             }
-            if (item.hashTree && item.hashTree.length > 0 && ELEMENTS.get("AllSamplerProxy").indexOf(item.type) === -1) {
+            if (item.hashTree && item.hashTree.length > 0 && ELEMENTS.get("AllSamplerProxy").indexOf(item.type) === -1 && ELEMENTS.get("AllSamplerProxy").indexOf(item.id) === -1) {
               this.formatContent(item.hashTree, obj, item.parentIndex);
             }
           }

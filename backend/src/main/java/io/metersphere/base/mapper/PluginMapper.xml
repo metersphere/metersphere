@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="plugin_id" jdbcType="VARCHAR" property="pluginId" />
+    <result column="script_id" jdbcType="VARCHAR" property="scriptId" />
     <result column="clazz_name" jdbcType="VARCHAR" property="clazzName" />
     <result column="source_path" jdbcType="VARCHAR" property="sourcePath" />
     <result column="source_name" jdbcType="VARCHAR" property="sourceName" />
@@ -76,8 +77,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, plugin_id, clazz_name, source_path, source_name, exec_entry, create_time, 
-    update_time, create_user_id
+    id, `name`, plugin_id, script_id, clazz_name, source_path, source_name, exec_entry, 
+    create_time, update_time, create_user_id
   </sql>
   <sql id="Blob_Column_List">
     form_option, form_script
@@ -132,15 +133,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.PluginWithBLOBs">
     insert into plugin (id, `name`, plugin_id, 
-      clazz_name, source_path, source_name, 
-      exec_entry, create_time, update_time, 
-      create_user_id, form_option, form_script
-      )
+      script_id, clazz_name, source_path, 
+      source_name, exec_entry, create_time, 
+      update_time, create_user_id, form_option, 
+      form_script)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{pluginId,jdbcType=VARCHAR}, 
-      #{clazzName,jdbcType=VARCHAR}, #{sourcePath,jdbcType=VARCHAR}, #{sourceName,jdbcType=VARCHAR}, 
-      #{execEntry,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUserId,jdbcType=VARCHAR}, #{formOption,jdbcType=LONGVARCHAR}, #{formScript,jdbcType=LONGVARCHAR}
-      )
+      #{scriptId,jdbcType=VARCHAR}, #{clazzName,jdbcType=VARCHAR}, #{sourcePath,jdbcType=VARCHAR}, 
+      #{sourceName,jdbcType=VARCHAR}, #{execEntry,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{createUserId,jdbcType=VARCHAR}, #{formOption,jdbcType=LONGVARCHAR}, 
+      #{formScript,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.PluginWithBLOBs">
     insert into plugin
@@ -153,6 +154,9 @@
       </if>
       <if test="pluginId != null">
         plugin_id,
+      </if>
+      <if test="scriptId != null">
+        script_id,
       </if>
       <if test="clazzName != null">
         clazz_name,
@@ -191,6 +195,9 @@
       </if>
       <if test="pluginId != null">
         #{pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="scriptId != null">
+        #{scriptId,jdbcType=VARCHAR},
       </if>
       <if test="clazzName != null">
         #{clazzName,jdbcType=VARCHAR},
@@ -239,6 +246,9 @@
       <if test="record.pluginId != null">
         plugin_id = #{record.pluginId,jdbcType=VARCHAR},
       </if>
+      <if test="record.scriptId != null">
+        script_id = #{record.scriptId,jdbcType=VARCHAR},
+      </if>
       <if test="record.clazzName != null">
         clazz_name = #{record.clazzName,jdbcType=VARCHAR},
       </if>
@@ -276,6 +286,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      script_id = #{record.scriptId,jdbcType=VARCHAR},
       clazz_name = #{record.clazzName,jdbcType=VARCHAR},
       source_path = #{record.sourcePath,jdbcType=VARCHAR},
       source_name = #{record.sourceName,jdbcType=VARCHAR},
@@ -294,6 +305,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       plugin_id = #{record.pluginId,jdbcType=VARCHAR},
+      script_id = #{record.scriptId,jdbcType=VARCHAR},
       clazz_name = #{record.clazzName,jdbcType=VARCHAR},
       source_path = #{record.sourcePath,jdbcType=VARCHAR},
       source_name = #{record.sourceName,jdbcType=VARCHAR},
@@ -313,6 +325,9 @@
       </if>
       <if test="pluginId != null">
         plugin_id = #{pluginId,jdbcType=VARCHAR},
+      </if>
+      <if test="scriptId != null">
+        script_id = #{scriptId,jdbcType=VARCHAR},
       </if>
       <if test="clazzName != null">
         clazz_name = #{clazzName,jdbcType=VARCHAR},
@@ -348,6 +363,7 @@
     update plugin
     set `name` = #{name,jdbcType=VARCHAR},
       plugin_id = #{pluginId,jdbcType=VARCHAR},
+      script_id = #{scriptId,jdbcType=VARCHAR},
       clazz_name = #{clazzName,jdbcType=VARCHAR},
       source_path = #{sourcePath,jdbcType=VARCHAR},
       source_name = #{sourceName,jdbcType=VARCHAR},
@@ -363,6 +379,7 @@
     update plugin
     set `name` = #{name,jdbcType=VARCHAR},
       plugin_id = #{pluginId,jdbcType=VARCHAR},
+      script_id = #{scriptId,jdbcType=VARCHAR},
       clazz_name = #{clazzName,jdbcType=VARCHAR},
       source_path = #{sourcePath,jdbcType=VARCHAR},
       source_name = #{sourceName,jdbcType=VARCHAR},

@@ -200,7 +200,7 @@ export function setComponent(type, _this, plugin) {
       _this.$refs.scenarioRelevance.open();
       break;
     default:
-      _this.scenarioDefinition.push(new PluginController({type: plugin.name, pluginId: plugin.pluginId}));
+      _this.scenarioDefinition.push(new PluginController({type: plugin.name, pluginId: plugin.scriptId}));
       break;
   }
   if (_this.selectedNode) {
