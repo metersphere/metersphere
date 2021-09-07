@@ -185,6 +185,7 @@ export default {
     run_success: "執行成功",
     run_completed: "執行完成",
     run_fail: "執行失敗",
+    generate_test_data: "生成測試數據",
     selector: {
       required: "必填",
       not_required: "非必填",

@@ -67,12 +67,11 @@
             <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
               <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
             </el-tab-pane>
-            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API')">
+            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
               <template v-slot:label>
-                <el-button size="mini" type="primary" @click.stop @click="createTestData">生成测试数据</el-button>
+                <el-button size="mini" type="primary" @click.stop @click="generate">{{$t('commons.generate_test_data')}}</el-button>
               </template>
             </el-tab-pane>
-
           </el-tabs>
         </div>
       </el-col>
@@ -93,12 +92,13 @@ import MsApiVariable from "../../ApiVariable";
 import MsApiAssertions from "../../assertion/ApiAssertions";
 import MsApiExtract from "../../extract/ApiExtract";
 import {Body, KeyValue} from "../../../model/ApiTestModel";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {hasLicense, getUUID} from "@/common/js/utils";
 import BatchAddParameter from "../../basis/BatchAddParameter";
 import MsApiAdvancedConfig from "./ApiAdvancedConfig";
 import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
 import {hasPermission} from '@/common/js/utils';
+import Convert from "@/business/components/common/json-schema/convert/convert";
 
 export default {
   name: "MsApiHttpRequestForm",
@@ -183,13 +183,25 @@ export default {
 
   methods: {
     hasPermission,
-    createTestData() {
-      this.$post('/api/test/data/generator', this.request.body.jsonSchema, response => {
-        if (this.request.body.format !== 'JSON-SCHEMA') {
-          this.request.body.raw = response.data;
-          this.reloadBody();
+    hasLicense,
+    generate() {
+      if (this.request.body && (this.request.body.jsonSchema || this.request.body.raw)) {
+        if (!this.request.body.jsonSchema) {
+          const MsConvert = new Convert();
+          this.request.body.jsonSchema = MsConvert.format(JSON.parse(this.request.body.raw));
         }
-      });
+        this.$post('/api/test/data/generator', this.request.body.jsonSchema, response => {
+          if (response.data) {
+            if (this.request.body.format !== 'JSON-SCHEMA') {
+              this.request.body.raw = response.data;
+            } else {
+              const MsConvert = new Convert();
+              this.request.body.jsonSchema = MsConvert.format(JSON.parse(response.data));
+            }
+            this.reloadBody();
+          }
+        });
+      }
     },
     remove(row) {
       let index = this.request.hashTree.indexOf(row);

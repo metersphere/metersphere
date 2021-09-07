@@ -184,6 +184,7 @@ export default {
     run_success: "Run Success",
     run_completed: "Run Completed",
     run_fail: "Run Fail",
+    generate_test_data: "Generate test data",
     table: {
       select_tip: "Item {0} data is selected"
     },
