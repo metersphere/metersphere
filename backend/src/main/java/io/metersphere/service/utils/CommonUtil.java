@@ -53,7 +53,6 @@ public class CommonUtil {
 
     public static List<Class<?>> getSubClass(String fileName) throws Exception {
         List<Class<?>> classes = new LinkedList<>();
-        ResourcePatternResolver resourceLoader = new PathMatchingResourcePatternResolver();
         if (StringUtil.isNotEmpty(fileName) && fileName.endsWith(".jar")) {
             fileName = fileName.substring(0, fileName.length() - 4);
         }
