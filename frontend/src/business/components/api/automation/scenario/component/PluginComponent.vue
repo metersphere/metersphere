@@ -9,7 +9,7 @@
     :is-max="isMax"
     :show-btn="showBtn"
     :background-color="defBackgroundColor"
-    :title="request.type">
+    :title="pluginName">
 
     <template v-slot:request>
       <legend style="width: 100%">
@@ -120,6 +120,7 @@ export default {
       option: formCreate.parseJson(
         '{"form":{"labelPosition":"right","size":"mini","labelWidth":"120px","hideRequiredAsterisk":false,"showMessage":false,"inlineMessage":false}}'
       ),
+      pluginName: "",
     }
   },
   computed: {},
@@ -130,6 +131,7 @@ export default {
     }
     this.data = this.request;
     this.request.type = 'Sampler';
+    this.pluginName = this.request.type;
   },
   watch: {
     message() {
@@ -178,6 +180,7 @@ export default {
       if (id) {
         this.$get('/plugin/get/' + id, response => {
           let plugin = response.data;
+          this.pluginName = plugin.name;
           this.execEntry = plugin.execEntry;
           if (plugin && plugin.formScript) {
             this.rules = formCreate.parseJson(plugin.formScript);

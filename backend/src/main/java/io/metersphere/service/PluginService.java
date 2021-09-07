@@ -64,6 +64,7 @@ public class PluginService {
             plugin.setUpdateTime(System.currentTimeMillis());
             plugin.setName(item.getName());
             plugin.setPluginId(resource.getPluginId());
+            plugin.setScriptId(item.getId());
             plugin.setSourcePath(path);
             plugin.setFormOption(item.getFormOption());
             plugin.setFormScript(item.getFormScript());
@@ -156,9 +157,9 @@ public class PluginService {
         return plugins;
     }
 
-    public Plugin get(String pluginId) {
+    public Plugin get(String scriptId) {
         PluginExample example = new PluginExample();
-        example.createCriteria().andPluginIdEqualTo(pluginId);
+        example.createCriteria().andScriptIdEqualTo(scriptId);
         List<PluginWithBLOBs> plugins = pluginMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(plugins)) {
             return plugins.get(0);
