@@ -30,7 +30,10 @@
             </div>
             <span class="username">{{ item.user.name }}</span>
             <span class="operation">
-             {{ getOperation(item.operation) }}{{ getResource(item) }}: {{ item.resourceName }}
+             {{ getOperation(item.operation) }}{{ getResource(item) }}:
+              <span v-if="item.resourceId && item.operation.indexOf('DELETE') < 0"
+                    @click="clickResource(item)" style="color: #783887; cursor: pointer;">{{ item.resourceName }}</span>
+              <span v-else>{{ item.resourceName }}</span>
             </span>
           </el-row>
         </el-card>
@@ -43,7 +46,7 @@
 </template>
 
 <script>
-import {getOperation, getResource} from "@/business/components/notice/util";
+import {getOperation, getResource, getUrl} from "@/business/components/notice/util";
 
 export default {
   name: "MentionedMeData",
@@ -101,6 +104,29 @@ export default {
         this.goPage++;
       }
       this.init();
+    },
+    clickResource(resource) {
+      let resourceId = resource.resourceId;
+      if (!resourceId) {
+        return;
+      }
+      let uri = getUrl(resource);
+
+      this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+        this.toPage(uri);
+      });
+    },
+    toPage(uri) {
+      let id = "new_a";
+      let a = document.createElement("a");
+      a.setAttribute("href", uri);
+      a.setAttribute("target", "_blank");
+      a.setAttribute("id", id);
+      document.body.appendChild(a);
+      a.click();
+
+      let element = document.getElementById(id);
+      element.parentNode.removeChild(element);
     }
   }
 };

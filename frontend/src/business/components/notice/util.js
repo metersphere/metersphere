@@ -110,3 +110,54 @@ export function getResource(d) {
   }
   return resourceType;
 }
+
+export function getUrl(d) {
+  let url = "/#";
+  switch (d.resourceType) {
+    case "JENKINS_TASK" :
+      url += "/";
+      break;
+    case "TEST_PLAN_TASK" :
+      url += "/track/plan/all";
+      break;
+    case "REVIEW_TASK" :
+      url += "/track/review/all";
+      break;
+    case "DEFECT_TASK" :
+      url += "/track/issue";
+      break;
+    case "SWAGGER_TASK" :
+      url += "/";
+      break;
+    case "API_AUTOMATION_TASK" :
+      url += "/api/automation";
+      break;
+    case "API_DEFINITION_TASK" :
+      url += "/api/definition";
+      break;
+    case "API_HOME_TASK" :
+      url += "/api/home";
+      break;
+    case "API_REPORT_TASK" :
+      url += "/api/automation/report";
+      break;
+    case "PERFORMANCE_REPORT_TASK" :
+      url += "/performance/report/all";
+      break;
+    case "PERFORMANCE_TEST_TASK" :
+      url += "/performance/test/all";
+      break;
+    case "TRACK_TEST_CASE_TASK" :
+      url += "/track/case/all";
+      break;
+    case "TRACK_HOME_TASK" :
+      url += "/track/home";
+      break;
+    case "TRACK_REPORT_TASK" :
+      url += "/track/testPlan/reportList";
+      break;
+    default:
+      break;
+  }
+  return url;
+}
