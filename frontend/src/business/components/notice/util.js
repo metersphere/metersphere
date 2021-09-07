@@ -115,7 +115,7 @@ export function getUrl(d) {
   let url = "/#";
   switch (d.resourceType) {
     case "JENKINS_TASK" :
-      url += "/";
+      url += "/track/plan/all";
       break;
     case "TEST_PLAN_TASK" :
       url += "/track/plan/all";
