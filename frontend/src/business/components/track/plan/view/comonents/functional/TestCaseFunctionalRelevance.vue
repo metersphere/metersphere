@@ -102,6 +102,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTag from "@/business/components/common/components/MsTag";
+import {TEST_PLAN_RELEVANCE_FUNC_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 
 export default {
@@ -130,7 +131,9 @@ export default {
       projectId: '',
       projectName: '',
       projects: [],
-      page: getPageInfo(),
+      page: getPageInfo({
+        components: TEST_PLAN_RELEVANCE_FUNC_CONFIGS
+      }),
       customNum: false,
       priorityFilters: [
         {text: 'P0', value: 'P0'},
