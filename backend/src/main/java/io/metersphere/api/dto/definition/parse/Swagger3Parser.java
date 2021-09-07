@@ -592,6 +592,70 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         return schema;
     }
 
+    private JSONObject buildJsonSchema(JSONObject requestBody, JSONArray required) {
+        String type = requestBody.getString("type");
+
+        JSONObject parsedParam = new JSONObject();
+        if (StringUtils.isNotBlank(type)) {
+            if (StringUtils.equals(type, "array")) {
+                JSONObject items = requestBody.getJSONObject("items");
+                parsedParam.put("type", "array");
+                JSONObject item = buildJsonSchema(items, required);
+                if (StringUtils.isNotBlank(requestBody.getString("description"))) {
+                    parsedParam.put("description", requestBody.getString("description"));
+                }
+                parsedParam.put("items", item);
+            } else if(StringUtils.equals(type, "object")) {
+                parsedParam.put("type", "object");
+                JSONObject properties = requestBody.getJSONObject("properties");
+                JSONObject swaggerProperties = new JSONObject();
+                properties.keySet().forEach((k) -> {
+                    JSONObject item = buildJsonSchema(properties.getJSONObject(k), required);
+                    if (required != null && required.contains(k)) {
+                        item.put("required", true);
+                    }
+                    swaggerProperties.put(k, item);
+                });
+                if (StringUtils.isNotBlank(requestBody.getString("description"))) {
+                    parsedParam.put("description", requestBody.getString("description"));
+                }
+                parsedParam.put("properties", swaggerProperties);
+            } else if(StringUtils.equals(type, "integer")) {
+                parsedParam.put("type", "integer");
+                parsedParam.put("format", "int64");
+                setCommonJsonSchemaParam(parsedParam, requestBody);
+            }  else if(StringUtils.equals(type, "boolean")) {
+                parsedParam.put("type", "boolean");
+                setCommonJsonSchemaParam(parsedParam, requestBody);
+            } else if(StringUtils.equals(type, "number")) {  //  double 类型会被 fastJson 转换为 BigDecimal
+                parsedParam.put("type", "double");
+                setCommonJsonSchemaParam(parsedParam, requestBody);
+            } else {
+                parsedParam.put("type", "string");
+                setCommonJsonSchemaParam(parsedParam, requestBody);
+            }
+        }
+        return parsedParam;
+    }
+    public void setCommonJsonSchemaParam(JSONObject parsedParam, JSONObject requestBody) {
+        if (StringUtils.isNotBlank(requestBody.getString("description"))) {
+            parsedParam.put("description", requestBody.getString("description"));
+        }
+        Object jsonSchemaValue = getJsonSchemaValue(requestBody);
+        if (jsonSchemaValue != null) {
+            parsedParam.put("example", jsonSchemaValue);
+        }
+    }
+
+    public Object getJsonSchemaValue(JSONObject item) {
+        JSONObject mock = item.getJSONObject("mock");
+        if (mock != null) {
+            Object value = mock.get("mock");
+            return value;
+        }
+        return null;
+    }
+
     //  设置一个 json 对象的属性在 swagger 格式中的类型、值
     private JSONObject buildSchema(JSONObject requestBody) {
         JSONObject schema = new JSONObject();
@@ -730,11 +794,22 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             } else if(bodyType.equals("JSON")) {
                 try {
                     if (StringUtils.equals(body.getString("format"), "JSON-SCHEMA")) {
-                        String jsonSchema = JSONSchemaGenerator.getJson(body.getString("jsonSchema"));
-                        try {
-                            bodyInfo = buildRequestBodyJsonInfo(JSONObject.parseObject(jsonSchema));
-                        } catch (Exception e) {
-                            bodyInfo = buildRequestBodyJsonInfo(JSONObject.parseArray(jsonSchema));
+//                        String jsonSchema = JSONSchemaGenerator.getJson(body.getString("jsonSchema"));
+                        String jsonSchema = body.getString("jsonSchema");
+//                            bodyInfo = buildRequestBodyJsonInfo(JSONObject.parseObject(jsonSchema));
+                        if (StringUtils.isNotBlank(jsonSchema)) {
+                            JSONObject jsonObject = JSONObject.parseObject(jsonSchema);
+                            JSONArray required = new JSONArray();
+                            if (jsonObject != null) {
+                                required = jsonObject.getJSONArray("required");
+                            }
+                            if (required == null) {
+                                JSONObject items = jsonObject.getJSONObject("items");
+                                if (items != null) {
+                                    required = items.getJSONArray("required");
+                                }
+                            }
+                            bodyInfo = buildJsonSchema(jsonObject, required);
                         }
                     } else {
                         try{    //  若请求体是一个 object
