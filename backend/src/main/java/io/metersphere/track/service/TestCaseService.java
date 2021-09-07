@@ -1905,4 +1905,8 @@ public class TestCaseService {
     public List<LoadTestDTO> getTestCaseLoadCaseRelateList(LoadCaseRequest request) {
         return testCaseTestMapper.relevanceLoadList(request);
     }
+
+    public TestCaseWithBLOBs getTestCaseStep(String testCaseId) {
+        return extTestCaseMapper.getTestCaseStep(testCaseId);
+    }
 }

@@ -527,6 +527,9 @@
             </foreach>
         </where>
     </select>
+    <select id="getTestCaseStep" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
+        select id, prerequisite, steps, step_description, expected_result, step_model from test_case where id = #{id}
+    </select>
 
     <update id="deleteToGc">
         update test_case set original_status=status,

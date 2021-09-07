@@ -1524,7 +1524,8 @@ export default {
       export: {
         export: "导出用例",
         export_tip: "请切换成接口列表勾选用例导出！"
-      }
+      },
+      case_desc: "用例描述"
     },
     plan: {
       test_plan: "测试计划",

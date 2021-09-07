@@ -179,6 +179,7 @@ export let CUSTOM_TABLE_HEADER = {
     {id: 'updateTime', key: '6', label: 'commons.update_time'},
     {id: 'createUser', key: '7', label: 'commons.create_user'},
     {id: 'createTime', key: '8', label: 'commons.create_time'},
+    {id: 'desc', key: '9', label: 'test_track.case.case_desc'},
   ],
   //缺陷列表
   ISSUE_LIST: [

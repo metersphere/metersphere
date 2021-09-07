@@ -37,7 +37,7 @@
             clearable/>
         </template>
       </el-table-column>
-      <el-table-column :label="$t('commons.input_content')" min-width="25%">
+      <el-table-column :label="$t('commons.input_content')" min-width="30%">
         <template v-slot:default="scope">
           <el-button
             type="primary"
