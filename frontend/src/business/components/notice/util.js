@@ -127,7 +127,7 @@ export function getUrl(d) {
       url += "/track/issue";
       break;
     case "SWAGGER_TASK" :
-      url += "/";
+      url += "/api/definition";
       break;
     case "API_AUTOMATION_TASK" :
       url += "/api/automation";

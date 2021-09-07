@@ -160,7 +160,6 @@ public class ApiDefinitionExecResultService {
                 .failedMailTemplate("api/CaseResult")
                 .paramMap(paramMap)
                 .event(event)
-                .excludeSelf(true)
                 .build();
 
         String taskType = NoticeConstants.TaskType.API_DEFINITION_TASK;
