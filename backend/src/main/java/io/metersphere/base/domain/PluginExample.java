@@ -314,6 +314,76 @@ public class PluginExample {
             return (Criteria) this;
         }
 
+        public Criteria andScriptIdIsNull() {
+            addCriterion("script_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdIsNotNull() {
+            addCriterion("script_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdEqualTo(String value) {
+            addCriterion("script_id =", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdNotEqualTo(String value) {
+            addCriterion("script_id <>", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdGreaterThan(String value) {
+            addCriterion("script_id >", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdGreaterThanOrEqualTo(String value) {
+            addCriterion("script_id >=", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdLessThan(String value) {
+            addCriterion("script_id <", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdLessThanOrEqualTo(String value) {
+            addCriterion("script_id <=", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdLike(String value) {
+            addCriterion("script_id like", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdNotLike(String value) {
+            addCriterion("script_id not like", value, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdIn(List<String> values) {
+            addCriterion("script_id in", values, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdNotIn(List<String> values) {
+            addCriterion("script_id not in", values, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdBetween(String value1, String value2) {
+            addCriterion("script_id between", value1, value2, "scriptId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdNotBetween(String value1, String value2) {
+            addCriterion("script_id not between", value1, value2, "scriptId");
+            return (Criteria) this;
+        }
+
         public Criteria andClazzNameIsNull() {
             addCriterion("clazz_name is null");
             return (Criteria) this;

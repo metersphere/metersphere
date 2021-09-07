@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class Plugin implements Serializable {
@@ -11,6 +10,8 @@ public class Plugin implements Serializable {
     private String name;
 
     private String pluginId;
+
+    private String scriptId;
 
     private String clazzName;
 
