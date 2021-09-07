@@ -3,7 +3,9 @@
 
       <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable"
                 @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
-
+      <ms-table-adv-search-bar :condition.sync="condition" class="adv-search-bar"
+                               v-if="condition.components !== undefined && condition.components.length > 0"
+                               @search="initTable"/>
       <ms-table v-loading="result.loading" :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
                 :total="total"
                 :showSelectAll="false"
@@ -55,6 +57,14 @@
           </template>
         </ms-table-column>
 
+        <ms-table-column prop="tags" width="120px" :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+            <span></span>
+          </template>
+        </ms-table-column>
+
       </ms-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
@@ -73,6 +83,9 @@ import PriorityTableItem from "@/business/components/track/common/tableItems/pla
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import TableSelectCountBar from "@/business/components/api/automation/scenario/api/TableSelectCountBar";
 import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import MsTag from "@/business/components/common/components/MsTag";
+import {TEST_CASE_RELEVANCE_API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 export default {
   name: "TestCaseRelateScenarioList",
@@ -82,11 +95,15 @@ export default {
     MsTablePagination,
     PriorityTableItem,
     MsTable,
-    MsTableColumn
+    MsTableColumn,
+    MsTableAdvSearchBar,
+    MsTag
   },
   data() {
     return {
-      condition: {},
+      condition: {
+        components: TEST_CASE_RELEVANCE_API_CASE_CONFIGS
+      },
       result: {},
       priorityFilters: [
         {text: 'P0', value: 'P0'},
@@ -138,6 +155,11 @@ export default {
       this.result = this.$post(this.buildPagePath(url), this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
+        });
       });
     },
     clear() {
@@ -165,5 +187,10 @@ export default {
   float: right;
   width: 300px;
   margin-right: 20px;
+}
+.adv-search-bar {
+  float: right;
+  margin-top: 5px;
+  margin-right: 10px;
 }
 </style>
