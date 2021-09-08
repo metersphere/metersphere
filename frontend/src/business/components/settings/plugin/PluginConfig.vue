@@ -15,7 +15,12 @@
           :show-import="true"/>
       </template>
 
-      <el-table border :data="tableData" class="adjust-table table-content">
+      <el-table
+        border
+        :data="tableData"
+        row-key="id"
+        :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+        class="adjust-table table-content">
         <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
         <el-table-column prop="sourceName" :label="$t('api_test.jar_config.jar_file')" show-overflow-tooltip/>
         <el-table-column prop="pluginId" :label="$t('plugin.plugin_id')" show-overflow-tooltip/>
@@ -25,15 +30,16 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column :label="$t('commons.operating')" min-width="100">
+        <el-table-column :label="$t('commons.operating')" min-width="30">
           <template v-slot:default="scope">
-            <div>
+            <div v-if="scope.row.name === scope.row.sourceName">
               <ms-table-operator-button
                 :tip="$t('commons.delete')"
                 icon="el-icon-delete"
                 type="danger"
                 @exec="handleDelete(scope.row.id)"/>
-
+            </div>
+            <div v-else>
               <ms-table-operator-button
                 :tip="$t('plugin.script_view')"
                 icon="el-icon-view"
@@ -60,7 +66,7 @@ import MsScriptView from "./ScriptView";
 
 export default {
   name: "PluginConfig",
-  components: {MsTableOperatorButton, MsTableHeader, MsJarConfig,MsScriptView},
+  components: {MsTableOperatorButton, MsTableHeader, MsJarConfig, MsScriptView},
   props: {},
   data() {
     return {
@@ -68,6 +74,7 @@ export default {
       condition: {},
       tableData: [],
       dialogVisible: false,
+      dataMap: new Map(),
     }
   },
   created() {
@@ -82,15 +89,33 @@ export default {
     },
     initPlugins() {
       let url = "/plugin/list";
+      this.tableData = [];
       this.$get(url, response => {
-        this.tableData = response.data;
+        if (response.data) {
+          this.format(response.data);
+          this.dataMap.forEach((values, key) => {
+            let obj = {id: key, name: values[0].sourceName, sourceName: values[0].sourceName, pluginId: key, createUserId: values[0].createUserId, updateTime: values[0].updateTime};
+            obj.children = values;
+            this.tableData.push(obj);
+          })
+        }
       });
+    },
+    format(data) {
+      this.dataMap = new Map();
+      data.forEach(item => {
+        if (this.dataMap.has(item.pluginId)) {
+          this.dataMap.get(item.pluginId).push(item);
+        } else {
+          this.dataMap.set(item.pluginId, [item]);
+        }
+      })
     },
     close() {
       this.dialogVisible = false;
       this.initPlugins();
     },
-    handleView(row){
+    handleView(row) {
       this.$refs.scriptView.open(row.scriptId);
     },
     handleDelete(id) {

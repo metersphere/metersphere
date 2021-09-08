@@ -168,20 +168,15 @@ public class PluginService {
     }
 
     public String delete(String id) {
-        Plugin plugin = pluginMapper.selectByPrimaryKey(id);
-        if (plugin != null) {
-            //通过pluginId判断是否还有其他脚本，无则清理加载的jar包
-            PluginExample example = new PluginExample();
-            example.createCriteria().andPluginIdEqualTo(plugin.getPluginId());
-            List<Plugin> plugins = pluginMapper.selectByExample(example);
-            if (plugins.size() == 1) {
-                // this.closeJar(plugin.getSourcePath());
-                FileUtils.deleteFile(plugin.getSourcePath());
-            }
-            pluginMapper.deleteByPrimaryKey(id);
-            return "success";
+        //通过pluginId判断是否还有其他脚本，无则清理加载的jar包
+        PluginExample example = new PluginExample();
+        example.createCriteria().andPluginIdEqualTo(id);
+        List<Plugin> list = pluginMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            FileUtils.deleteFile(list.get(0).getSourcePath());
+            pluginMapper.deleteByExample(example);
         }
-        return "error";
+        return "success";
     }
 
     public Object customMethod(PluginRequest request) {
