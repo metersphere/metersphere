@@ -41,7 +41,6 @@ import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanLoadCaseService;
-import org.apache.commons.beanutils.BeanUtilsBean;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
