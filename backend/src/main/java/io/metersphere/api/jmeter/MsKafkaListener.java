@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiScenarioReport;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
@@ -76,6 +77,7 @@ public class MsKafkaListener {
         TestResult testResult = this.formatResult(execResult);
         ApiTestReport report = null;
         String reportUrl = null;
+        String projectId = null;
         // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
         if (StringUtils.equals(testResult.getRunMode(), ApiRunMode.DEFINITION.name())) {
             // 调试操作，不需要存储结果
@@ -96,7 +98,9 @@ public class MsKafkaListener {
                 report.setStatus(result.getStatus());
                 report.setId(result.getId());
                 report.setTriggerMode(ApiRunMode.API.name());
-                report.setName(apiDefinitionService.getApiCaseInfo(testResult.getTestId()).getName());
+                ApiTestCaseWithBLOBs apiCaseInfo = apiDefinitionService.getApiCaseInfo(testResult.getTestId());
+                report.setName(apiCaseInfo.getName());
+                projectId = apiCaseInfo.getProjectId();
             }
         } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
@@ -128,7 +132,7 @@ public class MsKafkaListener {
             assert systemParameterService != null;
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
-
+            projectId = scenarioReport.getProjectId();
             testResult.setTestId(scenarioReport.getScenarioId());
         } else {
             apiTestService.changeStatus(testResult.getTestId(), APITestStatus.Completed);
@@ -151,12 +155,12 @@ public class MsKafkaListener {
         }
         if (report != null) {
             if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-                sendTask(report, reportUrl, testResult);
+                sendTask(report, reportUrl, testResult, projectId);
             }
         }
     }
 
-    private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
+    private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult, String projectId) {
         if (report == null) {
             return;
         }
@@ -200,6 +204,7 @@ public class MsKafkaListener {
         paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("status", report.getStatus());
+        paramMap.put("projectId", projectId);
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")

@@ -3,9 +3,9 @@ package io.metersphere.notice.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
-import io.metersphere.base.mapper.LoadTestReportMapper;
-import io.metersphere.base.mapper.MessageTaskMapper;
-import io.metersphere.base.mapper.UserMapper;
+import io.metersphere.base.domain.Project;
+import io.metersphere.base.domain.Workspace;
+import io.metersphere.base.mapper.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
@@ -35,6 +35,10 @@ public class NoticeService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private WorkspaceMapper workspaceMapper;
 
     public void saveMessageTask(MessageDetail messageDetail) {
         MessageTaskExample example = new MessageTaskExample();
@@ -146,12 +150,18 @@ public class NoticeService {
         }
     }
 
-    public List<MessageDetail> searchMessageByTypeBySend(String type, String id) {
+    public List<MessageDetail> searchMessageByTypeBySend(String type, String id, String projectId) {
         try {
             String orgId = "";
             if (null == SessionUtils.getUser()) {
-                String userId = loadTestReportMapper.selectByPrimaryKey(id).getUserId();
-                orgId = userMapper.selectByPrimaryKey(userId).getLastOrganizationId();
+                if (StringUtils.isNotBlank(projectId)) {
+                    Project project = projectMapper.selectByPrimaryKey(projectId);
+                    Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
+                    orgId = workspace.getOrganizationId();
+                } else {
+                    String userId = loadTestReportMapper.selectByPrimaryKey(id).getUserId();
+                    orgId = userMapper.selectByPrimaryKey(userId).getLastOrganizationId();
+                }
             } else {
                 SessionUser user = SessionUtils.getUser();
                 orgId = user.getLastOrganizationId();
