@@ -7,7 +7,8 @@
           <el-tabs v-model="activeName" class="request-tabs">
             <!-- 请求头-->
             <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')"
+                          placement="top-start" slot="label">
               <span>{{$t('api_test.request.headers')}}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length>1">
                   <div class="el-step__icon-inner">{{headers.length-1}}</div>
@@ -15,28 +16,34 @@
               </span>
               </el-tooltip>
               <el-row>
-                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
+                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}
+                </el-link>
               </el-row>
-              <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers" :need-mock="true"/>
+              <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions"
+                                :items="headers" :need-mock="true"/>
             </el-tab-pane>
 
             <!--query 参数-->
             <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')"
+                          placement="top-start" slot="label">
               <span>{{$t('api_test.definition.request.query_param')}}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.arguments.length>1">
                   <div class="el-step__icon-inner">{{request.arguments.length-1}}</div>
                 </div></span>
               </el-tooltip>
               <el-row>
-                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
+                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}
+                </el-link>
               </el-row>
-              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
+              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+                               :parameters="request.arguments"/>
             </el-tab-pane>
 
             <!--REST 参数-->
             <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')"
+                          placement="top-start" slot="label">
               <span>
                 {{$t('api_test.definition.request.rest_param')}}
                 <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.rest.length>1">
@@ -45,19 +52,23 @@
               </span>
               </el-tooltip>
               <el-row>
-                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
+                <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}
+                </el-link>
               </el-row>
-              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
+              <ms-api-variable :with-mor-setting="true" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+                               :parameters="request.rest"/>
             </el-tab-pane>
 
             <!--请求体-->
             <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body" style="overflow: auto">
-              <ms-api-body @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
+              <ms-api-body @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable"
+                           :headers="headers" :body="request.body"/>
             </el-tab-pane>
 
             <!-- 认证配置 -->
             <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig">
-              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')" placement="top-start" slot="label">
+              <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')"
+                          placement="top-start" slot="label">
                 <span>{{$t('api_test.definition.request.auth_config')}}</span>
               </el-tooltip>
 
@@ -167,7 +178,7 @@
     },
 
     created() {
-      if(!this.referenced && this.showScript){
+      if (!this.referenced && this.showScript) {
         this.spanCount = 21;
       } else {
         this.spanCount = 24;
@@ -218,28 +229,52 @@
       batchAdd() {
         this.$refs.batchAddParameter.open();
       },
+      format(array, obj) {
+        if (array) {
+          let isAdd = true;
+          for (let i in array) {
+            let item = array[i];
+            if (item.name === obj.name) {
+              item.value = obj.value;
+              isAdd = false;
+            }
+          }
+          if (isAdd) {
+            this.request.arguments.unshift(obj);
+          }
+        }
+      },
       batchSave(data) {
         if (data) {
           let params = data.split("\n");
           let keyValues = [];
           params.forEach(item => {
-            let line = item.split(/，|,/);
+            let line = item.split(/：|:/);
             let required = false;
-            if (line[1] === '必填' || line[1] === 'Required' || line[1] === 'true') {
-              required = true;
-            }
-            keyValues.push(new KeyValue({name: line[0], required: required, value: line[2], description: line[3], type: "text", valid: false, file: false, encode: true, enable: true, contentType: "text/plain"}));
+            keyValues.unshift(new KeyValue({
+              name: line[0],
+              required: required,
+              value: line[1],
+              description: line[2],
+              type: "text",
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+              contentType: "text/plain"
+            }));
           })
+
           keyValues.forEach(item => {
             switch (this.activeName) {
               case "parameters":
-                this.request.arguments.unshift(item);
+                this.format(this.request.arguments,item);
                 break;
               case "rest":
-                this.request.rest.unshift(item);
+                this.format(this.request.rest,item);
                 break;
               case "headers":
-                this.request.headers.unshift(item);
+                this.format(this.request.headers,item);
                 break;
               default:
                 break;
@@ -247,6 +282,7 @@
           })
         }
       }
+
     }
   }
 </script>
