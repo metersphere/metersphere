@@ -165,7 +165,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
                 if (StringUtils.isNotBlank(this.selectModulePath)) {
                     apiDefinition.setModulePath(this.selectModulePath + path);
                 } else if (StringUtils.isBlank(importRequest.getModuleId())){
-                    apiDefinition.setModulePath("/默认模块" + path);
+                    apiDefinition.setModulePath("/未规划接口" + path);
                 }
             }
         }

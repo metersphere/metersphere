@@ -9,6 +9,7 @@
       :delete-permission="['PROJECT_TRACK_CASE:READ+DELETE']"
       :add-permission="['PROJECT_TRACK_CASE:READ+CREATE']"
       :update-permission="['PROJECT_TRACK_CASE:READ+EDIT']"
+      :default-label="'未规划用例'"
       @add="add"
       @edit="edit"
       @drag="drag"

@@ -123,14 +123,14 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public TestCaseNode getDefaultNode(String projectId) {
         TestCaseNodeExample example = new TestCaseNodeExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块").andParentIdIsNull();;
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("未规划用例").andParentIdIsNull();;
         List<TestCaseNode> list = testCaseNodeMapper.selectByExample(example);
         if(CollectionUtils.isEmpty(list)){
             NodeNumDTO record = new NodeNumDTO();
             //TestCaseNode record = new TestCaseNode();
             record.setId(UUID.randomUUID().toString());
             record.setCreateUser(SessionUtils.getUserId());
-            record.setName("默认模块");
+            record.setName("未规划用例");
             record.setPos(1.0);
             record.setLevel(1);
             record.setCreateTime(System.currentTimeMillis());

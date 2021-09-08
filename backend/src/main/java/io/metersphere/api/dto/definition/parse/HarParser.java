@@ -123,7 +123,7 @@ public class HarParser extends HarAbstractParser {
                 if (StringUtils.isNotBlank(selectModulePath)) {
                     apiDefinition.setModulePath(selectModulePath);
                 } else {
-                    apiDefinition.setModulePath("/默认模块");
+                    apiDefinition.setModulePath("/未规划接口");
                 }
                 results.add(apiDefinition);
             }

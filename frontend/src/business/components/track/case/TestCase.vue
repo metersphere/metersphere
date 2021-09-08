@@ -369,7 +369,7 @@ export default {
       if ('default-module' === data.nodeId) {
         for (let i = 0; i < this.moduleOptions.length; i++) {
           let item = this.moduleOptions[i];
-          if (item.path.indexOf('默认模块') > -1) {
+          if (item.path.indexOf('未规划用例') > -1) {
             data.nodeId = item.id;
             break;
           }

@@ -203,7 +203,7 @@
         form: {
           name: '',
           module: 'default-module',
-          nodePath: '/默认模块',
+          nodePath: '/未规划用例',
           maintainer: getCurrentUser().id,
           priority: 'P0',
           type: '',

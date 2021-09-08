@@ -407,7 +407,7 @@ public class ApiAutomationService {
 
         if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || "default-module".equals(request.getApiScenarioModuleId())) {
             ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-            example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo("默认模块");
+            example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo("未规划场景");
             List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 scenario.setApiScenarioModuleId(modules.get(0).getId());

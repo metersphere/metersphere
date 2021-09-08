@@ -16,3 +16,14 @@ CREATE TABLE `plugin` (
 )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
+
+update test_case_node set name = '未规划用例' where name = '默认模块' and `level` = 1;
+update test_case set node_path = replace (`node_path`,'/默认模块','/未规划用例') where node_path like '/默认模块%';
+
+update api_module set name = '未规划接口' where name = '默认模块' and `level` = 1;
+update api_definition set module_path = replace (`module_path`,'/默认模块','/未规划接口') where module_path like '/默认模块%';
+
+update api_scenario_module set name = '未规划场景' where name = '默认模块' and `level` = 1;
+update api_scenario set module_path = replace (`module_path`,'/默认模块','/未规划场景') where module_path like '/默认模块%';
+
+

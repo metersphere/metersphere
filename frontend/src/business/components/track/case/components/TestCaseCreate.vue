@@ -117,7 +117,7 @@ export default {
             this.testCaseForm.nodePath = this.currentModule.path;
             this.testCaseForm.nodeId = this.currentModule.id;
           } else {
-            this.testCaseForm.nodePath = "/默认模块"
+            this.testCaseForm.nodePath = "/未规划用例"
             this.testCaseForm.nodeId = "default-module"
           }
           this.result = this.$post(path, this.testCaseForm, response => {

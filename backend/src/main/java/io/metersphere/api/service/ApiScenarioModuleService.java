@@ -447,12 +447,12 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
 
     public ApiScenarioModule getDefaultNode(String projectId) {
         ApiScenarioModuleExample example = new ApiScenarioModuleExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块").andParentIdIsNull();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("未规划场景").andParentIdIsNull();
         List<ApiScenarioModule> list = apiScenarioModuleMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(list)) {
             ApiScenarioModule record = new ApiScenarioModule();
             record.setId(UUID.randomUUID().toString());
-            record.setName("默认模块");
+            record.setName("未规划场景");
             record.setPos(1.0);
             record.setLevel(1);
             record.setCreateTime(System.currentTimeMillis());
