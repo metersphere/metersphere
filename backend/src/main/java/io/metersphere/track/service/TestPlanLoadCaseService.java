@@ -396,4 +396,22 @@ public class TestPlanLoadCaseService {
         });
         return cases;
     }
+
+    public String getPlanLoadCaseConfig(String loadCaseId) {
+        if (StringUtils.isBlank(loadCaseId)) {
+            return "";
+        }
+        TestPlanLoadCase testPlanLoadCase = testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+        if (testPlanLoadCase != null) {
+            return testPlanLoadCase.getLoadConfiguration();
+        }
+        return "";
+    }
+
+    public TestPlanLoadCase getTestPlanLoadCase(String loadCaseId) {
+        if (StringUtils.isBlank(loadCaseId)) {
+            return new TestPlanLoadCase();
+        }
+        return testPlanLoadCaseMapper.selectByPrimaryKey(loadCaseId);
+    }
 }
