@@ -26,11 +26,13 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.NodeDTO;
+import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -38,6 +40,8 @@ import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.ProjectService;
+import io.metersphere.service.UserService;
 import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
@@ -79,6 +83,10 @@ public class ApiScenarioReportService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     private NoticeSendService noticeSendService;
+    @Resource
+    private UserService userService;
+    @Resource
+    private ExtProjectMapper extProjectMapper;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -596,7 +604,7 @@ public class ApiScenarioReportService {
 
                     apiScenarioMapper.updateByPrimaryKey(scenario);
                     // 发送通知
-                    sendNotice(scenario);
+                    sendNotice(scenario, report);
                 }
                 lastReport = report;
                 if (report.getExecuteType().equals(ExecuteType.Marge.name())) {
@@ -615,28 +623,29 @@ public class ApiScenarioReportService {
     }
 
 
-    private void sendNotice(ApiScenario result) {
+    private void sendNotice(ApiScenario scenario, ApiScenarioReport result) {
 
-        BeanMap beanMap = new BeanMap(result);
+        BeanMap beanMap = new BeanMap(scenario);
 
         String event;
         String status;
-        if (StringUtils.equals(result.getLastResult(), "Success")) {
+        if (StringUtils.equals(scenario.getLastResult(), "Success")) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
             status = "成功";
         } else {
             event = NoticeConstants.Event.EXECUTE_FAILED;
             status = "失败";
         }
+        String userId = result.getCreateUser();
+        UserDTO userDTO = userService.getUserDTO(userId);
 
         Map paramMap = new HashMap<>(beanMap);
-        if (SessionUtils.getUser() != null) {
-            paramMap.put("operator", SessionUtils.getUser().getName());
-        }
-        paramMap.put("status", result.getLastResult());
+        paramMap.put("operator", userDTO.getName());
+        paramMap.put("status", scenario.getLastResult());
+
         String context = "${operator}执行接口自动化" + status + ": ${name}";
         NoticeModel noticeModel = NoticeModel.builder()
-                .operator(SessionUtils.getUserId())
+                .operator(userId)
                 .context(context)
                 .subject("接口自动化通知")
                 .successMailTemplate("api/ScenarioResult")
@@ -645,8 +654,8 @@ public class ApiScenarioReportService {
                 .event(event)
                 .build();
 
-        String taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK;
-        noticeSendService.send(taskType, noticeModel);
+        Organization organization = extProjectMapper.getOrganizationByProjectId(scenario.getProjectId());
+        noticeSendService.send(organization, NoticeConstants.TaskType.API_AUTOMATION_TASK, noticeModel);
     }
 
     public String update(APIScenarioReportResult test) {
