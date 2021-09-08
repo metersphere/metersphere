@@ -19,7 +19,7 @@
         <java.version>1.8</java.version>
         <jmeter.version>5.4.1</jmeter.version>
         <nacos.version>1.1.3</nacos.version>
-        <dubbo.version>2.7.8</dubbo.version>
+        <dubbo.version>2.7.13</dubbo.version>
         <groovy.version>3.0.8</groovy.version>
         <metersphere-jmeter-functions.version>1.4</metersphere-jmeter-functions.version>
     </properties>
