@@ -17,6 +17,13 @@ CREATE TABLE `plugin` (
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
 
+
+alter table test_plan_load_case
+    add test_resource_pool_id varchar(50) null;
+
+alter table test_plan_load_case
+    add load_configuration longtext null;
+
 update test_case_node set name = '未规划用例' where name = '默认模块' and `level` = 1;
 update test_case set node_path = replace (`node_path`,'/默认模块','/未规划用例') where node_path like '/默认模块%';
 

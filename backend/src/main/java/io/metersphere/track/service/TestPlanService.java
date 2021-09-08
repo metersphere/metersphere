@@ -1046,7 +1046,7 @@ public class TestPlanService {
             String caseID = entry.getValue();
             RunTestPlanRequest performanceRequest = new RunTestPlanRequest();
             performanceRequest.setId(caseID);
-            performanceRequest.setTestPlanLoadId(caseID);
+            performanceRequest.setTestPlanLoadId(id);
             if (StringUtils.equals(ReportTriggerMode.API.name(), triggerMode)) {
                 performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_API.name());
             } else if (StringUtils.equals(ReportTriggerMode.MANUAL.name(), triggerMode)) {

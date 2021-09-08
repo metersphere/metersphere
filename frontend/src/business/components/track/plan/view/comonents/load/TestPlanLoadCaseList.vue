@@ -111,6 +111,7 @@
     <ms-plan-run-mode @handleRunBatch="runBatch" ref="runMode"/>
 
     <load-case-report :report-id="reportId" ref="loadCaseReport" @refresh="initTable"/>
+    <load-case-config ref="loadCaseConfig"/>
   </div>
 </template>
 
@@ -132,6 +133,7 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
+import LoadCaseConfig from "@/business/components/track/plan/view/comonents/load/LoadCaseConfig";
 
 export default {
   name: "TestPlanLoadCaseList",
@@ -145,7 +147,8 @@ export default {
     TestPlanLoadCaseListHeader,
     MsTablePagination,
     MsPerformanceTestStatus,
-    MsPlanRunMode
+    MsPlanRunMode,
+    LoadCaseConfig
   },
   data() {
     return {
@@ -171,12 +174,19 @@ export default {
           permissions: ['PROJECT_TRACK_PLAN:READ+RUN']
         },
         {
+          tip: '修改压力配置',
+          icon: "el-icon-setting",
+          exec: this.changeLoadConfig,
+          type: 'danger',
+          isDisable: this.isReadOnly,
+        },
+        {
           tip: this.$t('test_track.plan_view.cancel_relevance'), icon: "el-icon-unlock",
           exec: this.handleDelete,
           type: 'danger',
           isDisable: this.isReadOnly,
           permissions: ['PROJECT_TRACK_PLAN:READ+RELEVANCE_OR_CANCEL']
-        }
+        },
       ],
       buttons: [
         {
@@ -404,6 +414,10 @@ export default {
         this.$emit('refresh');
         this.initTable();
       });
+    },
+    changeLoadConfig(loadCase) {
+      const {loadCaseId, id} = loadCase;
+      this.$refs.loadCaseConfig.open(loadCaseId, id);
     },
     getReport(data) {
       const {loadReportId} = data;

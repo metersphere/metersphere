@@ -100,4 +100,14 @@ public class TestPlanLoadCaseController {
     public List<TestPlanLoadCaseDTO> getAllCases(@PathVariable String planId) {
         return testPlanLoadCaseService.getAllCases(planId);
     }
+
+    @GetMapping("/get-load-config/{loadCaseId}")
+    public String getPlanLoadCaseConfig(@PathVariable String loadCaseId) {
+        return testPlanLoadCaseService.getPlanLoadCaseConfig(loadCaseId);
+    }
+
+    @GetMapping("/get/{loadCaseId}")
+    public TestPlanLoadCase getTestPlanLoadCase(@PathVariable String loadCaseId) {
+        return testPlanLoadCaseService.getTestPlanLoadCase(loadCaseId);
+    }
 }
