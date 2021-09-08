@@ -408,11 +408,11 @@ public class ApiDefinitionService {
         test.setFollowPeople(request.getFollowPeople());
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("默认模块");
+            example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 test.setModuleId(modules.get(0).getId());
-                test.setModulePath("/默认模块");
+                test.setModulePath("/未规划接口");
             }
         }
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
@@ -770,7 +770,7 @@ public class ApiDefinitionService {
     private void setModule(ApiDefinitionWithBLOBs item) {
         if (item != null && StringUtils.isEmpty(item.getModuleId()) || "default-module".equals(item.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
-            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("默认模块");
+            example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("未规划接口");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(modules)) {
                 item.setModuleId(modules.get(0).getId());

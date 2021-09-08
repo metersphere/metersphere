@@ -194,7 +194,7 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
                 if (StringUtils.isNotBlank(this.selectModulePath)) {
                     apiScenarioWithBLOBs.setModulePath(this.selectModulePath + path);
                 } else if (StringUtils.isBlank(importRequest.getModuleId())) {
-                    apiScenarioWithBLOBs.setModulePath("/默认模块" + path);
+                    apiScenarioWithBLOBs.setModulePath("/未规划场景" + path);
                 }
             }
         }

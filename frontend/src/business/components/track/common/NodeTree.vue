@@ -35,7 +35,7 @@
         </span>
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !=='默认模块'"
+            v-if="data.id !== 'root' && data.name !== defaultLabel"
             class="item"
             effect="dark"
             v-permission="updatePermission"
@@ -45,7 +45,7 @@
             <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.name ==='默认模块' && data.level !==1"
+            v-if="data.name === defaultLabel && data.level !==1"
             v-permission="updatePermission"
             class="item"
             effect="dark"
@@ -59,13 +59,14 @@
             effect="dark"
             :open-delay="200"
             v-permission="addPermission"
+            v-if="!(data.name === defaultLabel && data.level ===1)"
             :content="$t('test_track.module.add_submodule')"
             placement="top">
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
 
           <el-tooltip
-            v-if="data.name ==='默认模块' && data.level !==1"
+            v-if="data.name === defaultLabel && data.level !==1"
             class="item" effect="dark"
             :open-delay="200"
             v-permission="deletePermission"
@@ -75,7 +76,7 @@
           </el-tooltip>
 
           <el-tooltip
-            v-if="data.id !== 'root' && data.name !=='默认模块'"
+            v-if="data.id !== 'root' && data.name !== defaultLabel"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
@@ -122,6 +123,12 @@ export default {
       type: String,
       default() {
         return this.$t("commons.all_label.case");
+      }
+    },
+    defaultLabel: {
+      type: String,
+      default() {
+        return '默认模块';
       }
     },
     nameLimit: {
@@ -317,7 +324,7 @@ export default {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
-      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name==='默认模块') {
+      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name === this.defaultLabel) {
         this.$emit('refresh');
         return false;
       }
