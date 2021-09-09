@@ -465,7 +465,7 @@
         select DISTINCT project_id from api_scenario;
     </select>
     <select id="getIdsOrderByCreateTime" resultType="java.lang.String">
-        select id from api_scenario where project_id = #{projectId} order by create_time DESC;
+        select id from api_scenario where project_id = #{projectId} order by create_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">

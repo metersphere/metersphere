@@ -534,7 +534,7 @@
         select DISTINCT project_id from test_case;
     </select>
     <select id="getIdsOrderByCreateTime" resultType="java.lang.String">
-        select id from test_case where project_id = #{projectId} order by create_time DESC;
+        select id from test_case where project_id = #{projectId} order by create_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">
