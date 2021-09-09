@@ -1894,7 +1894,7 @@ public class TestCaseService {
     public void initOrderField() {
         ServiceUtils.initOrderField(TestCaseWithBLOBs.class, TestCaseMapper.class,
                 extTestCaseMapper::selectProjectIds,
-                extTestCaseMapper::getIdsOrderByCreateTime);
+                extTestCaseMapper::getIdsOrderByUpdateTime);
     }
 
     /**

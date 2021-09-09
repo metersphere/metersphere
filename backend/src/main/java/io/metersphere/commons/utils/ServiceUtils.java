@@ -121,13 +121,13 @@ public class ServiceUtils {
      * @param clazz
      * @param mapClazz
      * @param selectProjectIdsFunc
-     * @param getIdsOrderByCreateTimeFunc
+     * @param getIdsOrderByUpdateTimeFunc
      * @param <T>
      * @param <M>
      */
     public static <T, M> void initOrderField(Class<T> clazz, Class<M> mapClazz,
                                           Supplier<List<String>> selectProjectIdsFunc,
-                                          Function<String, List<String>> getIdsOrderByCreateTimeFunc) {
+                                          Function<String, List<String>> getIdsOrderByUpdateTimeFunc) {
 
         try {
 
@@ -140,7 +140,7 @@ public class ServiceUtils {
             List<String> projectIds = selectProjectIdsFunc.get();
             for (String projectId : projectIds) {
                 Long order = 0L;
-                List<String> ids = getIdsOrderByCreateTimeFunc.apply(projectId);
+                List<String> ids = getIdsOrderByUpdateTimeFunc.apply(projectId);
                 for (String id : ids) {
                     T item = clazz.newInstance();
                     setId.invoke(item, id);

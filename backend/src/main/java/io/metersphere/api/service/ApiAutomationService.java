@@ -2508,7 +2508,7 @@ public class ApiAutomationService {
     public void initOrderField() {
         ServiceUtils.initOrderField(ApiScenarioWithBLOBs.class, ApiScenarioMapper.class,
                 extApiScenarioMapper::selectProjectIds,
-                extApiScenarioMapper::getIdsOrderByCreateTime);
+                extApiScenarioMapper::getIdsOrderByUpdateTime);
     }
 
     /**

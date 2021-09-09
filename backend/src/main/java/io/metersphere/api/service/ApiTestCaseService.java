@@ -1025,7 +1025,7 @@ public class ApiTestCaseService {
     public void initOrderField() {
         ServiceUtils.initOrderField(ApiTestCaseWithBLOBs.class, ApiTestCaseMapper.class,
                 extApiTestCaseMapper::selectProjectIds,
-                extApiTestCaseMapper::getIdsOrderByCreateTime);
+                extApiTestCaseMapper::getIdsOrderByUpdateTime);
     }
 
     /**
