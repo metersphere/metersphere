@@ -67,7 +67,7 @@
             <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="advancedConfig">
               <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
             </el-tab-pane>
-            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense()">
+            <el-tab-pane name="create" v-if="hasPermission('PROJECT_API_DEFINITION:READ+CREATE_API') && hasLicense() && definitionTest">
               <template v-slot:label>
                 <el-button size="mini" type="primary" @click.stop @click="generate">{{$t('commons.generate_test_data')}}</el-button>
               </template>
@@ -118,6 +118,12 @@
       method: String,
       request: {},
       response: {},
+      definitionTest:{
+        type:Boolean,
+        default() {
+          return false;
+        }
+      },
       showScript: {
         type: Boolean,
         default: true,
