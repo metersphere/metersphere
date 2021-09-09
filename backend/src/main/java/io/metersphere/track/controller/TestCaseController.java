@@ -17,6 +17,7 @@ import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.TestCaseTestDao;
 import io.metersphere.excel.domain.ExcelResponse;
@@ -184,6 +185,12 @@ public class TestCaseController {
     public TestCase addTestCase(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         request.setId(UUID.randomUUID().toString());
         return testCaseService.save(request, files);
+    }
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        checkPermissionService.checkTestCaseOwner(request.getMoveId());
+        testCaseService.orderCase(request);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})

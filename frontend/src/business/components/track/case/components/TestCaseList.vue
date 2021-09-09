@@ -15,6 +15,8 @@
       :screen-height="screenHeight"
       :batch-operators="batchButtons"
       :remember-order="true"
+      :enable-order-drag="enableOrderDrag"
+      row-key="id"
       @handlePageChange="initTableData"
       @handleRowClick="handleEdit"
       :fields.sync="fields"
@@ -206,7 +208,7 @@ import {
   getCustomFieldValue,
   getCustomTableWidth, getLastTableSortField,
   getPageInfo,
-  getTableHeaderWithCustomFields,
+  getTableHeaderWithCustomFields, handleRowDrop,
   initCondition,
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -219,6 +221,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import BatchMove from "@/business/components/track/case/components/BatchMove";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCasePreview from "@/business/components/track/case/components/TestCasePreview";
+import {editTestCaseOrder} from "@/network/testCase";
 
 export default {
   name: "TestCaseList",
@@ -256,6 +259,7 @@ export default {
       screenHeight: 'calc(100vh - 258px)',
       tableLabel: [],
       deletePath: "/test/case/delete",
+      enableOrderDrag: true,
       condition: {
         components: TEST_CASE_CONFIGS
       },
@@ -390,8 +394,6 @@ export default {
     }else {
       this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     }
-    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-
     this.initTableData();
     let redirectParam = this.$route.query.dataSelectRange;
     this.checkRedirectEditPage(redirectParam);
@@ -515,6 +517,11 @@ export default {
       this.condition.nodeIds = [];
       //initCondition(this.condition);
       initCondition(this.condition, this.condition.selectAll);
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
+      this.enableOrderDrag = true;
+      if (this.condition.orders.length > 0) {
+        this.enableOrderDrag = false;
+      }
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -579,8 +586,19 @@ export default {
             item.tags = JSON.parse(item.tags);
           });
           checkTableRowIsSelected(this, this.$refs.table);
+
+          this.handleRowDrop();
+
         });
       }
+    },
+    handleRowDrop() {
+      this.$nextTick(() => {
+        handleRowDrop(this.page.data, (param) => {
+          param.projectId = this.projectId;
+          editTestCaseOrder(param);
+        });
+      });
     },
     search() {
       this.initTableData();

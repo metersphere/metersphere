@@ -110,4 +110,12 @@ public interface ExtTestCaseMapper {
     List<String> selectIdsByNodeIds(@Param("ids")List<String> nodeIds);
 
     TestCaseWithBLOBs getTestCaseStep(@Param("id") String id);
+
+    List<String> selectProjectIds();
+
+    List<String> getIdsOrderByCreateTime(@Param("projectId") String projectId);
+
+    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 }

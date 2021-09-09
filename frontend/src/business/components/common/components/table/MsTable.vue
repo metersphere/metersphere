@@ -14,6 +14,8 @@
       :class="{'ms-select-all-fixed': showSelectAll}"
       :height="screenHeight"
       v-loading="tableIsLoading"
+      :row-key="rowKey"
+      :cell-class-name="addPaddingColClass"
       :highlight-current-row="highlightCurrentRow"
       ref="table" @row-click="handleRowClick">
 
@@ -27,8 +29,9 @@
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
-      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="30"
+      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="15"
                        fixed="left"
+                       column-key="batchBtnCol"
                        :resizable="false" align="center">
         <template v-slot:default="scope">
           <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
@@ -42,6 +45,17 @@
           <span class="table-column-mark">&nbsp;</span>
         </template>
       </el-table-column>
+
+      <el-table-column v-if="enableOrderDrag" width="20" column-key="tableRowDropCol">
+        <template v-slot:default="scope">
+<!--          <span class="table-row-drop-bar">-->
+          <div class="table-row-drop-bar">
+             <i class="el-icon-more ms-icon-more"/>
+             <i class="el-icon-more ms-icon-more"/>
+          </div>
+        </template>
+      </el-table-column>
+
       <slot></slot>
 
       <el-table-column
@@ -201,7 +215,9 @@ export default {
     customFields: Array,
     highlightCurrentRow: Boolean,
     // 是否记住排序
-    rememberOrder: Boolean
+    rememberOrder: Boolean,
+    enableOrderDrag: Boolean,
+    rowKey: [String, Function],
   },
   mounted() {
     this.setDefaultOrders();
@@ -245,6 +261,7 @@ export default {
       let columnTop = column.getBoundingClientRect().top;
       return columnTop - tableTop > 30;
     },
+    // 访问页面默认高亮当前的排序
     setDefaultOrders() {
       let orders = this.condition.orders;
       if (orders) {
@@ -384,6 +401,13 @@ export default {
       this.$nextTick(() => {
         this.tableActive = true;
       });
+    },
+    addPaddingColClass({column}) {
+      if (column.columnKey === 'tableRowDropCol'
+        || column.columnKey === 'selectionCol'
+        || column.columnKey ==='batchBtnCol') {
+        return 'padding-col';
+      }
     }
   }
 };
@@ -393,5 +417,34 @@ export default {
 .batch-popper {
   top: 300px;
   color: #1FDD02;
+}
+
+.el-table >>> .padding-col .cell {
+  padding: 0px !important;
+}
+
+.table-row-drop-bar {
+  /*visibility: hidden;*/
+  text-align: center;
+  height: 28px;
+}
+
+.table-row-drop-bar:hover {
+  /*visibility: visible;*/
+  /*font-size: 15px;*/
+}
+
+/*.el-table >>> .hover-row .table-row-drop-bar {*/
+/*  visibility: initial !important;*/
+/*}*/
+
+.ms-icon-more {
+  transform: rotate(90deg);
+  width: 9px;
+  color: #cccccc;
+}
+
+.ms-icon-more:first-child {
+  margin-right: -5px;
 }
 </style>
