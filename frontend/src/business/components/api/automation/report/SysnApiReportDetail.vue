@@ -67,7 +67,7 @@ import MsApiReportExport from "./ApiReportExport";
 import MsApiReportViewHeader from "./ApiReportViewHeader";
 import {RequestFactory} from "../../definition/model/ApiTestModel";
 import {windowPrint, getCurrentProjectID, getUUID} from "@/common/js/utils";
-import {ELEMENTS} from "../scenario/Setting";
+import {STEP} from "../scenario/Setting";
 import {scenario} from "@/business/components/track/plan/event-bus";
 
 export default {
@@ -100,7 +100,8 @@ export default {
       scenarioMap: new Map,
       exportFlag: false,
       messageWebSocket: {},
-      websocket: {}
+      websocket: {},
+      stepFilter: this.stepFilter,
     }
   },
   activated() {
@@ -221,13 +222,13 @@ export default {
             let name = item.name ? item.name : this.getType(item.type);
             let obj = {resId: item.resourceId + "_" + item.parentIndex, index: Number(item.index), label: name, value: {name: name, responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};
             tree.children.push(obj);
-            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
+            if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
               obj.unsolicited = false;
               obj.type = item.type;
             } else if (item.type === 'scenario') {
               this.content.scenarioTotal += 1;
             }
-            if (item.hashTree && item.hashTree.length > 0 && ELEMENTS.get("AllSamplerProxy").indexOf(item.type) === -1) {
+            if (item.hashTree && item.hashTree.length > 0 && this.stepFilter && this.stepFilter.get("AllSamplerProxy").indexOf(item.type) === -1) {
               this.formatContent(item.hashTree, obj, item.parentIndex);
             }
           }

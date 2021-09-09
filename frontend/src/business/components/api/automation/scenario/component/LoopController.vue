@@ -89,7 +89,7 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import MsRun from "../DebugRun";
 import {getUUID} from "@/common/js/utils";
-import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
+import {ELEMENT_TYPE, STEP} from "../Setting";
 
 export default {
   name: "MsLoopController",
@@ -158,6 +158,7 @@ export default {
           label: "commons.adv_search.operators.is_not_empty",
           value: "is not empty",
         },
+        stepFilter: new STEP,
       },
     };
   },
@@ -206,7 +207,7 @@ export default {
       if (this.controller.hashTree && this.controller.hashTree.length === 1 && this.controller.hashTree[0].hashTree && this.controller.hashTree[0].hashTree.length > 0) {
         let count = 0;
         this.controller.hashTree[0].hashTree.forEach((item) => {
-          if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) !== -1) {
+          if (this.stepFilter.get("AllSamplerProxy").indexOf(item.type) !== -1) {
             count++;
           }
           if (item.hashTree && item.hashTree.length > 0) {
@@ -223,7 +224,7 @@ export default {
     },
     recursive(arr, count) {
       for (let i in arr) {
-        if (ELEMENTS.get("AllSamplerProxy").indexOf(arr[i].type) !== -1) {
+        if (this.stepFilter.get("AllSamplerProxy").indexOf(arr[i].type) !== -1) {
           count++;
         }
         if (arr[i].hashTree && arr[i].hashTree.length > 0) {
