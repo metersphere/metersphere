@@ -635,26 +635,33 @@ public class ProjectService {
         }
     }
 
+    /**
+     * 检查状态为开启的TCP-Mock服务端口
+     */
     public void initMockTcpService() {
-        ProjectExample example = new ProjectExample();
-        Integer portInteger = new Integer(0);
-        Boolean statusBoolean = new Boolean(true);
-        example.createCriteria().andIsMockTcpOpenEqualTo(statusBoolean).andMockTcpPortNotEqualTo(portInteger);
-        List<Project> projectList = projectMapper.selectByExample(example);
+        try {
+            ProjectExample example = new ProjectExample();
+            Integer portInteger = new Integer(0);
+            Boolean statusBoolean = new Boolean(true);
+            example.createCriteria().andIsMockTcpOpenEqualTo(statusBoolean).andMockTcpPortNotEqualTo(portInteger);
+            List<Project> projectList = projectMapper.selectByExample(example);
 
-        List<Integer> opendPortList = new ArrayList<>();
-        for (Project p : projectList) {
-            boolean isPortInRange = this.isMockTcpPortIsInRange(p.getMockTcpPort());
-            if(isPortInRange && !opendPortList.contains(p.getMockTcpPort())){
-                opendPortList.add(p.getMockTcpPort());
-                this.openMockTcp(p);
-            }else {
-                if(opendPortList.contains(p.getMockTcpPort())){
-                    p.setMockTcpPort(0);
+            List<Integer> opendPortList = new ArrayList<>();
+            for (Project p : projectList) {
+                boolean isPortInRange = this.isMockTcpPortIsInRange(p.getMockTcpPort());
+                if(isPortInRange && !opendPortList.contains(p.getMockTcpPort())){
+                    opendPortList.add(p.getMockTcpPort());
+                    this.openMockTcp(p);
+                }else {
+                    if(opendPortList.contains(p.getMockTcpPort())){
+                        p.setMockTcpPort(0);
+                    }
+                    p.setIsMockTcpOpen(false);
+                    projectMapper.updateByPrimaryKeySelective(p);
                 }
-                p.setIsMockTcpOpen(false);
-                projectMapper.updateByPrimaryKeySelective(p);
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

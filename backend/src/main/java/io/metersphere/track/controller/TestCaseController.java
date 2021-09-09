@@ -190,7 +190,7 @@ public class TestCaseController {
     @PostMapping("/edit/order")
     public void orderCase(@RequestBody ResetOrderRequest request) {
         checkPermissionService.checkTestCaseOwner(request.getMoveId());
-        testCaseService.orderCase(request);
+        testCaseService.updateOrder(request);
     }
 
     @PostMapping(value = "/edit", consumes = {"multipart/form-data"})

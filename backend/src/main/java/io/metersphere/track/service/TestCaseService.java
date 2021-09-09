@@ -352,14 +352,7 @@ public class TestCaseService {
         return returnList;
     }
     public void setDefaultOrder(QueryTestCaseRequest request) {
-        List<OrderRequest> orders = request.getOrders();
-        if (CollectionUtils.isEmpty(orders)) {
-            OrderRequest order = new OrderRequest();
-            order.setName("order");
-            order.setType("desc");
-            orders = new ArrayList<>();
-            orders.add(order);
-        }
+        List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
         OrderRequest order = new OrderRequest();
         // 对模板导入的测试用例排序
         order.setName("sort");
@@ -466,13 +459,10 @@ public class TestCaseService {
     }
 
     public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
+        setDefaultOrder(request);
+        request.getOrders().forEach(order -> {
+            order.setPrefix("test_case");
+        });
         return extTestCaseMapper.getTestCaseByNotInReview(request);
     }
 
@@ -484,7 +474,7 @@ public class TestCaseService {
         criteria.andMaintainerEqualTo(request.getUserId());
         if (StringUtils.isNotBlank(request.getProjectId())) {
             criteria.andProjectIdEqualTo(request.getProjectId());
-            testCaseExample.setOrderByClause("update_time desc, sort desc");
+            testCaseExample.setOrderByClause("order desc, sort desc");
             return testCaseMapper.selectByExample(testCaseExample);
         }
         return new ArrayList<>();
@@ -1004,6 +994,7 @@ public class TestCaseService {
             }
             returnDatas.add(list);
         }
+
         return returnDatas;
     }
 
@@ -1013,7 +1004,7 @@ public class TestCaseService {
         QueryTestCaseRequest condition = request.getCondition();
         List<OrderRequest> orderList = new ArrayList<>();
         if (condition != null) {
-            orderList = ServiceUtils.getDefaultOrder(condition.getOrders());
+            orderList = ServiceUtils.getDefaultSortOrder(request.getOrders());
         }
         OrderRequest order = new OrderRequest();
         order.setName("sort");
@@ -1408,13 +1399,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> listTestCaseIds(QueryTestCaseRequest request) {
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
+        setDefaultOrder(request);
         List<String> selectFields = new ArrayList<>();
         selectFields.add("id");
         selectFields.add("name");
@@ -1494,14 +1479,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
-        OrderRequest order = new OrderRequest();
-        // 对模板导入的测试用例排序
-        order.setName("sort");
-        order.setType("desc");
-        orderList.add(order);
-        request.setOrders(orderList);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        setDefaultOrder(request);
         return extTestCaseMapper.listForMinder(request);
     }
 
@@ -1919,46 +1897,20 @@ public class TestCaseService {
     }
 
     public void initOrderField() {
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
-        List<String> projectIds = extTestCaseMapper.selectProjectIds();
-        projectIds.forEach((projectId) -> {
-            Long order = 0L;
-            List<String> ids = extTestCaseMapper.getIdsOrderByCreateTime(projectId);
-            for (String id : ids) {
-                TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
-                testCase.setId(id);
-                testCase.setOrder(order);
-                order += 5000;
-                mapper.updateByPrimaryKeySelective(testCase);
-            }
-            sqlSession.flushStatements();
-        });
+        ServiceUtils.initOrderField(TestCaseWithBLOBs.class, TestCaseMapper.class,
+                extTestCaseMapper::selectProjectIds,
+                extTestCaseMapper::getIdsOrderByCreateTime);
     }
 
     /**
      * 用例自定义排序
      * @param request
      */
-    public void orderCase(ResetOrderRequest request) {
-        Long order = null;
-        Long lastOrPreOrder = null;
-        TestCaseWithBLOBs target = testCaseMapper.selectByPrimaryKey(request.getTargetId());
-        if (request.getMoveMode().equals(ResetOrderRequest.MoveMode.AFTER.name())) {
-            order = target.getOrder() - 5000;
-            lastOrPreOrder = extTestCaseMapper.getPreOrder(request.getProjectId(), target.getOrder());
-        } else {
-            order = target.getOrder() + 5000;
-            // 追加到前面，因为是降序排，则查找比目标 order 更大的一个order
-            lastOrPreOrder = extTestCaseMapper.getLastOrder(request.getProjectId(), target.getOrder());
-        }
-        if (lastOrPreOrder != null) {
-            // 如果不是第一个或最后一个则取中间值
-            order = (target.getOrder() + lastOrPreOrder) / 2;
-        }
-        TestCaseWithBLOBs testCaseWithBLOBs = new TestCaseWithBLOBs();
-        testCaseWithBLOBs.setId(request.getMoveId());
-        testCaseWithBLOBs.setOrder(order);
-        testCaseMapper.updateByPrimaryKeySelective(testCaseWithBLOBs);
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestCaseWithBLOBs.class,
+                testCaseMapper::selectByPrimaryKey,
+                extTestCaseMapper::getPreOrder,
+                extTestCaseMapper::getLastOrder,
+                testCaseMapper::updateByPrimaryKeySelective);
     }
 }
