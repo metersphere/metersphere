@@ -384,6 +384,76 @@ public class PluginExample {
             return (Criteria) this;
         }
 
+        public Criteria andJmeterClazzIsNull() {
+            addCriterion("jmeter_clazz is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzIsNotNull() {
+            addCriterion("jmeter_clazz is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzEqualTo(String value) {
+            addCriterion("jmeter_clazz =", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotEqualTo(String value) {
+            addCriterion("jmeter_clazz <>", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzGreaterThan(String value) {
+            addCriterion("jmeter_clazz >", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzGreaterThanOrEqualTo(String value) {
+            addCriterion("jmeter_clazz >=", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzLessThan(String value) {
+            addCriterion("jmeter_clazz <", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzLessThanOrEqualTo(String value) {
+            addCriterion("jmeter_clazz <=", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzLike(String value) {
+            addCriterion("jmeter_clazz like", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotLike(String value) {
+            addCriterion("jmeter_clazz not like", value, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzIn(List<String> values) {
+            addCriterion("jmeter_clazz in", values, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotIn(List<String> values) {
+            addCriterion("jmeter_clazz not in", values, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzBetween(String value1, String value2) {
+            addCriterion("jmeter_clazz between", value1, value2, "jmeterClazz");
+            return (Criteria) this;
+        }
+
+        public Criteria andJmeterClazzNotBetween(String value1, String value2) {
+            addCriterion("jmeter_clazz not between", value1, value2, "jmeterClazz");
+            return (Criteria) this;
+        }
+
         public Criteria andClazzNameIsNull() {
             addCriterion("clazz_name is null");
             return (Criteria) this;

@@ -325,7 +325,7 @@
 import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
 import {buttons, setComponent} from './menu/Menu';
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS,TYPE_TO_C} from "./Setting";
+import {ELEMENT_TYPE, STEP, TYPE_TO_C, PLUGIN_ELEMENTS} from "./Setting";
 import {
   getUUID,
   objToStrMap,
@@ -457,7 +457,7 @@ export default {
     }
     this.debug = false;
     this.debugLoading = false;
-    this.operatingElements = ELEMENTS.get("ALL");
+    this.operatingElements = STEP().get("ALL");
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
@@ -479,6 +479,7 @@ export default {
     },
   },
   methods: {
+    STEP,
     initPlugins() {
       let url = "/plugin/list";
       this.$get(url, response => {
@@ -487,7 +488,7 @@ export default {
           data.forEach(item => {
             let plugin = {
               title: item.name,
-              show: this.showButton(item.name),
+              show: this.showButton(item.jmeterClazz),
               titleColor: "#555855",
               titleBgColor: "#F4F4FF",
               icon: "colorize",
@@ -495,7 +496,9 @@ export default {
                 this.addComponent(item.name, item)
               }
             }
-            this.buttonData.push(plugin);
+            if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+              this.buttonData.push(plugin);
+            }
           });
         }
       });
@@ -848,17 +851,18 @@ export default {
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
-        this.operatingElements = ELEMENTS.get(data.type);
+        this.operatingElements = STEP().get(data.type);
       } else {
         this.operatingElements = [];
       }
       if (!this.operatingElements) {
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.operatingElements = STEP().get("ALL");
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
       this.$store.state.selectStep = data;
       this.buttonData = buttons(this);
+      this.initPlugins();
     },
     suggestClick(node) {
       this.response = {};
@@ -869,7 +873,7 @@ export default {
     showAll() {
       // 控制当有弹出页面操作时禁止刷新按钮列表
       if (!this.customizeVisible && !this.isBtnHide) {
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.operatingElements = STEP().get("ALL");
         this.selectedTreeNode = undefined;
         this.$store.state.selectStep = undefined;
       }
@@ -1144,10 +1148,12 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
+      // 增加插件权限控制
       if (dropType != "inner") {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type) && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1 && !draggingNode.data.disabled) {
+        && (STEP().get(dropNode.data.type) && STEP().get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)
+        && !draggingNode.data.disabled) {
         return true;
       }
       return false;
@@ -1177,7 +1183,7 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this,(response) => {
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               this.$store.state.pluginFiles = [];

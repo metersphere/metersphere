@@ -64,7 +64,7 @@
 
 <script>
 import StepExtendBtns from "../component/StepExtendBtns";
-import {ELEMENTS} from "../Setting";
+import {STEP} from "../Setting";
 
 export default {
   name: "ApiBaseComponent",
@@ -135,13 +135,14 @@ export default {
         this.$refs.nameEdit.focus();
       });
     }
-    if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
+    if (this.data && STEP().get("AllSamplerProxy").indexOf(this.data.type) != -1) {
       if (!this.data.method) {
         this.data.method = this.data.protocol;
       }
     }
   },
   methods: {
+    STEP,
     active() {
       this.$emit('active');
     },

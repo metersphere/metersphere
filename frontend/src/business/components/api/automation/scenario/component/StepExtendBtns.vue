@@ -23,24 +23,25 @@
 </template>
 
 <script>
-import {ELEMENTS} from "../Setting";
+import {STEP} from "../Setting";
 import MsVariableList from "../variable/VariableList";
 import MsAddBasisApi from "../api/AddBasisApi";
 import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
 export default {
   name: "StepExtendBtns",
-  components: {ELEMENTS, MsVariableList, MsAddBasisApi},
+  components: {STEP, MsVariableList, MsAddBasisApi},
   props: {
     data: Object,
   },
   data() {
     return {
-      allSamplers: ELEMENTS.get('AllSamplerProxy'),
+      allSamplers: STEP().get('AllSamplerProxy'),
       currentProtocol: "HTTP",
     }
   },
   methods: {
+    STEP,
     handleCommand(cmd) {
       switch (cmd) {
         case  "copy":
