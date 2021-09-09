@@ -151,7 +151,7 @@
   import CaseComment from "@/business/components/track/case/components/CaseComment";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsPreviousNextButton from "../../../common/components/MsPreviousNextButton";
-  import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
+  import {STEP} from "@/business/components/api/automation/scenario/Setting";
   import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
   import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
   import {API_STATUS, REVIEW_STATUS, TEST, TEST_CASE} from "@/business/components/api/definition/model/JsonData";
@@ -356,6 +356,7 @@
       }
     },
     methods: {
+      STEP,
       openHis() {
         this.$refs.changeHistory.open(this.form.id);
       },
@@ -440,7 +441,7 @@
       },
       showAll() {
         if (!this.customizeVisible) {
-          this.operatingElements = ELEMENTS.get("ALL");
+          this.operatingElements = STEP().get("ALL");
           this.selectedTreeNode = undefined;
         }
         //this.reload();

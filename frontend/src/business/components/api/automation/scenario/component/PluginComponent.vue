@@ -40,35 +40,53 @@
         </span>
     </template>
 
-    <!-- 这个不确定是否所以组件都有-->
+    <template v-slot:button v-if="allSampler.indexOf(request.type) !==-1">
+      <el-tooltip :content="$t('api_test.run')" placement="top" v-if="!loading">
+        <el-button :disabled="!request.enable" @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
+      </el-tooltip>
+      <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
+        <el-button :disabled="!request.enable" @click.once="stop" size="mini" style="color:white;padding: 0 0.1px;width: 24px;height: 24px;" class="stop-btn" circle>
+          <div style="transform: scale(0.66)">
+            <span style="margin-left: -4.5px;font-weight: bold;">STOP</span>
+          </div>
+        </el-button>
+      </el-tooltip>
+    </template>
+
     <template v-slot:result>
-      <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-      <div v-if="request.result">
-        <div v-for="(scenario,h) in request.result.scenarios" :key="h">
-          <el-tabs v-model="request.activeName" closable class="ms-tabs">
-            <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-              <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+      <div v-if="allSampler.indexOf(request.type) !==-1">
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <div v-if="request.result">
+          <div v-for="(scenario,h) in request.result.scenarios" :key="h">
+            <el-tabs v-model="request.activeName" closable class="ms-tabs">
+              <el-tab-pane v-for="(item,i) in scenario.requestResults" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+                <api-response-component :currentProtocol="request.protocol" :apiActive="true" :result="item"/>
+              </el-tab-pane>
+            </el-tabs>
+          </div>
+        </div>
+        <div v-else>
+          <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
+            <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
+              <api-response-component
+                :currentProtocol="request.protocol"
+                :apiActive="true"
+                :result="item"
+              />
             </el-tab-pane>
           </el-tabs>
+          <api-response-component
+            :currentProtocol="request.protocol"
+            :apiActive="true"
+            :result="request.requestResult[0]"
+            v-else/>
         </div>
       </div>
-      <div v-else>
-        <el-tabs v-model="request.activeName" closable class="ms-tabs" v-if="request.requestResult && request.requestResult.length > 1">
-          <el-tab-pane v-for="(item,i) in request.requestResult" :label="'循环'+(i+1)" :key="i" style="margin-bottom: 5px">
-            <api-response-component
-              :currentProtocol="request.protocol"
-              :apiActive="true"
-              :result="item"
-            />
-          </el-tab-pane>
-        </el-tabs>
-        <api-response-component
-          :currentProtocol="request.protocol"
-          :apiActive="true"
-          :result="request.requestResult[0]"
-          v-else/>
-      </div>
     </template>
+
+    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
+
   </api-base-component>
 </template>
 
@@ -77,12 +95,18 @@ import ApiBaseComponent from "../common/ApiBaseComponent";
 import ApiResponseComponent from "./ApiResponseComponent";
 import formCreate from "@form-create/element-ui";
 import MsUpload from "../common/MsPluginUpload";
+import {PLUGIN_ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
+import {getUUID} from "@/common/js/utils";
 
 formCreate.component("msUpload", MsUpload);
 
 export default {
   name: "PluginComponent",
-  components: {ApiBaseComponent, ApiResponseComponent},
+  components: {
+    ApiBaseComponent,
+    ApiResponseComponent,
+    MsRun: () => import("../../../definition/components/Run"),
+  },
   props: {
     draggable: {
       type: Boolean,
@@ -105,16 +129,21 @@ export default {
     request: {
       type: Object,
     },
+    currentScenario: {},
     defTitle: {type: String, default: "Plugin"},
     defColor: {type: String, default: "#555855"},
     defBackgroundColor: {type: String, default: "#F4F4FF"},
     node: {},
+    envMap: Map,
   },
   data() {
     return {
       loading: false,
+      runData: [],
+      reportId: "",
       pluginForm: {},
       execEntry: "",
+      allSampler: PLUGIN_ELEMENTS.get("menu_generative_controller"),
       data: {},
       rules: [],
       option: formCreate.parseJson(
@@ -123,15 +152,39 @@ export default {
       pluginName: "",
     }
   },
-  computed: {},
+  computed: {
+    isApiImport() {
+      if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced == 'REF' || this.request.referenced === 'Copy') {
+        return true
+      }
+      return false;
+    },
+    isExternalImport() {
+      if (this.request.referenced != undefined && this.request.referenced === 'OT_IMPORT') {
+        return true
+      }
+      return false;
+    },
+    isCustomizeReq() {
+      if (this.request.referenced == undefined || this.request.referenced === 'Created') {
+        return true;
+      }
+      return false;
+    },
+    isDeletedOrRef() {
+      if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced === 'REF') {
+        return true;
+      }
+      return false;
+    },
+  },
   created() {
     this.getPlugin();
     if (!this.request.requestResult) {
       this.request.requestResult = [];
     }
     this.data = this.request;
-    this.request.type = 'Sampler';
-    this.pluginName = this.request.type;
+    this.pluginName = this.request.stepName ? this.request.stepName : this.request.type;
   },
   watch: {
     message() {
@@ -148,6 +201,55 @@ export default {
     blur(d) {
     },
     change(d) {
+    },
+    run() {
+      if (this.isApiImport || this.request.isRefEnvironment) {
+        if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
+          if (!this.envMap || this.envMap.size === 0) {
+            this.$warning(this.$t('api_test.automation.env_message'));
+            return false;
+          } else if (this.envMap && this.envMap.size > 0) {
+            const env = this.envMap.get(this.request.projectId);
+            if (!env) {
+              this.$warning(this.$t('api_test.automation.env_message'));
+              return false;
+            }
+          }
+        }
+      }
+      this.request.active = true;
+      this.loading = true;
+      this.runData = [];
+      this.runData.projectId = this.request.projectId;
+      this.request.useEnvironment = this.currentEnvironmentId;
+      this.request.customizeReq = this.isCustomizeReq;
+      let debugData = {
+        id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+        variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
+        enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
+      };
+      this.runData.push(debugData);
+      this.request.requestResult = [];
+      this.request.result = undefined;
+      /*触发执行操作*/
+      this.reportId = getUUID();
+    },
+    stop() {
+      let url = "/api/automation/stop/" + this.reportId;
+      this.$get(url, () => {
+        this.runLoading = false;
+        this.loading = false;
+        this.$success(this.$t('report.test_stop_success'));
+      });
+    },
+    errorRefresh() {
+      this.loading = false;
+    },
+    runRefresh(data) {
+      this.request.requestResult = [data];
+      this.request.result = undefined;
+      this.loading = false;
+      this.$emit('refReload', this.request, this.node);
     },
     getValue(val) {
       let reg = /\{(\w+)\}/gi;
@@ -180,18 +282,22 @@ export default {
       if (id) {
         this.$get('/plugin/get/' + id, response => {
           let plugin = response.data;
-          this.pluginName = plugin.name;
-          this.execEntry = plugin.execEntry;
-          if (plugin && plugin.formScript) {
-            this.rules = formCreate.parseJson(plugin.formScript);
-          }
-          if (plugin && plugin.formOption) {
-            this.option = formCreate.parseJson(plugin.formOption);
-          }
-          this.option.submitBtn = {show: false};
-          this.request.clazzName = plugin.clazzName;
-          if (this.request && this.request.active && this.pluginForm) {
-            this.pluginForm.setValue(this.request);
+          if (plugin) {
+            this.pluginName = plugin.name;
+            this.execEntry = plugin.execEntry;
+            if (plugin.formScript) {
+              this.rules = formCreate.parseJson(plugin.formScript);
+            }
+            if (plugin.formOption) {
+              this.option = formCreate.parseJson(plugin.formOption);
+            }
+            this.option.submitBtn = {show: false};
+            this.request.clazzName = plugin.clazzName;
+            if (this.request && this.request.active && this.pluginForm) {
+              this.pluginForm.setValue(this.request);
+            }
+          } else {
+            this.request.enable = false;
           }
         });
       }
@@ -241,6 +347,11 @@ export default {
   color: #67C23A;
 }
 
+.ms-btn {
+  background-color: #409EFF;
+  color: white;
+}
+
 .ms-step-debug-code {
   display: inline-block;
   margin: 0 5px;
@@ -283,6 +394,12 @@ export default {
   height: 100%;
   border-radius: 4px;
   width: 100%;
+}
+
+.stop-btn {
+  background-color: #E62424;
+  border-color: #EE6161;
+  color: white;
 }
 
 .ms-form-create {

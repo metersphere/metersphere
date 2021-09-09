@@ -444,7 +444,7 @@
         <dependency>
             <groupId>io.metersphere</groupId>
             <artifactId>metersphere-plugin-core</artifactId>
-            <version>1.0</version>
+            <version>1.0.1</version>
         </dependency>
         <!--随机数据生成API-->
         <dependency>
