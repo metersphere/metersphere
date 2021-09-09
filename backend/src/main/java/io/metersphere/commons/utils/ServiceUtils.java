@@ -142,8 +142,7 @@ public class ServiceUtils {
                 Long order = 0L;
                 List<String> ids = getIdsOrderByCreateTimeFunc.apply(projectId);
                 for (String id : ids) {
-                    T item = null;
-                    item = (T) clazz.newInstance();
+                    T item = clazz.newInstance();
                     setId.invoke(item, id);
                     setOrder.invoke(item, order);
                     order += 5000;

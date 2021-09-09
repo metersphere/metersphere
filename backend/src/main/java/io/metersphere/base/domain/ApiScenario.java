@@ -57,5 +57,7 @@ public class ApiScenario implements Serializable {
 
     private Integer executeTimes;
 
+    private Long order;
+
     private static final long serialVersionUID = 1L;
 }

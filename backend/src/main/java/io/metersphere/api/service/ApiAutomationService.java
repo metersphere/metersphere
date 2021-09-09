@@ -31,6 +31,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ApiReportCountDTO;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -189,7 +190,7 @@ public class ApiAutomationService {
      */
     private ApiScenarioRequest initRequest(ApiScenarioRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
         if (setDefultOrders) {
-            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+            request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         }
         if (StringUtils.isNotEmpty(request.getExecuteStatus())) {
             Map<String, List<String>> statusFilter = new HashMap<>();
@@ -235,6 +236,7 @@ public class ApiAutomationService {
         scenario.setNum(nextNum);
         List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenario);
         scenario.setUseUrl(JSONArray.toJSONString(useUrl));
+        scenario.setOrder(ServiceUtils.getNextOrder(scenario.getProjectId(), extApiScenarioMapper::getLastOrder));
 
         //检查场景的请求步骤。如果含有ESB请求步骤的话，要做参数计算处理。
         esbApiParamService.checkScenarioRequests(request);
@@ -2501,5 +2503,23 @@ public class ApiAutomationService {
         } else {
             return result.longValue();
         }
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(ApiScenarioWithBLOBs.class, ApiScenarioMapper.class,
+                extApiScenarioMapper::selectProjectIds,
+                extApiScenarioMapper::getIdsOrderByCreateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, ApiScenarioWithBLOBs.class,
+                apiScenarioMapper::selectByPrimaryKey,
+                extApiScenarioMapper::getPreOrder,
+                extApiScenarioMapper::getLastOrder,
+                apiScenarioMapper::updateByPrimaryKeySelective);
     }
 }

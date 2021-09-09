@@ -1,5 +1,6 @@
 import {getUUID} from "@/common/js/utils";
 import {getUploadConfig, request} from "@/common/js/ajax";
+import {basePost} from "@/network/base-network";
 
 function buildBodyFile(item, bodyUploadFiles, obj, bodyParam) {
   if (bodyParam) {
@@ -98,4 +99,8 @@ export function saveScenario(url, scenario, scenarioDefinition, _this,success) {
       success(response);
     }
   });
+}
+
+export function editApiScenarioCaseOrder(request, callback) {
+  return basePost('/api/automation/edit/order', request, callback);
 }
