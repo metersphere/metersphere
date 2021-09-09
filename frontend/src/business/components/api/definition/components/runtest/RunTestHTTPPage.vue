@@ -48,7 +48,7 @@
       <div v-loading="loading">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :isShowEnable="true" :headers="api.request.headers" :request="api.request"/>
+        <ms-api-request-form :isShowEnable="true" :definition-test="true"  :headers="api.request.headers" :request="api.request"/>
         <!--返回结果-->
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>

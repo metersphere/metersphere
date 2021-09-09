@@ -135,7 +135,6 @@
 
   import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
   import MsResponseText from "../response/ResponseText";
-  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
   import {KeyValue} from "../../model/ApiTestModel";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";

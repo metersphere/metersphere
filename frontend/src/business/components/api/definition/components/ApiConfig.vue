@@ -217,7 +217,7 @@
           this.response.body = body;
         }
         this.request.clazzName = TYPE_TO_C.get(this.request.type);
-        
+
         this.sort(this.request.hashTree);
       },
       saveApi(data) {
