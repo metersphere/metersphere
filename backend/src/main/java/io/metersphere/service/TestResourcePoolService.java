@@ -212,8 +212,9 @@ public class TestResourcePoolService {
                 continue;
             }
             try {
-                updateTestResourcePool(pool);
-            } catch (MSException e) {
+                validateTestResourcePool(pool);
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage(), e);
                 pool.setStatus(INVALID.name());
                 pool.setUpdateTime(System.currentTimeMillis());
                 testResourcePoolMapper.updateByPrimaryKeySelective(pool);
