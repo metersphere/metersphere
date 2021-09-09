@@ -3,6 +3,7 @@ package io.metersphere.listener;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
@@ -48,6 +49,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private PluginService pluginService;
     @Resource
     private TestCaseService testCaseService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -107,6 +110,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(issuesService::issuesCount, "init.issueCount");
         initOnceOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
         initOnceOperate(testCaseService::initOrderField, "init.sort.test.case");
+        initOnceOperate(apiTestCaseService::initOrderField, "init.sort.api.test.case");
     }
 
     /**

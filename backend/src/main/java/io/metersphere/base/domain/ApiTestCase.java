@@ -41,5 +41,7 @@ public class ApiTestCase implements Serializable {
 
     private String followPeople;
 
+    private Long order;
+
     private static final long serialVersionUID = 1L;
 }

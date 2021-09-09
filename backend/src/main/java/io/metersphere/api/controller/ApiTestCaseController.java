@@ -12,6 +12,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -131,6 +132,11 @@ public class ApiTestCaseController {
             mailTemplate = "api/CaseUpdate", subject = "接口用例通知")
     public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.editApiBathByParam(request);
+    }
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        apiTestCaseService.updateOrder(request);
     }
 
     @PostMapping("/reduction")

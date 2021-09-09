@@ -321,12 +321,7 @@
         <if test="request.filters == null || request.filters.size() == 0 ">
             and (t1.status is null or t1.status != 'Trash')
         </if>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
-            </foreach>
-        </if>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
     <select id="idSimple" resultType="java.lang.String">
         select
@@ -580,6 +575,26 @@
             inner join api_definition a on t1.api_definition_id = a.id
         </if>
         <include refid="queryWhereCondition"/>
+    </select>
+    <select id="selectProjectIds" resultType="java.lang.String">
+        select DISTINCT project_id from api_test_case;
+    </select>
+    <select id="getIdsOrderByCreateTime" resultType="java.lang.String">
+        select id from api_test_case where project_id = #{projectId} order by create_time DESC;
+    </select>
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from api_test_case where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from api_test_case where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
     </select>
 
     <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">

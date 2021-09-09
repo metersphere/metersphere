@@ -24,6 +24,8 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.utils.ReflexObjectUtil;
 import io.metersphere.log.vo.DetailColumn;
@@ -102,7 +104,7 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        initRequest(request, true, false);
         if (request.getModuleIds() == null && request.getModuleId() != null) {
             List<String> moduleIds = new ArrayList<>();
             moduleIds.add(request.getModuleId());
@@ -145,7 +147,9 @@ public class ApiTestCaseService {
      */
     private ApiTestCaseRequest initRequest(ApiTestCaseRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
         if (setDefultOrders) {
-            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+            List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
+            orders.forEach(i -> i.setPrefix("t1"));
+            request.setOrders(orders);
         }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
@@ -337,15 +341,14 @@ public class ApiTestCaseService {
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
         test.setFollowPeople(request.getFollowPeople());
+        test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiTestCaseMapper::getLastOrder));
         if (StringUtils.equals("[]", request.getTags())) {
             test.setTags("");
         } else {
             test.setTags(request.getTags());
         }
         ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(test.getId());
-        if (apiTestCaseWithBLOBs != null) {
-            apiTestCaseMapper.updateByPrimaryKey(apiTestCaseWithBLOBs);
-        } else {
+        if (apiTestCaseWithBLOBs == null) {
             apiTestCaseMapper.insert(test);
         }
         return test;
@@ -1017,5 +1020,23 @@ public class ApiTestCaseService {
             return apiTestCaseMapper.selectByExample(example);
         }
         return new ArrayList<>();
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(ApiTestCaseWithBLOBs.class, ApiTestCaseMapper.class,
+                extApiTestCaseMapper::selectProjectIds,
+                extApiTestCaseMapper::getIdsOrderByCreateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, ApiTestCaseWithBLOBs.class,
+                apiTestCaseMapper::selectByPrimaryKey,
+                extApiTestCaseMapper::getPreOrder,
+                extApiTestCaseMapper::getLastOrder,
+                apiTestCaseMapper::updateByPrimaryKeySelective);
     }
 }

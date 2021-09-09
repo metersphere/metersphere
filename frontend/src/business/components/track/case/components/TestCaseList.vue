@@ -518,10 +518,9 @@ export default {
       //initCondition(this.condition);
       initCondition(this.condition, this.condition.selectAll);
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-      this.enableOrderDrag = true;
-      if (this.condition.orders.length > 0) {
-        this.enableOrderDrag = false;
-      }
+
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
