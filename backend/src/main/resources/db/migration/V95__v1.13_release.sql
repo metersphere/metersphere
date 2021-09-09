@@ -30,4 +30,5 @@ update api_scenario set module_path = replace (`module_path`,'/默认模块','/�
 ALTER TABLE test_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 ALTER TABLE api_test_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 ALTER TABLE api_scenario ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
+ALTER TABLE load_test ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 

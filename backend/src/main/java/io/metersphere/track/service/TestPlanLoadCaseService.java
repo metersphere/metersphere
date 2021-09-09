@@ -58,6 +58,9 @@ public class TestPlanLoadCaseService {
     private LoadTestMapper loadTestMapper;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
+        List<OrderRequest> orders = ServiceUtils.getDefaultSortOrder(request.getOrders());
+        orders.forEach(i -> i.setPrefix("load_test"));
+        request.setOrders(orders);
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();

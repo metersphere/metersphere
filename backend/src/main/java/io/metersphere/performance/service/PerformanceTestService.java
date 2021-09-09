@@ -20,6 +20,7 @@ import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
@@ -111,7 +112,7 @@ public class PerformanceTestService {
     private TestPlanLoadCaseService testPlanLoadCaseService;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         return extLoadTestMapper.list(request);
     }
 
@@ -238,6 +239,7 @@ public class PerformanceTestService {
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
         loadTest.setFollowPeople(request.getFollowPeople());
+        loadTest.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extLoadTestMapper::getLastOrder));
         List<ApiLoadTest> apiList = request.getApiList();
         apiPerformanceService.add(apiList, loadTest.getId());
         loadTestMapper.insert(loadTest);
@@ -844,5 +846,23 @@ public class PerformanceTestService {
             return loadTestMapper.selectByExample(example);
         }
         return new ArrayList<>();
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(LoadTestWithBLOBs.class, LoadTestMapper.class,
+                extLoadTestMapper::selectProjectIds,
+                extLoadTestMapper::getIdsOrderByCreateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, LoadTestWithBLOBs.class,
+                loadTestMapper::selectByPrimaryKey,
+                extLoadTestMapper::getPreOrder,
+                extLoadTestMapper::getLastOrder,
+                loadTestMapper::updateByPrimaryKeySelective);
     }
 }
