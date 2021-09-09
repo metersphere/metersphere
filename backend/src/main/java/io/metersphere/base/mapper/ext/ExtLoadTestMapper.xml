@@ -160,8 +160,8 @@
     <select id="selectProjectIds" resultType="java.lang.String">
         select DISTINCT project_id from load_test;
     </select>
-    <select id="getIdsOrderByCreateTime" resultType="java.lang.String">
-        select id from load_test where project_id = #{projectId} order by create_time ASC;
+    <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+        select id from load_test where project_id = #{projectId} order by update_time ASC;
     </select>
 
     <select id="getLastOrder" resultType="java.lang.Long">

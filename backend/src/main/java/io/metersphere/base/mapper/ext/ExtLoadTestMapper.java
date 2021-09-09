@@ -24,7 +24,7 @@ public interface ExtLoadTestMapper {
 
     List<String> selectProjectIds();
 
-    List<String> getIdsOrderByCreateTime(@Param("projectId") String projectId);
+    List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
 
     Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 

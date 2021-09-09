@@ -869,7 +869,7 @@ public class PerformanceTestService {
     public void initOrderField() {
         ServiceUtils.initOrderField(LoadTestWithBLOBs.class, LoadTestMapper.class,
                 extLoadTestMapper::selectProjectIds,
-                extLoadTestMapper::getIdsOrderByCreateTime);
+                extLoadTestMapper::getIdsOrderByUpdateTime);
     }
 
     /**
