@@ -461,6 +461,28 @@
         SELECT SUM(execute_times) FROM api_scenario
         WHERE project_id = #{0}
     </select>
+    <select id="selectProjectIds" resultType="java.lang.String">
+        select DISTINCT project_id from api_scenario;
+    </select>
+    <select id="getIdsOrderByCreateTime" resultType="java.lang.String">
+        select id from api_scenario where project_id = #{projectId} order by create_time DESC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from api_scenario where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from api_scenario where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
 
     <sql id="queryWhereConditionReview">
         <where>

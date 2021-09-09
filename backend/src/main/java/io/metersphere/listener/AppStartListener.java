@@ -111,6 +111,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
         initOnceOperate(testCaseService::initOrderField, "init.sort.test.case");
         initOnceOperate(apiTestCaseService::initOrderField, "init.sort.api.test.case");
+        initOnceOperate(apiAutomationService::initOrderField, "init.sort.api.scenario");
     }
 
     /**

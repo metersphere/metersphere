@@ -14,6 +14,7 @@ import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -103,6 +104,12 @@ public class ApiAutomationController {
     public ApiScenario update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles,
                               @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         return apiAutomationService.update(request, bodyFiles, scenarioFiles);
+    }
+
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        apiAutomationService.updateOrder(request);
     }
 
     @GetMapping("/delete/{id}")

@@ -16,6 +16,8 @@
         :field-key=tableHeaderKey
         :remember-order="true"
         operator-width="200"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         @refresh="search(projectId)"
         @callBackSelectAll="callBackSelectAll"
         @callBackSelect="callBackSelect"
@@ -234,13 +236,14 @@ import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/sear
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
 import {
-  getCustomTableHeader, getCustomTableWidth, getLastTableSortField, saveLastTableSortField
+  getCustomTableHeader, getCustomTableWidth, getLastTableSortField, handleRowDrop, saveLastTableSortField
 } from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
 
 export default {
   name: "MsApiScenarioList",
@@ -345,6 +348,7 @@ export default {
       operators: [],
       selectRows: new Set(),
       isStop: false,
+      enableOrderDrag: true,
       trashOperators: [
         {
           tip: this.$t('commons.reduction'),
@@ -563,6 +567,8 @@ export default {
         this.condition.projectId = this.projectId;
       }
 
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       //检查是否只查询本周数据
       this.condition.selectThisWeedData = false;
       this.condition.executeStatus = null;
@@ -592,12 +598,20 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
-          if (this.$refs.scenarioTable) {
-            this.$refs.scenarioTable.clear();
-            this.$nextTick(() => {
-              this.$refs.scenarioTable.doLayout();
+
+          this.$nextTick(() => {
+            handleRowDrop(this.tableData, (param) => {
+              param.projectId = this.condition.projectId;
+              editApiScenarioCaseOrder(param);
             });
-          }
+
+            if (this.$refs.scenarioTable) {
+              this.$refs.scenarioTable.clear();
+              this.$refs.scenarioTable.doLayout();
+            }
+
+          });
+
           this.$emit('getTrashCase');
         });
       }
