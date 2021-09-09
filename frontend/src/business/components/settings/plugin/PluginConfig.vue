@@ -103,6 +103,7 @@ export default {
     },
     format(data) {
       this.dataMap = new Map();
+      this.tableData = [];
       data.forEach(item => {
         if (this.dataMap.has(item.pluginId)) {
           this.dataMap.get(item.pluginId).push(item);

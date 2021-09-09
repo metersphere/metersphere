@@ -56,7 +56,7 @@
             <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                      :click-auto-close="false" ref="refFab">
               <fab-item
-                v-for="(item, index) in buttons"
+                v-for="(item, index) in buttonData"
                 :key="index"
                 :idx="getIdx(index)"
                 :title="item.title"
@@ -149,7 +149,7 @@
 <script>
 import {API_STATUS, PRIORITY} from "../../../definition/model/JsonData";
 import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
+import {ELEMENT_TYPE, STEP} from "../Setting";
 import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
@@ -243,15 +243,19 @@ export default {
       expandedStatus: false,
       stepEnable: true,
       debugLoading: false,
+      buttonData: [],
+      stepFilter: STEP(),
     }
   },
   created() {
     if (!this.currentScenario.apiScenarioModuleId) {
       this.currentScenario.apiScenarioModuleId = "";
     }
-    this.operatingElements = ELEMENTS.get("ALL");
+    this.operatingElements = this.stepFilter.get("ALL");
     this.projectEnvMap = this.envMap;
     this.stepEnable = this.stepReEnable;
+    this.initPlugins();
+    this.buttonData = buttons(this);
   },
   mounted() {
     this.$refs.refFab.openMenu();
@@ -273,6 +277,29 @@ export default {
     },
   },
   methods: {
+    initPlugins() {
+      let url = "/plugin/list";
+      this.$get(url, response => {
+        let data = response.data;
+        if (data) {
+          data.forEach(item => {
+            let plugin = {
+              title: item.name,
+              show: this.showButton(item.jmeterClazz),
+              titleColor: "#555855",
+              titleBgColor: "#F4F4FF",
+              icon: "colorize",
+              click: () => {
+                this.addComponent(item.name, item)
+              }
+            }
+            if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+              this.buttonData.push(plugin);
+            }
+          });
+        }
+      });
+    },
     // 打开引用的场景
     openScenario(data) {
       this.$emit('openScenario', data);
@@ -314,7 +341,7 @@ export default {
     },
     showNode(node) {
       node.active = true;
-      if (node && ELEMENTS.get("AllSamplerProxy").indexOf(node.type) != -1) {
+      if (node && this.stepFilter.get("AllSamplerProxy").indexOf(node.type) != -1) {
         return true;
       }
       return false;
@@ -324,25 +351,18 @@ export default {
     },
     nodeClick(data, node) {
       if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
-        this.operatingElements = ELEMENTS.get(data.type);
+        this.operatingElements = this.stepFilter.get(data.type);
       } else {
         this.operatingElements = [];
       }
-      if (data) {
-        data.active = true;
-        if (data.hashTree) {
-          data.hashTree.forEach(item => {
-            if (item) {
-              item.active = true;
-            }
-          })
-        }
-      } else {
-        data.active = false;
+      if (!this.operatingElements) {
+        this.operatingElements = this.stepFilter.get("ALL");
       }
       this.selectedTreeNode = data;
       this.selectedNode = node;
       this.$store.state.selectStep = data;
+      this.buttonData = buttons(this);
+      this.initPlugins();
     },
     suggestClick(node) {
       this.response = {};
@@ -354,7 +374,9 @@ export default {
     },
     showAll() {
       if (!this.customizeVisible) {
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.operatingElements = this.stepFilter.get("ALL");
+        this.buttonData = buttons(this);
+        this.initPlugins();
         this.selectedTreeNode = undefined;
         this.$store.state.selectStep = undefined;
       }
@@ -600,7 +622,7 @@ export default {
       if (dropType != "inner") {
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
-        && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
         return true;
       }
       return false;
