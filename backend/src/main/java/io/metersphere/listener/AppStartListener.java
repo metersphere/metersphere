@@ -63,22 +63,13 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
 
         initPythonEnv();
 
-        try {
-            //检查状态为开启的TCP-Mock服务端口
-            projectService.initMockTcpService();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        //检查状态为开启的TCP-Mock服务端口
+        projectService.initMockTcpService();
 
+        initOnceOperate();
 
-        initOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
-        initOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
-        initOperate(apiAutomationService::initExecuteTimes, "init.scenario.executeTimes");
-        initOperate(issuesService::syncThirdPartyIssues, "init.issue");
-        initOperate(issuesService::issuesCount, "init.issueCount");
-        initOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
-        initOperate(testCaseService::initOrderField, "init.sort.test.case");
         pluginService.loadPlugins();
+
         try {
             Thread.sleep(1 * 60 * 1000);
         } catch (InterruptedException e) {
@@ -96,7 +87,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
      * @param initFuc
      * @param key
      */
-    private void initOperate(RunInterface initFuc, final String key) {
+    private void initOnceOperate(RunInterface initFuc, final String key) {
         try {
             String value = systemParameterService.getValue(key);
             if (StringUtils.isBlank(value)) {
@@ -106,6 +97,16 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
+    }
+
+    private void initOnceOperate() {
+        initOnceOperate(apiAutomationService::checkApiScenarioUseUrl, "init.scenario.url");
+        initOnceOperate(apiAutomationService::checkApiScenarioReferenceId, "init.scenario.referenceId");
+        initOnceOperate(apiAutomationService::initExecuteTimes, "init.scenario.executeTimes");
+        initOnceOperate(issuesService::syncThirdPartyIssues, "init.issue");
+        initOnceOperate(issuesService::issuesCount, "init.issueCount");
+        initOnceOperate(performanceTestService::initScenarioLoadTest, "init.scenario.load.test");
+        initOnceOperate(testCaseService::initOrderField, "init.sort.test.case");
     }
 
     /**

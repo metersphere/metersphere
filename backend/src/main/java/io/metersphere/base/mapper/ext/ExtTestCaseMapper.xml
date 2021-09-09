@@ -81,7 +81,7 @@
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
         <include refid="notInQueryWhereCondition"/>
         and T2.case_id is null
-        ORDER BY test_case.update_time DESC
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <sql id="notInQueryWhereCondition">
