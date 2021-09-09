@@ -166,6 +166,9 @@ export default {
       if (this.$refs.table) {
         this.$refs.table.clear();
       }
+      if (this.projectId) {
+        this.getProjectNode(this.projectId);
+      }
     },
     setProject(projectId) {
       this.projectId = projectId;
