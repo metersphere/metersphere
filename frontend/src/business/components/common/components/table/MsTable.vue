@@ -64,7 +64,7 @@
         fixed="right"
         :label="$t('commons.operating')">
         <template slot="header">
-          <header-label-operate v-if="fieldKey" @exec="openCustomHeader"/>
+          <header-label-operate :disable-header-config="disableHeaderConfig" v-if="fieldKey" @exec="openCustomHeader"/>
         </template>
         <template v-slot:default="scope">
           <div>
@@ -210,6 +210,7 @@ export default {
         return false;
       }
     },
+    disableHeaderConfig: Boolean,
     fields: Array,
     fieldKey: String,
     customFields: Array,
@@ -225,9 +226,6 @@ export default {
   watch: {
     selectNodeIds() {
       this.selectDataCounts = 0;
-    },
-    'condition.orders'() {
-
     }
   },
   methods: {

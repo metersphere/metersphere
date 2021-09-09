@@ -153,6 +153,7 @@ public class ServiceUtils {
             }
         } catch (Throwable e) {
             LogUtil.error(e.getMessage(), e);
+            MSException.throwException("初始化 order 字段失败");
         }
     }
 

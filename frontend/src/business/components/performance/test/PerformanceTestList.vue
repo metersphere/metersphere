@@ -8,11 +8,24 @@
                            @create="create" :createTip="$t('load_test.create')"/>
         </template>
 
-        <el-table border :data="tableData" class="adjust-table test-content"
-                  @sort-change="sort"
-                  @filter-change="filter"
-                  :height="screenHeight"
-        >
+        <ms-table
+          :data="tableData"
+          :condition="condition"
+          :page-size="pageSize"
+          :total="total"
+          :operators="operators"
+          :screenHeight="screenHeight"
+          :field-key="tableHeaderKey"
+          :remember-order="true"
+          :enable-order-drag="enableOrderDrag"
+          row-key="id"
+          operator-width="190px"
+          :screen-height="screenHeight"
+          :enable-selection="false"
+          @refresh="search"
+          :disable-header-config="true"
+          ref="table">
+
           <el-table-column
             prop="num"
             label="ID"
@@ -73,16 +86,7 @@
               <ms-performance-test-status :row="row"/>
             </template>
           </el-table-column>
-          <el-table-column
-            width="150"
-            :label="$t('commons.operating')">
-            <template v-slot:default="scope">
-              <div>
-                <ms-table-operators :buttons="buttons" :row="scope.row"/>
-              </div>
-            </template>
-          </el-table-column>
-        </el-table>
+        </ms-table>
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
@@ -100,10 +104,13 @@ import MsTableOperators from "../../common/components/MsTableOperators";
 import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
-import {_filter, _sort,saveLastTableSortField,getLastTableSortField} from "@/common/js/tableUtils";
+import {getLastTableSortField, handleRowDrop} from "@/common/js/tableUtils";
+import MsTable from "@/business/components/common/components/table/MsTable";
+import {editLoadTestCaseOrder} from "@/network/load-test";
 
 export default {
   components: {
+    MsTable,
     MsTableHeader,
     MsPerformanceTestStatus,
     MsTablePagination,
@@ -128,7 +135,8 @@ export default {
       total: 0,
       loading: false,
       testId: null,
-      buttons: [
+      enableOrderDrag: true,
+      operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit,
@@ -181,6 +189,8 @@ export default {
     initTableData() {
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
 
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       this.condition.projectId = getCurrentProjectID();
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.result = this.$post(this.buildPagePath('/performance/list'), this.condition, response => {
@@ -192,6 +202,16 @@ export default {
           this.result = this.$get('/performance/test/report-count/' + test.id, response => {
             this.$set(test, 'reportCount', response.data);
           });
+        });
+
+        this.$nextTick(() => {
+          handleRowDrop(this.tableData, (param) => {
+            param.projectId = getCurrentProjectID();
+            editLoadTestCaseOrder(param);
+          });
+          if (this.$refs.table) {
+            this.$refs.table.clear();
+          }
         });
       });
     },
@@ -234,19 +254,6 @@ export default {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
       });
-    },
-    sort(column) {
-      // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      saveLastTableSortField(this.tableHeaderKey, JSON.stringify(this.condition.orders));
-      this.initTableData();
-    },
-    filter(filters) {
-      _filter(filters, this.condition);
-      this.initTableData();
     },
     link(row) {
       this.$router.push({

@@ -97,7 +97,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
                 initFuc.run();
                 systemParameterService.saveInitParam(key);
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LogUtil.error(e.getMessage(), e);
         }
     }
@@ -112,6 +112,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(testCaseService::initOrderField, "init.sort.test.case");
         initOnceOperate(apiTestCaseService::initOrderField, "init.sort.api.test.case");
         initOnceOperate(apiAutomationService::initOrderField, "init.sort.api.scenario");
+        initOnceOperate(performanceTestService::initOrderField, "init.sort.load.case");
     }
 
     /**

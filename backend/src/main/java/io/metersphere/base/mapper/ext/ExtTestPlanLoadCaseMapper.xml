@@ -119,6 +119,7 @@
                 <property name="object" value="${condition}.creator"/>
             </include>
         </if>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </sql>
     <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
         select tplc.id,

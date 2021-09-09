@@ -16,6 +16,7 @@
     <result column="scenario_version" jdbcType="INTEGER" property="scenarioVersion" />
     <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
     <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
+    <result column="order" jdbcType="BIGINT" property="order" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
@@ -81,7 +82,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, description, create_time, update_time, `status`, test_resource_pool_id, 
-    user_id, num, create_user, scenario_version, scenario_id, follow_people
+    user_id, num, create_user, scenario_version, scenario_id, follow_people, `order`
   </sql>
   <sql id="Blob_Column_List">
     load_configuration, advanced_configuration
@@ -139,14 +140,16 @@
       description, create_time, update_time, 
       `status`, test_resource_pool_id, user_id, 
       num, create_user, scenario_version, 
-      scenario_id, follow_people, load_configuration, 
-      advanced_configuration)
+      scenario_id, follow_people, `order`, 
+      load_configuration, advanced_configuration
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
       #{num,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR}, #{scenarioVersion,jdbcType=INTEGER}, 
-      #{scenarioId,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, #{loadConfiguration,jdbcType=LONGVARCHAR}, 
-      #{advancedConfiguration,jdbcType=LONGVARCHAR})
+      #{scenarioId,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}, 
+      #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -192,6 +195,9 @@
       </if>
       <if test="followPeople != null">
         follow_people,
+      </if>
+      <if test="order != null">
+        `order`,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -242,6 +248,9 @@
       </if>
       <if test="followPeople != null">
         #{followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="order != null">
+        #{order,jdbcType=BIGINT},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARCHAR},
@@ -302,6 +311,9 @@
       <if test="record.followPeople != null">
         follow_people = #{record.followPeople,jdbcType=VARCHAR},
       </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=BIGINT},
+      </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -329,6 +341,7 @@
       scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -350,7 +363,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       scenario_version = #{record.scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
-      follow_people = #{record.followPeople,jdbcType=VARCHAR}
+      follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -397,6 +411,9 @@
       <if test="followPeople != null">
         follow_people = #{followPeople,jdbcType=VARCHAR},
       </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=BIGINT},
+      </if>
       <if test="loadConfiguration != null">
         load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -421,6 +438,7 @@
       scenario_version = #{scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
       follow_people = #{followPeople,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -439,7 +457,8 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       scenario_version = #{scenarioVersion,jdbcType=INTEGER},
       scenario_id = #{scenarioId,jdbcType=VARCHAR},
-      follow_people = #{followPeople,jdbcType=VARCHAR}
+      follow_people = #{followPeople,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -1,4 +1,4 @@
-import {baseGet} from "@/network/base-network";
+import {baseGet, basePost} from "@/network/base-network";
 
 export function getPerformanceReport(reportId, callback) {
   return reportId ? baseGet('/performance/report/' + reportId, callback) : {};
@@ -124,4 +124,8 @@ export function getPerformanceMetricQuery(resourceId, callback) {
 }
 export function getSharePerformanceMetricQuery(shareId, resourceId, callback) {
   return resourceId ? baseGet('/share/metric/query/' + shareId + '/' + resourceId, callback) : new Promise(() => {});
+}
+
+export function editLoadTestCaseOrder(request, callback) {
+  return basePost('/performance/edit/order', request, callback);
 }
