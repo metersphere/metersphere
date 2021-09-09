@@ -12,7 +12,9 @@ import io.metersphere.controller.request.PluginRequest;
 import io.metersphere.controller.request.PluginResourceDTO;
 import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.service.utils.CommonUtil;
+import io.metersphere.service.utils.MsClassLoader;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,15 +25,18 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class PluginService {
     @Resource
     private PluginMapper pluginMapper;
+    @Resource
+    private MsClassLoader classLoader;
 
     public String editPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
@@ -80,6 +85,7 @@ public class PluginService {
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
         List<PluginResourceDTO> resources = new LinkedList<>();
         try {
+           // classLoader.unloadJarFile(path);
             this.loadJar(path);
             List<Class<?>> classes = CommonUtil.getSubClass(fileName);
             for (Class<?> aClass : classes) {
@@ -134,7 +140,10 @@ public class PluginService {
             method.setAccessible(true);
             // 获取系统类加载器
             URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+
             URL url = jarFile.toURI().toURL();
+            //URLClassLoader classLoader = new URLClassLoader(new URL[]{url});
+
             method.invoke(classLoader, url);
         } catch (Exception e) {
             e.printStackTrace();
@@ -142,13 +151,22 @@ public class PluginService {
         }
     }
 
+    private <T> Predicate<T> distinctByName(Function<? super T, ?> keys) {
+        Map<Object, Boolean> sen = new ConcurrentHashMap<>();
+        return t -> sen.putIfAbsent(keys.apply(t), Boolean.TRUE) == null;
+    }
+
     public void loadPlugins() {
         PluginExample example = new PluginExample();
         List<Plugin> plugins = pluginMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(plugins)) {
-            plugins.forEach(item -> {
-                this.loadJar(item.getSourcePath());
-            });
+            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
+                    -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+            if (CollectionUtils.isNotEmpty(plugins)) {
+                plugins.forEach(item -> {
+                    this.loadJar(item.getSourcePath());
+                });
+            }
         }
     }
 
