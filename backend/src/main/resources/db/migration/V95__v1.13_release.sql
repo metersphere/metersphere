@@ -34,3 +34,4 @@ update api_scenario_module set name = '未规划场景' where name = '默认模�
 update api_scenario set module_path = replace (`module_path`,'/默认模块','/未规划场景') where module_path like '/默认模块%';
 
 
+ALTER TABLE test_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';

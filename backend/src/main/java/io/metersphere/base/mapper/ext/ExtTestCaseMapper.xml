@@ -530,6 +530,28 @@
     <select id="getTestCaseStep" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
         select id, prerequisite, steps, step_description, expected_result, step_model from test_case where id = #{id}
     </select>
+    <select id="selectProjectIds" resultType="java.lang.String">
+        select DISTINCT project_id from test_case;
+    </select>
+    <select id="getIdsOrderByCreateTime" resultType="java.lang.String">
+        select id from test_case where project_id = #{projectId} order by create_time DESC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from test_case where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from test_case where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
 
     <update id="deleteToGc">
         update test_case set original_status=status,

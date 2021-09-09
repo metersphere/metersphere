@@ -2,6 +2,7 @@ import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils
 import {CUSTOM_TABLE_HEADER} from "@/common/js/default-table-header";
 import {updateCustomFieldTemplate} from "@/network/custom-field-template";
 import i18n from "@/i18n/i18n";
+import Sortable from 'sortablejs'
 
 export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
@@ -523,4 +524,31 @@ export function getCustomFieldBatchEditOption(customFields, typeArr, valueArr, m
       valueArr[item.name] = options;
     }
   });
+}
+
+export function handleRowDrop(data, callback) {
+  setTimeout(() => {
+    const tbody = document.querySelector('.el-table__body-wrapper tbody');
+    Sortable.create(tbody, {
+      handle: ".table-row-drop-bar",
+      animation: 100,
+      onEnd({ newIndex, oldIndex }) {
+        let param = {};
+        param.moveId = data[oldIndex].id;
+        if (newIndex === 0) {
+          param.moveMode = 'BEFORE';
+          param.targetId = data[0].id;
+        } else {
+          // 默认从后面添加
+          param.moveMode = 'AFTER';
+          param.targetId = data[newIndex].id;
+        }
+        const currRow = data.splice(oldIndex, 1)[0];
+        data.splice(newIndex, 0, currRow);
+        if (callback) {
+          callback(param);
+        }
+      }
+    });
+  }, 100);
 }

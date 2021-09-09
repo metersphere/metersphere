@@ -9,10 +9,10 @@
             <foreach collection="request.orders" separator="," item="order">
                 <choose>
                     <when test="order.prefix != null and order.prefix != ''">
-                        ${order.prefix}.${order.name} ${order.type}
+                        ${order.prefix}.`${order.name}` ${order.type}
                     </when>
                     <otherwise>
-                        ${order.name} ${order.type}
+                        `${order.name}` ${order.type}
                     </otherwise>
                 </choose>
             </foreach>
