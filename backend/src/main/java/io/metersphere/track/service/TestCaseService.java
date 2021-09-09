@@ -166,14 +166,9 @@ public class TestCaseService {
         testCase.setDemandName(testCase.getDemandName());
         testCase.setCreateUser(SessionUtils.getUserId());
         this.setNode(testCase);
-        setNextOrder(testCase);
+        testCase.setOrder(ServiceUtils.getNextOrder(testCase.getProjectId(), extTestCaseMapper::getLastOrder));
         testCaseMapper.insert(testCase);
         return testCase;
-    }
-
-    public synchronized void setNextOrder(TestCaseWithBLOBs testCase) {
-        Long lastOrder = extTestCaseMapper.getLastOrder(testCase.getProjectId(), null);
-        testCase.setOrder((lastOrder == null ? 0 : lastOrder) + 5000);
     }
 
     private void checkTestCustomNum(TestCaseWithBLOBs testCase) {

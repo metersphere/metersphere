@@ -1,6 +1,6 @@
 import {post} from "@/common/js/ajax";
 import {success} from "@/common/js/message";
-import {baseGet} from "@/network/base-network";
+import {baseGet, basePost} from "@/network/base-network";
 
 export function apiCaseBatchRun(condition) {
   return post('/api/testcase/batch/run', condition, () => {
@@ -25,3 +25,6 @@ export function getShareScenarioReport(shareId, reportId, callback) {
 }
 
 
+export function editApiTestCaseOrder(request, callback) {
+  return basePost('/api/testcase/edit/order', request, callback);
+}

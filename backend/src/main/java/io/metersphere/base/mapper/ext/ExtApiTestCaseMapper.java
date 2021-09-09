@@ -52,4 +52,12 @@ public interface ExtApiTestCaseMapper {
     String selectNameById(String id);
 
     List<String> selectIdsByQuery(BaseQueryRequest query);
+
+    List<String> selectProjectIds();
+
+    List<String> getIdsOrderByCreateTime(@Param("projectId") String projectId);
+
+    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 }

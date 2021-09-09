@@ -209,4 +209,15 @@ public class ServiceUtils {
             MSException.throwException("更新 order 字段失败");
         }
     }
+
+    /**
+     * 创建时获取下一个 order 值
+     * @param projectId
+     * @param getLastOrderFunc
+     * @return
+     */
+    public static Long getNextOrder(String projectId, BiFunction<String, Long, Long> getLastOrderFunc) {
+        Long lastOrder = getLastOrderFunc.apply(projectId, null);
+       return (lastOrder == null ? 0 : lastOrder) + 5000;
+    }
 }

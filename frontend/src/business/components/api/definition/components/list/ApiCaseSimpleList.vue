@@ -20,6 +20,8 @@
         :fields.sync="fields"
         :field-key="tableHeaderKey"
         :remember-order="true"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         operator-width="190px"
         @refresh="initTable"
         ref="caseTable"
@@ -112,6 +114,7 @@
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+              <span/>
             </template>
           </ms-table-column>
 
@@ -213,12 +216,13 @@ import {
   _filter,
   _sort,
   getCustomTableHeader,
-  getCustomTableWidth, getLastTableSortField
+  getCustomTableWidth, getLastTableSortField, handleRowDrop
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import ApiCaseBatchRun from "@/business/components/api/definition/components/list/ApiCaseBatchRun";
 import MsRequestResultTail from "../../../../api/definition/components/response/RequestResultTail";
+import {editApiTestCaseOrder} from "@/network/api";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -260,6 +264,7 @@ export default {
       selectDataRange: "all",
       clickRow: {},
       buttons: [],
+      enableOrderDrag: true,
       simpleButtons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteToGcBatch},
         {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
@@ -374,8 +379,6 @@ export default {
     planId: String
   },
   created: function () {
-    this.condition.orders = getLastTableSortField(this.tableHeaderKey);
-
     if (this.trashEnable) {
       this.operators = this.trashOperators;
       this.buttons = this.trashButtons;
@@ -493,12 +496,16 @@ export default {
       if (this.$refs.caseTable) {
         this.$refs.caseTable.clearSelectRows();
       }
+      this.condition.orders = getLastTableSortField(this.tableHeaderKey);
       if (this.condition.orders) {
         const index = this.condition.orders.findIndex(d => d.name && d.name === 'case_path');
         if (index !== -1) {
           this.condition.orders.splice(index, 1);
         }
       }
+
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       if (this.apiDefinitionId) {
         this.condition.apiDefinitionId = this.apiDefinitionId;
       }
@@ -564,6 +571,12 @@ export default {
             }
           })
           this.$nextTick(function () {
+
+            handleRowDrop(this.tableData, (param) => {
+              param.projectId = this.condition.projectId;
+              editApiTestCaseOrder(param);
+            });
+
             if (this.$refs.caseTable) {
               this.$refs.caseTable.doLayout();
               this.$refs.caseTable.checkTableRowIsSelect();
