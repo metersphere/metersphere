@@ -58,6 +58,18 @@ export default {
         this.$emit('runRefresh', data);
       }
     },
+    sort(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sort(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     run() {
       let projectId = getCurrentProjectID();
       // 如果envMap不存在，是单接口调用
@@ -83,6 +95,7 @@ export default {
         }
         threadGroup.hashTree.push(item);
       })
+      this.sort(testPlan.hashTree);
       let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type), projectId: projectId, environmentMap: strMapToObj(this.envMap)};
       let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
       if (this.runData[0].url) {
