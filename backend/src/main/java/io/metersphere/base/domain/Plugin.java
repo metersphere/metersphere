@@ -13,6 +13,8 @@ public class Plugin implements Serializable {
 
     private String scriptId;
 
+    private String jmeterClazz;
+
     private String clazzName;
 
     private String sourcePath;

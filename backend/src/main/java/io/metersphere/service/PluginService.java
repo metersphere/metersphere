@@ -70,6 +70,7 @@ public class PluginService {
             plugin.setFormScript(item.getFormScript());
             plugin.setClazzName(item.getClazzName());
             plugin.setSourceName(name);
+            plugin.setJmeterClazz(item.getJmeterClazz());
             plugin.setExecEntry(resource.getEntry());
             plugin.setCreateUserId(SessionUtils.getUserId());
             pluginMapper.insert(plugin);

@@ -430,7 +430,6 @@ export default {
       this.request.active = true;
       this.loading = true;
       this.runData = [];
-      this.runData.projectId = this.request.projectId;
       this.request.useEnvironment = this.currentEnvironmentId;
       this.request.customizeReq = this.isCustomizeReq;
       let debugData = {
@@ -447,7 +446,6 @@ export default {
     stop() {
       let url = "/api/automation/stop/" + this.reportId;
       this.$get(url, () => {
-        this.runLoading = false;
         this.loading = false;
         this.$success(this.$t('report.test_stop_success'));
       });
