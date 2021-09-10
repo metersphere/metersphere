@@ -189,9 +189,7 @@
             } else {
               console.log("单选：传入参数类型不匹配");
               return;
-
             }
-
           }
         }
       },

@@ -76,3 +76,18 @@ CREATE table if not exists `minder_extra_node` (
 )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
+
+CREATE TABLE IF NOT EXISTS `report_statistics`
+(
+    `id`              varchar(50)   NOT NULL,
+    `name`            varchar(50)   DEFAULT NULL,
+    `project_id` 			varchar(50) 	DEFAULT NULL COMMENT 'Test plan ID',
+    `create_user` 		varchar(64)   DEFAULT NULL COMMENT 'create user',
+    `update_user` 		varchar(64)   DEFAULT NULL COMMENT 'create user',
+    `select_option` 	longtext  		COMMENT 'select option (JSON format)',
+    `data_option` 		longtext 			COMMENT 'data option (JSON format)',
+    `report_type`     varchar(50)   NOT NULL,
+    `create_time`     bigint(13)    DEFAULT NULL,
+    `update_time`     bigint(13)    DEFAULT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
