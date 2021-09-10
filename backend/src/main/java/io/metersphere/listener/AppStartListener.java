@@ -15,6 +15,7 @@ import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.service.TestCaseService;
+import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
@@ -51,6 +52,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private TestCaseService testCaseService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private TestPlanTestCaseService testPlanTestCaseService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -113,6 +116,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(apiTestCaseService::initOrderField, "init.sort.api.test.case");
         initOnceOperate(apiAutomationService::initOrderField, "init.sort.api.scenario");
         initOnceOperate(performanceTestService::initOrderField, "init.sort.load.case");
+        initOnceOperate(testPlanTestCaseService::initOrderField, "init.sort.plan.test.case");
     }
 
     /**

@@ -476,7 +476,8 @@ public class TestPlanService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestPlanTestCaseMapper batchMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
 
-        testCaseIds.forEach(caseId -> {
+        Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanTestCaseMapper::getLastOrder);
+        for (String caseId : testCaseIds) {
             TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
             testPlanTestCase.setId(UUID.randomUUID().toString());
             testPlanTestCase.setCreateUser(SessionUtils.getUserId());
@@ -486,8 +487,10 @@ public class TestPlanService {
             testPlanTestCase.setUpdateTime(System.currentTimeMillis());
             testPlanTestCase.setPlanId(request.getPlanId());
             testPlanTestCase.setStatus(TestPlanStatus.Prepare.name());
+            testPlanTestCase.setOrder(nextOrder);
+            nextOrder += 5000;
             batchMapper.insert(testPlanTestCase);
-        });
+        }
 
         sqlSession.flushStatements();
         //同步添加关联的接口和测试用例

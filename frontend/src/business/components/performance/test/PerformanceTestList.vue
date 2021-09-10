@@ -206,7 +206,7 @@ export default {
 
         this.$nextTick(() => {
           handleRowDrop(this.tableData, (param) => {
-            param.projectId = getCurrentProjectID();
+            param.groupId = getCurrentProjectID();
             editLoadTestCaseOrder(param);
           });
           if (this.$refs.table) {

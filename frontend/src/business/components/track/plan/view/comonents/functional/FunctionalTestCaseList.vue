@@ -34,6 +34,8 @@
       :fields.sync="fields"
       :remember-order="true"
       @refresh="initTableData"
+      :enable-order-drag="enableOrderDrag"
+      row-key="id"
       ref="table">
 
       <span v-for="item in fields" :key="item.key">
@@ -269,13 +271,14 @@ import MsTag from "@/business/components/common/components/MsTag";
 import {
   buildBatchParam, checkTableRowIsSelected,
   getCustomFieldValue, getCustomTableWidth, getLastTableSortField,
-  getTableHeaderWithCustomFields,
+  getTableHeaderWithCustomFields, handleRowDrop,
   initCondition,
 } from "@/common/js/tableUtils";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import {getProjectMember} from "@/network/user";
 import {getTestTemplate} from "@/network/custom-field-template";
+import {editTestPlanTestCaseOrder} from "@/network/test-plan";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -305,6 +308,7 @@ export default {
       condition: {
         components: TEST_CASE_CONFIGS
       },
+      enableOrderDrag: true,
       showMyTestCase: false,
       tableData: [],
       currentPage: 1,
@@ -447,6 +451,8 @@ export default {
     },
     initTableData() {
       initCondition(this.condition, this.condition.selectAll);
+      this.enableOrderDrag = this.condition.orders.length > 0 ? false : true;
+
       this.autoCheckStatus();
       if (this.planId) {
         // param.planId = this.planId;
@@ -480,6 +486,13 @@ export default {
               this.$set(this.tableData[i], "issuesContent", JSON.parse(this.tableData[i].issues));
             }
           }
+
+          this.$nextTick(() => {
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.planId;
+              editTestPlanTestCaseOrder(param);
+            });
+          });
           if (this.$refs.table) {
             this.$refs.table.clear();
           }

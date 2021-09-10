@@ -143,12 +143,16 @@ public class PluginService {
     }
 
     public void loadPlugins() {
-        PluginExample example = new PluginExample();
-        List<Plugin> plugins = pluginMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(plugins)) {
-            plugins.forEach(item -> {
-                this.loadJar(item.getSourcePath());
-            });
+        try {
+            PluginExample example = new PluginExample();
+            List<Plugin> plugins = pluginMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(plugins)) {
+                plugins.forEach(item -> {
+                    this.loadJar(item.getSourcePath());
+                });
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 

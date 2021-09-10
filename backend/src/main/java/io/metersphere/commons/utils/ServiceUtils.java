@@ -187,12 +187,12 @@ public class ServiceUtils {
                 // 追加到参考对象的之后
                 order = targetOrder - 5000;
                 // ，因为是降序排，则查找比目标 order 小的一个order
-                lastOrPreOrder = getPreOrderFunc.apply(request.getProjectId(), targetOrder);
+                lastOrPreOrder = getPreOrderFunc.apply(request.getGroupId(), targetOrder);
             } else {
                 // 追加到前面
                 order = targetOrder + 5000;
                 // 因为是降序排，则查找比目标 order 更大的一个order
-                lastOrPreOrder = getLastOrderFunc.apply(request.getProjectId(), targetOrder);
+                lastOrPreOrder = getLastOrderFunc.apply(request.getGroupId(), targetOrder);
             }
             if (lastOrPreOrder != null) {
                 // 如果不是第一个或最后一个则取中间值
@@ -212,12 +212,12 @@ public class ServiceUtils {
 
     /**
      * 创建时获取下一个 order 值
-     * @param projectId
+     * @param groupId
      * @param getLastOrderFunc
      * @return
      */
-    public static Long getNextOrder(String projectId, BiFunction<String, Long, Long> getLastOrderFunc) {
-        Long lastOrder = getLastOrderFunc.apply(projectId, null);
+    public static Long getNextOrder(String groupId, BiFunction<String, Long, Long> getLastOrderFunc) {
+        Long lastOrder = getLastOrderFunc.apply(groupId, null);
        return (lastOrder == null ? 0 : lastOrder) + 5000;
     }
 }

@@ -601,7 +601,7 @@ export default {
 
           this.$nextTick(() => {
             handleRowDrop(this.tableData, (param) => {
-              param.projectId = this.condition.projectId;
+              param.groupId = this.condition.projectId;
               editApiScenarioCaseOrder(param);
             });
 

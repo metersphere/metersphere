@@ -573,7 +573,7 @@ export default {
           this.$nextTick(function () {
 
             handleRowDrop(this.tableData, (param) => {
-              param.projectId = this.condition.projectId;
+              param.groupId = this.condition.projectId;
               editApiTestCaseOrder(param);
             });
 

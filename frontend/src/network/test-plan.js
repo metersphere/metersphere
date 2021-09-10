@@ -123,3 +123,7 @@ export function checkoutLoadReport(param, callback) {
 export function shareCheckoutLoadReport(shareId, param, callback) {
   return basePost('/share/test/plan/load/case/report/exist/' + shareId, param, callback);
 }
+
+export function editTestPlanTestCaseOrder(request, callback) {
+  return basePost('/test/plan/case/edit/order', request, callback);
+}
