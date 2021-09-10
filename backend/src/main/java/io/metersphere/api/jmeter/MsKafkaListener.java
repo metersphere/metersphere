@@ -117,7 +117,7 @@ public class MsKafkaListener {
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
-        } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
+        } else if (StringUtils.equalsAny(testResult.getRunMode(), ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name(),ApiRunMode.JENKINS_SCENARIO_PLAN.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testResult.getTestId());
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, testResult.getRunMode());
