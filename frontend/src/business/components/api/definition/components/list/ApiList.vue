@@ -17,6 +17,8 @@
         :fields.sync="fields"
         :table-is-loading="this.result.loading"
         :field-key="tableHeaderKey"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         ref="table">
         <ms-table-column
           prop="deleteTime"
@@ -207,11 +209,12 @@ import CaseBatchMove from "@/business/components/api/definition/components/basis
 import {
   initCondition,
   getCustomTableHeader, getCustomTableWidth, buildBatchParam, checkTableRowIsSelected,
-  saveLastTableSortField, getLastTableSortField
+  saveLastTableSortField, getLastTableSortField, handleRowDrop
 } from "@/common/js/tableUtils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
+import {editApiDefinitionOrder} from "@/network/api";
 
 
 export default {
@@ -248,6 +251,7 @@ export default {
       selectApi: {},
       result: {},
       moduleId: "",
+      enableOrderDrag: true,
       selectDataRange: "all",
       deletePath: "/test/case/delete",
       buttons: [
@@ -498,6 +502,8 @@ export default {
         this.condition.protocol = this.currentProtocol;
       }
 
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       //检查是否只查询本周数据
       this.getSelectDataRange();
       this.condition.selectThisWeedData = false;
@@ -537,6 +543,16 @@ export default {
           });
 
           checkTableRowIsSelected(this, this.$refs.table);
+
+          this.$nextTick(() => {
+            if (this.$refs.table) {
+              this.$refs.table.clear();
+            }
+            handleRowDrop(this.tableData, (param) => {
+              param.groupId = this.condition.projectId;
+              editApiDefinitionOrder(param);
+            });
+          })
         });
       }
       if (this.needRefreshModule()) {

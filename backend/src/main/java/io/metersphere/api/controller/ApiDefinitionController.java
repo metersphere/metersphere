@@ -24,6 +24,7 @@ import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
@@ -299,4 +300,8 @@ public class ApiDefinitionController {
         return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId);
     }
 
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        apiDefinitionService.updateOrder(request);
+    }
 }

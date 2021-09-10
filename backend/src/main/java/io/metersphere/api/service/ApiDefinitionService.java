@@ -29,6 +29,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
@@ -145,7 +146,7 @@ public class ApiDefinitionService {
      */
     private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
         if (setDefultOrders) {
-            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+            request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
@@ -406,6 +407,7 @@ public class ApiDefinitionService {
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
         test.setFollowPeople(request.getFollowPeople());
+        test.setOrder(ServiceUtils.getNextOrder(request.getProjectId(), extApiDefinitionMapper::getLastOrder));
         if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("未规划接口");
@@ -1017,14 +1019,14 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
         calculateResult(resList, request.getProjectId());
         return resList;
     }
 
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
         calculateResult(resList, request.getProjectId());
         resList = extApiDefinitionMapper.list(request);
@@ -1358,5 +1360,23 @@ public class ApiDefinitionService {
     public APIReportResult getTestPlanApiCaseReport(String testId, String type) {
         ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectPlanApiMaxResultByTestIdAndType(testId, type);
         return buildAPIReportResult(result);
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(ApiDefinitionWithBLOBs.class, ApiDefinitionMapper.class,
+                extApiDefinitionMapper::selectProjectIds,
+                extApiDefinitionMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, ApiDefinitionWithBLOBs.class,
+                apiDefinitionMapper::selectByPrimaryKey,
+                extApiDefinitionMapper::getPreOrder,
+                extApiDefinitionMapper::getLastOrder,
+                apiDefinitionMapper::updateByPrimaryKeySelective);
     }
 }
