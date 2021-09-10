@@ -13,4 +13,6 @@ public class HttpConfigCondition {
     private String domain;
     private int port;
     private List<KeyValue> headers;
+
+    private List<String> moduleIds;
 }
