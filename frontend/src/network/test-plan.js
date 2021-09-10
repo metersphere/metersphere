@@ -127,3 +127,7 @@ export function shareCheckoutLoadReport(shareId, param, callback) {
 export function editTestPlanTestCaseOrder(request, callback) {
   return basePost('/test/plan/case/edit/order', request, callback);
 }
+
+export function editTestPlanApiCaseOrder(request, callback) {
+  return basePost('/test/plan/api/case/edit/order', request, callback);
+}

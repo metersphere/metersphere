@@ -25,6 +25,8 @@
         :fields.sync="fields"
         :field-key="tableHeaderKey"
         @refresh="initTable"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
 
@@ -172,7 +174,7 @@ import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import {TEST_PLAN_API_CASE} from "@/common/js/constants";
 import {
   buildBatchParam,
-  checkTableRowIsSelect, deepClone, getCustomTableHeader, getCustomTableWidth,
+  checkTableRowIsSelect, deepClone, getCustomTableHeader, getCustomTableWidth, handleRowDrop,
 } from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -182,6 +184,7 @@ import MsTableColumn from "@/business/components/common/components/table/MsTable
 import MsPlanRunMode from "@/business/components/track/plan/common/PlanRunModeWithEnv";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
+import {editTestPlanApiCaseOrder} from "@/network/test-plan";
 
 export default {
   name: "TestPlanApiCaseList",
@@ -220,6 +223,7 @@ export default {
       moduleId: "",
       status: 'default',
       deletePath: "/test/case/delete",
+      enableOrderDrag: true,
       operators: [
         {
           tip: this.$t('api_test.run'), icon: "el-icon-video-play",
@@ -361,6 +365,9 @@ export default {
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
+
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       if (this.clickType) {
         if (this.status == 'default') {
           this.condition.status = this.clickType;
@@ -379,6 +386,7 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           });
+
           if (this.$refs.table) {
             this.$refs.table.clear();
             setTimeout(this.$refs.table.doLayout, 200);
@@ -405,8 +413,17 @@ export default {
               checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.table, this.$refs.table.selectRows);
             });
           }
+          this.handleRowDrop();
         });
       }
+    },
+    handleRowDrop() {
+      this.$nextTick(() => {
+        handleRowDrop(this.tableData, (param) => {
+          param.groupId = this.planId;
+          editTestPlanApiCaseOrder(param);
+        });
+      });
     },
     search() {
       this.initTable();

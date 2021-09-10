@@ -39,6 +39,7 @@ import io.metersphere.commons.constants.RunModeConstants;
 import io.metersphere.commons.constants.TriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.plugin.core.MsTestElement;
@@ -104,7 +105,7 @@ public class TestPlanApiCaseService {
 
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanApiCaseDTO> apiTestCases = extTestPlanApiCaseMapper.list(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
@@ -130,7 +131,7 @@ public class TestPlanApiCaseService {
 
     public List<String> selectIds(ApiTestCaseRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<String> idList = extTestPlanApiCaseMapper.selectIds(request);
         return idList;
     }
@@ -602,4 +603,23 @@ public class TestPlanApiCaseService {
         buildUserInfo(apiTestCases);
         return apiTestCases;
     }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(TestPlanApiCase.class, TestPlanApiCaseMapper.class,
+                extTestPlanApiCaseMapper::selectPlanIds,
+                extTestPlanApiCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestPlanApiCase.class,
+                testPlanApiCaseMapper::selectByPrimaryKey,
+                extTestPlanApiCaseMapper::getPreOrder,
+                extTestPlanApiCaseMapper::getLastOrder,
+                testPlanApiCaseMapper::updateByPrimaryKeySelective);
+    }
+
 }

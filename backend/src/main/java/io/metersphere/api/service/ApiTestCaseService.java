@@ -94,6 +94,8 @@ public class ApiTestCaseService {
     @Resource
     @Lazy
     private APITestService apiTestService;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
@@ -438,7 +440,9 @@ public class ApiTestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 
         ExtTestPlanApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
-        apiTestCases.forEach(apiTestCase -> {
+        Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanApiCaseMapper::getLastOrder);
+
+        for (ApiTestCase apiTestCase: apiTestCases) {
             TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
             testPlanApiCase.setId(UUID.randomUUID().toString());
             testPlanApiCase.setCreateUser(SessionUtils.getUserId());
@@ -447,8 +451,11 @@ public class ApiTestCaseService {
             testPlanApiCase.setEnvironmentId(request.getEnvironmentId());
             testPlanApiCase.setCreateTime(System.currentTimeMillis());
             testPlanApiCase.setUpdateTime(System.currentTimeMillis());
+            testPlanApiCase.setOrder(nextOrder);
+            nextOrder += 5000;
             batchMapper.insertIfNotExists(testPlanApiCase);
-        });
+        }
+
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
                 || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
