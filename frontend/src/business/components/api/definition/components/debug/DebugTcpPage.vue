@@ -13,9 +13,6 @@
         <el-form-item>
           <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{ $t('commons.test') }}
           </el-button>
-          <el-button size="small" type="primary" @click="stop" v-if="isStop">
-            {{ $t('report.stop_btn') }}
-          </el-button>
           <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.test') }}
@@ -24,6 +21,9 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+          <el-button size="small" type="primary" @click="stop" v-if="isStop">
+            {{ $t('report.stop_btn') }}
+          </el-button>
         </el-form-item>
       </el-form>
       <div v-loading="loading">

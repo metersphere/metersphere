@@ -353,7 +353,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                     this.setEnvironmentId(useEvnId);
                 }
-                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
+                HttpConfig httpConfig = matchConfig(config);
                 httpConfig.setPreProcessor(environmentConfig.getPreProcessor());
                 httpConfig.setPostProcessor(environmentConfig.getPostProcessor());
                 return httpConfig;
@@ -725,10 +725,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     /**
      * 按照环境规则匹配环境
      *
-     * @param httpConfig
+     * @param parameterConfig
      * @return
      */
-    private HttpConfig getHttpConfig(HttpConfig httpConfig) {
+    private HttpConfig matchConfig(ParameterConfig parameterConfig) {
+        HttpConfig httpConfig = parameterConfig.getConfig().get(this.getProjectId()).getHttpConfig();
         boolean isNext = true;
         if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
             for (HttpConfigCondition item : httpConfig.getConditions()) {

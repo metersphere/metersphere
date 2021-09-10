@@ -196,7 +196,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable ref="stepTree">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" draggable ref="stepTree">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config
@@ -1028,7 +1028,6 @@ export default {
             const index = hashTree.findIndex(d => d.resourceId !== undefined && row.resourceId !== undefined && d.resourceId === row.resourceId)
             hashTree.splice(index, 1);
             this.sort();
-            this.reload();
           }
         }
       });
@@ -1060,7 +1059,6 @@ export default {
         hashTree.push(obj);
       }
       this.sort();
-      this.reload();
     },
     reload() {
       this.loading = true
