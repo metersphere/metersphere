@@ -4,6 +4,7 @@ CREATE TABLE `plugin` (
   `plugin_id` varchar(300) NOT NULL COMMENT 'Plugin id',
   `script_id` varchar(300) NOT NULL COMMENT 'Ui script id',
   `clazz_name` varchar(500) NOT NULL COMMENT 'Plugin clazzName',
+  `jmeter_clazz` varchar(300) NOT NULL COMMENT 'Jmeter base clazzName',
   `source_path` varchar(300) NOT NULL COMMENT 'Plugin jar path',
   `source_name` varchar(300) NOT NULL COMMENT 'Plugin jar name',
   `form_option` longtext COMMENT 'plugin form option',
