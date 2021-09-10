@@ -1,9 +1,10 @@
 package io.metersphere.api.dto.definition.request;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
-import io.metersphere.api.dto.definition.request.controller.MsTransactionController;
+import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -16,6 +17,8 @@ import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.plugin.core.MsParameter;
 import io.metersphere.plugin.core.MsTestElement;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +26,7 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
+import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -284,6 +288,34 @@ public class ElementUtil {
         if (element != null && element.containsKey("hashTree")) {
             JSONArray elementJSONArray = element.getJSONArray("hashTree");
             dataFormatting(elementJSONArray);
+        }
+    }
+
+    public static void dataSetDomain(JSONArray hashTree, MsParameter msParameter) {
+        try {
+            for (int i = 0; i < hashTree.size(); i++) {
+                JSONObject element = hashTree.getJSONObject(i);
+                if (element != null && element.get("type").toString().equals("HTTPSamplerProxy")) {
+                    MsHTTPSamplerProxy httpSamplerProxy = JSON.toJavaObject(element, MsHTTPSamplerProxy.class);
+                    if (httpSamplerProxy != null
+                            && (!httpSamplerProxy.isCustomizeReq() || (httpSamplerProxy.isCustomizeReq() && httpSamplerProxy.getIsRefEnvironment()))) {
+                        HashTree tmpHashTree = new HashTree();
+                        httpSamplerProxy.toHashTree(tmpHashTree, null, msParameter);
+                        if (tmpHashTree != null && tmpHashTree.getArray().length > 0) {
+                            HTTPSamplerProxy object = (HTTPSamplerProxy) tmpHashTree.getArray()[0];
+                            if (object != null && StringUtils.isNotEmpty(object.getDomain())) {
+                                element.fluentPut("domain", StringUtils.isNotEmpty(object.getProtocol()) ? object.getProtocol() + "://" + object.getDomain() : object.getDomain());
+                            }
+                        }
+                    }
+                }
+                if (element.containsKey("hashTree")) {
+                    JSONArray elementJSONArray = element.getJSONArray("hashTree");
+                    dataSetDomain(elementJSONArray, msParameter);
+                }
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage());
         }
     }
 }

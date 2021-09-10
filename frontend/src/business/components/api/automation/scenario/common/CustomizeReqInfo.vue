@@ -1,19 +1,26 @@
 <template>
   <div>
     <div v-if="request.protocol === 'HTTP'">
-      <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url || isCustomizeReq" v-model="request.url"
-                style="width: 85%;margin-top: 10px" size="small" @blur="urlChange">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
+      <div v-if="request.url || isCustomizeReq">
+        <el-select v-model="request.method" style="width: 100px" size="small">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-      </el-input>
-      <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-else v-model="request.path"
-                style="width: 85%;margin-top: 10px" size="small" @blur="pathChange">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
+        <el-input  v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly style="width: 150px"/>
+        <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url"
+                  style="width: 50%" size="small" @blur="urlChange">
+        </el-input>
+        <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment">
+          {{ $t('api_test.request.refer_to_environment') }}
+        </el-checkbox>
+      </div>
+      <div v-else>
+        <el-select v-model="request.method" style="width: 100px" size="small">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-      </el-input>
-      <el-checkbox v-if="isCustomizeReq" class="is-ref-environment" v-model="request.isRefEnvironment">{{ $t('api_test.request.refer_to_environment') }}</el-checkbox>
+        <el-input  v-model="request.domain" v-if="request.domain" size="small" readonly style="width: 150px"/>
+        <el-input :placeholder="$t('api_test.definition.request.path_all_info')" style="width: 50%"
+                  v-model="request.path" size="small" @blur="pathChange"/>
+      </div>
     </div>
 
     <div v-if="request.protocol === 'TCP' && isCustomizeReq">
@@ -122,6 +129,16 @@ export default {
   width: 50%;
 }
 
+.scenario-step-request-name {
+  display: inline-block;
+  margin: 0 5px;
+  overflow-x: hidden;
+  padding-bottom: 0;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 120px;
+}
 .is-ref-environment {
   margin-left: 15px;
 }
