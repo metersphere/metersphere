@@ -5,9 +5,6 @@
       <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
                  @click="handleCommand"> {{ $t('commons.test') }}
       </el-button>
-      <el-button size="small" type="primary" class="ms-api-buttion" style="float: right;margin-right: 20px" @click="stop" v-if="isStop">
-        {{ $t('report.stop_btn') }}
-      </el-button>
       <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                    @command="handleCommand" size="small" style="float: right;margin-right: 20px">
         {{ $t('commons.test') }}
@@ -15,6 +12,9 @@
           <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
+      <el-button size="small" type="primary" class="ms-api-buttion" style="float: right;margin-right: 20px" @click="stop" v-if="isStop">
+        {{ $t('report.stop_btn') }}
+      </el-button>
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <div v-loading="loading">
         <!-- 请求参数 -->
