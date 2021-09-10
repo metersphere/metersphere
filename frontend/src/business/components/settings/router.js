@@ -158,5 +158,10 @@ export default {
       component: () => import('@/business/components/settings/plugin/PluginConfig'),
       meta: {system: true, title: 'plugin.title', permissions: ['SYSTEM_USER:READ']}
     },
+    {
+      path: 'function',
+      component: () => import('@/business/components/settings/project/function/CustomFunction'),
+      meta: {project: true, title: '自定义函数'}
+    }
   ]
 };
