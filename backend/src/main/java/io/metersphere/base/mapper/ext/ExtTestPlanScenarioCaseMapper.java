@@ -36,4 +36,12 @@ public interface ExtTestPlanScenarioCaseMapper {
     List<Integer> getUnderwaySteps(@Param("ids") List<String> underwayIds);
 
     String getProjectIdById(String testPlanScenarioId);
+
+    List<String> selectPlanIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("planId") String planId);
+
+    Long getPreOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
 }

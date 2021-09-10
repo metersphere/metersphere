@@ -40,4 +40,5 @@ ALTER TABLE api_scenario ADD `order` bigint(20) NOT NULL COMMENT '自定义排�
 ALTER TABLE load_test ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 ALTER TABLE test_plan_test_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 ALTER TABLE test_plan_api_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
+ALTER TABLE test_plan_api_scenario ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 
