@@ -260,6 +260,8 @@ export default {
       title: "報表統計",
       test_case_analysis: "測試用例分析",
       test_case_activity: "測試用例活動情況",
+      test_case_count: "測試用例統計",
+      test_case_count_activity: "測試用例統計情況",
       name: "報表",
       excel: "表格",
       add_case: "新增用例",
@@ -268,9 +270,39 @@ export default {
       options: "選項",
       chart: "圖表",
       line: "折線圖",
+      pie: "餅圖",
       bar: "柱狀圖",
       desc: "總數從高到低",
       asc: "總數從低到高",
+      report_data: {
+        all_report: "全部報表",
+        my_report: "我的報表",
+      },
+      report_filter: {
+        xaxis: "水平軸系列",
+        yaxis: "縱向軸系列",
+        recently: "最近",
+        more_options: "更多選項",
+        belone: "屬於",
+        select_options: {
+          case_type: "用例類型",
+          creator: "創建人",
+          maintainer: "維護人",
+          case_status: "用例狀態",
+          case_level: "用例等級",
+        },
+        time_options: {
+          fixed_time: "固定時間",
+          dynamic_time: "動態時間",
+          day: "天",
+          month: "月",
+          year: "年",
+        }
+      },
+      alert: {
+        cannot_add_more_options: "無法添加更多條件",
+        end_time_cannot_over_than_start_time: "結束時間不能超過當前時間",
+      },
     }
   },
   license: {

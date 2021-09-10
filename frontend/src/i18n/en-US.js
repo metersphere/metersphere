@@ -259,6 +259,8 @@ export default {
       title: "Report Statistics",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
+      test_case_count: "Count test case",
+      test_case_count_activity: "Test case count activity",
       name: "Report",
       excel: "Excel",
       add_case: "Add case",
@@ -267,9 +269,39 @@ export default {
       options: "Options",
       chart: "Chart",
       line: "Line",
+      pie: "Pie",
       bar: "Bar",
       desc: "Desc",
       asc: "Asc",
+      report_data: {
+        all_report: "All report",
+        my_report: "My report",
+      },
+      report_filter: {
+        xaxis: "X-axis",
+        yaxis: "Y-axis",
+        recently: "Before",
+        more_options: "More",
+        belone: "In",
+        select_options: {
+          case_type: "Case type",
+          creator: "Create user",
+          maintainer: "Maintainer",
+          case_status: "Case status",
+          case_level: "Case level",
+        },
+        time_options: {
+          fixed_time: "Fixed time",
+          dynamic_time: "Dynamic time",
+          day: "Day",
+          month: "Month",
+          year: "Year",
+        }
+      },
+      alert: {
+        cannot_add_more_options: "Cannot add more options",
+        end_time_cannot_over_than_start_time: "End time cannot before than start time",
+      },
     }
   },
   license: {

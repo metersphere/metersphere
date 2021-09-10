@@ -258,8 +258,10 @@ export default {
     },
     report_statistics: {
       title: "报表统计",
-      test_case_analysis: "测试用例分析",
+      test_case_analysis: "测试用例趋势",
       test_case_activity: "测试用例活动情况",
+      test_case_count: "测试用例统计",
+      test_case_count_activity: "测试用例统计情况",
       name: "报表",
       excel: "表格",
       add_case: "新增用例",
@@ -268,9 +270,39 @@ export default {
       options: "选项",
       chart: "图表",
       line: "折线图",
+      pie: "饼图",
       bar: "柱状图",
       desc: "总数从高到低",
       asc: "总数从低到高",
+      report_data: {
+        all_report: "全部报表",
+        my_report: "我的报表",
+      },
+      report_filter: {
+        xaxis: "水平轴系列",
+        yaxis: "纵向轴系列",
+        recently: "最近",
+        more_options: "更多选项",
+        belone: "属于",
+        select_options: {
+          case_type: "用例类型",
+          creator: "创建人",
+          maintainer: "维护人",
+          case_status: "用例状态",
+          case_level: "用例等级",
+        },
+        time_options: {
+          fixed_time: "固定时间",
+          dynamic_time: "动态时间",
+          day: "天",
+          month: "月",
+          year: "年",
+        }
+      },
+      alert: {
+        cannot_add_more_options: "无法添加更多条件",
+        end_time_cannot_over_than_start_time: "结束时间不能超过当前时间",
+      },
     }
   },
   license: {
