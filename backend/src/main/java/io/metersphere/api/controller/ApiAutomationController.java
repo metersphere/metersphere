@@ -328,7 +328,12 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/stop/batch")
     public String stopBatch(@RequestBody List<TaskRequest> reportIds) {
-       return taskService.stop(reportIds);
+        return taskService.stop(reportIds);
+    }
+
+    @PostMapping("/setDomain")
+    public String setDomain(@RequestBody ApiScenarioEnvRequest request) {
+        return apiAutomationService.setDomain(request.getDefinition());
     }
 
 }

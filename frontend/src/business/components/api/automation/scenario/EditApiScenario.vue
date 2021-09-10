@@ -450,6 +450,7 @@ export default {
       messageWebSocket: {},
       buttonData: [],
       stepFilter: new STEP,
+      plugins: [],
     }
   },
   created() {
@@ -464,6 +465,7 @@ export default {
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
+    this.getPlugins();
     this.initPlugins();
     this.buttonData = buttons(this);
   },
@@ -482,27 +484,53 @@ export default {
     },
   },
   methods: {
+    setDomain() {
+      if (this.projectEnvMap && this.projectEnvMap.size > 0) {
+        let scenario = {
+          id: this.currentScenario.id,
+          enableCookieShare: this.enableCookieShare,
+          name: this.currentScenario.name,
+          type: "scenario",
+          clazzName: TYPE_TO_C.get("scenario"),
+          variables: this.currentScenario.variables,
+          headers: this.currentScenario.headers,
+          referenced: 'Created',
+          environmentMap: strMapToObj(this.projectEnvMap),
+          hashTree: this.scenarioDefinition,
+          onSampleError: this.onSampleError,
+          projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
+        };
+        this.$post("/api/automation/setDomain", {definition: JSON.stringify(scenario)}, res => {
+          if (res.data) {
+            let data = JSON.parse(res.data);
+            this.scenarioDefinition = data.hashTree;
+          }
+        })
+      }
+    },
     initPlugins() {
+      if (this.plugins) {
+        this.plugins.forEach(item => {
+          let plugin = {
+            title: item.name,
+            show: this.showButton(item.jmeterClazz),
+            titleColor: "#555855",
+            titleBgColor: "#F4F4FF",
+            icon: "colorize",
+            click: () => {
+              this.addComponent(item.name, item)
+            }
+          }
+          if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+            this.buttonData.push(plugin);
+          }
+        });
+      }
+    },
+    getPlugins() {
       let url = "/plugin/list";
       this.$get(url, response => {
-        let data = response.data;
-        if (data) {
-          data.forEach(item => {
-            let plugin = {
-              title: item.name,
-              show: this.showButton(item.jmeterClazz),
-              titleColor: "#555855",
-              titleBgColor: "#F4F4FF",
-              icon: "colorize",
-              click: () => {
-                this.addComponent(item.name, item)
-              }
-            }
-            if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
-              this.buttonData.push(plugin);
-            }
-          });
-        }
+        this.plugins = response.data;
       });
     },
     stop() {
@@ -1279,6 +1307,7 @@ export default {
             }
           }
           this.loading = false;
+          this.setDomain();
           this.sort();
           // 初始化resourceId
           if (this.scenarioDefinition) {
@@ -1352,6 +1381,7 @@ export default {
     },
     setProjectEnvMap(projectEnvMap) {
       this.projectEnvMap = projectEnvMap;
+      this.setDomain();
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {

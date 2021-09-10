@@ -600,6 +600,30 @@ public class ApiAutomationService {
         return apiScenarioMapper.selectByPrimaryKey(id);
     }
 
+    public String setDomain(String scenarioDefinition) {
+        JSONObject element = JSON.parseObject(scenarioDefinition);
+        ParameterConfig config = new ParameterConfig();
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
+        Map<String, String> environmentMap = (Map<String, String>) element.get("environmentMap");
+        if (environmentMap != null && !environmentMap.isEmpty()) {
+            environmentMap.keySet().forEach(projectId -> {
+                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentMap.get(projectId));
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    env.setApiEnvironmentid(environment.getId());
+                    envConfig.put(projectId, env);
+                }
+            });
+            config.setConfig(envConfig);
+        }
+        if (config.getConfig() != null && !config.getConfig().isEmpty()) {
+            ElementUtil.dataSetDomain(element.getJSONArray("hashTree"), config);
+        }
+        return JSON.toJSONString(element);
+    }
+
+
     public LinkedList<MsTestElement> getScenarioHashTree(String definition) {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -2518,6 +2542,7 @@ public class ApiAutomationService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
