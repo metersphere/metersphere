@@ -1773,6 +1773,7 @@ export default {
     pod_thread_limit: 'Maximum number of threads per POD',
     usage: 'Usage',
     backend_listener: 'Backend Listener',
+    batch_add_resource_tips: 'Format: IP, Port, Monitor, maximum concurrent number<br/>such as: 192.168.1.52,8082,9100,500',
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',

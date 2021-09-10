@@ -160,9 +160,14 @@
                                @click="addResourceInfo()">
                       {{ $t('commons.add') }}
                     </el-button>
+                    <el-button icon="el-icon-circle-plus-outline" plain size="mini"
+                               @click="batchAddResource">
+                      {{ $t('commons.batch_add') }}
+                    </el-button>
                   </el-col>
                 </el-row>
                 <el-table :data="infoList" class="tb-edit" align="center" border highlight-current-row>
+                  <el-table-column type="index" width="50"/>
                   <el-table-column
                     align="center"
                     prop="ip"
@@ -207,7 +212,7 @@
               </el-col>
             </el-row>
           </div>
-
+          <batch-add-resource ref="batchAddResource" @batchSave="batchSave"/>
         </el-form>
       </div>
       <template v-slot:footer>
@@ -231,10 +236,11 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import BatchAddResource from "@/business/components/settings/system/components/BatchAddResource";
 
 export default {
   name: "MsTestResourcePool",
-  components: {MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
+  components: {BatchAddResource, MsCreateBox, MsTablePagination, MsTableHeader, MsTableOperator, MsDialogFooter},
   data() {
     return {
       result: {},
@@ -316,6 +322,32 @@ export default {
       } else {
         this.$warning(this.$t('test_resource_pool.cannot_remove_all_node'));
       }
+    },
+    batchAddResource() {
+      this.$refs.batchAddResource.open();
+    },
+    batchSave(resources) {
+      let targets = this._handleBatchVars(resources);
+      targets.forEach(row => {
+        this.infoList.push(row);
+      });
+    },
+    _handleBatchVars(data) {
+      let params = data.split("\n");
+      let keyValues = [];
+      params.forEach(item => {
+        let line = item.split(/，|,/);
+        if (line.length < 3) {
+          return;
+        }
+        keyValues.push({
+          ip: line[0],
+          port: line[1],
+          monitorPort: line[2],
+          maxConcurrency: line[3],
+        });
+      });
+      return keyValues;
     },
     validateResourceInfo() {
       if (this.infoList.length <= 0) {
