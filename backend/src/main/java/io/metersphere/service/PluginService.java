@@ -157,6 +157,7 @@ public class PluginService {
     }
 
     public void loadPlugins() {
+       try {
         PluginExample example = new PluginExample();
         List<Plugin> plugins = pluginMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(plugins)) {
@@ -167,6 +168,8 @@ public class PluginService {
                     this.loadJar(item.getSourcePath());
                 });
             }
+        } catch (Exception e) {
+            LogUtil.error(e);
         }
     }
 

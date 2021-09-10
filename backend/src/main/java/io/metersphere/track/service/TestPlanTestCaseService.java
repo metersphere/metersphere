@@ -9,6 +9,7 @@ import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
@@ -74,7 +75,7 @@ public class TestPlanTestCaseService {
     }
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.list(request);
         QueryMemberRequest queryMemberRequest = new QueryMemberRequest();
         queryMemberRequest.setProjectId(request.getProjectId());
@@ -410,5 +411,23 @@ public class TestPlanTestCaseService {
             item.setExecutorName(userNameMap.get(item.getExecutor()));
         });
         return cases;
+    }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(TestPlanTestCaseWithBLOBs.class, TestPlanTestCaseMapper.class,
+                extTestPlanTestCaseMapper::selectPlanIds,
+                extTestPlanTestCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestPlanTestCaseWithBLOBs.class,
+                testPlanTestCaseMapper::selectByPrimaryKey,
+                extTestPlanTestCaseMapper::getPreOrder,
+                extTestPlanTestCaseMapper::getLastOrder,
+                testPlanTestCaseMapper::updateByPrimaryKeySelective);
     }
 }

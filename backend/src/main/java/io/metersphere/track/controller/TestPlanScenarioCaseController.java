@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
@@ -89,5 +90,10 @@ public class TestPlanScenarioCaseController {
     @PostMapping("/env")
     public Map<String, String> getScenarioCaseEnv(@RequestBody HashMap<String, String> map) {
         return testPlanScenarioCaseService.getScenarioCaseEnv(map);
+    }
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        testPlanScenarioCaseService.updateOrder(request);
     }
 }

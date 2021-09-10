@@ -58,4 +58,13 @@ public interface ExtApiDefinitionMapper {
     ApiDefinition selectUrlAndMethodById(String id);
 
     int checkOriginalStatusByIds(@Param("ids")List<String> ids);
+
+    List<String> selectProjectIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("projectId") String projectId);
+
+    Long getPreOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
+
 }

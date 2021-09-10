@@ -16,6 +16,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.TestPlanUtils;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.*;
@@ -57,7 +58,7 @@ public class TestPlanScenarioCaseService {
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
@@ -101,7 +102,7 @@ public class TestPlanScenarioCaseService {
 
     public List<String> selectIds(TestPlanScenarioRequest request) {
         request.setProjectId(null);
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setOrders(ServiceUtils.getDefaultSortOrder(request.getOrders()));
         List<String> idList = extTestPlanScenarioCaseMapper.selectIds(request);
         return idList;
     }
@@ -472,4 +473,23 @@ public class TestPlanScenarioCaseService {
     public String getProjectIdById(String testPlanScenarioId) {
         return extTestPlanScenarioCaseMapper.getProjectIdById(testPlanScenarioId);
     }
+
+    public void initOrderField() {
+        ServiceUtils.initOrderField(TestPlanApiScenario.class, TestPlanApiScenarioMapper.class,
+                extTestPlanScenarioCaseMapper::selectPlanIds,
+                extTestPlanScenarioCaseMapper::getIdsOrderByUpdateTime);
+    }
+
+    /**
+     * 用例自定义排序
+     * @param request
+     */
+    public void updateOrder(ResetOrderRequest request) {
+        ServiceUtils.updateOrderField(request, TestPlanApiScenario.class,
+                testPlanApiScenarioMapper::selectByPrimaryKey,
+                extTestPlanScenarioCaseMapper::getPreOrder,
+                extTestPlanScenarioCaseMapper::getLastOrder,
+                testPlanApiScenarioMapper::updateByPrimaryKeySelective);
+    }
+
 }

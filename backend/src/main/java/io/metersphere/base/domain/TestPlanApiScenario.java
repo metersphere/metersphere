@@ -25,6 +25,8 @@ public class TestPlanApiScenario implements Serializable {
 
     private String createUser;
 
+    private Long order;
+
     private String environment;
 
     private static final long serialVersionUID = 1L;

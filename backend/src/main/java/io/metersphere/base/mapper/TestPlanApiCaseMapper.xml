@@ -10,6 +10,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="order" jdbcType="BIGINT" property="order" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,7 +72,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, test_plan_id, api_case_id, `status`, environment_id, create_time, update_time, 
-    create_user
+    create_user, `order`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestPlanApiCaseExample" resultMap="BaseResultMap">
     select
@@ -106,10 +107,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanApiCase">
     insert into test_plan_api_case (id, test_plan_id, api_case_id, 
       `status`, environment_id, create_time, 
-      update_time, create_user)
+      update_time, create_user, `order`
+      )
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiCaseId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{order,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanApiCase">
     insert into test_plan_api_case
@@ -138,6 +141,9 @@
       <if test="createUser != null">
         create_user,
       </if>
+      <if test="order != null">
+        `order`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -163,6 +169,9 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="order != null">
+        #{order,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -199,6 +208,9 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -213,7 +225,8 @@
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -242,6 +255,9 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -253,7 +269,8 @@
       environment_id = #{environmentId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -627,4 +627,28 @@
             </if>
         </where>
     </sql>
+
+
+    <select id="selectProjectIds" resultType="java.lang.String">
+        select DISTINCT project_id from api_definition;
+    </select>
+    <select id="getIdsOrderByUpdateTime" resultType="java.lang.String">
+        select id from api_definition where project_id = #{projectId} order by update_time ASC;
+    </select>
+
+    <select id="getLastOrder" resultType="java.lang.Long">
+        select `order` from api_definition where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &gt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
+
+    <select id="getPreOrder" resultType="java.lang.Long">
+        select `order` from api_definition where project_id = #{projectId}
+        <if test="baseOrder != null">
+            and `order` &lt; #{baseOrder}
+        </if>
+        order by `order` desc limit 1;
+    </select>
 </mapper>

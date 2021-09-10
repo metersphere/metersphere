@@ -7,6 +7,7 @@ import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.commons.constants.OperLogConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.ResetOrderRequest;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
@@ -109,5 +110,10 @@ public class TestPlanLoadCaseController {
     @GetMapping("/get/{loadCaseId}")
     public TestPlanLoadCase getTestPlanLoadCase(@PathVariable String loadCaseId) {
         return testPlanLoadCaseService.getTestPlanLoadCase(loadCaseId);
+    }
+
+    @PostMapping("/edit/order")
+    public void orderCase(@RequestBody ResetOrderRequest request) {
+        testPlanLoadCaseService.updateOrder(request);
     }
 }

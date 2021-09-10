@@ -5,12 +5,13 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="load_case_id" jdbcType="VARCHAR" property="loadCaseId" />
-    <result column="load_report_id" jdbcType="VARCHAR" property="loadReportId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="load_report_id" jdbcType="VARCHAR" property="loadReportId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="test_resource_pool_id" jdbcType="VARCHAR" property="testResourcePoolId" />
+    <result column="order" jdbcType="BIGINT" property="order" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanLoadCase">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
@@ -74,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, load_case_id, load_report_id, `status`, create_time, update_time, 
-    create_user, test_resource_pool_id
+    id, test_plan_id, load_case_id, `status`, load_report_id, create_time, update_time, 
+    create_user, test_resource_pool_id, `order`
   </sql>
   <sql id="Blob_Column_List">
     load_configuration
@@ -130,13 +131,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanLoadCase">
     insert into test_plan_load_case (id, test_plan_id, load_case_id, 
-      load_report_id, `status`, create_time, 
+      `status`, load_report_id, create_time, 
       update_time, create_user, test_resource_pool_id, 
-      load_configuration)
+      `order`, load_configuration)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{loadCaseId,jdbcType=VARCHAR}, 
-      #{loadReportId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{status,jdbcType=VARCHAR}, #{loadReportId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, 
-      #{loadConfiguration,jdbcType=LONGVARCHAR})
+      #{order,jdbcType=BIGINT}, #{loadConfiguration,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanLoadCase">
     insert into test_plan_load_case
@@ -150,11 +151,11 @@
       <if test="loadCaseId != null">
         load_case_id,
       </if>
-      <if test="loadReportId != null">
-        load_report_id,
-      </if>
       <if test="status != null">
         `status`,
+      </if>
+      <if test="loadReportId != null">
+        load_report_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -167,6 +168,9 @@
       </if>
       <if test="testResourcePoolId != null">
         test_resource_pool_id,
+      </if>
+      <if test="order != null">
+        `order`,
       </if>
       <if test="loadConfiguration != null">
         load_configuration,
@@ -182,11 +186,11 @@
       <if test="loadCaseId != null">
         #{loadCaseId,jdbcType=VARCHAR},
       </if>
-      <if test="loadReportId != null">
-        #{loadReportId,jdbcType=VARCHAR},
-      </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="loadReportId != null">
+        #{loadReportId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -199,6 +203,9 @@
       </if>
       <if test="testResourcePoolId != null">
         #{testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="order != null">
+        #{order,jdbcType=BIGINT},
       </if>
       <if test="loadConfiguration != null">
         #{loadConfiguration,jdbcType=LONGVARCHAR},
@@ -223,11 +230,11 @@
       <if test="record.loadCaseId != null">
         load_case_id = #{record.loadCaseId,jdbcType=VARCHAR},
       </if>
-      <if test="record.loadReportId != null">
-        load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
-      </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.loadReportId != null">
+        load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -240,6 +247,9 @@
       </if>
       <if test="record.testResourcePoolId != null">
         test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.order != null">
+        `order` = #{record.order,jdbcType=BIGINT},
       </if>
       <if test="record.loadConfiguration != null">
         load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
@@ -254,12 +264,13 @@
     set id = #{record.id,jdbcType=VARCHAR},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       load_case_id = #{record.loadCaseId,jdbcType=VARCHAR},
-      load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
+      load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -270,12 +281,13 @@
     set id = #{record.id,jdbcType=VARCHAR},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       load_case_id = #{record.loadCaseId,jdbcType=VARCHAR},
-      load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
+      load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR}
+      test_resource_pool_id = #{record.testResourcePoolId,jdbcType=VARCHAR},
+      `order` = #{record.order,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -289,11 +301,11 @@
       <if test="loadCaseId != null">
         load_case_id = #{loadCaseId,jdbcType=VARCHAR},
       </if>
-      <if test="loadReportId != null">
-        load_report_id = #{loadReportId,jdbcType=VARCHAR},
-      </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="loadReportId != null">
+        load_report_id = #{loadReportId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -307,6 +319,9 @@
       <if test="testResourcePoolId != null">
         test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
       </if>
+      <if test="order != null">
+        `order` = #{order,jdbcType=BIGINT},
+      </if>
       <if test="loadConfiguration != null">
         load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
       </if>
@@ -317,12 +332,13 @@
     update test_plan_load_case
     set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       load_case_id = #{loadCaseId,jdbcType=VARCHAR},
-      load_report_id = #{loadReportId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
+      load_report_id = #{loadReportId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -330,12 +346,13 @@
     update test_plan_load_case
     set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       load_case_id = #{loadCaseId,jdbcType=VARCHAR},
-      load_report_id = #{loadReportId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
+      load_report_id = #{loadReportId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
-      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR}
+      test_resource_pool_id = #{testResourcePoolId,jdbcType=VARCHAR},
+      `order` = #{order,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

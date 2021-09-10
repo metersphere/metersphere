@@ -19,6 +19,8 @@
         @handlePageChange="search"
         :fields.sync="fields"
         :field-key="tableHeaderKey"
+        :enable-order-drag="enableOrderDrag"
+        row-key="id"
         @refresh="search"
         ref="table">
         <span v-for="(item) in fields" :key="item.key">
@@ -179,7 +181,7 @@ import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
 import {
   initCondition,
   buildBatchParam,
-  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth
+  checkTableRowIsSelect, getCustomTableHeader, getCustomTableWidth, handleRowDrop
 } from "../../../../../../../common/js/tableUtils";
 import {TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -192,6 +194,7 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import MsUpdateTimeColumn from "@/business/components/common/components/table/MsUpdateTimeColumn";
 import MsCreateTimeColumn from "@/business/components/common/components/table/MsCreateTimeColumn";
+import {editTestPlanScenarioCaseOrder} from "@/network/test-plan";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -248,6 +251,7 @@ export default {
       runVisible: false,
       runData: [],
       ...API_SCENARIO_FILTERS,
+      enableOrderDrag: true,
       operators: [
         {
           tip: this.$t('api_test.run'), icon: "el-icon-video-play",
@@ -313,6 +317,8 @@ export default {
         }
         this.status = 'all';
       }
+      this.enableOrderDrag = (this.condition.orders && this.condition.orders.length) > 0 ? false : true;
+
       if (this.planId) {
         this.condition.planId = this.planId;
         let url = "/test/plan/scenario/case/list/" + this.currentPage + "/" + this.pageSize;
@@ -338,6 +344,13 @@ export default {
             }
           })
           this.loading = false;
+
+          handleRowDrop(this.tableData, (param) => {
+            param.groupId = this.planId;
+            editTestPlanScenarioCaseOrder(param);
+          });
+
+
           if (this.$refs.table) {
             this.$refs.table.selectRows.clear();
             setTimeout(this.$refs.table.doLayout, 200);

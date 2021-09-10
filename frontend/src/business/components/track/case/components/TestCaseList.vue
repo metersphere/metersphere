@@ -594,7 +594,7 @@ export default {
     handleRowDrop() {
       this.$nextTick(() => {
         handleRowDrop(this.page.data, (param) => {
-          param.projectId = this.projectId;
+          param.groupId = this.projectId;
           editTestCaseOrder(param);
         });
       });

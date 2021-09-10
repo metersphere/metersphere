@@ -24,6 +24,9 @@ export function getShareScenarioReport(shareId, reportId, callback) {
   return reportId ? baseGet('/share/api/scenario/report/get/' + shareId + '/' + reportId, callback) : {};
 }
 
+export function editApiDefinitionOrder(request, callback) {
+  return basePost('/api/definition/edit/order', request, callback);
+}
 
 export function editApiTestCaseOrder(request, callback) {
   return basePost('/api/testcase/edit/order', request, callback);

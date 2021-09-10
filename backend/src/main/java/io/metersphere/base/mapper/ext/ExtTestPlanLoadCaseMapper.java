@@ -27,4 +27,12 @@ public interface ExtTestPlanLoadCaseMapper {
 
     List<TestPlanLoadCaseDTO> getCases(@Param("planId") String planId, @Param("status") String status);
     List<TestPlanLoadCaseDTO> getCasesByIds(@Param("ids") Collection<String> ids, @Param("planId") String planId, @Param("status") String status);
+
+    List<String> selectPlanIds();
+
+    List<String> getIdsOrderByUpdateTime(@Param("planId") String planId);
+
+    Long getPreOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
+
+    Long getLastOrder(@Param("planId")String planId, @Param("baseOrder") Long baseOrder);
 }

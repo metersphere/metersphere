@@ -134,6 +134,8 @@ public class ApiAutomationService {
     private ResourcePoolCalculation resourcePoolCalculation;
     @Resource
     private NodeKafkaService nodeKafkaService;
+    @Resource
+    private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -1576,7 +1578,8 @@ public class ApiAutomationService {
         if (set.isEmpty()) {
             return;
         }
-        set.forEach(id -> {
+        Long nextOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
+        for (String id : set) {
             Map<String, String> newEnvMap = new HashMap<>(16);
             if (envMap != null && !envMap.isEmpty()) {
                 List<String> list = mapping.get(id);
@@ -1592,8 +1595,10 @@ public class ApiAutomationService {
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenario.setEnvironment(JSON.toJSONString(newEnvMap));
+            testPlanApiScenario.setOrder(nextOrder);
+            nextOrder += 5000;
             testPlanApiScenarioMapper.insert(testPlanApiScenario);
-        });
+        }
     }
 
     public void relevanceReview(ApiCaseRelevanceRequest request) {
