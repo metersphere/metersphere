@@ -135,3 +135,7 @@ export function editTestPlanApiCaseOrder(request, callback) {
 export function editTestPlanScenarioCaseOrder(request, callback) {
   return basePost('/test/plan/scenario/case/edit/order', request, callback);
 }
+
+export function editTestPlanLoadCaseOrder(request, callback) {
+  return basePost('/test/plan/load/case/edit/order', request, callback);
+}

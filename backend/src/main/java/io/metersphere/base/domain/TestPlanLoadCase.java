@@ -11,9 +11,9 @@ public class TestPlanLoadCase implements Serializable {
 
     private String loadCaseId;
 
-    private String loadReportId;
-
     private String status;
+
+    private String loadReportId;
 
     private Long createTime;
 
@@ -22,6 +22,8 @@ public class TestPlanLoadCase implements Serializable {
     private String createUser;
 
     private String testResourcePoolId;
+
+    private Long order;
 
     private String loadConfiguration;
 

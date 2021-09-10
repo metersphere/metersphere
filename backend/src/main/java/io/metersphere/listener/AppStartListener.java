@@ -56,6 +56,8 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
+    @Resource
+    private TestPlanLoadCaseService testPlanLoadCaseService;
 
     @Value("${jmeter.home}")
     private String jmeterHome;
@@ -121,6 +123,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
         initOnceOperate(testPlanTestCaseService::initOrderField, "init.sort.plan.test.case");
         initOnceOperate(testPlanApiCaseService::initOrderField, "init.sort.plan.api.case");
         initOnceOperate(testPlanScenarioCaseService::initOrderField, "init.sort.plan.api.scenario");
+        initOnceOperate(testPlanLoadCaseService::initOrderField, "init.sort.plan.api.load");
     }
 
     /**
