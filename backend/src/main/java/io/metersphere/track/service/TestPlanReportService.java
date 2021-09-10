@@ -474,6 +474,7 @@ public class TestPlanReportService {
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("testName", testPlan.getName());
         paramMap.put("id", testPlanReport.getId());
+        paramMap.put("projectId", testPlan.getProjectId());
         paramMap.put("type", "testPlan");
         paramMap.put("url", url);
         paramMap.put("status", testPlanReport.getStatus());
