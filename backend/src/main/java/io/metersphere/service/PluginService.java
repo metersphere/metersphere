@@ -14,7 +14,6 @@ import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.service.utils.CommonUtil;
 import io.metersphere.service.utils.MsClassLoader;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,8 +25,6 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -85,7 +82,7 @@ public class PluginService {
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
         List<PluginResourceDTO> resources = new LinkedList<>();
         try {
-           // classLoader.unloadJarFile(path);
+            // classLoader.unloadJarFile(path);
             this.loadJar(path);
             List<Class<?>> classes = CommonUtil.getSubClass(fileName);
             for (Class<?> aClass : classes) {
@@ -102,28 +99,6 @@ public class PluginService {
             LogUtil.error("初始化脚本异常：" + e.getMessage());
         }
         return resources;
-    }
-
-    private void closeJar(String jarPath) {
-        File jarFile = new File(jarPath);
-        Method method = null;
-        try {
-            method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-        } catch (NoSuchMethodException | SecurityException e1) {
-            e1.printStackTrace();
-        }
-        // 获取方法的访问权限以便写回
-        try {
-            method.setAccessible(true);
-            // 获取系统类加载器
-            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
-            URL url = jarFile.toURI().toURL();
-            method.invoke(classLoader, url);
-            classLoader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-        }
     }
 
     private void loadJar(String jarPath) {
@@ -147,26 +122,21 @@ public class PluginService {
             method.invoke(classLoader, url);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
         }
     }
 
-    private <T> Predicate<T> distinctByName(Function<? super T, ?> keys) {
-        Map<Object, Boolean> sen = new ConcurrentHashMap<>();
-        return t -> sen.putIfAbsent(keys.apply(t), Boolean.TRUE) == null;
-    }
-
     public void loadPlugins() {
-       try {
-        PluginExample example = new PluginExample();
-        List<Plugin> plugins = pluginMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(plugins)) {
-            plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
-                    -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+        try {
+            PluginExample example = new PluginExample();
+            List<Plugin> plugins = pluginMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(plugins)) {
-                plugins.forEach(item -> {
-                    this.loadJar(item.getSourcePath());
-                });
+                plugins = plugins.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(()
+                        -> new TreeSet<>(Comparator.comparing(Plugin::getPluginId))), ArrayList::new));
+                if (CollectionUtils.isNotEmpty(plugins)) {
+                    plugins.forEach(item -> {
+                        this.loadJar(item.getSourcePath());
+                    });
+                }
             }
         } catch (Exception e) {
             LogUtil.error(e);
