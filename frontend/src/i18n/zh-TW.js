@@ -1785,6 +1785,7 @@ export default {
     pod_thread_limit: '單POD最大線程數',
     usage: '用途',
     backend_listener: '後置監聽器',
+    batch_add_resource_tips: '格式：IP,Port,Monitor,最大並發數<br/>如：192.168.1.52,8082,9100,500',
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',
