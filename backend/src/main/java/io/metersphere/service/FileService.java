@@ -158,6 +158,12 @@ public class FileService {
     private FileType getFileType(String filename) {
         int s = filename.lastIndexOf(".") + 1;
         String type = filename.substring(s);
+        FileType type1 =FileType.valueOf(type.toUpperCase());
+        for (FileType type2:FileType.values()) {
+            if (!type1.equals(type2)){
+                return null;
+            }
+        }
         return FileType.valueOf(type.toUpperCase());
     }
 

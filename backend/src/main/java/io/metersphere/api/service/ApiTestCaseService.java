@@ -273,7 +273,7 @@ public class ApiTestCaseService {
     public ApiTestCase getSameCase(SaveApiTestCaseRequest request) {
         ApiTestCaseExample example = new ApiTestCaseExample();
         ApiTestCaseExample.Criteria criteria = example.createCriteria();
-        criteria.andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
+        criteria.andStatusNotEqualTo("Trash").andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
         if (StringUtils.isNotBlank(request.getId())) {
             criteria.andIdNotEqualTo(request.getId());
         }
