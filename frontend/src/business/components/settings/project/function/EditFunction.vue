@@ -1,72 +1,81 @@
 <template>
- <el-dialog :close-on-click-modal="false" :title="dialogTitle" :visible.sync="visible" :destroy-on-close="true"
-            @close="close" width="65%" top="5vh" v-loading="result.loading">
-   <div style="height: 60vh; overflow-y: auto; overflow-x: hidden">
-     <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rules" v-if="isFormAlive">
-       <el-row type="flex" :gutter="20">
-         <el-col>
-           <el-form-item :label="$t('commons.name')" prop="name">
-             <el-input size="small" v-model="form.name" :maxlength="200" show-word-limit/>
-           </el-form-item>
-         </el-col>
-         <el-col style="margin-right: 10px;">
-           <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
-             <ms-input-tag :currentScenario="form" ref="tag"/>
-           </el-form-item>
-         </el-col>
-       </el-row>
-       <el-row style="margin-right: 10px;">
-         <el-col>
-           <el-form-item :label="$t('commons.description')" prop="description">
-             <el-input class="ms-http-textarea"
-                       v-model="form.description"
-                       type="textarea"
-                       :show-word-limit="true"
-                       :maxlength="500"
-                       :autosize="{ minRows: 2, maxRows: 10}"
-                       :rows="3" size="small"/>
-           </el-form-item>
-         </el-col>
-       </el-row>
-       <el-row>
-         <el-form-item :label="'参数列表'" prop="">
-           <function-params :items="form.params"/>
-         </el-form-item>
-       </el-row>
-       <el-row type="flex" :gutter="10" style="margin-right: 10px;">
-         <el-col :span="20">
-           <el-form-item>
-             <ms-code-edit
-               v-if="isCodeEditAlive"
-               :mode="codeEditModeMap[form.type]"
-               height="330px"
-               :data.sync="form.script"
-               theme="eclipse"
-               :modes="modes"
-               ref="codeEdit"/>
-           </el-form-item>
-         </el-col>
-         <el-col :span="4" class="script-index">
-           <ms-dropdown :default-command="form.type" :commands="languages" @command="languageChange"/>
-           <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
-           <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-             <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
-           </div>
-           <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-                    target="componentReferenceDoc" style="margin-top: 10px"
-                    type="primary">{{ $t('commons.reference_documentation') }}
-           </el-link>
-         </el-col>
-       </el-row>
-     </el-form>
-   </div>
-   <template v-slot:footer>
-     <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
-     <el-button type="primary" @click="submit" size="medium" style="margin-left: 10px;">
-       {{ $t('commons.confirm') }}
-     </el-button>
-   </template>
- </el-dialog>
+  <el-dialog :close-on-click-modal="false" :title="dialogTitle" :visible.sync="visible" :destroy-on-close="true"
+             @close="close" width="65%" top="5vh" v-loading="result.loading">
+    <div style="height: 61vh; overflow-y: auto; overflow-x: hidden">
+      <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rules" v-if="isFormAlive">
+        <el-row type="flex" :gutter="20">
+          <el-col>
+            <el-form-item :label="$t('commons.name')" prop="name">
+              <el-input size="small" v-model="form.name" :maxlength="200" show-word-limit/>
+            </el-form-item>
+          </el-col>
+          <el-col style="margin-right: 10px;">
+            <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
+              <ms-input-tag :currentScenario="form" ref="tag"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row style="margin-right: 10px;">
+          <el-col>
+            <el-form-item :label="$t('commons.description')" prop="description">
+              <el-input class="ms-http-textarea"
+                        v-model="form.description"
+                        type="textarea"
+                        :show-word-limit="true"
+                        :maxlength="500"
+                        :autosize="{ minRows: 2, maxRows: 10}"
+                        :rows="3" size="small"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-form-item :label="'参数列表'" prop="">
+            <function-params :items="form.params"/>
+          </el-form-item>
+        </el-row>
+        <el-row style="margin-right: 10px;">
+          <el-col :span="20">
+            <el-form-item>
+              <template v-slot>
+                <el-tabs v-model="activeName">
+                  <el-tab-pane :label="'函数编辑'" name="code">
+                    <ms-code-edit
+                      v-if="isCodeEditAlive"
+                      :mode="codeEditModeMap[form.type]"
+                      height="330px"
+                      :data.sync="form.script"
+                      theme="eclipse"
+                      :modes="modes"
+                      ref="codeEdit"/>
+                  </el-tab-pane>
+                  <el-tab-pane :label="'执行结果'" name="result">
+                    执行结果
+                  </el-tab-pane>
+                </el-tabs>
+              </template>
+            </el-form-item>
+          </el-col>
+          <el-col :span="4" class="script-index">
+            <ms-dropdown :default-command="form.type" :commands="languages" @command="languageChange"/>
+            <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
+            <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
+              <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
+            </div>
+            <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                     target="componentReferenceDoc" style="margin-top: 10px"
+                     type="primary">{{ $t('commons.reference_documentation') }}
+            </el-link>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
+    <template v-slot:footer>
+      <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
+      <el-button type="primary" @click="submit" size="medium" style="margin-left: 10px;">
+        {{ $t('commons.confirm') }}
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
@@ -74,6 +83,7 @@ import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag
 import FunctionParams from "@/business/components/settings/project/function/FunctionParams";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
+import {splicingCustomFunc} from "@/business/components/settings/project/function/custom_function";
 
 export default {
   name: "EditFunction",
@@ -83,15 +93,14 @@ export default {
     MsInputTag,
     MsDropdown
   },
-  props: {
-
-  },
+  props: {},
   data() {
     return {
       visible: false,
       result: {},
       dialogCreateTitle: "创建函数",
       dialogUpdateTitle: "更新函数",
+      activeName: 'code',
       dialogTitle: "",
       isCodeEditAlive: true,
       isFormAlive: true,
@@ -106,7 +115,7 @@ export default {
           {max: 300, message: this.$t('commons.input_limit', [0, 300]), trigger: 'blur'}
         ]
       },
-      modes: ['java','python'],
+      modes: ['java', 'python'],
       languages: [
         'beanshell', "python", "groovy", "nashornScript", "rhinoScript"
       ],
@@ -128,7 +137,7 @@ export default {
         },
         {
           title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
-          value: 'vars.put(${__metersphere_env_id}+"key","value");\n'+'vars.put("key","value")',
+          value: 'vars.put(${__metersphere_env_id}+"key","value");\n' + 'vars.put("key","value")',
         },
         {
           title: this.$t('api_test.request.processor.code_add_report_length'),
@@ -172,7 +181,39 @@ export default {
       ],
     }
   },
+  watch: {
+    'form.name'() {
+      this.splicingFunc();
+    },
+    'form.params': {
+      handler() {
+        this.splicingFunc();
+      },
+      deep: true
+    }
+  },
   methods: {
+    _parseFuncParam(funcObj) {
+      let params = undefined;
+      if (funcObj.params) {
+        params = funcObj.params.map(p => p.name);
+        if (params.length > 0) {
+          params = params.filter(p => {
+            return p !== undefined
+          });
+          params.join(",\s");
+        }
+      }
+      return params;
+    },
+    splicingFunc() {
+      let funcObj = this.form;
+      let funcName = funcObj.name;
+      let funcLanguage = this.form.type || "beanshell";
+      let funcParams = this._parseFuncParam(funcObj);
+      this.form.script = splicingCustomFunc(funcLanguage, this.form.script, funcName, funcParams);
+      this.reloadCodeEdit();
+    },
     open(data) {
       this.visible = true;
       this.form.type = "beanshell";
@@ -203,7 +244,10 @@ export default {
       })
     },
     close() {
-      this.form = {};
+      this.form = {
+        type: "beanshell",
+        params: [{}]
+      };
       this.visible = false;
     },
     languageChange(language) {
@@ -267,19 +311,25 @@ export default {
 }
 
 /* 滚动条样式 */
-::-webkit-scrollbar{
+::-webkit-scrollbar {
   width: 6px;
   height: 6px;
   position: fixed;
 }
-::-webkit-scrollbar-thumb{
+
+::-webkit-scrollbar-thumb {
   border-radius: 1em;
-  background-color: rgba(50,50,50,.3);
+  background-color: rgba(50, 50, 50, .3);
   position: fixed;
 }
-::-webkit-scrollbar-track{
+
+::-webkit-scrollbar-track {
   border-radius: 1em;
   background-color: transparent;
   position: fixed;
+}
+
+.script-index {
+  margin-top: 35px;
 }
 </style>
