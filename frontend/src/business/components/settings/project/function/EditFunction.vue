@@ -49,25 +49,34 @@
                       ref="codeEdit"/>
                   </el-tab-pane>
                   <el-tab-pane :label="'执行结果'" name="result">
-                    执行结果
+                    <div v-loading="runResult.loading">
+                      <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px" ref="funcResult"/>
+                    </div>
                   </el-tab-pane>
                 </el-tabs>
               </template>
             </el-form-item>
           </el-col>
           <el-col :span="4" class="script-index">
-            <ms-dropdown :default-command="form.type" :commands="languages" @command="languageChange"/>
-            <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
-            <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-              <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
+            <div style="margin-top: -25px; margin-left: 10px;">
+              <div style="margin-bottom: 10px;">
+                <el-button type="primary" size="mini" style="width: 70px;" @click="handleTest" :disabled="runResult.loading">测试</el-button>
+              </div>
+              <ms-dropdown :default-command="form.type" :commands="languages" @command="languageChange"/>
+              <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
+              <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
+                <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
+              </div>
+              <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                       target="componentReferenceDoc" style="margin-top: 10px"
+                       type="primary">{{ $t('commons.reference_documentation') }}
+              </el-link>
             </div>
-            <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-                     target="componentReferenceDoc" style="margin-top: 10px"
-                     type="primary">{{ $t('commons.reference_documentation') }}
-            </el-link>
           </el-col>
         </el-row>
       </el-form>
+      <!-- 执行组件 -->
+      <function-run :report-id="reportId" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"/>
     </div>
     <template v-slot:footer>
       <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
@@ -84,25 +93,38 @@ import FunctionParams from "@/business/components/settings/project/function/Func
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
 import {splicingCustomFunc} from "@/business/components/settings/project/function/custom_function";
+import MsRun from "@/business/components/api/automation/scenario/DebugRun";
+import {getUUID} from "@/common/js/utils";
+import {JSR223Processor} from "@/business/components/api/definition/model/ApiTestModel";
+import FunctionRun from "@/business/components/settings/project/function/FunctionRun";
 
 export default {
   name: "EditFunction",
   components: {
+    FunctionRun,
     MsCodeEdit,
     FunctionParams,
     MsInputTag,
-    MsDropdown
+    MsDropdown,
+    MsRun
   },
   props: {},
   data() {
     return {
       visible: false,
       result: {},
+      runResult: {
+        loading: false
+      },
+      reportId: "",
+      runData: [],
+      isStop: false,
       dialogCreateTitle: "创建函数",
       dialogUpdateTitle: "更新函数",
       activeName: 'code',
       dialogTitle: "",
       isCodeEditAlive: true,
+      isResultAlive: true,
       isFormAlive: true,
       form: {
         params: [],
@@ -179,6 +201,10 @@ export default {
           disabled: this.isPreProcessor
         }
       ],
+      response: {},
+      request: {},
+      debug: true,
+      console: "无执行结果"
     }
   },
   watch: {
@@ -204,6 +230,7 @@ export default {
           params.join(",\s");
         }
       }
+      // todo 参数拼接问题 删除参数 逗号未去除
       return params;
     },
     splicingFunc() {
@@ -215,6 +242,7 @@ export default {
       this.reloadCodeEdit();
     },
     open(data) {
+      this.activeName = "code";
       this.visible = true;
       this.form.type = "beanshell";
       if (data && data.id) {
@@ -248,6 +276,7 @@ export default {
         type: "beanshell",
         params: [{}]
       };
+      this.console = "无执行结果";
       this.visible = false;
     },
     languageChange(language) {
@@ -274,6 +303,10 @@ export default {
       this.isCodeEditAlive = false;
       this.$nextTick(() => (this.isCodeEditAlive = true));
     },
+    reloadResult() {
+      this.isResultAlive = false;
+      this.$nextTick(() => (this.isResultAlive = true));
+    },
     submit() {
       let param = Object.assign({}, this.form);
       param.params = JSON.stringify(this.form.params);
@@ -298,6 +331,29 @@ export default {
         this.$emit("refresh");
         this.$success(this.$t('commons.modify_success'));
       })
+    },
+    handleTest() {
+      this.activeName = "result";
+      this.console = "无执行结果";
+      this.reloadResult();
+      this.runResult.loading = true;
+
+      let jSR223Processor = new JSR223Processor({
+        script: this.form.script
+      });
+      jSR223Processor.id = getUUID().substring(0, 8);
+      this.runData = [];
+      this.runData.push(jSR223Processor);
+      this.reportId = getUUID().substring(0, 8);
+    },
+    runRefresh(data) {
+      this.response = data;
+      this.console = this.response.responseResult.console;
+      this.runResult.loading = false;
+      this.reloadResult();
+    },
+    errorRefresh() {
+      this.runResult.loading = false;
     }
   }
 }
@@ -308,6 +364,7 @@ export default {
   margin-bottom: 5px;
   font-weight: bold;
   font-size: 15px;
+  margin-top: 1px;
 }
 
 /* 滚动条样式 */
