@@ -1,15 +1,20 @@
 package io.metersphere.service;
 
 
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.CustomFunction;
 import io.metersphere.base.domain.CustomFunctionExample;
 import io.metersphere.base.domain.CustomFunctionWithBLOBs;
 import io.metersphere.base.mapper.CustomFunctionMapper;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.CustomFunctionRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jorphan.collections.HashTree;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +33,8 @@ public class CustomFunctionService {
 
     @Resource
     private CustomFunctionMapper customFunctionMapper;
+    @Resource
+    private JMeterService jMeterService;
 
     public CustomFunctionWithBLOBs save(CustomFunctionRequest request) {
         request.setId(UUID.randomUUID().toString());
@@ -105,5 +112,14 @@ public class CustomFunctionService {
             return new CustomFunctionWithBLOBs();
         }
         return customFunctionMapper.selectByPrimaryKey(id);
+    }
+
+    public String run(RunDefinitionRequest request) {
+        ParameterConfig config = new ParameterConfig();
+        config.setProjectId(request.getProjectId());
+        HashTree hashTree = request.getTestElement().generateHashTree(config);
+        String runMode = ApiRunMode.DEFINITION.name();
+        jMeterService.runLocal(request.getId(), hashTree, request.getReportId(), runMode);
+        return request.getId();
     }
 }

@@ -11,7 +11,7 @@ export function generateFuncFirstLine(funcLanguage, funcName, funcParams) {
   let funcFirstLine = "";
   switch (funcLanguage) {
     case "beanshell":
-      funcFirstLine = "function " + funcName + "(" + funcParams + ") " + "{";
+      funcFirstLine = "public static void " + funcName + "(" + funcParams + ") " + "{";
       break;
     case "python":
       break;
@@ -27,7 +27,7 @@ export function generateFuncFirstLine(funcLanguage, funcName, funcParams) {
 }
 
 const regex = {
-  beanshell: /^function\s.*\(.*\)\s\{/,
+  beanshell: /^public static void\s.*\(.*\)\s\{/,
   python: /^function\s.*\(.*\)\s\{/,
   groovy: /^function\s.*\(.*\)\s\{/,
   nashornScript: /^function\s.*\(.*\)\s\{/,

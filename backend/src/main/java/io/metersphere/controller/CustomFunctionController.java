@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.base.domain.CustomFunction;
 import io.metersphere.base.domain.CustomFunctionWithBLOBs;
 import io.metersphere.commons.utils.PageUtils;
@@ -53,5 +54,10 @@ public class CustomFunctionController {
     @GetMapping("/get/{id}")
     public CustomFunctionWithBLOBs get(@PathVariable String id) {
         return customFunctionService.get(id);
+    }
+
+    @PostMapping("/run")
+    public String run(@RequestBody RunDefinitionRequest request) {
+        return customFunctionService.run(request);
     }
 }
