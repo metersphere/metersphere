@@ -251,6 +251,7 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/MsTableColumn";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {editApiScenarioCaseOrder} from "@/business/components/api/automation/api-automation";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "MsApiScenarioList",
@@ -860,6 +861,7 @@ export default {
         this.result = this.$get("/api/automation/getApiScenario/" + scenarioId, response => {
           if (response.data) {
             this.currentScenario = response.data;
+            this.currentScenario.clazzName = TYPE_TO_C.get("scenario");
             if (response.data.scenarioDefinition != null) {
               let obj = JSON.parse(response.data.scenarioDefinition);
               this.currentScenario.scenarioDefinition = obj;
@@ -878,6 +880,9 @@ export default {
         stepArray[i].index = Number(i) + 1;
         if (!stepArray[i].resourceId) {
           stepArray[i].resourceId = getUUID();
+        }
+        if (!stepArray[i].clazzName) {
+          stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
         }
         if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
           this.sort(stepArray[i].hashTree);

@@ -1178,6 +1178,9 @@ export default {
     allowDrop(draggingNode, dropNode, dropType) {
       // 增加插件权限控制
       if (dropType != "inner") {
+        if (draggingNode.data.disabled && draggingNode.parent && draggingNode.parent.data && draggingNode.parent.data.disabled) {
+          return false;
+        }
         return true;
       } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
         && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)
@@ -1316,6 +1319,16 @@ export default {
         })
       }
     },
+    formatData(hashTree) {
+      for (let i in hashTree) {
+        if (!hashTree[i].clazzName) {
+          hashTree[i].clazzName = TYPE_TO_C.get(hashTree[i].type);
+        }
+        if (hashTree[i].hashTree && hashTree[i].hashTree.length > 0) {
+          this.formatData(hashTree[i].hashTree);
+        }
+      }
+    },
     setParameter() {
       this.currentScenario.stepTotal = this.scenarioDefinition.length;
       if (!this.currentScenario.projectId) {
@@ -1336,6 +1349,10 @@ export default {
         onSampleError: this.onSampleError,
         projectId: this.currentScenario.projectId ? this.currentScenario.projectId : this.projectId,
       };
+      // 历史数据处理
+      if (scenario.hashTree) {
+        this.formatData(scenario.hashTree);
+      }
       this.currentScenario.scenarioDefinition = scenario;
       if (this.currentScenario.tags instanceof Array) {
         this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);

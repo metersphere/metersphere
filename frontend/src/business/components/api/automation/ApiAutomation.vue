@@ -198,11 +198,16 @@ export default {
               if (this.moduleOptions && JSON.stringify(this.moduleOptions) === '{}') {
                 this.$refs.nodeTree.list();
               }
-              let row = data.listObject[0];
-              if (row.tags && row.tags.length > 0) {
-                row.tags = JSON.parse(row.tags);
+              if (data.listObject && data.listObject.length > 0) {
+                let row = data.listObject[0];
+                if (row != null && row.tags != 'null' && row.tags != '' && row.tags != undefined) {
+                  if (Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object'
+                    && Object.prototype.toString.call(row.tags).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'array') {
+                    row.tags = JSON.parse(row.tags);
+                  }
+                }
+                this.editScenario(row);
               }
-              this.editScenario(row);
             }
           });
         }
