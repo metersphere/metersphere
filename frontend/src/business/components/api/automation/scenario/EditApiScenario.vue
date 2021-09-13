@@ -1110,14 +1110,8 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if(dropNode.data.disabled){
-        return false;
-      }
-      if (dropType != "inner" && !draggingNode.data.disabled) {
-        if (draggingNode.data.referenced) {
-          if (draggingNode.data.referenced !== 'REF' && draggingNode.data.referenced !== 'Deleted') {
-            return true;
-          }
+      if (dropType != "inner") {
+        if (draggingNode.data.disabled && draggingNode.parent && draggingNode.parent.data && draggingNode.parent.data.disabled) {
           return false;
         }
         return true;
