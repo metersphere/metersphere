@@ -120,7 +120,7 @@ public class MsLoopController extends MsTestElement {
         }
 
         if (StringUtils.contains(operator, "~")) {
-            value = "\".*" + this.whileController.getValue() + ".*\"";
+            value = "\"(\\n|.)*" + this.whileController.getValue() + "(\\n|.)*\"";
         }
 
         if (StringUtils.equals(operator, "is empty")) {
