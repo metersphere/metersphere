@@ -417,8 +417,12 @@ public class XmindCaseParser {
         if (isUseCustomId || StringUtils.equals(importType, FunctionCaseImportEnum.Update.name())) {
             testCase.setCustomNum(customId.toString());
         }
+        List<String> tagsNew = new ArrayList();
+            String tags1 = tags.get(0);
+            String [] tags2 = tags1.split("[, ，]");
+        Arrays.asList(tags2).stream().forEach(x->tagsNew.add(x));
+        testCase.setTags(JSON.toJSONString(tagsNew));
 
-        testCase.setTags(JSON.toJSONString(tags));
         testCase.setSteps(this.getSteps(steps));
         // 校验合规性
         if (validate(testCase)) {
