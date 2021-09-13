@@ -137,8 +137,14 @@ public class ApiAutomationService {
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
-    public ApiScenarioWithBLOBs getDto(String id) {
-        return apiScenarioMapper.selectByPrimaryKey(id);
+    public ApiScenarioDTO getDto(String id) {
+        ApiScenarioRequest request = new ApiScenarioRequest();
+        request.setId(id);
+        List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0);
+        }
+        return null;
     }
 
     public ApiTestEnvironment get(String id) {

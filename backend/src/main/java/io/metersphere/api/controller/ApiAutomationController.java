@@ -56,6 +56,12 @@ public class ApiAutomationController {
         return apiAutomationService.list(request);
     }
 
+    @GetMapping("/get/{id}")
+    @RequiresPermissions("PROJECT_API_SCENARIO:READ")
+    public ApiScenarioDTO getById(@PathVariable String id) {
+        return apiAutomationService.getDto(id);
+    }
+
     @PostMapping("/list/all")
     @RequiresPermissions("PROJECT_API_SCENARIO:READ")
     public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {

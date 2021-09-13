@@ -182,10 +182,14 @@
 
         <template v-slot:opt-before="scope">
           <ms-table-operator-button v-permission=" ['PROJECT_API_SCENARIO:READ+RUN']"
-                                    :tip="$t('api_test.automation.execute')" icon="el-icon-video-play" class="run-button"
-                                    @exec="execute(scope.row)" v-if="!scope.row.isStop && !trashEnable" style="margin-right: 10px;"/>
+                                    :tip="$t('api_test.automation.execute')" icon="el-icon-video-play"
+                                    class="run-button"
+                                    @exec="execute(scope.row)" v-if="!scope.row.isStop && !trashEnable"
+                                    style="margin-right: 10px;"/>
           <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
-            <el-button v-if="!trashEnable" @click.once="stop(scope.row)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;margin-right: 10px;" class="stop-btn" circle>
+            <el-button v-if="!trashEnable" @click.once="stop(scope.row)" size="mini"
+                       style="color:white;padding: 0;width: 28px;height: 28px;margin-right: 10px;" class="stop-btn"
+                       circle>
               <div style="transform: scale(0.72)">
                 <span style="margin-left: -3.5px;font-weight: bold">STOP</span>
               </div>
@@ -195,7 +199,8 @@
         </template>
 
         <template v-slot:opt-behind="scope">
-          <ms-scenario-extend-buttons v-if="!trashEnable" style="display: contents" @openScenario="openScenario" :row="scope.row"/>
+          <ms-scenario-extend-buttons v-if="!trashEnable" style="display: contents" @openScenario="openScenario"
+                                      :row="scope.row"/>
         </template>
 
       </ms-table>
@@ -206,10 +211,12 @@
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId"
+                                  :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
+        <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
+                   :modal="false"
                    size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
@@ -235,9 +242,7 @@ import {downloadFile, getCurrentProjectID, getUUID, strMapToObj} from "@/common/
 import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {API_SCENARIO_LIST} from "../../../../../common/js/constants";
 
-import {
-  getCustomTableHeader, getCustomTableWidth, getLastTableSortField, handleRowDrop, saveLastTableSortField
-} from "@/common/js/tableUtils";
+import {getCustomTableHeader, getCustomTableWidth, getLastTableSortField, handleRowDrop} from "@/common/js/tableUtils";
 import {API_SCENARIO_FILTERS} from "@/common/js/table-constants";
 import {scenario} from "@/business/components/track/plan/event-bus";
 import MsTable from "@/business/components/common/components/table/MsTable";
@@ -467,7 +472,7 @@ export default {
   created() {
     scenario.$on('hide', id => {
       this.hideStopBtn(id);
-    })
+    });
     this.projectId = getCurrentProjectID();
     if (!this.projectName || this.projectName === "") {
       this.getProjectName();
@@ -490,15 +495,21 @@ export default {
     }
 
 
-    if(this.trashEnable){
-      this.condition.orders = [{"name":"delete_time","type":"desc"}];
-    }else {
+    if (this.trashEnable) {
+      this.condition.orders = [{"name": "delete_time", "type": "desc"}];
+    } else {
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     }
 
     this.search();
     this.getPrincipalOptions([]);
 
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.resourceId) {
+      this.$get('/api/automation/get/' + this.$route.query.resourceId, (response) => {
+        this.edit(response.data);
+      });
+    }
   },
   beforeDestroy() {
     scenario.$off("hide");
@@ -804,19 +815,19 @@ export default {
           this.search();
         });
         return;
-      }else {
+      } else {
         let param = {};
         this.buildBatchParam(param);
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
 
           let checkResult = response.data;
           let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
-          if(!checkResult.deleteFlag){
+          if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg+=item+";";
+              alertMsg += item + ";";
             });
-            if(alertMsg === ""){
+            if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
               alertMsg += this.$t('api_test.is_continue') + " ？";
@@ -885,20 +896,20 @@ export default {
           this.search();
         });
         return;
-      }else {
+      } else {
         let param = {};
         this.buildBatchParam(param);
         param.ids = [row.id];
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
           let checkResult = response.data;
-          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') +" ？";
-          if(!checkResult.deleteFlag){
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
+          if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg+=item+";";
+              alertMsg += item + ";";
             });
-            if(alertMsg === ""){
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm') +" ？";
+            if (alertMsg === "") {
+              alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
               alertMsg += this.$t('api_test.is_continue') + " ？";
             }
@@ -1021,10 +1032,10 @@ export default {
             this.buildBatchParam(param);
             this.$post('/api/automation/batchCopy', param, response => {
               let copyResult = response.data;
-              if(copyResult.result){
+              if (copyResult.result) {
                 this.$success(this.$t('api_test.definition.request.batch_copy_end'));
-              }else {
-                this.$error(this.$t('commons.already_exists')+":"+copyResult.errorMsg);
+              } else {
+                this.$error(this.$t('commons.already_exists') + ":" + copyResult.errorMsg);
               }
 
               this.search();

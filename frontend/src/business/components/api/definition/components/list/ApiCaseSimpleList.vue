@@ -388,6 +388,12 @@ export default {
     }
 
     this.initTable();
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.caseId) {
+      this.$get('/api/testcase/findById/' + this.$route.query.caseId, (response) => {
+        this.handleTestCase(response.data);
+      });
+    }
   },
   watch: {
     selectNodeIds() {
