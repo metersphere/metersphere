@@ -112,7 +112,7 @@ public class MsIfController extends MsTestElement {
             value = "\"" + this.value + "\"";
         }
         if (StringUtils.contains(operator, "~")) {
-            value = "\".*" + this.value + ".*\"";
+            value = "\"(\\n|.)*" + this.value + "(\\n|.)*\"";
         }
 
         if (StringUtils.equals(operator, "is empty")) {
