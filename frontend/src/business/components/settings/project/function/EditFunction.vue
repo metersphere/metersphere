@@ -28,11 +28,6 @@
             </el-form-item>
           </el-col>
         </el-row>
-<!--        <el-row>-->
-<!--          <el-form-item :label="'参数列表'" prop="">-->
-<!--            <function-params :items="form.params"/>-->
-<!--          </el-form-item>-->
-<!--        </el-row>-->
         <el-row style="margin-right: 10px;">
           <el-col :span="20">
             <el-form-item>
@@ -96,9 +91,9 @@ import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag
 import FunctionParams from "@/business/components/settings/project/function/FunctionParams";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import {FUNC_TEMPLATE, splicingCustomFunc} from "@/business/components/settings/project/function/custom_function";
+import {FUNC_TEMPLATE} from "@/business/components/settings/project/function/custom-function";
 import MsRun from "@/business/components/api/automation/scenario/DebugRun";
-import {getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {JSR223Processor} from "@/business/components/api/definition/model/ApiTestModel";
 import FunctionRun from "@/business/components/settings/project/function/FunctionRun";
 import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
@@ -229,38 +224,7 @@ export default {
       console: "无执行结果"
     }
   },
-  // watch: {
-  //   'form.name'() {
-  //     this.splicingFunc();
-  //   },
-  //   'form.params': {
-  //     handler() {
-  //       this.splicingFunc();
-  //     },
-  //     deep: true
-  //   }
-  // },
   methods: {
-    // _parseFuncParam(funcObj) {
-    //   let params = undefined;
-    //   if (funcObj.params) {
-    //     params = funcObj.params.map(p => p.name);
-    //     if (params.length > 0) {
-    //       params = params.filter(p => {
-    //         return p !== undefined
-    //       });
-    //       params.join(",\s");
-    //     }
-    //   }
-    //   // todo 参数拼接问题 删除参数 逗号未去除
-    //   return params;
-    // },
-    // splicingFunc() {
-    //   let funcObj = this.form;
-    //   let funcParams = this._parseFuncParam(funcObj);
-    //   this.form.script = splicingCustomFunc(funcObj, funcParams);
-    //   this.reloadCodeEdit();
-    // },
     open(data) {
       this.activeName = "code";
       this.visible = true;
@@ -285,11 +249,6 @@ export default {
         } else {
           this.form.tags = JSON.parse(this.form.tags);
         }
-        // if (!this.form.params) {
-        //   this.form.params = [];
-        // } else {
-        //   this.form.params = JSON.parse(this.form.params);
-        // }
         this.reload();
       })
     },
@@ -357,6 +316,9 @@ export default {
       })
     },
     update(obj) {
+      if (!obj.projectId) {
+        obj.projectId = getCurrentProjectID();
+      }
       this.result = this.$post("/custom/func/update", obj, () => {
         this.$emit("refresh");
         this.$success(this.$t('commons.modify_success'));
