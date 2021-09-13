@@ -20,7 +20,7 @@ import MsModuleMinder from "@/business/components/common/components/MsModuleMind
 import {
   handleAfterSave,
   handleExpandToLevel, handleTestCaseAdd, handTestCaeEdit,
-  listenBeforeExecCommand,
+  listenBeforeExecCommand, listenDblclick,
   listenNodeSelected,
   loadSelectNodes,
   priorityDisableCheck,
@@ -37,7 +37,7 @@ name: "TestCaseMinder",
       dataMap: new Map(),
       tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark')],
       result: {loading: false},
-      needRefresh: false
+      needRefresh: false,
     }
   },
   props: {
@@ -62,6 +62,9 @@ name: "TestCaseMinder",
     },
     disabled() {
       return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
+    },
+    isChanged() {
+      return this.$store.state.isTestCaseMinderChanged;
     }
   },
   watch: {
@@ -69,9 +72,16 @@ name: "TestCaseMinder",
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
+    },
+    '$route'(to) {
+      if (to.name !== 'testCaseCreate' || to.name !== 'testCase' || to.name !== 'testCaseEdit') {
+        this.$warning('请保存用例');
+        return false;
+      }
     }
   },
   mounted() {
+    this.setIsChange(false);
     if (this.selectNode && this.selectNode.data) {
       if (this.$refs.minder) {
         let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
@@ -84,10 +94,30 @@ name: "TestCaseMinder",
       listenNodeSelected(() => {
         loadSelectNodes(this.getParam(),  getTestCasesForMinder);
       });
+
+      listenDblclick(() => {
+        let minder = window.minder;
+        let selectNodes = minder.getSelectedNodes();
+        let isNotDisableNode = false;
+        // 如果鼠标双击了非模块的节点，表示已经编辑
+        selectNodes.forEach(node => {
+          if (!node.data.disable) {
+            isNotDisableNode = true;
+          }
+        });
+        if (isNotDisableNode) {
+          this.setIsChange(true);
+        }
+      });
+
       listenBeforeExecCommand((even) => {
         if (even.commandName === 'expandtolevel') {
           let level = Number.parseInt(even.commandArgs);
           handleExpandToLevel(level, even.minder.getRoot(), this.getParam(), getTestCasesForMinder);
+        }
+        if (['priority', 'resource', 'removenode', 'appendchildnode', 'appendparentnode', 'appendsiblingnode'].indexOf(even.commandName) > 0) {
+          // 这些情况则脑图有改变
+          this.setIsChange(true);
         }
       });
     },
@@ -101,6 +131,9 @@ name: "TestCaseMinder",
         isDisable: false
       }
     },
+    setIsChange(isChanged) {
+      this.$store.commit('setIsTestCaseMinderChanged', isChanged);
+    },
     save(data) {
       let saveCases = [];
       let deleteCases = [];
@@ -113,6 +146,7 @@ name: "TestCaseMinder",
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         handleAfterSave(window.minder.getRoot(), this.getParam());
+        this.setIsChange(false);
       });
     },
     buildSaveCase(root, saveCases, deleteCases, parent) {

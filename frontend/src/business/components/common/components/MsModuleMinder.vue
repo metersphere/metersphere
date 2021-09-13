@@ -1,31 +1,38 @@
 <template>
-  <div class="minder" :class="{'full-screen': isFullScreen}">
-    <ms-full-screen-button :is-full-screen.sync="isFullScreen"/>
-    <minder-editor
-      v-if="isActive"
-      class="minder-container"
-      :import-json="importJson"
-      :progress-enable="false"
-      :tags="tags"
-      :height="height"
-      :tag-edit-check="tagEditCheck"
-      :priority-disable-check="priorityDisableCheck"
-      :distinct-tags="distinctTags"
-      :default-mold="defaultMode"
-      @afterMount="$emit('afterMount')"
-      @moldChange="handleMoldChange"
-      :disabled="disabled"
-      @save="save"
-    />
+  <div>
+    <div class="minder" :class="{'full-screen': isFullScreen}">
+      <ms-full-screen-button :is-full-screen.sync="isFullScreen"/>
+      <minder-editor
+        v-if="isActive"
+        class="minder-container"
+        :import-json="importJson"
+        :progress-enable="false"
+        :tags="tags"
+        :height="height"
+        :tag-edit-check="tagEditCheck"
+        :priority-disable-check="priorityDisableCheck"
+        :distinct-tags="distinctTags"
+        :default-mold="defaultMode"
+        @afterMount="$emit('afterMount')"
+        @moldChange="handleMoldChange"
+        :disabled="disabled"
+        @save="save"
+      />
+      <is-change-confirm
+        @confirm="changeConfirm"
+        ref="isChangeConfirm"/>
+    </div>
   </div>
+
 </template>
 
 <script>
 
 import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
+import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 export default {
   name: "MsModuleMinder",
-  components: {MsFullScreenButton},
+  components: {IsChangeConfirm, MsFullScreenButton},
   props: {
     minderKey: String,
     treeNodes: {
@@ -80,7 +87,8 @@ export default {
       isActive: true,
       isFullScreen: false,
       height: '',
-      defaultMode: 3
+      defaultMode: 3,
+      tmpNode: {}
     }
   },
   created() {
@@ -161,7 +169,24 @@ export default {
     setJsonImport(data) {
       this.importJson = data;
     },
+    changeConfirm(isSave) {
+      if (isSave) {
+        this.save(window.minder.exportJson());
+      } else {
+        this.$store.commit('setIsTestCaseMinderChanged', false);
+        this._handleNodeSelect(this.tmpNode);
+      }
+    },
     handleNodeSelect(node) {
+      let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
+      if (isTestCaseMinderChanged) {
+        this.tmpNode = node;
+        this.$refs.isChangeConfirm.open();
+        return;
+      }
+      this._handleNodeSelect(node);
+    },
+    _handleNodeSelect(node) {
       if (node && node.data) {
         let nodeData = node.data;
         let importJson = this.getImportJsonBySelectNode(nodeData);

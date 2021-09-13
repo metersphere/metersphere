@@ -10,6 +10,15 @@ export function listenNodeSelected(callback) {
   });
 }
 
+export function listenDblclick(callback) {
+  let minder = window.minder;
+  minder.on('dblclick ', function (even) {
+    if (callback) {
+      callback(even);
+    }
+  });
+}
+
 export function listenNodeChange(callback) {
   let minder = window.minder;
   minder.on('contentchange ', function (even) {
@@ -324,6 +333,7 @@ export function tagEditCheck(resourceName) {
   return true;
 }
 
+// 打了用例标签才能选择优先级
 export function priorityDisableCheck() {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();

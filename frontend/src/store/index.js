@@ -26,6 +26,7 @@ const state = {
   selectStep: {},
   currentApiCase: {},
   pluginFiles: [],
+  isTestCaseMinderChanged: false
 }
 
 const store = new Vuex.Store({
