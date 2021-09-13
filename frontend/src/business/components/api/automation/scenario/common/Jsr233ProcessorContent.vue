@@ -14,10 +14,15 @@
           <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
             <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
           </div>
+          <div v-for="funcLink in funcLinks" :key="funcLink.index" class="code-template">
+            <el-link :disabled="funcLink.disabled" @click="doFuncLink(funcLink)">{{ funcLink.title }}</el-link>
+          </div>
           <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
                    target="componentReferenceDoc" style="margin-top: 10px"
                    type="primary">{{ $t('commons.reference_documentation') }}
           </el-link>
+
+          <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="addCustomFuncScript"/>
         </el-col>
       </el-row>
     </div>
@@ -26,9 +31,10 @@
 <script>
     import MsCodeEdit from "../../../definition/components/MsCodeEdit";
     import MsDropdown from "../../../../common/components/MsDropdown";
+    import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
     export default {
         name: "Jsr233ProcessorContent",
-      components: {MsDropdown, MsCodeEdit},
+      components: {MsDropdown, MsCodeEdit, CustomFunctionRelate},
       data() {
         return {
           jsr223ProcessorData: {},
@@ -83,7 +89,19 @@
                 '    }\n' +
                 '}',
               disabled: this.isPreProcessor
+            },
+            {
+              title: "终止测试",
+              value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName())'
             }
+          ],
+          funcLinks: [
+            {
+              title: "插入自定义函数",
+              command: "custom_function",
+              index: "custom_function"
+            }
+
           ],
           isCodeEditAlive: true,
           languages: [
@@ -141,6 +159,16 @@
         languageChange(language) {
           this.jsr223ProcessorData.scriptLanguage = language;
           this.$emit("languageChange");
+        },
+        addCustomFuncScript(script) {
+          this.jsr223ProcessorData.script = this.jsr223ProcessorData.script ?
+            this.jsr223ProcessorData.script + '\n\n' + script : script;
+          this.reload();
+        },
+        doFuncLink(funcLink) {
+          if (funcLink.command === 'custom_function') {
+            this.$refs.customFunctionRelate.open(this.jsr223ProcessorData.scriptLanguage);
+          }
         },
       }
     }

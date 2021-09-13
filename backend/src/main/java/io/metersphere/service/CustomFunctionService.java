@@ -78,7 +78,14 @@ public class CustomFunctionService {
             projectId = SessionUtils.getCurrentProjectId();
         }
         CustomFunctionExample example = new CustomFunctionExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
+        CustomFunctionExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(projectId);
+        if (StringUtils.isNotBlank(request.getType())) {
+            criteria.andTypeEqualTo(request.getType());
+        }
+        if (StringUtils.isNotBlank(request.getName())) {
+            criteria.andNameEqualTo(request.getName());
+        }
         return customFunctionMapper.selectByExample(example);
     }
 

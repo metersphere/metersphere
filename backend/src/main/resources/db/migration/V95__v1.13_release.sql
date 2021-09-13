@@ -45,3 +45,25 @@ ALTER TABLE test_plan_api_case ADD `order` bigint(20) NOT NULL COMMENT '自定�
 ALTER TABLE test_plan_api_scenario ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 ALTER TABLE test_plan_load_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 
+
+create table if not exists custom_function
+(
+    id varchar(50) not null
+        primary key,
+    name varchar(255) null comment '函数名',
+    tags varchar(1000) null comment '标签',
+    description varchar(1000) null comment '函数描述',
+    type varchar(255) null comment '脚本语言类型',
+    params longtext null comment '参数列表',
+    script longtext null comment '函数体',
+    result longtext null comment '执行结果',
+    create_user varchar(100) null comment '创建人',
+    create_time bigint(13) null comment '创建时间',
+    update_time bigint(13) null comment '更新时间',
+    project_id varchar(50) null comment '所属项目ID'
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE utf8mb4_general_ci;
+
+

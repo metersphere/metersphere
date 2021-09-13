@@ -110,9 +110,6 @@ export default {
           if (item.tags && item.tags.length > 0) {
             item.tags = JSON.parse(item.tags);
           }
-          if (item.params && item.params.length > 0) {
-            item.params = JSON.parse(item.params);
-          }
         })
       });
     },

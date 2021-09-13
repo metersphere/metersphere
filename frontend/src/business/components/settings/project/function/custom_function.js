@@ -1,36 +1,49 @@
-export function splicingCustomFunc(funcLanguage, funcObjScript, funcName, funcParams) {
+export const FUNC_TEMPLATE = {
+  beanshell: "public static void test() {\n\n\n}",
+  groovy: "public static void test() {\n\n\n}",
+  python: "def test():\n",
+  nashornScript: "function test() {\n\n\n}",
+  rhinoScript: "function test() {\n\n\n}"
+}
+
+
+// 拼接函数
+export function splicingCustomFunc(funcObj, funcParams) {
+  let funcLanguage = funcObj.type || "beanshell";
+  let funcObjScript = funcObj.script;
+  let funcName = funcObj.name;
   let funcFirstLine = generateFuncFirstLine(funcLanguage, funcName, funcParams);
-  if (!funcObjScript) {
-    funcObjScript = funcFirstLine + "\n\n\n}";
+  if (!funcObjScript && funcName) {
+    funcObjScript = funcLanguage === "python" ? funcFirstLine : funcFirstLine + "\n\n\n}";
   }
-  funcObjScript = funcObjScript.replace(regex[funcLanguage], funcFirstLine);
+  if (funcObjScript) {
+    funcObjScript = funcObjScript.replace(regex[funcLanguage], funcFirstLine);
+  }
   return funcObjScript;
 }
 
 export function generateFuncFirstLine(funcLanguage, funcName, funcParams) {
-  let funcFirstLine = "";
-  switch (funcLanguage) {
-    case "beanshell":
-      funcFirstLine = "public static void " + funcName + "(" + funcParams + ") " + "{";
-      break;
-    case "python":
-      break;
-    case "groovy":
-      break;
-    case "nashornScript":
-      break;
-    case "rhinoScript":
-      break;
-    default:
-  }
-  return funcFirstLine;
+  let funcEnd = funcLanguage === "python" ? ":" : "{";
+  return scriptFuncDefinition[funcLanguage] + " " + funcName + "(" + funcParams + ") " + funcEnd;
 }
 
+const scriptFuncDefinition = {
+  beanshell: "public static void",
+  python: "def",
+  groovy: "public static void",
+  // nashornScript: "",
+  // rhinoScript: "",
+}
+
+const firstFuncRegex = RegExp(".*\(.*\)\\s\{\\r?");
 const regex = {
-  beanshell: /^public static void\s.*\(.*\)\s\{/,
-  python: /^function\s.*\(.*\)\s\{/,
-  groovy: /^function\s.*\(.*\)\s\{/,
-  nashornScript: /^function\s.*\(.*\)\s\{/,
-  rhinoScript: /^function\s.*\(.*\)\s\{/,
+  beanshell: calcRegex(scriptFuncDefinition.beanshell),
+  python: RegExp("^def\\s.*\(.*\)\\s\:"),
+  groovy: calcRegex(scriptFuncDefinition.groovy),
+  // nashornScript: calcRegex(scriptFuncDefinition.nashornScript),
+  // rhinoScript: calcRegex(scriptFuncDefinition.rhinoScript),
 }
 
+function calcRegex(str) {
+  return RegExp("^" + str + "\\s.*\(.*\)\\s\{");
+}

@@ -28,11 +28,11 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-form-item :label="'参数列表'" prop="">
-            <function-params :items="form.params"/>
-          </el-form-item>
-        </el-row>
+<!--        <el-row>-->
+<!--          <el-form-item :label="'参数列表'" prop="">-->
+<!--            <function-params :items="form.params"/>-->
+<!--          </el-form-item>-->
+<!--        </el-row>-->
         <el-row style="margin-right: 10px;">
           <el-col :span="20">
             <el-form-item>
@@ -42,7 +42,7 @@
                     <ms-code-edit
                       v-if="isCodeEditAlive"
                       :mode="codeEditModeMap[form.type]"
-                      height="330px"
+                      height="380px"
                       :data.sync="form.script"
                       theme="eclipse"
                       :modes="modes"
@@ -67,6 +67,9 @@
               <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
                 <el-link :disabled="template.disabled" @click="addTemplate(template)">{{ template.title }}</el-link>
               </div>
+              <div v-for="funcLink in funcLinks" :key="funcLink.index" class="code-template">
+                <el-link :disabled="funcLink.disabled" @click="doFuncLink(funcLink)">{{ funcLink.title }}</el-link>
+              </div>
               <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
                        target="componentReferenceDoc" style="margin-top: 10px"
                        type="primary">{{ $t('commons.reference_documentation') }}
@@ -77,6 +80,7 @@
       </el-form>
       <!-- 执行组件 -->
       <function-run :report-id="reportId" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"/>
+      <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="addCustomFuncScript"/>
     </div>
     <template v-slot:footer>
       <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
@@ -92,15 +96,17 @@ import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag
 import FunctionParams from "@/business/components/settings/project/function/FunctionParams";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import {splicingCustomFunc} from "@/business/components/settings/project/function/custom_function";
+import {FUNC_TEMPLATE, splicingCustomFunc} from "@/business/components/settings/project/function/custom_function";
 import MsRun from "@/business/components/api/automation/scenario/DebugRun";
 import {getUUID} from "@/common/js/utils";
 import {JSR223Processor} from "@/business/components/api/definition/model/ApiTestModel";
 import FunctionRun from "@/business/components/settings/project/function/FunctionRun";
+import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
 
 export default {
   name: "EditFunction",
   components: {
+    CustomFunctionRelate,
     FunctionRun,
     MsCodeEdit,
     FunctionParams,
@@ -139,7 +145,11 @@ export default {
       },
       modes: ['java', 'python'],
       languages: [
-        'beanshell', "python", "groovy", "nashornScript", "rhinoScript"
+        'beanshell',
+        "python",
+        "groovy",
+        "nashornScript",
+        "rhinoScript"
       ],
       codeEditModeMap: {
         beanshell: 'java',
@@ -199,7 +209,19 @@ export default {
             '    }\n' +
             '}',
           disabled: this.isPreProcessor
+        },
+        {
+          title: "终止测试",
+          value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName())'
         }
+      ],
+      funcLinks: [
+        {
+          title: "插入自定义函数",
+          command: "custom_function",
+          index: "custom_function"
+        }
+
       ],
       response: {},
       request: {},
@@ -207,40 +229,38 @@ export default {
       console: "无执行结果"
     }
   },
-  watch: {
-    'form.name'() {
-      this.splicingFunc();
-    },
-    'form.params': {
-      handler() {
-        this.splicingFunc();
-      },
-      deep: true
-    }
-  },
+  // watch: {
+  //   'form.name'() {
+  //     this.splicingFunc();
+  //   },
+  //   'form.params': {
+  //     handler() {
+  //       this.splicingFunc();
+  //     },
+  //     deep: true
+  //   }
+  // },
   methods: {
-    _parseFuncParam(funcObj) {
-      let params = undefined;
-      if (funcObj.params) {
-        params = funcObj.params.map(p => p.name);
-        if (params.length > 0) {
-          params = params.filter(p => {
-            return p !== undefined
-          });
-          params.join(",\s");
-        }
-      }
-      // todo 参数拼接问题 删除参数 逗号未去除
-      return params;
-    },
-    splicingFunc() {
-      let funcObj = this.form;
-      let funcName = funcObj.name;
-      let funcLanguage = this.form.type || "beanshell";
-      let funcParams = this._parseFuncParam(funcObj);
-      this.form.script = splicingCustomFunc(funcLanguage, this.form.script, funcName, funcParams);
-      this.reloadCodeEdit();
-    },
+    // _parseFuncParam(funcObj) {
+    //   let params = undefined;
+    //   if (funcObj.params) {
+    //     params = funcObj.params.map(p => p.name);
+    //     if (params.length > 0) {
+    //       params = params.filter(p => {
+    //         return p !== undefined
+    //       });
+    //       params.join(",\s");
+    //     }
+    //   }
+    //   // todo 参数拼接问题 删除参数 逗号未去除
+    //   return params;
+    // },
+    // splicingFunc() {
+    //   let funcObj = this.form;
+    //   let funcParams = this._parseFuncParam(funcObj);
+    //   this.form.script = splicingCustomFunc(funcObj, funcParams);
+    //   this.reloadCodeEdit();
+    // },
     open(data) {
       this.activeName = "code";
       this.visible = true;
@@ -250,6 +270,8 @@ export default {
         this.initFunc(data.id);
         this.dialogTitle = this.dialogUpdateTitle;
       } else {
+        this.form.script = FUNC_TEMPLATE[this.form.type];
+        this.reloadCodeEdit();
         this.form.tags = [];
         this.form.params = [{}];
         this.dialogTitle = this.dialogCreateTitle;
@@ -263,11 +285,11 @@ export default {
         } else {
           this.form.tags = JSON.parse(this.form.tags);
         }
-        if (!this.form.params) {
-          this.form.params = [];
-        } else {
-          this.form.params = JSON.parse(this.form.params);
-        }
+        // if (!this.form.params) {
+        //   this.form.params = [];
+        // } else {
+        //   this.form.params = JSON.parse(this.form.params);
+        // }
         this.reload();
       })
     },
@@ -281,7 +303,10 @@ export default {
     },
     languageChange(language) {
       this.form.type = language;
-      this.$emit("languageChange");
+      if (!this.form.script) {
+        this.form.script = FUNC_TEMPLATE[language];
+        this.reloadCodeEdit();
+      }
     },
     addTemplate(template) {
       if (!this.form.script) {
@@ -292,6 +317,11 @@ export default {
         this.form.script += ';';
       }
       this.reloadCodeEdit();
+    },
+    doFuncLink(funcLink) {
+      if (funcLink.command === 'custom_function') {
+        this.$refs.customFunctionRelate.open(this.form.type);
+      }
     },
     reload() {
       this.isFormAlive = false;
@@ -337,8 +367,8 @@ export default {
       this.console = "无执行结果";
       this.reloadResult();
       this.runResult.loading = true;
-
       let jSR223Processor = new JSR223Processor({
+        scriptLanguage: this.form.type,
         script: this.form.script
       });
       jSR223Processor.id = getUUID().substring(0, 8);
@@ -354,6 +384,10 @@ export default {
     },
     errorRefresh() {
       this.runResult.loading = false;
+    },
+    addCustomFuncScript(script) {
+      this.form.script = this.form.script + '\n\n' + script;
+      this.reloadCodeEdit();
     }
   }
 }
