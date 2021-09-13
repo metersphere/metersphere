@@ -1,5 +1,7 @@
 import i18n from "@/i18n/i18n";
 import {getTestCasesForMinder} from "@/network/testCase";
+import {getMinderExtraNode} from "@/network/testCase";
+import {getCurrentProjectID} from "../../../../../common/js/utils";
 
 export function listenNodeSelected(callback) {
   let minder = window.minder;
@@ -42,7 +44,7 @@ export function listenBeforeExecCommand(callback) {
  * @param projectId
  * @param result
  */
-export function loadNode(node, param, getCaseFuc, setParamCallback) {
+export function loadNode(node, param, getCaseFuc, setParamCallback, getExtraNodeFuc) {
   let data = node.data;
   if (!data.loaded && data.type === 'node') {
     if (param.result) {
@@ -56,6 +58,15 @@ export function loadNode(node, param, getCaseFuc, setParamCallback) {
     if (getCaseFuc) {
       getCaseFuc(request, (testCases) => {
         appendCaseNodes(node, testCases, param, setParamCallback);
+
+        if (getExtraNodeFuc) {
+          param.result.loading = true;
+          getExtraNodeFuc(getCurrentProjectID(), data.id, (nodes) => {
+            appendExtraNodes(node, nodes);
+            param.result.loading = false;
+          });
+        }
+
       });
     }
   }
@@ -67,11 +78,11 @@ export function loadNode(node, param, getCaseFuc, setParamCallback) {
  * @param projectId
  * @param result
  */
-export function loadSelectNodes(param, getCaseFuc, setParamCallback) {
+export function loadSelectNodes(param, getCaseFuc, setParamCallback, getExtraNodeFuc) {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   selectNodes.forEach(node => {
-    loadNode(node, param, getCaseFuc, setParamCallback);
+    loadNode(node, param, getCaseFuc, setParamCallback, getExtraNodeFuc);
   });
 }
 
@@ -244,6 +255,29 @@ export function appendCaseNodes(parent, testCases, param, setParamCallback) {
   }
 }
 
+export function appendExtraNodes(parent, nodes) {
+  if (nodes) {
+    if (!parent.children) {
+      parent.children = [];
+    }
+    nodes.forEach(i => {
+      if (i.nodeData) {
+        let dataObj = JSON.parse(i.nodeData);
+        _appendExtraNodes(parent, dataObj);
+      }
+    });
+  }
+}
+
+function _appendExtraNodes(parent, data) {
+  let node = appendChildNode(parent, data, true);
+  if (data.children && data.children.length > 0) {
+    data.children.forEach(child => {
+      _appendExtraNodes(node, child);
+    });
+  }
+}
+
 /**
  * 去掉已有节点
  * @param parent
@@ -325,8 +359,12 @@ export function tagEditCheck(resourceName) {
   let minder = window.minder;
   let selectNodes = minder.getSelectedNodes();
   if (selectNodes && selectNodes.length > 0) {
-    let resource = selectNodes[0].getParent().data.resource;
-    if (resource && resource.indexOf('用例') > -1 && resourceName === '用例') {
+    let lastNodeResource = selectNodes[0].getParent().data.resource;
+    if ( resourceName === '模块') {
+      // 模块不能编辑
+      return false;
+    }
+    if (lastNodeResource && lastNodeResource.indexOf('用例') > -1 && resourceName === '用例') {
       return false;
     }
   }
@@ -353,7 +391,7 @@ export function handleAfterSave(pNode, param) {
       let item = children[i];
       if (item.data.id === null || (item.data.id && item.data.id.length < 20)) {
         pNode.data.loaded = false;
-        loadNode(pNode, param, getTestCasesForMinder);
+        loadNode(pNode, param, getTestCasesForMinder, null, getMinderExtraNode);
         return;
       }
       if (item.data.changed) {

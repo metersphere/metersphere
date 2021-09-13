@@ -45,7 +45,6 @@ ALTER TABLE test_plan_api_case ADD `order` bigint(20) NOT NULL COMMENT '自定�
 ALTER TABLE test_plan_api_scenario ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 ALTER TABLE test_plan_load_case ADD `order` bigint(20) NOT NULL COMMENT '自定义排序，间隔5000';
 
-
 create table if not exists custom_function
 (
     id varchar(50) not null
@@ -67,3 +66,13 @@ create table if not exists custom_function
     COLLATE utf8mb4_general_ci;
 
 
+CREATE table if not exists `minder_config` (
+  `id` varchar(50) NOT NULL,
+  `resource_id` varchar(50) NOT NULL COMMENT '所属的项目或测试计划',
+  `type` varchar(30) NOT NULL COMMENT '类型，如：用例编辑脑图',
+  `extra_node` longtext COMMENT '存储脑图节点额外信息',
+  PRIMARY KEY (`id`)
+  index(id)
+)  ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE utf8mb4_general_ci;

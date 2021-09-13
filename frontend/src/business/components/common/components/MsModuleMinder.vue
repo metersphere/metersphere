@@ -19,6 +19,8 @@
         @save="save"
       />
       <is-change-confirm
+        :title="'请保存脑图'"
+        :tip="'脑图未保存，确认保存脑图吗？'"
         @confirm="changeConfirm"
         ref="isChangeConfirm"/>
     </div>
@@ -66,7 +68,8 @@ export default {
     tagEditCheck: Function,
     priorityDisableCheck: Function,
     disabled: Boolean,
-    ignoreNum: Boolean
+    ignoreNum: Boolean,
+    showModuleTag: Boolean
   },
   data() {
     return {
@@ -77,6 +80,7 @@ export default {
             disable: true,
             id: "root",
             type: 'node',
+            resource: this.showModuleTag ? ['模块'] : [],
             path: "",
             tagEnable: this.tagEnable
           },
@@ -148,6 +152,7 @@ export default {
             id: item.id,
             disable: true,
             type: 'node',
+            resource: this.showModuleTag ? ['模块'] : [],
             caseNum: item.caseNum,
             path: root.data.path + "/" + item.name,
             expandState:"collapse"
@@ -203,7 +208,8 @@ export default {
             id: nodeData.id,
             disable: true,
             tagEnable: this.tagEnable,
-            type: 'node'
+            type: 'node',
+            resource: this.showModuleTag ? ['模块'] : [],
           },
           children: []
         },

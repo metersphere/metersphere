@@ -2,6 +2,7 @@ import {post, get} from "@/common/js/ajax";
 import {success} from "@/common/js/message";
 import i18n from "@/i18n/i18n";
 import {basePost} from "@/network/base-network";
+import {baseGet} from "./base-network";
 
 export function getTestCasesForMinder(request, callback) {
   return post('/test/case/list/minder', request, (response) => {
@@ -53,3 +54,8 @@ export function deleteRelateTest(caseId, testId, callback) {
 export function editTestCaseOrder(request, callback) {
   return basePost('/test/case/edit/order', request, callback);
 }
+
+export function getMinderExtraNode(groupId, nodeId, callback) {
+  return baseGet('/minder/extra/node/list/' + groupId + '/' + nodeId, callback);
+}
+
