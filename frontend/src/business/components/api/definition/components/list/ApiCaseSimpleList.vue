@@ -7,7 +7,9 @@
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search"
                 class="search-input" size="small"
                 v-model="condition.name"/>
-      <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small" @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}</el-button>
+      <el-button type="primary" style="float: right;margin-right: 10px" icon="el-icon-plus" size="small"
+                 @click="addTestCase" v-if="apiDefinitionId">{{ $t('commons.add') }}
+      </el-button>
       <ms-table
         :data="tableData"
         :select-node-ids="selectNodeIds"
@@ -90,7 +92,8 @@
             :label="$t('test_track.plan_view.execute_result')">
             <template v-slot:default="scope">
               <i class="el-icon-loading ms-running" v-if="scope.row.status === 'Running'"/>
-              <el-link @click="getExecResult(scope.row)" :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</el-link>
+              <el-link @click="getExecResult(scope.row)"
+                       :class="getStatusClass(scope.row.status)">{{ getStatusTitle(scope.row.status) }}</el-link>
             </template>
           </ms-table-column>
 
@@ -165,9 +168,11 @@
         :total="total"/>
     </div>
 
-    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList" @stop="stop"/>
+    <api-case-list @showExecResult="showExecResult" @refreshCase="initTable" :currentApi="selectCase" ref="caseList"
+                   @stop="stop"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit ref="batchEdit" :data-count="$refs.caseTable ? $refs.caseTable.selectDataCounts : 0"
+                   @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
     <!--选择环境(当创建性能测试的时候)-->
     <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
     <!--查看引用-->
@@ -216,7 +221,9 @@ import {
   _filter,
   _sort,
   getCustomTableHeader,
-  getCustomTableWidth, getLastTableSortField, handleRowDrop
+  getCustomTableWidth,
+  getLastTableSortField,
+  handleRowDrop
 } from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -346,7 +353,7 @@ export default {
       environments: [],
       resVisible: false,
       response: {},
-    }
+    };
   },
   props: {
     currentProtocol: String,
@@ -373,7 +380,7 @@ export default {
     model: {
       type: String,
       default() {
-        'api'
+        'api';
       }
     },
     planId: String
@@ -531,7 +538,7 @@ export default {
         }
       }
       if (this.condition.filters && !this.condition.filters.status) {
-        this.$delete(this.condition.filters, 'status')
+        this.$delete(this.condition.filters, 'status');
       }
       if (!this.selectAll) {
         this.selectAll = false;
@@ -575,7 +582,7 @@ export default {
             if (item.status === 'Running') {
               isNext = true;
             }
-          })
+          });
           this.$nextTick(function () {
 
             handleRowDrop(this.tableData, (param) => {
@@ -587,7 +594,7 @@ export default {
               this.$refs.caseTable.doLayout();
               this.$refs.caseTable.checkTableRowIsSelect();
             }
-          })
+          });
           if (isNext) {
             setTimeout(() => {
               this.initTable();
@@ -653,7 +660,9 @@ export default {
           request.hashTree = [];
         }
         selectApi.url = request.path;
-        this.$refs.caseList.open(selectApi, testCase.id);
+        if (this.$refs.caseList) {
+          this.$refs.caseList.open(selectApi, testCase.id);
+        }
       });
     },
     addTestCase() {
@@ -679,7 +688,15 @@ export default {
         let uuid = getUUID();
         let apiCaseRequest = JSON.parse(data.request);
         apiCaseRequest.id = uuid;
-        let obj = {name: "copy_" + data.name, apiDefinitionId: row.apiDefinitionId, priority: data.priority, active: true, tags: data.tags, request: apiCaseRequest, uuid: uuid};
+        let obj = {
+          name: "copy_" + data.name,
+          apiDefinitionId: row.apiDefinitionId,
+          priority: data.priority,
+          active: true,
+          tags: data.tags,
+          request: apiCaseRequest,
+          uuid: uuid
+        };
         this.$refs.caseList.copy(obj);
       });
     },
@@ -788,7 +805,7 @@ export default {
       let obj = {};
       obj.projectId = this.projectId;
       obj.selectAllDate = false;
-      obj.ids = [apiCase.id]
+      obj.ids = [apiCase.id];
       obj = Object.assign(obj, this.condition);
       this.$post('/api/testcase/checkDeleteDatas/', obj, response => {
         let checkResult = response.data;
@@ -829,7 +846,7 @@ export default {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
             if (apiNames === "") {
-              apiNames += item
+              apiNames += item;
             } else {
               apiNames += ";" + item;
             }
@@ -855,7 +872,7 @@ export default {
           let apiNames = "";
           cannotReductionApiNameArr.forEach(item => {
             if (apiNames === "") {
-              apiNames += item
+              apiNames += item;
             } else {
               apiNames += ";" + item;
             }
@@ -875,7 +892,7 @@ export default {
       let selectedIDs = this.getIds(selection);
       let allIDs = this.tableData.map(s => s.id);
       this.unSelection = allIDs.filter(function (val) {
-        return selectedIDs.indexOf(val) === -1
+        return selectedIDs.indexOf(val) === -1;
       });
       if (this.selectAll) {
         this.selectDataCounts = this.total - this.unSelection.length;
@@ -896,7 +913,7 @@ export default {
       this.$emit("changeSelectDataRangeAll", "testCase");
     },
     getIds(rowSets) {
-      let rowArray = Array.from(rowSets)
+      let rowArray = Array.from(rowSets);
       let ids = rowArray.map(s => s.id);
       return ids;
     },
@@ -938,7 +955,7 @@ export default {
             if (res) {
               item.status = res.data.status;
             }
-          })
+          });
           break;
         }
       }
@@ -971,7 +988,7 @@ export default {
       testPlan.hashTree = [threadGroup];
       runData.forEach(item => {
         threadGroup.hashTree.push(item);
-      })
+      });
       let reqObj = {
         id: row.id,
         testElement: testPlan,
@@ -995,10 +1012,10 @@ export default {
         this.$store.commit('setTest', {
           name: row.name,
           jmx: jmxObj
-        })
+        });
         this.$router.push({
           path: "/performance/test/create"
-        })
+        });
         // let performanceId = response.data;
         // if(performanceId!=null){
         //   this.$router.push({
@@ -1010,7 +1027,7 @@ export default {
       });
     },
   },
-}
+};
 </script>
 
 <style scoped>
