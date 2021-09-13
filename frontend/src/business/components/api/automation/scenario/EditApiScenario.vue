@@ -338,7 +338,6 @@ import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {saveScenario} from "@/business/components/api/automation/api-automation";
 import MsComponentConfig from "./component/ComponentConfig";
-import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 
 let jsonPath = require('jsonpath');
 export default {
@@ -1177,26 +1176,13 @@ export default {
       this.getEnvironments();
     },
     allowDrop(draggingNode, dropNode, dropType) {
-      if(dropNode.data.disabled){
-        return false;
-      }
-      if (dropType != "inner" && !draggingNode.data.disabled) {
-        if (draggingNode.data.referenced) {
-          if (draggingNode.data.referenced !== 'REF' && draggingNode.data.referenced !== 'Deleted') {
-            return true;
-          }
-          return false;
-        }
+      // 增加插件权限控制
+      if (dropType != "inner") {
         return true;
-      } else if (dropType === "inner" && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
-        if (dropNode.data.referenced) {
-          if (dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted') {
-            return true;
-          }
-          return false;
-        } else {
-          return true;
-        }
+      } else if (dropType === "inner" && dropNode.data.referenced !== 'REF' && dropNode.data.referenced !== 'Deleted'
+        && (this.stepFilter.get(dropNode.data.type) && this.stepFilter.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1)
+        && !draggingNode.data.disabled) {
+        return true;
       }
       return false;
     },
