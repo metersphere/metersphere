@@ -161,8 +161,9 @@ public class ApiDefinitionController {
     }
 
     @GetMapping("/get/{id}")
-    public ApiDefinition get(@PathVariable String id) {
-        return apiDefinitionService.get(id);
+    @RequiresPermissions("PROJECT_API_DEFINITION:READ")
+    public ApiDefinitionResult getApiDefinitionResult(@PathVariable String id) {
+        return apiDefinitionService.getById(id);
     }
 
     @PostMapping(value = "/run/debug", consumes = {"multipart/form-data"})
@@ -179,7 +180,7 @@ public class ApiDefinitionController {
     }
 
     @GetMapping("/report/get/{testId}/{test}")
-    public APIReportResult get(@PathVariable String testId, @PathVariable String test) {
+    public APIReportResult getResult(@PathVariable String testId, @PathVariable String test) {
         return apiDefinitionService.getResult(testId, test);
     }
 

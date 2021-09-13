@@ -118,10 +118,10 @@ export function getUrl(d) {
       url += "/track/plan/all";
       break;
     case "TEST_PLAN_TASK" :
-      url += "/track/plan/all";
+      url += "/track/plan/view/" + d.resourceId;
       break;
     case "REVIEW_TASK" :
-      url += "/track/review/all";
+      url += "/track/review/view/" + d.resourceId;
       break;
     case "DEFECT_TASK" :
       url += "/track/issue";
@@ -130,10 +130,14 @@ export function getUrl(d) {
       url += "/api/definition";
       break;
     case "API_AUTOMATION_TASK" :
-      url += "/api/automation";
+      url += "/api/automation?resourceId=" + d.resourceId;
       break;
     case "API_DEFINITION_TASK" :
-      url += "/api/definition";
+      if (d.operation.startsWith('CASE_')) {
+        url += "/api/definition?caseId=" + d.resourceId;
+      } else {
+        url += "/api/definition?resourceId=" + d.resourceId;
+      }
       break;
     case "API_HOME_TASK" :
       url += "/api/home";
@@ -145,7 +149,7 @@ export function getUrl(d) {
       url += "/performance/report/all";
       break;
     case "PERFORMANCE_TEST_TASK" :
-      url += "/performance/test/all";
+      url += "/performance/test/edit/" + d.resourceId;
       break;
     case "TRACK_TEST_CASE_TASK" :
       url += "/track/case/all";

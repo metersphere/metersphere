@@ -437,6 +437,13 @@ export default {
 
     this.initTable();
     this.getMaintainerOptions();
+
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.resourceId) {
+      this.$get('/api/definition/get/' + this.$route.query.resourceId, (response) => {
+        this.editApi(response.data);
+      });
+    }
   },
   watch: {
     selectNodeIds() {

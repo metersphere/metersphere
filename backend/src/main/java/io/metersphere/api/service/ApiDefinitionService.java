@@ -1379,4 +1379,14 @@ public class ApiDefinitionService {
                 extApiDefinitionMapper::getLastOrder,
                 apiDefinitionMapper::updateByPrimaryKeySelective);
     }
+
+    public ApiDefinitionResult getById(String id) {
+        ApiDefinitionRequest request = new ApiDefinitionRequest();
+        request.setId(id);
+        List<ApiDefinitionResult> list = list(request);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0);
+        }
+        return null;
+    }
 }
