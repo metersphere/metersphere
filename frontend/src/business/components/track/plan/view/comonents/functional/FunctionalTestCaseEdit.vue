@@ -94,7 +94,7 @@
                                          :disabled="true" :title="$t('test_track.case.expected_results')"
                                          :data="testCase" prop="expectedResult"/>
                     <form-rich-text-item :label-width="formLabelWidth" v-if="testCase.stepModel === 'TEXT'"
-                                         :disabled="true" :title="$t('test_track.plan_view.actual_result')"
+                                         :title="$t('test_track.plan_view.actual_result')"
                                          :data="testCase" prop="actualResult"/>
 
                     <test-case-edit-other-info :plan-id="testCase.planId" v-if="otherInfoActive" @openTest="openTest"
