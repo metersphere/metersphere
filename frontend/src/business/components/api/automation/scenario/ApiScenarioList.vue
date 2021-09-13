@@ -837,13 +837,7 @@ export default {
               this.$warning(this.$t("api_test.automation.scenario.check_case"));
               return;
             }
-            this.result.loading = true;
-            this.result = this.$post("/api/automation/export", param, response => {
-              this.result.loading = false;
-              let obj = response.data;
-              obj.nodeTree = nodeTree;
-              downloadFile("Metersphere_Scenario_" + this.projectName + ".json", JSON.stringify(obj));
-            });
+
           }
         });
       });
