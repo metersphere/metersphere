@@ -71,10 +71,10 @@
                        :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
                        @change="saveTestCase(apiCase,true)">
               <el-option
-                v-for="item in maintainerOptions"
-                :key="item.id"
-                :label="item.id + ' (' + item.name + ')'"
-                :value="item.id">
+                  v-for="item in maintainerOptions"
+                  :key="item.id"
+                  :label="item.id + ' (' + item.name + ')'"
+                  :value="item.id">
               </el-option>
             </el-select>
           </div>
@@ -180,12 +180,12 @@ import MsChangeHistory from "../../../../history/ChangeHistory";
 export default {
   name: "ApiCaseItem",
   filters: {
-    ellipsis (value) {
+    ellipsis(value) {
       if (!value) {
         return '';
       }
       if (value.length > 20) {
-        return value.slice(0,20) + '...'
+        return value.slice(0, 20) + '...'
       }
       return value
     }
@@ -428,9 +428,7 @@ export default {
           this.$success(this.$t('commons.save_success'));
           this.reload();
           // 刷新编辑后用例列表
-          if (this.api.source === "editCase") {
-            this.$store.state.currentApiCase = {refresh: "true"};
-          }
+          this.$store.state.currentApiCase = {refresh: "true"};
           if (!hideAlert) {
             this.$emit('refresh');
           }
@@ -438,6 +436,10 @@ export default {
       });
     },
     saveTestCase(row, hideAlert) {
+      if (row.name && row.name.length > 50) {
+        this.$warning("用例名称最大长度为 50 ");
+        return;
+      }
       if (this.api.saved) {
         this.addModule(row);
       } else {
