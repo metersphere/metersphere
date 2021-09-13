@@ -101,7 +101,7 @@ export default {
       exportFlag: false,
       messageWebSocket: {},
       websocket: {},
-      stepFilter: this.stepFilter,
+      stepFilter: new STEP,
     }
   },
   activated() {
