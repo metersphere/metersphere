@@ -400,7 +400,8 @@ export default {
       this.runData.push(row.request);
       /*触发执行操作*/
       this.reportId = getUUID().substring(0, 8);
-      this.$emit("refreshCase", row.id);
+      this.testCaseId = row.id ? row.id : row.request.id;
+      this.$emit("refreshCase", this.testCaseId);
     },
 
     stop(id) {
