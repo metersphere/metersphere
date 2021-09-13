@@ -39,7 +39,8 @@
         </el-tab-pane>
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
           <ms-tab-button
-            :active-dom.sync="activeDom"
+            :active-dom="activeDom"
+            @update:activeDom="updateActiveDom"
             :left-tip="$t('test_track.case.list')"
             :left-content="$t('test_track.case.list')"
             :right-tip="$t('test_track.case.minder')"
@@ -110,6 +111,9 @@
 
       </el-tabs>
 
+      <is-change-confirm
+        @confirm="changeConfirm"
+        ref="isChangeConfirm"/>
     </ms-main-container>
 
 
@@ -131,10 +135,12 @@ import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
+import IsChangeConfirm from "@/business/components/common/components/IsChangeConfirm";
 
 export default {
   name: "TestCase",
   components: {
+    IsChangeConfirm,
     TestCaseMinder,
     MsTabButton,
     TestCaseNodeTree,
@@ -156,6 +162,7 @@ export default {
       loading: false,
       type: '',
       activeDom: 'left',
+      tmpActiveDom: null,
       custom_num: false
     };
   },
@@ -239,6 +246,25 @@ export default {
           this.addTab({name: 'add'});
           break;
       }
+    },
+    updateActiveDom(activeDom) {
+      let isTestCaseMinderChanged = this.$store.state.isTestCaseMinderChanged;
+      if (this.activeDom !== 'left' && activeDom === 'left' && isTestCaseMinderChanged) {
+        this.$refs.isChangeConfirm.open();
+        this.tmpActiveDom = activeDom;
+        return;
+      }
+      this.activeDom = activeDom;
+    },
+    changeConfirm(isSave) {
+      if (isSave) {
+        this.$refs.minder.save(window.minder.exportJson());
+      } else {
+        this.$store.commit('setIsTestCaseMinderChanged', false);
+      }
+      this.$nextTick(() => {
+        this.activeDom = this.tmpActiveDom;
+      });
     },
     changeRedirectParam(redirectIDParam) {
       this.redirectID = redirectIDParam;
