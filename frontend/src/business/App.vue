@@ -38,6 +38,7 @@ import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
 import MsTaskCenter from "@/business/components/task/TaskCenter";
 import MsNotification from "@/business/components/notice/Notification";
+
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
@@ -60,7 +61,6 @@ export default {
     };
   },
   created() {
-    registerRequestHeaders();
     this.initSessionTimer();
     if (!hasLicense()) {
       setDefaultTheme();
@@ -73,14 +73,12 @@ export default {
         this.$store.commit('setTheme', res.data);
       });
     }
-    if (localStorage.getItem("store")) {
-      this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))));
-      this.$get("/project/listAll", response => {
-        let projectIds = response.data;
-        if (projectIds && projectIds.length <= 0) {
-          this.$store.commit('setProjectId', undefined);
-        }
-      });
+    // OIDC redirect 之后不跳转
+    if (window.location.href.endsWith('/#/') || window.location.href.endsWith('/#')) {
+      window.location.replace("/#/setting/personsetting");
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
     }
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("store", JSON.stringify(this.$store.state));
@@ -91,6 +89,7 @@ export default {
       if (response.data.success) {
         this.$setLang(response.data.data.language);
         saveLocalStorage(response.data);
+        registerRequestHeaders();
         this.auth = true;
         // 是否显示校验信息
         if (header.default !== undefined) {
@@ -99,6 +98,17 @@ export default {
 
         if (display.default !== undefined) {
           display.default.showHome(this);
+        }
+
+        //
+        if (localStorage.getItem("store")) {
+          this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))));
+          this.$get("/project/listAll", response => {
+            let projectIds = response.data;
+            if (projectIds && projectIds.length <= 0) {
+              this.$store.commit('setProjectId', undefined);
+            }
+          });
         }
       } else {
         window.location.href = "/login";
