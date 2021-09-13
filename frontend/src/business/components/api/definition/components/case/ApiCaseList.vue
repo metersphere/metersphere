@@ -220,27 +220,6 @@ export default {
       } else {
         this.addCase();
       }
-      // this.$post("/api/testcase/list", this.condition, response => {
-      //   let data = response.data;
-      //   data.forEach(apiCase => {
-      //     if (apiCase.tags && apiCase.tags.length > 0) {
-      //       apiCase.tags = JSON.parse(apiCase.tags);
-      //       this.$set(apiCase, 'selected', false);
-      //     }
-      //     if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
-      //       apiCase.request = JSON.parse(apiCase.request);
-      //     }
-      //     if (!apiCase.request.hashTree) {
-      //       apiCase.request.hashTree = [];
-      //     }
-      //   });
-      //   this.apiCaseList = data;
-      //   if (apiCase) {
-      //     this.copyCase(apiCase);
-      //   } else {
-      //     this.addCase();
-      //   }
-      // });
     },
 
     apiCaseClose() {
