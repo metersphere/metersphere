@@ -112,6 +112,8 @@
       </el-tabs>
 
       <is-change-confirm
+        :title="'请保存脑图'"
+        :tip="'脑图未保存，确认保存脑图吗？'"
         @confirm="changeConfirm"
         ref="isChangeConfirm"/>
     </ms-main-container>

@@ -6,6 +6,7 @@
     minder-key="testCase"
     :select-node="selectNode"
     :distinct-tags="tags"
+    :show-module-tag="true"
     :tag-edit-check="tagEditCheck()"
     @afterMount="handleAfterMount"
     :priority-disable-check="priorityDisableCheck()"
@@ -27,7 +28,7 @@ import {
   tagEditCheck,
 } from "@/business/components/track/common/minder/minderUtils";
 import {getNodePath, hasPermission} from "@/common/js/utils";
-import {getTestCasesForMinder} from "@/network/testCase";
+import {getTestCasesForMinder, getMinderExtraNode} from "@/network/testCase";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -35,7 +36,7 @@ name: "TestCaseMinder",
     return{
       testCase: [],
       dataMap: new Map(),
-      tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark')],
+      tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark'), '模块'],
       result: {loading: false},
       needRefresh: false,
     }
@@ -63,20 +64,11 @@ name: "TestCaseMinder",
     disabled() {
       return !hasPermission('PROJECT_TRACK_CASE:READ+EDIT');
     },
-    isChanged() {
-      return this.$store.state.isTestCaseMinderChanged;
-    }
   },
   watch: {
     selectNode() {
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
-      }
-    },
-    '$route'(to) {
-      if (to.name !== 'testCaseCreate' || to.name !== 'testCase' || to.name !== 'testCaseEdit') {
-        this.$warning('请保存用例');
-        return false;
       }
     }
   },
@@ -92,7 +84,8 @@ name: "TestCaseMinder",
   methods: {
     handleAfterMount() {
       listenNodeSelected(() => {
-        loadSelectNodes(this.getParam(),  getTestCasesForMinder);
+        // 展开模块下的用例
+        loadSelectNodes(this.getParam(),  getTestCasesForMinder, null, getMinderExtraNode);
       });
 
       listenDblclick(() => {
@@ -137,32 +130,64 @@ name: "TestCaseMinder",
     save(data) {
       let saveCases = [];
       let deleteCases = [];
-      this.buildSaveCase(data.root, saveCases, deleteCases, undefined);
+      let saveExtraNode = {};
+      this.buildSaveCase(data.root, saveCases, deleteCases, saveExtraNode, undefined);
+
       let param = {
         projectId: this.projectId,
         data: saveCases,
         ids: deleteCases.map(item => item.id)
       }
-      this.result = this.$post('/test/case/minder/edit', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        handleAfterSave(window.minder.getRoot(), this.getParam());
-        this.setIsChange(false);
+
+      let saveCase = new Promise((resolve) => {
+        this.result = this.$post('/test/case/minder/edit', param, () => {
+          resolve();
+        });
       });
+
+
+      let extraNodeParam = {
+        groupId: this.projectId,
+        type: "TEST_CASE",
+        data: saveExtraNode,
+        ids: deleteCases.map(item => item.id)
+      }
+
+      let saveExtraNodePromise = new Promise((resolve) => {
+        this.result = this.$post('/minder/extra/node/batch/edit', extraNodeParam, () => {
+          resolve();
+        });
+      });
+
+      Promise.all([saveCase, saveExtraNodePromise])
+        .then(() => {
+          this.$success(this.$t('commons.save_success'));
+          handleAfterSave(window.minder.getRoot(), this.getParam());
+          this.setIsChange(false);
+        });
     },
-    buildSaveCase(root, saveCases, deleteCases, parent) {
+    buildSaveCase(root, saveCases, deleteCases, saveExtraNode, parent) {
       let data = root.data;
       if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this._buildSaveCase(root, saveCases, parent);
       } else {
         let deleteChild = data.deleteChild;
-        if (deleteChild && deleteChild.length > 0) {
+        if (deleteChild && deleteChild.length > 0
+        && data.type === 'node') {
           deleteCases.push(...deleteChild);
         }
-        if (data.type !== 'node' && data.type !== 'tmp') {
-          let tip = '用例(' + data.text + ')未添加用例标签！';
-          this.$error(tip)
-          throw new Error(tip);
+
+        if (data.type !== 'node' && data.type !== 'tmp'
+        && parent && parent.type === 'node' && data.changed === true) {
+          // 保存额外信息，只保存模块下的一级子节点
+          let nodes = saveExtraNode[parent.id];
+          if (!nodes) {
+            nodes = [];
+          }
+          nodes.push(JSON.stringify(this.buildExtraNode(root)));
+          saveExtraNode[parent.id] = nodes;
         }
+
         if (data.id === null) {
           let tip = '脑图编辑无法创建模块：' + data.text + '';
           this.$error(tip)
@@ -170,7 +195,7 @@ name: "TestCaseMinder",
         }
         if (root.children) {
           root.children.forEach((childNode) => {
-            this.buildSaveCase(childNode, saveCases, deleteCases, root.data);
+            this.buildSaveCase(childNode, saveCases, deleteCases, saveExtraNode, root.data);
           });
         }
       }
@@ -238,6 +263,21 @@ name: "TestCaseMinder",
         this.$error(tip)
         throw new Error(tip);
       }
+    },
+    buildExtraNode(node) {
+      let data = node.data;
+      let nodeData = {
+        text: data.text,
+        id: data.id,
+        resource: data.resource,
+      };
+      if (node.children) {
+        nodeData.children = [];
+        node.children.forEach(item => {
+          nodeData.children.push(this.buildExtraNode(item));
+        });
+      }
+      return nodeData;
     },
     tagEditCheck() {
       return tagEditCheck;

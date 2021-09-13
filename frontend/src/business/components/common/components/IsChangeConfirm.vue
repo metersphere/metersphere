@@ -1,10 +1,11 @@
 <template>
   <ms-edit-dialog
     :visible.sync="visible"
-    width="30%"
-    :title="$t('请保存')"
+    width="20%"
+    :title="title"
     :with-footer="false"
     :close-on-click-modal="false">
+    {{tip}}
     <template v-slot:footer>
       <el-button type="primary" @click="save" @keydown.enter.native.prevent>{{$t('保存')}}</el-button>
       <el-button @click="cancel">{{$t('不保存')}}</el-button>
@@ -23,6 +24,7 @@ export default {
       data: {}
     }
   },
+  props: ['title','tip'],
   methods: {
     open(item) {
       this.visible = true;
