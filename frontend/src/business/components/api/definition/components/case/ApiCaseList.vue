@@ -191,6 +191,17 @@ export default {
     },
     copy(apiCase) {
       this.api.id = apiCase.apiDefinitionId;
+      if (apiCase && apiCase.request) {
+        if (apiCase.request.type === "HTTPSamplerProxy") {
+          this.api.protocol = "HTTP";
+          this.api.source = "editCase";
+        }
+        this.api.method = apiCase.request.method
+        this.api.name = apiCase.request.name;
+      }
+      if(apiCase.tags){
+        apiCase.tags =JSON.parse(apiCase.tags);
+      }
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition(apiCase);
       this.visible = true;
@@ -258,7 +269,6 @@ export default {
       //this.$emit("refresh");
     },
     refresh() {
-      this.getApiTest();
       this.$emit('refresh');
     },
     selectAll(isSelectAll) {
