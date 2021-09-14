@@ -16,7 +16,6 @@ import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;

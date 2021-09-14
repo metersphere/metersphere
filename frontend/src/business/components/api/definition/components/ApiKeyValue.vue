@@ -47,6 +47,13 @@
             </el-autocomplete>
           </div>
         </el-col>
+
+        <el-col class="item" v-if="showDesc">
+          <el-input v-model="item.description" size="small" maxlength="200"
+                    :placeholder="$t('commons.description')" show-word-limit>
+          </el-input>
+        </el-col>
+
         <el-col class="item kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
                      :disabled="isDisable(index) || isReadOnly"/>
@@ -84,7 +91,8 @@
       needMock: {
         type: Boolean,
         default: false
-      }
+      },
+      showDesc: Boolean
     },
     data() {
       return {
