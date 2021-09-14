@@ -114,8 +114,13 @@ public class ApiDefinitionService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private NoticeSendService noticeSendService;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
+
+    private ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
+    private ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -474,6 +479,7 @@ public class ApiDefinitionService {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 //postman 可能含有前置脚本，接口定义去掉脚本
                 String requestStr = setImportHashTree(apiDefinition);
+                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 batchMapper.insert(apiDefinition);
                 apiDefinition.setRequest(requestStr);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
@@ -485,11 +491,32 @@ public class ApiDefinitionService {
         return apiDefinition;
     }
 
+    private Long getImportNextOrder(String projectId) {
+        Long order = currentApiOrder.get();
+        if (order == null) {
+            order = ServiceUtils.getNextOrder(projectId, extApiDefinitionMapper::getLastOrder);
+        }
+        order = (order == null ? 0 : order) + 5000;
+        currentApiOrder.set(order);
+        return order;
+    }
+
+    private Long getImportNextCaseOrder(String projectId) {
+        Long order = currentApiCaseOrder.get();
+        if (order == null) {
+            order = ServiceUtils.getNextOrder(projectId, extApiTestCaseMapper::getLastOrder);
+        }
+        order = (order == null ? 0 : order) + 5000;
+        currentApiCaseOrder.set(order);
+        return order;
+    }
+
     private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
                                ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases) {
         if (CollectionUtils.isEmpty(sameRequest)) {
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 String request = setImportHashTree(apiDefinition);
+                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 batchMapper.insert(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
@@ -497,6 +524,7 @@ public class ApiDefinitionService {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     String request = setImportTCPHashTree(apiDefinition);
                 }
+                apiDefinition.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
                 batchMapper.insert(apiDefinition);
             }
 
@@ -603,6 +631,7 @@ public class ApiDefinitionService {
             apiTestCase.setUpdateTime(System.currentTimeMillis());
             apiTestCase.setCreateUserId(SessionUtils.getUserId());
             apiTestCase.setProjectId(SessionUtils.getCurrentProjectId());
+            apiTestCase.setOrder(getImportNextCaseOrder(apiTestImportRequest.getProjectId()));
             apiTestCaseMapper.insert(apiTestCase);
         } else if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             apiTestCase.setId(sameCase.getId());
@@ -837,6 +866,8 @@ public class ApiDefinitionService {
 
     private void importApi(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        currentApiCaseOrder.remove();
+        currentApiOrder.remove();
         List<ApiDefinitionWithBLOBs> data = apiImport.getData();
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
