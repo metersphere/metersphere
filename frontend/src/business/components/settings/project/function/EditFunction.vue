@@ -2,7 +2,8 @@
   <el-dialog :close-on-click-modal="false" :title="dialogTitle" :visible.sync="visible" :destroy-on-close="true"
              @close="close" width="65%" top="5vh" v-loading="result.loading">
     <div style="height: 61vh; overflow-y: auto; overflow-x: hidden">
-      <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rules" v-if="isFormAlive">
+      <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rules" v-if="isFormAlive"
+               ref="form">
         <el-row type="flex" :gutter="20">
           <el-col>
             <el-form-item :label="$t('commons.name')" prop="name">
@@ -45,7 +46,8 @@
                   </el-tab-pane>
                   <el-tab-pane :label="'执行结果'" name="result">
                     <div v-loading="runResult.loading">
-                      <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px" ref="funcResult"/>
+                      <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px"
+                                    ref="funcResult"/>
                     </div>
                   </el-tab-pane>
                 </el-tabs>
@@ -55,7 +57,9 @@
           <el-col :span="4" class="script-index">
             <div style="margin-top: -25px; margin-left: 10px;">
               <div style="margin-bottom: 10px;">
-                <el-button type="primary" size="mini" style="width: 70px;" @click="handleTest" :disabled="runResult.loading">测试</el-button>
+                <el-button type="primary" size="mini" style="width: 70px;" @click="handleTest"
+                           :disabled="runResult.loading">测试
+                </el-button>
               </div>
               <ms-dropdown :default-command="form.type" :commands="languages" @command="languageChange"/>
               <div class="template-title">{{ $t('api_test.request.processor.code_template') }}</div>
@@ -76,6 +80,8 @@
       <!-- 执行组件 -->
       <function-run :report-id="reportId" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"/>
       <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="addCustomFuncScript"/>
+      <!--接口列表-->
+      <api-func-relevance @save="apiSave" @close="apiClose" ref="apiFuncRelevance"/>
     </div>
     <template v-slot:footer>
       <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
@@ -91,12 +97,13 @@ import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag
 import FunctionParams from "@/business/components/settings/project/function/FunctionParams";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import MsDropdown from "@/business/components/common/components/MsDropdown";
-import {FUNC_TEMPLATE} from "@/business/components/settings/project/function/custom-function";
+import {FUNC_TEMPLATE, getCodeTemplate} from "@/business/components/settings/project/function/custom-function";
 import MsRun from "@/business/components/api/automation/scenario/DebugRun";
 import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import {JSR223Processor} from "@/business/components/api/definition/model/ApiTestModel";
 import FunctionRun from "@/business/components/settings/project/function/FunctionRun";
 import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
+import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
 
 export default {
   name: "EditFunction",
@@ -107,7 +114,8 @@ export default {
     FunctionParams,
     MsInputTag,
     MsDropdown,
-    MsRun
+    MsRun,
+    ApiFuncRelevance
   },
   props: {},
   data() {
@@ -215,6 +223,16 @@ export default {
           title: "插入自定义函数",
           command: "custom_function",
           index: "custom_function"
+        },
+        {
+          title: "从API定义导入",
+          command: "api_definition",
+          index: "api_definition"
+        },
+        {
+          title: "新API测试[JSON]",
+          command: "new_api",
+          index: "new_api"
         }
 
       ],
@@ -280,6 +298,8 @@ export default {
     doFuncLink(funcLink) {
       if (funcLink.command === 'custom_function') {
         this.$refs.customFunctionRelate.open(this.form.type);
+      } else if (funcLink.command === 'api_definition') {
+        this.$refs.apiFuncRelevance.open();
       }
     },
     reload() {
@@ -300,11 +320,17 @@ export default {
       let param = Object.assign({}, this.form);
       param.params = JSON.stringify(this.form.params);
       param.tags = JSON.stringify(this.form.tags);
-      if (this.form.id) {
-        this.update(param);
-      } else {
-        this.create(param);
-      }
+      this.$refs['form'].validate(valid => {
+        if (valid) {
+          if (this.form.id) {
+            this.update(param);
+          } else {
+            this.create(param);
+          }
+        } else {
+          return false;
+        }
+      })
     },
     create(obj) {
       this.result = this.$post("/custom/func/save", obj, res => {
@@ -350,7 +376,52 @@ export default {
     addCustomFuncScript(script) {
       this.form.script = this.form.script + '\n\n' + script;
       this.reloadCodeEdit();
-    }
+    },
+    apiSave(data, env, type) {
+      // data：选中的多个接口定义或多个接口用例。env: 关联页面选中的环境
+      let condition = env.config.httpConfig.conditions || [];
+      let requestUrl = "";
+      let requestHeaders = new Map;
+      let requestMethod = "";
+      let requestBody = "";
+      if (condition && condition.length > 0) {
+        // 如果有多个环境，取第一个
+        let protocol = condition[0].protocol ? condition[0].protocol : "http";
+        requestUrl = protocol + "://" + condition[0].socket;
+      }
+      // todo
+      if (data.length > 0) {
+        let request = JSON.parse(data[0].request);
+        requestUrl = requestUrl + request.path;
+        requestMethod = request.method;
+        let headers = request.headers;
+        if (headers && headers.length > 0) {
+          headers.forEach(header => {
+            if (header.name) {
+              requestHeaders.set(header.name, header.value);
+            }
+          })
+        }
+        let body = request.body;
+        if (body.json) {
+          requestBody = body.raw;
+        }
+      }
+      let param = {requestUrl, requestHeaders, requestMethod, requestBody};
+      let code = getCodeTemplate(this.form.type, param);
+      if (code) {
+        let codeStr = this.form.script + "\n\n" + code;
+        this.form.script = this.form.script ? codeStr : code;
+        this.reloadCodeEdit();
+      } else {
+        //todo
+        this.$warning("无对应语言模版");
+      }
+      this.$refs.apiFuncRelevance.close();
+    },
+    apiClose() {
+
+    },
   }
 }
 </script>
