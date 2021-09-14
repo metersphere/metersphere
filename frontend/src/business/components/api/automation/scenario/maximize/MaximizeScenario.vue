@@ -150,7 +150,7 @@
 import {API_STATUS, PRIORITY} from "../../../definition/model/JsonData";
 import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, STEP} from "../Setting";
-import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasLicense, strMapToObj} from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
 import {handleCtrlSEvent} from "../../../../../../common/js/utils";
@@ -293,8 +293,16 @@ export default {
                 this.addComponent(item.name, item)
               }
             }
-            if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
-              this.buttonData.push(plugin);
+            if (item.license) {
+              if (hasLicense()) {
+                if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+                  this.buttonData.push(plugin);
+                }
+              }
+            } else {
+              if (this.operatingElements && this.operatingElements.includes(item.jmeterClazz)) {
+                this.buttonData.push(plugin);
+              }
             }
           });
         }
@@ -704,7 +712,7 @@ export default {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this,(response) => {
+            saveScenario(this.path, this.currentScenario, this.scenarioDefinition, this, (response) => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               if (response.data) {
