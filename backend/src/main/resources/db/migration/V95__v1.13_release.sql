@@ -66,13 +66,13 @@ create table if not exists custom_function
     COLLATE utf8mb4_general_ci;
 
 
-CREATE table if not exists `minder_config` (
+CREATE table if not exists `minder_extra_node` (
   `id` varchar(50) NOT NULL,
-  `resource_id` varchar(50) NOT NULL COMMENT '所属的项目或测试计划',
+  `parent_id` varchar(50) NOT NULL COMMENT '父节点的id',
+  `group_id` varchar(50) NOT NULL COMMENT '所属的项目',
   `type` varchar(30) NOT NULL COMMENT '类型，如：用例编辑脑图',
-  `extra_node` longtext COMMENT '存储脑图节点额外信息',
+  `node_data` longtext COMMENT '存储脑图节点额外信息',
   PRIMARY KEY (`id`)
-  index(id)
 )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_general_ci;
