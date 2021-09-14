@@ -133,7 +133,7 @@ export function getUrl(d) {
       url += "/api/automation?resourceId=" + d.resourceId;
       break;
     case "API_DEFINITION_TASK" :
-      if (d.operation.startsWith('CASE_')) {
+      if (d.operation.startsWith('CASE_') || d.operation.startsWith('EXECUTE_') ) {
         url += "/api/definition?caseId=" + d.resourceId;
       } else {
         url += "/api/definition?resourceId=" + d.resourceId;
