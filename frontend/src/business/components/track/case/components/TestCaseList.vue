@@ -407,6 +407,15 @@ export default {
     if(!this.projectName || this.projectName === ""){
       this.getProjectName();
     }
+
+    // 通知过来的数据跳转到编辑
+    if (this.$route.query.resourceId) {
+      this.$get('test/case/get/' + this.$route.query.resourceId, response => {
+        let testCase = response.data;
+        testCase.label = 'redirect';
+        this.$emit('testCaseEdit', testCase);
+      });
+    }
   },
   activated() {
     this.getTemplateField();

@@ -152,7 +152,7 @@ export function getUrl(d) {
       url += "/performance/test/edit/" + d.resourceId;
       break;
     case "TRACK_TEST_CASE_TASK" :
-      url += "/track/case/all";
+      url += "/track/case/all?resourceId=" + d.resourceId;
       break;
     case "TRACK_HOME_TASK" :
       url += "/track/home";
