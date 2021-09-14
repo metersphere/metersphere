@@ -233,7 +233,7 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
-    <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+    <ms-run :debug="true" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
             :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter"/>
   </div>
@@ -859,6 +859,7 @@ export default {
       return new Promise((resolve) => {
         this.result = this.$get("/api/automation/getApiScenario/" + scenarioId, response => {
           if (response.data) {
+            this.currentScenario = response.data;
             if (response.data.scenarioDefinition != null) {
               let obj = JSON.parse(response.data.scenarioDefinition);
               this.currentScenario.scenarioDefinition = obj;
