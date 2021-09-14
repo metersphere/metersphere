@@ -537,6 +537,7 @@ public class ApiDefinitionService {
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
                 apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
+                apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
@@ -553,6 +554,7 @@ public class ApiDefinitionService {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
                     String request = setImportTCPHashTree(apiDefinition);
                 }
+                apiDefinition.setOrder(sameRequest.get(0).getOrder());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
             }
 
@@ -640,6 +642,7 @@ public class ApiDefinitionService {
             apiTestCase.setPriority(sameCase.getPriority());
             apiTestCase.setCreateUserId(sameCase.getCreateUserId());
             apiTestCase.setNum(sameCase.getNum());
+            apiTestCase.setOrder(sameCase.getOrder());
             apiTestCase.setProjectId(sameCase.getProjectId());
             apiTestCase.setVersion((sameCase.getVersion() == null ? 0 : sameCase.getVersion()) + 1);
             apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
