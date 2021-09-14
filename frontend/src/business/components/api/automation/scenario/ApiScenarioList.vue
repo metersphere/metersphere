@@ -184,7 +184,7 @@
           <ms-table-operator-button v-permission=" ['PROJECT_API_SCENARIO:READ+RUN']"
                                     :tip="$t('api_test.automation.execute')" icon="el-icon-video-play"
                                     class="run-button"
-                                    @exec="execute(scope.row)" v-if="!scope.row.isStop && !trashEnable"
+                                    @exec="run(scope.row)" v-if="!scope.row.isStop && !trashEnable"
                                     style="margin-right: 10px;"/>
           <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
             <el-button v-if="!trashEnable" @click.once="stop(scope.row)" size="mini"
@@ -218,7 +218,7 @@
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true"
                    :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -233,6 +233,8 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+            :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter"/>
   </div>
 </template>
@@ -274,7 +276,8 @@ export default {
     MsTestPlanList: () => import("./testplan/TestPlanList"),
     MsTableOperatorButton: () => import("@/business/components/common/components/MsTableOperatorButton"),
     MsRunMode: () => import("./common/RunMode"),
-    MsTaskCenter: () => import("../../../task/TaskCenter")
+    MsTaskCenter: () => import("../../../task/TaskCenter"),
+    MsRun: () => import("./DebugRun")
   },
   props: {
     referenced: {
@@ -339,6 +342,8 @@ export default {
       pageSize: 10,
       total: 0,
       reportId: "",
+      showReportId: "",
+      projectEnvMap: new Map(),
       batchReportId: "",
       content: {},
       infoDb: false,
@@ -354,6 +359,7 @@ export default {
       selectRows: new Set(),
       isStop: false,
       enableOrderDrag: true,
+      debugData: {},
       trashOperators: [
         {
           tip: this.$t('commons.reduction'),
@@ -849,7 +855,34 @@ export default {
         });
       }
     },
-
+    getApiScenario(scenarioId) {
+      return new Promise((resolve) => {
+        this.result = this.$get("/api/automation/getApiScenario/" + scenarioId, response => {
+          if (response.data) {
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              this.currentScenario.scenarioDefinition = obj;
+              this.currentScenario.name = response.data.name;
+              if (this.currentScenario.scenarioDefinition && this.currentScenario.scenarioDefinition.hashTree) {
+                this.sort(this.currentScenario.scenarioDefinition.hashTree);
+              }
+              resolve();
+            }
+          }
+        })
+      })
+    },
+    sort(stepArray) {
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.sort(stepArray[i].hashTree);
+        }
+      }
+    },
     execute(row) {
       this.infoDb = false;
       this.scenarioId = row.id;
@@ -869,6 +902,35 @@ export default {
         this.$set(row, "isStop", false);
       });
     },
+    runRefresh(row) {
+      this.$set(row, "isStop", false);
+    },
+    run(row) {
+      this.scenarioId = row.id;
+      this.getApiScenario(row.id).then(() => {
+        let scenarioStep = this.currentScenario.scenarioDefinition;
+        if (scenarioStep) {
+          this.debugData = {
+            id: this.currentScenario.id,
+            name: this.currentScenario.name,
+            type: "scenario",
+            variables: scenarioStep.variables,
+            referenced: 'Created',
+            onSampleError: scenarioStep.onSampleError,
+            enableCookieShare: scenarioStep.enableCookieShare,
+            headers: scenarioStep.headers,
+            environmentMap: scenarioStep.environmentMap ? new Map(Object.entries(scenarioStep.environmentMap)) : new Map,
+            hashTree: scenarioStep.hashTree
+          };
+          if (scenarioStep.environmentMap) {
+            this.projectEnvMap = new Map(Object.entries(scenarioStep.environmentMap));
+          }
+          this.reportId = getUUID().substring(0, 8);
+          this.runVisible = true;
+          this.$set(row, "isStop", true);
+        }
+      });
+    },
     copy(row) {
       let rowParam = JSON.parse(JSON.stringify(row));
       rowParam.copy = true;
@@ -879,7 +941,7 @@ export default {
     showReport(row) {
       this.showReportVisible = true;
       this.infoDb = true;
-      this.reportId = row.reportId;
+      this.showReportId = row.reportId;
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
     isSelectThissWeekData() {
