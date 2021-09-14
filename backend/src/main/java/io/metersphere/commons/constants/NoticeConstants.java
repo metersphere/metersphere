@@ -29,6 +29,7 @@ public interface NoticeConstants {
         String NAIL_ROBOT = "NAIL_ROBOT";
         String WECHAT_ROBOT = "WECHAT_ROBOT";
         String LARK = "LARK";
+        String TEAMS = "TEAMS";
         String IN_SITE = "IN_SITE";
     }
 

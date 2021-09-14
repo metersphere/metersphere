@@ -393,11 +393,12 @@ export default {
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
       lark: "Flying Book Robot",
+      teams: 'Teams Message',
       notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;<br/>' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";<br/>' +
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise',
       message: 'Event, receiver and receiving method are required\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark or Teams',
       template: "Template",
       track: 'Track notification',
       api: 'Api notification',

@@ -395,11 +395,12 @@ export default {
       nail_robot: '釘釘機器人',
       enterprise_wechat_robot: '企業微信機器人',
       lark: '飛書機器人',
-      notes: '1.釘釘和企業群裏新建一個自定義機器人，然後復制 webhook 地址在我們平臺上;<br/>' +
+      teams: 'Teams消息',
+      notes: '1.釘釘、企業群和Teams團隊裏新建一個自定義機器人，然後復制 webhook 地址在我們平臺上;<br/>' +
         '       2.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知";<br/>' +
         '       3.選擇接收人時必須是你所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號',
       message: '事件，接收人，接收方式為必填項',
-      message_webhook: '接收方式為釘釘和企業機器人,飛書時，webhook為必填項',
+      message_webhook: '接收方式為釘釘和企業機器人,飛書和Teams時，webhook為必填項',
       template: "模版",
       track: '測試跟踪任務通知',
       api: '接口測試任務通知',

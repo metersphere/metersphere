@@ -25,6 +25,8 @@ public class NoticeSendService {
     @Resource
     private LarkNoticeSender larkNoticeSender;
     @Resource
+    private TeamsNoticeSender teamsNoticeSender;
+    @Resource
     private NoticeService noticeService;
     @Resource
     private InSiteNoticeSender inSiteNoticeSender;
@@ -44,6 +46,9 @@ public class NoticeSendService {
                 break;
             case NoticeConstants.Type.LARK:
                 noticeSender = larkNoticeSender;
+                break;
+            case NoticeConstants.Type.TEAMS:
+                noticeSender = teamsNoticeSender;
                 break;
             case NoticeConstants.Type.IN_SITE:
                 noticeSender = inSiteNoticeSender;

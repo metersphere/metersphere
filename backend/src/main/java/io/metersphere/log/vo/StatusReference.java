@@ -39,6 +39,7 @@ public class StatusReference {
         statusMap.put("NAIL_ROBOT", "钉钉机器人");
         statusMap.put("WECHAT_ROBOT", "企业微信机器人");
         statusMap.put("LARK", "飞书机器人");
+        statusMap.put("TEAMS", "Teams信息");
         statusMap.put("IN_SITE", "站内通知");
 
         statusMap.put("EXECUTE_SUCCESSFUL", "执行成功");
