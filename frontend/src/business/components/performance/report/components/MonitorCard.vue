@@ -1,28 +1,34 @@
 <template>
   <div v-loading="result.loading">
-    <el-tabs @tab-click="clickTabs">
-      <el-tab-pane v-for="(item, index) in instances" :key="item + index" :label="item" class="logging-content">
-        <el-row>
-          <el-col :span="6">
-            <el-collapse v-model="activeNames" class="monitor-detail">
-              <el-collapse-item :title="$t('Monitor')" name="0">
-                <el-checkbox-group v-model="checkList"
-                                   @change="handleChecked(item)">
-                  <div v-for="op in checkOptions"
-                       :key="op.key"
-                       :content="op.label">
-                    <el-checkbox :label="op.label"/>
-                  </div>
-                </el-checkbox-group>
-              </el-collapse-item>
-            </el-collapse>
-          </el-col>
-          <el-col :span="18">
-            <ms-chart ref="chart2" class="chart-config" :options="totalOption" :autoresize="true"></ms-chart>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
+    <el-row>
+      <el-col :span="4">
+        <div>
+          <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
+                     @change="handleChecked(currentInstance)">
+            <el-option
+                v-for="item in instances"
+                :key="item"
+                :label="item"
+                :value="item">
+            </el-option>
+          </el-select>
+        </div>
+
+        <div style="padding-top: 10px">
+          <el-checkbox-group v-model="checkList"
+                             @change="handleChecked(currentInstance)">
+            <div v-for="op in checkOptions"
+                 :key="op.key"
+                 :content="op.label">
+              <el-checkbox :label="op.label"/>
+            </div>
+          </el-checkbox-group>
+        </div>
+      </el-col>
+      <el-col :span="20">
+        <ms-chart ref="chart2" class="chart-config" :options="totalOption" :autoresize="true"></ms-chart>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -30,8 +36,10 @@
 
 import MsChart from "@/business/components/common/chart/MsChart";
 import {
-  getPerformanceMetricQuery, getPerformanceMetricQueryResource,
-  getSharePerformanceMetricQuery, getSharePerformanceMetricQueryResource,
+  getPerformanceMetricQuery,
+  getPerformanceMetricQueryResource,
+  getSharePerformanceMetricQuery,
+  getSharePerformanceMetricQueryResource,
 } from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
@@ -47,6 +55,7 @@ export default {
       id: '',
       init: false,
       loading: false,
+      currentInstance: '',
       instances: [],
       data: [],
       checkList: ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'],
@@ -110,11 +119,13 @@ export default {
       // this.init = true;
       if (this.planReportTemplate) {
         this.instances = this.planReportTemplate.reportResource;
+        this.currentInstance = this.instances[0];
         this.data = this.planReportTemplate.metricData;
         this.totalOption = this.getOption(this.instances[0]);
-      } else if (this.isShare){
+      } else if (this.isShare) {
         getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
+          this.currentInstance = this.instances[0];
           getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
             if (result) {
               this.data = result.data.data;
@@ -125,10 +136,13 @@ export default {
       } else {
         getPerformanceMetricQueryResource(this.id).then(response => {
           this.instances = response.data.data;
+          this.currentInstance = this.instances[0];
           getPerformanceMetricQuery(this.id).then(result => {
             if (result) {
               this.data = result.data.data;
-              this.totalOption = this.getOption(this.instances[0]);
+              this.$nextTick(() => {
+                this.totalOption = this.getOption(this.instances[0]);
+              });
             }
           });
         });
@@ -138,12 +152,6 @@ export default {
       this.totalOption = {};
       this.$nextTick(() => {
         this.totalOption = this.getOption(id);
-      });
-    },
-    clickTabs(tab) {
-      this.totalOption = {};
-      this.$nextTick(() => {
-        this.totalOption = this.getOption(tab.label);
       });
     },
     getOption(id) {
