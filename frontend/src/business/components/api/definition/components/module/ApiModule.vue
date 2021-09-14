@@ -29,6 +29,7 @@
           :current-module="currentModule"
           :is-read-only="isReadOnly"
           :moduleOptions="data"
+          :options="options"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -87,6 +88,12 @@
       relevanceProjectId: String,
       reviewId: String,
       pageSource:String,
+      options: {
+        type: Array,
+        default() {
+          return OPTIONS;
+        }
+      }
     },
     computed: {
       isPlanModel() {

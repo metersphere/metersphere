@@ -46,7 +46,6 @@ export default {
   components: {MsSearchBar, TemplateComponent, ModuleTrashButton, ApiImport, MsAddBasisApi},
   data() {
     return {
-      options: OPTIONS,
       operators: [
         {
           label: this.$t('api_test.definition.request.title'),
@@ -123,6 +122,12 @@ export default {
         return false;
       }
     },
+    options: {
+      type: Array,
+      default() {
+        return OPTIONS;
+      }
+    }
   },
   computed: {
     projectId() {

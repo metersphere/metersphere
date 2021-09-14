@@ -22,7 +22,7 @@
     </el-menu>
 
     <el-drawer :visible.sync="taskVisible" :destroy-on-close="true" direction="rtl"
-               :withHeader="true" :modal="false" :title="$t('commons.task_center')" :size="size"
+               :withHeader="true" :modal="false" :title="$t('commons.task_center')" :size="size.toString()"
                custom-class="ms-drawer-task">
       <el-card style="float: left;width: 800px" v-if="size > 550 ">
 
