@@ -121,27 +121,31 @@ export default {
         this.instances = this.planReportTemplate.reportResource;
         this.currentInstance = this.instances[0];
         this.data = this.planReportTemplate.metricData;
-        this.totalOption = this.getOption(this.instances[0]);
+        this.totalOption = this.getOption(this.currentInstance);
       } else if (this.isShare) {
         getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
-          this.currentInstance = this.instances[0];
+          if (!this.currentInstance) {
+            this.currentInstance = this.instances[0];
+          }
           getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
             if (result) {
               this.data = result.data.data;
-              this.totalOption = this.getOption(this.instances[0]);
+              this.totalOption = this.getOption(this.currentInstance);
             }
           });
         });
       } else {
         getPerformanceMetricQueryResource(this.id).then(response => {
           this.instances = response.data.data;
-          this.currentInstance = this.instances[0];
+          if (!this.currentInstance) {
+            this.currentInstance = this.instances[0];
+          }
           getPerformanceMetricQuery(this.id).then(result => {
             if (result) {
               this.data = result.data.data;
               this.$nextTick(() => {
-                this.totalOption = this.getOption(this.instances[0]);
+                this.totalOption = this.getOption(this.currentInstance);
               });
             }
           });
