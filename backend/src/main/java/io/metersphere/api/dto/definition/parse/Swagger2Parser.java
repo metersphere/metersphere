@@ -262,7 +262,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 if (model != null) {
                     propertyList.add(getBodyParameters(model.getProperties(), refSet));
                 } else {
-                    propertyList.add(new JSONObject());
+                    propertyList.add(new JSONObject(true));
                 }
             }
             return propertyList.toString();
@@ -278,7 +278,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     }
 
     private JSONObject getBodyParameters(Map<String, Property> properties, HashSet<String> refSet) {
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject(true);
         if (properties != null) {
             properties.forEach((key, value) -> {
                 if (value instanceof ObjectProperty) {
@@ -301,7 +301,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                         if (model != null) {
                             propertyList.add(getBodyParameters(model.getProperties(), refSet));
                         } else {
-                            propertyList.add(new JSONObject());
+                            propertyList.add(new JSONObject(true));
                         }
                         jsonObject.put(key, propertyList);
                     } else if (items instanceof ObjectProperty) {

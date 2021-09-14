@@ -340,12 +340,12 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
     private Object parseSchema(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
         if (schema == null) {
-            return new JSONObject();
+            return new JSONObject(true);
         }
         infoMap.put(schema.getName(), schema);
         if (StringUtils.isNotBlank(schema.get$ref())) {
             if (refSet.contains(schema.get$ref())) {
-                return new JSONObject();
+                return new JSONObject(true);
             }
             refSet.add(schema.get$ref());
             Object propertiesResult = parseSchemaProperties(getModelByRef(schema.get$ref()), refSet, infoMap);
@@ -386,7 +386,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         if (MapUtils.isEmpty(properties)) {
             return null;
         }
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject(true);
         properties.forEach((key, value) -> {
             jsonObject.put(key,  parseSchema(value, refSet, infoMap));
         });
