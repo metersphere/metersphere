@@ -214,6 +214,7 @@ export default {
       this.totalOption = {};
       this.$nextTick(() => {
         this.totalOption = this.getOption(id);
+        this.changeDataZoom({start: 0, end: 100});
       });
     },
     getOption(id) {
