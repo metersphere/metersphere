@@ -1,6 +1,5 @@
 package io.metersphere.notice.sender.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import io.metersphere.notice.domain.MessageDetail;
