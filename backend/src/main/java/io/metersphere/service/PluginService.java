@@ -8,11 +8,11 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.PluginDTO;
 import io.metersphere.controller.request.PluginRequest;
 import io.metersphere.controller.request.PluginResourceDTO;
 import io.metersphere.plugin.core.ui.PluginResource;
 import io.metersphere.service.utils.CommonUtil;
-import io.metersphere.service.utils.MsClassLoader;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 public class PluginService {
     @Resource
     private PluginMapper pluginMapper;
-    @Resource
-    private MsClassLoader classLoader;
 
     public String editPlugin(MultipartFile file) {
         String id = UUID.randomUUID().toString();
@@ -77,6 +75,15 @@ public class PluginService {
             plugin.setCreateUserId(SessionUtils.getUserId());
             pluginMapper.insert(plugin);
         });
+    }
+
+    private boolean isXpack(Class<?> aClass, Object instance) {
+        try {
+            Object verify = aClass.getDeclaredMethod("xpack").invoke(instance);
+            return (Boolean) verify;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private List<PluginResourceDTO> getMethod(String path, String fileName) {
@@ -143,10 +150,30 @@ public class PluginService {
         }
     }
 
-    public List<Plugin> list() {
+    public List<PluginDTO> list() {
         PluginExample example = new PluginExample();
         List<Plugin> plugins = pluginMapper.selectByExample(example);
-        return plugins;
+        Map<String, Boolean> pluginMap = new HashMap<>();
+        List<PluginDTO> lists = new LinkedList<>();
+        // 校验插件是否是企业版
+        plugins.forEach(item -> {
+            PluginDTO dto = new PluginDTO();
+            BeanUtils.copyBean(dto, item);
+            if (!pluginMap.containsKey(item.getPluginId())) {
+                try {
+                    Class<?> clazz = Class.forName(item.getExecEntry());
+                    Object instance = clazz.newInstance();
+                    dto.setLicense(this.isXpack(Class.forName(item.getExecEntry()), instance));
+                } catch (Exception e) {
+                    LogUtil.error(e.getMessage());
+                }
+            } else {
+                dto.setLicense(pluginMap.get(item.getPluginId()));
+            }
+            lists.add(dto);
+            pluginMap.put(item.getPluginId(), dto.getLicense());
+        });
+        return lists;
     }
 
     public Plugin get(String scriptId) {

@@ -332,7 +332,7 @@ import {
   strMapToObj,
   handleCtrlSEvent,
   getCurrentProjectID,
-  handleCtrlREvent
+  handleCtrlREvent, hasLicense
 } from "@/common/js/utils";
 import "@/common/css/material-icons.css"
 import OutsideClick from "@/common/js/outside-click";
@@ -529,8 +529,20 @@ export default {
     },
     getPlugins() {
       let url = "/plugin/list";
+      this.plugins = [];
       this.$get(url, response => {
-        this.plugins = response.data;
+        let data = response.data;
+        if (data) {
+          data.forEach(item => {
+            if (item.license) {
+              if (hasLicense()) {
+                this.plugins.push(item);
+              }
+            } else {
+              this.plugins.push(item);
+            }
+          })
+        }
       });
     },
     stop() {

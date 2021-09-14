@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import io.metersphere.base.domain.Plugin;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.controller.request.PluginDTO;
 import io.metersphere.controller.request.PluginRequest;
 import io.metersphere.service.PluginService;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class PluginController {
     }
 
     @GetMapping("/list")
-    public List<Plugin> list() {
+    public List<PluginDTO> list() {
         return pluginService.list();
     }
 

@@ -30,6 +30,12 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
+        <el-table-column prop="license" :label="$t('license.licenseVersion')">
+          <template v-slot:default="scope">
+            <span v-if="scope.row.license">企业版</span>
+            <span v-else>开源版</span>
+          </template>
+        </el-table-column>
         <el-table-column :label="$t('commons.operating')" min-width="30">
           <template v-slot:default="scope">
             <div v-if="scope.row.name === scope.row.sourceName">
@@ -94,7 +100,7 @@ export default {
         if (response.data) {
           this.format(response.data);
           this.dataMap.forEach((values, key) => {
-            let obj = {id: key, name: values[0].sourceName, sourceName: values[0].sourceName, pluginId: key, createUserId: values[0].createUserId, updateTime: values[0].updateTime};
+            let obj = {id: key, license: values[0].license, name: values[0].sourceName, sourceName: values[0].sourceName, pluginId: key, createUserId: values[0].createUserId, updateTime: values[0].updateTime};
             obj.children = values;
             this.tableData.push(obj);
           })
