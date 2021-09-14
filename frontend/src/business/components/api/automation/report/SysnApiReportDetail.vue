@@ -107,22 +107,12 @@ export default {
     this.isRequestResult = false;
   },
   created() {
-    if (this.scenarioId) {
-      this.getApiScenario().then(() => {
-        this.initTree();
-        this.initWebSocket();
-        this.initMessageSocket();
-        this.clearDebug();
-        this.loading = false;
-      });
-    } else {
-      if (this.scenario && this.scenario.scenarioDefinition) {
-        this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
-        this.initTree();
-        this.initWebSocket();
-        this.initMessageSocket();
-        this.clearDebug();
-      }
+    if (this.scenario && this.scenario.scenarioDefinition) {
+      this.content.scenarioStepTotal = this.scenario.scenarioDefinition.hashTree.length;
+      this.initTree();
+      this.initWebSocket();
+      this.initMessageSocket();
+      this.clearDebug();
     }
   },
   props: {
@@ -134,36 +124,6 @@ export default {
     scenarioId: String
   },
   methods: {
-    getApiScenario() {
-      this.loading = true;
-      return new Promise((resolve) => {
-        this.result = this.$get("/api/automation/getApiScenario/" + this.scenarioId, response => {
-          if (response.data) {
-            if (response.data.scenarioDefinition != null) {
-              let obj = JSON.parse(response.data.scenarioDefinition);
-              this.scenario.scenarioDefinition = obj;
-              this.scenario.name = response.data.name;
-              this.content.scenarioStepTotal = obj.hashTree.length;
-              if (this.scenario.scenarioDefinition && this.scenario.scenarioDefinition.hashTree) {
-                this.sort(this.scenario.scenarioDefinition.hashTree);
-              }
-              resolve();
-            }
-          }
-        })
-      })
-    },
-    sort(stepArray) {
-      for (let i in stepArray) {
-        stepArray[i].index = Number(i) + 1;
-        if (!stepArray[i].resourceId) {
-          stepArray[i].resourceId = getUUID();
-        }
-        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
-          this.sort(stepArray[i].hashTree);
-        }
-      }
-    },
     initTree() {
       this.fullTreeNodes = [];
       let obj = {index: 1, label: this.scenario.name, value: {responseResult: {}, unexecute: true, testing: false}, children: [], unsolicited: true};

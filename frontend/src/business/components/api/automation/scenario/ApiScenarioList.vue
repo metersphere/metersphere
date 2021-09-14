@@ -181,7 +181,7 @@
         <template v-slot:opt-before="scope">
           <ms-table-operator-button v-permission=" ['PROJECT_API_SCENARIO:READ+RUN']"
                                     :tip="$t('api_test.automation.execute')" icon="el-icon-video-play" class="run-button"
-                                    @exec="execute(scope.row)" v-if="!scope.row.isStop && !trashEnable" style="margin-right: 10px;"/>
+                                    @exec="run(scope.row)" v-if="!scope.row.isStop && !trashEnable" style="margin-right: 10px;"/>
           <el-tooltip :content="$t('report.stop_btn')" placement="top" :enterable="false" v-else>
             <el-button v-if="!trashEnable" @click.once="stop(scope.row)" size="mini" style="color:white;padding: 0;width: 28px;height: 28px;margin-right: 10px;" class="stop-btn" circle>
               <div style="transform: scale(0.72)">
@@ -202,14 +202,13 @@
                            :total="total"/>
       <div>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
-                   size="90%">
+        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
           <sysn-api-report-detail @refresh="search" :debug="true" :scenario="currentScenario" :scenarioId="scenarioId" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="showReportVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false"
                    size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="showReportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
@@ -224,6 +223,8 @@
                 :dialog-title="$t('test_track.case.batch_edit_case')"/>
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
     <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
+    <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" @runRefresh="runRefresh" :reportId="reportId" :saved="true"
+            :run-data="debugData" ref="runTest"/>
     <ms-task-center ref="taskCenter"/>
   </div>
 </template>
@@ -263,7 +264,8 @@ export default {
     MsTestPlanList: () => import("./testplan/TestPlanList"),
     MsTableOperatorButton: () => import("@/business/components/common/components/MsTableOperatorButton"),
     MsRunMode: () => import("./common/RunMode"),
-    MsTaskCenter: () => import("../../../task/TaskCenter")
+    MsTaskCenter: () => import("../../../task/TaskCenter"),
+    MsRun: () => import("./DebugRun")
   },
   props: {
     referenced: {
@@ -328,6 +330,8 @@ export default {
       pageSize: 10,
       total: 0,
       reportId: "",
+      showReportId: "",
+      projectEnvMap: new Map(),
       batchReportId: "",
       content: {},
       infoDb: false,
@@ -342,6 +346,7 @@ export default {
       operators: [],
       selectRows: new Set(),
       isStop: false,
+      debugData: {},
       trashOperators: [
         {
           tip: this.$t('commons.reduction'),
@@ -483,9 +488,9 @@ export default {
     }
 
 
-    if(this.trashEnable){
-      this.condition.orders = [{"name":"delete_time","type":"desc"}];
-    }else {
+    if (this.trashEnable) {
+      this.condition.orders = [{"name": "delete_time", "type": "desc"}];
+    } else {
       this.condition.orders = getLastTableSortField(this.tableHeaderKey);
     }
 
@@ -787,19 +792,19 @@ export default {
           this.search();
         });
         return;
-      }else {
+      } else {
         let param = {};
         this.buildBatchParam(param);
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
 
           let checkResult = response.data;
           let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
-          if(!checkResult.deleteFlag){
+          if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg+=item+";";
+              alertMsg += item + ";";
             });
-            if(alertMsg === ""){
+            if (alertMsg === "") {
               alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
               alertMsg += this.$t('api_test.is_continue') + " ？";
@@ -821,7 +826,34 @@ export default {
         });
       }
     },
-
+    getApiScenario(scenarioId) {
+      return new Promise((resolve) => {
+        this.result = this.$get("/api/automation/getApiScenario/" + scenarioId, response => {
+          if (response.data) {
+            if (response.data.scenarioDefinition != null) {
+              let obj = JSON.parse(response.data.scenarioDefinition);
+              this.currentScenario.scenarioDefinition = obj;
+              this.currentScenario.name = response.data.name;
+              if (this.currentScenario.scenarioDefinition && this.currentScenario.scenarioDefinition.hashTree) {
+                this.sort(this.currentScenario.scenarioDefinition.hashTree);
+              }
+              resolve();
+            }
+          }
+        })
+      })
+    },
+    sort(stepArray) {
+      for (let i in stepArray) {
+        stepArray[i].index = Number(i) + 1;
+        if (!stepArray[i].resourceId) {
+          stepArray[i].resourceId = getUUID();
+        }
+        if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+          this.sort(stepArray[i].hashTree);
+        }
+      }
+    },
     execute(row) {
       this.infoDb = false;
       this.scenarioId = row.id;
@@ -841,6 +873,35 @@ export default {
         this.$set(row, "isStop", false);
       });
     },
+    runRefresh(row) {
+      this.$set(row, "isStop", false);
+    },
+    run(row) {
+      this.scenarioId = row.id;
+      this.getApiScenario(row.id).then(() => {
+        let scenarioStep = this.currentScenario.scenarioDefinition;
+        if (scenarioStep) {
+          this.debugData = {
+            id: this.currentScenario.id,
+            name: this.currentScenario.name,
+            type: "scenario",
+            variables: scenarioStep.variables,
+            referenced: 'Created',
+            onSampleError: scenarioStep.onSampleError,
+            enableCookieShare: scenarioStep.enableCookieShare,
+            headers: scenarioStep.headers,
+            environmentMap: scenarioStep.environmentMap ? new Map(Object.entries(scenarioStep.environmentMap)) : new Map,
+            hashTree: scenarioStep.hashTree
+          };
+          if (scenarioStep.environmentMap) {
+            this.projectEnvMap = new Map(Object.entries(scenarioStep.environmentMap));
+          }
+          this.reportId = getUUID().substring(0, 8);
+          this.runVisible = true;
+          this.$set(row, "isStop", true);
+        }
+      });
+    },
     copy(row) {
       let rowParam = JSON.parse(JSON.stringify(row));
       rowParam.copy = true;
@@ -851,7 +912,7 @@ export default {
     showReport(row) {
       this.showReportVisible = true;
       this.infoDb = true;
-      this.reportId = row.reportId;
+      this.showReportId = row.reportId;
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
     isSelectThissWeekData() {
@@ -868,20 +929,20 @@ export default {
           this.search();
         });
         return;
-      }else {
+      } else {
         let param = {};
         this.buildBatchParam(param);
         param.ids = [row.id];
         this.$post('/api/automation/checkBeforeDelete/', param, response => {
           let checkResult = response.data;
-          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') +" ？";
-          if(!checkResult.deleteFlag){
+          let alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
+          if (!checkResult.deleteFlag) {
             alertMsg = "";
             checkResult.checkMsg.forEach(item => {
-              alertMsg+=item+";";
+              alertMsg += item + ";";
             });
-            if(alertMsg === ""){
-              alertMsg = this.$t('load_test.delete_threadgroup_confirm') +" ？";
+            if (alertMsg === "") {
+              alertMsg = this.$t('load_test.delete_threadgroup_confirm') + " ？";
             } else {
               alertMsg += this.$t('api_test.is_continue') + " ？";
             }
@@ -1004,10 +1065,10 @@ export default {
             this.buildBatchParam(param);
             this.$post('/api/automation/batchCopy', param, response => {
               let copyResult = response.data;
-              if(copyResult.result){
+              if (copyResult.result) {
                 this.$success(this.$t('api_test.definition.request.batch_copy_end'));
-              }else {
-                this.$error(this.$t('commons.already_exists')+":"+copyResult.errorMsg);
+              } else {
+                this.$error(this.$t('commons.already_exists') + ":" + copyResult.errorMsg);
               }
 
               this.search();
