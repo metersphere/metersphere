@@ -26,7 +26,61 @@
         </div>
       </el-col>
       <el-col :span="20">
-        <ms-chart ref="chart2" class="chart-config" :options="totalOption" :autoresize="true"></ms-chart>
+        <el-row>
+          <el-col :span="24">
+            <ms-chart ref="chart2" class="chart-config" @datazoom="changeDataZoom" :options="totalOption"
+                      :autoresize="true"></ms-chart>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :offset="2" :span="20">
+            <el-table
+                :data="tableData"
+                stripe
+                border
+                style="width: 100%">
+              <el-table-column label="Label" align="center">
+                <el-table-column
+                    prop="label"
+                    label="Label"
+                    sortable>
+                </el-table-column>
+              </el-table-column>
+              <el-table-column label="Aggregate" align="center">
+                <el-table-column
+                    prop="avg"
+                    label="Avg."
+                    width="100"
+                    sortable
+                />
+                <el-table-column
+                    prop="min"
+                    label="Min."
+                    width="100"
+                    sortable
+                />
+                <el-table-column
+                    prop="max"
+                    label="Max."
+                    width="100"
+                    sortable
+                />
+              </el-table-column>
+              <el-table-column label="Range" align="center">
+                <el-table-column
+                    prop="startTime"
+                    label="Start"
+                    width="160"
+                />
+                <el-table-column
+                    prop="endTime"
+                    label="End"
+                    width="160"
+                />
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-row>
       </el-col>
     </el-row>
   </div>
@@ -58,6 +112,7 @@ export default {
       currentInstance: '',
       instances: [],
       data: [],
+      tableData: [],
       checkList: ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'],
       checkOptions: [
         {key: 'cpu', label: 'CPU'},
@@ -105,7 +160,8 @@ export default {
         ],
         series: []
       },
-      totalOption: {}
+      totalOption: {},
+      seriesData: [],
     };
   },
   created() {
@@ -132,6 +188,7 @@ export default {
             if (result) {
               this.data = result.data.data;
               this.totalOption = this.getOption(this.currentInstance);
+              this.changeDataZoom({start: 0, end: 100});
             }
           });
         });
@@ -146,6 +203,7 @@ export default {
               this.data = result.data.data;
               this.$nextTick(() => {
                 this.totalOption = this.getOption(this.currentInstance);
+                this.changeDataZoom({start: 0, end: 100});
               });
             }
           });
@@ -177,21 +235,77 @@ export default {
             this.baseOption.xAxis.data = d.timestamps;
 
             let yAxis = d.values.map(v => v.toFixed(2));
+            let data = [];
+            for (let i = 0; i < d.timestamps.length; i++) {
+              data.push([d.timestamps[i], yAxis[i]]);
+            }
+
             legend.push(name);
             series.push({
               name: name,
-              data: yAxis,
+              data: data,
               type: 'line',
               yAxisIndex: yAxisIndex,
               smooth: true,
               sampling: 'lttb',
             });
+
+            this.seriesData = series;
           }
         });
       }
       this.baseOption.legend.data = legend;
       this.baseOption.series = series;
       return this.baseOption;
+    },
+    changeDataZoom(params) {
+      let start = params.start / 100;
+      let end = params.end / 100;
+      if (params.batch) {
+        start = params.batch[0].start / 100;
+        end = params.batch[0].end / 100;
+      }
+
+      let tableData = [];
+      for (let i = 0; i < this.seriesData.length; i++) {
+        let sub = this.seriesData[i].data, label = this.seriesData[i].name;
+        let len = 0;
+        let min, avg, max, sum = 0, startTime, endTime;
+        for (let j = 0; j < sub.length; j++) {
+          let time = sub[j][0];
+          let value = Number.parseFloat(sub[j][1]);
+          let index = (j / (sub.length - 1)).toFixed(2);
+          if (index < start) {
+            continue;
+          }
+          if (index >= end) {
+            endTime = time;
+            break;
+          }
+
+          if (!startTime) {
+            startTime = time;
+          }
+
+          if (!min && !max) {
+            min = max = value;
+          }
+
+          if (min > value) {
+            min = value;
+          }
+          if (max < value) {
+            max = value;
+          }
+          sum += value;
+
+          len++; // 实际 len
+        }
+
+        avg = (sum / len).toFixed(2);
+        tableData.push({label, min, max, avg, startTime, endTime});
+      }
+      this.tableData = tableData;
     },
   },
   watch: {
