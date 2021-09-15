@@ -29,7 +29,7 @@ public class TestCaseTemplateController {
     private TestCaseTemplateService testCaseTemplateService;
 
     @PostMapping("/add")
-    @MsAuditLog(module = "workspace_template_settings", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
+    @MsAuditLog(module = "workspace_template_settings_case", type = OperLogConstants.CREATE, content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
     public void add(@RequestBody UpdateCaseFieldTemplateRequest request) {
         testCaseTemplateService.add(request);
     }
@@ -41,13 +41,13 @@ public class TestCaseTemplateController {
     }
 
     @GetMapping("/delete/{id}")
-    @MsAuditLog(module = "workspace_template_settings", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestCaseTemplateService.class)
+    @MsAuditLog(module = "workspace_template_settings_case", type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = TestCaseTemplateService.class)
     public void delete(@PathVariable(value = "id") String id) {
         testCaseTemplateService.delete(id);
     }
 
     @PostMapping("/update")
-    @MsAuditLog(module = "workspace_template_settings", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
+    @MsAuditLog(module = "workspace_template_settings_case", type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", content = "#msClass.getLogDetails(#request.id)", msClass = TestCaseTemplateService.class)
     public void update(@RequestBody UpdateCaseFieldTemplateRequest request) {
         testCaseTemplateService.update(request);
     }

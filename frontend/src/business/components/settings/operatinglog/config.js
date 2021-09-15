@@ -147,8 +147,48 @@ export function getUrl(d) {
     case "测试用例" || "測試用例" || "Test case":
       url += "/track/case/all?resourceId=" + resourceId;
       break;
+    case "系统-用户" || "系统-用户" || "System user":
+      url += "/setting/user";
+      break;
+    case "系统-组织" || "系統-組織" || "System organization":
+      url += "/setting/organization";
+      break;
+    case "工作空间" || "系统-工作空间" || "workspace" :
+      url += "/setting/systemworkspace";
+      break;
+    case "用户组与权限" || "用戶組與權限" || "Group" :
+      url += "/setting/usergroup";
+      break;
+    case "系统-测试资源池" || "系统-測試資源池" || "System test resource" :
+      url += "/setting/testresourcepool";
+      break;
+    case "系统-系统参数设置" || "系统-系統參數設置" || "System parameter setting" :
+      url += "/setting/systemparametersetting";
+      break;
+    case "工作空间-成员" || "工作空間-成員" || "Workspace member" :
+      url += "/setting/member";
+      break;
+    case "项目-项目管理" || "項目-項目管理" || "Project project manager" :
+      url += "/setting/project/:type";
+      break;
+    case "项目-环境设置" || "項目-環境設置" || "Project environment setting" :
+      url += "/setting/envlist";
+      break;
+    case "工作空间-模版设置-自定义字段" || "工作空間-模版設置-自定義字段" || "Workspace template settings field" :
+      url += "/setting/workspace/template/field";
+      break;
+    case "工作空间-模版设置-用例模版" || "工作空間-模版設置-用例模板" || "Workspace template settings case" :
+      url += "/setting/workspace/template/case";
+      break;
+    case "工作空间-模版设置-缺陷模版" || "工作空間-模版設置-缺陷模板" || "Workspace template settings issue" :
+      url += "/setting/workspace/template/issues";
+      break;
+    case "项目-成员" || "項目-成員" || "Project member" :
+      url += "/setting/projectmember";
+      break;
     default:
       break;
+
   }
   return url;
 }
