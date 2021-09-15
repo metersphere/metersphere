@@ -101,6 +101,7 @@ export default {
       result: {},
       filterText: "",
       expandedNode: [],
+      reloaded: false,
       defaultProps: {
         children: "children",
         label: "label"
@@ -199,6 +200,35 @@ export default {
     nodeCollapse(data) {
       if (data.id) {
         this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+      }
+      // this.reloaded = false;
+      this.$nextTick(() => {
+        let node = this.$refs.tree.getNode(data);
+        if(node){
+          node.expanded = false;
+        }
+
+        if (data.children && data.children.length > 0) {
+          this.changeTreeNodeStatus(data);
+        }
+      });
+    },
+    // 改变节点的状态
+    changeTreeNodeStatus (parentData) {
+      for (let i = 0; i < parentData.children.length; i++) {
+        let data = parentData.children[i];
+        if (data.id) {
+          this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+        }
+        let node = this.$refs.tree.getNode(data);
+        if(node){
+          node.expanded = false;
+        }
+
+        // 遍历子节点
+        if (data.children && data.children.length > 0) {
+          this.changeTreeNodeStatus(data)
+        }
       }
     },
     edit(node, data, isAppend) {
