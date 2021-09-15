@@ -43,7 +43,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
@@ -295,11 +294,16 @@ public class IssuesService {
     }
 
     public void delete(String id) {
-        issuesMapper.deleteByPrimaryKey(id);
-        TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria()
-                .andIssuesIdEqualTo(id);
-        testCaseIssuesMapper.deleteByExample(example);
+        IssuesWithBLOBs issuesWithBLOBs = issuesMapper.selectByPrimaryKey(id);
+        List platforms = new ArrayList<>();
+        platforms.add(issuesWithBLOBs.getPlatform());
+        String projectId = issuesWithBLOBs.getProjectId();
+        Project project = projectService.getProjectById(projectId);
+        Workspace workspace = workspaceMapper.selectByPrimaryKey(project.getWorkspaceId());
+        IssuesRequest issuesRequest = new IssuesRequest();
+        issuesRequest.setOrganizationId(workspace.getOrganizationId());
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(issuesWithBLOBs.getPlatform(), issuesRequest);
+        platform.deleteIssue(id);
     }
 
     public IssuesWithBLOBs get(String id) {
@@ -461,16 +465,8 @@ public class IssuesService {
                     Constructor cons = clazz.getDeclaredConstructor(new Class[]{IssuesRequest.class});
                     AbstractIssuePlatform azureDevopsPlatform = (AbstractIssuePlatform) cons.newInstance(issuesRequest);
                     syncThirdPartyIssues(azureDevopsPlatform::syncIssues, project, azureDevopsIssues);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (Throwable e) {
+                    LogUtil.error(e);
                 }
             }
         }

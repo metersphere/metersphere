@@ -314,10 +314,10 @@ export default {
       });
     },
     btnDisable(row) {
-      if (row.platform === 'Local') {
+      // if (row.platform === 'Local' || row.platform === 'Jira') {
         return false;
-      }
-      return true;
+      // }
+      // return true;
     },
     syncIssues() {
       this.page.result = syncIssues(() => {

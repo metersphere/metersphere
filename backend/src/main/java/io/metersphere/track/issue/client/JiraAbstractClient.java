@@ -52,6 +52,25 @@ public abstract class JiraAbstractClient extends BaseClient {
         return (JiraAddIssueResponse) getResultForObject(JiraAddIssueResponse.class, response);
     }
 
+    public void updateIssue(String id, String body) {
+        LogUtil.info("addIssue: " + body);
+        HttpHeaders headers = getAuthHeader();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> requestEntity = new HttpEntity<>(body, headers);
+        try {
+           restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.PUT, requestEntity, String.class);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+    }
+
+    public void deleteIssue(String id) {
+        LogUtil.info("deleteIssue: " + id);
+        restTemplate.exchange(getBaseUrl() + "/issue/" + id, HttpMethod.DELETE, getAuthHttpEntity(), String.class);
+    }
+
+
     public void uploadAttachment(String issueKey, File file) {
         HttpHeaders authHeader = getAuthHeader();
         authHeader.add("X-Atlassian-Token", "no-check");
