@@ -8,6 +8,7 @@ import io.metersphere.base.domain.CustomFunction;
 import io.metersphere.base.domain.CustomFunctionExample;
 import io.metersphere.base.domain.CustomFunctionWithBLOBs;
 import io.metersphere.base.mapper.CustomFunctionMapper;
+import io.metersphere.base.mapper.ext.ExtCustomFunctionMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -33,6 +34,8 @@ public class CustomFunctionService {
 
     @Resource
     private CustomFunctionMapper customFunctionMapper;
+    @Resource
+    private ExtCustomFunctionMapper extCustomFunctionMapper;
     @Resource
     private JMeterService jMeterService;
 
@@ -76,17 +79,9 @@ public class CustomFunctionService {
         String projectId = request.getProjectId();
         if (StringUtils.isBlank(projectId)) {
             projectId = SessionUtils.getCurrentProjectId();
+            request.setProjectId(projectId);
         }
-        CustomFunctionExample example = new CustomFunctionExample();
-        CustomFunctionExample.Criteria criteria = example.createCriteria();
-        criteria.andProjectIdEqualTo(projectId);
-        if (StringUtils.isNotBlank(request.getType())) {
-            criteria.andTypeEqualTo(request.getType());
-        }
-        if (StringUtils.isNotBlank(request.getName())) {
-            criteria.andNameEqualTo(request.getName());
-        }
-        return customFunctionMapper.selectByExample(example);
+        return extCustomFunctionMapper.queryAll(request);
     }
 
     public void update(CustomFunctionRequest request) {

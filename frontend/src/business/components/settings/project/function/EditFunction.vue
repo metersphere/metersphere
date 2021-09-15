@@ -231,10 +231,9 @@ export default {
         },
         {
           title: "新API测试[JSON]",
-          command: "new_api",
-          index: "new_api"
+          command: "new_api_request",
+          index: "new_api_request"
         }
-
       ],
       response: {},
       request: {},
@@ -300,6 +299,14 @@ export default {
         this.$refs.customFunctionRelate.open(this.form.type);
       } else if (funcLink.command === 'api_definition') {
         this.$refs.apiFuncRelevance.open();
+      } else if (funcLink.command === 'new_api_request') {
+        // requestObj为空则生产默认模版
+        let headers = new Map();
+        headers.set('Content-type', 'application/json');
+        let code = getCodeTemplate(this.form.type, {requestHeaders: headers});
+        let codeStr = this.form.script + "\n\n" + code;
+        this.form.script = this.form.script ? codeStr : code;
+        this.reloadCodeEdit();
       }
     },
     reload() {
@@ -377,40 +384,29 @@ export default {
       this.form.script = this.form.script + '\n\n' + script;
       this.reloadCodeEdit();
     },
-    apiSave(data, env, type) {
-      // data：选中的多个接口定义或多个接口用例。env: 关联页面选中的环境
+    apiSave(data, env) {
+      // data：选中的多个接口定义或多个接口用例; env: 关联页面选中的环境
       let condition = env.config.httpConfig.conditions || [];
       let requestUrl = "";
-      let requestHeaders = new Map;
-      let requestMethod = "";
-      let requestBody = "";
       if (condition && condition.length > 0) {
         // 如果有多个环境，取第一个
         let protocol = condition[0].protocol ? condition[0].protocol : "http";
         requestUrl = protocol + "://" + condition[0].socket;
       }
       // todo
-      if (data.length > 0) {
-        let request = JSON.parse(data[0].request);
-        requestUrl = requestUrl + request.path;
-        requestMethod = request.method;
-        let headers = request.headers;
-        if (headers && headers.length > 0) {
-          headers.forEach(header => {
-            if (header.name) {
-              requestHeaders.set(header.name, header.value);
-            }
-          })
-        }
-        let body = request.body;
-        if (body.json) {
-          requestBody = body.raw;
-        }
+      if (data.length > 5) {
+        this.$warning("最多可以选择5个接口！");
+        return;
       }
-      let param = {requestUrl, requestHeaders, requestMethod, requestBody};
-      let code = getCodeTemplate(this.form.type, param);
+      let code = "";
+      if (data.length > 0) {
+        data.forEach(dt => {
+          let param = this.parseRequestObj(dt, requestUrl);
+          code += '\n' + getCodeTemplate(this.form.type, param);
+        })
+      }
       if (code) {
-        let codeStr = this.form.script + "\n\n" + code;
+        let codeStr = this.form.script + code;
         this.form.script = this.form.script ? codeStr : code;
         this.reloadCodeEdit();
       } else {
@@ -418,6 +414,28 @@ export default {
         this.$warning("无对应语言模版");
       }
       this.$refs.apiFuncRelevance.close();
+    },
+    parseRequestObj(data, requestUrl) {
+      let requestHeaders = new Map();
+      let requestMethod = "";
+      let requestBody = "";
+      let request = JSON.parse(data.request);
+      // 拼接发送请求需要的参数
+      requestUrl = requestUrl + request.path;
+      requestMethod = request.method;
+      let headers = request.headers;
+      if (headers && headers.length > 0) {
+        headers.forEach(header => {
+          if (header.name) {
+            requestHeaders.set(header.name, header.value);
+          }
+        })
+      }
+      let body = request.body;
+      if (body.json) {
+        requestBody = body.raw;
+      }
+      return {requestUrl, requestHeaders, requestMethod, requestBody}
     },
     apiClose() {
 

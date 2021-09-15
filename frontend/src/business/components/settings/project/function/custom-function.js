@@ -16,36 +16,45 @@ export function getCodeTemplate(language, requestObj) {
 }
 
 function groovyCode(obj) {
-  let {requestHeaders, requestBody, requestUrl, requestMethod} = obj;
+  let {requestHeaders = new Map(), requestBody = "", requestUrl = "", requestMethod = ""} = obj;
   let headers = "", body = JSON.stringify(requestBody);
   for (let [k, v] of requestHeaders) {
+    // 拼装映射
     headers += `['${k}':'${v}']`;
   }
-  return `
-import groovy.json.JsonOutput
+  headers = headers === "" ? "[]" : headers;
+  let params = "";
+  params +=  `[
+                'url': '${requestUrl}',
+                'method': '${requestMethod}',
+                'headers': ${headers}, // 请求headers 例：['Content-type':'application/json']
+                'data': ${body} // 参数
+                ]`
+  return `import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 def http_post() {
-    def headers = ${headers} // 请求headers 例：['Content-type':'application/json']
-    // json数据
-    def data = ${body}
-    def conn = new URL("${requestUrl}").openConnection()
-    conn.setRequestMethod("${requestMethod}")
-    if (data) {
-        headers.each {
-          k,v -> conn.setRequestProperty(k, v);
-        }
-        // 输出请求参数
-        log.info(data)
-        conn.doOutput = true
-        def writer = new OutputStreamWriter(conn.outputStream)
-        writer.write(data)
-        writer.flush()
-        writer.close()
-    }
-    log.info(conn.content.text)
+  def params = ${params}
+
+  def headers = params['headers']
+  // json数据
+  def data = params['data']
+  def conn = new URL(params['url']).openConnection()
+  conn.setRequestMethod(params['method'])
+  if (data) {
+      headers.each {
+        k,v -> conn.setRequestProperty(k, v);
+      }
+      // 输出请求参数
+      log.info(data)
+      conn.doOutput = true
+      def writer = new OutputStreamWriter(conn.outputStream)
+      writer.write(data)
+      writer.flush()
+      writer.close()
+  }
+  log.info(conn.content.text)
 }
 http_post()
-
 `;
 }
