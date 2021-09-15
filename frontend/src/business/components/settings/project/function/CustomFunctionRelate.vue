@@ -8,7 +8,7 @@
         style="width: 350px;float: left;"
         :closable="false" show-icon>
       </el-alert>
-      <ms-table-search-bar :condition.sync="condition" @change="init" class="search-bar" :tip="'根据名称搜索'"/>
+      <ms-table-search-bar :condition.sync="condition" @change="init" class="search-bar" :tip="'根据 名称/标签 搜索'"/>
       <el-table border class="adjust-table" :data="data" style="width: 100%" ref="table"
                 highlight-current-row @current-change="handleCurrentChange">
         <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>

@@ -23,6 +23,8 @@
           </el-link>
 
           <custom-function-relate ref="customFunctionRelate" @addCustomFuncScript="addCustomFuncScript"/>
+          <!--接口列表-->
+          <api-func-relevance @save="apiSave" @close="apiClose" ref="apiFuncRelevance"/>
         </el-col>
       </el-row>
     </div>
@@ -32,9 +34,11 @@
     import MsCodeEdit from "../../../definition/components/MsCodeEdit";
     import MsDropdown from "../../../../common/components/MsDropdown";
     import CustomFunctionRelate from "@/business/components/settings/project/function/CustomFunctionRelate";
+    import {getCodeTemplate} from "@/business/components/settings/project/function/custom-function";
+    import ApiFuncRelevance from "@/business/components/settings/project/function/ApiFuncRelevance";
     export default {
         name: "Jsr233ProcessorContent",
-      components: {MsDropdown, MsCodeEdit, CustomFunctionRelate},
+      components: {MsDropdown, MsCodeEdit, CustomFunctionRelate, ApiFuncRelevance},
       data() {
         return {
           jsr223ProcessorData: {},
@@ -100,8 +104,17 @@
               title: "插入自定义函数",
               command: "custom_function",
               index: "custom_function"
+            },
+            {
+              title: "从API定义导入",
+              command: "api_definition",
+              index: "api_definition"
+            },
+            {
+              title: "新API测试[JSON]",
+              command: "new_api_request",
+              index: "new_api_request"
             }
-
           ],
           isCodeEditAlive: true,
           languages: [
@@ -168,7 +181,73 @@
         doFuncLink(funcLink) {
           if (funcLink.command === 'custom_function') {
             this.$refs.customFunctionRelate.open(this.jsr223ProcessorData.scriptLanguage);
+          } else if (funcLink.command === 'api_definition') {
+            this.$refs.apiFuncRelevance.open();
+          } else if (funcLink.command === 'new_api_request') {
+            // requestObj为空则生产默认模版
+            let headers = new Map();
+            headers.set('Content-type', 'application/json');
+            let code = getCodeTemplate(this.jsr223ProcessorData.scriptLanguage, {requestHeaders: headers});
+            let codeStr = this.jsr223ProcessorData.script + "\n\n" + code;
+            this.jsr223ProcessorData.script = this.jsr223ProcessorData.script ? codeStr : code;
+            this.reload();
           }
+        },
+        apiSave(data, env) {
+          // data：选中的多个接口定义或多个接口用例; env: 关联页面选中的环境
+          let condition = env.config.httpConfig.conditions || [];
+          let requestUrl = "";
+          if (condition && condition.length > 0) {
+            // 如果有多个环境，取第一个
+            let protocol = condition[0].protocol ? condition[0].protocol : "http";
+            requestUrl = protocol + "://" + condition[0].socket;
+          }
+          // todo
+          if (data.length > 5) {
+            this.$warning("最多可以选择5个接口！");
+            return;
+          }
+          let code = "";
+          if (data.length > 0) {
+            data.forEach(dt => {
+              let param = this.parseRequestObj(dt, requestUrl);
+              code += '\n' + getCodeTemplate(this.jsr223ProcessorData.scriptLanguage, param);
+            })
+          }
+          if (code) {
+            let codeStr = this.jsr223ProcessorData.script + code;
+            this.jsr223ProcessorData.script = this.jsr223ProcessorData.script ? codeStr : code;
+            this.reload();
+          } else {
+            //todo
+            this.$warning("无对应语言模版");
+          }
+          this.$refs.apiFuncRelevance.close();
+        },
+        parseRequestObj(data, requestUrl) {
+          let requestHeaders = new Map();
+          let requestMethod = "";
+          let requestBody = "";
+          let request = JSON.parse(data.request);
+          // 拼接发送请求需要的参数
+          requestUrl = requestUrl + request.path;
+          requestMethod = request.method;
+          let headers = request.headers;
+          if (headers && headers.length > 0) {
+            headers.forEach(header => {
+              if (header.name) {
+                requestHeaders.set(header.name, header.value);
+              }
+            })
+          }
+          let body = request.body;
+          if (body.json) {
+            requestBody = body.raw;
+          }
+          return {requestUrl, requestHeaders, requestMethod, requestBody}
+        },
+        apiClose() {
+
         },
       }
     }

@@ -3,7 +3,7 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :show-create="false" :condition.sync="condition"
-                         :title="'自定义函数'" @search="init">
+                         :title="'自定义函数'" @search="init" :tip="'根据 名称/标签 搜索'">
           <template v-slot:button>
             <ms-table-button icon="el-icon-circle-plus-outline" :content="'创建函数'" @click="handleCreate"/>
           </template>

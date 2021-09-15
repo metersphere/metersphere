@@ -161,7 +161,7 @@ export default {
           this.$get('/api/environment/get/' + environmentId, response => {
             let environment = response.data;
             parseEnvironment(environment);
-            this.$emit("save", apis, environment, "API");
+            this.$emit("save", apis, environment);
           });
         });
       } else {
@@ -177,7 +177,7 @@ export default {
           this.$get('/api/environment/get/' + environmentId, response => {
             let environment = response.data;
             parseEnvironment(environment);
-            this.$emit("save", apiCases, environment, "CASE");
+            this.$emit("save", apiCases, environment);
           });
         });
       }
