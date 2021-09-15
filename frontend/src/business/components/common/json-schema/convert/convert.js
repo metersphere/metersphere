@@ -51,15 +51,20 @@ class Convert {
     // root节点基本信息
     let result = this._value2object(this._object, this._option.$id, "", true);
     if (this._object.length > 0) {
-      // 创建items对象的基本信息
-      let objectItem = this._object[0]
-      result["items"] = this._value2object(objectItem, `#/items`, 'items');
-      if (isObject(objectItem) && !isEmpty(objectItem)) {
-        // 递归遍历
-        let objectItemSchema = this._json2schema(objectItem, `#/items`);
-        // 合并对象
-        result["items"] = Object.assign(result["items"], objectItemSchema);
+      let itemArr = [];
+      for(let index = 0; index < this._object.length;index ++){
+        // 创建items对象的基本信息
+        let objectItem = this._object[index]
+        let item = this._value2object(objectItem, `#/items`, 'items');
+        if (isObject(objectItem) && !isEmpty(objectItem)) {
+          // 递归遍历
+          let objectItemSchema = this._json2schema(objectItem, `#/items`);
+          // 合并对象
+          item = Object.assign(item, objectItemSchema);
+        }
+        itemArr.push(item);
       }
+      result["items"] = itemArr;
     }
     return result
   }
@@ -111,15 +116,20 @@ class Convert {
           if (isArray(element)) {
             // 针对空数组和有值的数组做不同处理
             if (element.length > 0) {
-              // 如果是数组，那么就取第一项
-              let elementItem = element[0];
-              // 创建items对象的基本信息
-              result["properties"][key]["items"] = this._value2object(elementItem, `${$id}/items`, key + 'items');
-              // 判断第一项是否是对象,且对象属性不为空
-              if (isObject(elementItem) && !isEmpty(elementItem)) {
-                // 新增的properties才合并进来
-                result["properties"][key]["items"] = Object.assign(result["properties"][key]["items"], this._json2schema(elementItem, `${$id}/items`));
+              // 是数组
+              let itemArr = [];
+              for(let index = 0; index < element.length;index ++){
+                let elementItem = element[index];
+                // 创建items对象的基本信息
+                let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
+                // 判断第一项是否是对象,且对象属性不为空
+                if (isObject(elementItem) && !isEmpty(elementItem)) {
+                  // 新增的properties才合并进来
+                  item = Object.assign(item, this._json2schema(elementItem, `${$id}/items`));
+                }
+                itemArr.push(item);
               }
+              result["properties"][key]["items"] = itemArr;
             }
           } else {
             // 不是数组，递归遍历获取，然后合并对象属性
