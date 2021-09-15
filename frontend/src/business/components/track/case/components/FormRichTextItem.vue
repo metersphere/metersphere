@@ -1,7 +1,7 @@
 <template>
   <el-form-item v-loading="result.loading" :disable="true" :label="title" :prop="prop" :label-width="labelWidth">
-    <mavon-editor v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="disabled ? 'preview' : null" class="mavon-editor"
-                  :subfield="disabled ? false : true" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
+    <mavon-editor :id="id" v-if="active" :editable="!disabled" @imgAdd="imgAdd" :default-open="defaultOpen" class="mavon-editor"
+                  :subfield="false" :toolbars="toolbars" :language="language" :toolbarsFlag="disabled ? false : true" @imgDel="imgDel" v-model="data[prop]"  ref="md"/>
   </el-form-item>
 </template>
 
@@ -14,6 +14,8 @@ export default {
   data() {
     return {
       result: {loading: false},
+      id: getUUID(),
+      defaultOpen: 'preview',
       toolbars: {
         bold: true, // 粗体
         italic: true, // 斜体
@@ -72,6 +74,17 @@ export default {
           return 'zh-CN';
       }
     }
+  },
+  mounted() {
+    // 点击编辑，失去焦点展示
+    let el = document.getElementById(this.id);
+    el.addEventListener('click', () => {
+      this.defaultOpen = null;
+    });
+    let input = el.getElementsByClassName('auto-textarea-input');
+    input[0].addEventListener('blur', () => {
+      this.defaultOpen = 'preview';
+    });
   },
   methods: {
     imgAdd(pos, file){
