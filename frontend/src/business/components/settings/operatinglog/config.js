@@ -145,7 +145,7 @@ export function getUrl(d) {
       url += "/performance/test/edit/" + resourceId;
       break;
     case "测试用例" || "測試用例" || "Test case":
-      url += "/track/case/all";
+      url += "/track/case/all?resourceId=" + resourceId;
       break;
     default:
       break;
