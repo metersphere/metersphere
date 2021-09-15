@@ -6,7 +6,8 @@
           {{ $t('operating_log.title') }}
         </div>
         <div>
-          <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm" style="margin-right: 20px">
+          <el-form :model="condition" label-position="right" label-width="75px" size="small" ref="basicForm"
+                   style="margin-right: 20px">
             <el-row>
               <el-col :span="5">
                 <el-form-item :label="$t('operating_log.time')" prop="times">
@@ -113,7 +114,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <ms-log-detail ref="logDetail" :title="$t('report.test_log_details')"/>
@@ -121,60 +123,39 @@
 </template>
 
 <script>
-import MsTablePagination from "../../common/pagination/TablePagination";
-import MsTableOperator from "../../common/components/MsTableOperator";
-import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasRoles} from "@/common/js/utils";
-import {LOG_TYPE, LOG_TYPE_MAP, sysList, getUrl} from "./config";
-import MsLogDetail from "./LogDetail";
+  import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableOperator from "../../common/components/MsTableOperator";
+  import {getCurrentProjectID, getCurrentWorkspaceId, getUUID, hasRoles} from "@/common/js/utils";
+  import {LOG_TYPE, LOG_TYPE_MAP, sysList, getUrl} from "./config";
+  import MsLogDetail from "./LogDetail";
 
-export default {
-  name: "OperatingLog",
-  components: {
-    MsTablePagination, MsTableOperator, MsLogDetail
-  },
-  data() {
-    return {
-      props: {
-        multiple: false,
-      },
-      result: {},
-      form: {},
-      currentPage: 0,
-      pageSize: 10,
-      total: 0,
-      items: [],
-      condition: {},
-      tableData: [],
-      userList: [],
-      screenHeight: 'calc(100vh - 215px)',
-      LOG_TYPE: new LOG_TYPE(this),
-      LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
-      sysList: sysList,
-    }
-  },
-  mounted() {
-    switch (this.$route.name) {
-      case "system":
-        this.initProject("/project/listAll");
-        this.getMember();
-        break;
-      case "organization":
-        this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-        this.getMember();
-        break;
-      case "workspace":
-        this.initProject("/project/listAll/" + getCurrentWorkspaceId());
-        this.getMember();
-        break;
-      case "project":
-        this.getProject();
-        this.getMember();
-        break;
-    }
-  },
-  watch: {
-    '$route'(to, from) {
-      switch (to.name) {
+  export default {
+    name: "OperatingLog",
+    components: {
+      MsTablePagination, MsTableOperator, MsLogDetail
+    },
+    data() {
+      return {
+        props: {
+          multiple: false,
+        },
+        result: {},
+        form: {},
+        currentPage: 0,
+        pageSize: 10,
+        total: 0,
+        items: [],
+        condition: {},
+        tableData: [],
+        userList: [],
+        screenHeight: 'calc(100vh - 215px)',
+        LOG_TYPE: new LOG_TYPE(this),
+        LOG_TYPE_MAP: new LOG_TYPE_MAP(this),
+        sysList: sysList,
+      }
+    },
+    mounted() {
+      switch (this.$route.name) {
         case "system":
           this.initProject("/project/listAll");
           this.getMember();
@@ -192,122 +173,140 @@ export default {
           this.getMember();
           break;
       }
-    }
-  },
-  methods: {
-    isLink(row) {
-      if (!row.sourceId) {
-        return false;
-      }
-      let uri = getUrl(row);
-      if ((row.operType === 'UPDATE' || row.operType === 'ADD' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
-        return true;
-      }
-      return false;
     },
-    clickResource(resource) {
-      if (!resource.sourceId) {
-        return;
-      }
-      let resourceId = resource.sourceId;
-      if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
-        resourceId = JSON.parse(resource.sourceId);
-      }
-      if (resourceId instanceof Array) {
-        resourceId = resourceId[0];
-      }
-      let uri = getUrl(resource);
-      this.$get('/user/update/currentByResourceId/' + resourceId, () => {
-        this.toPage(uri);
-      });
-    },
-    toPage(uri) {
-      let id = "new_a";
-      let a = document.createElement("a");
-      a.setAttribute("href", uri);
-      a.setAttribute("target", "_blank");
-      a.setAttribute("id", id);
-      document.body.appendChild(a);
-      a.click();
-
-      let element = document.getElementById(id);
-      element.parentNode.removeChild(element);
-    },
-    handleSelect(item) {
-      this.$set(this.condition, "operUser", item.id);
-    },
-    getMember() {
-      this.result = this.$get('/user/list/', response => {
-        this.userList = response.data;
-      });
-    },
-    createFilter(queryString) {
-      return (user) => {
-        return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
-      };
-    },
-    querySearch(queryString, cb) {
-      let userList = this.userList;
-      let results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
-    },
-    initTableData() {
-      if (this.condition.operModules && this.condition.operModules.length > 0) {
-        this.condition.operModule = this.condition.operModules[1];
-      }
-      let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
-      this.result.loading = true;
-      this.$post(url, this.condition, response => {
-        this.tableData = response.data.listObject;
-        this.total = response.data.itemCount;
-        this.result.loading = false;
-      })
-
-    },
-    reset() {
-      let projectIds = this.condition.projectIds;
-      this.condition = {projectIds: projectIds};
-      this.initTableData();
-    },
-    initProject(url) {
-      this.condition = {};
-      this.result = this.$get(url, response => {
-        let projects = response.data;
-        let projectIds = [];
-        if (projects) {
-          this.items = [];
-          projects.forEach(item => {
-            let data = {id: item.id, label: item.name};
-            this.items.push(data);
-            projectIds.push(item.id);
-          })
+    watch: {
+      '$route'(to, from) {
+        switch (to.name) {
+          case "system":
+            this.initProject("/project/listAll");
+            this.getMember();
+            break;
+          case "organization":
+            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
+            this.getMember();
+            break;
+          case "workspace":
+            this.initProject("/project/listAll/" + getCurrentWorkspaceId());
+            this.getMember();
+            break;
+          case "project":
+            this.getProject();
+            this.getMember();
+            break;
         }
-        this.condition.projectIds = projectIds;
+      }
+    },
+    methods: {
+      isLink(row) {
+        let uri = getUrl(row);
+        if ((row.operType === 'UPDATE' || row.operType === 'CREATE' || row.operType === 'EXECUTE' || row.operType === 'DEBUG') && uri !== "/#") {
+          return true;
+        }
+        return false;
+      },
+      clickResource(resource) {
+        if (!resource.sourceId) {
+          return;
+        }
+        let resourceId = resource.sourceId;
+        if (resourceId && resourceId.startsWith("\"" || resourceId.startsWith("["))) {
+          resourceId = JSON.parse(resource.sourceId);
+        }
+        if (resourceId instanceof Array) {
+          resourceId = resourceId[0];
+        }
+        let uri = getUrl(resource);
+        this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+          this.toPage(uri);
+        });
+      },
+      toPage(uri) {
+        let id = "new_a";
+        let a = document.createElement("a");
+        a.setAttribute("href", uri);
+        a.setAttribute("target", "_blank");
+        a.setAttribute("id", id);
+        document.body.appendChild(a);
+        a.click();
+
+        let element = document.getElementById(id);
+        element.parentNode.removeChild(element);
+      },
+      handleSelect(item) {
+        this.$set(this.condition, "operUser", item.id);
+      },
+      getMember() {
+        this.result = this.$get('/user/list/', response => {
+          this.userList = response.data;
+        });
+      },
+      createFilter(queryString) {
+        return (user) => {
+          return (user.email.indexOf(queryString.toLowerCase()) === 0 || user.id.indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+      querySearch(queryString, cb) {
+        let userList = this.userList;
+        let results = queryString ? userList.filter(this.createFilter(queryString)) : userList;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+      initTableData() {
+        if (this.condition.operModules && this.condition.operModules.length > 0) {
+          this.condition.operModule = this.condition.operModules[1];
+        }
+        let url = "/operating/log/list/" + this.currentPage + "/" + this.pageSize;
+        this.result.loading = true;
+        this.$post(url, this.condition, response => {
+          this.tableData = response.data.listObject;
+          this.total = response.data.itemCount;
+          this.result.loading = false;
+        })
+
+      },
+      reset() {
+        let projectIds = this.condition.projectIds;
+        this.condition = {projectIds: projectIds};
         this.initTableData();
-      })
-    },
-    getProject() {
-      this.condition.projectIds = [];
-      this.result = this.$get("/project/get/" + getCurrentProjectID(), response => {
-        let project = response.data;
-        this.items = [{id: project.id, label: project.name}];
-        this.condition.projectIds = [project.id];
-        this.condition.projectId = project.id;
+      },
+      initProject(url) {
+        this.condition = {};
+        this.result = this.$get(url, response => {
+          let projects = response.data;
+          let projectIds = [];
+          if (projects) {
+            this.items = [];
+            projects.forEach(item => {
+              let data = {id: item.id, label: item.name};
+              this.items.push(data);
+              projectIds.push(item.id);
+            })
+          }
+          this.condition.projectIds = projectIds;
+          this.initTableData();
+        })
+      },
+      getProject() {
+        this.condition.projectIds = [];
+        this.result = this.$get("/project/get/" + getCurrentProjectID(), response => {
+          let project = response.data;
+          this.items = [{id: project.id, label: project.name}];
+          this.condition.projectIds = [project.id];
+          this.condition.projectId = project.id;
+          this.initTableData();
+        });
+      },
+      getType(type) {
+        return this.LOG_TYPE_MAP.get(type);
+      },
+      search() {
         this.initTableData();
-      });
-    },
-    getType(type) {
-      return this.LOG_TYPE_MAP.get(type);
-    },
-    search() {
-      this.initTableData();
-    },
-    openDetail(row) {
-      this.$refs.logDetail.open(row.id);
-    },
+      },
+      openDetail(row) {
+        this.$refs.logDetail.open(row.id);
+      },
+    }
   }
-}
 </script>
 
 <style scoped>
