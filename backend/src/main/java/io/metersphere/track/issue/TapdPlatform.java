@@ -86,7 +86,31 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
+
+        MultiValueMap<String, String> param = buildUpdateParam(issuesRequest);
+        TapdBug bug = tapdClient.addIssue(param);
+        Map<String, String> statusMap = tapdClient.getStatusMap(getProjectId(this.projectId));
+        issuesRequest.setPlatformStatus(statusMap.get(bug.getStatus()));
+
+        issuesRequest.setId(bug.getId());
+        // 用例与第三方缺陷平台中的缺陷关联
+        handleTestCaseIssues(issuesRequest);
+
+        // 插入缺陷表
+        insertIssues(bug.getId(), issuesRequest);
+    }
+
+    @Override
+    public void updateIssue(IssuesUpdateRequest request) {
+        MultiValueMap<String, String> param = buildUpdateParam(request);
+        param.add("id", request.getId());
+        handleIssueUpdate(request);
+        tapdClient.updateIssue(param);
+    }
+
+    private MultiValueMap<String, String> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
+        setConfig();
 
         List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
 
@@ -107,7 +131,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
             reporter = SessionUtils.getUser().getName();
         }
 
-        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        MultiValueMap<String, String> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
         paramMap.add("description", msDescription2Tapd(issuesRequest.getDescription()));
@@ -119,25 +143,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
             }
         });
         paramMap.add("reporter", reporter);
-
-        setConfig();
-        TapdBug bug = tapdClient.addIssue(paramMap);
-        Map<String, String> statusMap = tapdClient.getStatusMap(getProjectId(this.projectId));
-        issuesRequest.setPlatformStatus(statusMap.get(bug.getStatus()));
-
-        issuesRequest.setId(bug.getId());
-        // 用例与第三方缺陷平台中的缺陷关联
-        handleTestCaseIssues(issuesRequest);
-
-        // 插入缺陷表
-        insertIssues(bug.getId(), issuesRequest);
-    }
-
-    @Override
-    public void updateIssue(IssuesUpdateRequest request) {
-        // todo 调用接口
-        request.setDescription(null);
-        handleIssueUpdate(request);
+        return paramMap;
     }
 
     private String msDescription2Tapd(String msDescription) {
@@ -147,7 +153,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void deleteIssue(String id) {}
+    public void deleteIssue(String id) {
+        super.deleteIssue(id);
+        // todo 暂无删除API
+    }
 
     @Override
     public void testAuth() {

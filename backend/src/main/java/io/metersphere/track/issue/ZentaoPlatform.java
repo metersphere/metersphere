@@ -172,6 +172,35 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void addIssue(IssuesUpdateRequest issuesRequest) {
+
+        MultiValueMap<String, Object> param = buildUpdateParam(issuesRequest);
+        AddIssueResponse.Issue issue = zentaoClient.addIssue(param);
+        issuesRequest.setPlatformStatus(issue.getStatus());
+
+        String id = issue.getId();
+        if (StringUtils.isNotBlank(id)) {
+            issuesRequest.setId(id);
+            // 用例与第三方缺陷平台中的缺陷关联
+            handleTestCaseIssues(issuesRequest);
+
+            IssuesExample issuesExample = new IssuesExample();
+            issuesExample.createCriteria().andIdEqualTo(id)
+                    .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
+            if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
+                // 插入缺陷表
+                insertIssues(id, issuesRequest);
+            }
+        }
+    }
+
+    @Override
+    public void updateIssue(IssuesUpdateRequest request) {
+        // todo 调用接口
+        request.setDescription(null);
+        handleIssueUpdate(request);
+    }
+
+    private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
         issuesRequest.setPlatform(IssuesManagePlatform.Zentao.toString());
 
         List<CustomFieldItemDTO> customFields = getCustomFields(issuesRequest.getCustomFields());
@@ -212,32 +241,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         if (StringUtils.isNotBlank(issuesRequest.getZentaoAssigned())) {
             paramMap.add("assignedTo", issuesRequest.getZentaoAssigned());
         }
-
-        AddIssueResponse.Issue issue = zentaoClient.addIssue(paramMap);
-        issuesRequest.setPlatformStatus(issue.getStatus());
-
-        String id = issue.getId();
-        if (StringUtils.isNotBlank(id)) {
-            issuesRequest.setId(id);
-            // 用例与第三方缺陷平台中的缺陷关联
-            handleTestCaseIssues(issuesRequest);
-
-            IssuesExample issuesExample = new IssuesExample();
-            issuesExample.createCriteria().andIdEqualTo(id)
-                    .andPlatformEqualTo(IssuesManagePlatform.Zentao.toString());
-            if (issuesMapper.selectByExample(issuesExample).size() <= 0) {
-                // 插入缺陷表
-                insertIssues(id, issuesRequest);
-            }
-        }
-
-    }
-
-    @Override
-    public void updateIssue(IssuesUpdateRequest request) {
-        // todo 调用接口
-        request.setDescription(null);
-        handleIssueUpdate(request);
+        return paramMap;
     }
 
     @Override

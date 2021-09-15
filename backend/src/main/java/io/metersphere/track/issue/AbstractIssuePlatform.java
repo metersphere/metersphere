@@ -91,6 +91,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     }
 
     public AbstractIssuePlatform(IssuesRequest issuesRequest) {
+        this();
+        this.testCaseId = issuesRequest.getTestCaseId();
+        this.projectId = issuesRequest.getProjectId();
+        this.orgId = issuesRequest.getOrganizationId();
+        this.userId = issuesRequest.getUserId();
+    }
+
+    public AbstractIssuePlatform() {
         this.integrationService = CommonBeanFactory.getBean(IntegrationService.class);
         this.testCaseIssuesMapper = CommonBeanFactory.getBean(TestCaseIssuesMapper.class);
         this.projectService = CommonBeanFactory.getBean(ProjectService.class);
@@ -99,10 +107,6 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.issuesMapper = CommonBeanFactory.getBean(IssuesMapper.class);
         this.extIssuesMapper = CommonBeanFactory.getBean(ExtIssuesMapper.class);
         this.resourceService = CommonBeanFactory.getBean(ResourceService.class);
-        this.testCaseId = issuesRequest.getTestCaseId();
-        this.projectId = issuesRequest.getProjectId();
-        this.orgId = issuesRequest.getOrganizationId();
-        this.userId = issuesRequest.getUserId();
         this.restTemplateIgnoreSSL = restTemplate;
     }
 
@@ -323,5 +327,14 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
 
     protected UserDTO.PlatformInfo getUserPlatInfo(String orgId) {
         return userService.getCurrentPlatformInfo(orgId);
+    }
+
+    @Override
+    public void deleteIssue(String id) {
+        issuesMapper.deleteByPrimaryKey(id);
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria()
+                .andIssuesIdEqualTo(id);
+        testCaseIssuesMapper.deleteByExample(example);
     }
 }
