@@ -892,7 +892,6 @@ public class ApiAutomationService {
             group.setName(reportId);
             MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
             group.setOnSampleError(scenario.getOnSampleError());
-            this.preduceMsScenario(scenario);
             if (planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
             }
@@ -1142,7 +1141,7 @@ public class ApiAutomationService {
             public void run() {
                 List<String> reportIds = new LinkedList<>();
                 //记录串行执行中的环境参数，供下一个场景执行时使用。 <envId,<key,data>>
-                Map<String, Map<String, String>> execute_env_param_datas = new LinkedHashMap<>();
+                Map<String, Map<String, String>> executeEnvParams = new LinkedHashMap<>();
                 ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
                 HashTreeUtil hashTreeUtil = new HashTreeUtil();
                 for (String key : executeQueue.keySet()) {
@@ -1158,9 +1157,9 @@ public class ApiAutomationService {
                         apiScenarioReportMapper.updateByPrimaryKey(report);
                     }
                     try {
-                        if (!execute_env_param_datas.isEmpty()) {
+                        if (!executeEnvParams.isEmpty()) {
                             HashTree hashTree = executeQueue.get(key).getHashTree();
-                            hashTreeUtil.setEnvParamsMapToHashTree(hashTree, execute_env_param_datas);
+                            hashTreeUtil.setEnvParamsMapToHashTree(hashTree, executeEnvParams);
                             executeQueue.get(key).setHashTree(hashTree);
                         }
                         Future<ApiScenarioReport> future = executorService.submit(new SerialScenarioExecTask(jMeterService, apiScenarioReportMapper, executeQueue.get(key), request));
@@ -1174,7 +1173,7 @@ public class ApiAutomationService {
                         }
 
                         Map<String, Map<String, String>> envParamsMap = hashTreeUtil.getEnvParamsDataByHashTree(executeQueue.get(key).getHashTree(), apiTestEnvironmentService);
-                        execute_env_param_datas = hashTreeUtil.mergeParamDataMap(execute_env_param_datas, envParamsMap);
+                        executeEnvParams = hashTreeUtil.mergeParamDataMap(executeEnvParams, envParamsMap);
                     } catch (Exception e) {
                         reportIds.remove(key);
                         LogUtil.error("执行终止：" + e.getMessage());
@@ -1269,7 +1268,6 @@ public class ApiAutomationService {
 
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
                 group.setOnSampleError(scenario.getOnSampleError());
-                this.preduceMsScenario(scenario);
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
@@ -1334,16 +1332,6 @@ public class ApiAutomationService {
         }
 
         return jmeterHashTree;
-    }
-
-    private void preduceMsScenario(MsScenario scenario) {
-        if (scenario.getHashTree() != null) {
-            for (MsTestElement itemElement : scenario.getHashTree()) {
-                if (itemElement instanceof MsScenario) {
-                    itemElement.setId(UUID.randomUUID().toString());
-                }
-            }
-        }
     }
 
     private boolean checkScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs, TestPlanApiScenario testPlanApiScenarios) {
