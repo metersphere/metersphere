@@ -195,9 +195,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void updateIssue(IssuesUpdateRequest request) {
-        // todo 调用接口
-        request.setDescription(null);
+        MultiValueMap<String, Object> param = buildUpdateParam(request);
         handleIssueUpdate(request);
+        zentaoClient.setConfig(getUserConfig());
+        zentaoClient.updateIssue(request.getId(), param);
     }
 
     private MultiValueMap<String, Object> buildUpdateParam(IssuesUpdateRequest issuesRequest) {
@@ -246,7 +247,9 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     @Override
     public void deleteIssue(String id) {
-
+        super.deleteIssue(id);
+        zentaoClient.setConfig(getUserConfig());
+        zentaoClient.deleteIssue(id);
     }
 
     @Override

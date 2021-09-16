@@ -10,6 +10,8 @@ public class ZentaoPathInfoClient extends ZentaoClient {
     private static final String LOGIN = "/user-login.json?zentaosid=";
     private static final String SESSION_GET = "/api-getsessionid.json";
     private static final String BUG_CREATE = "/api-getModel-bug-create.json?zentaosid=";
+    private static final String BUG_UPDATE = "/api-getModel-bug-update-bugID={1}.json?zentaosid={2}";
+    private static final String BUG_DELETE = "/bug-delete-{1}-yes.json?zentaosid={2}";
     private static final String BUG_GET = "/api-getModel-bug-getById-bugID={1}?zentaosid={2}";
     private static final String STORY_GET = "/api-getModel-story-getProductStories-productID={key}?zentaosid=";
     private static final String USER_GET = "/api-getModel-user-getList?zentaosid=";
@@ -30,6 +32,8 @@ public class ZentaoPathInfoClient extends ZentaoClient {
         request.setFileUpload(getUrl(FILE_UPLOAD));
         request.setReplaceImgUrl(REPLACE_IMG_URL);
         request.setImgPattern(IMG_PATTERN);
+        request.setBugUpdate(getUrl(BUG_UPDATE));
+        request.setBugDelete(getUrl(BUG_DELETE));
         requestUrl = request;
     }
 

@@ -11,6 +11,8 @@ public class RequestUrl {
     private String login;
     private String sessionGet;
     private String bugCreate;
+    private String bugUpdate;
+    private String bugDelete;
     private String bugGet;
     private String storyGet;
     private String userGet;
