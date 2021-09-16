@@ -322,7 +322,7 @@
     </select>
     <select id="countApiCoverageByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(api.id) AS countNumber, if(test_case_api.api_definition_id is null,"uncoverage","coverage") AS groupField  FROM api_definition api left Join (
-            SELECT DISTINCT api_definition_id FROM api_test_case
+            SELECT DISTINCT api_definition_id FROM api_test_case WHERE status is null or status != 'Trash'
         ) test_case_api ON api.id = test_case_api.api_definition_id
         WHERE api.project_id = #{0} and  api.`status` != 'Trash'
         GROUP BY groupField
