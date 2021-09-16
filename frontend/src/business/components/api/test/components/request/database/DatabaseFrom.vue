@@ -7,15 +7,15 @@
                   :placeholder="$t('commons.input_content')"/>
       </el-form-item>
 
+      <el-form-item :label="$t('api_test.request.sql.database_driver')" prop="driver">
+        <el-select v-model="currentConfig.driver" class="select-100" @change="driverChange" clearable>
+          <el-option v-for="p in drivers" :key="p" :label="p" :value="p"/>
+        </el-select>
+      </el-form-item>
+
       <el-form-item :label="$t('api_test.request.sql.database_url')" prop="dbUrl">
         <el-input v-model="currentConfig.dbUrl" maxlength="500" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
-      </el-form-item>
-
-      <el-form-item :label="$t('api_test.request.sql.database_driver')" prop="driver">
-        <el-select v-model="currentConfig.driver" class="select-100" clearable>
-          <el-option v-for="p in drivers" :key="p" :label="p" :value="p"/>
-        </el-select>
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.username')" prop="username">
@@ -52,98 +52,110 @@
 </template>
 
 <script>
-    import {DatabaseConfig} from "../../../model/ScenarioModel";
+import {DatabaseConfig} from "../../../model/ScenarioModel";
 
-    export default {
-      name: "MsDatabaseFrom",
-      components: {},
-      props: {
-        isReadOnly: {
-          type: Boolean,
-          default: false
-        },
-        config: {
-          type: Object,
-          default() {
-            return new DatabaseConfig();
-          }
-        },
-        callback: {
-          type: Function
-        },
-      },
-      watch: {
-        config() {
-          Object.assign(this.currentConfig, this.config);
-        }
-      },
-      mounted() {
-        Object.assign(this.currentConfig, this.config);
-      },
-      data() {
-        return {
-          drivers: DatabaseConfig.DRIVER_CLASS,
-          result: {},
-          currentConfig: new DatabaseConfig(),
-          rules: {
-            name: [
-              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
-              {max: 300, message: this.$t('commons.input_limit', [0, 300]), trigger: 'blur'}
-            ],
-            driver: [
-              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-            ],
-            password: [
-              {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
-            ],
-            dbUrl: [
-              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-              {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'}
-            ],
-            username: [
-              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-              {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
-            ],
-            poolMax: [
-              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-            ],
-            timeout: [
-              {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
-            ]
-          }
-        }
-      },
-      methods: {
-        save(type) {
-          this.$refs['databaseFrom'].validate((valid) => {
-            if (valid) {
-              if (this.callback) {
-                if (type === 'add') {
-                  this.currentConfig.id = undefined;
-                }
-                this.callback(this.currentConfig);
-              }
-            } else {
-              return false;
-            }
-          });
-        },
-        clear() {
-          this.currentConfig = new DatabaseConfig();
-        },
-        validate() {
-          this.result = this.$post('/api/database/validate', this.currentConfig, () => {
-            this.$success(this.$t('commons.connection_successful'));
-          })
-        }
+export default {
+  name: "MsDatabaseFrom",
+  components: {},
+  props: {
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    config: {
+      type: Object,
+      default() {
+        return new DatabaseConfig();
+      }
+    },
+    callback: {
+      type: Function
+    },
+  },
+  watch: {
+    config() {
+      Object.assign(this.currentConfig, this.config);
+    }
+  },
+  mounted() {
+    Object.assign(this.currentConfig, this.config);
+  },
+  data() {
+    return {
+      drivers: DatabaseConfig.DRIVER_CLASS,
+      result: {},
+      currentConfig: new DatabaseConfig(),
+      rules: {
+        name: [
+          {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+          {max: 300, message: this.$t('commons.input_limit', [0, 300]), trigger: 'blur'}
+        ],
+        driver: [
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+        ],
+        password: [
+          {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
+        ],
+        dbUrl: [
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+          {max: 500, message: this.$t('commons.input_limit', [0, 500]), trigger: 'blur'}
+        ],
+        username: [
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+          {max: 200, message: this.$t('commons.input_limit', [0, 200]), trigger: 'blur'}
+        ],
+        poolMax: [
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+        ],
+        timeout: [
+          {required: true, message: this.$t('commons.cannot_be_null'), trigger: 'blur'},
+        ]
       }
     }
+  },
+  methods: {
+    save(type) {
+      this.$refs['databaseFrom'].validate((valid) => {
+        if (valid) {
+          if (this.callback) {
+            if (type === 'add') {
+              this.currentConfig.id = undefined;
+            }
+            this.callback(this.currentConfig);
+          }
+        } else {
+          return false;
+        }
+      });
+    },
+    clear() {
+      this.currentConfig = new DatabaseConfig();
+    },
+    validate() {
+      this.result = this.$post('/api/database/validate', this.currentConfig, () => {
+        this.$success(this.$t('commons.connection_successful'));
+      })
+    },
+    driverChange(type){
+      this.currentConfig.dbUrl = "";
+      if(type === "com.mysql.jdbc.Driver"){
+        this.currentConfig.dbUrl = "jdbc:mysql://127.0.0.1:3306/database";
+      }else if(type === "com.microsoft.sqlserver.jdbc.SQLServerDriver"){
+        this.currentConfig.dbUrl = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database";
+      }else if(type === "org.postgresql.Driver"){
+        this.currentConfig.dbUrl = "jdbc:postgresql://127.0.0.1:5432/database";
+      }else if(type === "oracle.jdbc.OracleDriver"){
+        this.currentConfig.dbUrl = "jdbc:oracle:thin:192.168.2.1:1521:database";
+      }
+    },
+  }
+}
 </script>
 
 <style scoped>
 
-  .buttons {
-    float: right;
-  }
+.buttons {
+  float: right;
+}
 
 </style>
