@@ -105,8 +105,6 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest,
                                     Map<String, List<ApiTestCaseWithBLOBs>> caseMap, Map<String, NodeTree> nodeMap) {
         String originId = apiDefinition.getId();
-        String id = UUID.randomUUID().toString();
-
         if (nodeMap != null && nodeMap.get(apiDefinition.getModuleId()) != null) {
             NodeTree nodeTree = nodeMap.get(apiDefinition.getModuleId());
             apiDefinition.setModuleId(nodeTree.getNewId());
@@ -119,11 +117,10 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             parseModule(apiDefinition.getModulePath(), importRequest, apiDefinition);
         }
 
-        apiDefinition.setId(id);
         apiDefinition.setProjectId(this.projectId);
         String request = apiDefinition.getRequest();
         JSONObject requestObj = JSONObject.parseObject(request);
-        requestObj.put("id", id);
+//        requestObj.put("id", id);
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
         apiDefinition.setCreateUser(SessionUtils.getUserId());
         apiDefinition.setUserId(SessionUtils.getUserId());
