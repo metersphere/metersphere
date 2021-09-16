@@ -651,4 +651,21 @@
         </if>
         order by `order` desc limit 1;
     </select>
+
+    <select id="countQuotedApiByProjectId" resultType="java.lang.Long">
+        SELECT COUNT(id) FROM api_definition
+        WHERE project_id = #{0} AND `status` != 'Trash'
+          AND (
+                    id IN (
+                    SELECT reference_id FROM api_scenario_reference_id WHERE api_scenario_id in (
+                        SELECT id FROM api_scenario WHERE  `status` is null or `status` != 'Trash'
+                    )
+                )
+                OR
+                    id IN (
+                        SELECT api_definition_id FROM api_test_case WHERE `status` is null or `status` != 'Trash'
+                    )
+            )
+    </select>
+
 </mapper>

@@ -272,6 +272,27 @@ public class APITestController {
         return apiCountResult;
     }
 
+    @GetMapping("/countApiCoverage/{projectId}")
+    public String countApiCoverage(@PathVariable String projectId) {
+        String returnStr = "100%";
+        /**
+         * 接口覆盖率
+         * 接口有案例/被场景引用 ： 所有的接口
+         */
+        long effectiveApiCount = apiDefinitionService.countEffectiveByProjectId(projectId);
+        long sourceIdCount = apiDefinitionService.countQuotedApiByProjectId(projectId);
+        try {
+            if(sourceIdCount != 0){
+                float coverageRageNumber = (float) sourceIdCount * 100 / effectiveApiCount;
+                DecimalFormat df = new DecimalFormat("0.0");
+                returnStr = df.format(coverageRageNumber) + "%";
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return  returnStr;
+    }
+
     @GetMapping("/countInterfaceCoverage/{projectId}")
     public String countInterfaceCoverage(@PathVariable String projectId) {
         String returnStr = "100%";

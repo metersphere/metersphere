@@ -68,10 +68,10 @@
           </el-col>
         </el-row>
       </el-header>
-      <el-main style="padding: 5px;margin-top: 10px">
-        <el-container>
-          <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
-            <el-container>
+      <el-main style="padding: 5px 5px 0px 5px;margin-top: 10px">
+<!--        <el-container>-->
+<!--          <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">-->
+<!--            <el-container>
               <el-aside width="30%">
                 {{ $t('api_test.home_page.detail_card.rate.completion') + ":" }}
               </el-aside>
@@ -84,7 +84,40 @@
                   </el-tooltip>
               </span>
               </el-main>
-            </el-container>
+            </el-container>-->
+            <el-container>
+              <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
+                <el-container style="height: 50px;margin-top: 10px">
+                  <el-aside width="50%" style="line-height: 40px;">
+                    {{$t('api_test.home_page.detail_card.rate.completion')+":"}}
+                  </el-aside>
+                  <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
+                <span class="rows-count-number">
+                {{ apiCountData.completionRage }}
+                  <el-tooltip placement="top" class="info-tool-tip">
+                    <div slot="content">{{ $t('api_test.home_page.formula.completion')}}</div>
+                    <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
+                  </el-tooltip>
+              </span>
+                  </el-main>
+                </el-container>
+                <el-container style="height: 50px;margin-top: 1px">
+                  <el-aside width="50%" style="line-height: 40px;">
+                    <span>{{$t('api_test.home_page.detail_card.rate.interface_coverage')+":"}}</span>
+                  </el-aside>
+                  <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
+                <span v-if="interfaceCoverage === 'waitting...'">
+                  <i class="el-icon-loading lading-icon"></i>
+                </span>
+                    <span v-else class="rows-count-number">
+                  {{interfaceCoverage}}
+                  <el-tooltip placement="top" class="info-tool-tip">
+                    <div slot="content">{{ $t('api_test.home_page.formula.api_coverage')}}</div>
+                    <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
+                  </el-tooltip>
+                </span>
+                  </el-main>
+                </el-container>
           </el-aside>
           <el-main style="padding: 5px">
             <el-card class="no-shadow-card" body-style="padding-left:5px;padding-right:5px">
@@ -142,6 +175,7 @@ export default {
   },
   props: {
     apiCountData: {},
+    interfaceCoverage:String,
   },
   methods: {
     redirectPage(clickType) {
@@ -160,6 +194,14 @@ export default {
   font-family: 'ArialMT', 'Arial', sans-serif;
   font-size: 33px;
   color: var(--count_number);
+  position: relative;
+}
+
+.rows-count-number{
+  font-family:'ArialMT', 'Arial', sans-serif;
+  font-size:19px;
+  color: var(--count_number);
+  margin:20px auto;
   position: relative;
 }
 
