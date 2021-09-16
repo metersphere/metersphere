@@ -1098,6 +1098,7 @@ public class ApiAutomationService {
                     counter.setPoolUrls(request.getConfig().getTestResources());
                 }
                 counter.setReportIds(reportIds);
+                request.getConfig().setAmassReport(serialReportId);
                 MessageCache.cache.put(serialReportId, counter);
             }
         }
