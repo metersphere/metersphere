@@ -7,15 +7,15 @@
                   :placeholder="$t('commons.input_content')"/>
       </el-form-item>
 
+      <el-form-item :label="$t('api_test.request.sql.database_driver')" prop="driver">
+        <el-select v-model="currentConfig.driver" class="select-100" @change="driverChange" clearable>
+          <el-option v-for="p in drivers" :key="p" :label="p" :value="p"/>
+        </el-select>
+      </el-form-item>
+
       <el-form-item :label="$t('api_test.request.sql.database_url')" prop="dbUrl">
         <el-input v-model="currentConfig.dbUrl" maxlength="500" show-word-limit
                   :placeholder="$t('commons.input_content')"/>
-      </el-form-item>
-
-      <el-form-item :label="$t('api_test.request.sql.database_driver')" prop="driver">
-        <el-select v-model="currentConfig.driver" class="select-100" clearable>
-          <el-option v-for="p in drivers" :key="p" :label="p" :value="p"/>
-        </el-select>
       </el-form-item>
 
       <el-form-item :label="$t('api_test.request.sql.username')" prop="username">
@@ -131,7 +131,19 @@
           this.result = this.$post('/api/database/validate', this.currentConfig, () => {
             this.$success(this.$t('commons.connection_successful'));
           })
-        }
+        },
+        driverChange(type){
+          this.currentConfig.dbUrl = "";
+          if(type === "com.mysql.jdbc.Driver"){
+            this.currentConfig.dbUrl = "jdbc:mysql://127.0.0.1:3306/database";
+          }else if(type === "com.microsoft.sqlserver.jdbc.SQLServerDriver"){
+            this.currentConfig.dbUrl = "jdbc:sqlserver://127.0.0.1:1433;DatabaseName=database";
+          }else if(type === "org.postgresql.Driver"){
+            this.currentConfig.dbUrl = "jdbc:postgresql://127.0.0.1:5432/database";
+          }else if(type === "oracle.jdbc.OracleDriver"){
+            this.currentConfig.dbUrl = "jdbc:oracle:thin:192.168.2.1:1521:database";
+          }
+        },
       }
     }
 </script>
