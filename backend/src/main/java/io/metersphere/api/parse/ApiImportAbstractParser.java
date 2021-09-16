@@ -63,6 +63,10 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
 
     protected String getBodyType(String contentType) {
         String bodyType = "";
+        if (StringUtils.isBlank(contentType)) {
+            return bodyType;
+        }
+
         switch (contentType) {
             case "application/x-www-form-urlencoded":
                 bodyType = Body.WWW_FROM;
