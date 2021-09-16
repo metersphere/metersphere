@@ -1446,4 +1446,18 @@ public class ApiDefinitionService {
         }
         return null;
     }
+
+    public long countEffectiveByProjectId(String projectId) {
+        if(StringUtils.isEmpty(projectId)){
+            return 0;
+        }else {
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
+            return apiDefinitionMapper.countByExample(example);
+        }
+    }
+
+    public long countQuotedApiByProjectId(String projectId) {
+        return extApiDefinitionMapper.countQuotedApiByProjectId(projectId);
+    }
 }

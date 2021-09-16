@@ -67,4 +67,5 @@ public interface ExtApiDefinitionMapper {
 
     Long getLastOrder(@Param("projectId")String projectId, @Param("baseOrder") Long baseOrder);
 
+    long countQuotedApiByProjectId(String projectId);
 }
