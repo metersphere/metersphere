@@ -218,13 +218,18 @@ public class JiraPlatform extends AbstractIssuePlatform {
         jiraClientV2.setConfig(config);
 
         customFields.forEach(item -> {
-            if (StringUtils.isNotBlank(item.getCustomData())) {
+            String fieldName = item.getCustomData();
+            if (StringUtils.isNotBlank(fieldName)) {
                 if (StringUtils.isNotBlank(item.getValue())) {
                     if (StringUtils.isNotBlank(item.getType()) &&
                             StringUtils.equalsAny(item.getType(), "select", "radio", "member")) {
                         JSONObject param = new JSONObject();
-                        param.put("id", item.getValue());
-                        fields.put(item.getCustomData(), param);
+                        if (fieldName.equals("assignee") || fieldName.equals("reporter")) {
+                            param.put("name", item.getValue());
+                        } else {
+                            param.put("id", item.getValue());
+                        }
+                        fields.put(fieldName, param);
                     } else if (StringUtils.isNotBlank(item.getType()) &&
                             StringUtils.equalsAny(item.getType(),  "multipleSelect", "checkbox", "multipleMember")) {
                        JSONArray attrs = new JSONArray();
@@ -236,9 +241,9 @@ public class JiraPlatform extends AbstractIssuePlatform {
                                 attrs.add(param);
                             });
                         }
-                        fields.put(item.getCustomData(), attrs);
+                        fields.put(fieldName, attrs);
                     } else {
-                        fields.put(item.getCustomData(), item.getValue());
+                        fields.put(fieldName, item.getValue());
                     }
                 }
             }
