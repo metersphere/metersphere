@@ -23,6 +23,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.api.jmeter.ResourcePoolCalculation;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
@@ -420,6 +421,10 @@ public class TestPlanApiCaseService {
                 public void run() {
                     for (TestPlanApiCase testPlanApiCase : executeQueue.keySet()) {
                         try {
+                            if (MessageCache.terminationOrderDeque.contains(executeQueue.get(testPlanApiCase).getId())) {
+                                MessageCache.terminationOrderDeque.remove(executeQueue.get(testPlanApiCase).getId());
+                                break;
+                            }
                             ApiDefinitionExecResult execResult = executeQueue.get(testPlanApiCase);
                             execResult.setId(executeQueue.get(testPlanApiCase).getId());
                             execResult.setStatus(APITestStatus.Running.name());

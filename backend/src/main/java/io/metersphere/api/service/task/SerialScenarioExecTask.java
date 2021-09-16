@@ -36,7 +36,7 @@ public class SerialScenarioExecTask<T> implements Callable<T> {
         try {
             if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
                 MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
-                return (T) report;
+                return null;
             }
             if (request.getConfig() != null && StringUtils.isNotBlank(request.getConfig().getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getReport().getId(), request.getRunMode(), request.getPlanScenarioId(), request.getConfig());

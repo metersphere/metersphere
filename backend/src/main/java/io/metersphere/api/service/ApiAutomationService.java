@@ -1146,6 +1146,11 @@ public class ApiAutomationService {
                 ApiTestEnvironmentService apiTestEnvironmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
                 HashTreeUtil hashTreeUtil = new HashTreeUtil();
                 for (String key : executeQueue.keySet()) {
+                    // 终止执行
+                    if (MessageCache.terminationOrderDeque.contains(key)) {
+                        MessageCache.terminationOrderDeque.remove(key);
+                        break;
+                    }
                     reportIds.add(key);
                     APIScenarioReportResult report = executeQueue.get(key).getReport();
                     if (StringUtils.isNotEmpty(serialReportId)) {

@@ -6,6 +6,7 @@ package io.metersphere.track.service.task;
 import io.metersphere.api.dto.RunModeDataDTO;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.MessageCache;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.APITestStatus;
@@ -33,6 +34,10 @@ public class SerialApiExecTask<T> implements Callable<T> {
     @Override
     public T call() {
         try {
+            if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
+                return null;
+            }
             if (config != null && StringUtils.isNotBlank(config.getResourcePoolId())) {
                 jMeterService.runTest(runModeDataDTO.getTestId(), runModeDataDTO.getApiCaseId(), runMode, null, config);
             } else {
@@ -46,6 +51,10 @@ public class SerialApiExecTask<T> implements Callable<T> {
                 index++;
                 report = mapper.selectByPrimaryKey(runModeDataDTO.getApiCaseId());
                 if (report != null && !report.getStatus().equals(APITestStatus.Running.name())) {
+                    break;
+                }
+                if (MessageCache.terminationOrderDeque.contains(runModeDataDTO.getReport().getId())) {
+                    MessageCache.terminationOrderDeque.remove(runModeDataDTO.getReport().getId());
                     break;
                 }
             }
