@@ -206,7 +206,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -230,6 +230,7 @@ import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOpe
 import ApiCaseBatchRun from "@/business/components/api/definition/components/list/ApiCaseBatchRun";
 import MsRequestResultTail from "../../../../api/definition/components/response/RequestResultTail";
 import {editApiTestCaseOrder} from "@/network/api";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiCaseSimpleList",
@@ -960,6 +961,18 @@ export default {
         }
       }
     },
+    sortHashTree(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.sortHashTree(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     createPerformance(row, environment) {
       /**
        * 思路：调用后台创建性能测试的方法，把当前案例的hashTree在后台转化为jmx并文件创建性能测试。
@@ -972,6 +985,7 @@ export default {
         this.$warning(this.$t('api_test.environment.select_environment'));
         return;
       }
+      let projectId = getCurrentProjectID();
       let runData = [];
       let singleLoading = true;
       row.request = JSON.parse(row.request);
@@ -983,20 +997,30 @@ export default {
       runData.push(row.request);
       /*触发执行操作*/
       let testPlan = new TestPlan();
+      testPlan.clazzName = TYPE_TO_C.get(testPlan.type);
       let threadGroup = new ThreadGroup();
+      threadGroup.clazzName = TYPE_TO_C.get(threadGroup.type);
       threadGroup.hashTree = [];
       testPlan.hashTree = [threadGroup];
       runData.forEach(item => {
+        item.projectId = projectId;
+        if (!item.clazzName) {
+          item.clazzName = TYPE_TO_C.get(item.type);
+        }
         threadGroup.hashTree.push(item);
       });
+      this.sortHashTree(testPlan.hashTree);
       let reqObj = {
         id: row.id,
         testElement: testPlan,
+        clazzName: this.clazzName ? this.clazzName : TYPE_TO_C.get(this.type),
         name: row.name,
-        projectId: this.projectId,
+        projectId: projectId,
+        environmentMap: new Map([
+          [projectId, environment.id]
+        ]),
       };
       let bodyFiles = getBodyUploadFiles(reqObj, runData);
-      reqObj.reportId = "run";
 
       let url = "/api/genPerformanceTestXml";
 
@@ -1016,12 +1040,6 @@ export default {
         this.$router.push({
           path: "/performance/test/create"
         });
-        // let performanceId = response.data;
-        // if(performanceId!=null){
-        //   this.$router.push({
-        //     path: "/performance/test/edit/"+performanceId,
-        //   })
-        // }
       }, erro => {
         this.$emit('runRefresh', {});
       });
