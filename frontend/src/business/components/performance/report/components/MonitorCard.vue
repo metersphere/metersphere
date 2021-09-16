@@ -6,10 +6,10 @@
           <el-select v-model="currentInstance" placeholder="" size="small" style="width: 100%"
                      @change="handleChecked(currentInstance)">
             <el-option
-                v-for="item in instances"
-                :key="item"
-                :label="item"
-                :value="item">
+              v-for="item in instances"
+              :key="item.ip+item.port"
+              :value="item.ip+':'+item.port">
+              {{ item.ip }} {{ item.name }}
             </el-option>
           </el-select>
         </div>
@@ -35,47 +35,47 @@
         <el-row>
           <el-col :offset="2" :span="20">
             <el-table
-                :data="tableData"
-                stripe
-                border
-                style="width: 100%">
+              :data="tableData"
+              stripe
+              border
+              style="width: 100%">
               <el-table-column label="Label" align="center">
                 <el-table-column
-                    prop="label"
-                    label="Label"
-                    sortable>
+                  prop="label"
+                  label="Label"
+                  sortable>
                 </el-table-column>
               </el-table-column>
               <el-table-column label="Aggregate" align="center">
                 <el-table-column
-                    prop="avg"
-                    label="Avg."
-                    width="100"
-                    sortable
+                  prop="avg"
+                  label="Avg."
+                  width="100"
+                  sortable
                 />
                 <el-table-column
-                    prop="min"
-                    label="Min."
-                    width="100"
-                    sortable
+                  prop="min"
+                  label="Min."
+                  width="100"
+                  sortable
                 />
                 <el-table-column
-                    prop="max"
-                    label="Max."
-                    width="100"
-                    sortable
+                  prop="max"
+                  label="Max."
+                  width="100"
+                  sortable
                 />
               </el-table-column>
               <el-table-column label="Range" align="center">
                 <el-table-column
-                    prop="startTime"
-                    label="Start"
-                    width="160"
+                  prop="startTime"
+                  label="Start"
+                  width="160"
                 />
                 <el-table-column
-                    prop="endTime"
-                    label="End"
-                    width="160"
+                  prop="endTime"
+                  label="End"
+                  width="160"
                 />
               </el-table-column>
             </el-table>
@@ -97,6 +97,14 @@ import {
 } from "@/network/load-test";
 
 const color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
+const checkList = ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'];
+const checkOptions = [
+  {key: 'cpu', label: 'CPU'},
+  {key: 'memory', label: 'Memory'},
+  {key: 'disk', label: 'Disk'},
+  {key: 'netIn', label: 'Network In'},
+  {key: 'netOut', label: 'Network Out'}
+];
 
 export default {
   name: "MonitorCard",
@@ -113,14 +121,8 @@ export default {
       instances: [],
       data: [],
       tableData: [],
-      checkList: ['CPU', 'Memory', 'Disk', 'Network In', 'Network Out'],
-      checkOptions: [
-        {key: 'cpu', label: 'CPU'},
-        {key: 'memory', label: 'Memory'},
-        {key: 'disk', label: 'Disk'},
-        {key: 'netIn', label: 'Network In'},
-        {key: 'netOut', label: 'Network Out'}
-      ],
+      checkList: checkList,
+      checkOptions: checkOptions,
       baseOption: {
         color: color,
         grid: {
@@ -175,14 +177,14 @@ export default {
       // this.init = true;
       if (this.planReportTemplate) {
         this.instances = this.planReportTemplate.reportResource;
-        this.currentInstance = this.instances[0];
+        this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
         this.data = this.planReportTemplate.metricData;
         this.totalOption = this.getOption(this.currentInstance);
       } else if (this.isShare) {
         getSharePerformanceMetricQueryResource(this.shareId, this.id).then(response => {
           this.instances = response.data.data;
           if (!this.currentInstance) {
-            this.currentInstance = this.instances[0];
+            this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
           }
           getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
             if (result) {
@@ -196,7 +198,7 @@ export default {
         getPerformanceMetricQueryResource(this.id).then(response => {
           this.instances = response.data.data;
           if (!this.currentInstance) {
-            this.currentInstance = this.instances[0];
+            this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
           }
           getPerformanceMetricQuery(this.id).then(result => {
             if (result) {
@@ -211,6 +213,18 @@ export default {
       }
     },
     handleChecked(id) {
+      let curr = this.instances.filter(instance => id === instance.ip + ":" + instance.port)[0];
+      if (curr.monitorConfig) {
+        this.checkList = [];
+        this.checkOptions = curr.monitorConfig.filter(mc => mc.value && mc.name)
+          .map(mc => {
+            this.checkList.push(mc.name);
+            return {key: mc.name, label: mc.name,};
+          });
+      } else {
+        this.checkOptions = checkOptions;
+        this.checkList = checkList;
+      }
       this.totalOption = {};
       this.$nextTick(() => {
         this.totalOption = this.getOption(id);

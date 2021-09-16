@@ -41,6 +41,7 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
+import io.metersphere.performance.dto.Monitor;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
@@ -1573,7 +1574,7 @@ public class TestPlanService {
                             response.setReportLogResource(reportLogResource);
 //                        performanceReportService.getReportLogs(reportId, resourceId);
 
-                            List<String> reportResource = metricQueryService.queryReportResource(reportId);
+                            List<Monitor> reportResource = metricQueryService.queryReportResource(reportId);
                             response.setReportResource(reportResource);
                             List<MetricData> metricData = metricQueryService.queryMetric(reportId);
                             response.setMetricData(metricData);

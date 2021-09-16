@@ -18,6 +18,7 @@ import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
+import io.metersphere.performance.dto.Monitor;
 import io.metersphere.performance.service.MetricQueryService;
 import io.metersphere.performance.service.PerformanceReportService;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -239,7 +240,7 @@ public class ShareController {
     }
 
     @GetMapping("/metric/query/resource/{shareId}/{id}")
-    public List<String> queryReportResource(@PathVariable String shareId, @PathVariable("id") String reportId) {
+    public List<Monitor> queryReportResource(@PathVariable String shareId, @PathVariable("id") String reportId) {
         return metricService.queryReportResource(reportId);
     }
 

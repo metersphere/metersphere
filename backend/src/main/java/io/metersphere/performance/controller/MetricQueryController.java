@@ -1,6 +1,7 @@
 package io.metersphere.performance.controller;
 
 import io.metersphere.performance.dto.MetricData;
+import io.metersphere.performance.dto.Monitor;
 import io.metersphere.performance.service.MetricQueryService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,7 +21,7 @@ public class MetricQueryController {
     }
 
     @GetMapping("/query/resource/{id}")
-    public List<String> queryReportResource(@PathVariable("id") String reportId) {
+    public List<Monitor> queryReportResource(@PathVariable("id") String reportId) {
         return metricService.queryReportResource(reportId);
     }
 }

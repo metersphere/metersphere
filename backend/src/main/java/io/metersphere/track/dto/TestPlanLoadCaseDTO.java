@@ -6,6 +6,7 @@ import io.metersphere.dto.LogDetailDTO;
 import io.metersphere.performance.base.*;
 import io.metersphere.performance.dto.LoadTestExportJmx;
 import io.metersphere.performance.dto.MetricData;
+import io.metersphere.performance.dto.Monitor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,7 +43,7 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCase {
         private List<Errors> reportErrors;
         private List<ErrorsTop5> reportErrorsTop5;
         private List<LogDetailDTO> reportLogResource;
-        private List<String> reportResource;
+        private List<Monitor> reportResource;
         private  List<MetricData> metricData;
     }
 }
