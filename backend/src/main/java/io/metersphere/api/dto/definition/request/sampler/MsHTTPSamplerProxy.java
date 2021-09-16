@@ -126,7 +126,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @JSONField(ordinal = 38)
     private String alias;
-  
+
     @JSONField(ordinal = 39)
     private boolean customizeReq;
 
@@ -274,27 +274,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         addCertificate(config, httpSamplerTree);
 
         //增加全局前后至脚本
-        MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
-        MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
-        if(preProcessor != null){
-            if (preProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    preProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    preProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
-        }
-        if(postProcessor != null){
-            if (postProcessor.getEnvironmentId() == null) {
-                if (this.getEnvironmentId() == null) {
-                    postProcessor.setEnvironmentId(useEnvironment);
-                } else {
-                    postProcessor.setEnvironmentId(this.getEnvironmentId());
-                }
-            }
-            postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
+        if (httpConfig != null) {
+            this.setScript(httpConfig, httpSamplerTree, config);
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
@@ -311,21 +292,46 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     }
 
+    private void setScript(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config) {
+        MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
+        MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
+        if (preProcessor != null) {
+            if (preProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    preProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    preProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
+        }
+        if (postProcessor != null) {
+            if (postProcessor.getEnvironmentId() == null) {
+                if (this.getEnvironmentId() == null) {
+                    postProcessor.setEnvironmentId(useEnvironment);
+                } else {
+                    postProcessor.setEnvironmentId(this.getEnvironmentId());
+                }
+            }
+            postProcessor.toHashTree(httpSamplerTree, postProcessor.getHashTree(), config);
+        }
+    }
+
     private void initConnectAndResponseTimeout(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
             String useEvnId = config.getConfig().get(this.getProjectId()).getApiEnvironmentid();
             if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                 this.setEnvironmentId(useEvnId);
             }
-            CommonConfig commonConfig  = config.getConfig().get(this.getProjectId()).getCommonConfig();
-            if(commonConfig != null){
-                if(this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(),"60000")){
-                    if(commonConfig.getRequestTimeout() != 0){
+            CommonConfig commonConfig = config.getConfig().get(this.getProjectId()).getCommonConfig();
+            if (commonConfig != null) {
+                if (this.getConnectTimeout() == null || StringUtils.equals(this.getConnectTimeout(), "60000")) {
+                    if (commonConfig.getRequestTimeout() != 0) {
                         this.setConnectTimeout(String.valueOf(commonConfig.getRequestTimeout()));
                     }
                 }
-                if(this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(),"60000")){
-                    if(commonConfig.getResponseTimeout() != 0){
+                if (this.getResponseTimeout() == null || StringUtils.equals(this.getResponseTimeout(), "60000")) {
+                    if (commonConfig.getResponseTimeout() != 0) {
                         this.setResponseTimeout(String.valueOf(commonConfig.getResponseTimeout()));
                     }
                 }
@@ -340,15 +346,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private HttpConfig getHttpConfig(ParameterConfig config) {
         if (config.isEffective(this.getProjectId())) {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
-            if (environmentConfig != null){
+            if (environmentConfig != null) {
                 String useEvnId = environmentConfig.getApiEnvironmentid();
-                if(this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().containsKey("hashTree") ){
+                if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().containsKey("hashTree")) {
                     try {
                         JSONArray jsonArray = environmentConfig.getAuthManager().getJSONArray("hashTree");
-                        if(jsonArray.size() > 0){
+                        if (jsonArray.size() > 0) {
                             this.authManager = jsonArray.getJSONObject(0).toJavaObject(MsAuthManager.class);
                         }
-                    }catch (Exception e){}
+                    } catch (Exception e) {
+                    }
                 }
                 if (StringUtils.isNotEmpty(useEvnId) && !StringUtils.equals(useEvnId, this.getEnvironmentId())) {
                     this.setEnvironmentId(useEvnId);
@@ -702,18 +709,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         for (KeyValue keyValue : keyValues) {
             boolean hasHead = false;
             //检查是否已经有重名的Head。如果Header重复会导致执行报错
-            if(headerManager.getHeaders() != null){
-                for(int i = 0; i < headerManager.getHeaders().size(); i ++){
+            if (headerManager.getHeaders() != null) {
+                for (int i = 0; i < headerManager.getHeaders().size(); i++) {
                     Header header = headerManager.getHeader(i);
                     String headName = header.getName();
-                    if(StringUtils.equals(headName,keyValue.getName())){
+                    if (StringUtils.equals(headName, keyValue.getName())) {
                         hasHead = true;
                         break;
                     }
                 }
             }
 
-            if(!hasHead){
+            if (!hasHead) {
                 headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.buildFunctionCallString(keyValue.getValue())));
             }
         }

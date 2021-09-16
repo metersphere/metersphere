@@ -63,19 +63,29 @@ public class HttpConfig {
         }
     }
 
-    public HttpConfig getModuleCondition(String moduleId, HttpConfigCondition configCondition) {
-        List<String> moduleIds = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(configCondition.getDetails())) {
-            if (CollectionUtils.isEmpty(configCondition.getModuleIds())) {
-                for (KeyValue keyValue : configCondition.getDetails()) {
-                    getAllChild(keyValue.getValue(), moduleIds);
-                }
-                configCondition.setModuleIds(moduleIds);
-            } else {
-                moduleIds = configCondition.getModuleIds();
-            }
+//    public HttpConfig getModuleCondition(String moduleId, HttpConfigCondition configCondition) {
+//        List<String> moduleIds = new ArrayList<>();
+//        if (CollectionUtils.isNotEmpty(configCondition.getDetails())) {
+//            if (CollectionUtils.isEmpty(configCondition.getModuleIds())) {
+//                for (KeyValue keyValue : configCondition.getDetails()) {
+//                    getAllChild(keyValue.getValue(), moduleIds);
+//                }
+//                configCondition.setModuleIds(moduleIds);
+//            } else {
+//                moduleIds = configCondition.getModuleIds();
+//            }
+//
+//            if (moduleIds.contains(moduleId)) {
+//                return initHttpConfig(configCondition);
+//            }
+//        }
+//        return null;
+//    }
 
-            if (moduleIds.contains(moduleId)) {
+    public HttpConfig getModuleCondition(String moduleId, HttpConfigCondition configCondition) {
+        if (CollectionUtils.isNotEmpty(configCondition.getDetails())) {
+            List<KeyValue> details = configCondition.getDetails().stream().filter(detail -> StringUtils.contains(detail.getValue(), moduleId)).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(details)) {
                 return initHttpConfig(configCondition);
             }
         }
