@@ -41,7 +41,6 @@ import io.metersphere.log.vo.api.ModuleReference;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.UserService;
-import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -292,7 +291,6 @@ public class ApiScenarioReportService {
             returnReport = report;
             reportIds.add(report.getId());
         }
-        // margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
         return returnReport;
     }
 
@@ -401,10 +399,7 @@ public class ApiScenarioReportService {
             caseReportMap.put(testPlanApiScenario.getApiScenarioId(), reportResult);
             reportIds.add(report.getId());
         }
-        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-
         testPlanLog.info("TestPlanReportId" + JSONArray.toJSONString(testPlanReportIdList) + " EXECUTE OVER. SCENARIO STATUS : " + JSONObject.toJSONString(scenarioAndErrorMap));
-
         for (String reportId : testPlanReportIdList) {
             TestPlanReportExecuteCatch.updateApiTestPlanExecuteInfo(reportId, null, scenarioAndErrorMap, null);
             TestPlanReportExecuteCatch.updateTestPlanExecuteResultInfo(reportId, null, caseReportMap, null);
@@ -869,8 +864,7 @@ public class ApiScenarioReportService {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            MSException.throwException(e.getMessage());
+            LogUtil.error(e.getMessage());
         }
         return count;
     }

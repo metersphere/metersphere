@@ -44,13 +44,14 @@ public class TestResult {
 
     private List<ScenarioResult> scenarios = new ArrayList<>();
 
-    private Map<String, Boolean> margeScenariMap = new HashMap<>();
+    private Map<String, Boolean> margeScenarioMap = new HashMap<>();
 
     private Map<String, Boolean> scenarioStepMap = new HashMap<>();
 
     private int scenarioStepSuccess = 0;
     private int scenarioStepError = 0;
     private int scenarioStepTotal = 0;
+
     public void addError(int count) {
         this.error += count;
     }
@@ -72,16 +73,16 @@ public class TestResult {
     private void setStatus(List<String> id_names, boolean status) {
         if (CollectionUtils.isNotEmpty(id_names)) {
             id_names.forEach(item -> {
-                if (!margeScenariMap.containsKey(item) || status) {
-                    margeScenariMap.put(item, status);
+                if (!margeScenarioMap.containsKey(item) || status) {
+                    margeScenarioMap.put(item, status);
                 }
             });
         }
     }
 
     private void setStatus(String id_names, boolean status) {
-        if (!margeScenariMap.containsKey(id_names) || status) {
-            margeScenariMap.put(id_names, status);
+        if (!margeScenarioMap.containsKey(id_names) || status) {
+            margeScenarioMap.put(id_names, status);
         }
     }
 
@@ -101,18 +102,18 @@ public class TestResult {
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
                 String itemAndScenarioName = "";
-                 if (StringUtils.isNotEmpty(item.getScenario())) {
+                if (StringUtils.isNotEmpty(item.getScenario())) {
                     //第1个：当前场景， 第all_id_names个：最后一层场景
                     List<String> all_id_names = JSON.parseObject(item.getScenario(), List.class);
-                    if(all_id_names.size()>1){
+                    if (all_id_names.size() > 1) {
                         StringBuffer scenarioNames = new StringBuffer();
                         //因为要进行步骤统计，第一层级下的场景算作步骤，所以统计视角只按照第一级别场景来计算
-                        scenarioNames.append(all_id_names.get(all_id_names.size()-1)+all_id_names.get(all_id_names.size()-2));
+                        scenarioNames.append(all_id_names.get(all_id_names.size() - 1) + all_id_names.get(all_id_names.size() - 2));
                         this.setStatus(scenarioNames.toString(), item.getError() > 0);
                         itemAndScenarioName = scenarioNames.toString();
-                    }else{
+                    } else {
                         //不存在多场景时需要补上步骤名字做唯一判断  添加UUID进行处理
-                        itemAndScenarioName = item.getName()+":"+JSONArray.toJSONString(all_id_names.get(0))+ UUID.randomUUID().toString();
+                        itemAndScenarioName = item.getName() + ":" + JSONArray.toJSONString(all_id_names.get(0)) + UUID.randomUUID().toString();
                         this.setStatus(all_id_names, item.getError() > 0);
                     }
 
@@ -124,9 +125,9 @@ public class TestResult {
                         subItem.setName(array[0]);
                     });
                 } else {
-                    this.genScenarioInSubReqeustResult(item);
+                    this.genScenarioInSubRequestResult(item);
                 }
-                this.setStepStatus(itemAndScenarioName,item.getError()>0);
+                this.setStepStatus(itemAndScenarioName, item.getError() > 0);
             });
             scenarios.add(result);
         }
@@ -134,23 +135,23 @@ public class TestResult {
          * 1.10.2 场景成功/失败统计，不再按照请求为纬度，按照场景为纬度，
          */
         for (String key : scenarioStepMap.keySet()) {
-            if (scenarioStepMap .get(key)) {
+            if (scenarioStepMap.get(key)) {
                 this.scenarioStepError++;
             } else {
                 this.scenarioStepSuccess++;
             }
         }
         boolean hasError = false;
-        for (String key : margeScenariMap.keySet()) {
-            if (margeScenariMap.get(key)) {
+        for (String key : margeScenarioMap.keySet()) {
+            if (margeScenarioMap.get(key)) {
                 hasError = true;
                 break;
             }
         }
-        if(!margeScenariMap.isEmpty()){
-            if(hasError){
-                this.scenarioError ++;
-            }else {
+        if (!margeScenarioMap.isEmpty()) {
+            if (hasError) {
+                this.scenarioError++;
+            } else {
                 this.scenarioSuccess++;
             }
             this.scenarioTotal++;
@@ -162,21 +163,21 @@ public class TestResult {
     }
 
     //一般多层的事务控制器会出现这种情况
-    private String genScenarioInSubReqeustResult(RequestResult item) {
+    private String genScenarioInSubRequestResult(RequestResult item) {
 
         if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
             String array[] = item.getName().split(SEPARATOR);
             item.setName(array[0]);
         }
 
-        if(StringUtils.isNotEmpty(item.getScenario())){
+        if (StringUtils.isNotEmpty(item.getScenario())) {
             List<String> id_names = JSON.parseObject(item.getScenario(), List.class);
             this.setStatus(id_names, item.getError() > 0);
             return item.getScenario();
-        }else{
-            if(CollectionUtils.isNotEmpty(item.getSubRequestResults())){
-                for (RequestResult requestResult:item.getSubRequestResults()) {
-                    String result = this.genScenarioInSubReqeustResult(requestResult);
+        } else {
+            if (CollectionUtils.isNotEmpty(item.getSubRequestResults())) {
+                for (RequestResult requestResult : item.getSubRequestResults()) {
+                    this.genScenarioInSubRequestResult(requestResult);
                 }
             }
             return null;
