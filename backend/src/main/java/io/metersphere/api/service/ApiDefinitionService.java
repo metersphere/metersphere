@@ -330,6 +330,14 @@ public class ApiDefinitionService {
         }
     }
 
+    private List<ApiDefinition> getSameRequestById(String id, String projectId) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andStatusNotEqualTo("Trash")
+                .andProjectIdEqualTo(projectId)
+                .andIdEqualTo(id);
+        return apiDefinitionMapper.selectByExample(example);
+    }
+
     private List<ApiDefinition> getSameRequestWithName(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria()
@@ -466,6 +474,9 @@ public class ApiDefinitionService {
             // 如果勾选了允许重复，则判断更新要加上name字段
             sameRequest = getSameRequestWithName(saveReq);
         }
+        if (CollectionUtils.isEmpty(sameRequest)) {
+            sameRequest = getSameRequestById(apiDefinition.getId(), apiTestImportRequest.getProjectId());
+        }
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
@@ -485,21 +496,23 @@ public class ApiDefinitionService {
 
     private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
                                ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases) {
+        String originId = apiDefinition.getId();
         if (CollectionUtils.isEmpty(sameRequest)) {
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 String request = setImportHashTree(apiDefinition);
+                apiDefinition.setId(UUID.randomUUID().toString());
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 batchMapper.insert(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
             } else {
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                    String request = setImportTCPHashTree(apiDefinition);
+                    setImportTCPHashTree(apiDefinition);
                 }
                 batchMapper.insert(apiDefinition);
             }
 
         } else {
-            String originId = apiDefinition.getId();
             if (StringUtils.equalsIgnoreCase(apiDefinition.getProtocol(), RequestType.HTTP)) {
                 //如果存在则修改
                 apiDefinition.setId(sameRequest.get(0).getId());
@@ -509,23 +522,33 @@ public class ApiDefinitionService {
                 apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
-                // 如果是带用例导出，重新设置接口id
-                if (CollectionUtils.isNotEmpty(cases)) {
-                    cases.forEach(item -> {
-                        if (StringUtils.equals(item.getApiDefinitionId(), originId)) {
-                            item.setApiDefinitionId(apiDefinition.getId());
-                        }
-                    });
-                }
             } else {
                 apiDefinition.setId(sameRequest.get(0).getId());
                 if (StringUtils.equalsAnyIgnoreCase(apiDefinition.getProtocol(), RequestType.TCP)) {
-                    String request = setImportTCPHashTree(apiDefinition);
+                    setImportTCPHashTree(apiDefinition);
                 }
+                reSetImportCasesApiId(cases, originId, apiDefinition.getId());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
             }
 
+        }
+    }
+
+    /**
+     * 如果是MS格式，带用例导出，最后创建用例，重新设置接口id
+     * @param cases
+     * @param originId
+     * @param newId
+     */
+    private void reSetImportCasesApiId(List<ApiTestCaseWithBLOBs> cases, String originId, String newId) {
+        if (CollectionUtils.isNotEmpty(cases)) {
+            cases.forEach(item -> {
+                if (StringUtils.equals(item.getApiDefinitionId(), originId)) {
+                    item.setApiDefinitionId(newId);
+                }
+            });
         }
     }
 
