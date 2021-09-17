@@ -262,7 +262,19 @@ export default {
           }
         }
         if (isAdd) {
-          this.request.arguments.unshift(obj);
+          switch (this.activeName) {
+            case "parameters":
+              this.request.arguments.unshift(obj);
+              break;
+            case "rest":
+              this.request.rest.unshift(obj);
+              break;
+            case "headers":
+              this.request.headers.unshift(obj);
+              break;
+            default:
+              break;
+          }
         }
       }
     },
