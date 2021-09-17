@@ -16,7 +16,7 @@
 
         <div style="padding-top: 10px">
           <el-checkbox-group v-model="checkList"
-                             @change="handleChecked(currentInstance)">
+                             @change="handleCheckListChange(currentInstance)">
             <div v-for="op in checkOptions"
                  :key="op.key"
                  :content="op.label">
@@ -227,6 +227,13 @@ export default {
         this.checkOptions = checkOptions;
         this.checkList = checkList;
       }
+      this.totalOption = {};
+      this.$nextTick(() => {
+        this.totalOption = this.getOption(id);
+        this.changeDataZoom({start: 0, end: 100});
+      });
+    },
+    handleCheckListChange(id) {
       this.totalOption = {};
       this.$nextTick(() => {
         this.totalOption = this.getOption(id);
