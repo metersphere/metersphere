@@ -228,6 +228,9 @@ export default {
       })
     },
     init() {
+      if (Object.prototype.toString.call(this.request).match(/\[object (\w+)\]/)[1].toLowerCase() !== 'object') {
+        this.request = JSON.parse(this.request);
+      }
       if (!this.request.body) {
         this.request.body = new Body();
       }
