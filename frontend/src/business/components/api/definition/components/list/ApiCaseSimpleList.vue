@@ -696,6 +696,7 @@ export default {
           active: true,
           tags: data.tags,
           request: apiCaseRequest,
+          url: apiCaseRequest.path,
           uuid: uuid
         };
         this.$refs.caseList.copy(obj);

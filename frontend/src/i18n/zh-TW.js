@@ -1466,7 +1466,7 @@ export default {
       input_test_case: '請輸入關聯用例名稱',
       test_name: '測試名稱',
       other: "--其他--",
-      test_case: "測試用例",
+      test_case: "功能用例",
       move: "移動用例",
       case_list: "用例列表",
       create_case: "創建用例",
