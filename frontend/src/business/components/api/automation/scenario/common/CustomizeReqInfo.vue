@@ -2,10 +2,10 @@
   <div>
     <div v-if="request.protocol === 'HTTP'">
       <div v-if="request.url || isCustomizeReq">
-        <el-select v-model="request.method" style="width: 100px" size="small">
+        <el-select v-model="request.method" style="width: 100px;margin-right: 10px" size="small">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-        <el-input  v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly style="width: 150px"/>
+        <el-input v-model="request.domain" v-if="request.isRefEnvironment  && request.domain" size="small" readonly style="width: 150px;margin-right: 10px"/>
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url"
                   style="width: 50%" size="small" @blur="urlChange">
         </el-input>
@@ -14,10 +14,10 @@
         </el-checkbox>
       </div>
       <div v-else>
-        <el-select v-model="request.method" style="width: 100px" size="small">
+        <el-select v-model="request.method" style="width: 100px;margin-right: 10px" size="small">
           <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
         </el-select>
-        <el-input  v-model="request.domain" v-if="request.domain" size="small" readonly style="width: 150px"/>
+        <el-input v-model="request.domain" v-if="request.domain" size="small" readonly style="width: 150px;margin-right: 10px"/>
         <el-input :placeholder="$t('api_test.definition.request.path_all_info')" style="width: 50%"
                   v-model="request.path" size="small" @blur="pathChange"/>
       </div>
@@ -139,6 +139,7 @@ export default {
   white-space: nowrap;
   width: 120px;
 }
+
 .is-ref-environment {
   margin-left: 15px;
 }
