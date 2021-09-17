@@ -185,6 +185,7 @@ export default {
           this.instances = response.data.data;
           if (!this.currentInstance) {
             this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
+            this.handleChecked(this.currentInstance);
           }
           getSharePerformanceMetricQuery(this.shareId, this.id).then(result => {
             if (result) {
@@ -199,6 +200,7 @@ export default {
           this.instances = response.data.data;
           if (!this.currentInstance) {
             this.currentInstance = this.instances[0].ip + ":" + this.instances[0].port;
+            this.handleChecked(this.currentInstance);
           }
           getPerformanceMetricQuery(this.id).then(result => {
             if (result) {
