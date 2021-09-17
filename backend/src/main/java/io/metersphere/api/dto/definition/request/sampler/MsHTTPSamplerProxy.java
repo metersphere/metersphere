@@ -408,7 +408,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url = "http://" + url;
                 }
                 if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                    url.replaceAll(this.getPort(), "10990");
+                    url = url.replaceAll(this.getPort(), "10990");
                 }
                 if (url == null) {
                     MSException.throwException("请重新选择环境");
