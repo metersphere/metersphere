@@ -328,7 +328,9 @@ export default {
       }
     },
     doLayout() {
-      setTimeout(this.$refs.table.doLayout(), 200);
+      if (this.$refs.table) {
+        setTimeout(this.$refs.table.doLayout(), 200);
+      }
     },
     filter(filters) {
       _filter(filters, this.condition);
