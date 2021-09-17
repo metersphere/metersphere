@@ -17,6 +17,9 @@
         select load_test.id
         from load_test
         where load_test.project_id = #{request.projectId}
+        and load_test.id not in (
+        select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
+        )
         <if test="request.name != null and request.name != ''">
             and load_test.name like CONCAT('%', #{request.name},'%')
         </if>
@@ -41,9 +44,6 @@
                 <property name="objectKey" value="request.combine.tags"/>
             </include>
         </if>
-        and load_test.id not in (
-        select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
-        )
     </select>
     <sql id="condition">
         <choose>
