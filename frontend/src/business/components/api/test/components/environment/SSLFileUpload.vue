@@ -115,7 +115,7 @@
           this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
           return false;
         }
-        if (file.size / 1024 / 1024 > 30) {
+        if (file.size / 1024 / 1024 > 50) {
           this.$warning(this.$t('jar_config.upload_limit_size'));
           return false;
         }
