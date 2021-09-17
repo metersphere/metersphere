@@ -1,14 +1,14 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="'自定义函数'" :visible.sync="visible" :destroy-on-close="true"
+  <el-dialog :close-on-click-modal="false" :title="$t('project.code_segment.code_segment')" :visible.sync="visible" :destroy-on-close="true"
              @close="close" width="60%" top="10vh" v-loading="result.loading" append-to-body class="customFunc">
     <div>
       <el-alert
-        title="在 系统设置->项目->自定义函数 菜单中创建函数"
+        :title="$t('project.code_segment.relate_tip')"
         type="info"
         style="width: 350px;float: left;"
         :closable="false" show-icon>
       </el-alert>
-      <ms-table-search-bar :condition.sync="condition" @change="init" class="search-bar" :tip="'根据 名称/标签 搜索'"/>
+      <ms-table-search-bar :condition.sync="condition" @change="init" class="search-bar" :tip="$t('project.code_segment.search')"/>
       <el-table border class="adjust-table" :data="data" style="width: 100%" ref="table"
                 highlight-current-row @current-change="handleCurrentChange">
         <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
@@ -25,7 +25,7 @@
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="'脚本语言'" show-overflow-tooltip/>
+        <el-table-column prop="type" :label="$t('project.code_segment.language')" show-overflow-tooltip/>
         <el-table-column prop="createTime"
                          :label="$t('commons.create_time')"
                          show-overflow-tooltip>
@@ -106,12 +106,12 @@ export default {
     },
     submit() {
       if (!this.currentRow) {
-        this.$warning("请选择自定义函数！");
+        this.$warning(this.$t('project.code_segment.select_tip'));
         return;
       }
       this.result = this.$get("/custom/func/get/" + this.currentRow.id, res => {
         if (!res.data) {
-          this.$warning("函数为空！")
+          this.$warning(this.$t('project.code_segment.none_content'))
         }
         let {script} = res.data;
         this.$emit("addCustomFuncScript", script);

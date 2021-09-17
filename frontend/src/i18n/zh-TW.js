@@ -511,7 +511,31 @@ export default {
     no_data: '無數據',
     select: '選擇項目',
     repeatable: '接口定義URL可重復',
-    upload_file_again: '重新上傳'
+    upload_file_again: '重新上傳',
+    code_segment: {
+      code_segment: "自定義代碼片段",
+      search: "根據 名稱/標籤 搜索",
+      create: "創建代碼片段",
+      update: "更新代碼片段",
+      delete: "刪除自定義代碼片段",
+      language: "腳本語言",
+      relate_tip: "在 系統設置->項目->自定義代碼片段 菜單中創建",
+      select_tip: "請選擇自定義代碼片段!",
+      none_content: "自定義代碼片段為空！",
+      segment: "代碼片段",
+      result: "執行結果",
+      test: "測試",
+      no_result: "無執行結果",
+      api_test: "API測試",
+      import_api_test: "从API定义导入",
+      new_api_test: "新API測試[JSON]",
+      custom_value: "新API測試",
+      project_env: "項目環境",
+      insert_segment: "插入自定義代碼片段",
+      exception_handle: "異常處理",
+      stop_test: "終止測試",
+      report_handle: "報文處理"
+    }
   },
   member: {
     create: '添加成員',

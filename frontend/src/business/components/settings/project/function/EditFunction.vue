@@ -35,7 +35,7 @@
               <template v-slot>
                 <div style="position: relative;">
                   <el-tabs v-model="activeName">
-                    <el-tab-pane :label="'函数编辑'" name="code">
+                    <el-tab-pane :label="$t('project.code_segment.segment')" name="code">
                       <ms-code-edit
                         v-if="isCodeEditAlive"
                         :mode="codeEditModeMap[form.type]"
@@ -45,7 +45,7 @@
                         :modes="modes"
                         ref="codeEdit"/>
                     </el-tab-pane>
-                    <el-tab-pane :label="'执行结果'" name="result">
+                    <el-tab-pane :label="$t('project.code_segment.result')" name="result">
                       <div v-loading="runResult.loading">
                         <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px"
                                       ref="funcResult"/>
@@ -53,7 +53,7 @@
                     </el-tab-pane>
                   </el-tabs>
                   <el-button type="primary" size="mini" style="width: 70px;position: absolute; right: 0;top:10px;" @click="handleTest"
-                             :disabled="runResult.loading">测试
+                             :disabled="runResult.loading">{{ $t('project.code_segment.test') }}
                   </el-button>
                 </div>
               </template>
@@ -123,8 +123,8 @@ export default {
       reportId: "",
       runData: [],
       isStop: false,
-      dialogCreateTitle: "创建函数",
-      dialogUpdateTitle: "更新函数",
+      dialogCreateTitle: this.$t('project.code_segment.create'),
+      dialogUpdateTitle: this.$t('project.code_segment.update'),
       activeName: 'code',
       dialogTitle: "",
       isCodeEditAlive: true,
@@ -162,7 +162,7 @@ export default {
       response: {},
       request: {},
       debug: true,
-      console: "无执行结果"
+      console: this.$t('project.code_segment.no_result')
     }
   },
   methods: {
@@ -198,7 +198,7 @@ export default {
         type: "beanshell",
         params: [{}]
       };
-      this.console = "无执行结果";
+      this.console = this.$t('project.code_segment.no_result');
       this.visible = false;
     },
     languageChange(language) {
@@ -253,6 +253,7 @@ export default {
           this.form.id = res.data.id;
         }
         this.$success(this.$t('commons.save_success'));
+        this.reload();
       })
     },
     update(obj) {
@@ -262,11 +263,12 @@ export default {
       this.result = this.$post("/custom/func/update", obj, () => {
         this.$emit("refresh");
         this.$success(this.$t('commons.modify_success'));
+        this.reload();
       })
     },
     handleTest() {
       this.activeName = "result";
-      this.console = "无执行结果";
+      this.console = this.$t('project.code_segment.no_result');
       this.reloadResult();
       this.runResult.loading = true;
       let jSR223Processor = new JSR223Processor({

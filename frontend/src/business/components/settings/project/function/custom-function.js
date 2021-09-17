@@ -1,9 +1,9 @@
 export const FUNC_TEMPLATE = {
-  beanshell: "public void test() {\n\n\n}",
-  groovy: "def test() {\n\n\n}",
-  python: "def test():\n",
-  nashornScript: "function test() {\n\n\n}",
-  rhinoScript: "function test() {\n\n\n}"
+  beanshell: "",
+  groovy: "",
+  python: "",
+  nashornScript: "",
+  rhinoScript: ""
 }
 
 export function getCodeTemplate(language, requestObj) {
