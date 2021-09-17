@@ -48,6 +48,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsBasisParameters from "../request/dubbo/BasisParameters";
 import MsJmxStep from "../step/JmxStep";
 import MsApiCaseList from "../case/ApiCaseList";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiConfig",
@@ -156,6 +157,18 @@ export default {
       obj.request.id = getUUID();
       this.$emit('saveAs', obj);
     },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     saveAs() {
       let obj = {request: this.request};
       obj.request.id = getUUID();
@@ -163,6 +176,11 @@ export default {
       obj.protocol = this.currentProtocol;
       obj.status = "Underway";
       obj.method = this.currentProtocol;
+      // 历史数据兼容处理
+      if (this.request) {
+        this.request.clazzName = TYPE_TO_C.get(this.request.type);
+        this.compatibleHistory(this.request.hashTree);
+      }
       this.$refs.caseList.saveApiAndCase(obj);
     }
   }

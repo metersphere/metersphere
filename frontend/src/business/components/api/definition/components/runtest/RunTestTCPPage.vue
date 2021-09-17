@@ -80,6 +80,7 @@ import MsTcpFormatParameters from "@/business/components/api/definition/componen
 import {REQ_METHOD} from "../../model/JsonData";
 import EnvironmentSelect from "../environment/EnvironmentSelect";
 import MsJmxStep from "../step/JmxStep";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
 const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
@@ -208,6 +209,18 @@ export default {
       this.$emit('saveAsApi', data);
       this.$emit('refresh');
     },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     updateApi() {
       let url = "/api/definition/update";
       let bodyFiles = this.getBodyUploadFiles();
@@ -220,6 +233,11 @@ export default {
       if(this.api.method==='ESB'){
         this.api.esbDataStruct = JSON.stringify(this.api.request.esbDataStruct);
         this.api.backEsbDataStruct = JSON.stringify(this.api.request.backEsbDataStruct);
+      }
+      // 历史数据兼容处理
+      if (this.api.request) {
+        this.api.request.clazzName = TYPE_TO_C.get(this.api.request.type);
+        this.compatibleHistory(this.api.request.hashTree);
       }
       this.$fileUpload(url, null, bodyFiles, this.api, () => {
         this.$success(this.$t('commons.save_success'));

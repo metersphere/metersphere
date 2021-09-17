@@ -70,6 +70,7 @@ import MsRequestResultTail from "../response/RequestResultTail";
 import MsJmxStep from "../step/JmxStep";
 import {KeyValue} from "../../model/ApiTestModel";
 import MsApiCaseList from "../case/ApiCaseList";
+import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
 export default {
   name: "ApiConfig",
@@ -210,6 +211,18 @@ export default {
         }
       })
     },
+    compatibleHistory(stepArray) {
+      if (stepArray) {
+        for (let i in stepArray) {
+          if (!stepArray[i].clazzName) {
+            stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+          }
+          if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+            this.compatibleHistory(stepArray[i].hashTree);
+          }
+        }
+      }
+    },
     saveAs() {
       this.$refs['debugForm'].validate((valid) => {
         if (valid) {
@@ -223,6 +236,11 @@ export default {
           this.debugForm.status = "Underway";
           this.debugForm.protocol = this.currentProtocol;
           this.debugForm.saved = true;
+          // 历史数据兼容处理
+          if (this.debugForm.request) {
+            this.debugForm.request.clazzName = TYPE_TO_C.get(this.debugForm.request.type);
+            this.compatibleHistory(this.debugForm.request.hashTree);
+          }
           this.$refs.caseList.saveApiAndCase(this.debugForm);
         } else {
           return false;

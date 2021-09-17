@@ -61,6 +61,7 @@
   import {REQ_METHOD} from "../../model/JsonData";
   import {getCurrentProjectID, getCurrentUser} from "../../../../../../common/js/utils";
   import {createComponent, Request} from "../jmeter/components";
+  import {TYPE_TO_C} from "@/business/components/api/automation/scenario/Setting";
 
   export default {
     name: "MsAddBasisApi",
@@ -101,6 +102,18 @@
       },
     },
     methods: {
+      compatibleHistory(stepArray) {
+        if (stepArray) {
+          for (let i in stepArray) {
+            if (!stepArray[i].clazzName) {
+              stepArray[i].clazzName = TYPE_TO_C.get(stepArray[i].type);
+            }
+            if (stepArray[i].hashTree && stepArray[i].hashTree.length > 0) {
+              this.compatibleHistory(stepArray[i].hashTree);
+            }
+          }
+        }
+      },
       saveApi(saveAs) {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
@@ -111,6 +124,11 @@
             let bodyFiles = [];
             let path = "/api/definition/create";
             this.setParameter();
+            // 历史数据兼容处理
+            if (this.httpForm.request) {
+              this.httpForm.request.clazzName = TYPE_TO_C.get(this.httpForm.request.type);
+              this.compatibleHistory(this.httpForm.request.hashTree);
+            }
             this.result = this.$fileUpload(path, null, bodyFiles, this.httpForm, () => {
               this.httpVisible = false;
               if (saveAs) {

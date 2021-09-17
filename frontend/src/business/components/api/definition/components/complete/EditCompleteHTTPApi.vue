@@ -325,7 +325,7 @@
         this.httpForm.modulePath = data.path;
       },
       initMockEnvironment() {
-        var protocol = document.location.protocol;
+        let protocol = document.location.protocol;
         protocol = protocol.substring(0, protocol.indexOf(":"));
         let url = "/api/definition/getMockEnvironment/";
         this.$get(url + this.projectId + "/" + protocol, response => {
