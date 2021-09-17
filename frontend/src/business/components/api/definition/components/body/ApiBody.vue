@@ -123,22 +123,83 @@ export default {
       type: BODY_TYPE,
       modes: ['text', 'json', 'xml', 'html'],
       jsonSchema: "JSON",
-      codeEditActive: true
+      codeEditActive: true,
+      hasOwnProperty: Object.prototype.hasOwnProperty,
+      propIsEnumerable: Object.prototype.propertyIsEnumerable
     };
   },
-  watch:{
-    'body.raw'(){
-      if(this.body.format !== 'JSON-SCHEMA' && this.body.raw){
+  watch: {
+    'body.raw'() {
+      if (this.body.format !== 'JSON-SCHEMA' && this.body.raw) {
         try {
           const MsConvert = new Convert();
-          this.body.jsonSchema = MsConvert.format(JSON.parse(this.body.raw));
-        }catch (ex){
+          let data = MsConvert.format(JSON.parse(this.body.raw));
+          if (this.body.jsonSchema) {
+            this.body.jsonSchema = this.deepAssign(this.body.jsonSchema, data);
+          }
+        } catch (ex) {
           this.body.jsonSchema = "";
         }
       }
     }
   },
   methods: {
+    isObj(x) {
+      let type = typeof x;
+      return x !== null && (type === 'object' || type === 'function');
+    },
+
+    toObject(val) {
+      if (val === null || val === undefined) {
+        return;
+      }
+      return Object(val);
+    },
+
+    assignKey(to, from, key) {
+      let val = from[key];
+      if (val === undefined || val === null) {
+        return;
+      }
+
+      if (!this.hasOwnProperty.call(to, key) || !this.isObj(val)) {
+        to[key] = val;
+      } else {
+        to[key] = this.assign(Object(to[key]), from[key]);
+      }
+    },
+
+    assign(to, from) {
+      if (to === from) {
+        return to;
+      }
+      from = Object(from);
+      for (let key in from) {
+        if (this.hasOwnProperty.call(from, key)) {
+          this.assignKey(to, from, key);
+        }
+      }
+
+      if (Object.getOwnPropertySymbols) {
+        let symbols = Object.getOwnPropertySymbols(from);
+
+        for (let i = 0; i < symbols.length; i++) {
+          if (this.propIsEnumerable.call(from, symbols[i])) {
+            this.assignKey(to, from, symbols[i]);
+          }
+        }
+      }
+
+      return to;
+    },
+
+    deepAssign(target) {
+      target = this.toObject(target);
+      for (let s = 1; s < arguments.length; s++) {
+        this.assign(target, arguments[s]);
+      }
+      return target;
+    },
     reloadCodeEdit() {
       this.codeEditActive = false;
       this.$nextTick(() => {

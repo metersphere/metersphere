@@ -173,7 +173,10 @@ export default {
       headerSuggestions: REQUEST_HEADERS,
       isReloadData: false,
       isBodyShow: true,
-      dialogVisible: false
+      dialogVisible: false,
+      hasOwnProperty: Object.prototype.hasOwnProperty,
+      propIsEnumerable: Object.prototype.propertyIsEnumerable
+
     }
   },
   created() {
@@ -199,7 +202,8 @@ export default {
               this.request.body.raw = response.data;
             } else {
               const MsConvert = new Convert();
-              this.request.body.jsonSchema = MsConvert.format(JSON.parse(response.data));
+              let data = MsConvert.format(JSON.parse(response.data));
+              this.request.body.jsonSchema = this.deepAssign(this.request.body.jsonSchema, data);
             }
             this.reloadBody();
           }
@@ -210,22 +214,19 @@ export default {
       let index = this.request.hashTree.indexOf(row);
       this.request.hashTree.splice(index, 1);
       this.reload();
-    }
-    ,
+    },
     copyRow(row) {
       let obj = JSON.parse(JSON.stringify(row));
       obj.id = getUUID();
       this.request.hashTree.push(obj);
       this.reload();
-    }
-    ,
+    },
     reload() {
       this.isReloadData = true
       this.$nextTick(() => {
         this.isReloadData = false
       })
-    }
-    ,
+    },
     init() {
       if (!this.request.body) {
         this.request.body = new Body();
@@ -239,20 +240,17 @@ export default {
       if (!this.request.arguments) {
         this.request.arguments = [];
       }
-    }
-    ,
-// 解决修改请求头后 body 显示错位
+    },
     reloadBody() {
+      // 解决修改请求头后 body 显示错位
       this.isBodyShow = false;
       this.$nextTick(() => {
         this.isBodyShow = true;
       });
-    }
-    ,
+    },
     batchAdd() {
       this.$refs.batchAddParameter.open();
-    }
-    ,
+    },
     format(array, obj) {
       if (array) {
         let isAdd = true;
@@ -267,8 +265,7 @@ export default {
           this.request.arguments.unshift(obj);
         }
       }
-    }
-    ,
+    },
     batchSave(data) {
       if (data) {
         let params = data.split("\n");
@@ -306,8 +303,65 @@ export default {
           }
         })
       }
-    }
+    },
 
+    isObj(x) {
+      let type = typeof x;
+      return x !== null && (type === 'object' || type === 'function');
+    },
+
+    toObject(val) {
+      if (val === null || val === undefined) {
+        return;
+      }
+
+      return Object(val);
+    },
+
+    assignKey(to, from, key) {
+      let val = from[key];
+
+      if (val === undefined || val === null) {
+        return;
+      }
+      if (!this.hasOwnProperty.call(to, key) || !this.isObj(val)) {
+        to[key] = val;
+      } else {
+        to[key] = this.assign(Object(to[key]), from[key]);
+      }
+    },
+
+    assign(to, from) {
+      if (to === from) {
+        return to;
+      }
+      from = Object(from);
+      for (let key in from) {
+        if (this.hasOwnProperty.call(from, key)) {
+          this.assignKey(to, from, key);
+        }
+      }
+
+      if (Object.getOwnPropertySymbols) {
+        let symbols = Object.getOwnPropertySymbols(from);
+
+        for (let i = 0; i < symbols.length; i++) {
+          if (this.propIsEnumerable.call(from, symbols[i])) {
+            this.assignKey(to, from, symbols[i]);
+          }
+        }
+      }
+
+      return to;
+    },
+
+    deepAssign(target) {
+      target = this.toObject(target);
+      for (let s = 1; s < arguments.length; s++) {
+        this.assign(target, arguments[s]);
+      }
+      return target;
+    }
   }
 }
 </script>
