@@ -1,88 +1,91 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="dialogTitle" :visible.sync="visible" :destroy-on-close="true"
-             @close="close" width="75%" top="5vh" v-loading="result.loading">
-    <div style="height: 62vh; overflow-y: auto; overflow-x: hidden">
-      <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rules" v-if="isFormAlive"
-               ref="form">
-        <el-row type="flex" :gutter="20">
-          <el-col>
-            <el-form-item :label="$t('commons.name')" prop="name">
-              <el-input size="small" v-model="form.name" :maxlength="200" show-word-limit/>
-            </el-form-item>
-          </el-col>
-          <el-col style="margin-right: 10px;">
-            <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
-              <ms-input-tag :currentScenario="form" ref="tag"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row style="margin-right: 10px;">
-          <el-col>
-            <el-form-item :label="$t('commons.description')" prop="description">
-              <el-input class="ms-http-textarea"
-                        v-model="form.description"
-                        type="textarea"
-                        :show-word-limit="true"
-                        :maxlength="500"
-                        :autosize="{ minRows: 2, maxRows: 10}"
-                        :rows="3" size="small"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
-        <el-row style="margin-right: 10px;" type="flex" :gutter="5">
-          <el-col :span="codeSpan">
-            <el-form-item>
-              <template v-slot>
-                <div style="position: relative;">
-                  <el-tabs v-model="activeName">
-                    <el-tab-pane :label="$t('project.code_segment.segment')" name="code">
-                      <ms-code-edit
-                        v-if="isCodeEditAlive"
-                        :mode="codeEditModeMap[form.type]"
-                        height="460px"
-                        :data.sync="form.script"
-                        theme="eclipse"
-                        :modes="modes"
-                        ref="codeEdit"/>
-                    </el-tab-pane>
-                    <el-tab-pane :label="$t('project.code_segment.result')" name="result">
-                      <div v-loading="runResult.loading">
-                        <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px"
-                                      ref="funcResult"/>
-                      </div>
-                    </el-tab-pane>
-                  </el-tabs>
-                  <el-button type="primary" size="mini" style="width: 70px;position: absolute; right: 0;top:10px;" @click="handleTest"
-                             :disabled="runResult.loading">{{ $t('project.code_segment.test') }}
-                  </el-button>
-                </div>
-              </template>
-            </el-form-item>
-          </el-col>
-          <div style="width: 14px;margin-top: 20px;margin-right: 5px;">
-            <div style="height: 12px;width: 12px; line-height:12px; margin-top: 20px;">
-              <i :class="showMenu ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"
-                 class="show-menu"
-                 @click="switchMenu"></i>
+  <div v-loading="result.loading">
+    <el-dialog :close-on-click-modal="false" :title="dialogTitle" :visible.sync="visible" :destroy-on-close="true"
+               @close="close" width="75%" top="5vh">
+      <div style="height: 62vh; overflow-y: auto; overflow-x: hidden">
+        <el-form :model="form" label-position="right" label-width="80px" size="small" :rules="rules" v-if="isFormAlive"
+                 ref="form">
+          <el-row type="flex" :gutter="20">
+            <el-col>
+              <el-form-item :label="$t('commons.name')" prop="name">
+                <el-input size="small" v-model="form.name" :maxlength="200" show-word-limit/>
+              </el-form-item>
+            </el-col>
+            <el-col style="margin-right: 10px;">
+              <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
+                <ms-input-tag :currentScenario="form" ref="tag"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row style="margin-right: 10px;">
+            <el-col>
+              <el-form-item :label="$t('commons.description')" prop="description">
+                <el-input class="ms-http-textarea"
+                          v-model="form.description"
+                          type="textarea"
+                          :show-word-limit="true"
+                          :maxlength="500"
+                          :autosize="{ minRows: 2, maxRows: 10}"
+                          :rows="3" size="small"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row style="margin-right: 10px;" type="flex" :gutter="5">
+            <el-col :span="codeSpan">
+              <el-form-item>
+                <template v-slot>
+                  <div style="position: relative;">
+                    <el-tabs v-model="activeName">
+                      <el-tab-pane :label="$t('project.code_segment.segment')" name="code">
+                        <ms-code-edit
+                          v-if="isCodeEditAlive"
+                          :mode="codeEditModeMap[form.type]"
+                          height="460px"
+                          :data.sync="form.script"
+                          theme="eclipse"
+                          :modes="modes"
+                          ref="codeEdit"/>
+                      </el-tab-pane>
+                      <el-tab-pane :label="$t('project.code_segment.result')" name="result">
+                        <div v-loading="runResult.loading">
+                          <ms-code-edit :mode="'text'" :data.sync="console" v-if="isResultAlive" height="330px"
+                                        ref="funcResult"/>
+                        </div>
+                      </el-tab-pane>
+                    </el-tabs>
+                    <el-button type="primary" size="mini" style="width: 70px;position: absolute; right: 0;top:10px;" @click="handleTest"
+                               :disabled="runResult.loading">{{ $t('project.code_segment.test') }}
+                    </el-button>
+                  </div>
+                </template>
+              </el-form-item>
+            </el-col>
+            <div style="width: 14px;margin-top: 20px;margin-right: 5px;">
+              <div style="height: 12px;width: 12px; line-height:12px; margin-top: 20px;">
+                <i :class="showMenu ? 'el-icon-remove-outline' : 'el-icon-circle-plus-outline'"
+                   class="show-menu"
+                   @click="switchMenu"></i>
+              </div>
             </div>
-          </div>
-          <el-col :span="menuSpan" class="script-index" v-if="showMenu">
-            <ms-dropdown :default-command="form.type" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
-                         @command="languageChange"/>
-            <script-nav-menu ref="scriptNavMenu" :language="form.type" @handleCode="handleCodeTemplate"/>
-          </el-col>
-        </el-row>
-      </el-form>
-      <!-- 执行组件 -->
-      <function-run :report-id="reportId" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"/>
-    </div>
-    <template v-slot:footer>
-      <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
-      <el-button type="primary" @click="submit" size="medium" style="margin-left: 10px;">
-        {{ $t('commons.confirm') }}
-      </el-button>
-    </template>
-  </el-dialog>
+            <el-col :span="menuSpan" class="script-index" v-if="showMenu">
+              <ms-dropdown :default-command="form.type" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
+                           @command="languageChange"/>
+              <script-nav-menu ref="scriptNavMenu" :language="form.type" @handleCode="handleCodeTemplate"/>
+            </el-col>
+          </el-row>
+        </el-form>
+        <!-- 执行组件 -->
+        <function-run :report-id="reportId" :run-data="runData" @runRefresh="runRefresh" @errorRefresh="errorRefresh"/>
+      </div>
+      <template v-slot:footer>
+        <el-button @click="close" size="medium">{{ $t('commons.cancel') }}</el-button>
+        <el-button type="primary" @click="submit" size="medium" style="margin-left: 10px;">
+          {{ $t('commons.confirm') }}
+        </el-button>
+      </template>
+    </el-dialog>
+  </div>
+
 </template>
 
 <script>
@@ -253,7 +256,6 @@ export default {
           this.form.id = res.data.id;
         }
         this.$success(this.$t('commons.save_success'));
-        this.reload();
       })
     },
     update(obj) {
@@ -263,7 +265,6 @@ export default {
       this.result = this.$post("/custom/func/update", obj, () => {
         this.$emit("refresh");
         this.$success(this.$t('commons.modify_success'));
-        this.reload();
       })
     },
     handleTest() {

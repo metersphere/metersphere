@@ -15,7 +15,28 @@
             <if test="request.type != null">
                 and custom_function.type = #{request.type}
             </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'type'">
+                                AND custom_function.type IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            <if test="request.orders != null and request.orders.size() > 0">
+                ORDER BY
+                <foreach collection="request.orders" separator="," item="order">
+                    custom_function.${order.name} ${order.type}
+                </foreach>
+            </if>
         </where>
+        order by custom_function.create_time desc
 
     </select>
 
