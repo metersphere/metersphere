@@ -7,16 +7,28 @@ export const FUNC_TEMPLATE = {
 }
 
 export function getCodeTemplate(language, requestObj) {
-  // 拼装代码模版的请求参数
-  if (language === "groovy") {
-    return groovyCode(requestObj);
-  } else {
-    return "";
+  switch (language) {
+    case "groovy":
+      return groovyCode(requestObj);
+    case "python":
+      return pythonCode(requestObj);
+    case "beanshell":
+      return javaCode(requestObj);
+    case "nashornScript":
+      return jsCode(requestObj);
+    case "rhinoScript":
+      return jsCode(requestObj);
+    default:
+      return "";
   }
 }
 
-function groovyCode(obj) {
-  let {requestHeaders = new Map(), requestBody = "", requestUrl = "", requestMethod = ""} = obj;
+function groovyCode(requestObj) {
+  let {requestHeaders = new Map(), requestBody = "", requestPath = "", requestMethod = "", host = "", protocol = ""} = requestObj;
+  let requestUrl = "";
+  if (protocol && host && requestPath) {
+    requestUrl = protocol + "://" + host + requestPath;
+  }
   let headers = "", body = JSON.stringify(requestBody);
   for (let [k, v] of requestHeaders) {
     // 拼装映射
@@ -26,7 +38,7 @@ function groovyCode(obj) {
   let params = "";
   params +=  `[
                 'url': '${requestUrl}',
-                'method': '${requestMethod}',
+                'method': '${requestMethod}', // POST/GET
                 'headers': ${headers}, // 请求headers 例：['Content-type':'application/json']
                 'data': ${body} // 参数
                 ]`
@@ -57,4 +69,40 @@ def http_post() {
 }
 http_post()
 `;
+}
+
+function pythonCode(requestObj) {
+  let {requestHeaders = new Map(), requestBody = "", requestPath = "", requestMethod = "", host = "", protocol = "http"} = requestObj;
+  let connType = "HTTPConnection";
+  if (protocol === 'https') {
+    connType = "HTTPSConnection";
+  }
+  let headers = "";
+  for (let [k, v] of requestHeaders) {
+    // 拼装
+    headers += `{'${k}':'${v}'}`;
+  }
+  headers = headers === "" ? "{}" : headers;
+  requestBody = requestBody ? requestBody : "{}";
+  return `import httplib
+params = ${requestBody} #例 {'username':'test'}
+headers = ${headers} #例 {'Content-Type':'application/json'}
+host = '${host}'
+path = '${requestPath}'
+method = '${requestMethod}' # POST/GET
+
+conn = httplib.${connType}(host)
+conn.request(method, path, params, headers)
+res = conn.getresponse()
+data = unicode(res.read(), 'utf-8')
+log.info(data)
+  `
+}
+
+function javaCode(requestObj) {
+  return ``;
+}
+
+function jsCode(requestObj) {
+  return ``;
 }
