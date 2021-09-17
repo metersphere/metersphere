@@ -551,9 +551,15 @@ export function handleRowDrop(data, callback) {
         } else {
           // 默认从后面添加
           param.moveMode = 'AFTER';
-          param.targetId = data[newIndex].id;
+          if (newIndex < oldIndex) {
+            // 如果往前拖拽，则添加到当前下标的前一个元素后面
+            param.targetId = data[newIndex - 1].id;
+          } else {
+            // 如果往后拖拽，则添加到当前下标的元素后面
+            param.targetId = data[newIndex].id;
+          }
         }
-        if (data && data.length > 1) {
+        if (data && data.length > 1 && newIndex != oldIndex) {
           const currRow = data.splice(oldIndex, 1)[0];
           data.splice(newIndex, 0, currRow);
           if (callback) {
