@@ -119,7 +119,7 @@ public class TaskService {
                 } else if (StringUtils.equals(request.getType(), "PERFORMANCE")) {
                     performanceTestService.stopTest(request.getReportId(), false);
                 }
-                if (StringUtils.isNotEmpty(actuator)) {
+                if (StringUtils.isNotEmpty(actuator) && !StringUtils.equals(actuator, "LOCAL")) {
                     if (poolMap.containsKey(actuator)) {
                         poolMap.get(actuator).add(request.getReportId());
                     } else {

@@ -79,7 +79,7 @@
 
         <div class="report-container">
           <div v-for="item in taskData" :key="item.id" style="margin-bottom: 5px">
-            <el-card class="ms-card-task" @click.native="showReport(item,$event)">
+            <el-card class="ms-card-task" @click.native="showReport(item)">
             <span class="ms-task-name-width"><el-link type="primary">
               {{ getModeName(item.executionModule) }} </el-link>: {{ item.name }} </span>
               <el-button size="mini" class="ms-task-stop" @click.stop @click="stop(item)" v-if="showStop(item.executionStatus)">
@@ -103,7 +103,9 @@
                   <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'success'" class="ms-task-success">
                      success
                 </span>
-                  <i class="el-icon-video-pause" v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'"/>
+                  <span v-else-if="item.executionStatus && item.executionStatus.toLowerCase() === 'stop'">
+                    stopped
+                  </span>
                   <span v-else>{{ item.executionStatus ? item.executionStatus.toLowerCase() : item.executionStatus }}</span>
                 </el-col>
               </el-row>
@@ -184,7 +186,7 @@ export default {
     format(item) {
       return '';
     },
-    packUp(){
+    packUp() {
       this.size = 550;
     },
     stop(row) {
@@ -265,7 +267,7 @@ export default {
     getPercentage(status) {
       if (status) {
         status = status.toLowerCase();
-        if (status === "waiting") {
+        if (status === "waiting" || status === 'stop') {
           return 0;
         }
         if (status === 'saved' || status === 'completed' || status === 'success' || status === 'error') {
@@ -293,7 +295,11 @@ export default {
           return this.$t('test_track.api_test_case');
       }
     },
-    showReport(row, env) {
+    showReport(row) {
+      if (this.size > 550 && this.reportId === row.id) {
+        this.packUp();
+        return;
+      }
       let status = row.executionStatus;
       if (status) {
         status = row.executionStatus.toLowerCase();
@@ -303,25 +309,20 @@ export default {
           this.reportType = row.executionModule;
           switch (row.executionModule) {
             case "SCENARIO":
-              // this.$router.push({
-              //   path: '/api/automation/report/view/' + row.id,
-              // });
               break;
             case "PERFORMANCE":
-              // this.$router.push({
-              //   path: '/performance/report/view/' + row.id,
-              // });
               break;
             case "API":
               this.getExecResult(row.id);
               break;
           }
+        } else if (status === 'stop') {
+          this.$warning("当前任务已停止，无法查看报告");
         } else {
           this.$warning("正在运行中，请稍后查看");
         }
       }
     },
-
     getExecResult(reportId) {
       if (reportId) {
         let url = "/api/definition/report/get/" + reportId;
@@ -359,7 +360,7 @@ export default {
       if (this.taskData) {
         let total = 0;
         this.taskData.forEach(item => {
-          if (this.getPercentage(item.executionStatus) !== 100) {
+          if (this.getPercentage(item.executionStatus) !== 100 && this.getPercentage(item.executionStatus) !== 0) {
             total++;
           }
         })
