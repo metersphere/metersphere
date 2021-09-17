@@ -11,6 +11,7 @@ import io.metersphere.api.dto.automation.TestPlanFailureScenarioDTO;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
+import io.metersphere.api.service.ShareInfoService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -21,7 +22,6 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
-import io.metersphere.service.ProjectService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
@@ -31,6 +31,7 @@ import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.xpack.license.service.LicenseService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -78,14 +79,16 @@ public class TestPlanReportService {
     ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     LoadTestReportMapper loadTestReportMapper;
-    @Resource
-    ProjectService projectService;
     @Lazy
     @Resource
     TestPlanService testPlanService;
     @Lazy
     @Resource
     TestPlanReportContentMapper testPlanReportContentMapper;
+    @Resource
+    ShareInfoService shareInfoService;
+    @Resource
+    LicenseService licenseService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -824,6 +827,11 @@ public class TestPlanReportService {
         paramMap.put("url", url);
         paramMap.put("projectId", projectId);
         paramMap.putAll(new BeanMap(testPlanReport));
+
+        if (licenseService.valid() != null) {
+            String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId());
+            paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
+        }
 
         String successfulMailTemplate = "";
         String errfoMailTemplate = "";

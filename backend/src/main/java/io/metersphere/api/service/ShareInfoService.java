@@ -459,6 +459,14 @@ public class ShareInfoService {
         return returnDTO;
     }
 
+    public String getTestPlanShareUrl(String testPlanReportId) {
+        ShareInfo shareRequest = new ShareInfo();
+        shareRequest.setCustomData(testPlanReportId);
+        shareRequest.setShareType(ShareType.PLAN_DB_REPORT.name());
+        ShareInfo shareInfo = generateShareInfo(shareRequest);
+        return conversionShareInfoToDTO(shareInfo).getShareUrl();
+    }
+
     public ShareInfo get(String id) {
         return shareInfoMapper.selectByPrimaryKey(id);
     }
