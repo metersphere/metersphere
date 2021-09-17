@@ -3,9 +3,9 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :show-create="false" :condition.sync="condition"
-                         :title="'自定义函数'" @search="init" :tip="'根据 名称/标签 搜索'">
+                         :title="$t('project.code_segment.code_segment')" @search="init" :tip="$t('project.code_segment.search')">
           <template v-slot:button>
-            <ms-table-button icon="el-icon-circle-plus-outline" :content="'创建函数'" @click="handleCreate"/>
+            <ms-table-button icon="el-icon-circle-plus-outline" :content="$t('project.code_segment.create')" @click="handleCreate"/>
           </template>
         </ms-table-header>
       </template>
@@ -27,7 +27,7 @@
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="'脚本语言'" show-overflow-tooltip/>
+        <el-table-column prop="type" :label="$t('project.code_segment.language')" show-overflow-tooltip/>
         <el-table-column prop="createTime"
                          :label="$t('commons.create_time')"
                          show-overflow-tooltip>
@@ -52,7 +52,7 @@
     </el-card>
 
     <edit-function @refresh="init" ref="editFunction"/>
-    <ms-delete-confirm :title="'删除自定义函数'" @delete="_handleDel" ref="deleteConfirm"/>
+    <ms-delete-confirm :title="$t('project.code_segment.delete')" @delete="_handleDel" ref="deleteConfirm"/>
   </div>
 
 

@@ -507,7 +507,31 @@ export default {
     no_data: 'No Data',
     select: 'Select',
     repeatable: 'Interface definition URL repeatable',
-    upload_file_again: 'Upload again'
+    upload_file_again: 'Upload again',
+    code_segment: {
+      code_segment: "Custom Code",
+      search: "Search by name/tag",
+      create: "Create Custom Code",
+      update: "Update Custom Code",
+      delete: "Delete Custom Code",
+      language: "language",
+      relate_tip: "Create in the System Settings -> Project -> Custom Code Snippet menu",
+      select_tip: "Please select a custom code!",
+      none_content: "The custom code snippet is empty！",
+      segment: "code segment",
+      result: "Result",
+      test: "Run",
+      no_result: "No Result",
+      api_test: "API TEST",
+      import_api_test: "Import from API definition",
+      new_api_test: "New API test[JSON]",
+      custom_value: "Custom variable",
+      project_env: "Project environment",
+      insert_segment: "Insert custom code snippet",
+      exception_handle: "Exception handling",
+      stop_test: "Terminate the test",
+      report_handle: "Message processing"
+    }
   },
   member: {
     create: 'Create',

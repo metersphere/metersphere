@@ -38,20 +38,20 @@
           jsr223ProcessorData: {},
           codeTemplates: [
             {
-              title: 'API测试',
+              title: this.$t('project.code_segment.api_test'),
               children: [
                 {
-                  title: '从API定义导入',
+                  title: this.$t('project.code_segment.import_api_test'),
                   command: "api_definition",
                 },
                 {
-                  title: '新API测试[JSON]',
+                  title: this.$t('project.code_segment.new_api_test'),
                   command: "new_api_request",
                 }
               ]
             },
             {
-              title: '自定义变量',
+              title: this.$t('project.code_segment.custom_value'),
               children: [
                 {
                   title: this.$t('api_test.request.processor.code_template_get_variable'),
@@ -79,7 +79,7 @@
               ]
             },
             {
-              title: '项目环境',
+              title: this.$t('project.code_segment.project_env'),
               children: [
                 {
                   title: this.$t('api_test.request.processor.param_environment_set_global_variable'),
@@ -88,25 +88,25 @@
               ]
             },
             {
-              title: '自定义函数',
+              title: this.$t('project.code_segment.code_segment'),
               children: [
                 {
-                  title: "插入自定义函数",
+                  title: this.$t('project.code_segment.insert_segment'),
                   command: "custom_function",
                 }
               ]
             },
             {
-              title: '异常处理',
+              title: this.$t('project.code_segment.exception_handle'),
               children: [
                 {
-                  title: "终止测试",
+                  title: this.$t('project.code_segment.stop_test'),
                   value: 'ctx.getEngine().stopThreadNow(ctx.getThread().getThreadName())'
                 },
               ]
             },
             {
-              title: '报文处理',
+              title: this.$t('project.code_segment.report_handle'),
               children: [
                 {
                   title: this.$t('api_test.request.processor.code_add_report_length'),

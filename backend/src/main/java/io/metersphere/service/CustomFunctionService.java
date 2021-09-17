@@ -87,7 +87,7 @@ public class CustomFunctionService {
     public void update(CustomFunctionRequest request) {
         checkFuncExist(request);
         request.setUpdateTime(System.currentTimeMillis());
-        customFunctionMapper.updateByPrimaryKeyWithBLOBs(request);
+        customFunctionMapper.updateByPrimaryKeySelective(request);
     }
 
     public CustomFunctionWithBLOBs copy(String id) {

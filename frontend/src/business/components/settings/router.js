@@ -161,7 +161,7 @@ export default {
     {
       path: 'function',
       component: () => import('@/business/components/settings/project/function/CustomFunction'),
-      meta: {project: true, title: '自定义函数'}
+      meta: {project: true, title: 'project.code_segment.code_segment'}
     }
   ]
 };

@@ -511,7 +511,31 @@ export default {
     no_data: '无数据',
     select: '选择项目',
     repeatable: '接口定义URL可重复',
-    upload_file_again: '重新上传'
+    upload_file_again: '重新上传',
+    code_segment: {
+      code_segment: "自定义代码片段",
+      search: "根据 名称/标签 搜索",
+      create: "创建代码片段",
+      update: "更新代码片段",
+      delete: "删除自定义代码片段",
+      language: "脚本语言",
+      relate_tip: "在 系统设置->项目->自定义代码片段 菜单中创建",
+      select_tip: "请选择自定义代码片段!",
+      none_content: "自定义代码片段为空！",
+      segment: "代码片段",
+      result: "执行结果",
+      test: "测试",
+      no_result: "无执行结果",
+      api_test: "API测试",
+      import_api_test: "从API定义导入",
+      new_api_test: "新API测试[JSON]",
+      custom_value: "自定义变量",
+      project_env: "项目环境",
+      insert_segment: "插入自定义代码片段",
+      exception_handle: "异常处理",
+      stop_test: "终止测试",
+      report_handle: "报文处理"
+    }
   },
   member: {
     create: '添加成员',
