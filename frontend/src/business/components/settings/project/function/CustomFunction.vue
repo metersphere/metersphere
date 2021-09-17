@@ -27,8 +27,9 @@
             <span></span>
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="$t('project.code_segment.language')" show-overflow-tooltip/>
+        <el-table-column prop="type" column-key="type" :label="$t('project.code_segment.language')" show-overflow-tooltip :filters="languages"/>
         <el-table-column prop="createTime"
+                         sortable
                          :label="$t('commons.create_time')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -68,6 +69,7 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import EditFunction from "@/business/components/settings/project/function/EditFunction";
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsDeleteConfirm from "@/business/components/common/components/MsDeleteConfirm";
+import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
   name: "CustomFunction",
@@ -90,6 +92,13 @@ export default {
       pageSize: 10,
       total: 0,
       screenHeight: 'calc(100vh - 195px)',
+      languages: [
+        {text: 'beanshell', value: 'beanshell'},
+        {text: 'python', value: 'python'},
+        {text: 'groovy', value: 'groovy'},
+        {text: 'nashornScript', value: 'nashornScript'},
+        {text: 'rhinoScript', value: 'rhinoScript'},
+      ],
     }
   },
   activated() {
@@ -116,11 +125,13 @@ export default {
     handleCreate() {
       this.$refs.editFunction.open({});
     },
-    sort() {
-
+    sort(column) {
+      _sort(column, this.condition);
+      this.init();
     },
-    filter() {
-
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.init();
     },
     handleEdit(row) {
       this.$refs.editFunction.open(row);
