@@ -78,13 +78,15 @@ export default {
   mounted() {
     // 点击编辑，失去焦点展示
     let el = document.getElementById(this.id);
-    el.addEventListener('click', () => {
-      this.defaultOpen = null;
-    });
-    let input = el.getElementsByClassName('auto-textarea-input');
-    input[0].addEventListener('blur', () => {
-      this.defaultOpen = 'preview';
-    });
+    if (el) {
+      el.addEventListener('click', () => {
+        this.defaultOpen = null;
+      });
+      let input = el.getElementsByClassName('auto-textarea-input');
+      input[0].addEventListener('blur', () => {
+        this.defaultOpen = 'preview';
+      });
+    }
   },
   methods: {
     imgAdd(pos, file){
