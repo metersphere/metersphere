@@ -465,9 +465,10 @@ export default {
     this.getWsProjects();
     this.getMaintainerOptions();
     this.getApiScenario();
-    this.getPlugins();
-    this.initPlugins();
     this.buttonData = buttons(this);
+    this.getPlugins().then(() => {
+      this.initPlugins();
+    });
   },
   mounted() {
     this.$nextTick(() => {
@@ -528,21 +529,24 @@ export default {
       }
     },
     getPlugins() {
-      let url = "/plugin/list";
-      this.plugins = [];
-      this.$get(url, response => {
-        let data = response.data;
-        if (data) {
-          data.forEach(item => {
-            if (item.license) {
-              if (hasLicense()) {
+      return new Promise((resolve) => {
+        let url = "/plugin/list";
+        this.plugins = [];
+        this.$get(url, response => {
+          let data = response.data;
+          if (data) {
+            data.forEach(item => {
+              if (item.license) {
+                if (hasLicense()) {
+                  this.plugins.push(item);
+                }
+              } else {
                 this.plugins.push(item);
               }
-            } else {
-              this.plugins.push(item);
-            }
-          })
-        }
+            })
+          }
+          resolve();
+        });
       });
     },
     stop() {
