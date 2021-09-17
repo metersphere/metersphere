@@ -252,7 +252,7 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
-                ${order.name} ${order.type}
+               `${order.name}` ${order.type}
             </foreach>
         </if>
     </select>

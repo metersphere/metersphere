@@ -598,11 +598,12 @@ public class TestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        Long nextOrder = ServiceUtils.getNextOrder(projectId, extTestCaseMapper::getLastOrder);
         if (!testCases.isEmpty()) {
             AtomicInteger sort = new AtomicInteger();
             AtomicInteger num = new AtomicInteger();
             num.set(getNextNum(projectId) + testCases.size());
-            testCases.forEach(testcase -> {
+            for (TestCaseWithBLOBs testcase: testCases) {
                 testcase.setId(UUID.randomUUID().toString());
                 testcase.setCreateUser(SessionUtils.getUserId());
                 testcase.setCreateTime(System.currentTimeMillis());
@@ -615,8 +616,10 @@ public class TestCaseService {
                     testcase.setCustomNum(String.valueOf(number));
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                testcase.setOrder(nextOrder);
                 mapper.insert(testcase);
-            });
+                nextOrder += 5000;
+            }
         }
         sqlSession.flushStatements();
     }
