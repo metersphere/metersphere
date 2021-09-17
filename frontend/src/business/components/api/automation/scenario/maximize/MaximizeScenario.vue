@@ -370,6 +370,7 @@ export default {
       this.selectedNode = node;
       this.$store.state.selectStep = data;
       this.buttonData = buttons(this);
+      this.reload();
       this.initPlugins();
     },
     suggestClick(node) {

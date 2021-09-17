@@ -289,12 +289,26 @@ public class JSONSchemaGenerator {
     }
 
     private static List<Object> analyzeEnumProperty(JsonObject object) {
-        JsonArray enumValues = object.get("enum").getAsJsonArray();
         List<Object> list = new LinkedList<>();
-        for (JsonElement enumValueElem : enumValues) {
-            String enumValue = enumValueElem.getAsString();
-            list.add(enumValue);
+        String jsonStr = null;
+        JsonArray enumValues = null;
+        try {
+            enumValues = object.get("enum").getAsJsonArray();
+            for (JsonElement enumValueElem : enumValues) {
+                String enumValue = enumValueElem.getAsString();
+                list.add(enumValue);
+            }
+        }catch (Exception e){
+            jsonStr = object.get("enum").getAsString();
         }
+
+        if(jsonStr != null && list.isEmpty()){
+            String [] arrs = jsonStr.split("\n");
+            for (String str: arrs) {
+                list.add(str);
+            }
+        }
+
         return list;
     }
 
