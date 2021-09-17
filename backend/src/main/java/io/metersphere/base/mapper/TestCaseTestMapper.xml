@@ -271,6 +271,56 @@
         <property name="object" value="${condition}.tags"/>
       </include>
     </if>
+    <if test="${condition}.creator != null">
+      and atc.create_user_id
+      <include refid="condition">
+        <property name="object" value="${condition}.creator"/>
+      </include>
+    </if>
+  </sql>
+  <sql id="loadCaseCombine">
+    <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+      and atc.name
+      <include refid="condition">
+        <property name="object" value="${condition}.name"/>
+      </include>
+    </if>
+    <if test="${condition}.updateTime != null">
+      and atc.update_time
+      <include refid="condition">
+        <property name="object" value="${condition}.updateTime"/>
+      </include>
+    </if>
+    <if test="${condition}.createTime != null">
+      and atc.create_time
+      <include refid="condition">
+        <property name="object" value="${condition}.createTime"/>
+      </include>
+    </if>
+    <if test="${condition}.priority != null">
+      and atc.priority
+      <include refid="condition">
+        <property name="object" value="${condition}.priority"/>
+      </include>
+    </if>
+    <if test="${condition}.status != null">
+      and atc.status
+      <include refid="condition">
+        <property name="object" value="${condition}.status"/>
+      </include>
+    </if>
+    <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+      and atc.tags
+      <include refid="condition">
+        <property name="object" value="${condition}.tags"/>
+      </include>
+    </if>
+    <if test="${condition}.creator != null">
+      and atc.create_user
+      <include refid="condition">
+        <property name="object" value="${condition}.creator"/>
+      </include>
+    </if>
   </sql>
   <sql id="scenarioCombine">
     <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
@@ -307,6 +357,12 @@
       and atc.tags
       <include refid="condition">
         <property name="object" value="${condition}.tags"/>
+      </include>
+    </if>
+    <if test='${condition}.creator != null'>
+      and atc.create_user
+      <include refid="condition">
+        <property name="object" value="${condition}.creator"/>
       </include>
     </if>
   </sql>
@@ -353,7 +409,7 @@
       or atc.num like CONCAT('%', #{request.name},'%'))
     </if>
     <if test="request.combine != null">
-      <include refid="scenarioCombine">
+      <include refid="loadCaseCombine">
         <property name="condition" value="request.combine"/>
         <property name="name" value="request.name"/>
         <property name="objectKey" value="request.combine.tags"/>
