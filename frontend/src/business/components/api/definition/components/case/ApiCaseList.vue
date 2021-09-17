@@ -198,8 +198,8 @@ export default {
         this.api.method = apiCase.request.method
         this.api.name = apiCase.request.name;
       }
-      if(apiCase.tags){
-        apiCase.tags =JSON.parse(apiCase.tags);
+      if (apiCase.tags) {
+        apiCase.tags = JSON.parse(apiCase.tags);
       }
       this.condition = {components: API_CASE_CONFIGS};
       this.sysAddition(apiCase);
@@ -414,11 +414,8 @@ export default {
     },
 
     stop(id) {
-      let url = "/api/automation/stop/" + this.reportId;
-      this.$get(url, () => {
-        // if (callback) {
-        //   callback();
-        // }
+      let obj = {type: "API", reportId: this.reportId};
+      this.$post('/api/automation/stop/batch', [obj], response => {
         this.$emit("stop", id);
         this.singleLoading = false;
         this.$success(this.$t('report.test_stop_success'));
