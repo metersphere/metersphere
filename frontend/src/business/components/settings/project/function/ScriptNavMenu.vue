@@ -67,12 +67,26 @@ export default {
       }
       let code = "";
       if (data.length > 0) {
-        data.forEach(dt => {
+        for (let dt of data) {
+          // 过滤非HTTP接口API
+          if (dt.protocol !== "HTTP") {
+            if (!dt.request) {
+              continue;
+            } else {
+              // 是否是HTTP接口CASE
+              if (dt.request) {
+                let req = JSON.parse(dt.request);
+                if (req.protocol !== "HTTP") {
+                  continue;
+                }
+              }
+            }
+          }
           let param = this._parseRequestObj(dt);
           param['host'] = host;
           param['protocol'] = protocol;
           code += '\n' + getCodeTemplate(this.language, param);
-        })
+        }
       }
       this.handleCodeTemplate(code);
       this.$refs.apiFuncRelevance.close();
@@ -82,6 +96,7 @@ export default {
     },
     _parseRequestObj(data) {
       let requestHeaders = new Map();
+      let requestArguments = new Map();
       let requestMethod = "";
       let requestBody = "";
       let requestPath = "";
@@ -97,11 +112,19 @@ export default {
           }
         })
       }
+      let args = request.arguments;
+      if (args && args.length) {
+        args.forEach(arg => {
+          if (arg.name) {
+            requestArguments.set(arg.name, arg.value);
+          }
+        })
+      }
       let body = request.body;
       if (body.json) {
         requestBody = body.raw;
       }
-      return {requestPath, requestHeaders, requestMethod, requestBody}
+      return {requestPath, requestHeaders, requestMethod, requestBody, requestArguments}
     },
     apiClose() {
 
