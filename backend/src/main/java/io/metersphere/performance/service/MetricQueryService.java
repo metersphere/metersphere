@@ -198,6 +198,10 @@ public class MetricQueryService {
         });
 
         ReportTimeInfo reportTimeInfo = performanceReportService.getReportTimeInfo(reportId);
+        // 处理reportTime 空指针报错
+        if (reportTimeInfo == null) {
+            return new ArrayList<>();
+        }
         MetricRequest metricRequest = new MetricRequest();
         metricRequest.setMetricDataQueries(list);
         try {
