@@ -5,13 +5,12 @@
     </template>
     <el-table border :data="tableData" class="adjust-table table-content" @row-click="link" height="300px">
       <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
-      <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
-      <el-table-column width="250" :label="$t('commons.create_time')">
+      <el-table-column width="180" :label="$t('commons.create_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.createTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column width="250" :label="$t('commons.update_time')">
+      <el-table-column width="180" :label="$t('commons.update_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
