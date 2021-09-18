@@ -415,6 +415,7 @@ public class TestCaseReviewService {
                 BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
                 String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.UPDATE);
                 Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
+                paramMap.put("operator", SessionUtils.getUser().getName());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .operator(SessionUtils.getUserId())
                         .context(context)
