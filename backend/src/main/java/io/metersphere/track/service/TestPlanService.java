@@ -1263,71 +1263,92 @@ public class TestPlanService {
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
         testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(sourcePlanId);
         List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
+
         try (SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH)) {
             TestPlanTestCaseMapper testCaseMapper = sqlSession.getMapper(TestPlanTestCaseMapper.class);
-            testPlanTestCases.forEach(testCase -> {
-                TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
-                testPlanTestCase.setId(UUID.randomUUID().toString());
-                testPlanTestCase.setPlanId(targetPlanId);
-                testPlanTestCase.setCaseId(testCase.getCaseId());
-                testPlanTestCase.setStatus("Prepare");
-                testPlanTestCase.setExecutor(testCase.getExecutor());
-                testPlanTestCase.setCreateTime(System.currentTimeMillis());
-                testPlanTestCase.setUpdateTime(System.currentTimeMillis());
-                testPlanTestCase.setCreateUser(SessionUtils.getUserId());
-                testPlanTestCase.setRemark(testCase.getRemark());
-                testCaseMapper.insert(testPlanTestCase);
-            });
+            if (!CollectionUtils.isEmpty(testPlanTestCases)) {
+                Long nextTestCaseOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanTestCaseMapper::getLastOrder);
+                for (TestPlanTestCase testCase : testPlanTestCases) {
+                    TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+                    testPlanTestCase.setId(UUID.randomUUID().toString());
+                    testPlanTestCase.setPlanId(targetPlanId);
+                    testPlanTestCase.setCaseId(testCase.getCaseId());
+                    testPlanTestCase.setStatus("Prepare");
+                    testPlanTestCase.setExecutor(testCase.getExecutor());
+                    testPlanTestCase.setCreateTime(System.currentTimeMillis());
+                    testPlanTestCase.setUpdateTime(System.currentTimeMillis());
+                    testPlanTestCase.setCreateUser(SessionUtils.getUserId());
+                    testPlanTestCase.setRemark(testCase.getRemark());
+                    testPlanTestCase.setOrder(nextTestCaseOrder);
+                    nextTestCaseOrder += 5000;
+                    testCaseMapper.insert(testPlanTestCase);
+                }
+            }
             sqlSession.flushStatements();
 
             TestPlanApiCaseExample testPlanApiCaseExample = new TestPlanApiCaseExample();
             testPlanApiCaseExample.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
             List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
             TestPlanApiCaseMapper apiCaseMapper = sqlSession.getMapper(TestPlanApiCaseMapper.class);
-            testPlanApiCases.forEach(apiCase -> {
-                TestPlanApiCase api = new TestPlanApiCase();
-                api.setId(UUID.randomUUID().toString());
-                api.setTestPlanId(targetPlanId);
-                api.setApiCaseId(apiCase.getApiCaseId());
-                api.setEnvironmentId(apiCase.getEnvironmentId());
-                api.setCreateTime(System.currentTimeMillis());
-                api.setUpdateTime(System.currentTimeMillis());
-                api.setCreateUser(SessionUtils.getUserId());
-                apiCaseMapper.insert(api);
-            });
+            if (!CollectionUtils.isEmpty(testPlanApiCases)) {
+                Long nextApiOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanApiCaseMapper::getLastOrder);
+                for (TestPlanApiCase apiCase : testPlanApiCases) {
+                    TestPlanApiCase api = new TestPlanApiCase();
+                    api.setId(UUID.randomUUID().toString());
+                    api.setTestPlanId(targetPlanId);
+                    api.setApiCaseId(apiCase.getApiCaseId());
+                    api.setEnvironmentId(apiCase.getEnvironmentId());
+                    api.setCreateTime(System.currentTimeMillis());
+                    api.setUpdateTime(System.currentTimeMillis());
+                    api.setCreateUser(SessionUtils.getUserId());
+                    api.setOrder(nextApiOrder);
+                    nextApiOrder += 5000;
+                    apiCaseMapper.insert(api);
+                }
+            }
             sqlSession.flushStatements();
 
             TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
             testPlanApiScenarioExample.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
             List<TestPlanApiScenario> apiScenarios = testPlanApiScenarioMapper.selectByExampleWithBLOBs(testPlanApiScenarioExample);
             TestPlanApiScenarioMapper apiScenarioMapper = sqlSession.getMapper(TestPlanApiScenarioMapper.class);
-            apiScenarios.forEach(apiScenario -> {
-                TestPlanApiScenario planScenario = new TestPlanApiScenario();
-                planScenario.setId(UUID.randomUUID().toString());
-                planScenario.setTestPlanId(targetPlanId);
-                planScenario.setApiScenarioId(apiScenario.getApiScenarioId());
-                planScenario.setEnvironment(apiScenario.getEnvironment());
-                planScenario.setCreateTime(System.currentTimeMillis());
-                planScenario.setUpdateTime(System.currentTimeMillis());
-                planScenario.setCreateUser(SessionUtils.getUserId());
-                apiScenarioMapper.insert(planScenario);
-            });
+            if (!CollectionUtils.isEmpty(apiScenarios)) {
+                Long nextScenarioOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanScenarioCaseMapper::getLastOrder);
+                for (TestPlanApiScenario apiScenario : apiScenarios) {
+                    TestPlanApiScenario planScenario = new TestPlanApiScenario();
+                    planScenario.setId(UUID.randomUUID().toString());
+                    planScenario.setTestPlanId(targetPlanId);
+                    planScenario.setApiScenarioId(apiScenario.getApiScenarioId());
+                    planScenario.setEnvironment(apiScenario.getEnvironment());
+                    planScenario.setCreateTime(System.currentTimeMillis());
+                    planScenario.setUpdateTime(System.currentTimeMillis());
+                    planScenario.setCreateUser(SessionUtils.getUserId());
+                    planScenario.setOrder(nextScenarioOrder);
+                    nextScenarioOrder += 5000;
+                    apiScenarioMapper.insert(planScenario);
+                }
+            }
             sqlSession.flushStatements();
 
             TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
             example.createCriteria().andTestPlanIdEqualTo(sourcePlanId);
             List<TestPlanLoadCase> loadCases = testPlanLoadCaseMapper.selectByExample(example);
             TestPlanLoadCaseMapper mapper = sqlSession.getMapper(TestPlanLoadCaseMapper.class);
-            loadCases.forEach(loadCase -> {
-                TestPlanLoadCase load = new TestPlanLoadCase();
-                load.setId(UUID.randomUUID().toString());
-                load.setTestPlanId(targetPlanId);
-                load.setLoadCaseId(loadCase.getLoadCaseId());
-                load.setCreateTime(System.currentTimeMillis());
-                load.setUpdateTime(System.currentTimeMillis());
-                load.setCreateUser(SessionUtils.getUserId());
-                mapper.insert(load);
-            });
+            if (!CollectionUtils.isEmpty(loadCases)) {
+                Long nextLoadOrder = ServiceUtils.getNextOrder(targetPlanId, extTestPlanLoadCaseMapper::getLastOrder);
+                for (TestPlanLoadCase loadCase : loadCases) {
+                    TestPlanLoadCase load = new TestPlanLoadCase();
+                    load.setId(UUID.randomUUID().toString());
+                    load.setTestPlanId(targetPlanId);
+                    load.setLoadCaseId(loadCase.getLoadCaseId());
+                    load.setCreateTime(System.currentTimeMillis());
+                    load.setUpdateTime(System.currentTimeMillis());
+                    load.setCreateUser(SessionUtils.getUserId());
+                    load.setOrder(nextLoadOrder);
+                    mapper.insert(load);
+                    nextLoadOrder += 5000;
+                }
+            }
             sqlSession.flushStatements();
         }
     }
