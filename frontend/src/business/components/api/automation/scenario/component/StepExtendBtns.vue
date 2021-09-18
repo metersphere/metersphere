@@ -42,7 +42,7 @@ export default {
     }
   },
   mounted() {
-    this.allSamplers = this.filter.get('AllSamplerProxy')
+    this.allSamplers = this.filter.get('DEFINITION');
   },
   methods: {
     handleCommand(cmd) {

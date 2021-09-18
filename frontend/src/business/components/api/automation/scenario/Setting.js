@@ -24,6 +24,7 @@ export function STEP() {
     ['MaxSamplerProxy', getDefaultSamplerMenu()],
     ['GenericController', getAll()],
     ['AllSamplerProxy', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "Sampler", "AbstractSampler"]],
+    ['DEFINITION', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"]],
     ['AllCanExecType', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor", "AbstractSampler"]]]);
   return map
 }
