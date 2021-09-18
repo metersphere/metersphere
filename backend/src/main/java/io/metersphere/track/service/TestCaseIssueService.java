@@ -1,9 +1,11 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
+import io.metersphere.base.mapper.TestPlanTestCaseMapper;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.issues.IssuesRelevanceRequest;
@@ -30,6 +32,11 @@ public class TestCaseIssueService {
     private TestCaseService testCaseService;
     @Resource
     private IssuesMapper issuesMapper;
+    @Resource
+    @Lazy
+    private IssuesService issuesService;
+    @Resource
+    private TestPlanTestCaseMapper testPlanTestCaseMapper;
 
 
     public void delTestCaseIssues(String testCaseId) {
@@ -80,6 +87,21 @@ public class TestCaseIssueService {
                 });
             }
         }
+
+        updateIssuesCount(request.getCaseId());
+    }
+
+    public void updateIssuesCount(String caseId) {
+        List<IssuesDao> issues = issuesService.getIssues(caseId);
+        int issuesCount = issues.size();
+        TestPlanTestCaseExample example = new TestPlanTestCaseExample();
+        example.createCriteria().andCaseIdEqualTo(caseId);
+        TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
+        testPlanTestCase.setIssuesCount(issuesCount);
+        if (!CollectionUtils.isEmpty(issues)) {
+            testPlanTestCase.setIssues(JSONObject.toJSONString(issues));
+        }
+        testPlanTestCaseMapper.updateByExampleSelective(testPlanTestCase, example);
     }
 
     public void create(String caseId, String issueId) {
