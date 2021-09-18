@@ -204,9 +204,9 @@ export default {
           for (let fileID in apiTest.jmx.attachFiles) {
             attachFiles.push(fileID);
           }
-          if (attachFiles.length > 0) {
-            this.$refs.basicConfig.selectAttachFileById(attachFiles);
-          }
+          // if (attachFiles.length > 0) {
+          // this.$refs.basicConfig.selectAttachFileById(attachFiles);
+          // }
         }
         this.active = '1';
         this.$store.commit("clearTest");
@@ -234,9 +234,9 @@ export default {
                 for (let fileID in item.attachFiles) {
                   attachFiles.push(fileID);
                 }
-                if (attachFiles.length > 0) {
-                  this.$refs.basicConfig.selectAttachFileById(attachFiles);
-                }
+                // if (attachFiles.length > 0) {
+                //   this.$refs.basicConfig.selectAttachFileById(attachFiles);
+                // }
               }
               this.$set(this.test, "apiList", relateApiList);
             });
