@@ -504,7 +504,11 @@ public class TestPlanService {
                     if (testCaseTestMapper.countByExample(examp) > 0) {
                         list = testCaseTestMapper.selectByExample(examp);
                     }
-                    list.forEach(l -> {
+                    Long nextLoadOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanLoadCaseMapper::getLastOrder);
+                    Long nextApiOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanApiCaseMapper::getLastOrder);
+                    Long nextScenarioOrder = ServiceUtils.getNextOrder(request.getPlanId(), extTestPlanScenarioCaseMapper::getLastOrder);
+
+                    for (TestCaseTest l : list) {
                         if (StringUtils.equals(l.getTestType(), TestCaseStatus.performance.name())) {
                             TestPlanLoadCase t = new TestPlanLoadCase();
                             t.setId(UUID.randomUUID().toString());
@@ -512,6 +516,8 @@ public class TestPlanService {
                             t.setLoadCaseId(l.getTestId());
                             t.setCreateTime(System.currentTimeMillis());
                             t.setUpdateTime(System.currentTimeMillis());
+                            t.setOrder(nextLoadOrder);
+                            nextLoadOrder += 5000;
                             TestPlanLoadCaseExample testPlanLoadCaseExample = new TestPlanLoadCaseExample();
                             testPlanLoadCaseExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andLoadCaseIdEqualTo(t.getLoadCaseId());
                             if (testPlanLoadCaseMapper.countByExample(testPlanLoadCaseExample) <= 0) {
@@ -530,6 +536,8 @@ public class TestPlanService {
                                 t.setEnvironmentId(apidefinition.getEnvironmentId());
                                 t.setCreateTime(System.currentTimeMillis());
                                 t.setUpdateTime(System.currentTimeMillis());
+                                t.setOrder(nextApiOrder);
+                                nextApiOrder += 5000;
                                 TestPlanApiCaseExample example = new TestPlanApiCaseExample();
                                 example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
                                 if (testPlanApiCaseMapper.countByExample(example) <= 0) {
@@ -552,6 +560,8 @@ public class TestPlanService {
                                 t.setStatus(testPlanApiScenario.getStatus());
                                 t.setCreateTime(System.currentTimeMillis());
                                 t.setUpdateTime(System.currentTimeMillis());
+                                t.setOrder(nextScenarioOrder);
+                                nextScenarioOrder += 5000;
                                 TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
                                 example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
                                 if (testPlanApiScenarioMapper.countByExample(example) <= 0) {
@@ -560,7 +570,7 @@ public class TestPlanService {
                             }
 
                         }
-                    });
+                    }
                 });
             }
         }

@@ -31,7 +31,6 @@ import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
-import io.metersphere.xpack.license.service.LicenseService;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -87,8 +86,6 @@ public class TestPlanReportService {
     TestPlanReportContentMapper testPlanReportContentMapper;
     @Resource
     ShareInfoService shareInfoService;
-    @Resource
-    LicenseService licenseService;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
@@ -827,11 +824,6 @@ public class TestPlanReportService {
         paramMap.put("url", url);
         paramMap.put("projectId", projectId);
         paramMap.putAll(new BeanMap(testPlanReport));
-
-        if (licenseService.valid() != null) {
-            String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId());
-            paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
-        }
 
         String successfulMailTemplate = "";
         String errfoMailTemplate = "";
