@@ -224,6 +224,9 @@
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         data.requestId = data.request.id;
+        if(data.request) {
+          this.sort(data.request.hashTree);
+        }
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/definition/update";
