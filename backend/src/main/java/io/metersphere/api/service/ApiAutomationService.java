@@ -137,6 +137,8 @@ public class ApiAutomationService {
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
+    private ThreadLocal<Long> currentScenarioOrder = new ThreadLocal<>();
+
     public ApiScenarioDTO getDto(String id) {
         ApiScenarioRequest request = new ApiScenarioRequest();
         request.setId(id);
@@ -1767,6 +1769,7 @@ public class ApiAutomationService {
             scenarioWithBLOBs.setId(UUID.randomUUID().toString());
             List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
             scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
+            scenarioWithBLOBs.setOrder(getImportNextOrder(apiTestImportRequest.getProjectId()));
             batchMapper.insert(scenarioWithBLOBs);
             apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
         } else {
@@ -1834,6 +1837,7 @@ public class ApiAutomationService {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 List<ApiMethodUrlDTO> useUrl = this.parseUrl(scenarioWithBLOBs);
                 scenarioWithBLOBs.setUseUrl(JSONArray.toJSONString(useUrl));
+                scenarioWithBLOBs.setOrder(getImportNextOrder(request.getProjectId()));
                 batchMapper.insert(scenarioWithBLOBs);
                 apiScenarioReferenceIdService.saveByApiScenario(scenarioWithBLOBs);
             }
@@ -1848,6 +1852,7 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper batchMapper = sqlSession.getMapper(ApiScenarioMapper.class);
         List<ApiScenarioWithBLOBs> data = apiImport.getData();
+        currentScenarioOrder.remove();
         int num = 0;
         Project project = new Project();
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
@@ -1876,6 +1881,16 @@ public class ApiAutomationService {
             }
         }
         sqlSession.flushStatements();
+    }
+
+    private Long getImportNextOrder(String projectId) {
+        Long order = currentScenarioOrder.get();
+        if (order == null) {
+            order = ServiceUtils.getNextOrder(projectId, extApiScenarioMapper::getLastOrder);
+        }
+        order = (order == null ? 0 : order) + 5000;
+        currentScenarioOrder.set(order);
+        return order;
     }
 
     public ScenarioImport scenarioImport(MultipartFile file, ApiTestImportRequest request) {
