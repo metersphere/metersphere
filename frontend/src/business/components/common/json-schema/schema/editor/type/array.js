@@ -1,6 +1,4 @@
 const value = {
-	minItems:null,
-	maxItems:null,
   description: null
 }
 const attr = {

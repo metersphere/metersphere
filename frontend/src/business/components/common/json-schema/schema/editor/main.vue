@@ -47,7 +47,7 @@
       <json-schema-editor v-for="(item,key,index) in pickValue.items" :value="{[key]:item}" :parent="pickValue" :key="index" :deep="deep+1" :root="false" class="children" :lang="lang" :custom="custom" @changeAllItemsType="changeAllItemsType"/>
     </template>
     <!-- 高级设置-->
-    <el-dialog append-to-body :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
+    <el-dialog append-to-body :close-on-click-modal="true" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
 
@@ -328,9 +328,10 @@
       },
       onSetting() {
         this.modalVisible = true;
+        this.advancedValue = {};
         this.advancedValue = this.advanced.value
         for (const k in this.advancedValue) {
-          if (this.pickValue[k]) this.advancedValue[k] = this.pickValue[k]
+         this.advancedValue[k] = this.pickValue[k]
         }
       },
       handleClose() {
