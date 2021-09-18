@@ -234,7 +234,7 @@ export default {
     },
     handleEdit(index, data) {
       data.isReadOnly = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = !data.isReadOnly;
         data.webhook = '';
       }
@@ -268,7 +268,7 @@ export default {
     },
     handleEditTask(index, data) {
       data.isSet = true;
-      if (data.type === 'EMAIL') {
+      if (data.type === 'EMAIL' || data.type === 'IN_SITE') {
         data.isReadOnly = false;
         data.webhook = '';
       } else {
