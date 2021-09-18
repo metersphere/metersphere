@@ -70,7 +70,7 @@ export const TYPE_TO_C = new Map([
   ['ThreadGroup', "io.metersphere.api.dto.definition.request.MsThreadGroup"],
   ['DNSCacheManager', "io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager"],
   ['DebugSampler', "io.metersphere.api.dto.definition.request.sampler.MsDebugSampler"],
-
+  ['AuthManager', "io.metersphere.api.dto.definition.request.auth.MsAuthManager"]
 ])
 
 export const PLUGIN_ELEMENTS = new Map([
