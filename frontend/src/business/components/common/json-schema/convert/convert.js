@@ -52,7 +52,7 @@ class Convert {
     let result = this._value2object(this._object, this._option.$id, "", true);
     if (this._object.length > 0) {
       let itemArr = [];
-      for(let index = 0; index < this._object.length;index ++){
+      for (let index = 0; index < this._object.length; index++) {
         // 创建items对象的基本信息
         let objectItem = this._object[index]
         let item = this._value2object(objectItem, `#/items`, 'items');
@@ -118,7 +118,7 @@ class Convert {
             if (element.length > 0) {
               // 是数组
               let itemArr = [];
-              for(let index = 0; index < element.length;index ++){
+              for (let index = 0; index < element.length; index++) {
                 let elementItem = element[index];
                 // 创建items对象的基本信息
                 let item = this._value2object(elementItem, `${$id}/items`, key + 'items');
@@ -165,15 +165,14 @@ class Convert {
       objectTemplate["title"] = `The Root Schema`;
       objectTemplate["mock"] = undefined;
     }
-
-    if (isInteger(value)) {
+    if (isBoolean(value)) {
+      objectTemplate.type = "boolean";
+    } else if (isInteger(value)) {
       objectTemplate.type = "integer";
     } else if (isNumber(value)) {
       objectTemplate.type = "number";
     } else if (isString(value)) {
       objectTemplate.type = "string";
-    } else if (isBoolean(value)) {
-      objectTemplate.type = "boolean";
     } else if (isNull(value)) {
       objectTemplate.type = "null";
     } else if (isArray(value)) {
