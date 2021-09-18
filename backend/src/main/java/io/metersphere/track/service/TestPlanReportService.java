@@ -833,6 +833,9 @@ public class TestPlanReportService {
             errfoMailTemplate = "TestPlanFailedNotification";
         }
 
+        String testPlanShareUrl = shareInfoService.getTestPlanShareUrl(testPlanReport.getId());
+        paramMap.put("planShareUrl", baseSystemConfigDTO.getUrl() + "/sharePlanReport" + testPlanShareUrl);
+
         NoticeModel noticeModel = NoticeModel.builder()
                 .operator(testPlanReport.getCreator())
                 .successContext(successContext)
