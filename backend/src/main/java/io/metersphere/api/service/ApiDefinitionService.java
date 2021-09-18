@@ -299,7 +299,7 @@ public class ApiDefinitionService {
 
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        if (request.getProtocol().equals(RequestType.HTTP)) {
+        if (StringUtils.isNotEmpty(request.getProtocol()) && request.getProtocol().equals(RequestType.HTTP)) {
             ApiDefinitionExample.Criteria criteria = example.createCriteria();
             criteria.andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())

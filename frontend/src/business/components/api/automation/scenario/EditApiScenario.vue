@@ -889,7 +889,11 @@ export default {
     },
     fabClick() {
       if (this.operatingElements && this.operatingElements.length < 1) {
-        this.$info("引用的场景或接口无法添加配置");
+        if(this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF' ||  this.selectedTreeNode.disabled) {
+          this.$warning("引用的场景步骤及子步骤都无法添加其他步骤");
+        }else{
+          this.$warning("当前步骤下不能添加其他步骤");
+        }
       }
     },
     addComponent(type, plugin) {
