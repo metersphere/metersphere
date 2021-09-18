@@ -162,6 +162,7 @@
               item.tags = JSON.parse(item.tags);
             }
           });
+          this.clear();
         });
       },
       clear() {
