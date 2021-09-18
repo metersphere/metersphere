@@ -570,6 +570,7 @@ public class ApiDefinitionService {
 
     /**
      * 如果是MS格式，带用例导出，最后创建用例，重新设置接口id
+     *
      * @param cases
      * @param originId
      * @param newId
@@ -759,7 +760,10 @@ public class ApiDefinitionService {
             result.getResponseResult().setConsole(res.getConsole());
             cache.put(res.getTestId(), result);
         } else {
-            MSException.throwException(Translator.get("test_not_found"));
+            RequestResult result = new RequestResult();
+            result.getResponseResult().setConsole(res.getConsole());
+            cache.put(res.getTestId(), result);
+            //MSException.throwException(Translator.get("test_not_found"));
         }
     }
 
@@ -1427,6 +1431,7 @@ public class ApiDefinitionService {
 
     /**
      * 用例自定义排序
+     *
      * @param request
      */
     public void updateOrder(ResetOrderRequest request) {
@@ -1448,9 +1453,9 @@ public class ApiDefinitionService {
     }
 
     public long countEffectiveByProjectId(String projectId) {
-        if(StringUtils.isEmpty(projectId)){
+        if (StringUtils.isEmpty(projectId)) {
             return 0;
-        }else {
+        } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andProjectIdEqualTo(projectId).andStatusNotEqualTo("Trash");
             return apiDefinitionMapper.countByExample(example);
