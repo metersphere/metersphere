@@ -91,3 +91,7 @@ CREATE TABLE IF NOT EXISTS `report_statistics`
     `update_time`     bigint(13)    DEFAULT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE utf8mb4_general_ci;
+
+create index load_test_report_detail_report_id_index
+    on load_test_report_detail (report_id);
+
