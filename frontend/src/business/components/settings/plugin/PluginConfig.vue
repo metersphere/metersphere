@@ -6,11 +6,12 @@
         <ms-table-header
           :showCreate="false"
           :create-permission="['SYSTEM_USER:READ+CREATE']"
-          :condition.sync="condition" @search="search"
+          :condition.sync="condition"
           :import-tip="$t('test_track.case.import.click_upload')"
           :tip="$t('commons.search_by_name_or_id')"
           :create-tip="$t('user.create')"
           :title="$t('plugin.title')"
+          @search="initPlugins"
           @import="importJar"
           :show-import="true"/>
       </template>
@@ -87,14 +88,15 @@ export default {
     this.initPlugins();
   },
   methods: {
-    search() {
-
-    },
     importJar() {
       this.dialogVisible = true;
     },
     initPlugins() {
       let url = "/plugin/list";
+      let name = this.condition.name;
+      if (name) {
+        url = "/plugin/list?name=" +name;
+      }
       this.tableData = [];
       this.$get(url, response => {
         if (response.data) {
