@@ -68,6 +68,7 @@
             :field="item"
             :fields-width="fieldsWidth"
             prop="name"
+            sortable
             min-width="160px"
             :label="$t('test_track.case.name')"/>
 

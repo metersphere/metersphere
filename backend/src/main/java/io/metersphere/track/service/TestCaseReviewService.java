@@ -231,7 +231,8 @@ public class TestCaseReviewService {
             TestCaseReviewExample example = new TestCaseReviewExample();
             TestCaseReviewExample.Criteria criteria = example
                     .createCriteria()
-                    .andNameEqualTo(testCaseReview.getName());
+                    .andNameEqualTo(testCaseReview.getName())
+                    .andProjectIdEqualTo(testCaseReview.getProjectId());
 
             if (StringUtils.isNotBlank(testCaseReview.getId())) {
                 criteria.andIdNotEqualTo(testCaseReview.getId());
