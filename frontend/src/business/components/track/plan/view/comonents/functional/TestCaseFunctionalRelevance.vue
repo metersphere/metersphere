@@ -222,6 +222,9 @@ export default {
             item.checked = false;
             item.tags = JSON.parse(item.tags);
           });
+          if (this.$refs.table) {
+            this.$refs.table.clear();
+          }
         });
       }
     },

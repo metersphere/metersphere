@@ -225,6 +225,7 @@ export default {
           if (this.$refs.table) {
             this.$refs.table.doLayout();
             this.$refs.table.checkTableRowIsSelect();
+            this.$refs.table.clear();
           }
         });
       });

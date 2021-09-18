@@ -781,7 +781,7 @@ public class TestPlanReportService {
                     sendMessage(report, testPlan.getProjectId());
                 }
             } catch (Exception e) {
-
+                LogUtil.error(e);
             }
         } else {
         }

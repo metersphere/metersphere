@@ -196,6 +196,11 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.testCases = data.listObject;
+
+          this.selectIds.clear();
+          if (this.$refs.table) {
+            this.$refs.table.clearSelection();
+          }
         });
       }
       if (this.reviewId) {
