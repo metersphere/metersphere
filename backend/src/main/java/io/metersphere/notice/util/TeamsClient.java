@@ -1,6 +1,7 @@
 package io.metersphere.notice.util;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
@@ -32,12 +33,12 @@ public class TeamsClient {
                 sendResult.setIsSuccess(errcode.equals(0));
             }*/
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtil.error(e);
         } finally {
             try {
                 response.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                LogUtil.error(e);
             }
         }
         return sendResult;
