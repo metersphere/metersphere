@@ -27,8 +27,8 @@ public class PluginController {
     }
 
     @GetMapping("/list")
-    public List<PluginDTO> list() {
-        return pluginService.list();
+    public List<PluginDTO> list(String name) {
+        return pluginService.list(name);
     }
 
     @GetMapping("/get/{id}")

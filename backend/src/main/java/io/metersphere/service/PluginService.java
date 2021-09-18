@@ -150,30 +150,41 @@ public class PluginService {
         }
     }
 
-    public List<PluginDTO> list() {
-        PluginExample example = new PluginExample();
-        List<Plugin> plugins = pluginMapper.selectByExample(example);
-        Map<String, Boolean> pluginMap = new HashMap<>();
-        List<PluginDTO> lists = new LinkedList<>();
-        // 校验插件是否是企业版
-        plugins.forEach(item -> {
-            PluginDTO dto = new PluginDTO();
-            BeanUtils.copyBean(dto, item);
-            if (!pluginMap.containsKey(item.getPluginId())) {
-                try {
-                    Class<?> clazz = Class.forName(item.getExecEntry());
-                    Object instance = clazz.newInstance();
-                    dto.setLicense(this.isXpack(Class.forName(item.getExecEntry()), instance));
-                } catch (Exception e) {
-                    LogUtil.error(e.getMessage());
-                }
-            } else {
-                dto.setLicense(pluginMap.get(item.getPluginId()));
+    public List<PluginDTO> list(String name) {
+        try {
+            PluginExample example = new PluginExample();
+            if (StringUtils.isNotBlank(name)) {
+                name = "%" + name + "%";
+                example.createCriteria().andNameLike(name);
             }
-            lists.add(dto);
-            pluginMap.put(item.getPluginId(), dto.getLicense());
-        });
-        return lists;
+            List<Plugin> plugins = pluginMapper.selectByExample(example);
+            Map<String, Boolean> pluginMap = new HashMap<>();
+            List<PluginDTO> lists = new LinkedList<>();
+            if (CollectionUtils.isNotEmpty(plugins)) {
+                // 校验插件是否是企业版
+                plugins.forEach(item -> {
+                    PluginDTO dto = new PluginDTO();
+                    BeanUtils.copyBean(dto, item);
+                    if (!pluginMap.containsKey(item.getPluginId())) {
+                        try {
+                            Class<?> clazz = Class.forName(item.getExecEntry());
+                            Object instance = clazz.newInstance();
+                            dto.setLicense(this.isXpack(Class.forName(item.getExecEntry()), instance));
+                        } catch (Exception e) {
+                            LogUtil.error(e.getMessage());
+                        }
+                    } else {
+                        dto.setLicense(pluginMap.get(item.getPluginId()));
+                    }
+                    lists.add(dto);
+                    pluginMap.put(item.getPluginId(), dto.getLicense());
+                });
+                return lists;
+            }
+        } catch (Exception e) {
+            LogUtil.error(e);
+        }
+        return null;
     }
 
     public Plugin get(String scriptId) {
