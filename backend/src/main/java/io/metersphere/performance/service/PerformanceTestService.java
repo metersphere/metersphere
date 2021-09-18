@@ -219,13 +219,23 @@ public class PerformanceTestService {
         }
     }
 
-    private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
-
-        LoadTestExample example = new LoadTestExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId());
-        if (loadTestMapper.countByExample(example) > 0) {
-            MSException.throwException(Translator.get("load_test_already_exists"));
+    private void checkExist(TestPlanRequest request) {
+        if (request.getName() != null) {
+            LoadTestExample example = new LoadTestExample();
+            LoadTestExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(request.getName())
+                    .andProjectIdEqualTo(request.getProjectId());
+            if (StringUtils.isNotBlank(request.getId())) {
+                criteria.andIdNotEqualTo(request.getId());
+            }
+            if (loadTestMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("plan_name_already_exists"));
+            }
         }
+    }
+
+    private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
+        checkExist(request);
 
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
         loadTest.setUserId(SessionUtils.getUser().getId());
@@ -250,7 +260,7 @@ public class PerformanceTestService {
 
     public LoadTest edit(EditTestPlanRequest request, List<MultipartFile> files) {
         checkQuota(request, false);
-        //
+        checkExist(request);
         String testId = request.getId();
         LoadTestWithBLOBs loadTest = loadTestMapper.selectByPrimaryKey(testId);
         if (loadTest == null) {

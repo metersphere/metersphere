@@ -71,7 +71,7 @@ public class TestPlanTestCaseService {
     }
 
     public void updateIssues(int issuesCount, String id, String caseId, String issues) {
-        extTestPlanTestCaseMapper.update(issuesCount, id, caseId, issues);
+        extTestPlanTestCaseMapper.update(issuesCount, id, caseId, issues);//to
     }
 
     public List<TestPlanCaseDTO> list(QueryTestPlanCaseRequest request) {

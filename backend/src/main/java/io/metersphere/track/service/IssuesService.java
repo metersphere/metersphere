@@ -22,7 +22,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.IssueTemplateService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.PlanReportIssueDTO;
 import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.track.dto.TestPlanFunctionResultReportDTO;
@@ -36,7 +35,6 @@ import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,7 +75,7 @@ public class IssuesService {
     @Resource
     private TestCaseMapper testCaseMapper;
     @Resource
-    private SystemParameterService systemParameterService;
+    private TestCaseIssueService testCaseIssueService;
     @Resource
     private TestPlanTestCaseService testPlanTestCaseService;
 
@@ -95,16 +93,7 @@ public class IssuesService {
             platform.addIssue(issuesRequest);
         });
         issuesRequest.getTestCaseIds().forEach(l -> {
-            try {
-                List<IssuesDao> issues = this.getIssues(l);
-                if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
-                    LogUtil.error(l + "下的缺陷为空");
-                }
-                int issuesCount = issues.size();
-                testPlanTestCaseService.updateIssues(issuesCount, "", l, JSON.toJSONString(issues));
-            } catch (Exception e) {
-                LogUtil.error("处理bug数量报错caseId: {}, message: {}", l, ExceptionUtils.getStackTrace(e));
-            }
+            testCaseIssueService.updateIssuesCount(l);
         });
     }
 
@@ -153,10 +142,10 @@ public class IssuesService {
         String userId = testCase.getMaintainer();
         issueRequest.setOrganizationId(orgId);
         issueRequest.setUserId(userId);
-        return getIssuesByProject(issueRequest, project);
+        return getIssuesByProjectIdOrCaseId(issueRequest);
     }
 
-    public List<IssuesDao> getIssuesByProject(IssuesRequest issueRequest, Project project) {
+    public List<IssuesDao> getIssuesByProjectIdOrCaseId(IssuesRequest issueRequest) {
         List<IssuesDao> issues;
         if (StringUtils.isNotBlank(issueRequest.getProjectId())) {
             issues = extIssuesMapper.getIssues(issueRequest);
@@ -291,6 +280,7 @@ public class IssuesService {
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(caseId).andIssuesIdEqualTo(id);
         testCaseIssuesMapper.deleteByExample(example);
+        testCaseIssueService.updateIssuesCount(caseId);
     }
 
     public void delete(String id) {
@@ -404,16 +394,7 @@ public class IssuesService {
             List<TestPlanTestCaseWithBLOBs> list = testPlanTestCaseService.listAll();
             pages = page.getPages();// 替换成真实的值
             list.forEach(l -> {
-                try {
-                    List<IssuesDao> issues = this.getIssues(l.getCaseId());
-                    if (org.apache.commons.collections4.CollectionUtils.isEmpty(issues)) {
-                        return;
-                    }
-                    int issuesCount = issues.size();
-                    testPlanTestCaseService.updateIssues(issuesCount, l.getPlanId(), l.getCaseId(), JSON.toJSONString(issues));
-                } catch (Exception e) {
-                    LogUtil.error("定时任务处理bug数量报错planId: {}, message: {}", l.getPlanId(), ExceptionUtils.getStackTrace(e));
-                }
+                testCaseIssueService.updateIssuesCount(l.getCaseId());
             });
         }
         LogUtil.info("测试计划-测试用例同步缺陷信息结束");
