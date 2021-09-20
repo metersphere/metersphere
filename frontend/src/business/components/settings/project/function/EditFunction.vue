@@ -68,7 +68,7 @@
               </div>
             </div>
             <el-col :span="menuSpan" class="script-index" v-if="showMenu">
-              <ms-dropdown :default-command="form.type" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;"
+              <ms-dropdown :default-command="form.type" :commands="languages" style="margin-bottom: 5px;margin-left: 15px;margin-top: 30px;"
                            @command="languageChange"/>
               <script-nav-menu ref="scriptNavMenu" :language="form.type" @handleCode="handleCodeTemplate"/>
             </el-col>

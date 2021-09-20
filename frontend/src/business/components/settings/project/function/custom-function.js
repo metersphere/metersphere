@@ -33,36 +33,8 @@ function groovyCode(requestObj) {
   }
   let body = JSON.stringify(requestBody);
   let headers = getHeaders(requestHeaders);
-  let params = "";
-  params +=  `[
-                'url': '${requestUrl}',
-                'method': '${requestMethod}', // POST/GET
-                'headers': ${headers}, // 请求headers 例：['Content-type':'application/json']
-                'data': ${body} // 参数
-                ]`
-  return `import groovy.json.JsonOutput
-import groovy.json.JsonSlurper
-
-def params = ${params}
-def headers = params['headers']
-// json数据
-def data = params['data']
-def conn = new URL(params['url']).openConnection()
-conn.setRequestMethod(params['method'])
-if (data) {
-    headers.each {
-      k,v -> conn.setRequestProperty(k, v);
-    }
-    // 输出请求参数
-    log.info(data)
-    conn.doOutput = true
-    def writer = new OutputStreamWriter(conn.outputStream)
-    writer.write(data)
-    writer.flush()
-    writer.close()
-}
-log.info(conn.content.text)
-`;
+  let obj = {requestUrl, requestMethod, headers, body};
+  return _groovyCodeTemplate(obj);
 }
 
 function pythonCode(requestObj) {
@@ -75,23 +47,12 @@ function pythonCode(requestObj) {
   let headers = getHeaders(requestHeaders);
   requestBody = requestBody ? requestBody : "{}";
   requestPath = getRequestPath(requestArguments, requestPath);
-  return `import httplib
-params = ${requestBody} #例 {'username':'test'}
-headers = ${headers} #例 {'Content-Type':'application/json'}
-host = '${host}'
-path = '${requestPath}'
-method = '${requestMethod}' # POST/GET
-
-conn = httplib.${connType}(host)
-conn.request(method, path, params, headers)
-res = conn.getresponse()
-data = unicode(res.read(), 'utf-8')
-log.info(data)
-  `;
+  let obj = {requestBody, headers, host, requestPath, requestMethod, connType};
+  return _pythonCodeTemplate(obj);
 }
 
 function javaCode(requestObj) {
-  return ``;
+  return _beanshellTemplate(requestObj);
 }
 
 function jsCode(requestObj) {
@@ -126,4 +87,116 @@ function getHeaders(requestHeaders) {
   }
   headers = headers + "}"
   return headers;
+}
+
+function _pythonCodeTemplate(obj) {
+  let {requestBody, headers, host, requestPath, requestMethod, connType} = obj;
+  return `import httplib
+params = ${requestBody} #例 {'username':'test'}
+headers = ${headers} #例 {'Content-Type':'application/json'}
+host = '${host}'
+path = '${requestPath}'
+method = '${requestMethod}' # POST/GET
+
+conn = httplib.${connType}(host)
+conn.request(method, path, params, headers)
+res = conn.getresponse()
+data = unicode(res.read(), 'utf-8')
+log.info(data)
+`;
+}
+
+function _groovyCodeTemplate(obj) {
+  let {requestUrl, requestMethod, headers, body} = obj;
+  let params =  `[
+                'url': '${requestUrl}',
+                'method': '${requestMethod}', // POST/GET
+                'headers': ${headers}, // 请求headers 例：{'Content-type':'application/json'}
+                'data': ${body} // 参数
+                ]`
+  return `import groovy.json.JsonOutput
+import groovy.json.JsonSlurper
+
+def params = ${params}
+def headers = params['headers']
+// json数据
+def data = params['data']
+def conn = new URL(params['url']).openConnection()
+conn.setRequestMethod(params['method'])
+if (data) {
+    headers.each {
+      k,v -> conn.setRequestProperty(k, v);
+    }
+    // 输出请求参数
+    log.info(data)
+    conn.doOutput = true
+    def writer = new OutputStreamWriter(conn.outputStream)
+    writer.write(data)
+    writer.flush()
+    writer.close()
+}
+log.info(conn.content.text)
+`;
+}
+
+function _beanshellTemplate(obj) {
+  let {requestHeaders = new Map(), requestBody = "", requestPath = "/",
+    requestMethod = "GET", protocol = "http", requestArguments = new Map(), domain = "", port = ""} = obj;
+  let uri = `new URIBuilder()
+                  .setScheme("${protocol}")
+                  .setHost("${domain}")
+                  .setPort(${port})
+                  .setPath("${requestPath}")
+                  `;
+  // http 请求类型
+  let method = requestMethod.toLowerCase().replace(/^\S/, s => s.toUpperCase());
+  let httpMethodCode = `Http${method} request = new Http${method}(uri);`;
+  // 设置参数
+  for (let [k, v] of requestArguments) {
+    uri = uri + `.setParameter("${k}", "${v}")`;
+  }
+  uri = uri + ".build();";
+  // 设置请求头
+  let setHeader = "";
+  for (let [k, v] of requestHeaders) {
+    setHeader = setHeader + `request.setHeader("${k}", "${v}");` +'\n';
+  }
+  try {
+    requestBody = JSON.stringify(requestBody);
+  } catch (e) {
+    requestBody = "";
+  }
+
+  let postMethodCode = requestMethod === "POST" ?
+    `request.setEntity(new StringEntity(StringEscapeUtils.unescapeJava(payload)));` : "";
+  return `import java.net.URI;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.*;
+import org.apache.commons.text.StringEscapeUtils;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.entity.StringEntity;
+
+// 创建Httpclient对象
+CloseableHttpClient httpclient = HttpClients.createDefault();
+String payload = ${requestBody};
+// 定义请求的参数
+URI uri = ${uri}
+// 创建http请求
+${httpMethodCode}
+${setHeader}
+${postMethodCode}
+log.info(uri.toString());
+//response 对象
+CloseableHttpResponse response = null;
+
+// 执行http get请求
+response = httpclient.execute(request);
+// 判断返回状态是否为200
+if (response.getStatusLine().getStatusCode() == 200) {
+    String content = EntityUtils.toString(response.getEntity(), "UTF-8");
+    log.info(content);
+}`
 }
