@@ -519,7 +519,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         List<String> stepResList = new ArrayList<>();
         ListUtils<String> listUtils = new ListUtils<String>();
         if (data.getStepDesc() != null) {
-            String desc = data.getStepDesc().replaceAll("\\n([1-9]\\.)", "\r\n$1");
+            String desc = data.getStepDesc().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
             String[] stepDesc = desc.split("\r\n");
             StringBuffer stepBuffer = new StringBuffer();
             int lastStepIndex = 1;
@@ -544,7 +544,7 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         }
 
         if (data.getStepResult() != null) {
-            String stepResult = data.getStepResult().replaceAll("\\n([1-9]\\.)", "\r\n$1");
+            String stepResult = data.getStepResult().replaceAll("\\n([0-9]+\\.)", "\r\n$1");
             String[] stepRes = stepResult.split("\r\n");
             StringBuffer stepBuffer = new StringBuffer();
             int lastStepIndex = 1;
