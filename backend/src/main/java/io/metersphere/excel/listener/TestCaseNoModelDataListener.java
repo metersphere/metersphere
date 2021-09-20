@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -487,6 +488,12 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         try {
             if (StringUtils.isNotBlank(tags)) {
                 JSONArray.parse(tags);
+                // 数字
+                String pattern = "[0-9]*";
+                boolean isMatch = Pattern.matches(pattern, tags);
+                if (isMatch) {
+                    return "[" + "\""+  tags + "\"" + "]";
+                }
                 return tags;
             }
             return "[]";
