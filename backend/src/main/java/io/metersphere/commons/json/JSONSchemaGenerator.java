@@ -221,8 +221,16 @@ public class JSONSchemaGenerator {
                     JsonObject itemsObject = jsonArray.get(i).getAsJsonObject();
 
                     if (object.has("items")) {
-                        if (itemsObject.has("enum")) {
-                            array.add(analyzeEnumProperty(itemsObject));
+                        if (itemsObject.has("mock") && itemsObject.get("mock").getAsJsonObject() != null && StringUtils.isNotEmpty(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString())) {
+                            try {
+                                int value = itemsObject.get("mock").getAsJsonObject().get("mock").getAsInt();
+                                array.add(value);
+                            } catch (Exception e) {
+                                String value = ScriptEngineUtils.buildFunctionCallString(itemsObject.get("mock").getAsJsonObject().get("mock").getAsString());
+                                array.add(value);
+                            }
+                        }else if (itemsObject.has("enum")) {
+//                            array.add(analyzeEnumProperty(itemsObject));
                         } else if (itemsObject.has("type") && itemsObject.get("type").getAsString().equals("string")) {
                             if (itemsObject.has("default")) {
                                 array.add(itemsObject.get("default"));

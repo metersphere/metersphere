@@ -10,13 +10,6 @@
 
       <el-tabs v-model="activeName">
 
-        <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="prescript">
-          <jsr233-processor-content v-if="isRefresh"
-                                    :jsr223-processor="environment.config.preProcessor"
-            :is-pre-processor="true"
-            :is-read-only="isReadOnly"/>
-        </el-tab-pane>
-
         <el-tab-pane :label="$t('api_test.environment.common_config')"  name="common">
           <ms-environment-common-config :common-config="environment.config.commonConfig" ref="commonConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
@@ -33,16 +26,22 @@
         <el-tab-pane :label="$t('commons.ssl.config')" name="ssl">
           <ms-environment-s-s-l-config :project-id="projectId" :ssl-config="environment.config.sslConfig" :is-read-only="isReadOnly"/>
         </el-tab-pane>
-        <el-tab-pane :label="$t('api_test.definition.request.post_script')" name="postscript">
+        <el-tab-pane :label="$t('api_test.definition.request.all_pre_script')" name="prescript">
+          <jsr233-processor-content v-if="isRefresh"
+                                    :jsr223-processor="environment.config.preProcessor"
+                                    :is-pre-processor="true"
+                                    :is-read-only="isReadOnly"/>
+        </el-tab-pane>
+        <el-tab-pane :label="$t('api_test.definition.request.all_post_script')" name="postscript">
           <jsr233-processor-content  v-if="isRefresh"
                                      :jsr223-processor="environment.config.postProcessor"
             :is-pre-processor="false"
             :is-read-only="false"/>
         </el-tab-pane>
         <!-- 认证配置 -->
-        <el-tab-pane :label="$t('api_test.definition.request.auth_config')" name="authConfig" v-if="isRefresh">
+        <el-tab-pane :label="$t('api_test.definition.request.all_auth_config')" name="authConfig" v-if="isRefresh">
           <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.auth_config_info')" placement="top-start" slot="label">
-            <span>{{$t('api_test.definition.request.auth_config')}}</span>
+            <span>{{$t('api_test.definition.request.all_auth_config')}}</span>
           </el-tooltip>
           <ms-api-auth-config :is-read-only="isReadOnly" :request="environment.config.authManager"/>
         </el-tab-pane>
