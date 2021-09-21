@@ -486,8 +486,8 @@ public class TestCaseNoModelDataListener extends AnalysisEventListener<Map<Integ
         String tags = data.getTags();
         try {
             if (StringUtils.isNotBlank(tags)) {
-                JSONArray.parse(tags);
-                return tags;
+                JSONArray array = JSONArray.parseArray(tags);
+                return array.toJSONString();
             }
             return "[]";
         } catch (Exception e) {
