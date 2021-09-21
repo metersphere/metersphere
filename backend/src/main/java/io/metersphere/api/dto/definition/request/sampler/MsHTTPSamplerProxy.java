@@ -295,7 +295,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private void setScript(HttpConfig httpConfig, HashTree httpSamplerTree, ParameterConfig config) {
         MsJSR223PreProcessor preProcessor = httpConfig.getPreProcessor();
         MsJSR223PostProcessor postProcessor = httpConfig.getPostProcessor();
-        if (preProcessor != null) {
+        if (preProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
             if (preProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
                     preProcessor.setEnvironmentId(useEnvironment);
@@ -305,7 +305,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
             preProcessor.toHashTree(httpSamplerTree, preProcessor.getHashTree(), config);
         }
-        if (postProcessor != null) {
+        if (postProcessor != null && StringUtils.isNotEmpty(preProcessor.getScript())) {
             if (postProcessor.getEnvironmentId() == null) {
                 if (this.getEnvironmentId() == null) {
                     postProcessor.setEnvironmentId(useEnvironment);
