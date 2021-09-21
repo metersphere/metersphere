@@ -20,6 +20,7 @@
       <ms-table-header-select-popover v-if="enableSelection && showSelectAll" ref="selectPopover"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :table-data-count-in-page="data.length"
+                                      :select-type="condition.selectAll"
                                       :total="total"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>

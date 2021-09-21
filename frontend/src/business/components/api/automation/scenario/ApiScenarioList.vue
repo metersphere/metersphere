@@ -719,9 +719,15 @@ export default {
     },
     handleBatchRestore() {
       let ids = this.$refs.scenarioTable.selectIds;
-      this.$post("/api/automation/reduction", ids, response => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
+      let params = {};
+      this.buildBatchParam(params);
+      params.ids = ids;
+      this.$post("/api/automation/id/all", params, response => {
+        let idParams = response.data;
+        this.$post("/api/automation/reduction", idParams, response => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
       });
     },
     handleDeleteBatch(row) {
