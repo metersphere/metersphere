@@ -480,9 +480,9 @@ public class TestPlanApiCaseService {
                 ApiDefinitionExecResult report = addResult(request, key, APITestStatus.Running.name(), batchMapper);
                 modeDataDTO.setApiCaseId(report.getId());
                 if (request.getConfig() != null && StringUtils.isNotEmpty(request.getConfig().getResourcePoolId())) {
-                    jMeterService.runTest(modeDataDTO.getTestId(), modeDataDTO.getApiCaseId(), ApiRunMode.API_PLAN.name(), null, request.getConfig());
+                    jMeterService.runTest(report.getId(), modeDataDTO.getApiCaseId(), ApiRunMode.API_PLAN.name(), null, request.getConfig());
                 } else {
-                    jMeterService.runLocal(modeDataDTO.getTestId(), modeDataDTO.getHashTree(),  TriggerMode.BATCH.name() , ApiRunMode.API_PLAN.name());
+                    jMeterService.runLocal(report.getId(), modeDataDTO.getHashTree(),  TriggerMode.BATCH.name() , ApiRunMode.API_PLAN.name());
                 }
             }
             sqlSession.flushStatements();

@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.commons.utils.LogUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.engine.JMeterEngineException;
 import org.apache.jmeter.engine.StandardJMeterEngine;
 import org.apache.jorphan.collections.HashTree;
@@ -20,7 +21,9 @@ public class LocalRunner {
         engine.configure(jmxTree);
         try {
             engine.runTest();
-            MessageCache.runningEngine.put(report, engine);
+            if (StringUtils.isNotEmpty(report)) {
+                MessageCache.runningEngine.put(report, engine);
+            }
         } catch (JMeterEngineException e) {
             engine.stopTest(true);
         }
@@ -29,7 +32,7 @@ public class LocalRunner {
     public void stop(String report) {
         try {
             StandardJMeterEngine engine = MessageCache.runningEngine.get(report);
-            if (engine != null) {
+            if (engine != null && StringUtils.isNotEmpty(report)) {
                 engine.stopTest();
                 MessageCache.runningEngine.remove(report);
             }
