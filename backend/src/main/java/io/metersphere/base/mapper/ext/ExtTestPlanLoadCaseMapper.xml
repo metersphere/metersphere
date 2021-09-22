@@ -312,4 +312,13 @@
         order by `order` desc limit 1;
     </select>
 
+    <select id="selectIdByLoadCaseReportIdAndStatusIsRun" resultType="java.lang.String">
+        select `id` from test_plan_load_case where load_report_id = #{planId}
+        and `status` = 'run'
+    </select>
+    <update id="updateStatusNullById">
+        update test_plan_load_case tplc
+        set status = null
+        where id = #{0}
+    </update>
 </mapper>
