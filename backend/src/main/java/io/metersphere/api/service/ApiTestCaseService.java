@@ -157,6 +157,14 @@ public class ApiTestCaseService {
                     i.setPrefix("t1");
                 }
             });
+            if (request.getFilters() != null) {
+                Map<String, List<String>> filters = request.getFilters();
+                List<String> status = filters.get("status");
+                if (status == null) {
+                    // sql 需要有这个字段
+                    filters.put("status", new ArrayList<>());
+                }
+            }
             request.setOrders(orders);
         }
         if (checkThisWeekData) {

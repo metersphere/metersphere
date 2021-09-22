@@ -621,7 +621,7 @@
         update api_test_case
         set original_status=status,
         status = 'Trash',delete_time = #{deleteTime},delete_user_id = #{deleteUserId}
-        where status != 'Trash' AND id IN
+        where id IN
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
