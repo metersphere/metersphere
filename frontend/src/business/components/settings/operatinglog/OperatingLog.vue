@@ -216,9 +216,14 @@
           resourceId = resourceId[0];
         }
         let uri = getUrl(resource);
-        this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+        let operModule = resource.operModule;
+        if (operModule === "系统-系统参数设置" || operModule === "系统-系統參數設置" || operModule === "System parameter setting") {
           this.toPage(uri);
-        });
+        } else {
+          this.$get('/user/update/currentByResourceId/' + resourceId, () => {
+            this.toPage(uri);
+          });
+        }
       },
       toPage(uri) {
         let id = "new_a";
