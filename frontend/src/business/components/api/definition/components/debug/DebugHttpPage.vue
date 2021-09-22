@@ -19,18 +19,18 @@
             {{ $t('report.stop_btn') }}
           </el-button>
           <div v-else>
-            <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+            <el-dropdown split-button type="primary" class="ms-api-button" @click="handleCommand"
                          @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
               {{ $t('commons.test') }}
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
+            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
+              {{ $t('commons.test') }}
+            </el-button>
           </div>
 
-          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand">
-            {{ $t('commons.test') }}
-          </el-button>
         </el-form-item>
       </el-form>
       <div v-loading="loading">
