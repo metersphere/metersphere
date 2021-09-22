@@ -19,7 +19,7 @@
     </div>
     <div class="ms-header-right">
       <el-checkbox v-model="cookieShare" @change="setCookieShare">共享cookie</el-checkbox>
-      <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{$t('commons.failure_continues')}}</el-checkbox>
+      <el-checkbox v-model="sampleError" @change="setOnSampleError" style="margin-right: 10px">{{ $t('commons.failure_continues') }}</el-checkbox>
       <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1"
                    :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                    @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"
@@ -53,6 +53,7 @@ export default {
     projectList: Array,
     isFullUrl: Boolean,
     execDebug: String,
+    clearMessage: String,
   },
   data() {
     return {
@@ -77,9 +78,13 @@ export default {
       return getCurrentProjectID();
     },
   },
-  watch:{
-    execDebug(){
+  watch: {
+    execDebug() {
       this.debug = false;
+    },
+    clearMessage(){
+      this.debug = false;
+      this.debugLoading = false;
     }
   },
   mounted() {

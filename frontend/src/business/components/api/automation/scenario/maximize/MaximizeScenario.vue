@@ -129,7 +129,7 @@
     <!--执行组件-->
     <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId"
             :run-data="debugData"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
     <!-- 调试结果 -->
     <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                :withHeader="true" :modal="false" size="90%">
@@ -563,6 +563,7 @@ export default {
       /*触发执行操作*/
       let sign = this.$refs.envPopover.checkEnv();
       if (!sign) {
+        this.errorRefresh();
         return;
       }
       this.$refs['currentScenario'].validate((valid) => {
@@ -584,6 +585,8 @@ export default {
               this.reportId = getUUID().substring(0, 8);
             }
           });
+        }else{
+          this.errorRefresh();
         }
       })
     },
@@ -759,6 +762,10 @@ export default {
     },
     runRefresh() {
       this.debugVisible = true;
+      this.loading = false;
+    },
+    errorRefresh(){
+      this.debugVisible = false;
       this.loading = false;
     },
     showScenarioParameters() {
