@@ -248,7 +248,11 @@
         if (data.isCopy) {
           data.id = getUUID();
         } else {
-          data.id = data.request.id;
+          if (data.id) {
+            data.request.id = data.id;
+          } else {
+            data.id = data.request.id;
+          }
         }
 
         if (!data.method) {

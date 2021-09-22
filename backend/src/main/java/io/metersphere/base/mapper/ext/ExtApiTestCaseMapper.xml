@@ -596,20 +596,6 @@
         </if>
         order by `order` desc limit 1;
     </select>
-    <select id="selectSameCase" resultType="io.metersphere.base.domain.ApiTestCase">
-        select id
-        from api_test_case
-        WHERE
-        api_definition_id = #{request.apiDefinitionId} and (`status` &lt;&gt; 'Trash' or `status` is null)
-        <if test="request.id != null and request.id != ''">
-           and id = #{request.id}
-        </if>
-        <if test="request.id == null or request.id == ''">
-           and name = #{request.name}
-        </if>
-        limit 1;
-    </select>
-
     <update id="deleteToGc" parameterType="io.metersphere.api.dto.definition.ApiTestCaseRequest">
         update api_test_case
         set original_status=status,

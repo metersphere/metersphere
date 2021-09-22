@@ -279,6 +279,19 @@ public class ApiTestCaseService {
     }
 
     public void checkNameExist(SaveApiTestCaseRequest request) {
+        if (hasSameCase(request)) {
+            MSException.throwException(Translator.get("load_test_already_exists"));
+        }
+    }
+
+    public Boolean hasSameCase(SaveApiTestCaseRequest request) {
+        if (getSameCase(request) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public ApiTestCase getSameCase(SaveApiTestCaseRequest request) {
         ApiTestCaseExample example = new ApiTestCaseExample();
         ApiTestCaseExample.Criteria criteria = example.createCriteria();
         criteria.andStatusNotEqualTo("Trash").andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
@@ -287,14 +300,24 @@ public class ApiTestCaseService {
         }
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(apiTestCases)) {
-            if (apiTestCases.get(0) != null) {
-                MSException.throwException(Translator.get("load_test_already_exists"));
-            };
+            return apiTestCases.get(0);
         }
+        return null;
     }
 
-    public ApiTestCase getImportSameCase(SaveApiTestCaseRequest request) {
-        return extApiTestCaseMapper.selectSameCase(request);
+    public ApiTestCase getSameCaseById(SaveApiTestCaseRequest request) {
+        if (StringUtils.isNotBlank(request.getId())) {
+            ApiTestCaseExample example = new ApiTestCaseExample();
+            ApiTestCaseExample.Criteria criteria = example.createCriteria();
+            criteria.andStatusNotEqualTo("Trash")
+                    .andApiDefinitionIdEqualTo(request.getApiDefinitionId());
+            criteria.andIdEqualTo(request.getId());
+            List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(apiTestCases)) {
+                return apiTestCases.get(0);
+            }
+        }
+        return null;
     }
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
