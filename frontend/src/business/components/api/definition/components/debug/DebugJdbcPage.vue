@@ -2,19 +2,21 @@
 
   <div class="card-container">
     <el-card class="card-content">
-      <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
-                 @click="handleCommand"> {{ $t('commons.test') }}
-      </el-button>
-      <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-        {{ $t('commons.test') }}
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
-      <el-button size="small" type="primary" class="ms-api-buttion" style="float: right;margin-right: 20px" @click="stop" v-if="isStop">
+      <el-button size="small" type="primary" class="ms-api-button" style="float: right;margin-right: 20px" @click="stop" v-if="isStop">
         {{ $t('report.stop_btn') }}
       </el-button>
+      <div v-else>
+        <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
+                   @click="handleCommand"> {{ $t('commons.test') }}
+        </el-button>
+        <el-dropdown v-else split-button type="primary" class="ms-api-button" @click="handleCommand"
+                     @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+          {{ $t('commons.test') }}
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+      </div>
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <div v-loading="loading">
         <!-- JDBC 请求参数 -->

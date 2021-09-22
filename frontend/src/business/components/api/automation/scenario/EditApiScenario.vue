@@ -258,7 +258,7 @@
       <!--执行组件-->
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId" :saved="!debug"
               :run-data="debugData"
-              @runRefresh="runRefresh" ref="runTest"/>
+              @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
@@ -553,16 +553,20 @@ export default {
       let url = "/api/automation/stop/" + this.reportId;
       this.$get(url, response => {
         this.debugLoading = false;
-        if (this.websocket) {
-          this.websocket.close();
+        try {
+          if (this.websocket) {
+            this.websocket.close();
+          }
+          if (this.messageWebSocket) {
+            this.messageWebSocket.close();
+          }
+          this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
+          this.clearDebug();
+          this.$success(this.$t('report.test_stop_success'));
+          this.reload();
+        } catch (e) {
+          this.debugLoading = false;
         }
-        if (this.messageWebSocket) {
-          this.messageWebSocket.close();
-        }
-        this.clearNodeStatus(this.$refs.stepTree.root.childNodes);
-        this.clearDebug();
-        this.$success(this.$t('report.test_stop_success'));
-        this.reload();
       });
     },
     clearDebug() {
@@ -889,9 +893,9 @@ export default {
     },
     fabClick() {
       if (this.operatingElements && this.operatingElements.length < 1) {
-        if(this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF' ||  this.selectedTreeNode.disabled) {
+        if (this.selectedTreeNode && this.selectedTreeNode.referenced === 'REF' || this.selectedTreeNode.disabled) {
           this.$warning("引用的场景步骤及子步骤都无法添加其他步骤");
-        }else{
+        } else {
           this.$warning("当前步骤下不能添加其他步骤");
         }
       }
@@ -1390,6 +1394,13 @@ export default {
         this.initWebSocket();
         this.initMessageSocket();
       }
+    },
+    errorRefresh() {
+      this.debug = false;
+      this.isTop = false;
+      this.debugLoading = false;
+      this.debugVisible = false;
+      this.loading = false;
     },
     showScenarioParameters() {
       this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);

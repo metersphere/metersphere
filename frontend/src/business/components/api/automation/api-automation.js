@@ -98,6 +98,8 @@ export function saveScenario(url, scenario, scenarioDefinition, _this,success) {
     if (success) {
       success(response);
     }
+  }, error => {
+    _this.$emit('errorRefresh', {});
   });
 }
 

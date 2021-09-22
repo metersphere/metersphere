@@ -11,19 +11,22 @@
           <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535" size="small"/>
         </el-form-item>
         <el-form-item>
-          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{ $t('commons.test') }}
-          </el-button>
-          <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-            {{ $t('commons.test') }}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
           <el-button size="small" type="primary" @click="stop" v-if="isStop">
             {{ $t('report.stop_btn') }}
           </el-button>
+
+          <div v-else>
+            <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{ $t('commons.test') }}
+            </el-button>
+            <el-dropdown v-else split-button type="primary" class="ms-api-button" @click="handleCommand"
+                         @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+              {{ $t('commons.test') }}
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </div>
         </el-form-item>
       </el-form>
       <div v-loading="loading">
