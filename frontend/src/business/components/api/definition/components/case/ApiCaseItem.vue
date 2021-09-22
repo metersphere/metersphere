@@ -24,7 +24,7 @@
           <span @click.stop>
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
-                      class="ms-api-header-select" style="width: 180px"
+                      class="ms-api-header-select" style="width: 180px" readonly="hasPermission('PROJECT_API_DEFINITION:READ+EDIT_CASE')"
                       @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
                 <span>{{ apiCase.id ? apiCase.name : '' }}</span>
@@ -63,11 +63,11 @@
 
         <el-col :span="4">
           <span @click.stop>
-            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play" v-permission="['PROJECT_API_DEFINITION:READ+RUN']"
                           class="run-button" size="mini" :disabled="!apiCase.id" circle/>
-            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy" v-permission="['PROJECT_API_DEFINITION:READ+COPY_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
-            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete" v-permission="['PROJECT_API_SCENARIO:READ+DELETE_CASE']"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase"/>
           </span>
@@ -113,7 +113,8 @@
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)"
-                   v-if="type!=='detail'">
+                   v-if="type!=='detail'"
+                   v-permission="['PROJECT_API_DEFINITION:READ+EDIT_CASE']">
           {{ $t('commons.save') }}
         </el-button>
       </div>
@@ -125,7 +126,7 @@
 </template>
 
 <script>
-  import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
+  import {_getBodyUploadFiles, getCurrentProjectID, getUUID, hasPermission} from "@/common/js/utils";
   import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
@@ -185,8 +186,8 @@
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         isShowInput: false,
         buttons: [
-          {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
-          {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
+          {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch, permissions: ['PROJECT_API_DEFINITION:READ+RUN']},
+          {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch, permissions: ['PROJECT_API_DEFINITION:READ+EDIT_CASE']}
         ],
         methodColorMap: new Map(API_METHOD_COLOUR),
       }
@@ -222,6 +223,7 @@
     },
     watch: {},
     methods: {
+      hasPermission,
       openHis(row) {
         this.$refs.changeHistory.open(row.id);
       },
@@ -366,10 +368,12 @@
         });
       },
       saveTestCase(row, hideAlert) {
-        if (this.api.saved) {
-          this.addModule(row);
-        } else {
-          this.saveCase(row, hideAlert);
+        if (hasPermission('PROJECT_API_DEFINITION:READ+EDIT_API')) {
+          if (this.api.saved) {
+            this.addModule(row);
+          } else {
+            this.saveCase(row, hideAlert);
+          }
         }
       },
       showInput(row) {

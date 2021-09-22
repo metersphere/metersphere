@@ -8,7 +8,7 @@
           <el-link type="primary" style="margin-right: 20px" @click="openHis" v-if="path === '/api/automation/update'">{{ $t('operating_log.change_history') }}</el-link>
 
           <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario"
-                     title="ctrl + s">
+                     title="ctrl + s" v-permission="['PROJECT_API_SCENARIO:READ+EDIT']">
             {{ $t('commons.save') }}
           </el-button>
         </div>
