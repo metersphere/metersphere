@@ -327,6 +327,7 @@ export default {
       if (param.type === 'edit') {
         this.$emit('edit', param);
       } else {
+        this.expandedNode.push(param.parentId);
         this.$emit('add', param);
       }
       this.$set(data, 'isEdit', false);

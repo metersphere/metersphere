@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
 import io.swagger.models.Model;
 import io.swagger.v3.oas.models.media.Schema;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -213,9 +214,11 @@ public class HarParser extends HarAbstractParser {
             } else if (contentType.startsWith(org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
                 contentType = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
                 List<HarPostParam> postParams = content.params;
-                for (HarPostParam postParam : postParams) {
-                    KeyValue kv = new KeyValue(postParam.name,postParam.value);
-                    body.getKvs().add(kv);
+                if(CollectionUtils.isNotEmpty(postParams)){
+                    for (HarPostParam postParam : postParams) {
+                        KeyValue kv = new KeyValue(postParam.name,postParam.value);
+                        body.getKvs().add(kv);
+                    }
                 }
             } else if (contentType.startsWith(org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
                 contentType = org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
