@@ -348,11 +348,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             EnvironmentConfig environmentConfig = config.getConfig().get(this.getProjectId());
             if (environmentConfig != null) {
                 String useEvnId = environmentConfig.getApiEnvironmentid();
-                if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().containsKey("hashTree")) {
+                if (this.authManager == null && environmentConfig.getAuthManager() != null && environmentConfig.getAuthManager().containsKey("authManager")) {
                     try {
-                        JSONArray jsonArray = environmentConfig.getAuthManager().getJSONArray("hashTree");
-                        if (jsonArray.size() > 0) {
-                            this.authManager = jsonArray.getJSONObject(0).toJavaObject(MsAuthManager.class);
+                        JSONObject authObject = environmentConfig.getAuthManager().getJSONObject("authManager");
+                        if (authObject != null) {
+                            this.authManager = authObject.toJavaObject(MsAuthManager.class);
                         }
                     } catch (Exception e) {
                     }
